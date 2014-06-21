@@ -1,6 +1,7 @@
 {
   "name": "typescript",
   "version": "0.2.0",
+  "main": "./lib/index",
   "description": "TypeScript workflow from Atom",
   "engines": {
     "atom": "*",
@@ -14,5 +15,9 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/atom-typescript/issues"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-ts": "^1.11.2"
   }
 }
