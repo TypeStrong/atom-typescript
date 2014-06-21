@@ -1,9 +1,11 @@
-interface PackageState{
+export interface PackageState{
 
 }
 
+///ts:ref=globals
+/// <reference path="../globals.ts"/> ///ts:ref:generated
+
 export function activate(state:PackageState){
-  // console.log('typescript package activated!');
 }
 
 export function serialize(): PackageState{
