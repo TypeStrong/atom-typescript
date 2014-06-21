@@ -1,0 +1,66 @@
+'comment': 'TypeScript Syntax: version 1.0'
+'fileTypes': [
+  'ts'
+  'str'
+]
+'name': 'TypeScript'
+'patterns': [
+  {
+    'captures':
+      '1':
+        'name': 'keyword.operator.ts'
+      '2':
+        'name': 'variable.parameter.function.ts'
+    'comment': 'Match stuff like: module name {...}'
+    'match': '\\b(module)\\s*(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
+    'name': 'meta.function.ts'
+  }
+  {
+    'comment': 'Match variable type keywords'
+    'match': '\\b(string|bool|number)\\b'
+    'name': 'storage.type.variable.ts'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'storage.type.variable.ts'
+    'comment': 'Match this.'
+    'match': '\\b(this)\\.'
+    'name': ''
+  }
+  {
+    'comment': 'Match stuff like: constructor'
+    'match': '\\b(constructor|declare|interface|as|AS)\\b'
+    'name': 'keyword.operator.ts'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'storage.type.variable.ts'
+    'comment': 'Match stuff like: super(argument, list)'
+    'match': '(super)\\s*\\(([a-zA-Z0-9,_?.$\\s]+\\s*)\\)'
+    'name': 'keyword.other.ts'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'entity.name.function.ts'
+    'comment': 'Match stuff like: function() {...}'
+    'match': '([a-zA-Z_?.$][\\w?.$]*)\\(\\) \\{'
+    'name': 'meta.function.ts'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'variable.parameter.function.ts'
+      '2':
+        'name': 'variable.parameter.function.ts'
+    'comment': 'Match stuff like: (function: return type)'
+    'match': '([a-zA-Z0-9_?.$][\\w?.$]*)\\s*:\\s*([a-zA-Z0-9_?.$][\\w?.$]*)'
+    'name': 'meta.function.ts'
+  }
+  {
+    'include': 'source.js'
+  }
+]
+'scopeName': 'source.ts'

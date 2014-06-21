@@ -1,0 +1,18 @@
+{
+  "name": "typescript",
+  "version": "0.1.0",
+  "description": "TypeScript workflow from Atom",
+  "engines": {
+    "atom": "*",
+    "node": "*"
+  },
+  "homepage": "http://atom.io/packages/typescript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basarat/atom-typescript.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/atom-typescript/issues"
+  }
+}
