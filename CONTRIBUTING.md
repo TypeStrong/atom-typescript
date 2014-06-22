@@ -17,7 +17,7 @@ Opening up the TypeScript compiler : http://www.slideshare.net/nnzz2475/typescri
 git glone https://git01.codeplex.com/typescript TypeScript
 cd TypeScript
 npm install 
-node_modules/.bin/jake/local
+node_modules/.bin/jake local
 cd built/local
 ls
 ```
