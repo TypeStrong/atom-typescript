@@ -1,17 +1,16 @@
-export interface PackageState{
-
-}
-
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
-export function activate(state:PackageState){
+export interface PackageState {
 }
 
-export function serialize(): PackageState{
-  return {};
+export function activate(state: PackageState) {
 }
 
-export function deserialize(){
-  /* do any tear down here */
+export function serialize(): PackageState {
+    return {};
+}
+
+export function deserialize() {
+    /* do any tear down here */
 }
