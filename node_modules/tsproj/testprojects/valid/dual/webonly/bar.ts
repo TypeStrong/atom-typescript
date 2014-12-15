@@ -1,0 +1,2 @@
+function bar() { }
+export = bar;

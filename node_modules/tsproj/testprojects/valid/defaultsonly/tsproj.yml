@@ -1,0 +1,6 @@
+defaults:
+    module: amd
+    sources: 
+        - ./src/**/*.ts
+projects: 
+    web: 

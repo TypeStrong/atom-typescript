@@ -1,0 +1,11 @@
+projects:
+    web: 
+        module: amd
+        sources: 
+            - ./src/**/*.ts
+            - ./webonly/**/*.ts
+
+    node:
+        module: commonjs
+        sources: 
+            - ./src/**/*.ts            
