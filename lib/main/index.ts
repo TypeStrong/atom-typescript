@@ -5,7 +5,6 @@ export interface PackageState {
 }
 
 export function activate(state: PackageState) {
-
 }
 
 export function serialize(): PackageState {
