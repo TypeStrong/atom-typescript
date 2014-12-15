@@ -1,0 +1,4 @@
+projects:
+    main:
+        sources:
+            - './**/*.ts'

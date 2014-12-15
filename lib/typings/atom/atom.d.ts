@@ -32,9 +32,13 @@ declare module AtomCore {
 		version: number;
 		configDefaults:any;
 		content():any;
-	}
+    }
 
-	interface IWorkspaceView extends View {
+    interface Disposable {
+        dispose();
+    }
+
+    interface IWorkspaceView extends View {
 		// Delegator.includeInto(WorkspaceView);
 
 		// delegate to model property's property
@@ -873,12 +877,13 @@ declare module AtomCore {
 	interface IWorkspace {
 		deserializeParams(params:any):any;
 		serializeParams():{paneContainer:any;fullScreen:boolean;};
-		eachEditor(callback:Function):void;
+        eachEditor(callback: Function): void;
 		getEditors():IEditor[];
 		open(uri:string, options:any):Q.Promise<View>;
 		openLicense():void;
 		openSync(uri:string, options:any):any;
-		openUriInPane(uri:string, pane:any, options:any):Q.Promise<View>;
+        openUriInPane(uri: string, pane: any, options: any): Q.Promise<View>;
+        observeTextEditors(callback: Function): Disposable;
 		reopenItemSync():any;
 		registerOpener(opener:(urlToOpen:string)=>any):void;
 		unregisterOpener(opener:Function):void;
