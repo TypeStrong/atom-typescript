@@ -1,5 +1,5 @@
 {
-  "name": "typescript",
+  "name": "atom-typescript",
   "version": "0.3.0",
   "main": "./lib/main/index",
   "description": "TypeScript workflow from Atom",
@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "grunt": "^0.4.5",
-    "grunt-ts": "^1.11.2"
+    "grunt-ts": "^1.11.2",
+    "typescript": "^1.3.0"
   }
 }
