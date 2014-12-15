@@ -6,6 +6,7 @@
   "author": "basarat",
   "license": "MIT",
   "dependencies": {
-    "typescript-services": "^0.1.5"
+    "typescript-services": "^0.1.5",
+    "tsproj": "0.0.2"
   }
 }

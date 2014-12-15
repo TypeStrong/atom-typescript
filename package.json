@@ -10,7 +10,7 @@
   "homepage": "http://atom.io/packages/typescript",
   "repository": {
     "type": "git",
-    "url": "https://github.com/basarat/atom-typescript.git"
+    "url": "https://github.com/TypeStrong/atom-typescript.git"
   },
   "license": "MIT",
   "bugs": {
@@ -19,8 +19,5 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-ts": "^1.11.2"
-  },
-  "dependencies": {
-    "tsproj": "0.0.2"
   }
 }
