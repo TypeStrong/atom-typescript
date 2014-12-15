@@ -20,7 +20,7 @@
 
 
 declare var require: any;
-var TypeScript: typeof TypeScript = require('typescriptServices');
+var TS:typeof TypeScript = require('typescriptServices');
 
 
 

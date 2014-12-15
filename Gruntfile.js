@@ -4,6 +4,8 @@ module.exports = function (grunt) {
     // Change this
     var srcDir = 'lib';
 
+    var excludeNodeDir = ['!**/node_modules/**'];
+
     grunt.initConfig({
         ts: {
             options: {
@@ -12,11 +14,11 @@ module.exports = function (grunt) {
                 sourceMap: false,
             },
             dev: {
-                src: [srcDir + '/**/*.ts'],
+                src: [srcDir + '/**/*.ts'].concat(excludeNodeDir),
                 watch: srcDir
             },
             build: {
-                src: [srcDir + '/**/*.ts'],
+                src: [srcDir + '/**/*.ts'].concat(excludeNodeDir),
             },
         },
     });

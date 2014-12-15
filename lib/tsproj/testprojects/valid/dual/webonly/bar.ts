@@ -1,2 +1,0 @@
-function bar() { }
-export = bar;
