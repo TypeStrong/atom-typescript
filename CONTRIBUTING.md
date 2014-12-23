@@ -1,28 +1,52 @@
 See the [Atom contributing guide](https://atom.io/docs/latest/contributing)
 
-# Building 
+# Tasks
+## Building 
 `grunt build`
 
-# Developing
+## Developing
 `grunt`
 
-# Publishing
+## Publishing
 `apm publish`
 
 
 # General research
 ## Getting the language service
-Opening up the TypeScript compiler : http://www.slideshare.net/nnzz2475/typescript-35845723 
-```bash
-git glone https://git01.codeplex.com/typescript TypeScript
-cd TypeScript
-npm install 
-node_modules/.bin/jake local
-cd built/local
-ls
+Opening up the TypeScript compiler : https://github.com/basarat/typescript-services#contributing
+
+## Depending upon other atom packages
+There isn't a documented way : https://discuss.atom.io/t/depending-on-other-packages/2360/16 
+
+So using https://www.npmjs.com/package/atom-package-dependencies 
+
+```js
+var apd = require('atom-package-dependencies');
+
+var mdp = apd.require('markdown-preview');
+mdp.toggle();
+
+// Also
+apd.install();
 ```
-Important:
-```bash
-typescriptServices.d.ts
-typescriptServices.js
+
+## Showing errors in atom
+Done using the `linter` plugin. If you think about it. TypeScript is really just a super powerful version of `jshint` and that is the reason to use `linter` for errors. 
+
+You need to inherit from `Linter` class from the `linter`: http://atomlinter.github.io/Linter/ 
+```js
+var linterPath = atom.packages.getLoadedPackage("linter").path
+var Linter:LinterClass = require linterPath+"/lib/linter"
 ```
+An example : https://github.com/AtomLinter/linter-tslint/blob/master/lib/linter-tslint.coffee 
+
+Inherit, override `lintFile` and call the passed `callback` with an array of messages each of form: 
+
+```js
+      line: match.line,
+      col: match.col,
+      level: level,  // 'error', 'warning'
+      message: match.message,
+      linter: "TypeScript"
+```
+
