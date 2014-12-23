@@ -1,0 +1,6 @@
+{
+  "name": "basic",
+  "description": "Placeholder package.json for testing",
+  "version": "0.0.1",
+  "private": true
+}
