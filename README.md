@@ -2,7 +2,7 @@
 Current features:
 - Syntax highlighting
 
-PS: Please have a look at [Contributing](./CONTRIBUTING.MD) for curiosity.
+PS: Please have a look at [CONTRIBUTING.MD](./CONTRIBUTING.MD) for curiosity.
 
 # Based on
 * The TypeScript language package : https://github.com/olegbl/language-typescript
