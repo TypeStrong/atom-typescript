@@ -21,15 +21,18 @@ export function activate(state: PackageState) {
 
     // Don't activate if we have a dependency that isn't available
     linter = apd.require('linter');
-    if(!linter){
-        apd.install(function(){
-            atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", {dismissable: true});
-            });
+    if (!linter) {
+        apd.install(function () {
+            atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
+        });
 
         return;
     }
 
     atom.packages.once('activated', () => {
+
+        // Setup the error reporter: 
+        var errorReporter = require('./errors');
 
         statusBar = document.querySelector("status-bar");
         if (statusBar) {
