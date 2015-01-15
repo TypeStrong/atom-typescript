@@ -109,5 +109,5 @@ function consoleOut(code, output){
 
 function doExternalCommand(commandString, callback){
   if(!callback) callback = consoleOut;
-  sh.exec(commandString, callback);
+  sh.exec(commandString, {silent:true}, callback);
 }
