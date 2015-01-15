@@ -6,7 +6,11 @@ import tsproj = require('tsproj');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
-apd.install();
+apd.install(function(){
+    console.log('atom-typescript dependent package install completed');
+});
+
+
 
 // globals
 var statusBar;
