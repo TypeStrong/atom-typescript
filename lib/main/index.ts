@@ -5,7 +5,6 @@ import path = require('path');
 import tsproj = require('tsproj');
 
 // Make sure we have the packages we depend upon
-
 var apd = require('atom-package-dependencies');
 apd.install();
 
