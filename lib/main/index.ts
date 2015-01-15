@@ -7,10 +7,8 @@ import tsproj = require('tsproj');
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
 apd.install(function(){
-    console.log('atom-typescript dependent package install completed');
+    atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.");
 });
-
-
 
 // globals
 var statusBar;

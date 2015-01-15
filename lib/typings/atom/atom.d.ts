@@ -1041,6 +1041,7 @@ declare module AtomCore {
 		themes: IThemeManager;
 		contextManu: IContextMenuManager;
 		menu: IMenuManager;
+		notifications: any; // https://github.com/atom/notifications
 		clipboard:IClipboard;
 		syntax:ISyntax;
 		windowEventHandler: IWindowEventHandler;
