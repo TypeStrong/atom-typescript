@@ -103,7 +103,7 @@ function find(basePath, modulePath, cb) {
   readJSON(check, function(err, data) {
     if (err) {
       if (err.code && err.code === 'ENOENT') {
-        return find(basePath.substr(0, basePath.lastIndexOf('/')), modulePath, cb);
+        return find(basePath.substr(0, basePath.lastIndexOf(path.sep)), modulePath, cb);
       }
       else {
         return cb(err);
