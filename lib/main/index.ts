@@ -6,9 +6,8 @@ import tsproj = require('tsproj');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
-apd.install(function(){
-    atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.");
-});
+export var linter;
+
 
 // globals
 var statusBar;
@@ -19,6 +18,16 @@ export interface PackageState {
 }
 
 export function activate(state: PackageState) {
+
+    // Don't activate if we have a dependency that isn't available
+    linter = apd.require('linter');
+    if(!linter){
+        apd.install(function(){
+            atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", {dismissable: true});
+            });
+
+        return;
+    }
 
     atom.packages.once('activated', () => {
 
