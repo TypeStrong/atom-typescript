@@ -17,7 +17,8 @@
     "url": "https://github.com/atom-typescript/issues"
   },
   "dependencies": {
-    "atom-package-dependencies": "latest"
+    "atom-package-dependencies": "latest",
+    "tsproj": "0.0.2"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
@@ -25,6 +26,6 @@
     "typescript": "^1.3.0"
   },
   "package-dependencies": {
-      "linter": "//this field will be ignored right now"
+    "linter": "//this field will be ignored right now"
   }
 }
