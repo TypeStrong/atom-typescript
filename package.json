@@ -22,7 +22,8 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-ts": "^1.11.2",
-    "typescript": "^1.3.0"
+    "typescript": "^1.3.0",
+    "atom-package-dependencies":"1.0.1"
   },
   "package-dependencies": {
       "linter": "//this field will be ignored right now"

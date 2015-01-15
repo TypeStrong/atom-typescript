@@ -4,7 +4,12 @@
 import path = require('path');
 import tsproj = require('tsproj');
 
-// globals 
+// Make sure we have the packages we depend upon
+
+var apd = require('atom-package-dependencies');
+apd.install();
+
+// globals
 var statusBar;
 var statusBarMessage;
 var editorWatch: AtomCore.Disposable;

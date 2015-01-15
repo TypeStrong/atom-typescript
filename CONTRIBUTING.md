@@ -10,6 +10,12 @@ See the [Atom contributing guide](https://atom.io/docs/latest/contributing)
 ## Publishing
 `apm publish`
 
+# Setup Windows Dev Copy of package 
+Say you have your code in `C:\REPOS\atom-typescript`. Run: 
+
+```bash
+cd %HOMEPATH%\.atom\packages && mklink /J atom-typescript c:\REPOS\atom-typescript
+```
 
 # General research
 ## Getting the language service
