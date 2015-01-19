@@ -8,7 +8,6 @@ import tsproj = require('tsproj');
 var apd = require('atom-package-dependencies');
 export var linter;
 
-
 // globals
 var statusBar;
 var statusBarMessage;

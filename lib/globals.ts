@@ -1,5 +1,5 @@
 /// <reference path="./typings/tsd.d.ts"/>
-/// <reference path="./node_modules/typescript-services/typescriptServices.d.ts"/>
+/// <reference path="../node_modules/typescript/bin/typescript.d.ts"/>
 
 // From brackets plugin
 /// <reference path="./typings/bluebird.d.ts"/>
