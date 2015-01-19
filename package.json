@@ -7,6 +7,7 @@
     "atom": "*",
     "node": "*"
   },
+  "linter-package": true,
   "homepage": "http://atom.io/packages/typescript",
   "repository": {
     "type": "git",
