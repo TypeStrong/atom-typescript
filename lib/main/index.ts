@@ -2,7 +2,7 @@
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
 import path = require('path');
-import tsproj = require('tsproj');
+import tsconfig = require('tsconfig');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
@@ -48,14 +48,14 @@ export function activate(state: PackageState) {
             if (ext == '.ts') {
                 // console.log('TypeScript file opened:', filename)
                 try {
-                    var proj = tsproj.getProjectsForFileSync(filePath);
+                    var proj = tsconfig.getProjectSync(filePath);
                     // console.log('Project detected:', proj);
                     // TODO: display selected project on status bar
                 }
                 catch (ex) {
                     // So we don't have a project, create it:
                     if (ex.message == 'No Project Found') {
-                        tsproj.createProjectsRootSync(filePath);
+                        tsconfig.createProjectRootSync(filePath);
                     }
                     // console.error('tsproj not loaded:',ex.message);
                 }

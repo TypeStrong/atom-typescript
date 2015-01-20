@@ -2,7 +2,7 @@
 /// <reference path="../../src/lib/interfaces.d.ts" />
 declare module 'tsconfig' {
     export var defaults: CompilerOptions;
-    export function getProjectsSync(pathOrSrcFile: string): TypeScriptProjectFileDetails;
-    export function createProjectsRootSync(pathOrSrcFile: string, defaultOptions?: CompilerOptions): void;
+    export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails;
+    export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: CompilerOptions): void;
 }
 
