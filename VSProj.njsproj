@@ -26,10 +26,22 @@
     <Compile Include="Gruntfile.js" />
     <Content Include="lib\tsd.json" />
     <TypeScriptCompile Include="lib\**\*.ts" />
-    <Compile Include="lib\**\*.ts" />    
+    <Compile Include="lib\**\*.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="lib\**\*" />    
+    <Folder Include="lib\" />
+    <Folder Include="lib\main\" />
+    <Folder Include="lib\typings\" />
+    <Folder Include="lib\typings\atom\" />
+    <Folder Include="lib\typings\emissary\" />
+    <Folder Include="lib\typings\jquery\" />
+    <Folder Include="lib\typings\mixto\" />
+    <Folder Include="lib\typings\node\" />
+    <Folder Include="lib\typings\pathwatcher\" />
+    <Folder Include="lib\typings\q\" />
+    <Folder Include="lib\typings\space-pen\" />
+    <Folder Include="lib\typings\status-bar\" />
+    <Folder Include="lib\typings\text-buffer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->
