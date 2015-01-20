@@ -9,7 +9,7 @@ exports.defaults = {
     noImplicitAny: false,
     removeComments: true
 };
-function getProjectsSync(pathOrSrcFile) {
+function getProjectSync(pathOrSrcFile) {
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error('Invalid Path');
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
@@ -53,8 +53,8 @@ function getProjectsSync(pathOrSrcFile) {
         project: projectSpec
     };
 }
-exports.getProjectsSync = getProjectsSync;
-function createProjectsRootSync(pathOrSrcFile, defaultOptions) {
+exports.getProjectSync = getProjectSync;
+function createProjectRootSync(pathOrSrcFile, defaultOptions) {
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error('Project directory must exist');
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
@@ -66,4 +66,4 @@ function createProjectsRootSync(pathOrSrcFile, defaultOptions) {
     };
     fs.writeFileSync(projectFilePath, JSON.stringify(projectSpec));
 }
-exports.createProjectsRootSync = createProjectsRootSync;
+exports.createProjectRootSync = createProjectRootSync;

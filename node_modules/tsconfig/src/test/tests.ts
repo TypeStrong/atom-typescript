@@ -7,7 +7,7 @@ import path = require('path');
 
 var pathToTestProjects = path.normalize(path.join(__dirname, '../../testprojects/'));
 
-describe(main.getProjectsSync.name,() => {
+describe(main.getProjectSync.name,() => {
 
     var expectedProjectFileDetails: {
         testPath: string;
@@ -57,27 +57,27 @@ describe(main.getProjectsSync.name,() => {
 
     it('Expected results should match',() => {
         expectedProjectFileDetails.forEach((test) => {
-            var result = main.getProjectsSync(test.testPath);
+            var result = main.getProjectSync(test.testPath);
             chai.assert.deepEqual(result, test.expected);
         });
     });
 
     it('Fail gracefully',() => {
         failOnThese.forEach((test) => {
-            chai.assert.throws(() => main.getProjectsSync(test.testPath), test.expectedFailureMessage);
+            chai.assert.throws(() => main.getProjectSync(test.testPath), test.expectedFailureMessage);
         });
     });
 });
 
 import fs = require('fs');
-describe(main.createProjectsRootSync.name,() => {
+describe(main.createProjectRootSync.name,() => {
 
     it('should be able to create project if not there',() => {
-        main.createProjectsRootSync(pathToTestProjects + '/create/new/foo.ts')
+        main.createProjectRootSync(pathToTestProjects + '/create/new/foo.ts')
         fs.unlinkSync(pathToTestProjects + '/create/new/tsconfig.json')
     });
 
     it('should fail if existing project',() => {
-        chai.assert.throws(() => main.createProjectsRootSync(pathToTestProjects + '/create/existing/foo.ts'), 'Project file already exists');
+        chai.assert.throws(() => main.createProjectRootSync(pathToTestProjects + '/create/existing/foo.ts'), 'Project file already exists');
     });
 });

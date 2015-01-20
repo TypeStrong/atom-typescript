@@ -17,7 +17,7 @@ export var defaults: CompilerOptions = {
 };
 
 /** Given an src (source file or directory) goes up the directory tree to find the project specifications. Use this to bootstrap the UI for what project the user might want to work on. */
-export function getProjectsSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
+export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
 
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error('Invalid Path');
@@ -79,7 +79,7 @@ export function getProjectsSync(pathOrSrcFile: string): TypeScriptProjectFileDet
 }
 
 /** Creates a project at the specified path (or by source file location). Defaults are assumed unless overriden by the optional spec. */
-export function createProjectsRootSync(pathOrSrcFile: string, defaultOptions?: CompilerOptions) {
+export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: CompilerOptions) {
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error('Project directory must exist');
 
