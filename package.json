@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "atom-package-dependencies": "latest",
-    "tsconfig": "0.0.2",
+    "tsconfig": "0.0.3",
     "typescript": "^1.4.1"
   },
   "devDependencies": {

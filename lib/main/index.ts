@@ -47,7 +47,7 @@ export function activate(state: PackageState) {
             var ext = path.extname(filename);            
 
             if (ext == '.ts') {
-                var program = programManager.getOrCreateAProgram(filePath);
+                var program = programManager.getOrCreateProgram(filePath);
             }
         });
 
