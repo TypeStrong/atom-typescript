@@ -31,8 +31,8 @@ export function activate(state: PackageState) {
 
     atom.packages.once('activated', () => {
 
-        // TODO: Setup the error reporter: 
-        
+        // TODO: Setup the error reporter:
+
 
         statusBar = document.querySelector("status-bar");
         if (statusBar) {
@@ -41,24 +41,13 @@ export function activate(state: PackageState) {
 
 
         editorWatch = atom.workspace.observeTextEditors((editor) => {
+
             var filePath = editor.getPath();
             var filename = path.basename(filePath);
-            var ext = path.extname(filename);
+            var ext = path.extname(filename);            
 
             if (ext == '.ts') {
-                // console.log('TypeScript file opened:', filename)
-                try {
-                    var proj = tsconfig.getProjectSync(filePath);
-                    // console.log('Project detected:', proj);
-                    // TODO: display selected project on status bar
-                }
-                catch (ex) {
-                    // So we don't have a project, create it:
-                    if (ex.message == 'No Project Found') {
-                        tsconfig.createProjectRootSync(filePath);
-                    }
-                    // console.error('tsproj not loaded:',ex.message);
-                }
+                var program = programManager.getOrCreateAProgram(filePath);
             }
         });
 

@@ -3,19 +3,19 @@
 
 import tsconfig = require('tsconfig');
 
-class ProgramManager {
+export class Program {
 }
 
-var programs: { [projectDir: string]: ProgramManager } = {}
+var programs: { [projectDir: string]: Program } = {}
 
-function getOrCreateAProgramManager(filePath) {
+export function getOrCreateAProgram(filePath) {
     try {
-        var projects = tsconfig.getProjectSync(filePath);
-        // TODO: Create a program for project 
+        var project = tsconfig.getProjectSync(filePath);
+        console.log('project found:', project);
+        // TODO: Create a program for project
     } catch (ex) {
         // TODO: Create a single file program
+        console.log('no project found');
     }
 
 }
-
-export = getOrCreateAProgramManager;
