@@ -182,7 +182,7 @@ export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: ts
     var projectSpec:TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(project.compilerOptions);
     
-    fs.writeFileSync(projectFilePath, JSON.stringify(projectSpec));
+    fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
 
     return {
         projectFileDirectory: path.dirname(projectFilePath) + path.sep,
@@ -201,4 +201,25 @@ function runWithDefault<T>(run: (val: T) => any, val: T, def?: T) {
     else {
         run(val);
     }
+}
+
+export function prettyJSON(object: any): string {
+    var cache = [];
+    var value = JSON.stringify(object,
+        // fixup circular reference
+        function (key, value) {
+            if (typeof value === 'object' && value !== null) {
+                if (cache.indexOf(value) !== -1) {
+                    // Circular reference found, discard key
+                    return;
+                }
+                // Store value in our collection
+                cache.push(value);
+            }
+            return value;
+        },
+    // indent 4 spaces
+        4);
+    cache = null;
+    return value;
 }
