@@ -5,14 +5,14 @@ interface CompilerOptions {
 
     declaration?: boolean;      // Generates corresponding `.d.ts` file
     out?: string;               // Concatenate and emit a single file
-    outDir?: string;            // Redirect output structure to this directory
+    outdir?: string;            // Redirect output structure to this directory
 
-    noImplicitAny?: boolean;    // Error on inferred `any` type
-    removeComments?: boolean;   // Do not emit comments in output
+    noimplicitany?: boolean;    // Error on inferred `any` type
+    removecomments?: boolean;   // Do not emit comments in output
 
-    sourceMap?: boolean;        // Generates SourceMaps (.map files)
-    sourceRoot?: string;        // Optionally specifies the location where debugger should locate TypeScript source files after deployment
-    mapRoot?: string;           // Optionally Specifies the location where debugger should locate map files after deployment
+    sourcemap?: boolean;        // Generates SourceMaps (.map files)
+    sourceroot?: string;        // Optionally specifies the location where debugger should locate TypeScript source files after deployment
+    maproot?: string;           // Optionally Specifies the location where debugger should locate map files after deployment
 }
 
 interface TypeScriptProjectRawSpecification {
@@ -53,14 +53,55 @@ export var defaults: ts.CompilerOptions = {
     removeComments: true
 };
 
-function createTSCompilerOptions(options: CompilerOptions): ts.CompilerOptions {
-    var tsCompilerOptions: ts.CompilerOptions = {};
-    options = options || {};
-    tsCompilerOptions.declaration = options.declaration;
 
-    return tsCompilerOptions;
+
+// TODO: add validation and add all options
+function rawToTsCompilerOptions(raw: CompilerOptions): ts.CompilerOptions {
+    // Convert everything inside compilerOptions to lowerCase
+    var lower:CompilerOptions = {};
+    Object.keys(raw).forEach((key:string) => {
+        lower[key.toLowerCase()] = raw[key];
+    });
+
+    // Change to enums
+    var proper: ts.CompilerOptions = {};
+    proper.target =
+    lower.target == 'es3' ? ts.ScriptTarget.ES3
+        : lower.target == 'es5' ? ts.ScriptTarget.ES5
+            : lower.target == 'es6' ? ts.ScriptTarget.ES6
+                : defaults.target;
+    proper.module =
+    lower.module == 'none' ? ts.ModuleKind.None
+        : lower.module == 'commonjs' ? ts.ModuleKind.CommonJS
+            : lower.module == 'amd' ? ts.ModuleKind.AMD
+                : defaults.module;
+    proper.declaration = lower.declaration == void 0 ? defaults.declaration : lower.declaration;
+    proper.noImplicitAny = lower.noimplicitany == void 0 ? defaults.noImplicitAny : lower.noimplicitany;
+    proper.removeComments = lower.removecomments == void 0 ? defaults.removeComments : lower.removecomments;
+    return proper;
 }
 
+function tsToRawCompilerOptions(proper: ts.CompilerOptions): CompilerOptions {
+    var raw: CompilerOptions = {};
+
+    var targetLookup = {};
+    targetLookup[ts.ScriptTarget.ES3] = 'es3';
+    targetLookup[ts.ScriptTarget.ES5] = 'es5';
+    targetLookup[ts.ScriptTarget.ES6] = 'es6';
+
+    var moduleLookup = {};
+    moduleLookup[ts.ModuleKind.None] = 'none';
+    moduleLookup[ts.ModuleKind.CommonJS] = 'commonjs';
+    moduleLookup[ts.ModuleKind.AMD] = 'amd';
+
+    runWithDefault((val) => raw.target = val, targetLookup[proper.target]);
+    runWithDefault((val) => raw.module = val, moduleLookup[proper.module]);
+    runWithDefault((val) => raw.declaration = val, proper.declaration);
+    runWithDefault((val) => raw.noimplicitany = val, proper.noImplicitAny);
+    runWithDefault((val) => raw.removecomments = val, proper.removeComments);
+
+    return raw;
+}
 
 /** Given an src (source file or directory) goes up the directory tree to find the project specifications. Use this to bootstrap the UI for what project the user might want to work on. */
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
@@ -107,28 +148,12 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         fs.writeFileSync(projectFile, JSON.stringify(projectSpec));
     }
 
-
-    // TODO: Validation
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files
     };
 
-
-    // Setup with defaults: 
-    project.compilerOptions.target =
-    projectSpec.compilerOptions.target == 'es3' ? ts.ScriptTarget.ES3
-        : projectSpec.compilerOptions.target == 'es5' ? ts.ScriptTarget.ES5
-            : projectSpec.compilerOptions.target == 'es6' ? ts.ScriptTarget.ES6
-                : defaults.target;
-    project.compilerOptions.module =
-    projectSpec.compilerOptions.module == 'none' ? ts.ModuleKind.None
-        : projectSpec.compilerOptions.module == 'commonjs' ? ts.ModuleKind.CommonJS
-            : projectSpec.compilerOptions.module == 'amd' ? ts.ModuleKind.AMD
-                : defaults.module;
-    project.compilerOptions.declaration = projectSpec.compilerOptions.declaration == void 0 ? defaults.declaration : projectSpec.compilerOptions.declaration;
-    project.compilerOptions.noImplicitAny = projectSpec.compilerOptions.noImplicitAny == void 0 ? defaults.noImplicitAny : projectSpec.compilerOptions.noImplicitAny;
-    project.compilerOptions.removeComments = projectSpec.compilerOptions.removeComments == void 0 ? defaults.removeComments : projectSpec.compilerOptions.removeComments;
+    project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions);
 
     return {
         projectFileDirectory: path.dirname(projectFile) + path.sep,
@@ -154,13 +179,26 @@ export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: ts
     };
 
     // We need to write the raw spec
-    var projectSpec = {};
+    var projectSpec:TypeScriptProjectRawSpecification = {};
+    projectSpec.compilerOptions = tsToRawCompilerOptions(project.compilerOptions);
     
-    // TODO: convert defaultOptions to Strings 
     fs.writeFileSync(projectFilePath, JSON.stringify(projectSpec));
 
     return {
         projectFileDirectory: path.dirname(projectFilePath) + path.sep,
         project: project
+    }
+}
+
+/** if ( no val given && default given then run with default ) else ( run with val ) */
+function runWithDefault<T>(run: (val: T) => any, val: T, def?: T) {
+    // no val
+    if (val == void 0) {
+        if (def != void 0) {
+            run(def);
+        }
+    }
+    else {
+        run(val);
     }
 }
