@@ -1,7 +1,8 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
-import tsconfig = require('tsconfig');
+///ts:import=tsconfig
+import tsconfig = require('../tsconfig/index'); ///ts:import:generated
 import ts = require('typescript');
 
 function createTSCompilerOptions(options:CompilerOptions):ts.CompilerOptions {

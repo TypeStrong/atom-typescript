@@ -2,7 +2,6 @@
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
 import path = require('path');
-import tsconfig = require('tsconfig');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
