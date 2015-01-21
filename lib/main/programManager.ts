@@ -5,21 +5,13 @@
 import tsconfig = require('../tsconfig/index'); ///ts:import:generated
 import ts = require('typescript');
 
-function createTSCompilerOptions(options:CompilerOptions):ts.CompilerOptions {
-    var tsCompilerOptions: ts.CompilerOptions = {};
-    options = options || {};
-    tsCompilerOptions.declaration = options.declaration;
-
-    return tsCompilerOptions;
-}
 
 export class Program {
     public tsProgram:ts.Program;
 
-    constructor(public project: TypeScriptProjectSpecification) {
-        var tsCompilerOptions = createTSCompilerOptions(project.compilerOptions);
-        var host = ts.createCompilerHost(tsCompilerOptions);
-        this.tsProgram = ts.createProgram(project.files, tsCompilerOptions, host);
+    constructor(public project: tsconfig.TypeScriptProjectSpecification) {
+        var host = ts.createCompilerHost(project.compilerOptions);
+        this.tsProgram = ts.createProgram(project.files, project.compilerOptions, host);
     }
 }
 
