@@ -1,1 +1,0 @@
-var spec = "I am a spec file";
