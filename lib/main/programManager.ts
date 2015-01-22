@@ -17,7 +17,7 @@ export class Program {
 
 var programs: { [projectDir: string]: Program } = {}
 
-function getOrCreateProject(filePath) {
+function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
         var project = tsconfig.getProjectSync(filePath);
         return project;
@@ -27,7 +27,11 @@ function getOrCreateProject(filePath) {
 }
 
 export function getOrCreateProgram(filePath) {
-    var project = getOrCreateProject(filePath);
-    if (programs[project.projectFileDirectory]) return programs[project.projectFileDirectory];
-    else return programs[project.projectFileDirectory] = new Program(project);
+    console.log(filePath);
+    var projectFile = getOrCreateProject(filePath);
+    if (programs[projectFile.projectFileDirectory]) {
+        return programs[projectFile.projectFileDirectory];
+    } else {
+        return programs[projectFile.projectFileDirectory] = new Program(projectFile.project);
+    }
 }

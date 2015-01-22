@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../globals.ts"/> ///ts:ref:generated
 
 interface CompilerOptions {
     target?: string;            // 'es3'|'es5' (default) | 'es6'
@@ -13,6 +15,7 @@ interface CompilerOptions {
     sourcemap?: boolean;        // Generates SourceMaps (.map files)
     sourceroot?: string;        // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     maproot?: string;           // Optionally Specifies the location where debugger should locate map files after deployment
+    nolib?: boolean;
 }
 
 interface TypeScriptProjectRawSpecification {
@@ -23,8 +26,8 @@ interface TypeScriptProjectRawSpecification {
 
 // Main configuration
 export interface TypeScriptProjectSpecification {
-    compilerOptions?: ts.CompilerOptions;
-    files?: string[];            // optional: paths to files
+    compilerOptions: ts.CompilerOptions;
+    files: string[];            // optional: paths to files
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -50,16 +53,15 @@ export var defaults: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
     declaration: false,
     noImplicitAny: false,
-    removeComments: true
+    removeComments: true,
+    noLib: false
 };
-
-
 
 // TODO: add validation and add all options
 function rawToTsCompilerOptions(raw: CompilerOptions): ts.CompilerOptions {
     // Convert everything inside compilerOptions to lowerCase
-    var lower:CompilerOptions = {};
-    Object.keys(raw).forEach((key:string) => {
+    var lower: CompilerOptions = {};
+    Object.keys(raw).forEach((key: string) => {
         lower[key.toLowerCase()] = raw[key];
     });
 
@@ -78,6 +80,7 @@ function rawToTsCompilerOptions(raw: CompilerOptions): ts.CompilerOptions {
     proper.declaration = lower.declaration == void 0 ? defaults.declaration : lower.declaration;
     proper.noImplicitAny = lower.noimplicitany == void 0 ? defaults.noImplicitAny : lower.noimplicitany;
     proper.removeComments = lower.removecomments == void 0 ? defaults.removeComments : lower.removecomments;
+    runWithDefault((val) => proper.noLib = val, lower.nolib, defaults.noLib);
     return proper;
 }
 
@@ -161,13 +164,13 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     };
 }
 
-/** Creates a project at the specified path (or by source file location). Defaults are assumed unless overriden by the optional spec. */
-export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: ts.CompilerOptions) {
-    if (!fs.existsSync(pathOrSrcFile))
+/** Creates a project by source file location. Defaults are assumed unless overriden by the optional spec. */
+export function createProjectRootSync(srcFile: string, defaultOptions?: ts.CompilerOptions) {
+    if (!fs.existsSync(srcFile))
         throw new Error('Project directory must exist');
 
     // Get directory 
-    var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
+    var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
     var projectFilePath = path.normalize(dir + '/' + projectFileName);
 
     if (fs.existsSync(projectFilePath))
@@ -175,13 +178,14 @@ export function createProjectRootSync(pathOrSrcFile: string, defaultOptions?: ts
 
     // Setup a main project
     var project: TypeScriptProjectSpecification = {
-        compilerOptions: defaultOptions || defaults
+        compilerOptions: defaultOptions || defaults,
+        files: ['./' + path.basename(srcFile)]
     };
 
     // We need to write the raw spec
-    var projectSpec:TypeScriptProjectRawSpecification = {};
+    var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(project.compilerOptions);
-    
+
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
 
     return {

@@ -28,7 +28,7 @@ export function activate(state: PackageState) {
         return;
     }
 
-    atom.packages.once('activated', () => {
+    atom.packages.once('activated',() => {
 
         // TODO: Setup the error reporter:
 
@@ -46,7 +46,13 @@ export function activate(state: PackageState) {
             var ext = path.extname(filename);
 
             if (ext == '.ts') {
-                var program = programManager.getOrCreateProgram(filePath);                
+                try {
+                    var program = programManager.getOrCreateProgram(filePath);
+                    console.log(program);
+                } catch (ex) {
+                    console.error('Solve this in atom-typescript', ex);
+                    throw ex;
+                }
             }
         });
 

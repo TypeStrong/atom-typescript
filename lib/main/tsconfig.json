@@ -1,9 +1,1 @@
-{
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "declaration": false,
-        "noimplicitany": false,
-        "removecomments": true
-    }
-}
+{"compilerOptions":{"target":"es5","module":"commonjs","declaration":false,"noimplicitany":false,"removecomments":true},"filesGlob":["./**/*.ts"],"files":["./errorReporter.ts","./index.ts","./programManager.ts"]}
