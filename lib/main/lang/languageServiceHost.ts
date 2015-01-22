@@ -20,7 +20,7 @@ import utils = require('./utils');
 import fs = require('fs');
 
 ///ts:import=tsconfig
-import tsconfig = require('../../tsconfig/index'); ///ts:import:generated
+import tsconfig = require('../tsconfig/index'); ///ts:import:generated
 
 interface ScriptInfo {
     getFileName(): string;

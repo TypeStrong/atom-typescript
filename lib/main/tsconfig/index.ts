@@ -1,5 +1,5 @@
 ///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
+/// <reference path="../../globals.ts"/> ///ts:ref:generated
 
 interface CompilerOptions {
     target?: string;            // 'es3'|'es5' (default) | 'es6'

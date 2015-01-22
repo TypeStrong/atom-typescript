@@ -2,7 +2,7 @@
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
 ///ts:import=tsconfig
-import tsconfig = require('../../tsconfig/index'); ///ts:import:generated
+import tsconfig = require('../tsconfig/index'); ///ts:import:generated
 import LanguageServiceHost = require('./languageServiceHost');
 
 import ts = require('typescript');
