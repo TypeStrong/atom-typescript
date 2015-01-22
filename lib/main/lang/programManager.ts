@@ -3,20 +3,18 @@
 
 ///ts:import=tsconfig
 import tsconfig = require('../../tsconfig/index'); ///ts:import:generated
-///ts:import=languageServiceHost
-import languageServiceHost = require('./languageServiceHost'); ///ts:import:generated
+import LanguageServiceHost = require('./languageServiceHost');
 
 import ts = require('typescript');
 
 
 export class Program {
-    public tsLanguageService: ts.LanguageService;
+    public languageServiceHost: LanguageServiceHost; 
+    public languageService: ts.LanguageService;
 
     constructor(public projectFile: tsconfig.TypeScriptProjectFileDetails) {
-        var host = languageServiceHost.create(projectFile);
-
-        // this.tsProgram = ts.createProgram(project.files, project.compilerOptions, host);
-        // TODO: create language service
+        this.languageServiceHost = new LanguageServiceHost(projectFile);
+        this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
     }
 }
 

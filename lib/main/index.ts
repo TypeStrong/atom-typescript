@@ -5,8 +5,8 @@ import path = require('path');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
-
-import programManager = require('./programManager');
+///ts:import=programManager
+import programManager = require('./lang/programManager'); ///ts:import:generated
 
 // globals
 var statusBar;

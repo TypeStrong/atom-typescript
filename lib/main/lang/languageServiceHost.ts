@@ -22,87 +22,6 @@ import fs = require('fs');
 ///ts:import=tsconfig
 import tsconfig = require('../../tsconfig/index'); ///ts:import:generated
 
-interface ILanguageServiceHost extends ts.LanguageServiceHost {
-    /**
-     * add a script to the host
-     * 
-     * @param fileName the absolute path of the file
-     * @param content the file content
-     */
-    addScript(fileName: string, content: string): void;
-    
-    /**
-     * remove a script from the host
-     * 
-     * @param fileName the absolute path of the file
-     */
-    removeScript(fileName: string): void;
-    
-    /**
-     * remove all script from the host
-     * 
-     * @param fileName the absolute path of the file
-     */
-    removeAll(): void;
-    
-    /**
-     * update a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param content the new file content
-     */
-    updateScript(fileName: string, content: string): void;
-
-    /**
-     * edit a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param minChar the index in the file content where the edition begins
-     * @param limChar the index  in the file content where the edition ends
-     * @param newText the text inserted
-     */
-    editScript(fileName: string, minChar: number, limChar: number, newText: string): void;
-    
-    /**
-     * set 'open' status of a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param isOpen open status
-     */
-    setScriptIsOpen(fileName: string, isOpen: boolean): void;
-    
-    /**
-     * the the language service host compilation settings
-     * 
-     * @param the settings to be applied to the host
-     */
-    setCompilationSettings(settings: ts.CompilerOptions): void;
-    
-    /**
-     * retrieve the content of a given script
-     * 
-     * @param fileName the absolute path of the file
-     */
-    getScriptContent(fileName: string): string;
-    
-    /**
-     * return an index from a positon in line/char
-     * 
-     * @param path the path of the file
-     * @param position the position
-     */
-    getIndexFromPosition(fileName: string, position: { ch: number; line: number }): number;
-    
-    
-    /**
-     * return a positon in line/char from an index
-     * 
-     * @param path the path of the file
-     * @param index the index
-     */
-    getPositionFromIndex(fileName: string, index: number): { ch: number; line: number };
-}
-
 interface ScriptInfo {
     getFileName(): string;
     getContent(): string;
@@ -262,55 +181,36 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
     }
 }
 
-export function create(config: tsconfig.TypeScriptProjectFileDetails): ILanguageServiceHost {
-
-    /**
-     * compilationSettings
-     */
-    var compilationSettings: ts.CompilerOptions;
+// NOTES: 
+// * fileName is * always * the absolute path to the file 
+// * content is *always* the string content of the file
+class LanguageServiceHost implements ts.LanguageServiceHost {
 
     /**
      * a map associating file absolute path to ScriptInfo
      */
-    var fileNameToScript: { [fileName: string]: ScriptInfo } = Object.create(null);
+    fileNameToScript: { [fileName: string]: ScriptInfo } = Object.create(null);
 
-    /**
-     * add a script to the host
-     * 
-     * @param fileName the absolute path of the file
-     * @param content the file content
-     */
-    function addScript(fileName: string, content: string) {
+    constructor(private config: tsconfig.TypeScriptProjectFileDetails) {
+        // Add all the files 
+        config.project.files.forEach((file) => this.addScript(file, fs.readFileSync(file).toString()));
+    }
+
+    addScript = (fileName: string, content: string) => {
         var script = createScriptInfo(fileName, content);
-        fileNameToScript[fileName] = script;
+        this.fileNameToScript[fileName] = script;
     }
 
-    /**
-     * remove a script from the host
-     * 
-     * @param fileName the absolute path of the file
-     */
-    function removeScript(fileName: string) {
-        delete fileNameToScript[fileName];
+    removeScript = (fileName: string) => {
+        delete this.fileNameToScript[fileName];
     }
 
-    /**
-     * remove all script from the host
-     * 
-     * @param fileName the absolute path of the file
-     */
-    function removeAll(): void {
-        fileNameToScript = Object.create(null);
+    removeAll = () => {
+        this.fileNameToScript = Object.create(null);
     }
 
-    /**
-     * update a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param content the new file content
-     */
-    function updateScript(fileName: string, content: string) {
-        var script = fileNameToScript[fileName];
+    updateScript = (fileName: string, content: string) => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             script.updateContent(content);
             return;
@@ -318,16 +218,8 @@ export function create(config: tsconfig.TypeScriptProjectFileDetails): ILanguage
         throw new Error('No script with name \'' + fileName + '\'');
     }
 
-    /**
-     * edit a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param minChar the index in the file content where the edition begins
-     * @param limChar the index  in the file content where the edition ends
-     * @param newText the text inserted
-     */
-    function editScript(fileName: string, minChar: number, limChar: number, newText: string) {
-        var script = fileNameToScript[fileName];
+    editScript = (fileName: string, minChar: number, limChar: number, newText: string) => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             script.editContent(minChar, limChar, newText);
             return;
@@ -336,14 +228,8 @@ export function create(config: tsconfig.TypeScriptProjectFileDetails): ILanguage
         throw new Error('No script with name \'' + fileName + '\'');
     }
 
-    /**
-     * set 'open' status of a script
-     * 
-     * @param fileName the absolute path of the file
-     * @param isOpen open status
-     */
-    function setScriptIsOpen(fileName: string, isOpen: boolean) {
-        var script = fileNameToScript[fileName];
+    setScriptIsOpen = (fileName: string, isOpen: boolean) => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             script.setIsOpen(isOpen);
             return;
@@ -352,128 +238,68 @@ export function create(config: tsconfig.TypeScriptProjectFileDetails): ILanguage
         throw new Error('No script with name \'' + fileName + '\'');
     }
 
-    /**
-     * the the language service host compilation settings
-     * 
-     * @param the settings to be applied to the host
-     */
-    function setCompilationSettings(settings: ts.CompilerOptions): void {
-        compilationSettings = Object.freeze(utils.clone(settings));
-    }
-
-    /**
-     * retrieve the content of a given script
-     * 
-     * @param fileName the absolute path of the file
-     */
-    function getScriptContent(fileName: string): string {
-        var script = fileNameToScript[fileName];
+    getScriptContent = (fileName: string): string => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return script.getContent();
         }
         return null;
     }
 
-    /**
-     * return an index from a positon in line/char
-     * 
-     * @param path the path of the file
-     * @param position the position
-     */
-    function getIndexFromPosition(fileName: string, position: { ch: number; line: number }): number {
-        var script = fileNameToScript[fileName];
+    getIndexFromPosition = (fileName: string, position: { ch: number; line: number }): number => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return script.getPositionFromLine(position.line, position.ch);
         }
         return -1;
     }
 
-
-    /**
-     * return a positon in line/char from an index
-     * 
-     * @param path the path of the file
-     * @param index the index
-     */
-    function getPositionFromIndex(fileName: string, index: number): { ch: number; line: number } {
-        var script = fileNameToScript[fileName];
+    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return script.getLineAndColForPositon(index);
         }
         return null;
     }
 
+    ////////////////////////////////////////
+    // ts.LanguageServiceHost implementation
+    ////////////////////////////////////////
 
-    function getCompilationSettings(): ts.CompilerOptions {
-        return compilationSettings;
-    }
-
-    function getScriptFileNames(): string[] {
-        return Object.keys(fileNameToScript);
-    }
-
-    function getScriptVersion(fileName: string): string {
-        var script = fileNameToScript[fileName];
+    getCompilationSettings = () => this.config.project.compilerOptions;
+    getScriptFileNames = (): string[]=> Object.keys(this.fileNameToScript);
+    getScriptVersion = (fileName: string): string => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return '' + script.getVersion();
         }
         return '0';
     }
-
-    function getScriptIsOpen(fileName: string): boolean {
-        var script = fileNameToScript[fileName];
+    getScriptIsOpen = (fileName: string): boolean => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return script.getIsOpen();
         }
         return false;
     }
-
-    function getScriptSnapshot(fileName: string): ts.IScriptSnapshot {
-        var script = fileNameToScript[fileName];
+    getScriptSnapshot = (fileName: string): ts.IScriptSnapshot  => {
+        var script = this.fileNameToScript[fileName];
         if (script) {
             return getScriptSnapShot(script);
         }
         return null;
     }
-
-    function getCurrentDirectory(): string {
-        return config.projectFileDirectory;
+    getCurrentDirectory = (): string  => {
+        return this.config.projectFileDirectory;
+    }
+    getDefaultLibFilename = (): string => {
+        return this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
     }
 
-    function getDefaultLibFilename(options): string {
-        return options.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
-    }
-
-    return {
-        //ts.Logger implementation
-        log: () => void 0,
-        error: () => void 0,
-        trace: () => void 0,
-
-
-        // LanguageServiceHost implementation
-
-        addScript: addScript,
-        removeScript: removeScript,
-        removeAll: removeAll,
-        updateScript: updateScript,
-        editScript: editScript,
-        getIndexFromPosition: getIndexFromPosition,
-        getPositionFromIndex: getPositionFromIndex,
-        getScriptContent: getScriptContent,
-        setCompilationSettings: setCompilationSettings,
-        setScriptIsOpen: setScriptIsOpen,
-
-
-        // ts.LanguageServiceHost implementation
-        getCompilationSettings: getCompilationSettings,
-        getScriptFileNames: getScriptFileNames,
-        getScriptVersion: getScriptVersion,
-        getScriptIsOpen: getScriptIsOpen,
-        getScriptSnapshot: getScriptSnapshot,
-        getCurrentDirectory: getCurrentDirectory,
-        getDefaultLibFilename: getDefaultLibFilename
-
-    };
+    // ts.Logger implementation
+    log = () => void 0
+    error = () => void 0
+    trace = () => void 0
 }
 
+export = LanguageServiceHost;
