@@ -1,4 +1,0 @@
-projects:
-    main:
-        sources:
-            - './**/*.ts'

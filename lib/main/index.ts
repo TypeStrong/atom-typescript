@@ -43,10 +43,10 @@ export function activate(state: PackageState) {
 
             var filePath = editor.getPath();
             var filename = path.basename(filePath);
-            var ext = path.extname(filename);            
+            var ext = path.extname(filename);
 
             if (ext == '.ts') {
-                var program = programManager.getOrCreateProgram(filePath);
+                var program = programManager.getOrCreateProgram(filePath);                
             }
         });
 
