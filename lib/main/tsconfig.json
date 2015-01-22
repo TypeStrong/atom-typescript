@@ -5,5 +5,16 @@
         "declaration": false,
         "noimplicitany": false,
         "removecomments": true
-    }
+    },
+    "filesGlob": [
+        "./**/*.ts"
+    ],
+    "files": [
+        "./errorReporter.ts",
+        "./index.ts",
+        "./lang/languageServiceHost.ts",
+        "./lang/programManager.ts",
+        "./lang/utils.ts",
+        "./tsconfig/index.ts"
+    ]
 }

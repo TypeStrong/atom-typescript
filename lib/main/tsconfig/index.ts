@@ -132,6 +132,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         }
     }
     projectFile = path.normalize(projectFile);
+    var projectFileDirectory = path.dirname(projectFile) + path.sep;
 
     // We now have a valid projectFile. Parse it: 
     try {
@@ -148,8 +149,11 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     if (!projectSpec.files) projectSpec.filesGlob = ['./**/*.ts'];
     if (projectSpec.filesGlob) {
         projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
-        fs.writeFileSync(projectFile, JSON.stringify(projectSpec));
+        fs.writeFileSync(projectFile, prettyJSON(projectSpec));
     }
+
+    // Remove all relativeness
+    projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
@@ -159,7 +163,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions);
 
     return {
-        projectFileDirectory: path.dirname(projectFile) + path.sep,
+        projectFileDirectory: projectFileDirectory,
         project: project
     };
 }
@@ -176,22 +180,13 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     if (fs.existsSync(projectFilePath))
         throw new Error('Project file already exists');
 
-    // Setup a main project
-    var project: TypeScriptProjectSpecification = {
-        compilerOptions: defaultOptions || defaults,
-        files: ['./' + path.basename(srcFile)]
-    };
-
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
-    projectSpec.compilerOptions = tsToRawCompilerOptions(project.compilerOptions);
+    projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
+    projectSpec.files = ['./' + path.basename(srcFile)];
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
-
-    return {
-        projectFileDirectory: path.dirname(projectFilePath) + path.sep,
-        project: project
-    }
+    return getProjectSync(srcFile);
 }
 
 /** if ( no val given && default given then run with default ) else ( run with val ) */

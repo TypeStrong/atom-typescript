@@ -30,7 +30,6 @@ function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
 }
 
 export function getOrCreateProgram(filePath) {
-    console.log(filePath);
     var projectFile = getOrCreateProject(filePath);
     if (programs[projectFile.projectFileDirectory]) {
         return programs[projectFile.projectFileDirectory];
