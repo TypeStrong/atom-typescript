@@ -202,3 +202,20 @@ export function binarySearch(array: number[], value: number): number {
 
     return ~low;
 }
+
+// Not optimized
+export function selectMany<T>(arr: T[][]): T[] {
+    var result = [];
+    for (var i = 0; i < arr.length; i++) {
+        for (var j = 0; j < arr[i].length; j++) {
+            result.push(arr[i][j]);
+        }
+    }
+    return result; 
+}
+
+// Not particularly awesome e.g. '/..foo' will pass
+export function pathIsRelative(str: string) {
+    if (!str.length) return false;
+    return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
+}

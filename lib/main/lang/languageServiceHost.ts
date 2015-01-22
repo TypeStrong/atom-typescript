@@ -194,6 +194,10 @@ class LanguageServiceHost implements ts.LanguageServiceHost {
     constructor(private config: tsconfig.TypeScriptProjectFileDetails) {
         // Add all the files 
         config.project.files.forEach((file) => this.addScript(file, fs.readFileSync(file).toString()));
+
+        // Also add the `lib.d.ts` 
+        var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
+        this.addScript(libFile,fs.readFileSync(libFile).toString());
     }
 
     addScript = (fileName: string, content: string) => {
@@ -246,6 +250,10 @@ class LanguageServiceHost implements ts.LanguageServiceHost {
         return null;
     }
 
+    hasScript = (fileName: string) => {
+        return !!this.fileNameToScript[fileName];
+    }
+
     getIndexFromPosition = (fileName: string, position: { ch: number; line: number }): number => {
         var script = this.fileNameToScript[fileName];
         if (script) {
@@ -293,7 +301,7 @@ class LanguageServiceHost implements ts.LanguageServiceHost {
         return this.config.projectFileDirectory;
     }
     getDefaultLibFilename = (): string => {
-        return this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
+        return 'lib.d.ts'; // TODO: this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
     }
 
     // ts.Logger implementation
