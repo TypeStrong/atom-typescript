@@ -25,59 +25,57 @@ export function activate(state: PackageState) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
     if (!linter || !acp) {
-        apd.install(function() {
+        apd.install(function () {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
         });
 
         return;
     }
 
-    atom.packages.once('activated',() => {
+    // Observe editors happening
+    editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
-        // TODO: Setup the error reporter:
+        // Setup the error reporter:
         errorView.start();
 
-        // Observe editors happening
-        editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+        var filePath = editor.getPath();
+        var filename = path.basename(filePath);
+        var ext = path.extname(filename);
 
-            var filePath = editor.getPath();
-            var filename = path.basename(filePath);
-            var ext = path.extname(filename);
+        if (ext == '.ts') {
+            try {
+                var program = programManager.getOrCreateProgram(filePath);
 
-            if (ext == '.ts') {
-                try {
-                    var program = programManager.getOrCreateProgram(filePath);
+                // Now observe editors changing
+                editor.onDidStopChanging(() => {
+                    
+                    // Update the file
+                    program.languageServiceHost.updateScript(filePath, editor.getText());
 
+                    // Get any errors in the project
+                    // TODO: This is commented out as calling this on *all* initial loads means the last one wins. Need a better strategy.
+                    // TODO: setErrors / clearErrors PER file 
                     errorView.setErrors(programManager.getErrorsForFile(filePath));
+                });
 
-                    // Now observe editors changing
-                    editor.onDidStopChanging(() => {
-                        // Update the file
-                        program.languageServiceHost.updateScript(filePath, editor.getText());
+                // And save
+                editor.onDidSave((event) => {
+                    // TODO: store by file path
+                    program.languageServiceHost.updateScript(filePath, editor.getText());
+                    var output = program.emitFile(filePath);
+                    errorView.showEmittedMessage(output);
+                });
 
-                        // Get any errors in the project
-                        errorView.setErrors(programManager.getErrorsForFile(filePath));
-                    });
-
-                    // And save
-                    editor.onDidSave((event) => {
-                        // TODO: store by file path
-                        program.languageServiceHost.updateScript(filePath, editor.getText());
-                        var output = program.emitFile(filePath);
-                        errorView.showEmittedMessage(output);
-                    });
-
-                } catch (ex) {
-                    console.error('Solve this in atom-typescript', ex);
-                    throw ex;
-                }
+            } catch (ex) {
+                console.error('Solve this in atom-typescript', ex);
+                throw ex;
             }
-        });
+        }
+    });
 
-        // Registering a better provider
-        atom.packages.activatePackage('autocomplete-plus').then(pkg => {
-            var autoComplete = pkg.mainModule;
-        });
+    // Registering an autocomplete provider
+    atom.packages.activatePackage('autocomplete-plus').then(pkg => {
+        var autoComplete = pkg.mainModule;
     });
 
     // Setup custom commands
@@ -113,4 +111,4 @@ export function deserialize() {
     /* do any tear down here */
 }
 
-var foo = 123 ;
+var foo = 123;

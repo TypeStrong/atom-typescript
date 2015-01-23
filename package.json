@@ -29,7 +29,7 @@
         "grunt-ts": "^1.11.2"
     },
     "activationEvents": [
-        "typescript:format-code"
+        
     ],
     "package-dependencies": {
         "linter": "//this field will be ignored right now",

@@ -13,6 +13,7 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
 
 var messagePanel;
 export function start() {
+    if (messagePanel) return; 
     messagePanel = new MessagePanelView({
         title: 'TypeScript Errors'
     });
