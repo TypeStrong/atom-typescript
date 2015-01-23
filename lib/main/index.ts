@@ -22,7 +22,8 @@ export function activate(state: PackageState) {
 
     // Don't activate if we have a dependency that isn't available
     var linter = apd.require('linter');
-    if (!linter) {
+    var acp = apd.require('autocomplete-plus');
+    if (!linter || !acp) {
         apd.install(function () {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
         });
@@ -36,7 +37,7 @@ export function activate(state: PackageState) {
         errorView.start();
 
         // Observe editors happening
-        editorWatch = atom.workspace.observeTextEditors((editor:AtomCore.IEditor) => {
+        editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
             var filePath = editor.getPath();
             var filename = path.basename(filePath);
