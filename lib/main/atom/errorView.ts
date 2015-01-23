@@ -7,6 +7,10 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView = require('atom-message-panel').LineMessageView;
 
 
-export function getMessagePanel(editor: AtomCore.IEditor) {
-
+var messagePanel;
+export function start() {
+    messagePanel = new MessagePanelView({
+        title: 'TypeScript'
+    });
+    messagePanel.attach();
 }

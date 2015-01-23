@@ -745,6 +745,9 @@ declare module AtomCore {
 		handleMarkerCreated(marker:any):any;
 		getSelectionMarkerAttributes():{type: string; editorId: number; invalidate: string; };
 		// joinLine():any; // deprecated
+
+        onDidDestroy(callback: Function): Disposable;
+        onDidStopChanging(callback: Function): Disposable;
 	}
 
 	interface IGrammar {

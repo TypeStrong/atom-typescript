@@ -7,6 +7,8 @@ import path = require('path');
 var apd = require('atom-package-dependencies');
 ///ts:import=programManager
 import programManager = require('./lang/programManager'); ///ts:import:generated
+///ts:import=errorView
+import errorView = require('./atom/errorView'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -31,15 +33,10 @@ export function activate(state: PackageState) {
     atom.packages.once('activated',() => {
 
         // TODO: Setup the error reporter:
-
-
-        statusBar = document.querySelector("status-bar");
-        if (statusBar) {
-            // statusBarMessage = statusBar.addLeftTile({ item: something, priority: 100 });
-        }
+        errorView.start();
 
         // Observe editors happening
-        editorWatch = atom.workspace.observeTextEditors((editor) => {
+        editorWatch = atom.workspace.observeTextEditors((editor:AtomCore.IEditor) => {
 
             var filePath = editor.getPath();
             var filename = path.basename(filePath);
@@ -48,10 +45,14 @@ export function activate(state: PackageState) {
             if (ext == '.ts') {
                 try {
                     var program = programManager.getOrCreateProgram(filePath);
-                    
+
                     // Now observe editors changing
                     editor.onDidStopChanging(() => {
+                        // Update the file 
                         program.languageServiceHost.updateScript(filePath, editor.getText());
+
+                        // Get any errors in the project
+
                     });
 
                 } catch (ex) {
