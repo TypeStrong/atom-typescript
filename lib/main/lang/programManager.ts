@@ -74,6 +74,11 @@ export class Program {
         return formatted;
     }
 
+    formatDocumentRange(filePath: string, range: any): string {
+        this.languageService.getFormattingEditsForRange(filePath, range.start, range.end, defaultFormatCodeOptions());
+        return '';
+    }
+
     // from https://github.com/Microsoft/TypeScript/issues/1651#issuecomment-69877863
     private formatCode(orig: string, changes: ts.TextChange[]): string {
         var result = orig;
