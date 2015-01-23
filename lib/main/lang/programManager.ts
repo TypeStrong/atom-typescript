@@ -21,16 +21,16 @@ export class Program {
         // Now using the language service we need to get all the referenced files and add them back to the project
         this.increaseProjectForReferenceAndImports();
 
-        // Since we only create a program per project once. Emit the first time 
+        // Since we only create a program per project once. Emit the first time
         this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
     }
 
     emitFile = (filename: string) => {
         var services = this.languageService;
         var output = services.getEmitOutput(filename);
-        
+
         if (output.emitOutputStatus === ts.EmitReturnStatus.Succeeded) {
-            console.log('SUCCESS ' + filename);
+            // console.log('SUCCESS ' + filename);
         }
         else {
             console.log('FAILURE ' + filename + ' emit');
