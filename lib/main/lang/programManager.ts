@@ -69,16 +69,20 @@ export class Program {
     }
 
     formatDocument(filePath: string): string {
-        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());   
+        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-        console.log(textChanges, this.languageServiceHost.getScriptContent(filePath), formatted);
         return formatted;
     }
 
-    formatDocumentRange(filePath: string, start: number, end: number): string {
-        var textChanges = this.languageService.getFormattingEditsForRange(filePath, start, end, defaultFormatCodeOptions());
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-        console.log(textChanges, formatted);
+    formatDocumentRange(filePath: string, start: languageServiceHost.Position, end: languageServiceHost.Position): string {
+        var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
+        var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
+        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, defaultFormatCodeOptions());
+
+        // Sadly ^ these changes are still relative to *start* of file. So lets fix that. 
+        textChanges.forEach((change) => change.span = new ts.TextSpan(change.span.start() - st, change.span.length()));
+
+        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st,ed), textChanges);
         return formatted;
     }
 

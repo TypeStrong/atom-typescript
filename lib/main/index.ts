@@ -91,10 +91,8 @@ export function activate(state: PackageState) {
         if (selection.isEmpty()) {
             editor.setText(program.formatDocument(filePath));
         } else {
-            var formatted = program.formatDocumentRange(filePath,
-                program.languageServiceHost.getIndexFromPosition(filePath, { line: selection.start.row, ch: selection.start.column }),
-                program.languageServiceHost.getIndexFromPosition(filePath, { line: selection.end.row, ch: selection.end.column }));
-            editor.setText(program.formatDocument(filePath));
+            var formatted = program.formatDocumentRange(filePath, { line: selection.start.row, ch: selection.end.column }, { line: selection.end.row, ch: selection.end.column });
+            editor.setTextInBufferRange(selection, formatted);
         }
     });
 }

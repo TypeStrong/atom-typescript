@@ -7,7 +7,7 @@
 // and we need Suggestion class we use to return as a member of the suggestions array
 //  we need to return from *buildSuggestions* member of our ProviderClass
 
-function createProviderClass() {
+function createProviderClass()    {
 
 }
-var foo = 123;
+var foo = 123   ;
