@@ -748,6 +748,7 @@ declare module AtomCore {
 
         onDidDestroy(callback: Function): Disposable;
         onDidStopChanging(callback: Function): Disposable;
+        onDidSave(callback: (event: { path: string }) => void): Disposable;
 	}
 
 	interface IGrammar {

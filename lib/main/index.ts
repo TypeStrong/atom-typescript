@@ -55,6 +55,13 @@ export function activate(state: PackageState) {
                         errorView.setErrors(programManager.getErrorsForFile(filePath));
                     });
 
+                    // And save
+                    editor.onDidSave((event) => {
+                        // TODO: store by file path
+                        program.emitFile(filePath);
+                        errorView.showEmittedMessage();
+                    });
+
                 } catch (ex) {
                     console.error('Solve this in atom-typescript', ex);
                     throw ex;
@@ -77,5 +84,3 @@ export function serialize(): PackageState {
 export function deserialize() {
     /* do any tear down here */
 }
-
-var foo = 123;

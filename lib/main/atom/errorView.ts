@@ -50,3 +50,10 @@ export function setErrors(errors: programManager.TSError[]) {
         });
     }
 }
+
+export function showEmittedMessage() {
+    messagePanel.add(new PlainMessageView({
+        message: "JS Emitted",
+        className: "text-success"
+    }));
+}
