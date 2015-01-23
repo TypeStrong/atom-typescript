@@ -35,9 +35,6 @@ export function activate(state: PackageState) {
     // Observe editors happening
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
-        // Setup the error reporter:
-        errorView.start();
-
         var filePath = editor.getPath();
         var filename = path.basename(filePath);
         var ext = path.extname(filename);
@@ -45,6 +42,9 @@ export function activate(state: PackageState) {
         if (ext == '.ts') {
             try {
                 var program = programManager.getOrCreateProgram(filePath);
+
+                // Setup the error reporter:
+                errorView.start();
 
                 // Now observe editors changing
                 editor.onDidStopChanging(() => {
