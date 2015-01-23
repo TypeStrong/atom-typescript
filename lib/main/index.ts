@@ -89,10 +89,12 @@ export function activate(state: PackageState) {
 
         var filePath = editor.getPath();
         var program = programManager.getOrCreateProgram(filePath);
-        if (editor.getSelectedText()) {
-            return e.abortKeyBinding();
-        } else {
+        var selection = editor.getSelectedBufferRange();
+        if (selection.isEmpty()) {
             editor.setText(program.formatDocument(filePath));
+        } else {
+            console.log(selection);
+            return e.abortKeyBinding();
         }
     });
 }
