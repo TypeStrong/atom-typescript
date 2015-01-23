@@ -1,0 +1,7 @@
+{
+  "indent": 2,
+  "node": true,
+  "predef": {
+		"atom": true
+	}
+}
