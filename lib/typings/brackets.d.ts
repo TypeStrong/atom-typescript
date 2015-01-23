@@ -22,25 +22,25 @@
 //  Brackets declaration files
 //
 //--------------------------------------------------------------------------
-        
+
 
 
 
 declare module brackets {
-    
-    
+
+
     //--------------------------------------------------------------------------
     //
     //  FileSystem
     //
     //--------------------------------------------------------------------------
-            
+
     /**
      * FileSystem is a model object representing a complete file system. This object creates
      * and manages File and Directory instances, dispatches events when the file system changes,
      * and provides methods for showing 'open' and 'save' dialogs.
      *
-     * The FileSystem must be initialized very early during application startup. 
+     * The FileSystem must be initialized very early during application startup.
      *
      * There are three ways to get File or Directory instances:
      *    * Use FileSystem.resolve() to convert a path to a File/Directory object. This will only
@@ -63,7 +63,7 @@ declare module brackets {
      *          objects have been updated to reflect the new path by the time this event is dispatched.
      *          This event should be used to trigger any UI updates that may need to occur when a path
      *          has changed.
-     * 
+     *
      * FileSystem may perform caching. But it guarantees:
      *    * File contents & metadata - reads are guaranteed to be up to date (cached data is not used
      *      without first veryifying it is up to date).
@@ -79,22 +79,22 @@ declare module brackets {
         // should not expose thoses method one
         //init(impl, callback)
         //close(callback)
-        //shouldShow 
-        
+        //shouldShow
+
         /**
          * Return a File object for the specified path.This file may not yet exist on disk.
          *
-         * @param path Absolute path of file. 
+         * @param path Absolute path of file.
          */
-        getFileForPath(path: string): File; 
-        
+        getFileForPath(path: string): File;
+
         /**
          * Return a Directory object for the specified path.This directory may not yet exist on disk.
          *
          * @param path Absolute path of directory.
          */
-        getDirectoryForPath(path: string): Directory; 
-        
+        getDirectoryForPath(path: string): Directory;
+
          /**
          * Resolve a path.
          *
@@ -102,8 +102,8 @@ declare module brackets {
          * @param callback Callback resolved  with a FileSystemError string or with the entry for the provided path.
          */
         resolve(path: string, callback: (err: string, entry: FileSystemEntry, stat: FileSystemStats) => any): void;
-        
-        
+
+
          /**
          * Show an "Open" dialog and return the file(s)/directories selected by the user.
          *
@@ -122,7 +122,7 @@ declare module brackets {
          */
         showOpenDialog(allowMultipleSelection: boolean, chooseDirectories: boolean, title: string, initialPath: string,
             fileTypes: string[], callback: (err: string, files: string[]) => any): void;
-        
+
         /**
          * Show a "Save" dialog and return the path of the file to save.
          *
@@ -137,23 +137,23 @@ declare module brackets {
          *                          the error will be falsy and the name will be empty.
          */
         showSaveDialog(title: string, initialPath: string, proposedNewFilename: string, callback: (err: string, file: string) => any): void;
-        
+
         /**
          * Start watching a filesystem root entry.
-         * 
+         *
          * @param entry The root entry to watch. If entry is a directory,
          *      all subdirectories that aren't explicitly filtered will also be watched.
          * @param filter A function to determine whether
          *      a particular name should be watched or ignored. Paths that are ignored are also
          *      filtered from Directory.getContents() results within this subtree.
-         * @param callback A function that is called when the watch has completed. 
+         * @param callback A function that is called when the watch has completed.
          *      If the watch fails, the function will have a non-null FileSystemError string parametr.
          */
-        watch(entry: FileSystemEntry, filter: (file: string) => boolean, callback?: (file: string) => void): void; 
-    
+        watch(entry: FileSystemEntry, filter: (file: string) => boolean, callback?: (file: string) => void): void;
+
         /**
          * Stop watching a filesystem root entry.
-         * 
+         *
          * @param {FileSystemEntry} entry - The root entry to stop watching. The unwatch will
          *      if the entry is not currently being watched.
          * @param {function(?string)=} callback - A function that is called when the unwatch has
@@ -161,15 +161,15 @@ declare module brackets {
          *      string parameter.
          */
         unwatch(entry: FileSystemEntry, callback?: (file: string) => void): void;
-        
+
         /**
          * return true if the path is absolute
-         * 
+         *
          * @param path
          */
         isAbsolutePath(path: string): boolean;
-        
-        
+
+
         /**
          * Add an event listener for a FileSystem event.
          *
@@ -177,7 +177,7 @@ declare module brackets {
          * @param  handler The handler for the event
          */
         on(event: string, handler: (...args: any[]) => any): void;
-        
+
         /**
          * Remove an event listener for a FileSystem event.
          *
@@ -186,11 +186,11 @@ declare module brackets {
          */
         off(event: string, handler: (...args: any[]) => any): void;
     }
-    
-    
+
+
     /**
-     * This is an abstract representation of a FileSystem entry, and the base class for the File and Directory classes. 
-     * FileSystemEntry objects are never created directly by client code. Use FileSystem.getFileForPath(), 
+     * This is an abstract representation of a FileSystem entry, and the base class for the File and Directory classes.
+     * FileSystemEntry objects are never created directly by client code. Use FileSystem.getFileForPath(),
      * FileSystem.getDirectoryForPath(), or Directory.getContents() to create the entry.
      */
     interface FileSystemEntry {
@@ -200,11 +200,11 @@ declare module brackets {
         id: string;
         isFile: boolean;
         isDirectory: boolean;
-        
+
         /**
          * Check to see if the entry exists on disk. Note that there will NOT be an
          * error returned if the file does not exist on the disk; in that case the
-         * error parameter will be null and the boolean will be false. The error 
+         * error parameter will be null and the boolean will be false. The error
          * parameter will only be truthy when an unexpected error was encountered
          * during the test, in which case the state of the entry should be considered
          * unknown.
@@ -213,15 +213,15 @@ declare module brackets {
          *      string or a boolean indicating whether or not the file exists.
          */
         exists(callback: (err: string, exist: boolean) => any): void;
-        
-        
+
+
         /**
          * Returns the stats for the entry.
          *
          * @param callback Callback with a FileSystemError string or FileSystemStats object.
          */
         stat(callback: (err: string, stat: FileSystemStats) => any): void;
-        
+
          /**
          * Rename this entry.
          *
@@ -229,26 +229,26 @@ declare module brackets {
          * @param {function (?string)=} callback Callback with a single FileSystemError string parameter.
          */
         rename(newFullPath: string, callback?: (err: string) => any): void;
-        
-        
+
+
         /**
          * Unlink (delete) this entry. For Directories, this will delete the directory
-         * and all of its contents. 
+         * and all of its contents.
          *
          * @param callback Callback with a single FileSystemError string parameter.
          */
          unlink(callback?: (err: string) => any): void;
-        
-        
+
+
          /**
          * Move this entry to the trash. If the underlying file system doesn't support move
          * to trash, the item is permanently deleted.
          *
          * @param callback Callback with a single FileSystemError string parameter.
          */
-        
-        moveToTrash(callback?: (err: string) => any): void; 
-        
+
+        moveToTrash(callback?: (err: string) => any): void;
+
          /**
          * Visit this entry and its descendents with the supplied visitor function.
          *
@@ -258,15 +258,15 @@ declare module brackets {
          * @param {function(?string)=} callback Callback with single FileSystemError string parameter.
          */
         visit(visitor: (entry: FileSystemEntry) => boolean, options: {failFast?: boolean; maxDepth?: number; maxEntries?: number},
-            callbak: (err: string) => any): void; 
+            callbak: (err: string) => any): void;
     }
-    
+
     /**
      * This class represents a directory on disk (this could be a local disk or cloud storage). This is a subclass of FileSystemEntry.
      */
     interface Directory extends FileSystemEntry {
         /**
-         * Read the contents of a Directory. 
+         * Read the contents of a Directory.
          *
          * @param callback Callback that is passed an error code or the stat-able contents
          *          of the directory along with the stats for these entries and a
@@ -274,10 +274,10 @@ declare module brackets {
          *          and their stat errors. If there are no stat errors then the last
          *          parameter shall remain undefined.
          */
-        getContents(callback: (err: string, files: FileSystemEntry[], 
-            stats: FileSystemStats, errors: { [path: string]: string; }) => any): void; 
-    
-        
+        getContents(callback: (err: string, files: FileSystemEntry[],
+            stats: FileSystemStats, errors: { [path: string]: string; }) => any): void;
+
+
         /**
          * Create a directory
          *
@@ -285,7 +285,7 @@ declare module brackets {
          */
         create(callback:  (err: string, stat: FileSystemStats) => any): void;
     }
-    
+
     /**
      * This class represents a file on disk (this could be a local disk or cloud storage). This is a subclass of FileSystemEntry.
      */
@@ -297,8 +297,8 @@ declare module brackets {
          * @param callback Callback that is passed the FileSystemError string or the file's contents and its stats.
          */
         read(options: {}, callback: (err: string, data: string, stat: FileSystemStats) => any): void;
-           
-        
+
+
         /**
          * Write a file.
          *
@@ -307,27 +307,27 @@ declare module brackets {
          * @param callback Callback that is passed the FileSystemError string or the file's new stats.
          */
         write(data: string, options?: {}, callback?: (err: string, stat: FileSystemStats) => any ): void;
-        
-        
-        
+
+
+
     }
-    
+
     interface FileSystemStats {
         isFile: boolean;
         isDirectory: boolean;
         mtime: Date;
         size: number;
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Project
     //
     //--------------------------------------------------------------------------
-            
 
- 
-    
+
+
+
     /**
      * ProjectManager is the model for the set of currently open project. It is responsible for
      * creating and updating the project tree when projects are opened and when changes occur to
@@ -349,25 +349,25 @@ declare module brackets {
          * startup, or running outside of app shell).
          */
         getProjectRoot(): Directory;
-        
+
         /**
          * Returns the encoded Base URL of the currently loaded project, or empty string if no project
          * is open (during startup, or running outside of app shell).
          */
         getBaseUrl(): string;
-        
+
         /**
          * Sets the encoded Base URL of the currently loaded project.
          * @param {String}
          */
         setBaseUrl(): string;
-        
+
         /**
          * Returns true if absPath lies within the project, false otherwise.
          * Does not support paths containing ".."
          */
         isWithinProject(absPath: string): boolean;
-        
+
         /**
          * If absPath lies within the project, returns a project-relative path. Else returns absPath
          * unmodified.
@@ -375,34 +375,34 @@ declare module brackets {
          * @param  absPath
          */
         makeProjectRelativeIfPossible(absPath: string): string;
-        
+
          /**
          * Returns false for files and directories that are not commonly useful to display.
          *
          * @param entry File or directory to filter
          */
         shouldShow(entry: FileSystemEntry): boolean;
-        
+
          /**
          * Returns true if fileName's extension doesn't belong to binary (e.g. archived)
          * @param fileName
          */
         isBinaryFile(fileName: string): boolean;
-        
+
         /**
          * Open a new project. Currently, Brackets must always have a project open, so
          * this method handles both closing the current project and opening a new project.
          * return {$.Promise} A promise object that will be resolved when the
          * project is loaded and tree is rendered, or rejected if the project path
          * fails to load.
-         * 
+         *
          * @param path Optional absolute path to the root folder of the project.
          *  If path is undefined or null, displays a dialog where the user can choose a
          *  folder to load. If the user cancels the dialog, nothing more happens.
-        
+
          */
         openProject(path?: string): JQueryPromise<any>;
-        
+
          /**
          * Returns the File or Directory corresponding to the item selected in the sidebar panel, whether in
          * the file tree OR in the working set; or null if no item is selected anywhere in the sidebar.
@@ -410,7 +410,7 @@ declare module brackets {
          * have the current document visible in the tree & working set.
          */
         getSelectedItem(): FileSystemEntry;
-        
+
          /**
          * Returns an Array of all files for this project, optionally including
          * files in the working set that are *not* under the project root. Files filtered
@@ -424,9 +424,9 @@ declare module brackets {
          * @return {$.Promise} Promise that is resolved with an Array of File objects.
          */
         getAllFiles(filter?: (file: File) => boolean, includeWorkingSet?: boolean): JQueryPromise<File[]>;
-        
+
         /*
-         TODO 
+         TODO
         getInitialProjectPath;
         isWelcomeProjectPath;
         updateWelcomeProjectPath;
@@ -436,18 +436,18 @@ declare module brackets {
         forceFinishRename;
         showInTree;
         refreshFileTree;
-       
+
         getLanguageFilter;
-        
+
         */
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Document
     //
     //--------------------------------------------------------------------------
-    
+
     /**
      * DocumentManager maintains a list of currently 'open' Documents. It also owns the list of files in
      * the working set, and the notion of which Document is currently shown in the main editor UI area.
@@ -515,10 +515,10 @@ declare module brackets {
          * document always has a backing Editor (Document._masterEditor != null) and is thus modifiable.
          */
         getCurrentDocument(): Document;
-        
+
         /** Changes currentDocument to null, causing no full Editor to be shown in the UI */
         _clearCurrentDocument(): void;
-        
+
         /**
          * Gets an existing open Document for the given file, or creates a new one if the Document is
          * not currently open ('open' means referenced by the UI somewhere). Always use this method to
@@ -535,7 +535,7 @@ declare module brackets {
          *      with a FileSystemError if the file is not yet open and can't be read from disk.
          */
         getDocumentForPath(fullPath: string): JQueryPromise<Document>;
-        
+
         /**
          * Returns the existing open Document for the given file, or null if the file is not open ('open'
          * means referenced by the UI somewhere). If you will hang onto the Document, you must addRef()
@@ -543,21 +543,21 @@ declare module brackets {
          * @param fullPath
          */
         getOpenDocumentForPath(fullPath: string): Document;
-        
+
          /**
          * Gets the text of a Document (including any unsaved changes), or would-be Document if the
          * file is not actually open. More efficient than getDocumentForPath(). Use when you're reading
          * document(s) but don't need to hang onto a Document object.
-         * 
+         *
          * If the file is open this is equivalent to calling getOpenDocumentForPath().getText(). If the
          * file is NOT open, this is like calling getDocumentForPath()...getText() but more efficient.
          * Differs from plain FileUtils.readAsText() in two ways: (a) line endings are still normalized
          * as in Document.getText(); (b) unsaved changes are returned if there are any.
-         * 
+         *
          * @param file
          */
         getDocumentText(file: File): JQueryPromise<string>;
-        
+
         /**
          * Creates an untitled document. The associated File has a fullPath that
          * looks like /some-random-string/Untitled-counter.fileExt.
@@ -567,8 +567,8 @@ declare module brackets {
          * @return {Document} - a new untitled Document
          */
         createUntitledDocument(counter: number, fileExt: string): Document;
-        
-        
+
+
         /**
          * Returns a list of items in the working set in UI list order. May be 0-length, but never null.
          *
@@ -581,7 +581,7 @@ declare module brackets {
          *
          */
         getWorkingSet(): File[];
-        
+
          /**
          * Returns the index of the file matching fullPath in the working set.
          * Returns -1 if not found.
@@ -591,7 +591,7 @@ declare module brackets {
          * @returns {number} index
          */
         findInWorkingSet(fullPath: string, list?: File[]): number;
-        /*TODO  
+        /*TODO
         findInWorkingSetAddedOrder()
         getAllOpenDocuments()
         setCurrentDocument()
@@ -610,15 +610,15 @@ declare module brackets {
         notifyPathNameChanged()
         notifyPathDeleted()*/
     }
-    
-    
+
+
     /**
      * Model for the contents of a single file and its current modification state.
      * See DocumentManager documentation for important usage notes.
      *
      * Document dispatches these events:
      *
-     * change -- When the text of the editor changes (including due to undo/redo). 
+     * change -- When the text of the editor changes (including due to undo/redo).
      *
      *        Passes ({Document}, {ChangeList}), where ChangeList is a linked list (NOT an array)
      *        of change record objects. Each change record looks like:
@@ -627,7 +627,7 @@ declare module brackets {
      *              to: end of change, expressed as {line: <line number>, ch: <chracter offset>},
      *              text: array of lines of text to replace existing text,
      *              next: next change record in the linked list, or undefined if this is the last record }
-     *      
+     *
      *        The line and ch offsets are both 0-based.
      *
      *        The ch offset in "from" is inclusive, but the ch offset in "to" is exclusive. For example,
@@ -636,11 +636,11 @@ declare module brackets {
      *
      *        If "from" and "to" are undefined, then this is a replacement of the entire text content.
      *
-     *        IMPORTANT: If you listen for the "change" event, you MUST also addRef() the document 
+     *        IMPORTANT: If you listen for the "change" event, you MUST also addRef() the document
      *        (and releaseRef() it whenever you stop listening). You should also listen to the "deleted"
      *        event.
-     *  
-     *        (FUTURE: this is a modified version of the raw CodeMirror change event format; may want to make 
+     *
+     *        (FUTURE: this is a modified version of the raw CodeMirror change event format; may want to make
      *        it an ordinary array)
      *
      * deleted -- When the file for this document has been deleted. All views onto the document should
@@ -653,19 +653,19 @@ declare module brackets {
          * If Document is untitled, this is an InMemoryFile object.
          */
         file: File;
-        
+
         /**
          * The Language for this document. Will be resolved by file extension in the constructor
          * @type {!Language}
          */
         //TODO language: Language;
-        
+
         /**
          * Whether this document has unsaved changes or not.
          * When this changes on any Document, DocumentManager dispatches a "dirtyFlagChange" event.
          */
         isDirty: boolean;
-        
+
         /**
          * Returns the document's current contents; may not be saved to disk yet. Whenever this
          * value changes, the Document dispatches a "change" event.
@@ -675,15 +675,15 @@ declare module brackets {
          *      If false, line endings are always \n (like all the other Document text getter methods).
          */
         getText(useOriginalLineEndings?: boolean): string;
-        
+
         /**
          * Adds, replaces, or removes text. If a range is given, the text at that range is replaced with the
          * given new text; if text == "", then the entire range is effectively deleted. If 'end' is omitted,
          * then the new text is inserted at that point and all existing text is preserved. Line endings will
          * be rewritten to match the document's current line-ending style.
-         * 
+         *
          * IMPORTANT NOTE: Because of #1688, do not use this in cases where you might be
-         * operating on a linked document (like the main document for an inline editor) 
+         * operating on a linked document (like the main document for an inline editor)
          * during an outer CodeMirror operation (like a key event that's handled by the
          * editor itself). A common case of this is code hints in inline editors. In
          * such cases, use `editor._codeMirror.replaceRange()` instead. This should be
@@ -693,7 +693,7 @@ declare module brackets {
          * @param start  Start of range, inclusive (if 'to' specified) or insertion point (if not)
          * @param end  End of range, exclusive; optional
          * @param origin  Optional string used to batch consecutive edits for undo.
-         *     If origin starts with "+", then consecutive edits with the same origin will be batched for undo if 
+         *     If origin starts with "+", then consecutive edits with the same origin will be batched for undo if
          *     they are close enough together in time.
          *     If origin starts with "*", then all consecutive edit with the same origin will be batched for
          *     undo.
@@ -702,29 +702,29 @@ declare module brackets {
          *     edits within it for undo. Origin batching works across operations.)
          */
         replaceRange(text: string, start: CodeMirror.Position, end?: CodeMirror.Position, origin?: string): void;
-        
+
         /**
          * Returns the text of the given line (excluding any line ending characters)
          * @param index Zero-based line number
          */
         getLine(index: number): string;
-        
+
         /**
          * Sets the contents of the document. Treated as an edit. Line endings will be rewritten to
          * match the document's current line-ending style.
          * @param text The text to replace the contents of the document with.
          */
         setText(text: string): void;
-        
+
         //TODO imcomplete
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Editor
     //
     //--------------------------------------------------------------------------
-    
+
     /**
      * Editor is a 1-to-1 wrapper for a CodeMirror editor instance. It layers on Brackets-specific
      * functionality and provides APIs that cleanly pass through the bits of CodeMirror that the rest
@@ -772,16 +772,16 @@ declare module brackets {
         };
         setCursorPos(line: number, ch: number, center: boolean, expandTabs: boolean): void ;
     }
-    
-    
+
+
     interface EditorManager {
-        registerInlineEditProvider(provider: InlineEditProvider, priority?: number): void; 
+        registerInlineEditProvider(provider: InlineEditProvider, priority?: number): void;
         registerInlineDocsProvider(provider: InlineDocsProvider, priority?: number): void;
         registerJumpToDefProvider(provider: JumpDoDefProvider): void;
-        getFocusedEditor(): Editor; 
+        getFocusedEditor(): Editor;
         /**
-         * Returns the current active editor (full-sized OR inline editor). This editor may not 
-         * have focus at the moment, but it is visible and was the last editor that was given 
+         * Returns the current active editor (full-sized OR inline editor). This editor may not
+         * have focus at the moment, but it is visible and was the last editor that was given
          * focus. Returns null if no editors are active.
          * @see getFocusedEditor()
          * @returns {?Editor}
@@ -789,13 +789,13 @@ declare module brackets {
         getActiveEditor(): Editor;
         getCurrentFullEditor(): Editor;
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Editor
     //
     //--------------------------------------------------------------------------
-    
+
     /**
      * PreferencesManager
      *
@@ -806,34 +806,34 @@ declare module brackets {
          * A `.` character will be appended to the prefix. So, a preference named `foo`
          * with a prefix of `myExtension` will be stored as `myExtension.foo` in the
          * preferences files.
-         * 
+         *
          * @param prefix Prefix to be applied
          */
         getExtensionPrefs(prefix: string): Preferences;
-        
-        
+
+
         /**
          * Get the full path to the user-level preferences file.
-         * 
+         *
          * @return Path to the preferences file
          */
         getUserPrefFile(): string;
-        
+
         /**
          * Context to look up preferences for the currently edited file.
          * This is undefined because this is the default behavior of PreferencesSystem.get.
-         */ 
+         */
         CURRENT_FILE: any;
         /**
          * Context to look up preferences in the current project.
          */
         CURRENT_PROJECT: any;
     }
-    
+
     interface Preferences {
         /**
          * Defines a new (prefixed) preference.
-         * 
+         *
          * @param id unprefixed identifier of the preference. Generally a dotted name.
          * @param type Data type for the preference (generally, string, boolean, number)
          * @param initial Default value for the preference
@@ -842,48 +842,48 @@ declare module brackets {
          * @return {Object} The preference object.
          */
         definePreference(id: string, type: string, value: any, options?: { name?: string; description: string; }): any;
-        
-        
+
+
         /**
          * Get the prefixed preference object
-         * 
+         *
          * @param {string} id ID of the pref to retrieve.
          */
         getPreference(id: string): any;
-        
+
         /**
          * Gets the prefixed preference
-         * 
+         *
          * @param id Name of the preference for which the value should be retrieved
          * @param context Optional context object to change the preference lookup
          */
         get(id: string, context?: any): any;
-        
+
         /**
          * Gets the location in which the value of a prefixed preference has been set.
-         * 
+         *
          * @param id Name of the preference for which the value should be retrieved
          * @param context Optional context object to change the preference lookup
          * @return Object describing where the preferences came from
          */
         getPreferenceLocation(id: string, context?: any): {scope: string; layer?: string; layerID?: any};
-        
+
         /**
          * Sets the prefixed preference
-         * 
+         *
          * @param id Identifier of the preference to set
          * @param value New value for the preference
          * @param options Specific location in which to set the value or the context to use when setting the value
          * @return true if a value was set
          */
         set(id: string, value: any, options?: {location: any; context?: any; }): boolean;
-        
-        
+
+
         /**
          * Sets up a listener for events for this PrefixedPreferencesSystem. Only prefixed events
          * will notify. Optionally, you can set up a listener for a
          * specific preference.
-         * 
+         *
          * @param event Name of the event to listen for
          * @param preferenceID Name of a specific preference
          * @param handler Handler for the event
@@ -893,17 +893,17 @@ declare module brackets {
          * Sets up a listener for events for this PrefixedPreferencesSystem. Only prefixed events
          * will notify. Optionally, you can set up a listener for a
          * specific preference.
-         * 
+         *
          * @param event Name of the event to listen for
          * @param handler Handler for the event
          */
         on(event: string, handler: (...rest: any[]) => void): void;
-        
-        
+
+
         /**
          * Turns off the event handlers for a given event, optionally for a specific preference
          * or a specific handler function.
-         * 
+         *
          * @param event Name of the event for which to turn off listening
          * @param preferenceID Name of a specific preference
          * @param handler Specific handler which should stop being notified
@@ -912,30 +912,30 @@ declare module brackets {
         /**
          * Turns off the event handlers for a given event, optionally for a specific preference
          * or a specific handler function.
-         * 
+         *
          * @param event Name of the event to listen for
          * @param handler Specific handler which should stop being notified
          */
         off(event: string, handler: (...rest: any[]) => void): void;
-        
-        
+
+
         /**
          * Saves the preferences. If a save is already in progress, a Promise is returned for
          * that save operation.
-         * 
+         *
          * @return  a promise resolved when the preferences are done saving.
          */
         save(): JQueryPromise<void>;
     }
-    
-    
-    
+
+
+
     //--------------------------------------------------------------------------
     //
     //  PanelManager
     //
     //--------------------------------------------------------------------------
-    
+
     /**
      * Represents a panel below the editor area (a child of ".content").
      */
@@ -946,13 +946,13 @@ declare module brackets {
         setVisible(visible: boolean): void;
         $panel: JQuery
     }
-    
+
     /**
      * Manages layout of panels surrounding the editor area, and size of the editor area (but not its contents).
-     * 
+     *
      * Updates panel sizes when the window is resized. Maintains the max resizing limits for panels, based on
      * currently available window size.
-     * 
+     *
      * Events:
      *    - editorAreaResize -- When editor-holder's size changes for any reason (including panel show/hide
      *              panel resize, or the window resize).
@@ -963,14 +963,14 @@ declare module brackets {
     interface PanelManager {
          /**
          * Creates a new panel beneath the editor area and above the status bar footer. Panel is initially invisible.
-         * 
+         *
          * @param id  Unique id for this panel. Use package-style naming, e.g. "myextension.feature.panelname"
          * @param $panel  DOM content to use as the panel. Need not be in the document yet.
          * @param minSize  Minimum height of panel in px.
          */
         createBottomPanel(id: string, $panel: JQuery, minSize: number): Panel;
     }
-    
+
     //--------------------------------------------------------------------------
     //
     //  Command
@@ -980,15 +980,15 @@ declare module brackets {
         execute(id: string, args: any): JQueryPromise<any>;
         register(name: string, id: string, callback: () => void): void;
     }
-    
-  
+
+
     //--------------------------------------------------------------------------
     //
     //  CodeHint
     //
     //--------------------------------------------------------------------------
-   
-    
+
+
     interface CodeHintManager {
         registerHintProvider(hintProvider: CodeHintProvider, languageIds: string[], priority?: number): void;
     }
@@ -997,60 +997,60 @@ declare module brackets {
         match?: string;
         selectInitial?: boolean
     }
-    
+
     interface CodeHintProvider {
         hasHints(editor: Editor, implicitChar: string): boolean;
         getHints(implicitChar: string): JQueryDeferred<HintResult>;
         insertHint(hint: any): void;
     }
-    
-    
+
+
     //--------------------------------------------------------------------------
     //
     //  Inspection
     //
     //--------------------------------------------------------------------------
-    
 
-    
+
+
     interface CodeInspection {
         register(languageId: string, provider: InspectionProvider): void;
         Type: { [index: string]: string}
     }
-    
-    
+
+
     interface LintingError {
-        pos: CodeMirror.Position; 
+        pos: CodeMirror.Position;
         endPos?: CodeMirror.Position;
-        message: string; 
-        type?: string; 
+        message: string;
+        type?: string;
     }
-    
+
     interface InspectionProvider {
         name: string;
         scanFile?(content: string, path: string): { errors: LintingError[];  aborted: boolean };
-        scanFileAsync?(content: string, path: string): JQueryPromise<{ errors: LintingError[];  aborted: boolean }>; 
+        scanFileAsync?(content: string, path: string): JQueryPromise<{ errors: LintingError[];  aborted: boolean }>;
     }
-    
-    
+
+
     //--------------------------------------------------------------------------
     //
     //  QuickEdit
     //
     //--------------------------------------------------------------------------
-    
+
     interface InlineEditProvider {
         (hostEditor: Editor, pos: CodeMirror.Position): JQueryPromise<InlineWidget>
     }
-    
-    
-        
+
+
+
     //--------------------------------------------------------------------------
     //
     //  QuickOpen
     //
     //--------------------------------------------------------------------------
-    
+
     interface QuickOpen {
         /**
          * Creates and registers a new QuickOpenPlugin
@@ -1058,13 +1058,13 @@ declare module brackets {
         addQuickOpenPlugin<S>(def: QuickOpenPluginDef<S>): void;
         highlightMatch(item: string): string;
     }
-    
-    
-    interface QuickOpenPluginDef<S> { 
+
+
+    interface QuickOpenPluginDef<S> {
         /**
          * plug-in name, **must be unique**
          */
-        name: string; 
+        name: string;
         /**
          * language Ids array. Example: ["javascript", "css", "html"]. To allow any language, pass []. Required.
          */
@@ -1074,7 +1074,7 @@ declare module brackets {
          */
         done?: () => void;
         /**
-         * takes a query string and a StringMatcher (the use of which is optional but can speed up your searches) 
+         * takes a query string and a StringMatcher (the use of which is optional but can speed up your searches)
          * and returns an array of strings that match the query. Required.
          */
         search: (request: string, stringMatcher: StringMatcher) => JQueryPromise<S[]>;
@@ -1091,13 +1091,13 @@ declare module brackets {
          */
         itemSelect: (result: S) => void;
         /**
-         * takes a query string and an item string and returns 
+         * takes a query string and an item string and returns
          * a <LI> item to insert into the displayed search results. Optional.
          */
         resultsFormatter?: (result: S) => string;
-        
+
         /**
-         * options to pass along to the StringMatcher (see StringMatch.StringMatcher for available options). 
+         * options to pass along to the StringMatcher (see StringMatch.StringMatcher for available options).
          */
         matcherOptions?: StringMatcherOptions;
         /**
@@ -1105,57 +1105,57 @@ declare module brackets {
          */
         label?: string;
     }
-    
+
     interface StringMatcherOptions {
         preferPrefixMatches?: boolean;
         segmentedSearch?: boolean;
     }
-    
+
     interface StringMatcher {
         match(target: string, query: string): {
             ranges: { text: string; matched: boolean; includesLastSegment: boolean}[];
-            matchGoodness: number; 
+            matchGoodness: number;
             scoreDebug: any;
         }
     }
-    
-     
+
+
     //--------------------------------------------------------------------------
     //
     //  Todo
     //
     //--------------------------------------------------------------------------
-    
+
     interface InlineDocsProvider {
         (hostEditor: Editor, pos: CodeMirror.Position): JQueryPromise<InlineWidget>
     }
-    
+
     interface JumpDoDefProvider {
         (): JQueryPromise<boolean>
     }
-    
-    
-    
+
+
+
     interface InlineWidget {
         load(editor: Editor): void
     }
-    
-   
-    
+
+
+
     module MultiRangeInlineEditor {
         class MultiRangeInlineEditor implements InlineWidget {
             constructor(ranges: MultiRangeInlineEditorRange[]);
             load(editor: Editor): void;
         }
     }
-    
+
     interface MultiRangeInlineEditorRange {
         name: string;
         document: brackets.Document;
         lineStart: number;
         lineEnd: number;
     }
-    
+
     function getModule(module: 'filesystem/FileSystem'): FileSystem;
     function getModule(module: 'document/DocumentManager'): brackets.DocumentManager;
     function getModule(module: 'project/ProjectManager'): brackets.ProjectManager;
@@ -1168,5 +1168,5 @@ declare module brackets {
     function getModule(module: 'search/QuickOpen'): QuickOpen;
     function getModule(module: 'preferences/PreferencesManager'): PreferencesManager;
     function getModule(module: string): any;
-    
+
 }

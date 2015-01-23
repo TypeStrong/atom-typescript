@@ -24,11 +24,13 @@ export class Program {
         this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
     }
 
-    emitFile = (filename: string) => {
+    emitFile = (filename: string): EmitOutput => {
         var services = this.languageService;
         var output = services.getEmitOutput(filename);
+        var success = output.emitOutputStatus === ts.EmitReturnStatus.Succeeded;
 
-        if (output.emitOutputStatus === ts.EmitReturnStatus.Succeeded) {
+
+        if (success) {
             // console.log('SUCCESS ' + filename);
         }
         else {
@@ -49,6 +51,16 @@ export class Program {
         output.outputFiles.forEach(o => {
             fs.writeFileSync(o.name, o.text, "utf8");
         });
+
+        var outputFiles = output.outputFiles.map((o) => o.name);
+        if (path.extname(filename) == '.d.ts') {
+            outputFiles.push(filename);
+        }
+
+        return {
+            outputFiles: outputFiles,
+            success: success,
+        }
     }
 
     // TODO: push this to use regex and into tsconfig
@@ -113,14 +125,20 @@ export function getOrCreateProgram(filePath) {
     }
 }
 
+export interface EmitOutput {
+    outputFiles: string[];
+    success: boolean;
+}
+
 export interface TSError {
     filePath: string;
     startPos: languageServiceHost.Position;
     endPos: languageServiceHost.Position;
     message: string;
+    preview: string;
 }
 
-export function getErrorsForFile(filePath:string): TSError[] {
+export function getErrorsForFile(filePath: string): TSError[] {
     var program = getOrCreateProgram(filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(filePath);
     if (diagnostics.length === 0) {
@@ -131,11 +149,12 @@ export function getErrorsForFile(filePath:string): TSError[] {
         filePath: diagnostic.file.filename,
         startPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.start),
         endPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.length + diagnostic.start),
-        message: diagnostic.messageText
+        message: diagnostic.messageText,
+        preview: program.languageServiceHost.getScriptContent(filePath).substr(diagnostic.start, diagnostic.length),
     }));
 }
 // Filtered means *only* for this file ... not because of file it references/imports
-export function getErrorsForFileFiltered(filePath: string): TSError[]{
+export function getErrorsForFileFiltered(filePath: string): TSError[] {
     // We have inconsistent Unix slashes. 
     // TODO: Make slashes consistent all around.
     var fileName = path.basename(filePath);

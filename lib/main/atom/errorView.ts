@@ -4,6 +4,8 @@
 ///ts:import=programManager
 import programManager = require('../lang/programManager'); ///ts:import:generated
 
+import os = require('os')
+
 var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
@@ -46,11 +48,19 @@ export function setErrors(errors: programManager.TSError[]) {
             messagePanel.add(new LineMessageView({
                 message: error.message,
                 line: error.startPos.line + 1,
+                preview: error.preview
             }));
         });
     }
 }
 
-export function showEmittedMessage() {
-    atom.notifications.addSuccess("Js emitted");
+export function showEmittedMessage(output: programManager.EmitOutput) {
+    if (output.success) {
+        var message = 'TS Emit: <br/>' + output.outputFiles.join('<br/>');
+        atom.notifications.addSuccess(message);
+    } else if (!output.outputFiles.length) {
+        atom.notifications.addError('TS Emit Failed');
+    } else {
+        atom.notifications.addInfo('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
+    }
 }

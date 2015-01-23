@@ -58,8 +58,8 @@ export function activate(state: PackageState) {
                     // And save
                     editor.onDidSave((event) => {
                         // TODO: store by file path
-                        program.emitFile(filePath);
-                        errorView.showEmittedMessage();
+                        var output = program.emitFile(filePath);
+                        errorView.showEmittedMessage(output);
                     });
 
                 } catch (ex) {
