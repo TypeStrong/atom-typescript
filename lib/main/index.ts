@@ -38,7 +38,7 @@ export function activate(state: PackageState) {
             // statusBarMessage = statusBar.addLeftTile({ item: something, priority: 100 });
         }
 
-
+        // Observe editors happening
         editorWatch = atom.workspace.observeTextEditors((editor) => {
 
             var filePath = editor.getPath();
@@ -48,7 +48,12 @@ export function activate(state: PackageState) {
             if (ext == '.ts') {
                 try {
                     var program = programManager.getOrCreateProgram(filePath);
-                    console.log(program);
+                    
+                    // Now observe editors changing
+                    editor.onDidStopChanging(() => {
+                        program.languageServiceHost.updateScript(filePath, editor.getText());
+                    });
+
                 } catch (ex) {
                     console.error('Solve this in atom-typescript', ex);
                     throw ex;
