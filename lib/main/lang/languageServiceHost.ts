@@ -22,6 +22,11 @@ import fs = require('fs');
 ///ts:import=tsconfig
 import tsconfig = require('../tsconfig/index'); ///ts:import:generated
 
+export interface Position {
+    line: number;
+    ch: number;
+}
+
 interface ScriptInfo {
     getFileName(): string;
     getContent(): string;
@@ -35,7 +40,7 @@ interface ScriptInfo {
     updateContent(newContent: string): void;
     editContent(minChar: number, limChar: number, newText: string): void;
     getPositionFromLine(line: number, ch: number): number;
-    getLineAndColForPositon(position: number): { line: number; ch: number };
+    getLineAndColForPositon(position: number): Position;
 }
     
 /**
@@ -184,7 +189,7 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
 // NOTES: 
 // * fileName is * always * the absolute path to the file 
 // * content is *always* the string content of the file
-class LanguageServiceHost implements ts.LanguageServiceHost {
+export class LanguageServiceHost implements ts.LanguageServiceHost {
 
     /**
      * a map associating file absolute path to ScriptInfo
@@ -309,5 +314,3 @@ class LanguageServiceHost implements ts.LanguageServiceHost {
     error = () => void 0
     trace = () => void 0
 }
-
-export = LanguageServiceHost;

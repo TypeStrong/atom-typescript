@@ -7,15 +7,15 @@ import ts = require('typescript');
 
 ///ts:import=tsconfig
 import tsconfig = require('../tsconfig/index'); ///ts:import:generated
-import LanguageServiceHost = require('./languageServiceHost');
+import languageServiceHost = require('./languageServiceHost');
 import utils = require('./utils');
 
 export class Program {
-    public languageServiceHost: LanguageServiceHost;
+    public languageServiceHost: languageServiceHost.LanguageServiceHost;
     public languageService: ts.LanguageService;
 
     constructor(public projectFile: tsconfig.TypeScriptProjectFileDetails) {
-        this.languageServiceHost = new LanguageServiceHost(projectFile);
+        this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
 
         // Now using the language service we need to get all the referenced files and add them back to the project
@@ -112,4 +112,33 @@ export function getOrCreateProgram(filePath) {
     } else {
         return programs[projectFile.projectFileDirectory] = new Program(projectFile);
     }
+}
+
+export interface TSError {
+    filePath: string;
+    startPos: languageServiceHost.Position;
+    endPos: languageServiceHost.Position;
+    message: string;
+}
+
+export function getErrorsForFile(filePath:string): TSError[] {
+    var program = getOrCreateProgram(filePath);
+    var diagnostics = program.languageService.getSyntacticDiagnostics(filePath);
+    if (diagnostics.length === 0) {
+        diagnostics = program.languageService.getSemanticDiagnostics(filePath);
+    }
+
+    return diagnostics.map(diagnostic => ({
+        filePath: diagnostic.file.filename,
+        startPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.start),
+        endPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.length + diagnostic.start),
+        message: diagnostic.messageText
+    }));
+}
+// Filtered means *only* for this file ... not because of file it references/imports
+export function getErrorsForFileFiltered(filePath: string): TSError[]{
+    // We have inconsistent Unix slashes. 
+    // TODO: Make slashes consistent all around.
+    var fileName = path.basename(filePath);
+    return getErrorsForFile(filePath).filter((error) => path.basename(error.filePath) == fileName);
 }
