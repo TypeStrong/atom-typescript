@@ -48,11 +48,11 @@ export function activate(state: PackageState) {
 
                     // Now observe editors changing
                     editor.onDidStopChanging(() => {
-                        // Update the file 
+                        // Update the file
                         program.languageServiceHost.updateScript(filePath, editor.getText());
 
                         // Get any errors in the project
-
+                        errorView.setErrors(programManager.getErrorsForFile(filePath));
                     });
 
                 } catch (ex) {
@@ -77,3 +77,5 @@ export function serialize(): PackageState {
 export function deserialize() {
     /* do any tear down here */
 }
+
+var foo = 123;
