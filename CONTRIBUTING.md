@@ -19,7 +19,7 @@ cd %HOMEPATH%\.atom\packages && mklink /J atom-typescript c:\REPOS\atom-typescri
 
 # General research
 ## Getting the language service
-Opening up the TypeScript compiler : https://github.com/basarat/typescript-services#contributing
+Opening up the TypeScript compiler : https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
 
 ## Depending upon other atom packages
 There isn't a documented way : https://discuss.atom.io/t/depending-on-other-packages/2360/16 
