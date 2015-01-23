@@ -3,22 +3,30 @@
 
 ///ts:import=programManager
 import programManager = require('../lang/programManager'); ///ts:import:generated
+///ts:import=utils
+import utils = require('../lang/utils'); ///ts:import:generated
 
 import os = require('os')
 
+interface ILineMessageView { }
+
 var MessagePanelView = require('atom-message-panel').MessagePanelView,
-    LineMessageView = require('atom-message-panel').LineMessageView,
+    LineMessageView :{new (config:any):ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
+
 
 
 var messagePanel;
 export function start() {
-    if (messagePanel) return; 
+    if (messagePanel) return;
     messagePanel = new MessagePanelView({
         title: 'TypeScript Errors'
     });
     messagePanel.attach();
 }
+
+var filePathListViewMap:utils.Dict<any[]> = new utils.Dict<any[]>();
+
 
 // from : https://github.com/tcarlsen/atom-csslint/blob/master/lib/linter.coffee
 function isHidden() {
@@ -35,7 +43,7 @@ function hide() {
     }
 }
 
-export function setErrors(errors: programManager.TSError[]) {
+export function setErrors(filePath: string, errors: programManager.TSError[]) {
     messagePanel.clear();
 
     if (!errors.length) {

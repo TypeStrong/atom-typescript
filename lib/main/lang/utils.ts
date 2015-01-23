@@ -219,3 +219,11 @@ export function pathIsRelative(str: string) {
     if (!str.length) return false;
     return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
 }
+
+export class Dict<T>{
+    private internal = Object.create(null);
+    constructor() { }
+    set(key: string, item: T) { this.internal[key] = item; }
+    get(key: string) { return this.internal[key]; }
+    clearAll() { this.internal = Object.create(null);}
+}
