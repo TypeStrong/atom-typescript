@@ -5,8 +5,7 @@ import fs = require('fs');
 import path = require('path');
 import ts = require('typescript');
 
-///ts:import=tsconfig
-import tsconfig = require('../tsconfig/index'); ///ts:import:generated
+import tsconfig = require('../tsconfig/tsconfig');
 import languageServiceHost = require('./languageServiceHost');
 import utils = require('./utils');
 

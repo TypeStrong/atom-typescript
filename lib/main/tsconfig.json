@@ -15,6 +15,6 @@
         "./lang/languageServiceHost.ts",
         "./lang/programManager.ts",
         "./lang/utils.ts",
-        "./tsconfig/index.ts"
+        "./tsconfig/tsconfig.ts"
     ]
 }
