@@ -14,6 +14,7 @@ import errorView = require('./atom/errorView'); ///ts:import:generated
 var statusBar;
 var statusBarMessage;
 var editorWatch: AtomCore.Disposable;
+var autoCompleteWatch: AtomCore.Disposable;
 
 export interface PackageState {
 }
@@ -59,6 +60,7 @@ export function activate(state: PackageState) {
                     // And save
                     editor.onDidSave((event) => {
                         // TODO: store by file path
+                        program.languageServiceHost.updateScript(filePath, editor.getText());
                         var output = program.emitFile(filePath);
                         errorView.showEmittedMessage(output);
                     });
@@ -70,12 +72,18 @@ export function activate(state: PackageState) {
             }
         });
 
+        // Registering a better provider
+        atom.packages.activatePackage('autocomplete-plus').then(pkg => {
+            var autoComplete = pkg.mainModule;
+        });
+
     });
 }
 
 export function deactivate() {
     if (statusBarMessage) statusBarMessage.destroy();
-    editorWatch.dispose();
+    if (editorWatch) editorWatch.dispose();
+    if (autoCompleteWatch) autoCompleteWatch.dispose();
 }
 
 export function serialize(): PackageState {

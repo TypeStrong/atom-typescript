@@ -10,6 +10,7 @@
         "./**/*.ts"
     ],
     "files": [
+        "./atom/autoCompleteProvider.ts",
         "./atom/errorView.ts",
         "./index.ts",
         "./lang/languageServiceHost.ts",

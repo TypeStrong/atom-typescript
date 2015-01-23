@@ -20,6 +20,10 @@ export class Program {
         // Now using the language service we need to get all the referenced files and add them back to the project
         this.increaseProjectForReferenceAndImports();
 
+        this.init();
+    }
+
+    private init() {
         // Since we only create a program per project once. Emit the first time
         this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
     }

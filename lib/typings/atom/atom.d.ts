@@ -966,7 +966,7 @@ declare module AtomCore {
 		activate():void;
 		registerPackageActivator(activator:any, types:any):void;
 		activatePackages(packages:any):void;
-		activatePackage(name:string):void;
+		activatePackage(name:string):any;
 		deactivatePackages():void;
 		deactivatePackage(name:string):void;
 		getActivePackages():any;
