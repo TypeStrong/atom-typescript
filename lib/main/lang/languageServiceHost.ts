@@ -274,6 +274,8 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return null;
     }
 
+
+
     ////////////////////////////////////////
     // ts.LanguageServiceHost implementation
     ////////////////////////////////////////

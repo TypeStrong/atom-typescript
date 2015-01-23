@@ -91,8 +91,10 @@ export function activate(state: PackageState) {
         if (selection.isEmpty()) {
             editor.setText(program.formatDocument(filePath));
         } else {
-            console.log(selection);
-            return e.abortKeyBinding();
+            var formatted = program.formatDocumentRange(filePath,
+                program.languageServiceHost.getIndexFromPosition(filePath, { line: selection.start.row, ch: selection.start.column }),
+                program.languageServiceHost.getIndexFromPosition(filePath, { line: selection.end.row, ch: selection.end.column }));
+            editor.setText(program.formatDocument(filePath));
         }
     });
 }

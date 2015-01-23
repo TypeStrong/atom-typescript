@@ -71,12 +71,15 @@ export class Program {
     formatDocument(filePath: string): string {
         var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());   
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
+        console.log(textChanges, this.languageServiceHost.getScriptContent(filePath), formatted);
         return formatted;
     }
 
-    formatDocumentRange(filePath: string, range: any): string {
-        this.languageService.getFormattingEditsForRange(filePath, range.start, range.end, defaultFormatCodeOptions());
-        return '';
+    formatDocumentRange(filePath: string, start: number, end: number): string {
+        var textChanges = this.languageService.getFormattingEditsForRange(filePath, start, end, defaultFormatCodeOptions());
+        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
+        console.log(textChanges, formatted);
+        return formatted;
     }
 
     // from https://github.com/Microsoft/TypeScript/issues/1651#issuecomment-69877863
