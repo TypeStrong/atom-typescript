@@ -1,0 +1,3 @@
+'atom-text-editor':
+  'alt-cmd-l': 'typescript:format-code'
+  'alt-ctrl-l': 'typescript:format-code'

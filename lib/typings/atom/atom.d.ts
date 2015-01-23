@@ -145,9 +145,13 @@ declare module AtomCore {
 		removeLineHighlights():void;
 		addLineHighlight(row:number, emptySelection?:boolean):any;
 		highlightLines():boolean;
-	}
+    }
 
-	interface ICommandPanel {
+    interface ICommandRegistry {
+        add(selector: string, name: string, callback: (event: any) => void); // selector:'atom-editor'|'atom-workspace'
+    }
+
+    interface ICommandPanel {
 		// TBD
 	}
 
@@ -893,6 +897,8 @@ declare module AtomCore {
 		unregisterOpener(opener:Function):void;
 		getOpeners():any;
 		getActivePane(): IPane;
+		getActivePaneItem(): IPane;
+		getActiveTextEditor(): IEditor;
 		getPanes():any;
 		saveAll():void;
 		activateNextPane():any;
@@ -1038,7 +1044,8 @@ declare module AtomCore {
 		state:IAtomState;
 		mode:string;
 		deserializers:IDeserializerManager;
-		config: IConfig;
+        config: IConfig;
+        commands: ICommandRegistry;
 		keymaps: IKeymapManager;
 		keymap: IKeymapManager;
 		packages: IPackageManager;

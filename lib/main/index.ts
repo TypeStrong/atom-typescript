@@ -25,7 +25,7 @@ export function activate(state: PackageState) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
     if (!linter || !acp) {
-        apd.install(function () {
+        apd.install(function() {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
         });
 
@@ -47,6 +47,8 @@ export function activate(state: PackageState) {
             if (ext == '.ts') {
                 try {
                     var program = programManager.getOrCreateProgram(filePath);
+
+                    errorView.setErrors(programManager.getErrorsForFile(filePath));
 
                     // Now observe editors changing
                     editor.onDidStopChanging(() => {
@@ -76,7 +78,22 @@ export function activate(state: PackageState) {
         atom.packages.activatePackage('autocomplete-plus').then(pkg => {
             var autoComplete = pkg.mainModule;
         });
+    });
 
+    // Setup custom commands
+    // NOTE: these need to be added to the package.json."activationEvents" as well as possibly keymaps
+    atom.commands.add('atom-workspace', 'typescript:format-code',(e) => {
+        var editor = atom.workspace.getActiveTextEditor();
+        if (!editor) return e.abortKeyBinding();
+        if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding();
+
+        var filePath = editor.getPath();
+        var program = programManager.getOrCreateProgram(filePath);
+        if (editor.getSelectedText()) {
+            return e.abortKeyBinding();
+        } else {
+            editor.setText(program.formatDocument(filePath));
+        }
     });
 }
 
@@ -93,3 +110,5 @@ export function serialize(): PackageState {
 export function deserialize() {
     /* do any tear down here */
 }
+
+var foo = 123 ;

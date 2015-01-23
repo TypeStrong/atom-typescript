@@ -3,6 +3,7 @@
 
 import fs = require('fs');
 import path = require('path');
+import os = require('os');
 import ts = require('typescript');
 
 import tsconfig = require('../tsconfig/tsconfig');
@@ -28,20 +29,20 @@ export class Program {
         this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
     }
 
-    emitFile = (filename: string): EmitOutput => {
+    emitFile = (filePath: string): EmitOutput => {
         var services = this.languageService;
-        var output = services.getEmitOutput(filename);
+        var output = services.getEmitOutput(filePath);
         var success = output.emitOutputStatus === ts.EmitReturnStatus.Succeeded;
 
 
         if (success) {
-            // console.log('SUCCESS ' + filename);
+            // console.log('SUCCESS ' + filePath);
         }
         else {
-            console.log('FAILURE ' + filename + ' emit');
+            console.log('FAILURE ' + filePath + ' emit');
             var allDiagnostics = services.getCompilerOptionsDiagnostics()
-                .concat(services.getSyntacticDiagnostics(filename))
-                .concat(services.getSemanticDiagnostics(filename));
+                .concat(services.getSyntacticDiagnostics(filePath))
+                .concat(services.getSemanticDiagnostics(filePath));
 
             console.log(allDiagnostics);
             allDiagnostics.forEach(diagnostic => {
@@ -57,14 +58,32 @@ export class Program {
         });
 
         var outputFiles = output.outputFiles.map((o) => o.name);
-        if (path.extname(filename) == '.d.ts') {
-            outputFiles.push(filename);
+        if (path.extname(filePath) == '.d.ts') {
+            outputFiles.push(filePath);
         }
 
         return {
             outputFiles: outputFiles,
             success: success,
         }
+    }
+
+    formatDocument(filePath: string): string {
+        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());   
+        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
+        return formatted;
+    }
+
+    // from https://github.com/Microsoft/TypeScript/issues/1651#issuecomment-69877863
+    private formatCode(orig: string, changes: ts.TextChange[]): string {
+        var result = orig;
+        for (var i = changes.length - 1; i >= 0; i--) {
+            var change = changes[i];
+            var head = result.slice(0, change.span.start());
+            var tail = result.slice(change.span.start() + change.span.length());
+            result = head + change.newText + tail;
+        }
+        return result;
     }
 
     // TODO: push this to use regex and into tsconfig
@@ -163,4 +182,21 @@ export function getErrorsForFileFiltered(filePath: string): TSError[] {
     // TODO: Make slashes consistent all around.
     var fileName = path.basename(filePath);
     return getErrorsForFile(filePath).filter((error) => path.basename(error.filePath) == fileName);
+}
+
+export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
+    return {
+        IndentSize: 4,
+        TabSize: 4,
+        NewLineCharacter: os.EOL,
+        ConvertTabsToSpaces: true,
+        InsertSpaceAfterCommaDelimiter: true,
+        InsertSpaceAfterSemicolonInForStatements: true,
+        InsertSpaceBeforeAndAfterBinaryOperators: true,
+        InsertSpaceAfterKeywordsInControlFlowStatements: true,
+        InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+        InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
+        PlaceOpenBraceOnNewLineForFunctions: false,
+        PlaceOpenBraceOnNewLineForControlBlocks: false,
+    };
 }
