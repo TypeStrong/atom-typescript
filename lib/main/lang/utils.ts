@@ -240,3 +240,17 @@ export class Dict<T>{
         return array;
     }
 }
+
+/** for testing ui lags only */
+export function delay(seconds: number = 2) {
+    delayMilliseconds(seconds * 1000);
+};
+
+export function delayMilliseconds(milliseconds: number = 100) {
+    // Delay the thread
+    var d1 = new Date();
+    var d2 = new Date();
+    while (d2.valueOf() < d1.valueOf() + milliseconds) {
+        d2 = new Date();
+    }
+};

@@ -7,6 +7,8 @@
 
 ///ts:import=programManager
 import programManager = require('./main/lang/programManager'); ///ts:import:generated
+///ts:import=utils
+import utils = require('./main/lang/utils'); ///ts:import:generated
 
 var linterPath = atom.packages.getLoadedPackage("linter").path;
 var Linter = require(linterPath + "/lib/linter");
