@@ -52,10 +52,8 @@ export function activate(state: PackageState) {
                     // Update the file
                     program.languageServiceHost.updateScript(filePath, editor.getText());
 
-                    // Get any errors in the project
-                    // TODO: This is commented out as calling this on *all* initial loads means the last one wins. Need a better strategy.
-                    // TODO: setErrors / clearErrors PER file
-                    errorView.setErrors(programManager.getErrorsForFile(filePath));
+                    // Set errors in project per file
+                    errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
                 });
 
                 // And save

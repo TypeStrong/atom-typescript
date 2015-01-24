@@ -14,10 +14,10 @@
 
 'use strict';
 
-import path                    = require('path');
+import path = require('path');
 
-export function mapValues<T>(map: { [index: string]: T }): T[] {
-    return Object.keys(map).reduce( (result: T[], key: string) => {
+export function mapValues<T>(map: { [index: string]: T }): T[] {
+    return Object.keys(map).reduce((result: T[], key: string) => {
         result.push(map[key]);
         return result;
     }, []);
@@ -46,11 +46,11 @@ export function clone<T>(target: T): T {
 }
 
 
-export function createMap(arr: string[]): { [string: string]: boolean} {
-    return arr.reduce((result: { [string: string]: boolean}, key: string) => {
+export function createMap(arr: string[]): { [string: string]: boolean } {
+    return arr.reduce((result: { [string: string]: boolean }, key: string) => {
         result[key] = true;
         return result;
-    }, <{ [string: string]: boolean}>{});
+    }, <{ [string: string]: boolean }>{});
 }
 
 
@@ -157,11 +157,11 @@ export class Signal<T> implements ISignal<T> {
      * @params parameter the parameter attached to the event dispatching
      */
     dispatch(parameter?: T): boolean {
-        var hasBeenCanceled = this.listeners.every((listener: (parameter: T) => any) =>  {
+        var hasBeenCanceled = this.listeners.every((listener: (parameter: T) => any) => {
             var result = listener(parameter);
             return result !== false;
         });
-        
+
         return hasBeenCanceled;
     }
     
@@ -211,7 +211,7 @@ export function selectMany<T>(arr: T[][]): T[] {
             result.push(arr[i][j]);
         }
     }
-    return result; 
+    return result;
 }
 
 // Not particularly awesome e.g. '/..foo' will pass
@@ -221,9 +221,22 @@ export function pathIsRelative(str: string) {
 }
 
 export class Dict<T>{
-    private internal = Object.create(null);
+    public table = Object.create(null);
     constructor() { }
-    set(key: string, item: T) { this.internal[key] = item; }
-    get(key: string) { return this.internal[key]; }
-    clearAll() { this.internal = Object.create(null);}
+    setValue(key: string, item: T) {
+        this.table[key] = item;
+    }
+    getValue(key: string) { return this.table[key]; }
+    clearValue(key: string) {
+        delete this.table[key];
+    }
+    clearAll() { this.table = Object.create(null); }
+    keys() { return Object.keys(this.table); }
+    values() {
+        var array = [];
+        for (var key in this.table) {
+            array.push(this.table[key]);
+        }
+        return array;
+    }
 }

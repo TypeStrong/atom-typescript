@@ -11,7 +11,7 @@ import os = require('os')
 interface ILineMessageView { }
 
 var MessagePanelView = require('atom-message-panel').MessagePanelView,
-    LineMessageView :{new (config:any):ILineMessageView } = require('atom-message-panel').LineMessageView,
+    LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
 
 
@@ -25,7 +25,7 @@ export function start() {
     messagePanel.attach();
 }
 
-var filePathListViewMap:utils.Dict<any[]> = new utils.Dict<any[]>();
+var filePathErrors: utils.Dict<programManager.TSError[]> = new utils.Dict<any[]>();
 
 
 // from : https://github.com/tcarlsen/atom-csslint/blob/master/lib/linter.coffee
@@ -43,23 +43,30 @@ function hide() {
     }
 }
 
-export function setErrors(filePath: string, errors: programManager.TSError[]) {
+export function setErrors(filePath: string, errorsForFile: programManager.TSError[]) {
+    if (!errorsForFile.length) filePathErrors.clearValue(filePath);
+    else filePathErrors.setValue(filePath, errorsForFile);
+
+    // TODO: this needs to be optimized at some point
     messagePanel.clear();
 
-    if (!errors.length) {
+    if (!filePathErrors.keys().length) {
         messagePanel.add(new PlainMessageView({
             message: "No errors",
             className: "text-success"
         }));
     }
     else {
-        errors.forEach((error) => {
-            messagePanel.add(new LineMessageView({
-                message: error.message,
-                line: error.startPos.line + 1,
-                preview: error.preview
-            }));
-        });
+        for (var path in filePathErrors.table) {
+            filePathErrors.getValue(path).forEach((error) => {
+                messagePanel.add(new LineMessageView({
+                    message: error.message,
+                    line: error.startPos.line + 1,
+                    file: path,
+                    preview: error.preview
+                }));
+            });
+        }
     }
 }
 
