@@ -48,13 +48,13 @@ export function activate(state: PackageState) {
 
                 // Now observe editors changing
                 editor.onDidStopChanging(() => {
-                    
+
                     // Update the file
                     program.languageServiceHost.updateScript(filePath, editor.getText());
 
                     // Get any errors in the project
                     // TODO: This is commented out as calling this on *all* initial loads means the last one wins. Need a better strategy.
-                    // TODO: setErrors / clearErrors PER file 
+                    // TODO: setErrors / clearErrors PER file
                     errorView.setErrors(programManager.getErrorsForFile(filePath));
                 });
 
@@ -110,5 +110,3 @@ export function serialize(): PackageState {
 export function deserialize() {
     /* do any tear down here */
 }
-
-var foo = 123;
