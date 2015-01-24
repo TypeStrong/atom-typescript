@@ -46,7 +46,7 @@ export function activate(state: PackageState) {
                 // Setup the error reporter:
                 errorView.start();
 
-                // Now observe editors changing
+                // Observe editors changing
                 editor.onDidStopChanging(() => {
 
                     // Update the file
@@ -56,12 +56,18 @@ export function activate(state: PackageState) {
                     errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
                 });
 
-                // And save
+                // Observe editors saving
                 editor.onDidSave((event) => {
                     // TODO: store by file path
                     program.languageServiceHost.updateScript(filePath, editor.getText());
                     var output = program.emitFile(filePath);
                     errorView.showEmittedMessage(output);
+                });
+
+                // Observe editors closing
+                editor.onDidDestroy(() => {
+                    // Clear errors in view
+                    errorView.setErrors(filePath, []);
                 });
 
             } catch (ex) {
