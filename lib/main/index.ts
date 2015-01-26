@@ -9,6 +9,8 @@ var apd = require('atom-package-dependencies');
 import programManager = require('./lang/programManager'); ///ts:import:generated
 ///ts:import=errorView
 import errorView = require('./atom/errorView'); ///ts:import:generated
+///ts:import=autoCompleteProvider
+import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -78,9 +80,7 @@ export function activate(state: PackageState) {
     });
 
     // Registering an autocomplete provider
-    atom.packages.activatePackage('autocomplete-plus').then(pkg => {
-        var autoComplete = pkg.mainModule;
-    });
+    // atom.services.provide('autocomplete.provider', '1.0.0', {provider:provider})
 
     // Setup custom commands
     // NOTE: these need to be added to the package.json."activationEvents" as well as possibly keymaps
