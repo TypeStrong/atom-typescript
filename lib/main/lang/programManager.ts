@@ -20,11 +20,9 @@ export class Program {
 
         // Now using the language service we need to get all the referenced files and add them back to the project
         this.increaseProjectForReferenceAndImports();
-
-        this.init();
     }
 
-    private init() {
+    public build() {
         // Since we only create a program per project once. Emit the first time
         this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
     }
@@ -33,6 +31,7 @@ export class Program {
         var services = this.languageService;
         var output = services.getEmitOutput(filePath);
         var success = output.emitOutputStatus === ts.EmitReturnStatus.Succeeded;
+        var errors: TSError[] = [];
 
 
         if (success) {
@@ -44,12 +43,12 @@ export class Program {
                 .concat(services.getSyntacticDiagnostics(filePath))
                 .concat(services.getSemanticDiagnostics(filePath));
 
-            console.log(allDiagnostics);
             allDiagnostics.forEach(diagnostic => {
                 if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
 
-                var lineChar = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-                console.log(diagnostic.file && diagnostic.file.filename, lineChar.line, lineChar.character, diagnostic.messageText);
+                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
+                console.log(diagnostic.file.filename, startPosition.line, startPosition.character, diagnostic.messageText);
+                errors.push(diagnosticToTSError(diagnostic));
             });
         }
 
@@ -65,7 +64,8 @@ export class Program {
         return {
             outputFiles: outputFiles,
             success: success,
-        }
+            errors: errors  
+        };
     }
 
     formatDocument(filePath: string): string {
@@ -79,7 +79,7 @@ export class Program {
         var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
         var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, defaultFormatCodeOptions());
 
-        // Sadly ^ these changes are still relative to *start* of file. So lets fix that. 
+        // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
         textChanges.forEach((change) => change.span = new ts.TextSpan(change.span.start() - st, change.span.length()));
 
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st,ed), textChanges);
@@ -163,6 +163,7 @@ export function getOrCreateProgram(filePath) {
 export interface EmitOutput {
     outputFiles: string[];
     success: boolean;
+    errors: TSError[]
 }
 
 export interface TSError {
@@ -173,6 +174,20 @@ export interface TSError {
     preview: string;
 }
 
+export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
+    var filePath = diagnostic.file.filename;
+    var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
+    var endPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start + diagnostic.length);
+    return {
+        filePath: filePath,
+        // NOTE: the bases of indexes are different
+        startPos: { line: startPosition.line - 1, ch: startPosition.character - 1 },
+        endPos: { line: endPosition.line - 1, ch: endPosition.character - 1 },
+        message: diagnostic.messageText,
+        preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
+    };
+}
+
 export function getErrorsForFile(filePath: string): TSError[] {
     var program = getOrCreateProgram(filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(filePath);
@@ -180,17 +195,11 @@ export function getErrorsForFile(filePath: string): TSError[] {
         diagnostics = program.languageService.getSemanticDiagnostics(filePath);
     }
 
-    return diagnostics.map(diagnostic => ({
-        filePath: diagnostic.file.filename,
-        startPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.start),
-        endPos: program.languageServiceHost.getPositionFromIndex(filePath, diagnostic.length + diagnostic.start),
-        message: diagnostic.messageText,
-        preview: program.languageServiceHost.getScriptContent(filePath).substr(diagnostic.start, diagnostic.length),
-    }));
+    return diagnostics.map(diagnosticToTSError);
 }
 // Filtered means *only* for this file ... not because of file it references/imports
 export function getErrorsForFileFiltered(filePath: string): TSError[] {
-    // We have inconsistent Unix slashes. 
+    // We have inconsistent Unix slashes.
     // TODO: Make slashes consistent all around.
     var fileName = path.basename(filePath);
     return getErrorsForFile(filePath).filter((error) => path.basename(error.filePath) == fileName);
