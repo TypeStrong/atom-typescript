@@ -58,7 +58,7 @@ export class Program {
                 if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
 
                 var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-                console.log(diagnostic.file.filename, startPosition.line, startPosition.character, diagnostic.messageText);
+                console.log(diagnostic.file.filename, startPosition.line, startPosition.character, diagnostic.messageText, diagnostic.code, diagnostic.isEarly);
                 errors.push(diagnosticToTSError(diagnostic));
             });
         }

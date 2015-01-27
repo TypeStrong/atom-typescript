@@ -31,6 +31,7 @@
   <ItemGroup>
     <Folder Include="lib\" />
     <Folder Include="lib\main\" />
+    <Folder Include="lib\main\atom\" />
     <Folder Include="lib\main\lang\" />
     <Folder Include="lib\main\tsconfig\" />
     <Folder Include="lib\typings\" />

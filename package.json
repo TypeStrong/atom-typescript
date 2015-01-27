@@ -8,6 +8,7 @@
         "node": "*"
     },
     "linter-package": true,
+    "linter-implementation": "linter",
     "homepage": "http://atom.io/packages/typescript",
     "repository": {
         "type": "git",

@@ -7,6 +7,6 @@
         "removecomments": true
     },
     "files": [
-        "./atom-typescript.ts"
+        "./linter.ts"
     ]
 }

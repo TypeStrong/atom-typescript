@@ -1,6 +1,5 @@
 // This file is only called from linter
 // See : https://github.com/AtomLinter/Linter/issues/337
-// This is what happens when packages use convention over configuration :P
 
 ///ts:ref=globals
 /// <reference path="./globals.ts"/> ///ts:ref:generated
