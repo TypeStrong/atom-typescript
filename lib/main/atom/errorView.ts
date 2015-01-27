@@ -20,7 +20,8 @@ var messagePanel;
 export function start() {
     if (messagePanel) return;
     messagePanel = new MessagePanelView({
-        title: 'TypeScript Errors'
+        title: 'TypeScript Errors (for open files)',
+        closeMethod: 'hide'
     });
     messagePanel.attach();
 }
@@ -49,6 +50,7 @@ export function setErrors(filePath: string, errorsForFile: programManager.TSErro
 
     // TODO: this needs to be optimized at some point
     messagePanel.clear();
+    messagePanel.attach();
 
     if (!filePathErrors.keys().length) {
         messagePanel.add(new PlainMessageView({
@@ -74,7 +76,7 @@ export function showEmittedMessage(output: programManager.EmitOutput) {
     if (output.success) {
         var message = 'TS Emit: <br/>' + output.outputFiles.join('<br/>');
         atom.notifications.addSuccess(message);
-    } else if (!output.outputFiles.length) {
+    } else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     } else {
         atom.notifications.addInfo('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));

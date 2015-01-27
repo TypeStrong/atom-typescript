@@ -7,7 +7,7 @@
 declare module autocompleteplus {
     export interface RequestOptions {
         editor: AtomCore.IEditor;
-		position: any; // the position of the cursor
+        position: any; // the position of the cursor
     }
 }
 
@@ -15,8 +15,8 @@ declare module autocompleteplus {
 var provider = {
     selector: '.source.ts',
     requestHandler: (options) => {
-		console.log(options);
-		return [];
+        console.log(options);
+        return [];
     }
 }
 

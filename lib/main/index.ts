@@ -11,6 +11,8 @@ import programManager = require('./lang/programManager'); ///ts:import:generated
 import errorView = require('./atom/errorView'); ///ts:import:generated
 ///ts:import=autoCompleteProvider
 import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
+///ts:import=buildView
+import buildView = require('./atom/buildView'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -82,13 +84,25 @@ export function activate(state: PackageState) {
     // Registering an autocomplete provider
     // atom.services.provide('autocomplete.provider', '1.0.0', {provider:provider})
 
-    // Setup custom commands
-    // NOTE: these need to be added to the package.json."activationEvents" as well as possibly keymaps
-    atom.commands.add('atom-workspace', 'typescript:format-code',(e) => {
+    // Utility functions for commands
+    function commandForTypeScript(e) {
         var editor = atom.workspace.getActiveTextEditor();
-        if (!editor) return e.abortKeyBinding();
-        if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding();
+        if (!editor) return e.abortKeyBinding() && false;
+        if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
 
+        return true;
+    }
+    function commandGetProgram() {
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        return programManager.getOrCreateProgram(filePath);
+    }
+
+    // Setup custom commands NOTE: these need to be added to the keymaps
+    atom.commands.add('atom-workspace', 'typescript:format-code',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
         var program = programManager.getOrCreateProgram(filePath);
         var selection = editor.getSelectedBufferRange();
@@ -98,6 +112,12 @@ export function activate(state: PackageState) {
             var formatted = program.formatDocumentRange(filePath, { line: selection.start.row, ch: selection.start.column }, { line: selection.end.row, ch: selection.end.column });
             editor.setTextInBufferRange(selection, formatted);
         }
+    });
+    atom.commands.add('atom-workspace', 'typescript:compile',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var outputs = commandGetProgram().build();
+        buildView.setBuildOutput(outputs);
     });
 }
 

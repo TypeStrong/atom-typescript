@@ -11,6 +11,7 @@
     ],
     "files": [
         "./atom/autoCompleteProvider.ts",
+        "./atom/buildView.ts",
         "./atom/errorView.ts",
         "./index.ts",
         "./lang/languageServiceHost.ts",

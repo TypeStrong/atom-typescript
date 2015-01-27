@@ -22,9 +22,20 @@ export class Program {
         this.increaseProjectForReferenceAndImports();
     }
 
-    public build() {
-        // Since we only create a program per project once. Emit the first time
-        this.projectFile.project.files.forEach((filename) => this.emitFile(filename));
+    public build(): BuildOutput {
+        var outputs = this.projectFile.project.files.map((filename) => {
+            return this.emitFile(filename);
+        });
+
+        return {
+            outputs: outputs,
+            counts: {
+                inputFiles: this.projectFile.project.files.length,
+                outputFiles: utils.selectMany(outputs.map((out) => out.outputFiles)).length,
+                errors: utils.selectMany(outputs.map((out) => out.errors)).length,
+                emitErrors: outputs.filter(out => out.emitError).length
+            }
+        };
     }
 
     emitFile = (filePath: string): EmitOutput => {
@@ -64,7 +75,8 @@ export class Program {
         return {
             outputFiles: outputFiles,
             success: success,
-            errors: errors  
+            errors: errors,
+            emitError: !success && outputFiles.length === 0
         };
     }
 
@@ -82,7 +94,7 @@ export class Program {
         // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
         textChanges.forEach((change) => change.span = new ts.TextSpan(change.span.start() - st, change.span.length()));
 
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st,ed), textChanges);
+        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
         return formatted;
     }
 
@@ -160,10 +172,21 @@ export function getOrCreateProgram(filePath) {
     }
 }
 
+export interface BuildOutput {
+    outputs: EmitOutput[];
+    counts: {
+        inputFiles: number;
+        outputFiles: number;
+        errors: number;
+        emitErrors: number;
+    }
+}
+
 export interface EmitOutput {
     outputFiles: string[];
     success: boolean;
-    errors: TSError[]
+    errors: TSError[];
+    emitError: boolean;
 }
 
 export interface TSError {
