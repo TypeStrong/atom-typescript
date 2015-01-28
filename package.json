@@ -1,5 +1,5 @@
 {
-    "name": "atom-typescript",
+    "name": "typescript",
     "version": "0.4.0",
     "main": "./lib/main/index",
     "description": "TypeScript workflow from Atom",
