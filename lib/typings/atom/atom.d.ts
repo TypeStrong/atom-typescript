@@ -1121,7 +1121,9 @@ declare module AtomCore {
 		beep:Function;
 		getUserInitScriptPath:Function;
 		requireUserInitScript:Function;
-		requireWithGlobals:Function;
+        requireWithGlobals: Function;
+
+        services: any; // TODO: New services api 
 	}
 
 	interface IBufferedNodeProcessStatic {

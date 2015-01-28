@@ -13,7 +13,7 @@ declare module autocompleteplus {
 
 
 var provider = {
-    selector: '.source.ts',
+    selector: '.source.js,.source.ts',
     requestHandler: (options) => {
         console.log(options);
         return [];
