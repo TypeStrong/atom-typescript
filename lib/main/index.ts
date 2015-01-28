@@ -107,7 +107,10 @@ export function activate(state: PackageState) {
         var program = programManager.getOrCreateProgram(filePath);
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
-            editor.setText(program.formatDocument(filePath));
+            var cursorPosition = editor.getCursorBufferPosition();
+            var result = program.formatDocument(filePath, { line: cursorPosition.row, ch: cursorPosition.column });
+            editor.setText(result.formatted);
+            editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
         } else {
             var formatted = program.formatDocumentRange(filePath, { line: selection.start.row, ch: selection.start.column }, { line: selection.end.row, ch: selection.end.column });
             editor.setTextInBufferRange(selection, formatted);

@@ -77,10 +77,15 @@ export class Program {
         };
     }
 
-    formatDocument(filePath: string): string {
+    formatDocument(filePath: string, cursor: languageServiceHost.Position): { formatted: string; cursor: languageServiceHost.Position } {
         var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-        return formatted;
+        
+        // Get new cursor based on new content
+        var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
+        this.languageServiceHost.updateScript(filePath, formatted);
+
+        return { formatted: formatted, cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
     }
 
     formatDocumentRange(filePath: string, start: languageServiceHost.Position, end: languageServiceHost.Position): string {
@@ -105,6 +110,20 @@ export class Program {
             result = head + change.newText + tail;
         }
         return result;
+    }
+
+    private formatCursor(cursor: number, changes: ts.TextChange[]): number {
+        // If cursor is inside a text change move it to the end of that text change
+        var cursorInsideChange = changes.filter((change) => (change.span.start() < cursor) && ((change.span.end()) > cursor))[0];
+        if (cursorInsideChange) {
+            cursor = cursorInsideChange.span.end();
+        }
+        // Get all text changes that are *before* the cursor and determine the net *addition / subtraction* and apply that to the cursor.
+        var beforeCursorChanges = changes.filter(change => change.span.start() < cursor);
+        var netChange = 0;
+        beforeCursorChanges.forEach(change => netChange = netChange - (change.span.length() - change.newText.length));
+
+        return cursor + netChange;
     }
 }
 
