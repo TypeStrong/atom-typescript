@@ -33,7 +33,7 @@ export interface TypeScriptProjectSpecification {
 ///////// FOR USE WITH THE API /////////////
 
 export interface TypeScriptProjectFileDetails {
-    projectFileDirectory: string; // The path to the project file
+    projectFileDirectory: string; // The path to the project file. This acts as the baseDIR
     project: TypeScriptProjectSpecification;
 }
 
@@ -162,10 +162,10 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions);
 
-    return {
+    return increaseProjectForReferenceAndImports({
         projectFileDirectory: projectFileDirectory,
         project: project
-    };
+    });
 }
 
 /** Creates a project by source file location. Defaults are assumed unless overriden by the optional spec. */
@@ -189,6 +189,61 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     return getProjectSync(srcFile);
 }
 
+
+/////////////////////////////////////////////
+/////////////// UTILITIES ///////////////////
+/////////////////////////////////////////////
+
+function increaseProjectForReferenceAndImports(proj: TypeScriptProjectFileDetails) {
+
+    var filesMap = createMap(proj.project.files);
+    var willNeedMoreAnalysis = (file: string) => {
+        if (!filesMap[file]) {
+            filesMap[file] = true;
+            proj.project.files.push(file);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    var getReferencedOrImportedFiles = (files: string[]): string[]=> {
+        var referenced: string[][] = [];
+
+        files.forEach(file => {
+            var preProcessedFileInfo = ts.preProcessFile(fs.readFileSync(file).toString(), true),
+                dir = path.dirname(file);
+
+            referenced.push(
+                preProcessedFileInfo.referencedFiles.map(fileReference => path.resolve(dir, fileReference.filename))
+                    .concat(
+                    preProcessedFileInfo.importedFiles
+                        .filter((fileReference) => pathIsRelative(fileReference.filename))
+                        .map(fileReference => path.resolve(dir, fileReference.filename + '.ts'))
+                    )
+                );
+        });
+
+        return selectMany(referenced);
+    }
+
+    var more = getReferencedOrImportedFiles(proj.project.files)
+        .filter(willNeedMoreAnalysis);
+    while (more.length) {
+        more = getReferencedOrImportedFiles(proj.project.files)
+            .filter(willNeedMoreAnalysis);
+    }
+
+    return proj;
+}
+
+function createMap(arr: string[]): { [string: string]: boolean } {
+    return arr.reduce((result: { [string: string]: boolean }, key: string) => {
+        result[key] = true;
+        return result;
+    }, <{ [string: string]: boolean }>{});
+}
+
 /** if ( no val given && default given then run with default ) else ( run with val ) */
 function runWithDefault<T>(run: (val: T) => any, val: T, def?: T) {
     // no val
@@ -202,7 +257,7 @@ function runWithDefault<T>(run: (val: T) => any, val: T, def?: T) {
     }
 }
 
-export function prettyJSON(object: any): string {
+function prettyJSON(object: any): string {
     var cache = [];
     var value = JSON.stringify(object,
         // fixup circular reference
@@ -221,4 +276,21 @@ export function prettyJSON(object: any): string {
         4);
     cache = null;
     return value;
+}
+
+// Not particularly awesome e.g. '/..foo' will pass
+function pathIsRelative(str: string) {
+    if (!str.length) return false;
+    return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
+}
+
+// Not optimized
+function selectMany<T>(arr: T[][]): T[] {
+    var result = [];
+    for (var i = 0; i < arr.length; i++) {
+        for (var j = 0; j < arr[i].length; j++) {
+            result.push(arr[i][j]);
+        }
+    }
+    return result;
 }

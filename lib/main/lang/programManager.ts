@@ -17,9 +17,6 @@ export class Program {
     constructor(public projectFile: tsconfig.TypeScriptProjectFileDetails) {
         this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
-
-        // Now using the language service we need to get all the referenced files and add them back to the project
-        this.increaseProjectForReferenceAndImports();
     }
 
     public build(): BuildOutput {
@@ -108,47 +105,6 @@ export class Program {
             result = head + change.newText + tail;
         }
         return result;
-    }
-
-    // TODO: push this to use regex and into tsconfig
-    increaseProjectForReferenceAndImports = () => {
-
-        var willNeedMoreAnalysis = (file: string) => {
-            if (!this.languageServiceHost.hasScript(file)) {
-                this.languageServiceHost.addScript(file, fs.readFileSync(file).toString());
-                this.projectFile.project.files.push(file);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        var more = this.getReferencedOrImportedFiles(this.projectFile.project.files)
-            .filter(willNeedMoreAnalysis);
-        while (more.length) {
-            more = this.getReferencedOrImportedFiles(this.projectFile.project.files)
-                .filter(willNeedMoreAnalysis);
-        }
-    }
-
-    getReferencedOrImportedFiles = (files: string[]): string[]=> {
-        var referenced: string[][] = [];
-
-        files.forEach(file => {
-            var preProcessedFileInfo = ts.preProcessFile(this.languageServiceHost.getScriptContent(file), true),
-                dir = path.dirname(file);
-
-            referenced.push(
-                preProcessedFileInfo.referencedFiles.map(fileReference => utils.pathResolve(dir, fileReference.filename))
-                    .concat(
-                    preProcessedFileInfo.importedFiles
-                        .filter((fileReference) => utils.pathIsRelative(fileReference.filename))
-                        .map(fileReference => utils.pathResolve(dir, fileReference.filename + '.ts'))
-                    )
-                );
-        });
-
-        return utils.selectMany(referenced);
     }
 }
 
