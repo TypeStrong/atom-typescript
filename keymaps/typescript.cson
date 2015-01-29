@@ -1,0 +1,5 @@
+'.editor:not(.mini)[data-grammar~=ts]':
+  'alt-cmd-l': 'typescript:format-code'
+  'alt-ctrl-l': 'typescript:format-code'
+  'ctrl-shift-b': 'typescript:build'
+  'cmd-shift-b': 'typescript:build'

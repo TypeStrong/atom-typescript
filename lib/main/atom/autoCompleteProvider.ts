@@ -50,10 +50,21 @@ var provider = {
         // limit to 10
         if (completionList.length > 10) completionList = completionList.slice(0, 10);
 
+        // Potentially use it at some point
+        function docComment(c:ts.CompletionEntry):string{
+            var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
+            var docComment = '';
+            docComment = ts.displayPartsToString(completionDetails.displayParts || []);
+            docComment += ts.displayPartsToString(completionDetails.documentation || []);
+            return docComment;
+        }
+
         var suggestions = completionList.map(c => {
             return {
                 word: c.name,
-                prefix: options.prefix == '.' ? '' : options.prefix
+                prefix: options.prefix == '.' ? '' : options.prefix,
+                label: '<span style="color: white">' + c.kind + '</span>',
+                renderLabelAsHtml: true,
             };
         });
 

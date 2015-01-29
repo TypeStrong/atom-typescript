@@ -105,7 +105,7 @@ export function activate(state: PackageState) {
     }
 
     // Setup custom commands NOTE: these need to be added to the keymaps
-    atom.commands.add('atom-workspace', 'typescript:format-code',(e) => {
+    atom.commands.add('atom-text-editor', 'typescript:format-code',(e) => {
         if (!commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
@@ -124,7 +124,7 @@ export function activate(state: PackageState) {
             editor.setTextInBufferRange(selection, formatted);
         }
     });
-    atom.commands.add('atom-workspace', 'typescript:compile',(e) => {
+    atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
         if (!commandForTypeScript(e)) return;
 
         atom.notifications.addInfo('Building');
