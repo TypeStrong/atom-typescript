@@ -1,38 +1,38 @@
 {
-  "name": "typescript",
-  "version": "0.5.0",
-  "main": "./lib/main/index",
-  "description": "TypeScript workflow from Atom",
-  "engines": {
-    "atom": "*",
-    "node": "*"
-  },
-  "linter-package": true,
-  "linter-implementation": "linter",
-  "homepage": "http://atom.io/packages/typescript",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/TypeStrong/atom-typescript.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/atom-typescript/issues"
-  },
-  "dependencies": {
-    "atom-package-dependencies": "latest",
-    "tsconfig": "0.0.3",
-    "typescript": "^1.4.1",
-    "glob-expand": "0.0.2",
-    "atom-message-panel": "^1.1.4",
-    "fuzzaldrin": "^2.1.0"
-  },
-  "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-ts": "^1.11.2"
-  },
-  "activationEvents": [],
-  "package-dependencies": {
-    "linter": "//this field will be ignored right now",
-    "autocomplete-plus": "//this field will be ignored right now"
-  }
+    "name": "typescript",
+    "version": "0.5.0",
+    "main": "./lib/main/index",
+    "description": "TypeScript workflow from Atom",
+    "engines": {
+        "atom": "*",
+        "node": "*"
+    },
+    "linter-package": true,
+    "linter-implementation": "linter",
+    "homepage": "http://atom.io/packages/typescript",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TypeStrong/atom-typescript.git"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/atom-typescript/issues"
+    },
+    "dependencies": {
+        "atom-package-dependencies": "latest",
+        "tsconfig": "0.0.3",
+        "typescript": "^1.4.1",
+        "glob-expand": "0.0.2",
+        "atom-message-panel": "^1.1.4",
+        "fuzzaldrin": "^2.1.0"
+    },
+    "devDependencies": {
+        "grunt": "^0.4.5",
+        "grunt-ts": "^1.11.2"
+    },
+    "activationEvents": [ ],
+    "package-dependencies": {
+        "linter": "//this field will be ignored right now",
+        "autocomplete-plus": "//this field will be ignored right now"
+    }
 }
