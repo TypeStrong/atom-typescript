@@ -21,7 +21,7 @@ interface CompilerOptions {
 interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];            // optional: paths to files
-    filesGlob?: string[];        // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files  
+    filesGlob?: string[];        // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
 }
 
 // Main configuration
@@ -115,7 +115,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
 
-    // Keep going up till we find the project file 
+    // Keep going up till we find the project file
     var projectFile = '';
     while (fs.existsSync(dir)) { // while directory exists
 
@@ -127,23 +127,23 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         else { // go up
             var before = dir;
             dir = path.dirname(dir);
-            // At root: 
+            // At root:
             if (dir == before) throw new Error('No Project Found');
         }
     }
     projectFile = path.normalize(projectFile);
     var projectFileDirectory = path.dirname(projectFile) + path.sep;
 
-    // We now have a valid projectFile. Parse it: 
+    // We now have a valid projectFile. Parse it:
     try {
         var projectSpec: TypeScriptProjectRawSpecification = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
     } catch (ex) {
         throw new Error("Invalid JSON");
     }
-    
+
     // Setup default project options
     if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
-    
+
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files) projectSpec.filesGlob = ['./**/*.ts'];
@@ -173,7 +173,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     if (!fs.existsSync(srcFile))
         throw new Error('Project directory must exist');
 
-    // Get directory 
+    // Get directory
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
     var projectFilePath = path.normalize(dir + '/' + projectFileName);
 
@@ -183,7 +183,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
-    projectSpec.files = ['./' + path.basename(srcFile)];
+    projectSpec.filesGlob = ["./**/*.ts", "!node_modules/**/*.ts"]
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
@@ -261,7 +261,7 @@ function prettyJSON(object: any): string {
     var cache = [];
     var value = JSON.stringify(object,
         // fixup circular reference
-        function (key, value) {
+        function(key, value) {
             if (typeof value === 'object' && value !== null) {
                 if (cache.indexOf(value) !== -1) {
                     // Circular reference found, discard key
