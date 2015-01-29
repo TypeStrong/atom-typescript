@@ -1,6 +1,6 @@
 {
   "name": "typescript",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "main": "./lib/main/index",
   "description": "TypeScript workflow from Atom",
   "engines": {
