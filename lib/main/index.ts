@@ -29,7 +29,7 @@ export function activate(state: PackageState) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
     if (!linter || !acp) {
-        apd.install(function () {
+        apd.install(function() {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
         });
 
@@ -61,7 +61,7 @@ export function activate(state: PackageState) {
 
                     // TODO: provide function completions
                     var cursor = editor.getCursorBufferPosition();
-                    var cursorPos = program.languageServiceHost.getIndexFromPosition(filePath,{line:cursor.row,ch:cursor.column});
+                    var cursorPos = program.languageServiceHost.getIndexFromPosition(filePath, { line: cursor.row, ch: cursor.column });
                     // console.log(program.languageService.getSignatureHelpItems(filePath,cursorPos));
 
                 });
@@ -115,8 +115,10 @@ export function activate(state: PackageState) {
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
             var result = program.formatDocument(filePath, { line: cursorPosition.row, ch: cursorPosition.column });
+            var top = editor.getScrollTop();
             editor.setText(result.formatted);
             editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
+            editor.setScrollTop(top);
         } else {
             var formatted = program.formatDocumentRange(filePath, { line: selection.start.row, ch: selection.start.column }, { line: selection.end.row, ch: selection.end.column });
             editor.setTextInBufferRange(selection, formatted);
