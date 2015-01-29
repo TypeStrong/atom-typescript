@@ -26,9 +26,9 @@ export interface PackageState {
 export function activate(state: PackageState) {
 
     // Don't activate if we have a dependency that isn't available
-    var linter = apd.require('linter');
+    // var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
-    if (!linter || !acp) {
+    if (!acp) {
         apd.install(function () {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
         });

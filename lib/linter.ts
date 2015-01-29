@@ -40,6 +40,11 @@ LinterTslint = (function (_super) {
         filePath = this.editor.buffer.file.path;
         contents = this.editor.getText();
         fileName = path.basename(filePath);
+        return callback([]);
+
+        // Even though the linter works fine. I am disabling it for now
+        // as I don't see the use of having *two* ways of reporting errors
+        // Also I endeed up needing more control then offered by linter
 
         var errors = programManager.getErrorsForFileFiltered(filePath);
         var linterErrors: LinterError[] = errors.map((err) => <LinterError>{
