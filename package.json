@@ -31,7 +31,8 @@
     "grunt-ts": "^1.11.2"
   },
   "activationEvents": [],
-  "package-dependencies": {    
+  "package-dependencies": {
+    "linter": "//this field will be ignored right now",
     "autocomplete-plus": "//this field will be ignored right now"
   }
 }
