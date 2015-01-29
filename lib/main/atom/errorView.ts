@@ -79,6 +79,6 @@ export function showEmittedMessage(output: programManager.EmitOutput) {
     } else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     } else {
-        atom.notifications.addInfo('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
+        atom.notifications.addWarning('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
     }
 }

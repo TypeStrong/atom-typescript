@@ -998,6 +998,13 @@ declare module AtomCore {
 		getAvailablePackageMetadata():any[];
 	}
 
+    interface INotifications {
+        addInfo: Function;
+        addError: Function;
+        addSuccess: Function;
+        addWarning: Function;
+    }
+
 	interface IThemeManager {
 		// TBD
 	}
@@ -1052,7 +1059,7 @@ declare module AtomCore {
 		themes: IThemeManager;
 		contextManu: IContextMenuManager;
 		menu: IMenuManager;
-		notifications: any; // https://github.com/atom/notifications
+		notifications: INotifications; // https://github.com/atom/notifications
 		clipboard:IClipboard;
 		syntax:ISyntax;
 		windowEventHandler: IWindowEventHandler;
@@ -1123,7 +1130,7 @@ declare module AtomCore {
 		requireUserInitScript:Function;
         requireWithGlobals: Function;
 
-        services: any; // TODO: New services api 
+        services: any; // TODO: New services api
 	}
 
 	interface IBufferedNodeProcessStatic {

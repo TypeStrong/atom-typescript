@@ -59,6 +59,6 @@ export function setBuildOutput(buildOutput: programManager.BuildOutput) {
     else if (buildOutput.counts.emitErrors) {
         atom.notifications.addError("Emits errors: " + buildOutput.counts.emitErrors + " files.");
     } else {
-        atom.notifications.addInfo('Compile failed but emit succeeded');
+        atom.notifications.addWarning('Compile failed but emit succeeded');
     }
 }
