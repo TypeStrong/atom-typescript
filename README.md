@@ -4,9 +4,11 @@ Final Objective: Make it easy for JavaScript developers to just open a `.ts` fil
 
 # Features
 ## Auto Complete
-Internally using AutoComplete+. Just start typing and hints show up.
+Internally using AutoComplete+. Just start typing and hints will show up.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete.png)
+
+You can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`.
 
 ## Compile on save
 TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
@@ -19,18 +21,19 @@ TypeScript files will be compiled on save. Different notifications are given if 
 
 
 ## Project Support
-Supported via `.tsconfig` which is going to be the defacto Project file format for the next versions of TypeScript.
+Supported via `tsconfig.json` which is going to be the defacto Project file format for the next versions of TypeScript.
 
 It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/proj.png)
 
+### Project Build Support
 Build Shortcut: `ctrl+shift+b` or `cmd+shift+b`
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build.png)
 
 ## Format Code
-Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format selection if you have something selection or will format the entire file.
+Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
 
 ## Contributing 
 
