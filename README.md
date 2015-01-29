@@ -11,6 +11,8 @@ Internally using AutoComplete+. Just start typing and hints show up.
 ## Compile on save
 TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
 
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20success.png)
+
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20error.png)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
