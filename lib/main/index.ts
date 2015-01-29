@@ -58,6 +58,12 @@ export function activate(state: PackageState) {
 
                     // Set errors in project per file
                     errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
+
+                    // TODO: provide function completions
+                    var cursor = editor.getCursorBufferPosition();
+                    var cursorPos = program.languageServiceHost.getIndexFromPosition(filePath,{line:cursor.row,ch:cursor.column});
+                    // console.log(program.languageService.getSignatureHelpItems(filePath,cursorPos));
+
                 });
 
                 // Observe editors saving
@@ -119,6 +125,7 @@ export function activate(state: PackageState) {
     atom.commands.add('atom-workspace', 'typescript:compile',(e) => {
         if (!commandForTypeScript(e)) return;
 
+        atom.notifications.addInfo('Building');
         var outputs = commandGetProgram().build();
         buildView.setBuildOutput(outputs);
     });

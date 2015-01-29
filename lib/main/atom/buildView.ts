@@ -22,13 +22,17 @@ export function start() {
     messagePanel = new MessagePanelView({
         title: 'TypeScript Build',
     });
-    messagePanel.attach();
 }
 
 
 export function setBuildOutput(buildOutput: programManager.BuildOutput) {
     start();
-    messagePanel.attach();
+
+    // Only attach if there are some errors
+    if (buildOutput.counts.errors) {
+        messagePanel.attach();
+    }
+
     messagePanel.clear();
 
     buildOutput.outputs.forEach(output => {
