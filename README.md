@@ -1,9 +1,40 @@
 # TypeScript workflow from Atom
-Current features:
-- Syntax highlighting
+ 
+Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to.
 
-PS: Please have a look at [CONTRIBUTING.md](./CONTRIBUTING.md) for curiosity.
+# Features
+## Auto Complete
+Internally using AutoComplete+. Just start typing and hints show up.
 
-# Based on
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete.png)
+
+## Compile on save
+TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20error.png)
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
+
+
+## Project Support
+Supported via `.tsconfig` which is going to be the defacto Project file format for the next versions of TypeScript.
+
+It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/proj.png)
+
+Build Shortcut: `ctrl+shift+b` or `cmd+shift+b`
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build.png)
+
+## Format Code
+Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format selection if you have something selection or will format the entire file.
+
+## Contributing 
+
+Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
+
+# Previous Work
 * The TypeScript language package : https://github.com/olegbl/language-typescript
 * TypeScript brackets support : https://github.com/fdecampredon/brackets-typescript
+
