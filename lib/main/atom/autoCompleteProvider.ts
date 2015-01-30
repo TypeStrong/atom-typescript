@@ -27,6 +27,14 @@ declare module autocompleteplus {
     }
 }
 
+function kindToColor(kind: string) {
+    switch (kind) {
+        case 'keyword':
+            return 'rgb(16, 255, 0)';
+        default:
+            return 'white';
+    }
+}
 
 var provider = {
     selector: '.source.ts',
@@ -51,19 +59,27 @@ var provider = {
         if (completionList.length > 10) completionList = completionList.slice(0, 10);
 
         // Potentially use it at some point
-        function docComment(c:ts.CompletionEntry):string{
+        function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {
             var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
-            var docComment = '';
-            docComment = ts.displayPartsToString(completionDetails.displayParts || []);
-            docComment += ts.displayPartsToString(completionDetails.documentation || []);
-            return docComment;
+
+            // Show the signatures for methods / functions
+            if (c.kind == "method" || c.kind == "function") {
+                var display = ts.displayPartsToString(completionDetails.displayParts || []);
+            } else {
+                var display = c.kind;
+            }
+            var comment = ts.displayPartsToString(completionDetails.documentation || []);
+
+            return { display: display, comment: comment };
         }
+
+        console.log(completionList.map(docComment));
 
         var suggestions = completionList.map(c => {
             return {
                 word: c.name,
                 prefix: options.prefix == '.' ? '' : options.prefix,
-                label: '<span style="color: white">' + c.kind + '</span>',
+                label: '<span style="color: ' + kindToColor(c.kind) + '">' + docComment(c).display + '</span>',
                 renderLabelAsHtml: true,
             };
         });

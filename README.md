@@ -8,6 +8,8 @@ Internally using AutoComplete+. Just start typing and hints will show up.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete.png)
 
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete2.png)
+
 You can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`.
 
 ## Compile on save
