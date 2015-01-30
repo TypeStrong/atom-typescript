@@ -1,5 +1,5 @@
 # TypeScript workflow from Atom
- 
+
 Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to.
 
 # Features
@@ -15,7 +15,7 @@ You can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`.
 ## Type information on hover
 Just hover
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/hover.png)
+![you definitely get the point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/hover.png)
 
 ## Compile on save
 TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
@@ -42,13 +42,12 @@ Build Shortcut: `ctrl+shift+b` or `cmd+shift+b`
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
 
 ## Go to Declaration
-Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition) 
+Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
-## Contributing 
+## Contributing
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
 
 # Previous Work
 * The TypeScript language package : https://github.com/olegbl/language-typescript
 * TypeScript brackets support : https://github.com/fdecampredon/brackets-typescript
-
