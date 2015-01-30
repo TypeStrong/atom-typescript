@@ -106,7 +106,10 @@ function tsToRawCompilerOptions(proper: ts.CompilerOptions): CompilerOptions {
     return raw;
 }
 
-/** Given an src (source file or directory) goes up the directory tree to find the project specifications. Use this to bootstrap the UI for what project the user might want to work on. */
+/** Given an src (source file or directory) goes up the directory tree to find the project specifications.
+ * Use this to bootstrap the UI for what project the user might want to work on.
+ * Note: Definition files (.d.ts) are considered thier own project
+ */
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
 
     if (!fs.existsSync(pathOrSrcFile))
@@ -114,6 +117,19 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
+
+    // If we have a .d.ts file then it is its own project and return
+    if (dir !== pathOrSrcFile) { // Not a directory
+        if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
+            return {
+                projectFileDirectory: dir,
+                project: {
+                    compilerOptions: defaults,
+                    files: [pathOrSrcFile]
+                }
+            }
+        }
+    }
 
     // Keep going up till we find the project file
     var projectFile = '';
@@ -168,9 +184,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     });
 }
 
-/** Creates a project by source file location. Defaults are assumed unless overriden by the optional spec. */
+/** Creates a project by  source file location. Defaults are assumed unless overriden by the optional spec. */
 export function createProjectRootSync(srcFile: string, defaultOptions?: ts.CompilerOptions) {
-    if (!fs.existsSync(srcFile)){
+    if (!fs.existsSync(srcFile)) {
         throw new Error('To create a project the file must exist');
     }
 
@@ -212,10 +228,10 @@ function increaseProjectForReferenceAndImports(proj: TypeScriptProjectFileDetail
         var referenced: string[][] = [];
 
         files.forEach(file => {
-            try{
+            try {
                 var content = fs.readFileSync(file).toString();
             }
-            catch (ex){
+            catch (ex) {
                 // if we cannot read a file for whatever reason just quit
                 return;
             }
@@ -301,4 +317,8 @@ function selectMany<T>(arr: T[][]): T[] {
         }
     }
     return result;
+}
+
+function endsWith(str: string, suffix: string): boolean {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }

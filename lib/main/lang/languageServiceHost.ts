@@ -12,6 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+///ts:ref=atom.d
+/// <reference path="../../typings/atom/atom.d.ts"/> ///ts:ref:generated
+
 'use strict';
 
 import ts = require('typescript');
@@ -41,6 +44,7 @@ interface ScriptInfo {
     getPositionFromLine(line: number, ch: number): number;
     getLineAndColForPositon(position: number): Position;
 }
+interface ITextBuffer extends TextBuffer.ITextBuffer{}
 
 /**
  * Manage a script in the language service host

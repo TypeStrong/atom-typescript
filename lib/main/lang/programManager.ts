@@ -80,7 +80,7 @@ export class Program {
     formatDocument(filePath: string, cursor: languageServiceHost.Position): { formatted: string; cursor: languageServiceHost.Position } {
         var textChanges = this.languageService.getFormattingEditsForDocument(filePath, defaultFormatCodeOptions());
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-        
+
         // Get new cursor based on new content
         var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
         this.languageServiceHost.updateScript(filePath, formatted);
