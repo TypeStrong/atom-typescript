@@ -64,7 +64,9 @@ export function attach(editorView: any) {
 
         // Actually make the program manager query
         var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: bufferPt.row, ch: bufferPt.column });
+        // Opps: this is actually for *goto definition*. 
         var definition = program.languageService.getDefinitionAtPosition(filePath, position);
+
         console.log(definition);
         if (!definition || !definition.length) {
             exprTypeTooltip.updateText('any');
