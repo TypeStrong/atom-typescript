@@ -5,13 +5,13 @@ class TooltipView extends View
     @div class: 'atom-typescript-tooltip'
 
   initialize: (@rect, text = null) ->
-    @text(text) if text?
+    @html(text) if text?
     $(document.body).append this
     @updatePosition()
 
   # update tooltip text
   updateText: (text) ->
-    @text(text)
+    @html(text)
     @updatePosition()
 
   # smart position update
