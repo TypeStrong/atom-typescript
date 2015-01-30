@@ -5,6 +5,7 @@
 import programManager = require('../lang/programManager'); ///ts:import:generated
 
 import path = require('path');
+import ts = require('typescript');
 var Subscriber = require('emissary').Subscriber;
 var TooltipView: { new (rect: any): IToolTipView; } = require('../views/tooltip-view').TooltipView;
 
@@ -64,18 +65,14 @@ export function attach(editorView: any) {
 
         // Actually make the program manager query
         var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: bufferPt.row, ch: bufferPt.column });
-        // Opps: this is actually for *goto definition*. 
-        var definition = program.languageService.getDefinitionAtPosition(filePath, position);
-
-        console.log(definition);
-        if (!definition || !definition.length) {
+        var info = program.languageService.getQuickInfoAtPosition(filePath, position);
+        if (!info) {
             exprTypeTooltip.updateText('any');
         } else {
-            var message = definition.map((d) => {
-                return `<b>(${d.kind}) ${d.name} </b>
-                <br/><span class='icon icon-file-text'>${d.fileName}</span>
-                `
-            }).join('<br/><br/>');
+            var displayName = ts.displayPartsToString(info.displayParts || []);
+            var documentation = ts.displayPartsToString(info.documentation || []);
+            var message = `<b>${displayName}</b>`;
+            if(documentation) message = message + `<br/><i>${documentation}</i>`;
             exprTypeTooltip.updateText(message);
         }
     }
@@ -85,6 +82,7 @@ export function attach(editorView: any) {
         subscriber.unsubscribe();
         clearExprTypeTimeout();
     }
+    /** clears the timeout && the tooltip */
     function clearExprTypeTimeout() {
         if (exprTypeTimeout) {
             clearTimeout(exprTypeTimeout);
