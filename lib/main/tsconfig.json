@@ -14,7 +14,7 @@
         "./atom/buildView.ts",
         "./atom/errorView.ts",
         "./atom/tooltipManager.ts",
-        "./index.ts",
+        "./atomts.ts",
         "./lang/languageServiceHost.ts",
         "./lang/programManager.ts",
         "./lang/utils.ts",

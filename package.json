@@ -1,7 +1,7 @@
 {
   "name": "atom-typescript",
   "version": "0.18.0",
-  "main": "./lib/main/index",
+  "main": "./lib/main/atomts",
   "description": "TypeScript workflow from Atom",
   "engines": {
     "atom": "*",

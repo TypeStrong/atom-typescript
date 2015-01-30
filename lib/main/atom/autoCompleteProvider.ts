@@ -44,6 +44,10 @@ var provider = {
     selector: '.source.ts',
     requestHandler: (options: autocompleteplus.RequestOptions): autocompleteplus.Suggestion[]=> {
         var filePath = options.editor.getPath();
+
+        // We refuse to work on files that are not on disk.
+        if(!filePath) return [];
+
         var program = programManager.getOrCreateProgram(filePath);
         // Update the file
         program.languageServiceHost.updateScript(filePath, options.editor.getText());

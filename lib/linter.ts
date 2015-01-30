@@ -18,7 +18,7 @@ var Rng = require("atom").Range;
 
 var LinterTslint,
     __hasProp = {}.hasOwnProperty,
-    __extends = function (child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 interface LinterError {
     message: string;
@@ -28,7 +28,7 @@ interface LinterError {
     linter: string; // linter name
 }
 
-LinterTslint = (function (_super) {
+LinterTslint = (function(_super) {
     __extends(LinterTslint, _super);
 
     function LinterTslint() {
@@ -37,11 +37,13 @@ LinterTslint = (function (_super) {
 
     (<any>LinterTslint).syntax = ['source.ts'];
 
-    LinterTslint.prototype.lintFile = function (filePath, callback: (errors: LinterError[]) => any) {
-        filePath = this.editor.buffer.file.path;
-
+    LinterTslint.prototype.lintFile = function(filePath, callback: (errors: LinterError[]) => any) {
         // We refuse to work on files that are not on disk.
-        if(!fs.existsSync(filePath)) return callback([]);
+        if (!this.editor.buffer.file
+            || !this.editor.buffer.file.path
+            || !fs.existsSync(this.editor.buffer.file.path)) return callback([]);
+
+        filePath = this.editor.buffer.file.path;
 
         var fileName = path.basename(filePath);
 
