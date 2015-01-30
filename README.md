@@ -12,6 +12,11 @@ Internally using AutoComplete+. Just start typing and hints will show up.
 
 You can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`.
 
+## Type information on hover
+Just hover
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/hover.png)
+
 ## Compile on save
 TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
 
@@ -20,7 +25,6 @@ TypeScript files will be compiled on save. Different notifications are given if 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20error.png)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
-
 
 ## Project Support
 Supported via `tsconfig.json` which is going to be the defacto Project file format for the next versions of TypeScript.
