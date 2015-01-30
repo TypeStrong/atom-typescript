@@ -1,6 +1,7 @@
-See the [Atom contributing guide](https://atom.io/docs/latest/contributing)
+# TIP
+Before doing any meaningful work or even investigating [please create an issue for discussion](https://github.com/TypeStrong/atom-typescript/issues) so we don't have duplicate work and I don't step on your toes.
 
-# Tasks
+# Grunt Tasks
 ## Building 
 `grunt build`
 
@@ -8,13 +9,14 @@ See the [Atom contributing guide](https://atom.io/docs/latest/contributing)
 `grunt`
 
 ## Publishing
-`apm publish`
+`apm publish minor`
 
-# Setup Windows Dev Copy of package 
-Say you have your code in `C:\REPOS\atom-typescript`. Run: 
+# Setup Dev Machine
+Best solution I have found is to simply clone at your packages directory. On Windows: 
 
 ```bash
-cd %HOMEPATH%\.atom\packages && mklink /J atom-typescript c:\REPOS\atom-typescript
+cd %HOMEPATH%\.atom\packages
+git clone https://github.com/TypeStrong/atom-typescript.git 
 ```
 
 # General research
