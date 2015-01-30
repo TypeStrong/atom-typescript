@@ -1,2 +1,6 @@
 var foo = 123;
-foo;
+var Bar = (function () {
+    function Bar() {
+    }
+    return Bar;
+})();

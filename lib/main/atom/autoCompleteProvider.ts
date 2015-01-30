@@ -29,8 +29,12 @@ declare module autocompleteplus {
 
 function kindToColor(kind: string) {
     switch (kind) {
-        case 'keyword':
+        case 'interface':
             return 'rgb(16, 255, 0)';
+        case 'keyword':
+            return 'rgb(0, 207, 255)';
+        case 'class':
+            return 'rgb(255, 0, 194)';
         default:
             return 'white';
     }

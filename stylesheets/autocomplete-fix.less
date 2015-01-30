@@ -1,0 +1,15 @@
+// Fixing up autocomplete-plus for us. Just TypeScript files
+// See https://github.com/atom-community/autocomplete-plus/issues/214
+
+atom-text-editor[data-grammar~=ts]{
+
+    // Added 'span.' to the selectors to increase specifity
+
+    .autocomplete-plus.popover-list ol.list-group li span.label{
+        opacity: .7;
+    }
+    .autocomplete-plus.popover-list ol.list-group li span.word{
+        color: white;
+        opacity: .8;
+    }
+}
