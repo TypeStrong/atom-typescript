@@ -9,6 +9,8 @@ import programManager = require('./main/lang/programManager'); ///ts:import:gene
 ///ts:import=utils
 import utils = require('./main/lang/utils'); ///ts:import:generated
 
+import fs = require('fs');
+
 var linterPath = atom.packages.getLoadedPackage("linter").path;
 var Linter = require(linterPath + "/lib/linter");
 var path = require("path");
@@ -40,6 +42,9 @@ LinterTslint = (function (_super) {
         filePath = this.editor.buffer.file.path;
         contents = this.editor.getText();
         fileName = path.basename(filePath);
+
+        // We refuse to work on files that are not on disk.
+        if(!fs.existsSync(filePath)) return callback([]);
 
         var errors = programManager.getErrorsForFileFiltered(filePath);
         var linterErrors: LinterError[] = errors.map((err) => <LinterError>{

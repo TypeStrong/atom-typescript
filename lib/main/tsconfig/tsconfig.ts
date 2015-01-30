@@ -170,8 +170,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
 /** Creates a project by source file location. Defaults are assumed unless overriden by the optional spec. */
 export function createProjectRootSync(srcFile: string, defaultOptions?: ts.CompilerOptions) {
-    if (!fs.existsSync(srcFile))
-        throw new Error('Project directory must exist');
+    if (!fs.existsSync(srcFile)){
+        throw new Error('To create a project the file must exist');
+    }
 
     // Get directory
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);

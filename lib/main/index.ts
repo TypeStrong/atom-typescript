@@ -2,6 +2,7 @@
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
 import path = require('path');
+import fs = require('fs');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
@@ -36,7 +37,7 @@ export function activate(state: PackageState) {
         return;
     }
 
-    // Observe editors happening
+    // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
         var filePath = editor.getPath();
@@ -45,13 +46,24 @@ export function activate(state: PackageState) {
 
         if (ext == '.ts') {
             try {
-                var program = programManager.getOrCreateProgram(filePath);
+                // We only create a "program" once the file is persisted to disk
+                var program: programManager.Program;
+                if (fs.existsSync(filePath)) {
+                    program = programManager.getOrCreateProgram(filePath);
+                }
 
                 // Setup the error reporter:
                 errorView.start();
 
                 // Observe editors changing
-                editor.onDidStopChanging(() => {
+                var changeObserver = editor.onDidStopChanging(() => {
+
+                    // If we don't have the program yet. The file isn't saved and we just show an error to guide the user
+                    if (!program) {
+                        var root = { line: 0, ch: 0 };
+                        errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
+                        return;
+                    }
 
                     // Update the file
                     program.languageServiceHost.updateScript(filePath, editor.getText());
@@ -67,7 +79,11 @@ export function activate(state: PackageState) {
                 });
 
                 // Observe editors saving
-                editor.onDidSave((event) => {
+                var saveObserver = editor.onDidSave((event) => {
+                    if (!program) {
+                        program = programManager.getOrCreateProgram(filePath);
+                    };
+
                     // TODO: store by file path
                     program.languageServiceHost.updateScript(filePath, editor.getText());
                     var output = program.emitFile(filePath);
@@ -75,9 +91,14 @@ export function activate(state: PackageState) {
                 });
 
                 // Observe editors closing
-                editor.onDidDestroy(() => {
+                var destroyObserver = editor.onDidDestroy(() => {
                     // Clear errors in view
                     errorView.setErrors(filePath, []);
+
+                    // Clear editor observers
+                    changeObserver.dispose();
+                    saveObserver.dispose();
+                    destroyObserver.dispose();
                 });
 
             } catch (ex) {
