@@ -18,9 +18,7 @@
   "bugs": {
     "url": "https://github.com/atom-typescript/issues"
   },
-  "dependencies": {
-    "atom-package-dependencies": "latest",
-    "tsconfig": "0.0.3",
+  "dependencies": {        
     "typescript": "^1.4.1",
     "glob-expand": "0.0.2",
     "atom-message-panel": "^1.1.4",

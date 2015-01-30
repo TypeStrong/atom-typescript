@@ -5,7 +5,8 @@ import path = require('path');
 import fs = require('fs');
 
 // Make sure we have the packages we depend upon
-var apd = require('atom-package-dependencies');
+var apd = require('../../apd'); // Moved here because I customized it
+
 ///ts:import=programManager
 import programManager = require('./lang/programManager'); ///ts:import:generated
 ///ts:import=errorView
