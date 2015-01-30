@@ -211,7 +211,14 @@ function increaseProjectForReferenceAndImports(proj: TypeScriptProjectFileDetail
         var referenced: string[][] = [];
 
         files.forEach(file => {
-            var preProcessedFileInfo = ts.preProcessFile(fs.readFileSync(file).toString(), true),
+            try{
+                var content = fs.readFileSync(file).toString();
+            }
+            catch (ex){
+                // if we cannot read a file for whatever reason just quit
+                return;
+            }
+            var preProcessedFileInfo = ts.preProcessFile(content, true),
                 dir = path.dirname(file);
 
             referenced.push(

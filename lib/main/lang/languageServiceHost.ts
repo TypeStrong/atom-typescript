@@ -41,7 +41,7 @@ interface ScriptInfo {
     getPositionFromLine(line: number, ch: number): number;
     getLineAndColForPositon(position: number): Position;
 }
-    
+
 /**
  * Manage a script in the language service host
  */
@@ -64,7 +64,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
     /**
      * update the content of the script
-     * 
+     *
      * @param newContent the new script content
      */
     function updateContent(newContent: string): void {
@@ -77,7 +77,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
     /**
      * edit the script content
-     * 
+     *
      * @param minChar the index in the file content where the edition begins
      * @param limChar the index  in the file content where the edition ends
      * @param newText the text inserted
@@ -89,7 +89,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
         var suffix = content.substring(limChar);
         content = prefix + middle + suffix;
         _lineStartIsDirty = true;
-            
+
 
         // Store edit range + new length of script
         editRanges.push(new ts.TextChangeRange(
@@ -105,7 +105,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
     /**
      * return an index position from line an character position
-     * 
+     *
      * @param line line number
      * @param character charecter poisiton in the line
      */
@@ -115,7 +115,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
     /**
      * return line and chararacter position from index position
-     * 
+     *
      * @param position
      */
     function getLineAndColForPositon(position: number) {
@@ -185,8 +185,8 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
     }
 }
 
-// NOTES: 
-// * fileName is * always * the absolute path to the file 
+// NOTES:
+// * fileName is * always * the absolute path to the file
 // * content is *always* the string content of the file
 export class LanguageServiceHost implements ts.LanguageServiceHost {
 
@@ -196,15 +196,26 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     fileNameToScript: { [fileName: string]: ScriptInfo } = Object.create(null);
 
     constructor(private config: tsconfig.TypeScriptProjectFileDetails) {
-        // Add all the files 
-        config.project.files.forEach((file) => this.addScript(file, fs.readFileSync(file).toString()));
+        // Add all the files
+        config.project.files.forEach((file) => this.addScript(file));
 
-        // Also add the `lib.d.ts` 
+        // Also add the `lib.d.ts`
         var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
-        this.addScript(libFile,fs.readFileSync(libFile).toString());
+        this.addScript(libFile);
     }
 
-    addScript = (fileName: string, content: string) => {
+    addScript = (fileName: string) => {
+
+        var content:string = '';
+        try{
+            content = fs.readFileSync(fileName).toString();
+        }
+        catch(ex){ // if we cannot read the file for whatever reason
+            // TODO: in next version of TypeScript langauge service we would add it with "undefined"
+            // For now its just an empty string
+            content = '';
+        }
+
         var script = createScriptInfo(fileName, content);
         this.fileNameToScript[fileName] = script;
     }
