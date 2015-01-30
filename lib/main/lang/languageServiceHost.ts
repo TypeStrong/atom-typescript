@@ -204,13 +204,14 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         this.addScript(libFile);
     }
 
-    addScript = (fileName: string) => {
+    addScript = (fileName: string, content?: string) => {
 
-        var content:string = '';
-        try{
-            content = fs.readFileSync(fileName).toString();
+
+        try {
+            if (!content)
+                content = fs.readFileSync(fileName).toString();
         }
-        catch(ex){ // if we cannot read the file for whatever reason
+        catch (ex) { // if we cannot read the file for whatever reason
             // TODO: in next version of TypeScript langauge service we would add it with "undefined"
             // For now its just an empty string
             content = '';
@@ -234,7 +235,9 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
             script.updateContent(content);
             return;
         }
-        throw new Error('No script with name \'' + fileName + '\'');
+        else {
+            this.addScript(fileName, content);
+        }
     }
 
     editScript = (fileName: string, minChar: number, limChar: number, newText: string) => {
