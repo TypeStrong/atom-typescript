@@ -1,6 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
+///ts:import=programManager
+import programManager = require('../lang/programManager'); ///ts:import:generated
+
 import path = require('path');
 var Subscriber = require('emissary').Subscriber;
 var TooltipView: { new (rect: any): IToolTipView; } = require('../views/tooltip-view').TooltipView;
@@ -19,6 +22,8 @@ export function attach(editorView: any) {
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (ext !== '.ts') return;
+
+    var program = programManager.getOrCreateProgram(filePath);
 
     var scroll = editorView.find('.scroll-view');
     var subscriber = new Subscriber();
@@ -57,8 +62,20 @@ export function attach(editorView: any) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
 
-        // TODO: actually make the program manager query
-        exprTypeTooltip.updateText('awesome');
+        // Actually make the program manager query
+        var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: bufferPt.row, ch: bufferPt.column });
+        var definition = program.languageService.getDefinitionAtPosition(filePath, position);
+        console.log(definition);
+        if (!definition || !definition.length) {
+            exprTypeTooltip.updateText('any');
+        } else {
+            var message = definition.map((d) => {
+                return `<b>(${d.kind}) ${d.name} </b>
+                <br/><span class='icon icon-file-text'>${d.fileName}</span>
+                `
+            }).join('<br/><br/>');
+            exprTypeTooltip.updateText(message);
+        }
     }
 
 
