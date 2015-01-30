@@ -13,6 +13,7 @@
         "./atom/autoCompleteProvider.ts",
         "./atom/buildView.ts",
         "./atom/errorView.ts",
+        "./atom/tooltipManager.ts",
         "./index.ts",
         "./lang/languageServiceHost.ts",
         "./lang/programManager.ts",

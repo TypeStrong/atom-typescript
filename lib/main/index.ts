@@ -15,6 +15,8 @@ import errorView = require('./atom/errorView'); ///ts:import:generated
 import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
 ///ts:import=buildView
 import buildView = require('./atom/buildView'); ///ts:import:generated
+///ts:import=tooltipManager
+import tooltipManager = require('./atom/tooltipManager'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -38,6 +40,12 @@ export function activate(state: PackageState) {
         return;
     }
 
+    // This is dodgy non-documented stuff
+    // subscribe for tooltips
+    atom.workspaceView.eachEditorView((editorView) => {
+        tooltipManager.attach(editorView);
+    });
+
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
@@ -52,11 +60,6 @@ export function activate(state: PackageState) {
                 if (fs.existsSync(filePath)) {
                     program = programManager.getOrCreateProgram(filePath);
                 }
-
-                // TODO: subscribe for tooltips
-                /*var scroll = editor.getViewClass().find('.scroll-view');
-                console.log(scroll,editor);*/
-
 
                 // Setup the error reporter:
                 errorView.start();
