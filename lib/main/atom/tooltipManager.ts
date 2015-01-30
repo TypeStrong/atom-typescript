@@ -67,7 +67,7 @@ export function attach(editorView: any) {
         var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: bufferPt.row, ch: bufferPt.column });
         var info = program.languageService.getQuickInfoAtPosition(filePath, position);
         if (!info) {
-            exprTypeTooltip.updateText('any');
+            hideExpressionType();
         } else {
             var displayName = ts.displayPartsToString(info.displayParts || []);
             var documentation = ts.displayPartsToString(info.documentation || []);
