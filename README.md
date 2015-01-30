@@ -6,7 +6,7 @@ Final Objective: Make it easy for JavaScript developers to just open a `.ts` fil
 ## Auto Complete
 Internally using AutoComplete+. Just start typing and hints will show up.
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete2.png)
 
