@@ -77,7 +77,7 @@ var provider = {
             return { display: display, comment: comment };
         }
 
-        console.log(completionList.map(docComment));
+        // console.log(completionList.map(docComment));
 
         var suggestions = completionList.map(c => {
             return {

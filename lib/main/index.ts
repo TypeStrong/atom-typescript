@@ -53,6 +53,11 @@ export function activate(state: PackageState) {
                     program = programManager.getOrCreateProgram(filePath);
                 }
 
+                // TODO: subscribe for tooltips
+                /*var scroll = editor.getViewClass().find('.scroll-view');
+                console.log(scroll,editor);*/
+
+
                 // Setup the error reporter:
                 errorView.start();
 
