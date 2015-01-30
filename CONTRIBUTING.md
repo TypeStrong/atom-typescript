@@ -56,3 +56,4 @@ Inherit, override `lintFile` and call the passed `callback` with an array of mes
       linter: "TypeScript"
 ```
 
+Potentially use the decorator API https://gist.github.com/steelbrain/036b107e38cf34daba03 
