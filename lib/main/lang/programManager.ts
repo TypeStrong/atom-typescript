@@ -127,7 +127,8 @@ export class Program {
     }
 }
 
-var programs: { [projectDir: string]: Program } = {}
+var programByProjectPath: { [projectDir: string]: Program } = {}
+var programByFilePath: { [filePath: string]: Program } = {}
 
 function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
@@ -139,11 +140,16 @@ function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
 }
 
 export function getOrCreateProgram(filePath) {
-    var projectFile = getOrCreateProject(filePath);
-    if (programs[projectFile.projectFileDirectory]) {
-        return programs[projectFile.projectFileDirectory];
-    } else {
-        return programs[projectFile.projectFileDirectory] = new Program(projectFile);
+    if (programByFilePath[filePath]) {
+        return programByFilePath[filePath];
+    }
+    else {
+        var projectFile = getOrCreateProject(filePath);
+        if (programByProjectPath[projectFile.projectFileDirectory]) {
+            return programByFilePath[filePath] = programByProjectPath[projectFile.projectFileDirectory];
+        } else {
+            return programByFilePath[filePath] = programByProjectPath[projectFile.projectFileDirectory] = new Program(projectFile);
+        } 
     }
 }
 
