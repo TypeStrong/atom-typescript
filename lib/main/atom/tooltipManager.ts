@@ -6,7 +6,8 @@ import programManager = require('../lang/programManager'); ///ts:import:generate
 
 import path = require('path');
 import ts = require('typescript');
-var Subscriber = require('emissary').Subscriber;
+import emissary = require('emissary');
+var Subscriber = emissary.Subscriber;
 var TooltipView: { new (rect: any): IToolTipView; } = require('../views/tooltip-view').TooltipView;
 
 interface IToolTipView {
