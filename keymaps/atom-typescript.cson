@@ -3,3 +3,5 @@
   'alt-ctrl-l': 'typescript:format-code'
   'ctrl-shift-b': 'typescript:build'
   'cmd-shift-b': 'typescript:build'
+  'ctrl-b': 'typescript:go-to-declaration'
+  'cmd-b': 'typescript:go-to-declaration'

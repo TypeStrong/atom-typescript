@@ -158,8 +158,37 @@ export function activate(state: PackageState) {
         if (!commandForTypeScript(e)) return;
 
         atom.notifications.addInfo('Building');
-        var outputs = commandGetProgram().build();
-        buildView.setBuildOutput(outputs);
+        setTimeout(() => {
+            var outputs = commandGetProgram().build();
+            buildView.setBuildOutput(outputs);
+        }, 100);
+
+    });
+    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        var program = programManager.getOrCreateProgram(filePath);
+        var range = editor.getSelectedBufferRange();
+        var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: range.start.row, ch: range.start.column });
+        var definitions = program.languageService.getDefinitionAtPosition(filePath, position);
+        if (!definitions || !definitions.length) return;
+
+        // Potential future ugly hack for something (atom or TS langauge service) path handling
+        // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
+
+        // TODO: support multiple implementations. For now we just go to first
+        var definition = definitions[0];
+        var newFilePath = definition.fileName;
+        var newFileProgram = program; // If we can get the filename *we are in the same program :P*
+        var newFilePosition = newFileProgram.languageServiceHost.getPositionFromIndex(newFilePath, definition.textSpan.start());
+
+        atom.open({
+            // The file open command line is 1 indexed
+            pathsToOpen: [definition.fileName + ":" + (newFilePosition.line+1).toString()],
+            newWindow: false
+        });
     });
 }
 

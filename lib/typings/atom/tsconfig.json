@@ -1,1 +1,15 @@
-{"compilerOptions":{"target":"es5","module":"commonjs","declaration":false,"noImplicitAny":false,"removeComments":true}}
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true
+    },
+    "filesGlob": [
+        "./**/*.ts"
+    ],
+    "files": [
+        "./atom.d.ts"
+    ]
+}

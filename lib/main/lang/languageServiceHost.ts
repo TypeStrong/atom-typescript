@@ -281,6 +281,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     }
 
     getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
+        if (!this.fileNameToScript[fileName]) this.addScript(fileName);
         var script = this.fileNameToScript[fileName];
         if (script) {
             return script.getLineAndColForPositon(index);

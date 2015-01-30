@@ -41,6 +41,9 @@ Build Shortcut: `ctrl+shift+b` or `cmd+shift+b`
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
 
+## Go to Declaration
+Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition) 
+
 ## Contributing 
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
