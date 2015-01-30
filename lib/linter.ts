@@ -38,14 +38,12 @@ LinterTslint = (function (_super) {
     (<any>LinterTslint).syntax = ['source.ts'];
 
     LinterTslint.prototype.lintFile = function (filePath, callback: (errors: LinterError[]) => any) {
-        var contents, fileName;
         filePath = this.editor.buffer.file.path;
 
         // We refuse to work on files that are not on disk.
         if(!fs.existsSync(filePath)) return callback([]);
 
-        contents = this.editor.getText();
-        fileName = path.basename(filePath);
+        var fileName = path.basename(filePath);
 
         var errors = programManager.getErrorsForFileFiltered(filePath);
         var linterErrors: LinterError[] = errors.map((err) => <LinterError>{
