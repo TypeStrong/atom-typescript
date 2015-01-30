@@ -1,4 +1,4 @@
-'.editor:not(.mini)[data-grammar~=ts]':
+'atom-text-editor[data-grammar~=ts]':
   'alt-cmd-l': 'typescript:format-code'
   'alt-ctrl-l': 'typescript:format-code'
   'ctrl-shift-b': 'typescript:build'
