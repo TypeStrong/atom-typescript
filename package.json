@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "main": "./lib/main/index",
   "description": "TypeScript workflow from Atom",
   "engines": {
@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/atom-typescript/issues"
   },
-  "dependencies": {        
+  "dependencies": {
     "typescript": "^1.4.1",
     "glob-expand": "0.0.2",
     "atom-message-panel": "^1.1.4",
