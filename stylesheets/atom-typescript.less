@@ -1,0 +1,179 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "octicon-utf-codes";
+@import "ui-variables";
+@import "tooltips";
+
+// NOTE: based on https://github.com/chaika2013/ide-haskell/blob/master/stylesheets/ide-haskell.less
+
+.atom-typescript-panel {
+  display: -webkit-flex;
+  -webkit-flex-direction: column;
+  min-height: 120px;
+
+  .resize-handle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+    cursor: row-resize;
+  }
+
+  .panel {
+    -webkit-flex-grow: 1;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    margin: 0;
+  }
+
+  .panel-heading {
+    -webkit-flex-shrink: 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    .btn-cell {
+      display: table-cell;
+      padding: 0px 1px;
+    }
+
+    .btn {
+      top: 0px;
+    }
+
+    .status-icon {
+      padding-top: 3px;
+
+      &:before {
+        font-family: 'Octicons Regular';
+        font-weight: normal;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        text-decoration: none;
+        font-size: 10pt;
+        content: @check;
+        width: 15pt;
+      }
+
+      &[data-status=progress]:before {
+        content: @hourglass;
+      }
+      &[data-status=ready]:before {
+        content: @check;
+      }
+      &[data-status=error]:before {
+        color: @text-color-error;
+        content: @alert;
+      }
+    }
+  }
+
+  .panel-body {
+    -webkit-flex-grow: 1;
+    overflow-y: scroll;
+    padding: 3px @component-padding;
+
+    .result-block {
+      padding: 4px 0px;
+      margin: 0px;
+      font-size: 8pt;
+      line-height: 12pt;
+      white-space: normal;
+
+      .position {
+        cursor: pointer;
+      }
+
+      .description {
+        padding: 5px 8px 3px 8px;
+        color: lighten(@text-color, 15%);
+        background-color: @tool-panel-background-color;
+        font-family: Consolas, monospace;
+        white-space: pre-wrap;
+        border-radius: 4px;
+        font-size: 9pt;
+      }
+    }
+  }
+}
+
+@error-color: #b22222;
+
+.editor {
+  .atom-typescript-lint {
+    background-color: @background-color-highlight;
+    z-index: 1;
+  }
+
+  .atom-typescript-warning {
+    background-color: @background-color-highlight;
+    z-index: 2;
+  }
+
+  .atom-typescript-error {
+    background-color: @background-color-highlight;
+    z-index: 3;
+  }
+
+  .highlight {
+    &.atom-typescript-lint .region {
+      background: linear-gradient(to right, @background-color-info 0%, fadeout(@background-color-info, 50%) 100%);
+      z-index: 1;
+    }
+    &.atom-typescript-warning .region {
+      background: linear-gradient(to right, @background-color-warning 0%, fadeout(@background-color-warning, 50%) 100%);
+      z-index: 2;
+    }
+    &.atom-typescript-error .region {
+      background: linear-gradient(to right, @background-color-error 0%, fadeout(@background-color-error, 50%) 100%);
+      z-index: 3;
+    }
+  }
+
+  .gutter .line-number {
+    &.atom-typescript-lint .icon-right {
+      visibility: visible;
+      &:before {
+        content: @info;
+        color: @text-color-info;
+        z-index: 1;
+      }
+    }
+
+    &.atom-typescript-warning .icon-right {
+      visibility: visible;
+      &:before {
+        content: @stop;
+        color: @text-color-warning;
+        z-index: 2;
+      }
+    }
+
+    &.atom-typescript-error .icon-right {
+      visibility: visible;
+      &:before {
+        content: @alert;
+        color: @text-color-error;
+        z-index: 3;
+      }
+    }
+  }
+}
+
+.atom-typescript-tooltip {
+  .tooltip .tooltip-inner;
+
+  position: absolute;
+  z-index:100;
+  padding: 5px 8px 3px 8px;
+  font-family: Consolas, monospace;
+  font-size: 9pt;
+  line-height: 12pt;
+  text-align: left;
+  white-space: pre;
+
+  &:empty {
+    display: none;
+  }
+}
