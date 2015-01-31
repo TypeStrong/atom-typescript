@@ -178,10 +178,18 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions);
 
-    return increaseProjectForReferenceAndImports({
+    // Expand files to include references
+    project.files = increaseProjectForReferenceAndImports(project.files);
+
+    // Normalize to "/" for all files
+    // And take the uniq values
+    project.files = uniq(project.files.map(consistentPath));
+
+    return {
         projectFileDirectory: projectFileDirectory,
         project: project
-    });
+    };
+
 }
 
 /** Creates a project by  source file location. Defaults are assumed unless overriden by the optional spec. */
@@ -206,18 +214,22 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     return getProjectSync(srcFile);
 }
 
+// we work with "/" for all paths
+export function consistentPath(filePath: string): string {
+    return filePath.replace('\\', '/');
+}
 
 /////////////////////////////////////////////
 /////////////// UTILITIES ///////////////////
 /////////////////////////////////////////////
 
-function increaseProjectForReferenceAndImports(proj: TypeScriptProjectFileDetails) {
+function increaseProjectForReferenceAndImports(files: string[]) {
 
-    var filesMap = createMap(proj.project.files);
+    var filesMap = createMap(files);
     var willNeedMoreAnalysis = (file: string) => {
         if (!filesMap[file]) {
             filesMap[file] = true;
-            proj.project.files.push(file);
+            files.push(file);
             return true;
         } else {
             return false;
@@ -251,14 +263,14 @@ function increaseProjectForReferenceAndImports(proj: TypeScriptProjectFileDetail
         return selectMany(referenced);
     }
 
-    var more = getReferencedOrImportedFiles(proj.project.files)
+    var more = getReferencedOrImportedFiles(files)
         .filter(willNeedMoreAnalysis);
     while (more.length) {
-        more = getReferencedOrImportedFiles(proj.project.files)
+        more = getReferencedOrImportedFiles(files)
             .filter(willNeedMoreAnalysis);
     }
 
-    return proj;
+    return files;
 }
 
 function createMap(arr: string[]): { [string: string]: boolean } {
@@ -321,4 +333,9 @@ function selectMany<T>(arr: T[][]): T[] {
 
 function endsWith(str: string, suffix: string): boolean {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+function uniq(arr: string[]): string[] {
+    var map = createMap(arr);
+    return Object.keys(map);
 }

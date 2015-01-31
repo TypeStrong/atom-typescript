@@ -140,16 +140,21 @@ function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
 }
 
 export function getOrCreateProgram(filePath) {
+    filePath = tsconfig.consistentPath(filePath);
     if (programByFilePath[filePath]) {
         return programByFilePath[filePath];
     }
     else {
         var projectFile = getOrCreateProject(filePath);
         if (programByProjectPath[projectFile.projectFileDirectory]) {
+            // we've already parsed the project file once before. This file wasn't in there for some reason
+            // we just need to update for this file
             return programByFilePath[filePath] = programByProjectPath[projectFile.projectFileDirectory];
         } else {
-            return programByFilePath[filePath] = programByProjectPath[projectFile.projectFileDirectory] = new Program(projectFile);
-        } 
+            var program = programByProjectPath[projectFile.projectFileDirectory] = new Program(projectFile);
+            projectFile.project.files.forEach((file) => programByFilePath[file] = program);
+            return program;
+        }
     }
 }
 

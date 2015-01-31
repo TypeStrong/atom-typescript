@@ -10,7 +10,7 @@ import path = require('path');
 import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
-import TooltipView = require('views/tooltip-view');
+import TooltipView = require('views/tooltip');
 
 export function attach(editorView: any) {
     // Only on ".ts" files
