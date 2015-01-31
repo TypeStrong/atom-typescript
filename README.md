@@ -1,6 +1,6 @@
 # TypeScript workflow from Atom
 
-Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to.
+Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
 # Features
 ## Auto Complete
