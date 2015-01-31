@@ -7,3 +7,5 @@
 /// <reference path="./typings/brackets.d.ts"/>
 /// <reference path="./typings/minimatch.d.ts"/>
 /// <reference path="./typings/mustache.d.ts"/>
+
+/// <reference path="./node_modules/views/views.d.ts"/>

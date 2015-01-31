@@ -10,14 +10,7 @@ import path = require('path');
 import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
-var TooltipView: { new (rect: any): IToolTipView; } = require('../views/tooltip-view').TooltipView;
-
-interface IToolTipView {
-    updateText(text: string);
-
-    // Methods from base View
-    remove();
-}
+import tooltipView = require('views/tooltip-view');
 
 export function attach(editorView: any) {
     // Only on ".ts" files
@@ -32,7 +25,7 @@ export function attach(editorView: any) {
     var scroll = editorView.find('.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
-    var exprTypeTooltip: IToolTipView = null;
+    var exprTypeTooltip: tooltipView.ITooltipView = null;
     subscriber.subscribe(scroll, 'mousemove',(e) => {
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
@@ -64,7 +57,7 @@ export function attach(editorView: any) {
             top: e.clientY - offset,
             bottom: e.clientY + offset
         };
-        exprTypeTooltip = new TooltipView(tooltipRect);
+        exprTypeTooltip = new tooltipView.TooltipView(tooltipRect);
 
         // Actually make the program manager query
         var position = atomUtils.getEditorPositionForBufferPosition(editor,bufferPt);
