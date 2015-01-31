@@ -21,7 +21,7 @@ export function mapValues<T>(map: { [index: string]: T }): T[] {
         result.push(map[key]);
         return result;
     }, []);
-} 
+}
 
 /**
  * assign all properties of a list of object to an object
@@ -29,7 +29,7 @@ export function mapValues<T>(map: { [index: string]: T }): T[] {
  * @param items items which properties will be assigned to a target
  */
 export function assign(target: any, ...items: any[]): any {
-    return items.reduce(function (target: any, source: any) {
+    return items.reduce(function(target: any, source: any) {
         return Object.keys(source).reduce((target: any, key: string) => {
             target[key] = source[key];
             return target;
@@ -71,31 +71,31 @@ export function pathResolve(from: string, to: string): string {
 export interface ISignal<T> {
     /**
      * Subscribes a listener for the signal.
-     * 
+     *
      * @params listener the callback to call when events are dispatched
      * @params priority an optional priority for this signal
      */
     add(listener: (parameter: T) => any, priority?: number): void;
-    
+
     /**
      * unsubscribe a listener for the signal
-     * 
+     *
      * @params listener the previously subscribed listener
      */
     remove(listener: (parameter: T) => any): void;
-    
+
     /**
      * dispatch an event
-     * 
+     *
      * @params parameter the parameter attached to the event dispatching
      */
     dispatch(parameter?: T): boolean;
-    
+
     /**
      * Remove all listener from the signal
      */
     clear(): void;
-    
+
     /**
      * @return true if the listener has been subsribed to this signal
      */
@@ -104,20 +104,20 @@ export interface ISignal<T> {
 
 
 export class Signal<T> implements ISignal<T> {
-    
+
     /**
      * list of listeners that have been suscribed to this signal
      */
     private listeners: { (parameter: T): any }[] = [];
-    
+
     /**
-     * Priorities corresponding to the listeners 
+     * Priorities corresponding to the listeners
      */
     private priorities: number[] = [];
-    
+
     /**
      * Subscribes a listener for the signal.
-     * 
+     *
      * @params listener the callback to call when events are dispatched
      * @params priority an optional priority for this signal
      */
@@ -137,10 +137,10 @@ export class Signal<T> implements ISignal<T> {
         this.priorities.push(priority);
         this.listeners.push(listener);
     }
-    
+
     /**
      * unsubscribe a listener for the signal
-     * 
+     *
      * @params listener the previously subscribed listener
      */
     remove(listener: (parameter: T) => any): void {
@@ -150,10 +150,10 @@ export class Signal<T> implements ISignal<T> {
             this.listeners.splice(index, 1);
         }
     }
-    
+
     /**
      * dispatch an event
-     * 
+     *
      * @params parameter the parameter attached to the event dispatching
      */
     dispatch(parameter?: T): boolean {
@@ -164,7 +164,7 @@ export class Signal<T> implements ISignal<T> {
 
         return hasBeenCanceled;
     }
-    
+
     /**
      * Remove all listener from the signal
      */
@@ -172,7 +172,7 @@ export class Signal<T> implements ISignal<T> {
         this.listeners = [];
         this.priorities = [];
     }
-    
+
     /**
      * @return true if the listener has been subsribed to this signal
      */
@@ -253,4 +253,40 @@ export function delayMilliseconds(milliseconds: number = 100) {
     while (d2.valueOf() < d1.valueOf() + milliseconds) {
         d2 = new Date();
     }
+};
+
+var now = () => new Date().getTime();
+
+export function debounce<T extends Function>(func: T, milliseconds: number, immediate = false): T {
+    var timeout, args, context, timestamp, result;
+
+    var wait = milliseconds;
+
+    var later = function() {
+        var last = now() - timestamp;
+
+        if (last < wait && last > 0) {
+            timeout = setTimeout(later, wait - last);
+        } else {
+            timeout = null;
+            if (!immediate) {
+                result = func.apply(context, args);
+                if (!timeout) context = args = null;
+            }
+        }
+    };
+
+    return <any>function() {
+        context = this;
+        args = arguments;
+        timestamp = now();
+        var callNow = immediate && !timeout;
+        if (!timeout) timeout = setTimeout(later, wait);
+        if (callNow) {
+            result = func.apply(context, args);
+            context = args = null;
+        }
+
+        return result;
+    };
 };
