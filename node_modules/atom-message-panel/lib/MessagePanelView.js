@@ -27,7 +27,9 @@ MessagePanelView.content = function () {
     }, function () {
       this.div({
         class: 'heading-title inline-block',
-        outlet: 'heading'
+        style: 'cursor: pointer',
+        outlet: 'heading',
+        click: 'toggle'
       });
       this.div({
         class: 'heading-summary inline-block',
