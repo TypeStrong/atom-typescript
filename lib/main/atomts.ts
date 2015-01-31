@@ -19,6 +19,8 @@ import buildView = require('./atom/buildView'); ///ts:import:generated
 import tooltipManager = require('./atom/tooltipManager'); ///ts:import:generated
 ///ts:import=signatureProvider
 import signatureProvider = require('./atom/signatureProvider'); ///ts:import:generated
+///ts:import=atomUtils
+import atomUtils = require('./atom/atomUtils'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -83,10 +85,13 @@ export function activate(state: PackageState) {
                     errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
 
                     // TODO: provide function completions
-                    /*var cursor = editor.getCursorBufferPosition();
-                    var cursorPos = editor.getBuffer;
-                    var signatures = program.languageService.getSignatureHelpItems(filePath,cursorPos);
-                    console.log(signatures);*/
+                    var position = atomUtils.getEditorPosition(editor);
+                    signatureProvider.requestHandler({
+                            program:program,
+                            editor:editor,
+                            filePath: filePath,
+                            position: position
+                        });
 
                 });
 
