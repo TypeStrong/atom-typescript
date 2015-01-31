@@ -3,6 +3,8 @@
 
 ///ts:import=programManager
 import programManager = require('../lang/programManager'); ///ts:import:generated
+///ts:import=atomUtils
+import atomUtils = require('./atomUtils'); ///ts:import:generated
 
 import path = require('path');
 import ts = require('typescript');
@@ -65,7 +67,7 @@ export function attach(editorView: any) {
         exprTypeTooltip = new TooltipView(tooltipRect);
 
         // Actually make the program manager query
-        var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: bufferPt.row, ch: bufferPt.column });
+        var position = atomUtils.getEditorPositionForBufferPosition(editor,bufferPt);
         var info = program.languageService.getQuickInfoAtPosition(filePath, position);
         if (!info) {
             hideExpressionType();

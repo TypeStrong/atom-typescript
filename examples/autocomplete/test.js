@@ -4,3 +4,6 @@ var Bar = (function () {
     }
     return Bar;
 })();
+function bas(a, b) {
+    return '';
+}

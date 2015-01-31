@@ -60,6 +60,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
     function getLineStarts() {
         if (_lineStartIsDirty) {
+            // TODO: pref
             _lineStarts = ts.computeLineStarts(content);
             _lineStartIsDirty = false;
         }

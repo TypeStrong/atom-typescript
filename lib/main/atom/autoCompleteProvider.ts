@@ -7,6 +7,9 @@
 import programManager = require('../lang/programManager'); ///ts:import:generated
 import ts = require('typescript');
 
+///ts:import=atomUtils
+import atomUtils = require('./atomUtils'); ///ts:import:generated
+
 var fuzzaldrin = require('fuzzaldrin');
 
 declare module autocompleteplus {
@@ -52,7 +55,7 @@ var provider = {
         // Update the file
         program.languageServiceHost.updateScript(filePath, options.editor.getText());
 
-        var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: options.position.row, ch: options.position.column });
+        var position = atomUtils.getEditorPositionForBufferPosition(options.editor,options.position);
 
         var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
             filePath, position);

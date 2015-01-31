@@ -17,6 +17,8 @@ import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:impo
 import buildView = require('./atom/buildView'); ///ts:import:generated
 ///ts:import=tooltipManager
 import tooltipManager = require('./atom/tooltipManager'); ///ts:import:generated
+///ts:import=signatureProvider
+import signatureProvider = require('./atom/signatureProvider'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -81,9 +83,10 @@ export function activate(state: PackageState) {
                     errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
 
                     // TODO: provide function completions
-                    var cursor = editor.getCursorBufferPosition();
-                    var cursorPos = program.languageServiceHost.getIndexFromPosition(filePath, { line: cursor.row, ch: cursor.column });
-                    // console.log(program.languageService.getSignatureHelpItems(filePath,cursorPos));
+                    /*var cursor = editor.getCursorBufferPosition();
+                    var cursorPos = editor.getBuffer;
+                    var signatures = program.languageService.getSignatureHelpItems(filePath,cursorPos);
+                    console.log(signatures);*/
 
                 });
 
