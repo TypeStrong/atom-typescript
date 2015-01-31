@@ -14,8 +14,6 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
 
-
-
 var messagePanel;
 export function start() {
     if (messagePanel) return;
@@ -24,6 +22,7 @@ export function start() {
         closeMethod: 'hide'
     });
     messagePanel.attach();
+    messagePanel.toggle(); // Start minized
 }
 
 var filePathErrors: utils.Dict<programManager.TSError[]> = new utils.Dict<any[]>();
@@ -44,7 +43,7 @@ function hide() {
     }
 }
 
-export function setErrors(filePath: string, errorsForFile: programManager.TSError[]) {
+export var setErrors = (filePath: string, errorsForFile: programManager.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
     else filePathErrors.setValue(filePath, errorsForFile);
 
@@ -70,7 +69,7 @@ export function setErrors(filePath: string, errorsForFile: programManager.TSErro
             });
         }
     }
-}
+};
 
 export function showEmittedMessage(output: programManager.EmitOutput) {
     if (output.success) {

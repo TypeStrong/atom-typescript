@@ -30,7 +30,7 @@ interface LinterError {
 
 var debouncedErrors = utils.debounce((callback: Function, errors: LinterError[]) => {
     callback(errors);
-}, 1000);
+}, 1500);
 
 LinterTslint = (function(_super) {
     __extends(LinterTslint, _super);
@@ -60,8 +60,8 @@ LinterTslint = (function(_super) {
             linter: 'TypeScript'
         });
 
+        return callback(linterErrors);
         // return debouncedErrors(callback, linterErrors);
-        callback(linterErrors);
     };
 
     return LinterTslint;

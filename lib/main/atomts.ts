@@ -74,7 +74,9 @@ export function activate(state: PackageState) {
                     // If we don't have the program yet. The file isn't saved and we just show an error to guide the user
                     if (!program) {
                         var root = { line: 0, ch: 0 };
-                        errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
+                        errorView.setErrors(filePath,
+                            [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]
+                            );
                         return;
                     }
 
@@ -87,11 +89,11 @@ export function activate(state: PackageState) {
                     // TODO: provide function completions
                     var position = atomUtils.getEditorPosition(editor);
                     signatureProvider.requestHandler({
-                            program:program,
-                            editor:editor,
-                            filePath: filePath,
-                            position: position
-                        });
+                        program: program,
+                        editor: editor,
+                        filePath: filePath,
+                        position: position
+                    });
 
                 });
 
@@ -194,7 +196,7 @@ export function activate(state: PackageState) {
 
         atom.open({
             // The file open command line is 1 indexed
-            pathsToOpen: [definition.fileName + ":" + (newFilePosition.line+1).toString()],
+            pathsToOpen: [definition.fileName + ":" + (newFilePosition.line + 1).toString()],
             newWindow: false
         });
     });
