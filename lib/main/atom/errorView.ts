@@ -14,12 +14,21 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
 
+function getTitle(errorCount: number): string {
+    var title = '<span class="icon-bug"></span> TypeScript errors for open files';
+    if (errorCount > 0) {
+        title = title + ` (<span class="text-error">${errorCount}</span>)`;
+    }
+    return title;
+}
+
 var messagePanel;
 export function start() {
     if (messagePanel) return;
     messagePanel = new MessagePanelView({
-        title: 'TypeScript Errors (for open files)',
-        closeMethod: 'hide'
+        title: getTitle(0),
+        closeMethod: 'hide',
+        rawTitle: true
     });
     messagePanel.attach();
     messagePanel.toggle(); // Start minized
@@ -51,7 +60,10 @@ export var setErrors = (filePath: string, errorsForFile: programManager.TSError[
     messagePanel.clear();
     messagePanel.attach();
 
-    if (!filePathErrors.keys().length) {
+    var currentErrorCount = filePathErrors.keys().length;
+    messagePanel.setTitle(getTitle(currentErrorCount), true);
+
+    if (!currentErrorCount) {
         messagePanel.add(new PlainMessageView({
             message: "No errors",
             className: "text-success"
