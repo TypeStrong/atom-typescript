@@ -6,6 +6,7 @@
 ///ts:import=programManager
 import programManager = require('../lang/programManager'); ///ts:import:generated
 import ts = require('typescript');
+import fs = require('fs');
 
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
@@ -49,13 +50,14 @@ var provider = {
         var filePath = options.editor.getPath();
 
         // We refuse to work on files that are not on disk.
-        if(!filePath) return [];
+        if (!filePath) return [];
+        if (!fs.existsSync(filePath)) return;
 
         var program = programManager.getOrCreateProgram(filePath);
         // Update the file
         program.languageServiceHost.updateScript(filePath, options.editor.getText());
 
-        var position = atomUtils.getEditorPositionForBufferPosition(options.editor,options.position);
+        var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.position);
 
         var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
             filePath, position);

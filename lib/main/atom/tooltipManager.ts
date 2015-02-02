@@ -7,6 +7,7 @@ import programManager = require('../lang/programManager'); ///ts:import:generate
 import atomUtils = require('./atomUtils'); ///ts:import:generated
 
 import path = require('path');
+import fs = require('fs');
 import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
@@ -19,6 +20,11 @@ export function attach(editorView: any) {
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (ext !== '.ts') return;
+
+    // We only create a "program" once the file is persisted to disk
+    if (!fs.existsSync(filePath)) {
+        return;
+    }
 
     var program = programManager.getOrCreateProgram(filePath);
 
