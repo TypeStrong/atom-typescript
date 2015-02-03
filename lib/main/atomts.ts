@@ -31,44 +31,9 @@ var autoCompleteWatch: AtomCore.Disposable;
 export interface PackageState {
 }
 
-///ts:import=workerCommon
-import workerCommon = require('../worker/workerCommon'); ///ts:import:generated
-
-import childprocess = require('child_process');
-var exec = childprocess.exec;
-
-var packageActive = false;
-var worker: childprocess.ChildProcess;
-
-
-function startWorker() {
-    if (!packageActive) return;
-
-    try {
-        worker = exec('node ' + __dirname + '/../worker/process.js', function() { });
-        worker.stdout.on('data',(m) => {
-            var parsed: workerCommon.Message = JSON.parse(m.toString());            
-            console.log('data from child', parsed.message, parsed.data);
-        });
-        worker.on('close',(code) => {
-            // Todo: handle process dropping
-            console.log('ts worker exited with code:', code);
-        });
-
-        // Send data to worker
-        worker.stdin.write(JSON.stringify({ message: 'echo', data: { name: 'bas' } }));
-
-        return worker;
-    }
-    catch (ex) {
-        atom.notifications.addError("Failed to start a child TypeScript worker. Atom-TypeScript is disabled.")
-        console.error('Failed to activate ts-worker:', ex);
-    }
-}
+import parent = require('../worker/parent');
 
 export function activate(state: PackageState) {
-
-    packageActive = true;
 
     // Don't activate if we have a dependency that isn't available
     var linter = apd.require('linter');
@@ -82,7 +47,20 @@ export function activate(state: PackageState) {
     }
 
     // Start a ts worker
-    startWorker();
+    parent.startWorker();
+
+    parent.echo({ echo: 'awesome 1' },(res) => {
+        console.log('index: 1', res);
+    });
+    parent.echo({ echo: 'awesome 1' },(res) => {
+        console.log('index: 1', res);
+    });
+
+    setTimeout(() => {
+        parent.echo({ echo: 'awesome 2' },(res) => {
+            console.log('index: 2', res);
+        });
+    });
 
     /*child.send({
         message: 'echo',
@@ -252,7 +230,7 @@ export function deactivate() {
     if (editorWatch) editorWatch.dispose();
     if (autoCompleteWatch) autoCompleteWatch.dispose();
 
-    packageActive = false;
+    parent.stopWorker();
 }
 
 export function serialize(): PackageState {

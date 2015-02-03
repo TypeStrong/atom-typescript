@@ -6,7 +6,43 @@
         "noimplicitany": false,
         "removecomments": true
     },
+    "filesGlob": [
+        "./**/*.ts"
+    ],
     "files": [
-        "./linter.ts"
+        "./globals.ts",
+        "./linter.ts",
+        "./main/atom/atomUtils.ts",
+        "./main/atom/autoCompleteProvider.ts",
+        "./main/atom/buildView.ts",
+        "./main/atom/errorView.ts",
+        "./main/atom/signatureProvider.ts",
+        "./main/atom/tooltipManager.ts",
+        "./main/atomts.ts",
+        "./main/lang/languageServiceHost.ts",
+        "./main/lang/programManager.ts",
+        "./main/lang/utils.ts",
+        "./main/tsconfig/tsconfig.ts",
+        "./node_modules/views/views.d.ts",
+        "./typings/atom/atom.d.ts",
+        "./typings/bluebird.d.ts",
+        "./typings/brackets.d.ts",
+        "./typings/codemirror.d.ts",
+        "./typings/emissary/emissary.d.ts",
+        "./typings/glob-expand/glob-expand.d.ts",
+        "./typings/jquery/jquery.d.ts",
+        "./typings/minimatch.d.ts",
+        "./typings/mixto/mixto.d.ts",
+        "./typings/mustache.d.ts",
+        "./typings/node/node.d.ts",
+        "./typings/pathwatcher/pathwatcher.d.ts",
+        "./typings/q/Q.d.ts",
+        "./typings/space-pen/space-pen.d.ts",
+        "./typings/status-bar/status-bar.d.ts",
+        "./typings/text-buffer/text-buffer.d.ts",
+        "./typings/tsd.d.ts",
+        "./worker/messages.ts",
+        "./worker/parent.ts",
+        "./worker/workerProcess.ts"
     ]
 }
