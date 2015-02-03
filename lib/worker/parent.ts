@@ -12,7 +12,7 @@ var currentListeners: { [messages: string]: { [id: string]: Function } } = {};
 export function startWorker() {
     try {
         child = exec('node ' + __dirname + '/workerProcess.js', function() { });
-        child.stdout.on('data',(m) => {
+        function processResponse(m: string) {
             try {
                 var parsed: messages.Message<any> = JSON.parse(m.toString());
             }
@@ -27,7 +27,13 @@ export function startWorker() {
                 currentListeners[parsed.message][parsed.id](parsed.data);
                 delete currentListeners[parsed.message][parsed.id];
             }
+        }
+        var bufferedResponseHandler = new messages.BufferedBySeperatorHandler(processResponse);
+        child.stdout.on('data',(m) => {
+            bufferedResponseHandler.handle(m)
         });
+
+
         child.stderr.on('data',(err) => {
             console.log("CHILD ERR:", err);
         });
@@ -70,7 +76,7 @@ function query<Query, Response>(message: string, data: Query, callback: (respons
     currentListeners[message][id] = callback;
 
     // Send data to worker
-    child.stdin.write(JSON.stringify({ message: message, id: id, data: data }));
+    child.stdin.write(JSON.stringify({ message: message, id: id, data: data }) + messages.BufferedBySeperatorHandler.seperator);
 }
 
 export interface Exec<Query, Response> {

@@ -49,18 +49,17 @@ export function activate(state: PackageState) {
     // Start a ts worker
     parent.startWorker();
 
-    parent.echo({ echo: 'awesome 1' },(res) => {
-        console.log('index: 1', res);
-    });
-    parent.echo({ echo: 'awesome 1' },(res) => {
-        console.log('index: 1', res);
-    });
+    for (var i = 0; i < 3000; i++) {
+        (() => {
+            var index = i;
+            // setTimeout(() => {
+                parent.echo({ echo: 'awesome ' + index },(res) => {
+                    console.log('index: ' + index, res);
+                });
+            // }, index * 100);
+        })();
+    }
 
-    setTimeout(() => {
-        parent.echo({ echo: 'awesome 2' },(res) => {
-            console.log('index: 2', res);
-        });
-    });
 
     /*child.send({
         message: 'echo',
