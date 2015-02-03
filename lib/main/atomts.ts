@@ -49,14 +49,20 @@ export function activate(state: PackageState) {
     // Start a ts worker
     parent.startWorker();
 
-    for (var i = 0; i < 3000; i++) {
+    // Streaming tests
+    /*for (var i = 0; i < 10000; i++) {
         (() => {
             var index = i;
-            parent.echo({ echo: 'awesome ' + index },(res) => {
+            var repeat = index.toString() + ' ';
+            var message = '';
+            for (var j = 0; j < 1000; j++) {
+                message = message + repeat;
+            }
+            parent.echo({ echo: 'awesome ' + message },(res) => {
                 console.log('index: ' + index, res);
             });
         })();
-    }
+    }*/
 
 
     /*child.send({
