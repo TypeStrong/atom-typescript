@@ -52,11 +52,9 @@ export function activate(state: PackageState) {
     for (var i = 0; i < 3000; i++) {
         (() => {
             var index = i;
-            // setTimeout(() => {
-                parent.echo({ echo: 'awesome ' + index },(res) => {
-                    console.log('index: ' + index, res);
-                });
-            // }, index * 100);
+            parent.echo({ echo: 'awesome ' + index },(res) => {
+                console.log('index: ' + index, res);
+            });
         })();
     }
 

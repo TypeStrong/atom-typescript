@@ -6,12 +6,13 @@ import messages = require('./messages'); ///ts:import:generated
 
 import childprocess = require('child_process');
 var exec = childprocess.exec;
+var spawn = childprocess.spawn;
 
 var child: childprocess.ChildProcess;
 var currentListeners: { [messages: string]: { [id: string]: Function } } = {};
 export function startWorker() {
     try {
-        child = exec('node ' + __dirname + '/workerProcess.js', function() { });
+        child = spawn('node', [__dirname + '/workerProcess.js']);
         function processResponse(m: string) {
             try {
                 var parsed: messages.Message<any> = JSON.parse(m.toString());
