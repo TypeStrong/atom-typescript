@@ -23,7 +23,7 @@ export function startWorker() {
             __dirname + '/workerProcess.js',
         ], { env });
 
-        child.on('error', (err) => {
+        child.on('error',(err) => {
             console.log('CHILD ERR:', err.toString());
             child = null;
         });
@@ -121,7 +121,7 @@ export interface Exec<Query, Response> {
     (data: Query, callback?: (res: Response) => any);
 }
 
-function showError(error?:Error) {
+function showError(error?: Error) {
     atom.notifications.addError("Failed to start a child TypeScript worker. Atom-TypeScript is disabled.")
     if (error) {
         console.error('Failed to activate ts-worker:', error);
@@ -134,8 +134,8 @@ function showError(error?:Error) {
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
     = (data, callback) => query(messages.echo, data, callback);
 
-export var updateText: Exec<messages.UpdateTextQuery,messages.EchoResponse>
-    = (data,callback?) => query(messages.updateText, data, callback);
+export var updateText: Exec<messages.UpdateTextQuery, messages.EchoResponse>
+    = (data, callback?) => query(messages.updateText, data, callback);
 
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
-        = (data, callback) => query(messages.getErrorsForFile, data, callback);
+    = (data, callback) => query(messages.getErrorsForFile, data, callback);
