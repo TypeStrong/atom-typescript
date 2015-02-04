@@ -49,8 +49,6 @@ LinterTslint = (function(_super) {
 
         filePath = this.editor.buffer.file.path;
 
-        var fileName = path.basename(filePath);
-
         var errors = programManager.getErrorsForFileFiltered(filePath);
         var linterErrors: LinterError[] = errors.map((err) => <LinterError>{
             message: err.message,
