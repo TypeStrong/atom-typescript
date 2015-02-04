@@ -12,13 +12,10 @@ var child: childprocess.ChildProcess;
 var currentListeners: { [messages: string]: { [id: string]: Function } } = {};
 export function startWorker() {
     try {
-        var env = Object.create(process.env);
-        env.ATOM_SHELL_INTERNAL_RUN_AS_NODE = '1';
-
-        child = spawn(process.execPath, [
+        child = spawn('node', [
             // '--debug', // Uncomment if you want to debug the child process
-            __dirname + '/workerProcess.js',
-        ], { env });
+            __dirname + '/workerProcess.js'
+        ]);
 
         child.on('error', (err) => {
             console.log('CHILD ERR:', err.toString());
@@ -43,7 +40,6 @@ export function startWorker() {
             }
         }
         var bufferedResponseHandler = new messages.BufferedBySeperatorHandler(processResponse);
-
         child.stdout.on('data',(m) => {
             bufferedResponseHandler.handle(m)
         });
