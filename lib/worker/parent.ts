@@ -5,6 +5,7 @@
 import messages = require('./messages'); ///ts:import:generated
 
 import childprocess = require('child_process');
+import os = require('os');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 
@@ -15,7 +16,9 @@ export function startWorker() {
         var env = Object.create(process.env);
         env.ATOM_SHELL_INTERNAL_RUN_AS_NODE = '1';
 
-        child = spawn(process.execPath, [
+        var node = os.platform() === 'win32' ? "node" : process.execPath;
+
+        child = spawn(node, [
             // '--debug', // Uncomment if you want to debug the child process
             __dirname + '/workerProcess.js',
         ], { env });
