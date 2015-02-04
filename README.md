@@ -1,5 +1,7 @@
 # TypeScript workflow from Atom
 
+[![Join the chat at https://gitter.im/TypeStrong/atom-typescript](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TypeStrong/atom-typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
 ## Requirements
