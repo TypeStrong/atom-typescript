@@ -17,6 +17,11 @@ export function startWorker() {
             __dirname + '/workerProcess.js'
         ]);
 
+        child.on('error', (err) => {
+            console.log('CHILD ERR:', err.toString());
+            child = null;
+        });
+
         console.log('ts worker started');
         function processResponse(m: string) {
             try {
@@ -53,15 +58,17 @@ export function startWorker() {
                 startWorker();
             }
             // probably restart even otherwise. Potential infinite loop.
-            else {
+            else if (code !== /* ENOENT? */ -2) {
                 console.log('ts worker restarting');
                 startWorker();
+            }
+            else {
+                showError();
             }
         });
     }
     catch (ex) {
-        atom.notifications.addError("Failed to start a child TypeScript worker. Atom-TypeScript is disabled.")
-        console.error('Failed to activate ts-worker:', ex);
+        showError(ex);
     }
 }
 
@@ -87,8 +94,9 @@ function createId(): string {
 function query<Query, Response>(message: string, data: Query, callback: (response: Response) => any = () => { }) {
 
     // If we don't have a child exit
-    if (!child) {
+    if (!child || !child.stdin.writable) {
         console.log('PARENT ERR: no child when you tried to send :', message);
+        return;
     }
 
     // Create an id
@@ -106,6 +114,12 @@ export interface Exec<Query, Response> {
     (data: Query, callback?: (res: Response) => any);
 }
 
+function showError(error?:Error) {
+    atom.notifications.addError("Failed to start a child TypeScript worker. Atom-TypeScript is disabled.")
+    if (error) {
+        console.error('Failed to activate ts-worker:', error);
+    }
+}
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
