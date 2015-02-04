@@ -5,11 +5,12 @@
 Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
 ## Requirements
-A recent version of `node` (e.g. `v0.10`) in your path. And an auto updating version of `atom`. Other atom packages we depend upon are installed automatically.
+An auto updating version of `atom`. Other atom packages we depend upon are installed automatically.
 
-* Install Node.js 
 * Install Atom
-* `apm install typescript` 
+* `apm install typescript`
+
+**Note**: For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))  
 
 # Features
 ## Auto Complete
