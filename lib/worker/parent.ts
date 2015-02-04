@@ -103,12 +103,9 @@ function query<Query, Response>(message: string, data: Query, callback: (respons
 }
 
 export interface Exec<Query, Response> {
-    (data: Query, callback: (res: Response) => any);
+    (data: Query, callback?: (res: Response) => any);
 }
 
-export interface ExecNoResponse<Query> {
-    (data: Query);
-}
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
@@ -116,5 +113,8 @@ export interface ExecNoResponse<Query> {
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
     = (data, callback) => query(messages.echo, data, callback);
 
-export var updateText: ExecNoResponse<messages.UpdateTextQuery>
-    = (data) => query(messages.updateText, data);
+export var updateText: Exec<messages.UpdateTextQuery,messages.EchoResponse>
+    = (data,callback?) => query(messages.updateText, data, callback);
+
+export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
+        = (data, callback) => query(messages.getErrorsForFile, data, callback);

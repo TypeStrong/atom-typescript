@@ -109,13 +109,16 @@ export function activate(state: PackageState) {
                     var text = editor.getText();
 
                     // Update the file in the worker
-                    parent.updateText({filePath:filePath,text:text})
+                    parent.updateText({ filePath: filePath, text: text },() => {
+                        parent.getErrorsForFile({ filePath: filePath },(resp) => {
+                            // Set errors in project per file
+                            errorView.setErrors(filePath, resp.errors);
+                        });
+                    });
 
                     // Update the file
                     program.languageServiceHost.updateScript(filePath, text);
 
-                    // Set errors in project per file
-                    errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));
 
                     // TODO: provide function completions
                     var position = atomUtils.getEditorPosition(editor);

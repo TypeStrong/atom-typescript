@@ -49,3 +49,9 @@ responders[messages.updateText] = (data: messages.UpdateTextQuery): messages.Upd
     program.languageServiceHost.updateScript(data.filePath, data.text);
     return {};
 }
+
+responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): messages.GetErrorsForFileResponse => {    
+    return {
+        errors: programManager.getErrorsForFile(data.filePath)
+    };
+}

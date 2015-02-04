@@ -60,6 +60,10 @@ export interface Message<T> {
 }
 
 ///////////////////////////////////////////// MESSAGES ///////////////////////////////////////////
+
+///ts:import=programManager
+import programManager = require('../main/lang/programManager'); ///ts:import:generated
+
 export var echo = 'echo';
 export interface EchoQuery {
     echo: any;
@@ -75,3 +79,12 @@ export interface UpdateTextQuery {
     text: string;
 }
 export interface UpdateTextResponse { }
+
+
+export var getErrorsForFile = 'getErrorsForFile';
+export interface GetErrorsForFileQuery {
+    filePath: string;
+}
+export interface GetErrorsForFileResponse {
+    errors: programManager.TSError[];
+}
