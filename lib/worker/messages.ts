@@ -49,6 +49,8 @@ export class BufferedBySeperatorHandler {
     }
 }
 
+export var orphanExitCode = 100;
+
 // Parent makes queries
 // Child responds
 export interface Message<T> {

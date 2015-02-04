@@ -12,7 +12,12 @@ var child: childprocess.ChildProcess;
 var currentListeners: { [messages: string]: { [id: string]: Function } } = {};
 export function startWorker() {
     try {
-        child = spawn('node', [__dirname + '/workerProcess.js']);
+        child = spawn('node', [
+            // '--debug', // Uncomment if you want to debug the child process
+            __dirname + '/workerProcess.js'
+        ]);
+
+        console.log('ts worker started');
         function processResponse(m: string) {
             try {
                 var parsed: messages.Message<any> = JSON.parse(m.toString());
@@ -41,6 +46,17 @@ export function startWorker() {
         child.on('close',(code) => {
             // Todo: handle process dropping
             console.log('ts worker exited with code:', code);
+
+            // If orphaned then Definitely restart
+            if (code === messages.orphanExitCode) {
+                console.log('ts worker restarting');
+                startWorker();
+            }
+            // probably restart even otherwise. Potential infinite loop.
+            else {
+                console.log('ts worker restarting');
+                startWorker();
+            }
         });
     }
     catch (ex) {

@@ -40,6 +40,15 @@ export interface TypeScriptProjectFileDetails {
 
 //////////////////////////////////////////////////////////////////////
 
+export var errors = {
+    GET_PROJECT_INVALID_PATH: 'Invalid Path',
+    GET_PROJECT_NO_PROJECT_FOUND: 'No Project Found',
+    GET_PROJECT_INVALID_PROJECT_FILE: 'Failed to open / parse the project file',
+
+    CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
+    CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
+};
+
 
 import fs = require('fs');
 import path = require('path');
@@ -113,7 +122,7 @@ function tsToRawCompilerOptions(proper: ts.CompilerOptions): CompilerOptions {
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
 
     if (!fs.existsSync(pathOrSrcFile))
-        throw new Error('Invalid Path');
+        throw new Error(errors.GET_PROJECT_INVALID_PATH);
 
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
@@ -144,7 +153,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             var before = dir;
             dir = path.dirname(dir);
             // At root:
-            if (dir == before) throw new Error('No Project Found');
+            if (dir == before) throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
     projectFile = path.normalize(projectFile);
@@ -154,7 +163,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     try {
         var projectSpec: TypeScriptProjectRawSpecification = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
     } catch (ex) {
-        throw new Error("Invalid JSON");
+        throw new Error(errors.GET_PROJECT_INVALID_PROJECT_FILE);
     }
 
     // Setup default project options
@@ -195,7 +204,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 /** Creates a project by  source file location. Defaults are assumed unless overriden by the optional spec. */
 export function createProjectRootSync(srcFile: string, defaultOptions?: ts.CompilerOptions) {
     if (!fs.existsSync(srcFile)) {
-        throw new Error('To create a project the file must exist');
+        throw new Error(errors.CREATE_FILE_MUST_EXIST);
     }
 
     // Get directory
@@ -203,7 +212,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     var projectFilePath = path.normalize(dir + '/' + projectFileName);
 
     if (fs.existsSync(projectFilePath))
-        throw new Error('Project file already exists');
+        throw new Error(errors.CREATE_PROJECT_ALREADY_EXISTS);
 
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
