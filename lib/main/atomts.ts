@@ -106,8 +106,13 @@ export function activate(state: PackageState) {
                         return;
                     }
 
+                    var text = editor.getText();
+
+                    // Update the file in the worker
+                    parent.updateText({filePath:filePath,text:text})
+
                     // Update the file
-                    program.languageServiceHost.updateScript(filePath, editor.getText());
+                    program.languageServiceHost.updateScript(filePath, text);
 
                     // Set errors in project per file
                     errorView.setErrors(filePath, programManager.getErrorsForFile(filePath));

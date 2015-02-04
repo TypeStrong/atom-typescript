@@ -37,6 +37,15 @@ process.stdin.on('data',(data) => {
 
 ///////////////// END INFRASTRUCTURE /////////////////////////////////////
 
+///ts:import=programManager
+import programManager = require('../main/lang/programManager'); ///ts:import:generated
+
 responders[messages.echo] = (data: messages.EchoQuery): messages.EchoResponse => {
     return { echo: data.echo };
 };
+
+responders[messages.updateText] = (data: messages.UpdateTextQuery): messages.UpdateTextResponse => {
+    var program = programManager.getOrCreateProgram(data.filePath);
+    program.languageServiceHost.updateScript(data.filePath, data.text);
+    return {};
+}

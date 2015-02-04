@@ -1,6 +1,6 @@
 // To make it easier for me to serilize json on stdin
 export class BufferedBySeperatorHandler {
-    static seperator = "||atomts||";
+    static seperator = new Buffer('fHxhdG9tdHN8fA==', 'base64').toString(); // Mustn't speak his name
     totalTrailing: string[] = [];
     incompleteEnding = '';
     constructor(public callback: (data: any) => any) { }
@@ -59,6 +59,7 @@ export interface Message<T> {
     data: T;
 }
 
+///////////////////////////////////////////// MESSAGES ///////////////////////////////////////////
 export var echo = 'echo';
 export interface EchoQuery {
     echo: any;
@@ -66,3 +67,11 @@ export interface EchoQuery {
 export interface EchoResponse {
     echo: any;
 }
+
+
+export var updateText = 'updateText';
+export interface UpdateTextQuery {
+    filePath: string;
+    text: string;
+}
+export interface UpdateTextResponse { }

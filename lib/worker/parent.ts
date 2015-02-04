@@ -41,7 +41,7 @@ export function startWorker() {
 
 
         child.stderr.on('data',(err) => {
-            console.log("CHILD ERR:", err);
+            console.log("CHILD ERR:", err.toString());
         });
         child.on('close',(code) => {
             // Todo: handle process dropping
@@ -84,7 +84,13 @@ function createId(): string {
     });
 }
 
-function query<Query, Response>(message: string, data: Query, callback: (response: Response) => any) {
+function query<Query, Response>(message: string, data: Query, callback: (response: Response) => any = () => { }) {
+
+    // If we don't have a child exit
+    if (!child) {
+        console.log('PARENT ERR: no child when you tried to send :', message);
+    }
+
     // Create an id
     var id = createId();
 
@@ -100,8 +106,15 @@ export interface Exec<Query, Response> {
     (data: Query, callback: (res: Response) => any);
 }
 
+export interface ExecNoResponse<Query> {
+    (data: Query);
+}
+
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
 
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
     = (data, callback) => query(messages.echo, data, callback);
+
+export var updateText: ExecNoResponse<messages.UpdateTextQuery>
+    = (data) => query(messages.updateText, data);
