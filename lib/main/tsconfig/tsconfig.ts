@@ -264,7 +264,13 @@ function increaseProjectForReferenceAndImports(files: string[]) {
                     .concat(
                     preProcessedFileInfo.importedFiles
                         .filter((fileReference) => pathIsRelative(fileReference.filename))
-                        .map(fileReference => path.resolve(dir, fileReference.filename + '.ts'))
+                        .map(fileReference => {
+                            var file = path.resolve(dir, fileReference.filename + '.ts');
+                            if (!fs.existsSync(file)) {
+                                file = path.resolve(dir, fileReference.filename + '.d.ts');
+                            }
+                            return file;
+                        })
                     )
                 );
         });
