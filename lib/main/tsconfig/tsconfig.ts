@@ -147,7 +147,8 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
     var compilerOptions = <ts.CompilerOptions> mixin({}, defaults);
     for (var key in jsonOptions) {
         if (deprecatedKeys[key]) {
-            atom.notifications.addWarning('Compiler option "' + key + '" is deprecated; use "' + deprecatedKeys[key] + '" instead');
+            // Warn using : https://github.com/TypeStrong/atom-typescript/issues/51
+            // atom.notifications.addWarning('Compiler option "' + key + '" is deprecated; use "' + deprecatedKeys[key] + '" instead');
             key = deprecatedKeys[key];
         }
 
