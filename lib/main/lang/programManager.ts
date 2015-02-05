@@ -135,13 +135,15 @@ function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
         var project = tsconfig.getProjectSync(filePath);
         return project;
     } catch (ex) {
-        if (ex.message === tsconfig.errors.GET_PROJECT_INVALID_PROJECT_FILE) {
+        var err: Error = ex;
+        if (err.message === tsconfig.errors.GET_PROJECT_INVALID_PROJECT_FILE) {
             throw ex;
         }
         else {
             return tsconfig.createProjectRootSync(filePath);
         }
     }
+}
 }
 
 export function getOrCreateProgram(filePath) {
