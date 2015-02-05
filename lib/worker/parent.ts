@@ -142,3 +142,6 @@ export var updateText: Exec<messages.UpdateTextQuery, messages.EchoResponse>
 
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
     = (data) => query(messages.getErrorsForFile, data);
+
+export var getCompletionsAtPosition: Exec<messages.GetCompletionsAtPositionQuery, messages.GetCompletionsAtPositionResponse>
+    = (data) => query(messages.getCompletionsAtPosition, data);

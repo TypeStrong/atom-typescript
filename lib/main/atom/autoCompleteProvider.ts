@@ -5,6 +5,8 @@
 
 ///ts:import=programManager
 import programManager = require('../lang/programManager'); ///ts:import:generated
+///ts:import=parent
+import parent = require('../../worker/parent'); ///ts:import:generated
 import ts = require('typescript');
 import fs = require('fs');
 
@@ -46,58 +48,37 @@ function kindToColor(kind: string) {
 
 var provider = {
     selector: '.source.ts',
-    requestHandler: (options: autocompleteplus.RequestOptions): autocompleteplus.Suggestion[]=> {
+    requestHandler: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
         var filePath = options.editor.getPath();
 
         // We refuse to work on files that are not on disk.
-        if (!filePath) return [];
-        if (!fs.existsSync(filePath)) return;
-
-        var program = programManager.getOrCreateProgram(filePath);
-        // Update the file
-        program.languageServiceHost.updateScript(filePath, options.editor.getText());
+        if (!filePath) return Promise.resolve([]);
+        if (!fs.existsSync(filePath)) return Promise.resolve([]);
 
         var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.position);
 
-        var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
-            filePath, position);
+        var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>
+        // TODO: remove updateText once we have edit on change in place
+            = parent.updateText({ filePath: filePath, text: options.editor.getText() })
+                .then(() => parent.getCompletionsAtPosition({
+                filePath: filePath,
+                position: position,
+                prefix: options.prefix
+            }))
+                .then((resp) => {
+                var completionList = resp.completions;
+                var suggestions = completionList.map(c => {
+                    return {
+                        word: c.name,
+                        prefix: options.prefix == '.' ? '' : options.prefix,
+                        label: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
+                        renderLabelAsHtml: true,
+                    };
+                });
+                return suggestions;
+            });
 
-        var completionList = completions ? completions.entries.filter(x=> !!x) : [];
-
-        if (options.prefix.length && options.prefix !== '.') {
-            completionList = fuzzaldrin.filter(completionList, options.prefix, { key: 'name' });
-        }
-
-        // limit to 10
-        if (completionList.length > 10) completionList = completionList.slice(0, 10);
-
-        // Potentially use it at some point
-        function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {
-            var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
-
-            // Show the signatures for methods / functions
-            if (c.kind == "method" || c.kind == "function") {
-                var display = ts.displayPartsToString(completionDetails.displayParts || []);
-            } else {
-                var display = c.kind;
-            }
-            var comment = ts.displayPartsToString(completionDetails.documentation || []);
-
-            return { display: display, comment: comment };
-        }
-
-        // console.log(completionList.map(docComment));
-
-        var suggestions = completionList.map(c => {
-            return {
-                word: c.name,
-                prefix: options.prefix == '.' ? '' : options.prefix,
-                label: '<span style="color: ' + kindToColor(c.kind) + '">' + docComment(c).display + '</span>',
-                renderLabelAsHtml: true,
-            };
-        });
-
-        return suggestions;
+        return promisedSuggestions;
     }
 }
 

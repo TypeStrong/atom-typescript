@@ -88,3 +88,14 @@ export interface GetErrorsForFileQuery {
 export interface GetErrorsForFileResponse {
     errors: programManager.TSError[];
 }
+
+
+export var getCompletionsAtPosition = 'getCompletionsAtPosition';
+export interface GetCompletionsAtPositionQuery {
+    filePath: string;
+    position: number;
+    prefix: string;
+}
+export interface GetCompletionsAtPositionResponse {
+    completions: programManager.Completion[];
+}

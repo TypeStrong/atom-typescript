@@ -5,6 +5,7 @@ import fs = require('fs');
 import path = require('path');
 import os = require('os');
 import ts = require('typescript');
+var fuzzaldrin = require('fuzzaldrin');
 
 import tsconfig = require('../tsconfig/tsconfig');
 import languageServiceHost = require('./languageServiceHost');
@@ -235,4 +236,51 @@ export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
         PlaceOpenBraceOnNewLineForFunctions: false,
         PlaceOpenBraceOnNewLineForControlBlocks: false,
     };
+}
+
+export interface Completion {
+    name: string; // stuff like "toString"
+    kind: string; // stuff like "var"
+    comment: string; // the docComment if any
+    display: string; // This is either displayParts (for functions) or just the kind duplicated
+}
+
+/** gets the first 10 completions only */
+export function getCompletionsAtPosition(filePath: string, position: number, prefix: string): Completion[] {
+    var program = getOrCreateProgram(filePath);
+    var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
+        filePath, position);
+    var completionList = completions ? completions.entries.filter(x=> !!x) : [];
+
+    if (prefix.length && prefix !== '.') {
+        completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
+    }
+
+    // limit to 10
+    if (completionList.length > 10) completionList = completionList.slice(0, 10);
+
+    // Potentially use it more aggresively at some point
+    function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {
+        var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
+
+        // Show the signatures for methods / functions
+        if (c.kind == "method" || c.kind == "function") {
+            var display = ts.displayPartsToString(completionDetails.displayParts || []);
+        } else {
+            var display = c.kind;
+        }
+        var comment = ts.displayPartsToString(completionDetails.documentation || []);
+
+        return { display: display, comment: comment };
+    }
+
+    return completionList.map(c=> {
+        var details = docComment(c);
+        return {
+            name: c.name,
+            kind: c.kind,
+            comment: details.comment,
+            display: details.display
+        };
+    });
 }

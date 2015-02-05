@@ -50,8 +50,14 @@ responders[messages.updateText] = (data: messages.UpdateTextQuery): messages.Upd
     return {};
 }
 
-responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): messages.GetErrorsForFileResponse => {    
+responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): messages.GetErrorsForFileResponse => {
     return {
         errors: programManager.getErrorsForFile(data.filePath)
+    };
+}
+
+responders[messages.getCompletionsAtPosition] = (data: messages.GetCompletionsAtPositionQuery): messages.GetCompletionsAtPositionResponse => {
+    return {
+        completions: programManager.getCompletionsAtPosition(data.filePath,data.position,data.prefix)
     };
 }
