@@ -109,12 +109,10 @@ export function activate(state: PackageState) {
                     var text = editor.getText();
 
                     // Update the file in the worker
-                    parent.updateText({ filePath: filePath, text: text },() => {
-                        parent.getErrorsForFile({ filePath: filePath },(resp) => {
-                            // Set errors in project per file
-                            errorView.setErrors(filePath, resp.errors);
-                        });
-                    });
+                    parent.updateText({ filePath: filePath, text: text })
+                    // Set errors in project per file
+                        .then(() => parent.getErrorsForFile({ filePath: filePath }))
+                        .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // Update the file
                     program.languageServiceHost.updateScript(filePath, text);

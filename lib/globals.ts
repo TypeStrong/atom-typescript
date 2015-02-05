@@ -9,3 +9,4 @@
 /// <reference path="./typings/mustache.d.ts"/>
 
 /// <reference path="./node_modules/views/views.d.ts"/>
+/// <reference path="./typings/atompromise.d.ts"/>

@@ -10,7 +10,7 @@ var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 
 var child: childprocess.ChildProcess;
-var currentListeners: { [messages: string]: { [id: string]: Function } } = {};
+var currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
 export function startWorker() {
     try {
         var env = Object.create(process.env);
@@ -41,7 +41,7 @@ export function startWorker() {
                 return;
             }
             else {
-                currentListeners[parsed.message][parsed.id](parsed.data);
+                currentListeners[parsed.message][parsed.id].resolve(parsed.data);
                 delete currentListeners[parsed.message][parsed.id];
             }
         }
@@ -98,7 +98,7 @@ function createId(): string {
     });
 }
 
-function query<Query, Response>(message: string, data: Query, callback: (response: Response) => any = () => { }) {
+function query<Query, Response>(message: string, data: Query) : Promise<Response> {
 
     // If we don't have a child exit
     if (!child || !child.stdin.writable) {
@@ -111,14 +111,17 @@ function query<Query, Response>(message: string, data: Query, callback: (respons
 
     // Store the callback against this Id:
     if (!currentListeners[message]) currentListeners[message] = {};
-    currentListeners[message][id] = callback;
+
+    var defer = Promise.defer();
+    currentListeners[message][id] = defer;
 
     // Send data to worker
     child.stdin.write(JSON.stringify({ message: message, id: id, data: data }) + messages.BufferedBySeperatorHandler.seperator);
+    return defer.promise;
 }
 
-export interface Exec<Query, Response> {
-    (data: Query, callback?: (res: Response) => any);
+export interface Exec<Query,Response> {
+    (data: Query): Promise<Response>;
 }
 
 function showError(error?: Error) {
@@ -132,10 +135,10 @@ function showError(error?: Error) {
 
 
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
-    = (data, callback) => query(messages.echo, data, callback);
+    = (data) => query(messages.echo, data);
 
 export var updateText: Exec<messages.UpdateTextQuery, messages.EchoResponse>
-    = (data, callback?) => query(messages.updateText, data, callback);
+    = (data) => query(messages.updateText, data);
 
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
-    = (data, callback) => query(messages.getErrorsForFile, data, callback);
+    = (data) => query(messages.getErrorsForFile, data);
