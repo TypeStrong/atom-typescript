@@ -61,3 +61,9 @@ responders[messages.getCompletionsAtPosition] = (data: messages.GetCompletionsAt
         completions: programManager.getCompletionsAtPosition(data.filePath,data.position,data.prefix)
     };
 }
+
+responders[messages.getErrorsForFileFiltered] = (data: messages.GetErrorsForFileFilteredQuery): messages.GetErrorsForFileFilteredResponse => {
+    return {
+        errors: programManager.getErrorsForFileFiltered(data.filePath)
+    };
+}

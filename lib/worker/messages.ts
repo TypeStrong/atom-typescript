@@ -99,3 +99,11 @@ export interface GetCompletionsAtPositionQuery {
 export interface GetCompletionsAtPositionResponse {
     completions: programManager.Completion[];
 }
+
+export var getErrorsForFileFiltered = 'getErrorsForFileFiltered';
+export interface GetErrorsForFileFilteredQuery{
+    filePath:string;
+}
+export interface GetErrorsForFileFilteredResponse{
+    errors: programManager.TSError[];
+}

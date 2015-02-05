@@ -8,6 +8,8 @@
 import programManager = require('./main/lang/programManager'); ///ts:import:generated
 ///ts:import=utils
 import utils = require('./main/lang/utils'); ///ts:import:generated
+///ts:import=parent
+import parent = require('./worker/parent'); ///ts:import:generated
 
 import fs = require('fs');
 
@@ -28,10 +30,6 @@ interface LinterError {
     linter: string; // linter name
 }
 
-var debouncedErrors = utils.debounce((callback: Function, errors: LinterError[]) => {
-    callback(errors);
-}, 1500);
-
 LinterTslint = (function(_super) {
     __extends(LinterTslint, _super);
 
@@ -41,7 +39,7 @@ LinterTslint = (function(_super) {
 
     (<any>LinterTslint).syntax = ['source.ts'];
 
-    LinterTslint.prototype.lintFile = function(filePath, callback: (errors: LinterError[]) => any) {
+    LinterTslint.prototype.lintFile = function(filePath:string, callback: (errors: LinterError[]) => any) {
         // We refuse to work on files that are not on disk.
         if (!this.editor.buffer.file
             || !this.editor.buffer.file.path
@@ -49,17 +47,17 @@ LinterTslint = (function(_super) {
 
         filePath = this.editor.buffer.file.path;
 
-        var errors = programManager.getErrorsForFileFiltered(filePath);
-        var linterErrors: LinterError[] = errors.map((err) => <LinterError>{
-            message: err.message,
-            line: err.startPos.line + 1,
-            range: new Rng([err.startPos.line, err.startPos.ch], [err.endPos.line, err.endPos.ch]),
-            level: 'error',
-            linter: 'TypeScript'
-        });
+        parent.getErrorsForFile({ filePath: filePath }).then((resp) => {
+            var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
+                message: err.message,
+                line: err.startPos.line + 1,
+                range: new Rng([err.startPos.line, err.startPos.ch], [err.endPos.line, err.endPos.ch]),
+                level: 'error',
+                linter: 'TypeScript'
+            });
 
-        return callback(linterErrors);
-        // return debouncedErrors(callback, linterErrors);
+            return callback(linterErrors);
+        });
     };
 
     return LinterTslint;

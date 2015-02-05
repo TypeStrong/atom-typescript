@@ -145,3 +145,6 @@ export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetEr
 
 export var getCompletionsAtPosition: Exec<messages.GetCompletionsAtPositionQuery, messages.GetCompletionsAtPositionResponse>
     = (data) => query(messages.getCompletionsAtPosition, data);
+
+export var getErrorsForFileFiltered: Exec<messages.GetErrorsForFileFilteredQuery, messages.GetErrorsForFileFilteredResponse>
+    = (data) => query(messages.getErrorsForFileFiltered, data);
