@@ -98,7 +98,7 @@ function createId(): string {
     });
 }
 
-function query<Query, Response>(message: string, data: Query) : Promise<Response> {
+function query<Query, Response>(message: string, data: Query): Promise<Response> {
 
     // If we don't have a child exit
     if (!child || !child.stdin.writable) {
@@ -119,7 +119,7 @@ function query<Query, Response>(message: string, data: Query) : Promise<Response
     return defer.promise;
 }
 
-export interface Exec<Query,Response> {
+export interface Exec<Query, Response> {
     (data: Query): Promise<Response>;
 }
 
@@ -147,3 +147,6 @@ export var getCompletionsAtPosition: Exec<messages.GetCompletionsAtPositionQuery
 
 export var getErrorsForFileFiltered: Exec<messages.GetErrorsForFileFilteredQuery, messages.GetErrorsForFileFilteredResponse>
     = (data) => query(messages.getErrorsForFileFiltered, data);
+
+export var build: Exec<messages.BuildQuery, messages.BuildResponse>
+    = (data) => query(messages.build, data);

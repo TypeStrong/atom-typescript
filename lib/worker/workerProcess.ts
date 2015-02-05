@@ -67,3 +67,9 @@ responders[messages.getErrorsForFileFiltered] = (data: messages.GetErrorsForFile
         errors: programManager.getErrorsForFileFiltered(data.filePath)
     };
 }
+
+responders[messages.build] = (data: messages.BuildQuery): messages.BuildResponse => {
+    return {
+        outputs: programManager.getOrCreateProgram(data.filePath).build()
+    };
+}

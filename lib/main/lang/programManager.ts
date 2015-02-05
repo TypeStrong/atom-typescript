@@ -43,11 +43,7 @@ export class Program {
         var errors: TSError[] = [];
 
 
-        if (success) {
-            // console.log('SUCCESS ' + filePath);
-        }
-        else {
-            console.log('FAILURE ' + filePath + ' emit');
+        if (!success) {
             var allDiagnostics = services.getCompilerOptionsDiagnostics()
                 .concat(services.getSyntacticDiagnostics(filePath))
                 .concat(services.getSemanticDiagnostics(filePath));
@@ -55,8 +51,7 @@ export class Program {
             allDiagnostics.forEach(diagnostic => {
                 if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
 
-                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-                console.log(diagnostic.file.filename, startPosition.line, startPosition.character, diagnostic.messageText, diagnostic.code, diagnostic.isEarly);
+                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);                
                 errors.push(diagnosticToTSError(diagnostic));
             });
         }

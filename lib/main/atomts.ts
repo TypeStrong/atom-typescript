@@ -199,12 +199,14 @@ export function activate(state: PackageState) {
     atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
         if (!commandForTypeScript(e)) return;
 
-        atom.notifications.addInfo('Building');
-        setTimeout(() => {
-            var outputs = commandGetProgram().build();
-            buildView.setBuildOutput(outputs);
-        }, 100);
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
 
+        atom.notifications.addInfo('Building');
+
+        parent.build({filePath:filePath}).then((resp)=>{
+            buildView.setBuildOutput(resp.outputs);
+        });
     });
     atom.commands.add('atom-text-editor', 'typescript:go-to-declaration',(e) => {
         if (!commandForTypeScript(e)) return;

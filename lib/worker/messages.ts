@@ -107,3 +107,12 @@ export interface GetErrorsForFileFilteredQuery{
 export interface GetErrorsForFileFilteredResponse{
     errors: programManager.TSError[];
 }
+
+export var build = 'build'
+export interface BuildQuery{
+    // The filepath of the current typescript file in view
+    filePath:string;
+}
+export interface BuildResponse{
+    outputs: programManager.BuildOutput;
+}
