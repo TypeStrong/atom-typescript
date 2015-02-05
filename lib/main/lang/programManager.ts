@@ -144,7 +144,6 @@ function getOrCreateProject(filePath): tsconfig.TypeScriptProjectFileDetails {
         }
     }
 }
-}
 
 export function getOrCreateProgram(filePath) {
     filePath = tsconfig.consistentPath(filePath);
