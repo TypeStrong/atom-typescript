@@ -1,21 +1,46 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
+// Most compiler options come from require('typescript').CompilerOptions, but
+// 'module' and 'target' cannot use the same enum as that interface since we
+// do not want to force users to put magic numbers in their tsconfig files
+// TODO: Use require('typescript').parseConfigFile when TS1.5 is released
 interface CompilerOptions {
-    target?: string;            // 'es3'|'es5' (default) | 'es6'
-    module?: string;            // 'amd'|'commonjs' (default)
-
-    declaration?: boolean;      // Generates corresponding `.d.ts` file
-    out?: string;               // Concatenate and emit a single file
+    // Backwards compatibility for 0.27.0 and earlier
     outdir?: string;            // Redirect output structure to this directory
-
     noimplicitany?: boolean;    // Error on inferred `any` type
     removecomments?: boolean;   // Do not emit comments in output
-
     sourcemap?: boolean;        // Generates SourceMaps (.map files)
     sourceroot?: string;        // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     maproot?: string;           // Optionally Specifies the location where debugger should locate map files after deployment
     nolib?: boolean;
+
+    allowNonTsExtensions?: boolean;
+    charset?: string;
+    codepage?: number;
+    declaration?: boolean;
+    diagnostics?: boolean;
+    emitBOM?: boolean;
+    help?: boolean;
+    locale?: string;
+    mapRoot?: string;
+    module?: string; //'amd'|'commonjs' (default)
+    noEmitOnError?: boolean;
+    noErrorTruncation?: boolean;
+    noImplicitAny?: boolean;
+    noLib?: boolean;
+    noLibCheck?: boolean;
+    noResolve?: boolean;
+    out?: string;
+    outDir?: string;
+    preserveConstEnums?: boolean;
+    removeComments?: boolean;
+    sourceMap?: boolean;
+    sourceRoot?: string;
+    suppressImplicitAnyIndexErrors?: boolean;
+    target?: string; // 'es3'|'es5' (default)|'es6'
+    version?: boolean;
+    watch?: boolean;
 }
 
 interface TypeScriptProjectRawSpecification {
@@ -67,52 +92,93 @@ export var defaults: ts.CompilerOptions = {
 };
 
 // TODO: add validation and add all options
-function rawToTsCompilerOptions(raw: CompilerOptions): ts.CompilerOptions {
-    // Convert everything inside compilerOptions to lowerCase
-    var lower: CompilerOptions = {};
-    Object.keys(raw).forEach((key: string) => {
-        lower[key.toLowerCase()] = raw[key];
-    });
 
-    // Change to enums
-    var proper: ts.CompilerOptions = {};
-    proper.target =
-    lower.target == 'es3' ? ts.ScriptTarget.ES3
-        : lower.target == 'es5' ? ts.ScriptTarget.ES5
-            : lower.target == 'es6' ? ts.ScriptTarget.ES6
-                : defaults.target;
-    proper.module =
-    lower.module == 'none' ? ts.ModuleKind.None
-        : lower.module == 'commonjs' ? ts.ModuleKind.CommonJS
-            : lower.module == 'amd' ? ts.ModuleKind.AMD
-                : defaults.module;
-    proper.declaration = lower.declaration == void 0 ? defaults.declaration : lower.declaration;
-    proper.noImplicitAny = lower.noimplicitany == void 0 ? defaults.noImplicitAny : lower.noimplicitany;
-    proper.removeComments = lower.removecomments == void 0 ? defaults.removeComments : lower.removecomments;
-    runWithDefault((val) => proper.noLib = val, lower.nolib, defaults.noLib);
-    return proper;
+var deprecatedKeys = {
+    outdir: 'outDir',
+    noimplicitany: 'noImplicitAny',
+    removecomments: 'removeComments',
+    sourcemap: 'sourceMap',
+    sourceroot: 'sourceRoot',
+    maproot: 'mapRoot',
+    nolib: 'noLib'
+};
+
+var typescriptEnumMap = {
+    target: {
+        'es3': ts.ScriptTarget.ES3,
+        'es5': ts.ScriptTarget.ES5,
+        'es6': ts.ScriptTarget.ES6,
+        'latest': ts.ScriptTarget.Latest
+    },
+    module: {
+        'none': ts.ModuleKind.None,
+        'commonjs': ts.ModuleKind.CommonJS,
+        'amd': ts.ModuleKind.AMD
+    }
+};
+
+var jsonEnumMap = {
+    target: (function () {
+        var map: { [key: number]: string; } = {};
+        map[ts.ScriptTarget.ES3] = 'es3';
+        map[ts.ScriptTarget.ES5] = 'es5';
+        map[ts.ScriptTarget.ES6] = 'es6';
+        map[ts.ScriptTarget.Latest] = 'latest';
+        return map;
+    })(),
+    module: (function () {
+        var map: { [key: number]: string; } = {};
+        map[ts.ModuleKind.None] = 'none';
+        map[ts.ModuleKind.CommonJS] = 'commonjs';
+        map[ts.ModuleKind.AMD] = 'amd';
+        return map;
+    })()
+};
+
+function mixin(target: any, source: any): any {
+    for (var key in source) {
+        target[key] = source[key];
+    }
+    return target;
 }
 
-function tsToRawCompilerOptions(proper: ts.CompilerOptions): CompilerOptions {
-    var raw: CompilerOptions = {};
+function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string): ts.CompilerOptions {
+    // Cannot use Object.create because the compiler checks hasOwnProperty
+    var compilerOptions = <ts.CompilerOptions> mixin({}, defaults);
+    for (var key in jsonOptions) {
+        if (deprecatedKeys[key]) {
+            atom.notifications.addWarning('Compiler option "' + key + '" is deprecated; use "' + deprecatedKeys[key] + '" instead');
+            key = deprecatedKeys[key];
+        }
 
-    var targetLookup = {};
-    targetLookup[ts.ScriptTarget.ES3] = 'es3';
-    targetLookup[ts.ScriptTarget.ES5] = 'es5';
-    targetLookup[ts.ScriptTarget.ES6] = 'es6';
+        if (typescriptEnumMap[key]) {
+            compilerOptions[key] = typescriptEnumMap[key][jsonOptions[key].toLowerCase()];
+        }
+        else {
+            compilerOptions[key] = jsonOptions[key];
+        }
+    }
 
-    var moduleLookup = {};
-    moduleLookup[ts.ModuleKind.None] = 'none';
-    moduleLookup[ts.ModuleKind.CommonJS] = 'commonjs';
-    moduleLookup[ts.ModuleKind.AMD] = 'amd';
+    if (compilerOptions.outDir !== undefined) {
+        compilerOptions.outDir = path.resolve(projectDir, compilerOptions.outDir);
+    }
 
-    runWithDefault((val) => raw.target = val, targetLookup[proper.target]);
-    runWithDefault((val) => raw.module = val, moduleLookup[proper.module]);
-    runWithDefault((val) => raw.declaration = val, proper.declaration);
-    runWithDefault((val) => raw.noimplicitany = val, proper.noImplicitAny);
-    runWithDefault((val) => raw.removecomments = val, proper.removeComments);
+    return compilerOptions;
+}
 
-    return raw;
+function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOptions {
+    // Cannot use Object.create because JSON.stringify will only serialize own properties
+    var jsonOptions = <CompilerOptions> mixin({}, compilerOptions);
+
+    if (compilerOptions.target !== undefined) {
+        jsonOptions.target = jsonEnumMap.target[compilerOptions.target];
+    }
+
+    if (compilerOptions.module !== undefined) {
+        jsonOptions.module = jsonEnumMap.module[compilerOptions.module];
+    }
+
+    return jsonOptions;
 }
 
 /** Given an src (source file or directory) goes up the directory tree to find the project specifications.
@@ -185,7 +251,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         files: projectSpec.files
     };
 
-    project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions);
+    project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
     // Expand files to include references
     project.files = increaseProjectForReferenceAndImports(project.files);
@@ -293,19 +359,6 @@ function createMap(arr: string[]): { [string: string]: boolean } {
         result[key] = true;
         return result;
     }, <{ [string: string]: boolean }>{});
-}
-
-/** if ( no val given && default given then run with default ) else ( run with val ) */
-function runWithDefault<T>(run: (val: T) => any, val: T, def?: T) {
-    // no val
-    if (val == void 0) {
-        if (def != void 0) {
-            run(def);
-        }
-    }
-    else {
-        run(val);
-    }
 }
 
 function prettyJSON(object: any): string {

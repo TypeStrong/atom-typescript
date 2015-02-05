@@ -3,8 +3,8 @@
         "target": "es5",
         "module": "commonjs",
         "declaration": false,
-        "noimplicitany": false,
-        "removecomments": true
+        "noImplicitAny": false,
+        "removeComments": true
     },
     "filesGlob": [
         "./**/*.ts"
