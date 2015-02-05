@@ -56,7 +56,7 @@ export function startWorker() {
             console.log("CHILD ERR:", err.toString());
         });
         child.on('close',(code) => {
-            // Todo: handle process dropping
+            // Handle process dropping
             console.log('ts worker exited with code:', code);
 
             // If orphaned then Definitely restart
@@ -106,12 +106,11 @@ function query<Query, Response>(message: string, data: Query) : Promise<Response
         return;
     }
 
-    // Create an id
-    var id = createId();
-
-    // Store the callback against this Id:
+    // Initialize if this is the first call of this type
     if (!currentListeners[message]) currentListeners[message] = {};
 
+    // Create an id unique to this call and store the defered against it
+    var id = createId();
     var defer = Promise.defer();
     currentListeners[message][id] = defer;
 
