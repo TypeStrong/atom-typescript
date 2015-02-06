@@ -17,22 +17,21 @@ var responders: { [message: string]: (query: any) => any } = {};
 
 // Note: child doesn't care about 'id'
 function processData(m: any) {
-    var parsed: messages.Message<any> = JSON.parse(m);
+    var parsed: messages.Message<any> = m;
     if (!parsed.message || !responders[parsed.message]) return; // TODO: handle this error scenario
     var message = parsed.message;
 
-    process.stdout.write(JSON.stringify({
+    process.send({
         message: message,
         id: parsed.id,
         data: responders[message](parsed.data)
-    }) + messages.BufferedBySeperatorHandler.seperator);
+    });
 }
 
-var bufferedHandler = new messages.BufferedBySeperatorHandler(processData)
-process.stdin.on('data',(data) => {
+process.on('message',(data) => {
     gotMessageDate = new Date();
     // console.log('child got:', data.toString());
-    bufferedHandler.handle(data)
+    processData(data)
 });
 
 ///////////////// END INFRASTRUCTURE /////////////////////////////////////

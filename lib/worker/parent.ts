@@ -21,7 +21,7 @@ export function startWorker() {
         child = spawn(node, [
             // '--debug', // Uncomment if you want to debug the child process
             __dirname + '/workerProcess.js',
-        ], { env });
+        ], { env:env, stdio:['ipc']  });
 
         child.on('error',(err) => {
             console.log('CHILD ERR:', err.toString());
@@ -29,9 +29,9 @@ export function startWorker() {
         });
 
         console.log('ts worker started');
-        function processResponse(m: string) {
+        function processResponse(m: any) {
             try {
-                var parsed: messages.Message<any> = JSON.parse(m.toString());
+                var parsed: messages.Message<any> = m;
             }
             catch (ex) {
                 console.log('PARENT ERR: Non JSON data from child:', m);
@@ -45,11 +45,8 @@ export function startWorker() {
                 delete currentListeners[parsed.message][parsed.id];
             }
         }
-        var bufferedResponseHandler = new messages.BufferedBySeperatorHandler(processResponse);
 
-        child.stdout.on('data',(m) => {
-            bufferedResponseHandler.handle(m)
-        });
+        child.on('message',(resp)=>processResponse(resp));
 
 
         child.stderr.on('data',(err) => {
@@ -101,7 +98,7 @@ function createId(): string {
 function query<Query, Response>(message: string, data: Query): Promise<Response> {
 
     // If we don't have a child exit
-    if (!child || !child.stdin.writable) {
+    if (!child) {
         console.log('PARENT ERR: no child when you tried to send :', message);
         return;
     }
@@ -115,7 +112,7 @@ function query<Query, Response>(message: string, data: Query): Promise<Response>
     currentListeners[message][id] = defer;
 
     // Send data to worker
-    child.stdin.write(JSON.stringify({ message: message, id: id, data: data }) + messages.BufferedBySeperatorHandler.seperator);
+    child.send({ message: message, id: id, data: data });
     return defer.promise;
 }
 
