@@ -149,3 +149,7 @@ export var quickInfo = getExecutorOnChild(programManager.quickInfo);
 export var build = getExecutorOnChild(programManager.build);
 export var errorsForFileFiltered = getExecutorOnChild(programManager.errorsForFileFiltered);
 export var getCompletionsAtPosition = getExecutorOnChild(programManager.getCompletionsAtPosition);
+export var emitFile = getExecutorOnChild(programManager.emitFile);
+export var formatDocument = getExecutorOnChild(programManager.formatDocument);
+export var formatDocumentRange = getExecutorOnChild(programManager.formatDocumentRange);
+export var getDefinitionsAtPosition = getExecutorOnChild(programManager.getDefinitionsAtPosition);

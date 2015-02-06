@@ -7,8 +7,6 @@ import fs = require('fs');
 // Make sure we have the packages we depend upon
 var apd = require('../../apd'); // Moved here because I customized it
 
-///ts:import=programManager
-import programManager = require('./lang/programManager'); ///ts:import:generated
 ///ts:import=errorView
 import errorView = require('./atom/errorView'); ///ts:import:generated
 ///ts:import=autoCompleteProvider
@@ -86,9 +84,9 @@ export function activate(state: PackageState) {
         if (ext == '.ts') {
             try {
                 // We only create a "program" once the file is persisted to disk
-                var program: programManager.Program;
+                var onDisk = false;
                 if (fs.existsSync(filePath)) {
-                    program = programManager.getOrCreateProgram(filePath);
+                    onDisk = true;
                 }
 
                 // Setup the error reporter:
@@ -97,8 +95,8 @@ export function activate(state: PackageState) {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    // If we don't have the program yet. The file isn't saved and we just show an error to guide the user
-                    if (!program) {
+                    // If the file isn't saved and we just show an error to guide the user
+                    if (!onDisk) {
                         var root = { line: 0, ch: 0 };
                         errorView.setErrors(filePath,
                             [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]
@@ -114,31 +112,25 @@ export function activate(state: PackageState) {
                         .then(() => parent.getErrorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
-                    // Update the file
-                    program.languageServiceHost.updateScript(filePath, text);
-
-
                     // TODO: provide function completions
-                    var position = atomUtils.getEditorPosition(editor);
+                    /*var position = atomUtils.getEditorPosition(editor);
                     signatureProvider.requestHandler({
                         program: program,
                         editor: editor,
                         filePath: filePath,
                         position: position
-                    });
+                    });*/
 
                 });
 
                 // Observe editors saving
                 var saveObserver = editor.onDidSave((event) => {
-                    if (!program) {
-                        program = programManager.getOrCreateProgram(filePath);
-                    };
+                    onDisk = true;
 
                     // TODO: store by file path
-                    program.languageServiceHost.updateScript(filePath, editor.getText());
-                    var output = program.emitFile(filePath);
-                    errorView.showEmittedMessage(output);
+                    parent.updateText({ filePath: filePath, text: editor.getText() })
+                        .then(() => parent.emitFile({ filePath }))
+                        .then((res) => errorView.showEmittedMessage(res));
                 });
 
                 // Observe editors closing
@@ -170,11 +162,6 @@ export function activate(state: PackageState) {
 
         return true;
     }
-    function commandGetProgram() {
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        return programManager.getOrCreateProgram(filePath);
-    }
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code',(e) => {
@@ -182,18 +169,21 @@ export function activate(state: PackageState) {
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
-        var program = programManager.getOrCreateProgram(filePath);
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
-            var result = program.formatDocument(filePath, { line: cursorPosition.row, ch: cursorPosition.column });
-            var top = editor.getScrollTop();
-            editor.setText(result.formatted);
-            editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
-            editor.setScrollTop(top);
+            var result = parent.formatDocument({filePath:filePath, cursor:{ line: cursorPosition.row, ch: cursorPosition.column }})
+            .then((result)=>{
+                var top = editor.getScrollTop();
+                editor.setText(result.formatted);
+                editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
+                editor.setScrollTop(top);
+            });
         } else {
-            var formatted = program.formatDocumentRange(filePath, { line: selection.start.row, ch: selection.start.column }, { line: selection.end.row, ch: selection.end.column });
-            editor.setTextInBufferRange(selection, formatted);
+            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
+                editor.setTextInBufferRange(selection, res.formatted);
+            });
+
         }
     });
     atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
@@ -213,26 +203,24 @@ export function activate(state: PackageState) {
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
-        var program = programManager.getOrCreateProgram(filePath);
-        var range = editor.getSelectedBufferRange();
-        var position = program.languageServiceHost.getIndexFromPosition(filePath, { line: range.start.row, ch: range.start.column });
-        var definitions = program.languageService.getDefinitionAtPosition(filePath, position);
-        if (!definitions || !definitions.length) return;
+        parent.getDefinitionsAtPosition({filePath:filePath,position:atomUtils.getEditorPosition(editor)}).then(res=>{
+                    var definitions = res.definitions;
+                    if (!definitions || !definitions.length) return;
 
-        // Potential future ugly hack for something (atom or TS langauge service) path handling
-        // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
+                    // Potential future ugly hack for something (atom or TS langauge service) path handling
+                    // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
 
-        // TODO: support multiple implementations. For now we just go to first
-        var definition = definitions[0];
-        var newFilePath = definition.fileName;
-        var newFileProgram = program; // If we can get the filename *we are in the same program :P*
-        var newFilePosition = newFileProgram.languageServiceHost.getPositionFromIndex(newFilePath, definition.textSpan.start());
+                    // TODO: support multiple implementations. For now we just go to first
+                    var definition = definitions[0];
 
-        atom.open({
-            // The file open command line is 1 indexed
-            pathsToOpen: [definition.fileName + ":" + (newFilePosition.line + 1).toString()],
-            newWindow: false
-        });
+                    atom.open({
+                        // The file open command line is 1 indexed
+                        pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
+                        newWindow: false
+                    });
+            });
+
+
     });
 }
 

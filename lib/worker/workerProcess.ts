@@ -63,3 +63,6 @@ addToResponders(programManager.quickInfo);
 addToResponders(programManager.build);
 addToResponders(programManager.errorsForFileFiltered);
 addToResponders(programManager.getCompletionsAtPosition);
+addToResponders(programManager.formatDocument);
+addToResponders(programManager.formatDocumentRange);
+addToResponders(programManager.getDefinitionsAtPosition);
