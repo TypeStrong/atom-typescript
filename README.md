@@ -46,7 +46,8 @@ It also supports `filesGlob` which will expand `files` for you based on `minmatc
 Shortcut: `ctrl+shift+b` or `cmd+shift+b`. If there are any errors they are shown as well.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build%20success.png)
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build%20error.png)
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build%20errors.png)
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
