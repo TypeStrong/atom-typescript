@@ -30,11 +30,10 @@ export function startWorker() {
 
         console.log('ts worker started');
         function processResponse(m: any) {
-            try {
-                var parsed: messages.Message<any> = m;
-            }
-            catch (ex) {
-                console.log('PARENT ERR: Non JSON data from child:', m);
+            var parsed: messages.Message<any> = m;
+
+            if (!parsed.message || !parsed.id) {
+                console.log('PARENT ERR: Invalid JSON data from child:', m);
             }
             if (!currentListeners[parsed.message] || !currentListeners[parsed.message][parsed.id]) {
                 console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
