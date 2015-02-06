@@ -3,12 +3,15 @@
         "target": "es5",
         "module": "commonjs",
         "declaration": false,
-        "noimplicitany": false,
-        "removecomments": true
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false
     },
-    "filesGlob": [
-        "./**/*.ts"
-    ],
+    "typestrong": {
+        "filesGlob": [
+            "./**/*.ts"
+        ]
+    },
     "files": [
         "./foo.ts",
         "./main.ts"
