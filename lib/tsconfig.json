@@ -35,6 +35,7 @@
         "./typings/jquery/jquery.d.ts",
         "./typings/minimatch.d.ts",
         "./typings/mixto/mixto.d.ts",
+        "./typings/mkdirp/mkdirp.d.ts",
         "./typings/mustache.d.ts",
         "./typings/node/node.d.ts",
         "./typings/pathwatcher/pathwatcher.d.ts",

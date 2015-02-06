@@ -34,6 +34,9 @@
     },
     "q/Q.d.ts": {
       "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+    },
+    "mkdirp/mkdirp.d.ts": {
+      "commit": "42c8a3b74c05f6887ce21dd63c6234e424f9f8fe"
     }
   }
 }

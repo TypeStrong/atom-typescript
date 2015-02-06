@@ -2,6 +2,7 @@
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
 import fs = require('fs');
+import mkdirp = require('mkdirp');
 import path = require('path');
 import os = require('os');
 import ts = require('typescript');
@@ -51,12 +52,13 @@ export class Program {
             allDiagnostics.forEach(diagnostic => {
                 if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
 
-                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);                
+                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
                 errors.push(diagnosticToTSError(diagnostic));
             });
         }
 
         output.outputFiles.forEach(o => {
+            mkdirp.sync(path.dirname(o.name));
             fs.writeFileSync(o.name, o.text, "utf8");
         });
 
