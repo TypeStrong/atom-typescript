@@ -7,11 +7,10 @@
         "removeComments": true,
         "noLib": false
     },
-    "typestrong": {
-        "filesGlob": [
-            "./**/*.ts"
-        ]
-    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!node_modules/**/*.ts"
+    ],
     "files": [
         "./formatme.ts"
     ]

@@ -37,9 +37,7 @@ interface CompilerOptions {
 interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];              // optional: paths to files
-    typestrong?: {
-        filesGlob?: string[];      // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    };
+    filesGlob?: string[];      // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
 }
 
 // Main configuration
@@ -74,6 +72,8 @@ import expand = require('glob-expand');
 import ts = require('typescript');
 
 var projectFileName = 'tsconfig.json';
+
+var defaultFilesGlob = ["./**/*.ts", "!node_modules/**/*.ts"];
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -232,11 +232,10 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files) {
-        projectSpec.typestrong = {};
-        projectSpec.typestrong.filesGlob = ['./**/*.ts'];
+        projectSpec.filesGlob = defaultFilesGlob;
     }
-    if (projectSpec.typestrong && projectSpec.typestrong.filesGlob) {
-        projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.typestrong.filesGlob);
+    if (projectSpec.filesGlob) {
+        projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
         fs.writeFileSync(projectFile, prettyJSON(projectSpec));
     }
 
@@ -280,7 +279,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
-    projectSpec.typestrong = { filesGlob: ["./**/*.ts", "!node_modules/**/*.ts"] }; ``
+    projectSpec.filesGlob = defaultFilesGlob;
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);

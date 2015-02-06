@@ -1,7 +1,7 @@
 # `tsconfig.json`
-A unified project format for TypeScript. The TypeScript compiler (`1.4` and above) only cares about `compilerOptions` and `files`. We add additional features to this under the `typestrong` key:
+A unified project format for TypeScript. The TypeScript compiler (`1.4` and above) only cares about `compilerOptions` and `files`. We add additional features to this:
 
-* `filesGlob`: make it easier for you to just add / remove files we add `filesGlob` which will accepts n array of `glob / minimatch / RegExp` patterns to specify source files.
+* `filesGlob`: To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 
 
 ## Examples
@@ -20,11 +20,10 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
         "removeComments": true,
         "noLib": false
     },
-    "typestrong": {
-        "filesGlob": [
-            "./**/*.ts"
-        ]
-    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!node_modules/**/*.ts"
+    ],
     "files": [
         "./globals.ts",
         "./linter.ts",
