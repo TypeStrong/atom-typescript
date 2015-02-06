@@ -14,13 +14,12 @@ An auto updating version of `atom`. Other atom packages we depend upon are insta
 
 # Features
 ## Auto Complete
-Internally using AutoComplete+. Just start typing and hints will show up.
+Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`. Press `tab` to make a selection. [You can also customize these](https://github.com/atom-community/autocomplete-plus#usage).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete2.png)
 
-You can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`.
 
 ## Type information on hover
 Just hover
