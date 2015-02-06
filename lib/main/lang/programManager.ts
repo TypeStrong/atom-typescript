@@ -240,8 +240,8 @@ export interface Completion {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 /** utility interface **/
-interface FilePathQuery{
-    filePath:string;
+interface FilePathQuery {
+    filePath: string;
 }
 
 export interface Echo {
@@ -251,7 +251,7 @@ export function echo(data: Echo): Echo {
     return data;
 }
 
-export interface QuickInfoQuery extends FilePathQuery{
+export interface QuickInfoQuery extends FilePathQuery {
     position: number;
 }
 export interface QuickInfoResponse {
@@ -270,7 +270,7 @@ export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
     }
 }
 
-export interface BuildQuery extends FilePathQuery{}
+export interface BuildQuery extends FilePathQuery { }
 export interface BuildResponse {
     outputs: BuildOutput;
 }
@@ -281,7 +281,7 @@ export function build(query: BuildQuery): BuildResponse {
 }
 
 /** Filtered means *only* for this file i.e. exclude errors from files it references/imports */
-export interface ErrorsForFileFilteredQuery extends FilePathQuery {}
+export interface ErrorsForFileFilteredQuery extends FilePathQuery { }
 export interface ErrorsForFileFilteredResponse {
     errors: TSError[];
 }
@@ -300,7 +300,7 @@ export interface GetCompletionsAtPositionResponse {
     completions: Completion[];
 }
 /** gets the first 10 completions only */
-export function getCompletionsAtPosition(query:GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
+export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
 
     var program = getOrCreateProgram(filePath);
@@ -343,55 +343,64 @@ export function getCompletionsAtPosition(query:GetCompletionsAtPositionQuery): G
     };
 }
 
-export interface EmitFileQuery extends FilePathQuery{}
-export interface EmitFileResponse extends EmitOutput{}
-export function emitFile(query:EmitFileQuery): EmitFileResponse{
+export interface EmitFileQuery extends FilePathQuery { }
+export interface EmitFileResponse extends EmitOutput { }
+export function emitFile(query: EmitFileQuery): EmitFileResponse {
     return getOrCreateProgram(query.filePath).emitFile(query.filePath);
 }
 
-export interface FormatDocumentQuery extends FilePathQuery{
+export interface FormatDocumentQuery extends FilePathQuery {
     cursor: languageServiceHost.Position
 }
-export interface FormatDocumentResponse{
-    formatted:string;
-    cursor:languageServiceHost.Position
+export interface FormatDocumentResponse {
+    formatted: string;
+    cursor: languageServiceHost.Position
 }
 export function formatDocument(query: FormatDocumentQuery): FormatDocumentResponse {
     var prog = getOrCreateProgram(query.filePath);
     return prog.formatDocument(query.filePath, query.cursor);
 }
 
-export interface FormatDocumentRangeQuery extends FilePathQuery{
+export interface FormatDocumentRangeQuery extends FilePathQuery {
     start: languageServiceHost.Position;
     end: languageServiceHost.Position;
 }
-export interface FormatDocumentRangeResponse{   formatted:string;}
+export interface FormatDocumentRangeResponse { formatted: string; }
 export function formatDocumentRange(query: FormatDocumentRangeQuery): FormatDocumentRangeResponse {
     var prog = getOrCreateProgram(query.filePath);
-    return {formatted:prog.formatDocumentRange(query.filePath,query.start,query.end)};
+    return { formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) };
 }
 
-export interface GetDefinitionsAtPositionQuery extends FilePathQuery{
+export interface GetDefinitionsAtPositionQuery extends FilePathQuery {
     position: number;
 }
-export interface GetDefinitionsAtPositionResponse{
-    definitions:{
+export interface GetDefinitionsAtPositionResponse {
+    definitions: {
         filePath: string;
         position: languageServiceHost.Position
     }[]
 }
-export function getDefinitionsAtPosition(query:GetDefinitionsAtPositionQuery): GetDefinitionsAtPositionResponse{
+export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): GetDefinitionsAtPositionResponse {
     var program = getOrCreateProgram(query.filePath);
     var definitions = program.languageService.getDefinitionAtPosition(query.filePath, query.position);
-    if (!definitions || !definitions.length) return {definitions:[]};
+    if (!definitions || !definitions.length) return { definitions: [] };
 
-    return {definitions:definitions.map(d=>{
-        // If we can get the filename *we are in the same program :P*
-        var pos = program.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
+    return {
+        definitions: definitions.map(d=> {
+            // If we can get the filename *we are in the same program :P*
+            var pos = program.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
             return {
-                    filePath: d.fileName,
-                    position: pos
+                filePath: d.fileName,
+                position: pos
             };
         })
-        };
+    };
+}
+
+export interface UpdateTextQuery extends FilePathQuery {
+    text: string;
+}
+export function updateText(query: UpdateTextQuery): any {
+    getOrCreateProgram(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
+    return {};
 }

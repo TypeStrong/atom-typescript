@@ -13,14 +13,6 @@ export interface Message<T> {
 ///ts:import=programManager
 import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
-export var updateText = 'updateText';
-export interface UpdateTextQuery {
-    filePath: string;
-    text: string;
-}
-export interface UpdateTextResponse { }
-
-
 export var getErrorsForFile = 'getErrorsForFile';
 export interface GetErrorsForFileQuery {
     filePath: string;

@@ -39,12 +39,6 @@ process.on('message',(data) => {
 ///ts:import=programManager
 import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
-responders[messages.updateText] = (data: messages.UpdateTextQuery): messages.UpdateTextResponse => {
-    var program = programManager.getOrCreateProgram(data.filePath);
-    program.languageServiceHost.updateScript(data.filePath, data.text);
-    return {};
-}
-
 responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): messages.GetErrorsForFileResponse => {
     return {
         errors: programManager.getErrorsForFile(data.filePath)
@@ -63,3 +57,4 @@ addToResponders(programManager.getCompletionsAtPosition);
 addToResponders(programManager.formatDocument);
 addToResponders(programManager.formatDocumentRange);
 addToResponders(programManager.getDefinitionsAtPosition);
+addToResponders(programManager.updateText);

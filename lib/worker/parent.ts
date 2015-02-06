@@ -130,9 +130,6 @@ function showError(error?: Error) {
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
-export var updateText: Exec<messages.UpdateTextQuery, {}>
-    = (data) => query(messages.updateText, data);
-
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
     = (data) => query(messages.getErrorsForFile, data);
 
@@ -150,3 +147,4 @@ export var emitFile = getExecutorOnChild(programManager.emitFile);
 export var formatDocument = getExecutorOnChild(programManager.formatDocument);
 export var formatDocumentRange = getExecutorOnChild(programManager.formatDocumentRange);
 export var getDefinitionsAtPosition = getExecutorOnChild(programManager.getDefinitionsAtPosition);
+export var updateText = getExecutorOnChild(programManager.updateText);
