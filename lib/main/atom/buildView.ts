@@ -14,13 +14,25 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
 
+function getTitle(errorCount: number): string {
+    var title = '<span class="icon-circuit-board"></span> TypeScript Build';
+    if (errorCount > 0) {
+        title = title + ` (
+            <span class="text-highlight" style="font-weight: bold"> ${errorCount} </span>
+            <span class="text-error" style="font-weight: bold;"> error${errorCount === 1 ? "" : "s"} </span>
+        )`;
+    }
+    return title;
+}
 
 
 var messagePanel;
 export function start() {
     if (messagePanel) return;
     messagePanel = new MessagePanelView({
-        title: 'TypeScript Build',
+        title: getTitle(0),
+        closeMethod: 'hide',
+        rawTitle: true,
     });
 }
 
@@ -28,9 +40,12 @@ export function start() {
 export function setBuildOutput(buildOutput: programManager.BuildOutput) {
     start();
 
-    // Only attach if there are some errors
     if (buildOutput.counts.errors) {
-        messagePanel.attach();
+        messagePanel.attach(); // Only attach if there are some errors
+        messagePanel.setTitle(getTitle(buildOutput.counts.errors), true);
+    }
+    else {
+        messagePanel.setTitle(getTitle(0), true);
     }
 
     messagePanel.clear();

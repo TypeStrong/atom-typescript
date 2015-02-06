@@ -17,7 +17,10 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
 function getTitle(errorCount: number): string {
     var title = '<span class="icon-bug"></span> TypeScript errors for open files';
     if (errorCount > 0) {
-        title = title + ` (<span class="text-error">${errorCount}</span>)`;
+        title = title + ` (
+            <span class="text-highlight" style="font-weight: bold"> ${errorCount} </span>
+            <span class="text-error" style="font-weight: bold;"> file${errorCount === 1 ? "" : "s"} </span>
+        )`;
     }
     return title;
 }
