@@ -129,9 +129,7 @@ function showError(error?: Error) {
 }
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
-// Infrastructure note
-// This could be simplified if there was a way in TypeScript to capture the type information for first argument / return values
-// But there isn't as far as I know. TODO: I do have other cunning ideas though
+
 
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
     = (data) => query(messages.echo, data);
@@ -151,5 +149,9 @@ export var getErrorsForFileFiltered: Exec<messages.GetErrorsForFileFilteredQuery
 export var build: Exec<messages.BuildQuery, messages.BuildResponse>
     = (data) => query(messages.build, data);
 
-export var quickInfo: Exec<programManager.QuickInfoQuery,programManager.QuickInfoResponse>
-    = (data) => query(programManager.quickInfo.name, data);
+
+function getExecutorOnChild<Query,Response>(func:(query:Query)=>Response): (data:Query) => Promise<Response>{
+    return (data) => query(func.name, data);
+}
+
+export var quickInfo = getExecutorOnChild(programManager.quickInfo);
