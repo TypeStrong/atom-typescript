@@ -6,15 +6,6 @@
 // do not want to force users to put magic numbers in their tsconfig files
 // TODO: Use require('typescript').parseConfigFile when TS1.5 is released
 interface CompilerOptions {
-    // Backwards compatibility for 0.27.0 and earlier
-    outdir?: string;            // Redirect output structure to this directory
-    noimplicitany?: boolean;    // Error on inferred `any` type
-    removecomments?: boolean;   // Do not emit comments in output
-    sourcemap?: boolean;        // Generates SourceMaps (.map files)
-    sourceroot?: string;        // Optionally specifies the location where debugger should locate TypeScript source files after deployment
-    maproot?: string;           // Optionally Specifies the location where debugger should locate map files after deployment
-    nolib?: boolean;
-
     allowNonTsExtensions?: boolean;
     charset?: string;
     codepage?: number;
@@ -23,30 +14,32 @@ interface CompilerOptions {
     emitBOM?: boolean;
     help?: boolean;
     locale?: string;
-    mapRoot?: string;
-    module?: string; //'amd'|'commonjs' (default)
+    mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
+    module?: string;                                  //'amd'|'commonjs' (default)
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
-    noImplicitAny?: boolean;
+    noImplicitAny?: boolean;                          // Error on inferred `any` type
     noLib?: boolean;
     noLibCheck?: boolean;
     noResolve?: boolean;
     out?: string;
-    outDir?: string;
+    outDir?: string;                                  // Redirect output structure to this directory
     preserveConstEnums?: boolean;
-    removeComments?: boolean;
-    sourceMap?: boolean;
-    sourceRoot?: string;
+    removeComments?: boolean;                         // Do not emit comments in output
+    sourceMap?: boolean;                              // Generates SourceMaps (.map files)
+    sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     suppressImplicitAnyIndexErrors?: boolean;
-    target?: string; // 'es3'|'es5' (default)|'es6'
+    target?: string;                                  // 'es3'|'es5' (default)|'es6'
     version?: boolean;
     watch?: boolean;
 }
 
 interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
-    files?: string[];            // optional: paths to files
-    filesGlob?: string[];        // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
+    files?: string[];              // optional: paths to files
+    typestrong?: {
+        filesGlob?: string[];      // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
+    };
 }
 
 // Main configuration
@@ -92,7 +85,6 @@ export var defaults: ts.CompilerOptions = {
 };
 
 // TODO: add validation and add all options
-
 var deprecatedKeys = {
     outdir: 'outDir',
     noimplicitany: 'noImplicitAny',
@@ -118,7 +110,7 @@ var typescriptEnumMap = {
 };
 
 var jsonEnumMap = {
-    target: (function () {
+    target: (function() {
         var map: { [key: number]: string; } = {};
         map[ts.ScriptTarget.ES3] = 'es3';
         map[ts.ScriptTarget.ES5] = 'es5';
@@ -126,7 +118,7 @@ var jsonEnumMap = {
         map[ts.ScriptTarget.Latest] = 'latest';
         return map;
     })(),
-    module: (function () {
+    module: (function() {
         var map: { [key: number]: string; } = {};
         map[ts.ModuleKind.None] = 'none';
         map[ts.ModuleKind.CommonJS] = 'commonjs';
@@ -236,11 +228,15 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Setup default project options
     if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
 
+    // Our customizations for "tsconfig.json"
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    if (!projectSpec.files) projectSpec.filesGlob = ['./**/*.ts'];
-    if (projectSpec.filesGlob) {
-        projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
+    if (!projectSpec.files) {
+        projectSpec.typestrong = {};
+        projectSpec.typestrong.filesGlob = ['./**/*.ts'];
+    }
+    if (projectSpec.typestrong && projectSpec.typestrong.filesGlob) {
+        projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.typestrong.filesGlob);
         fs.writeFileSync(projectFile, prettyJSON(projectSpec));
     }
 
@@ -284,7 +280,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
-    projectSpec.filesGlob = ["./**/*.ts", "!node_modules/**/*.ts"]
+    projectSpec.typestrong = { filesGlob: ["./**/*.ts", "!node_modules/**/*.ts"] }; ``
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
@@ -332,12 +328,12 @@ function increaseProjectForReferenceAndImports(files: string[]) {
                     preProcessedFileInfo.importedFiles
                         .filter((fileReference) => pathIsRelative(fileReference.filename))
                         .map(fileReference => {
-                            var file = path.resolve(dir, fileReference.filename + '.ts');
-                            if (!fs.existsSync(file)) {
-                                file = path.resolve(dir, fileReference.filename + '.d.ts');
-                            }
-                            return file;
-                        })
+                        var file = path.resolve(dir, fileReference.filename + '.ts');
+                        if (!fs.existsSync(file)) {
+                            file = path.resolve(dir, fileReference.filename + '.d.ts');
+                        }
+                        return file;
+                    })
                     )
                 );
         });

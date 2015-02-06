@@ -37,7 +37,7 @@ TypeScript files will be compiled on save. Different notifications are given if 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
 
 ## Project Support
-Supported via `tsconfig.json` which is going to be the defacto Project file format for the next versions of TypeScript.
+Supported via `tsconfig.json` ([read more]()) which is going to be the defacto Project file format for the next versions of TypeScript.
 
 It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
 
