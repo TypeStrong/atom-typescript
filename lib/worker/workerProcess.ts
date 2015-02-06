@@ -55,26 +55,11 @@ responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): 
     };
 }
 
-responders[messages.getCompletionsAtPosition] = (data: messages.GetCompletionsAtPositionQuery): messages.GetCompletionsAtPositionResponse => {
-    return {
-        completions: programManager.getCompletionsAtPosition(data.filePath,data.position,data.prefix)
-    };
-}
-
-responders[messages.getErrorsForFileFiltered] = (data: messages.GetErrorsForFileFilteredQuery): messages.GetErrorsForFileFilteredResponse => {
-    return {
-        errors: programManager.getErrorsForFileFiltered(data.filePath)
-    };
-}
-
-responders[messages.build] = (data: messages.BuildQuery): messages.BuildResponse => {
-    return {
-        outputs: programManager.getOrCreateProgram(data.filePath).build()
-    };
-}
-
 function addToResponders<Query, Response>(func: (query: Query) => Response) {
     responders[func.name] = func;
 }
-
+// TODO: this can be automated by cleaning up *what* program manager exports
 addToResponders(programManager.quickInfo);
+addToResponders(programManager.build);
+addToResponders(programManager.errorsForFileFiltered);
+addToResponders(programManager.getCompletionsAtPosition);

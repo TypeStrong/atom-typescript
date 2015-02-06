@@ -210,13 +210,6 @@ export function getErrorsForFile(filePath: string): TSError[] {
 
     return diagnostics.map(diagnosticToTSError);
 }
-// Filtered means *only* for this file ... not because of file it references/imports
-export function getErrorsForFileFiltered(filePath: string): TSError[] {
-    // We have inconsistent Unix slashes.
-    // TODO: Make slashes consistent all around.
-    var fileName = path.basename(filePath);
-    return getErrorsForFile(filePath).filter((error) => path.basename(error.filePath) == fileName);
-}
 
 export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
     return {
@@ -242,8 +235,64 @@ export interface Completion {
     display: string; // This is either displayParts (for functions) or just the kind duplicated
 }
 
+export interface QuickInfoResponse {
+    valid: boolean; // Do we have a valid response for this query
+    name?: string;
+    comment?: string;
+}
+export interface QuickInfoQuery {
+    filePath: string;
+    position: number;
+}
+export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
+    var program = getOrCreateProgram(query.filePath);
+    var info = program.languageService.getQuickInfoAtPosition(query.filePath, query.position);
+    if (!info) return { valid: false };
+    else return {
+        valid: true,
+        name: ts.displayPartsToString(info.displayParts || []),
+        comment: ts.displayPartsToString(info.documentation || []),
+    }
+}
+
+export interface BuildQuery {
+    filePath: string; // The filepath of the current typescript file in view
+}
+export interface BuildResponse {
+    outputs: BuildOutput;
+}
+export function build(query: BuildQuery): BuildResponse {
+    return {
+        outputs: getOrCreateProgram(query.filePath).build()
+    };
+}
+
+/** Filtered means *only* for this file i.e. exclude errors from files it references/imports */
+export interface ErrorsForFileFilteredQuery {
+    filePath: string;
+}
+export interface ErrorsForFileFilteredResponse {
+    errors: TSError[];
+}
+export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): ErrorsForFileFilteredResponse {
+    // We have inconsistent Unix slashes.
+    // TODO: Make slashes consistent all around. Something in language service is funny
+    var fileName = path.basename(query.filePath);
+    return { errors: getErrorsForFile(query.filePath).filter((error) => path.basename(error.filePath) == fileName) };
+}
+
+export interface GetCompletionsAtPositionQuery {
+    filePath: string;
+    position: number;
+    prefix: string;
+}
+export interface GetCompletionsAtPositionResponse {
+    completions: Completion[];
+}
 /** gets the first 10 completions only */
-export function getCompletionsAtPosition(filePath: string, position: number, prefix: string): Completion[] {
+export function getCompletionsAtPosition(query:GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
+    var filePath = query.filePath, position = query.position, prefix = query.prefix;
+
     var program = getOrCreateProgram(filePath);
     var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
         filePath, position);
@@ -271,33 +320,15 @@ export function getCompletionsAtPosition(filePath: string, position: number, pre
         return { display: display, comment: comment };
     }
 
-    return completionList.map(c=> {
-        var details = docComment(c);
-        return {
-            name: c.name,
-            kind: c.kind,
-            comment: details.comment,
-            display: details.display
-        };
-    });
-}
-
-export interface QuickInfoResponse {
-    valid: boolean; // Do we have a valid response for this query
-    name?: string;
-    comment?: string;
-}
-export interface QuickInfoQuery {
-    filePath: string;
-    position: number;
-}
-export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
-    var program = getOrCreateProgram(query.filePath);
-    var info = program.languageService.getQuickInfoAtPosition(query.filePath, query.position);
-    if (!info) return { valid: false };
-    else return {
-        valid: true,
-        name: ts.displayPartsToString(info.displayParts || []),
-        comment: ts.displayPartsToString(info.documentation || []),
-    }
+    return {
+        completions: completionList.map(c=> {
+            var details = docComment(c);
+            return {
+                name: c.name,
+                kind: c.kind,
+                comment: details.comment,
+                display: details.display
+            };
+        })
+    };
 }

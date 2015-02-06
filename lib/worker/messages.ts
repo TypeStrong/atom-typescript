@@ -37,31 +37,3 @@ export interface GetErrorsForFileQuery {
 export interface GetErrorsForFileResponse {
     errors: programManager.TSError[];
 }
-
-
-export var getCompletionsAtPosition = 'getCompletionsAtPosition';
-export interface GetCompletionsAtPositionQuery {
-    filePath: string;
-    position: number;
-    prefix: string;
-}
-export interface GetCompletionsAtPositionResponse {
-    completions: programManager.Completion[];
-}
-
-export var getErrorsForFileFiltered = 'getErrorsForFileFiltered';
-export interface GetErrorsForFileFilteredQuery{
-    filePath:string;
-}
-export interface GetErrorsForFileFilteredResponse{
-    errors: programManager.TSError[];
-}
-
-export var build = 'build'
-export interface BuildQuery{
-    // The filepath of the current typescript file in view
-    filePath:string;
-}
-export interface BuildResponse{
-    outputs: programManager.BuildOutput;
-}

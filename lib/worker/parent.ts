@@ -140,18 +140,12 @@ export var updateText: Exec<messages.UpdateTextQuery, messages.EchoResponse>
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
     = (data) => query(messages.getErrorsForFile, data);
 
-export var getCompletionsAtPosition: Exec<messages.GetCompletionsAtPositionQuery, messages.GetCompletionsAtPositionResponse>
-    = (data) => query(messages.getCompletionsAtPosition, data);
-
-export var getErrorsForFileFiltered: Exec<messages.GetErrorsForFileFilteredQuery, messages.GetErrorsForFileFilteredResponse>
-    = (data) => query(messages.getErrorsForFileFiltered, data);
-
-export var build: Exec<messages.BuildQuery, messages.BuildResponse>
-    = (data) => query(messages.build, data);
-
-
+// TODO: push this code in "query" once we have all the functions updated
 function getExecutorOnChild<Query,Response>(func:(query:Query)=>Response): (data:Query) => Promise<Response>{
     return (data) => query(func.name, data);
 }
 
 export var quickInfo = getExecutorOnChild(programManager.quickInfo);
+export var build = getExecutorOnChild(programManager.build);
+export var errorsForFileFiltered = getExecutorOnChild(programManager.errorsForFileFiltered);
+export var getCompletionsAtPosition = getExecutorOnChild(programManager.getCompletionsAtPosition);

@@ -47,7 +47,7 @@ LinterTslint = (function(_super) {
 
         filePath = this.editor.buffer.file.path;
 
-        parent.getErrorsForFile({ filePath: filePath }).then((resp) => {
+        parent.errorsForFileFiltered({ filePath: filePath }).then((resp) => {
             var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
                 message: err.message,
                 line: err.startPos.line + 1,
