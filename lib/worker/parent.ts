@@ -3,6 +3,8 @@
 
 ///ts:import=messages
 import messages = require('./messages'); ///ts:import:generated
+///ts:import=programManager
+import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
 import childprocess = require('child_process');
 import os = require('os');
@@ -127,7 +129,9 @@ function showError(error?: Error) {
 }
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
-
+// Infrastructure note
+// This could be simplified if there was a way in TypeScript to capture the type information for first argument / return values
+// But there isn't as far as I know. TODO: I do have other cunning ideas though
 
 export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
     = (data) => query(messages.echo, data);
@@ -146,3 +150,6 @@ export var getErrorsForFileFiltered: Exec<messages.GetErrorsForFileFilteredQuery
 
 export var build: Exec<messages.BuildQuery, messages.BuildResponse>
     = (data) => query(messages.build, data);
+
+export var quickInfo: Exec<programManager.QuickInfoQuery,programManager.QuickInfoResponse>
+    = (data) => query(programManager.quickInfo.name, data);

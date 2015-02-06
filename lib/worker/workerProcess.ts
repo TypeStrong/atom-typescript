@@ -72,3 +72,9 @@ responders[messages.build] = (data: messages.BuildQuery): messages.BuildResponse
         outputs: programManager.getOrCreateProgram(data.filePath).build()
     };
 }
+
+function addToResponders<Query, Response>(func: (query: Query) => Response) {
+    responders[func.name] = func;
+}
+
+addToResponders(programManager.quickInfo);

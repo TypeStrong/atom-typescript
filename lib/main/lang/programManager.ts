@@ -281,3 +281,23 @@ export function getCompletionsAtPosition(filePath: string, position: number, pre
         };
     });
 }
+
+export interface QuickInfoResponse {
+    valid: boolean; // Do we have a valid response for this query
+    name?: string;
+    comment?: string;
+}
+export interface QuickInfoQuery {
+    filePath: string;
+    position: number;
+}
+export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
+    var program = getOrCreateProgram(query.filePath);
+    var info = program.languageService.getQuickInfoAtPosition(query.filePath, query.position);
+    if (!info) return { valid: false };
+    else return {
+        valid: true,
+        name: ts.displayPartsToString(info.displayParts || []),
+        comment: ts.displayPartsToString(info.documentation || []),
+    }
+}

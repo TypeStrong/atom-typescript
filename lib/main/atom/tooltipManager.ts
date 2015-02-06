@@ -1,10 +1,10 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
-///ts:import=programManager
-import programManager = require('../lang/programManager'); ///ts:import:generated
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
+///ts:import=parent
+import parent = require('../../worker/parent'); ///ts:import:generated
 
 import path = require('path');
 import fs = require('fs');
@@ -25,8 +25,6 @@ export function attach(editorView: any) {
     if (!fs.existsSync(filePath)) {
         return;
     }
-
-    var program = programManager.getOrCreateProgram(filePath);
 
     var scroll = editorView.find('.scroll-view');
     var subscriber = new Subscriber();
@@ -65,18 +63,19 @@ export function attach(editorView: any) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
 
+        var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
         // Actually make the program manager query
-        var position = atomUtils.getEditorPositionForBufferPosition(editor,bufferPt);
-        var info = program.languageService.getQuickInfoAtPosition(filePath, position);
-        if (!info) {
-            hideExpressionType();
-        } else {
-            var displayName = ts.displayPartsToString(info.displayParts || []);
-            var documentation = ts.displayPartsToString(info.documentation || []);
-            var message = `<b>${displayName}</b>`;
-            if(documentation) message = message + `<br/><i>${documentation}</i>`;
-            exprTypeTooltip.updateText(message);
-        }
+        parent.quickInfo({ filePath, position }).then((resp) => {
+            if (!resp.valid) {
+                hideExpressionType();
+            }
+            else {
+                var message = `<b>${resp.name}</b>`;
+                if (resp.comment) message = message + `<br/><i>${resp.comment}</i>`;
+                // Sorry about this "if". It's in the code I copied so I guess its there for a reason
+                if (exprTypeTooltip) exprTypeTooltip.updateText(message);
+            }
+        });
     }
 
 
