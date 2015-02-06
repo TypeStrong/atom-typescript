@@ -39,10 +39,6 @@ process.on('message',(data) => {
 ///ts:import=programManager
 import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
-responders[messages.echo] = (data: messages.EchoQuery): messages.EchoResponse => {
-    return { echo: data.echo };
-};
-
 responders[messages.updateText] = (data: messages.UpdateTextQuery): messages.UpdateTextResponse => {
     var program = programManager.getOrCreateProgram(data.filePath);
     program.languageServiceHost.updateScript(data.filePath, data.text);
@@ -59,6 +55,7 @@ function addToResponders<Query, Response>(func: (query: Query) => Response) {
     responders[func.name] = func;
 }
 // TODO: this can be automated by cleaning up *what* program manager exports
+addToResponders(programManager.echo);
 addToResponders(programManager.quickInfo);
 addToResponders(programManager.build);
 addToResponders(programManager.errorsForFileFiltered);

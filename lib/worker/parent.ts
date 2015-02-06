@@ -130,11 +130,7 @@ function showError(error?: Error) {
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
-
-export var echo: Exec<messages.EchoQuery, messages.EchoResponse>
-    = (data) => query(messages.echo, data);
-
-export var updateText: Exec<messages.UpdateTextQuery, messages.EchoResponse>
+export var updateText: Exec<messages.UpdateTextQuery, {}>
     = (data) => query(messages.updateText, data);
 
 export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
@@ -145,6 +141,7 @@ function getExecutorOnChild<Query,Response>(func:(query:Query)=>Response): (data
     return (data) => query(func.name, data);
 }
 
+export var echo = getExecutorOnChild(programManager.echo);
 export var quickInfo = getExecutorOnChild(programManager.quickInfo);
 export var build = getExecutorOnChild(programManager.build);
 export var errorsForFileFiltered = getExecutorOnChild(programManager.errorsForFileFiltered);

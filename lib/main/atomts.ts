@@ -56,17 +56,11 @@ export function activate(state: PackageState) {
             for (var j = 0; j < 1000; j++) {
                 message = message + repeat;
             }
-            parent.echo({ echo: 'awesome ' + message },(res) => {
+            parent.echo({ echo: 'awesome ' + message }).then((res) => {
                 console.log('index: ' + index, res);
             });
         })();
     }*/
-
-
-    /*child.send({
-        message: 'echo',
-        data: { name: 'bas' }
-    });*/
 
     // This is dodgy non-documented stuff
     // subscribe for tooltips

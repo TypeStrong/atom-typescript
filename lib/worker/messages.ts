@@ -13,15 +13,6 @@ export interface Message<T> {
 ///ts:import=programManager
 import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
-export var echo = 'echo';
-export interface EchoQuery {
-    echo: any;
-}
-export interface EchoResponse {
-    echo: any;
-}
-
-
 export var updateText = 'updateText';
 export interface UpdateTextQuery {
     filePath: string;
