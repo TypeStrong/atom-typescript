@@ -37,7 +37,7 @@ TypeScript files will be compiled on save. Different notifications are given if 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
 
 ## Project Support
-Supported via `tsconfig.json` ([read more]()) which is going to be the defacto Project file format for the next versions of TypeScript.
+Supported via `tsconfig.json` ([read more](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md)) which is going to be the defacto Project file format for the next versions of TypeScript.
 
 It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
 
@@ -57,6 +57,9 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 ## Contributing
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
+
+## Changelog
+Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/docs/CHANGELOG.md).
 
 # Previous Work
 * The TypeScript language package : https://github.com/olegbl/language-typescript

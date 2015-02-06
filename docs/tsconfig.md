@@ -20,13 +20,18 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
         "removeComments": true,
         "noLib": false
     },
-    "typestrong":{
+    "typestrong": {
         "filesGlob": [
             "./**/*.ts"
         ]
     },
-	files:[
-		
-	]
+    "files": [
+        "./globals.ts",
+        "./linter.ts",
+        "./main/atom/atomUtils.ts",
+        "./main/atom/autoCompleteProvider.ts",
+        "./worker/messages.ts",
+        "./worker/parent.ts"
+    ]
 }
 ```

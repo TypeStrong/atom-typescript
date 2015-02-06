@@ -7,9 +7,11 @@
         "removeComments": true,
         "noLib": false
     },
-    "filesGlob": [
-        "./**/*.ts"
-    ],
+    "typestrong": {
+        "filesGlob": [
+            "./**/*.ts"
+        ]
+    },
     "files": [
         "./globals.ts",
         "./linter.ts",
