@@ -201,16 +201,6 @@ export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
     };
 }
 
-export function getErrorsForFile(filePath: string): TSError[] {
-    var program = getOrCreateProgram(filePath);
-    var diagnostics = program.languageService.getSyntacticDiagnostics(filePath);
-    if (diagnostics.length === 0) {
-        diagnostics = program.languageService.getSemanticDiagnostics(filePath);
-    }
-
-    return diagnostics.map(diagnosticToTSError);
-}
-
 export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
     return {
         IndentSize: 4,
@@ -289,7 +279,7 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Errors
     // We have inconsistent Unix slashes.
     // TODO: Make slashes consistent all around. Something in language service is funny
     var fileName = path.basename(query.filePath);
-    return { errors: getErrorsForFile(query.filePath).filter((error) => path.basename(error.filePath) == fileName) };
+    return { errors: errorsForFile({ filePath: query.filePath }).errors.filter((error) => path.basename(error.filePath) == fileName) };
 }
 
 export interface GetCompletionsAtPositionQuery extends FilePathQuery {
@@ -403,4 +393,16 @@ export interface UpdateTextQuery extends FilePathQuery {
 export function updateText(query: UpdateTextQuery): any {
     getOrCreateProgram(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
     return {};
+}
+
+export function errorsForFile(query: FilePathQuery): {
+    errors: TSError[]
+} {
+    var program = getOrCreateProgram(query.filePath);
+    var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
+    if (diagnostics.length === 0) {
+        diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
+    }
+
+    return { errors: diagnostics.map(diagnosticToTSError) };
 }

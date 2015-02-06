@@ -22,7 +22,7 @@ export function startWorker() {
 
         child = spawn(node, [
             // '--debug', // Uncomment if you want to debug the child process
-            __dirname + '/workerProcess.js',
+            __dirname + '/child.js',
         ], { env:env, stdio:['ipc']  });
 
         child.on('error',(err) => {
@@ -96,29 +96,28 @@ function createId(): string {
     });
 }
 
-function query<Query, Response>(message: string, data: Query): Promise<Response> {
+function childQuery<Query, Response>(func: (query: Query) => Response): (data: Query) => Promise<Response> {
+    return (data) => {
+        var message = func.name;
 
-    // If we don't have a child exit
-    if (!child) {
-        console.log('PARENT ERR: no child when you tried to send :', message);
-        return;
-    }
+        // If we don't have a child exit
+        if (!child) {
+            console.log('PARENT ERR: no child when you tried to send :', message);
+            return;
+        }
 
-    // Initialize if this is the first call of this type
-    if (!currentListeners[message]) currentListeners[message] = {};
+        // Initialize if this is the first call of this type
+        if (!currentListeners[message]) currentListeners[message] = {};
 
-    // Create an id unique to this call and store the defered against it
-    var id = createId();
-    var defer = Promise.defer();
-    currentListeners[message][id] = defer;
+        // Create an id unique to this call and store the defered against it
+        var id = createId();
+        var defer = Promise.defer<Response>();
+        currentListeners[message][id] = defer;
 
-    // Send data to worker
-    child.send({ message: message, id: id, data: data });
-    return defer.promise;
-}
-
-export interface Exec<Query, Response> {
-    (data: Query): Promise<Response>;
+        // Send data to worker
+        child.send({ message: message, id: id, data: data });
+        return defer.promise;
+    };
 }
 
 function showError(error?: Error) {
@@ -130,21 +129,14 @@ function showError(error?: Error) {
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
-export var getErrorsForFile: Exec<messages.GetErrorsForFileQuery, messages.GetErrorsForFileResponse>
-    = (data) => query(messages.getErrorsForFile, data);
-
-// TODO: push this code in "query" once we have all the functions updated
-function getExecutorOnChild<Query,Response>(func:(query:Query)=>Response): (data:Query) => Promise<Response>{
-    return (data) => query(func.name, data);
-}
-
-export var echo = getExecutorOnChild(programManager.echo);
-export var quickInfo = getExecutorOnChild(programManager.quickInfo);
-export var build = getExecutorOnChild(programManager.build);
-export var errorsForFileFiltered = getExecutorOnChild(programManager.errorsForFileFiltered);
-export var getCompletionsAtPosition = getExecutorOnChild(programManager.getCompletionsAtPosition);
-export var emitFile = getExecutorOnChild(programManager.emitFile);
-export var formatDocument = getExecutorOnChild(programManager.formatDocument);
-export var formatDocumentRange = getExecutorOnChild(programManager.formatDocumentRange);
-export var getDefinitionsAtPosition = getExecutorOnChild(programManager.getDefinitionsAtPosition);
-export var updateText = getExecutorOnChild(programManager.updateText);
+export var echo = childQuery(programManager.echo);
+export var quickInfo = childQuery(programManager.quickInfo);
+export var build = childQuery(programManager.build);
+export var errorsForFileFiltered = childQuery(programManager.errorsForFileFiltered);
+export var getCompletionsAtPosition = childQuery(programManager.getCompletionsAtPosition);
+export var emitFile = childQuery(programManager.emitFile);
+export var formatDocument = childQuery(programManager.formatDocument);
+export var formatDocumentRange = childQuery(programManager.formatDocumentRange);
+export var getDefinitionsAtPosition = childQuery(programManager.getDefinitionsAtPosition);
+export var updateText = childQuery(programManager.updateText);
+export var errorsForFile = childQuery(programManager.errorsForFile);

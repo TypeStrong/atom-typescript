@@ -74,10 +74,9 @@ export function activate(state: PackageState) {
         var filePath = editor.getPath();
         var filename = path.basename(filePath);
         var ext = path.extname(filename);
-
         if (ext == '.ts') {
             try {
-                // We only create a "program" once the file is persisted to disk
+                // We only do analysis once the file is persisted to disk
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {
                     onDisk = true;
@@ -103,7 +102,7 @@ export function activate(state: PackageState) {
                     // Update the file in the worker
                     parent.updateText({ filePath: filePath, text: text })
                     // Set errors in project per file
-                        .then(() => parent.getErrorsForFile({ filePath: filePath }))
+                        .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // TODO: provide function completions
@@ -166,8 +165,8 @@ export function activate(state: PackageState) {
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
-            var result = parent.formatDocument({filePath:filePath, cursor:{ line: cursorPosition.row, ch: cursorPosition.column }})
-            .then((result)=>{
+            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } })
+                .then((result) => {
                 var top = editor.getScrollTop();
                 editor.setText(result.formatted);
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
@@ -188,7 +187,7 @@ export function activate(state: PackageState) {
 
         atom.notifications.addInfo('Building');
 
-        parent.build({filePath:filePath}).then((resp)=>{
+        parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.outputs);
         });
     });
@@ -197,22 +196,22 @@ export function activate(state: PackageState) {
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
-        parent.getDefinitionsAtPosition({filePath:filePath,position:atomUtils.getEditorPosition(editor)}).then(res=>{
-                    var definitions = res.definitions;
-                    if (!definitions || !definitions.length) return;
+        parent.getDefinitionsAtPosition({ filePath: filePath, position: atomUtils.getEditorPosition(editor) }).then(res=> {
+            var definitions = res.definitions;
+            if (!definitions || !definitions.length) return;
 
-                    // Potential future ugly hack for something (atom or TS langauge service) path handling
-                    // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
+            // Potential future ugly hack for something (atom or TS langauge service) path handling
+            // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
 
-                    // TODO: support multiple implementations. For now we just go to first
-                    var definition = definitions[0];
+            // TODO: support multiple implementations. For now we just go to first
+            var definition = definitions[0];
 
-                    atom.open({
-                        // The file open command line is 1 indexed
-                        pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
-                        newWindow: false
-                    });
+            atom.open({
+                // The file open command line is 1 indexed
+                pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
+                newWindow: false
             });
+        });
 
 
     });

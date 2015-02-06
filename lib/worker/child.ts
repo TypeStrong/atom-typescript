@@ -39,12 +39,6 @@ process.on('message',(data) => {
 ///ts:import=programManager
 import programManager = require('../main/lang/programManager'); ///ts:import:generated
 
-responders[messages.getErrorsForFile] = (data: messages.GetErrorsForFileQuery): messages.GetErrorsForFileResponse => {
-    return {
-        errors: programManager.getErrorsForFile(data.filePath)
-    };
-}
-
 function addToResponders<Query, Response>(func: (query: Query) => Response) {
     responders[func.name] = func;
 }
@@ -54,7 +48,9 @@ addToResponders(programManager.quickInfo);
 addToResponders(programManager.build);
 addToResponders(programManager.errorsForFileFiltered);
 addToResponders(programManager.getCompletionsAtPosition);
+addToResponders(programManager.emitFile);
 addToResponders(programManager.formatDocument);
 addToResponders(programManager.formatDocumentRange);
 addToResponders(programManager.getDefinitionsAtPosition);
 addToResponders(programManager.updateText);
+addToResponders(programManager.errorsForFile);
