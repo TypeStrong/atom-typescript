@@ -1,14 +1,14 @@
-# TypeScript workflow from Atom
+# Atom TypeScript
 
 [![Join the chat at https://gitter.im/TypeStrong/atom-typescript](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TypeStrong/atom-typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Final Objective: Make it easy for JavaScript developers to just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
+JavaScript developers can now just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
 ## Requirements
 An auto updating version of `atom`. Other atom packages we depend upon are installed automatically.
 
-* Install Atom
-* `apm install typescript`
+1. Install Atom
+1. `apm install typescript`
 
 **Note**: For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))  
 
