@@ -10,6 +10,7 @@ import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 
+var gotENOENTonSpawnNode = false;
 var child: childprocess.ChildProcess;
 var currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
 export function startWorker() {
@@ -17,14 +18,22 @@ export function startWorker() {
         var env = Object.create(process.env);
         env.ATOM_SHELL_INTERNAL_RUN_AS_NODE = '1';
 
-        var node = process.platform === 'win32' ? "node" : process.execPath;
+        var node = process.execPath; // We will run atom as node
+
+        // Sad panda : https://github.com/TypeStrong/atom-typescript/issues/50
+        if (process.platform === 'win32') {
+            node = "node";
+        }
 
         child = spawn(node, [
             // '--debug', // Uncomment if you want to debug the child process
             __dirname + '/child.js',
-        ], { env:env, stdio:['ipc']  });
+        ], { env: env, stdio: ['ipc'] });
 
         child.on('error',(err) => {
+            if (err.code === "ENOENT" && err.path === node) {
+                gotENOENTonSpawnNode = true;
+            }
             console.log('CHILD ERR:', err.toString());
             child = null;
         });
@@ -46,7 +55,7 @@ export function startWorker() {
             }
         }
 
-        child.on('message',(resp)=>processResponse(resp));
+        child.on('message',(resp) => processResponse(resp));
 
 
         child.stderr.on('data',(err) => {
@@ -61,13 +70,14 @@ export function startWorker() {
                 console.log('ts worker restarting');
                 startWorker();
             }
-            // probably restart even otherwise. Potential infinite loop.
-            else if (code !== /* ENOENT? */ -2) {
+            // If we got ENOENT. Restarting will not help.
+            else if (gotENOENTonSpawnNode) {
+                showError();
+            }
+            // We haven't found a reson to not start worker yet
+            else {
                 console.log('ts worker restarting');
                 startWorker();
-            }
-            else {
-                showError();
             }
         });
     }
@@ -102,7 +112,7 @@ function childQuery<Query, Response>(func: (query: Query) => Response): (data: Q
         // If we don't have a child exit
         if (!child) {
             console.log('PARENT ERR: no child when you tried to send :', message);
-            return;
+            return <any>Promise.reject(new Error("No worker active to recieve message: " + message));
         }
 
         // Initialize if this is the first call of this type
@@ -120,7 +130,13 @@ function childQuery<Query, Response>(func: (query: Query) => Response): (data: Q
 }
 
 function showError(error?: Error) {
-    atom.notifications.addError("Failed to start a child TypeScript worker. Atom-TypeScript is disabled.")
+    var message = "Failed to start a child TypeScript worker. Atom-TypeScript is disabled.";
+    // Sad panda : https://github.com/TypeStrong/atom-typescript/issues/50
+    if (process.platform === "win32") {
+        message = message + " Make sure you have 'node' installed and available in your system path.";
+    }
+    atom.notifications.addError(message, { dismissable: true });
+
     if (error) {
         console.error('Failed to activate ts-worker:', error);
     }
