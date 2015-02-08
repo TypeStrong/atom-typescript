@@ -156,3 +156,4 @@ export var formatDocumentRange = childQuery(projectService.formatDocumentRange);
 export var getDefinitionsAtPosition = childQuery(projectService.getDefinitionsAtPosition);
 export var updateText = childQuery(projectService.updateText);
 export var errorsForFile = childQuery(projectService.errorsForFile);
+export var getSignatureHelps = childQuery(projectService.getSignatureHelps);

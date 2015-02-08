@@ -169,6 +169,26 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     };
 }
 
+export interface GetSignatureHelpQuery extends FilePathQuery {
+    position: number;
+}
+export interface SignatureHelp {
+
+}
+export interface GetSignatureHelpResponse {
+    signatureHelps: SignatureHelp[];
+}
+export function getSignatureHelps(query: GetSignatureHelpQuery): GetSignatureHelpResponse {
+    var program = getOrCreateProject(query.filePath);
+    var signatureHelpItems = program.languageService.getSignatureHelpItems(query.filePath, query.position);
+
+    if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
+        return { signatureHelps: [] };
+
+    // TODO: WIP
+    return <any>signatureHelpItems.items;
+}
+
 export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends project.EmitOutput { }
 export function emitFile(query: EmitFileQuery): EmitFileResponse {
