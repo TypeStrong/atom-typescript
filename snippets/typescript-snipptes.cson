@@ -1,0 +1,8 @@
+'.source.ts':
+  'while':
+    'prefix': 'while'
+    'body': """
+        while (${1:true}) {
+            $2
+        }
+    """

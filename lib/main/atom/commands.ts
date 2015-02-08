@@ -74,4 +74,9 @@ export function registerCommands() {
             });
         });
     });
+
+    atom.commands.add('atom-text-editor', 'typescript:context-actions',(e) => {
+        atom.notifications.addSuccess('Context options coming soon!');
+    
+    });
 }

@@ -1,4 +1,0 @@
-'.source.ts':
-  'while':
-    'prefix': 'while'
-    'body': 'while (${1:true}) {\n\t$2\n}'

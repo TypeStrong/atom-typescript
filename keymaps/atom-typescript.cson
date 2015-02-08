@@ -5,3 +5,5 @@
   'cmd-shift-b': 'typescript:build'
   'ctrl-b': 'typescript:go-to-declaration'
   'cmd-b': 'typescript:go-to-declaration'
+  'ctrl-;': 'typescript:context-actions'
+  'cmd-;': 'typescript:context-actions'
