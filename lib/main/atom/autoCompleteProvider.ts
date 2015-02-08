@@ -3,8 +3,6 @@
 
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 
-///ts:import=programManager
-import programManager = require('../lang/programManager'); ///ts:import:generated
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 import ts = require('typescript');

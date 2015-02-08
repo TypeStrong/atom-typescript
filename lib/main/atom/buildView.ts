@@ -1,10 +1,10 @@
-﻿///ts:ref=globals
+///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
-///ts:import=programManager
-import programManager = require('../lang/programManager'); ///ts:import:generated
 ///ts:import=utils
 import utils = require('../lang/utils'); ///ts:import:generated
+///ts:import=project
+import project = require('../lang/project'); ///ts:import:generated
 
 import os = require('os')
 
@@ -37,7 +37,7 @@ export function start() {
 }
 
 
-export function setBuildOutput(buildOutput: programManager.BuildOutput) {
+export function setBuildOutput(buildOutput: project.BuildOutput) {
     start();
 
     if (buildOutput.counts.errors) {

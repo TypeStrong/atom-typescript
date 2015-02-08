@@ -34,18 +34,22 @@
     <Folder Include="lib\main\atom\" />
     <Folder Include="lib\main\lang\" />
     <Folder Include="lib\main\tsconfig\" />
+    <Folder Include="lib\node_modules\" />
+    <Folder Include="lib\node_modules\views\" />
     <Folder Include="lib\typings\" />
     <Folder Include="lib\typings\atom\" />
     <Folder Include="lib\typings\emissary\" />
     <Folder Include="lib\typings\glob-expand\" />
     <Folder Include="lib\typings\jquery\" />
     <Folder Include="lib\typings\mixto\" />
+    <Folder Include="lib\typings\mkdirp\" />
     <Folder Include="lib\typings\node\" />
     <Folder Include="lib\typings\pathwatcher\" />
     <Folder Include="lib\typings\q\" />
     <Folder Include="lib\typings\space-pen\" />
     <Folder Include="lib\typings\status-bar\" />
     <Folder Include="lib\typings\text-buffer\" />
+    <Folder Include="lib\worker\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->

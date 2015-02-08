@@ -3,8 +3,8 @@
 
 ///ts:import=messages
 import messages = require('./messages'); ///ts:import:generated
-///ts:import=programManager
-import programManager = require('../main/lang/programManager'); ///ts:import:generated
+///ts:import=projectService
+import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
 import childprocess = require('child_process');
 var exec = childprocess.exec;
@@ -144,14 +144,14 @@ function showError(error?: Error) {
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
-export var echo = childQuery(programManager.echo);
-export var quickInfo = childQuery(programManager.quickInfo);
-export var build = childQuery(programManager.build);
-export var errorsForFileFiltered = childQuery(programManager.errorsForFileFiltered);
-export var getCompletionsAtPosition = childQuery(programManager.getCompletionsAtPosition);
-export var emitFile = childQuery(programManager.emitFile);
-export var formatDocument = childQuery(programManager.formatDocument);
-export var formatDocumentRange = childQuery(programManager.formatDocumentRange);
-export var getDefinitionsAtPosition = childQuery(programManager.getDefinitionsAtPosition);
-export var updateText = childQuery(programManager.updateText);
-export var errorsForFile = childQuery(programManager.errorsForFile);
+export var echo = childQuery(projectService.echo);
+export var quickInfo = childQuery(projectService.quickInfo);
+export var build = childQuery(projectService.build);
+export var errorsForFileFiltered = childQuery(projectService.errorsForFileFiltered);
+export var getCompletionsAtPosition = childQuery(projectService.getCompletionsAtPosition);
+export var emitFile = childQuery(projectService.emitFile);
+export var formatDocument = childQuery(projectService.formatDocument);
+export var formatDocumentRange = childQuery(projectService.formatDocumentRange);
+export var getDefinitionsAtPosition = childQuery(projectService.getDefinitionsAtPosition);
+export var updateText = childQuery(projectService.updateText);
+export var errorsForFile = childQuery(projectService.errorsForFile);

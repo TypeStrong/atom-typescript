@@ -18,7 +18,10 @@ var responders: { [message: string]: (query: any) => any } = {};
 // Note: child doesn't care about 'id'
 function processData(m: any) {
     var parsed: messages.Message<any> = m;
-    if (!parsed.message || !responders[parsed.message]) return; // TODO: handle this error scenario
+    if (!parsed.message || !responders[parsed.message]) {
+        // TODO: handle this error scenario. Either the message is invalid or we do not have a registered responder
+        return;
+    }
     var message = parsed.message;
 
     process.send({
@@ -36,21 +39,13 @@ process.on('message',(data) => {
 
 ///////////////// END INFRASTRUCTURE /////////////////////////////////////
 
-///ts:import=programManager
-import programManager = require('../main/lang/programManager'); ///ts:import:generated
+///ts:import=projectService
+import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
 function addToResponders<Query, Response>(func: (query: Query) => Response) {
     responders[func.name] = func;
 }
-// TODO: this can be automated by cleaning up *what* program manager exports
-addToResponders(programManager.echo);
-addToResponders(programManager.quickInfo);
-addToResponders(programManager.build);
-addToResponders(programManager.errorsForFileFiltered);
-addToResponders(programManager.getCompletionsAtPosition);
-addToResponders(programManager.emitFile);
-addToResponders(programManager.formatDocument);
-addToResponders(programManager.formatDocumentRange);
-addToResponders(programManager.getDefinitionsAtPosition);
-addToResponders(programManager.updateText);
-addToResponders(programManager.errorsForFile);
+// Automatically include all functions from "projectService" as a responder
+Object.keys(projectService)
+    .filter((funcName) => typeof projectService[funcName] == 'function')
+    .forEach((funcName) => addToResponders(projectService[funcName]));

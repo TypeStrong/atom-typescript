@@ -1,10 +1,10 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
-///ts:import=programManager
-import programManager = require('../lang/programManager'); ///ts:import:generated
 ///ts:import=utils
 import utils = require('../lang/utils'); ///ts:import:generated
+///ts:import=project
+import project = require('../lang/project'); ///ts:import:generated
 
 import os = require('os')
 
@@ -37,7 +37,7 @@ export function start() {
     messagePanel.toggle(); // Start minized
 }
 
-var filePathErrors: utils.Dict<programManager.TSError[]> = new utils.Dict<any[]>();
+var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
 
 
 // from : https://github.com/tcarlsen/atom-csslint/blob/master/lib/linter.coffee
@@ -55,7 +55,7 @@ function hide() {
     }
 }
 
-export var setErrors = (filePath: string, errorsForFile: programManager.TSError[]) => {
+export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
     else filePathErrors.setValue(filePath, errorsForFile);
 
@@ -86,7 +86,7 @@ export var setErrors = (filePath: string, errorsForFile: programManager.TSError[
     }
 };
 
-export function showEmittedMessage(output: programManager.EmitOutput) {
+export function showEmittedMessage(output: project.EmitOutput) {
     if (output.success) {
         var message = 'TS Emit: <br/>' + output.outputFiles.join('<br/>');
         atom.notifications.addSuccess(message);
