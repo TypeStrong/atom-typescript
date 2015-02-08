@@ -7,5 +7,3 @@
   'cmd-b': 'typescript:go-to-declaration'
   'ctrl-;': 'typescript:context-actions'
   'cmd-;': 'typescript:context-actions'
-  'ctrl-space': 'typescript:autocomplete'
-  'cmd-space': 'typescript:autocomplete'

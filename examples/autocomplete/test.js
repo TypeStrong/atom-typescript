@@ -7,3 +7,5 @@ var Bar = (function () {
 function bas(a, b) {
     return '';
 }
+var str = '';
+var num = 123;
