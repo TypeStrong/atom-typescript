@@ -149,6 +149,7 @@ declare module AtomCore {
 
     interface ICommandRegistry {
         add(selector: string, name: string, callback: (event: any) => void); // selector:'atom-editor'|'atom-workspace'
+		dispatch(selector: any, name:string);
     }
 
     interface ICommandPanel {
@@ -350,6 +351,10 @@ declare module AtomCore {
 		handleBufferMarkerCreated(marker:any):any;
 		createFoldForMarker(maker:any):IFold;
 		foldForMarker(marker:any):any;
+	}
+
+	interface IViewRegistry {
+		getView(selector:any):any;
 	}
 
 	interface ICursorStatic {
@@ -1065,6 +1070,7 @@ declare module AtomCore {
 		notifications: INotifications; // https://github.com/atom/notifications
 		clipboard:IClipboard;
 		syntax:ISyntax;
+		views: IViewRegistry;
 		windowEventHandler: IWindowEventHandler;
 
 		// really exists? start
