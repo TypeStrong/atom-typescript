@@ -14,8 +14,12 @@ import project = require('./project');
 import Project = project.Project;
 import languageServiceHost = require('./languageServiceHost');
 
-var programByProjectPath: { [projectDir: string]: Project } = {}
-var programByFilePath: { [filePath: string]: Project } = {}
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+var projectByProjectPath: { [projectDir: string]: Project } = {}
+var projectByFilePath: { [filePath: string]: Project } = {}
 
 function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
@@ -34,18 +38,18 @@ function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails
 
 function getOrCreateProject(filePath) {
     filePath = tsconfig.consistentPath(filePath);
-    if (programByFilePath[filePath]) {
-        return programByFilePath[filePath];
+    if (projectByFilePath[filePath]) {
+        return projectByFilePath[filePath];
     }
     else {
         var projectFile = getOrCreateProjectFile(filePath);
-        if (programByProjectPath[projectFile.projectFileDirectory]) {
+        if (projectByProjectPath[projectFile.projectFileDirectory]) {
             // we've already parsed the project file once before. This file wasn't in there for some reason
             // we just need to update for this file
-            return programByFilePath[filePath] = programByProjectPath[projectFile.projectFileDirectory];
+            return projectByFilePath[filePath] = projectByProjectPath[projectFile.projectFileDirectory];
         } else {
-            var program = programByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
-            projectFile.project.files.forEach((file) => programByFilePath[file] = program);
+            var program = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
+            projectFile.project.files.forEach((file) => projectByFilePath[file] = program);
             return program;
         }
     }
