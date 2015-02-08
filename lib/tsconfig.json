@@ -17,6 +17,7 @@
         "./main/atom/atomUtils.ts",
         "./main/atom/autoCompleteProvider.ts",
         "./main/atom/buildView.ts",
+        "./main/atom/commands.ts",
         "./main/atom/errorView.ts",
         "./main/atom/signatureProvider.ts",
         "./main/atom/tooltipManager.ts",

@@ -11,14 +11,14 @@ var apd = require('../../apd'); // Moved here because I customized it
 import errorView = require('./atom/errorView'); ///ts:import:generated
 ///ts:import=autoCompleteProvider
 import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
-///ts:import=buildView
-import buildView = require('./atom/buildView'); ///ts:import:generated
 ///ts:import=tooltipManager
 import tooltipManager = require('./atom/tooltipManager'); ///ts:import:generated
 ///ts:import=signatureProvider
 import signatureProvider = require('./atom/signatureProvider'); ///ts:import:generated
 ///ts:import=atomUtils
 import atomUtils = require('./atom/atomUtils'); ///ts:import:generated
+///ts:import=commands
+import commands = require('./atom/commands'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -147,74 +147,8 @@ export function activate(state: PackageState) {
     // Registering an autocomplete provider
     autoCompleteWatch = atom.services.provide('autocomplete.provider', '1.0.0', { provider: autoCompleteProvider });
 
-    // Utility functions for commands
-    function commandForTypeScript(e) {
-        var editor = atom.workspace.getActiveTextEditor();
-        if (!editor) return e.abortKeyBinding() && false;
-        if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
-
-        return true;
-    }
-
-    // Setup custom commands NOTE: these need to be added to the keymaps
-    atom.commands.add('atom-text-editor', 'typescript:format-code',(e) => {
-        if (!commandForTypeScript(e)) return;
-
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var selection = editor.getSelectedBufferRange();
-        if (selection.isEmpty()) {
-            var cursorPosition = editor.getCursorBufferPosition();
-            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } })
-                .then((result) => {
-                var top = editor.getScrollTop();
-                editor.setText(result.formatted);
-                editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
-                editor.setScrollTop(top);
-            });
-        } else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
-                editor.setTextInBufferRange(selection, res.formatted);
-            });
-
-        }
-    });
-    atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
-        if (!commandForTypeScript(e)) return;
-
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-
-        atom.notifications.addInfo('Building');
-
-        parent.build({ filePath: filePath }).then((resp) => {
-            buildView.setBuildOutput(resp.outputs);
-        });
-    });
-    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration',(e) => {
-        if (!commandForTypeScript(e)) return;
-
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        parent.getDefinitionsAtPosition({ filePath: filePath, position: atomUtils.getEditorPosition(editor) }).then(res=> {
-            var definitions = res.definitions;
-            if (!definitions || !definitions.length) return;
-
-            // Potential future ugly hack for something (atom or TS langauge service) path handling
-            // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
-
-            // TODO: support multiple implementations. For now we just go to first
-            var definition = definitions[0];
-
-            atom.open({
-                // The file open command line is 1 indexed
-                pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
-                newWindow: false
-            });
-        });
-
-
-    });
+    // Register the commands
+    commands.registerCommands();
 }
 
 export function deactivate() {

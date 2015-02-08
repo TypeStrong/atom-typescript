@@ -1,0 +1,77 @@
+///ts:import=parent
+import parent = require('../../worker/parent'); ///ts:import:generated
+///ts:import=buildView
+import buildView = require('./buildView'); ///ts:import:generated
+///ts:import=atomUtils
+import atomUtils = require('./atomUtils'); ///ts:import:generated
+import path = require('path');
+
+// Utility functions for commands
+function commandForTypeScript(e) {
+    var editor = atom.workspace.getActiveTextEditor();
+    if (!editor) return e.abortKeyBinding() && false;
+    if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
+
+    return true;
+}
+
+export function registerCommands() {
+
+    // Setup custom commands NOTE: these need to be added to the keymaps
+    atom.commands.add('atom-text-editor', 'typescript:format-code',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        var selection = editor.getSelectedBufferRange();
+        if (selection.isEmpty()) {
+            var cursorPosition = editor.getCursorBufferPosition();
+            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } })
+                .then((result) => {
+                var top = editor.getScrollTop();
+                editor.setText(result.formatted);
+                editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
+                editor.setScrollTop(top);
+            });
+        } else {
+            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
+                editor.setTextInBufferRange(selection, res.formatted);
+            });
+
+        }
+    });
+    atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+
+        atom.notifications.addInfo('Building');
+
+        parent.build({ filePath: filePath }).then((resp) => {
+            buildView.setBuildOutput(resp.outputs);
+        });
+    });
+    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration',(e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        parent.getDefinitionsAtPosition({ filePath: filePath, position: atomUtils.getEditorPosition(editor) }).then(res=> {
+            var definitions = res.definitions;
+            if (!definitions || !definitions.length) return;
+
+            // Potential future ugly hack for something (atom or TS langauge service) path handling
+            // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
+
+            // TODO: support multiple implementations. For now we just go to first
+            var definition = definitions[0];
+
+            atom.open({
+                // The file open command line is 1 indexed
+                pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
+                newWindow: false
+            });
+        });
+    });
+}
