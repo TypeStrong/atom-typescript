@@ -1,14 +1,12 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
-///ts:import=messages
-import messages = require('./messages'); ///ts:import:generated
-///ts:import=projectService
-import projectService = require('../main/lang/projectService'); ///ts:import:generated
-
 import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
+
+///ts:import=messages
+import messages = require('./messages'); ///ts:import:generated
 
 var gotENOENTonSpawnNode = false;
 var child: childprocess.ChildProcess;
@@ -143,6 +141,9 @@ function showError(error?: Error) {
 }
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
+
+///ts:import=projectService
+import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
 export var echo = childQuery(projectService.echo);
 export var quickInfo = childQuery(projectService.quickInfo);
