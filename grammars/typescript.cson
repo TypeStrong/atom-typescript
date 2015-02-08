@@ -30,27 +30,16 @@
   }
   {
     'comment': 'Match stuff like: constructor'
-    'match': '\\b(constructor|declare|interface|as|AS|public|export)\\b'
+    'match': '\\b(constructor|declare|interface|as|AS)\\b'
     'name': 'keyword.operator.ts'
   }
   {
     'captures':
       '1':
-        'name': 'variable.type.ts'
+        'name': 'storage.type.variable.ts'
     'comment': 'Match stuff like: super(argument, list)'
-    'match': '(super)\\)'
+    'match': '(super)\\s*\\(([a-zA-Z0-9,_?.$\\s]+\\s*)\\)'
     'name': 'keyword.other.ts'
-  }
-  {
-    'captures':
-      '1':
-        'name': 'keyword.other.ts'
-      '2':
-        'name': 'storage.modifier.ts'
-      '3':
-        'name': 'entity.name.function.ts'
-    'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
   }
   {
     'captures':
@@ -63,16 +52,12 @@
   {
     'captures':
       '1':
-        'name': 'variable.type.ts'
-    'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
-    'match': ':(\\w+\\.?(?:\\w)+)'
-  }
-  {
-    'captures':
-      '1':
         'name': 'variable.parameter.function.ts'
-    'comment': "Matches all function parameters (but not the parameter's types)"
-    'match': '([\\w$]+(?=:[\\w.]+\\s*[\\[\\],\\)]))'
+      '2':
+        'name': 'variable.parameter.function.ts'
+    'comment': 'Match stuff like: (function: return type)'
+    'match': '([a-zA-Z0-9_?.$][\\w?.$]*)\\s*:\\s*([a-zA-Z0-9_?.$][\\w?.$]*)'
+    'name': 'meta.function.ts'
   }
   {
     'include': 'source.js'
