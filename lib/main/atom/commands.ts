@@ -4,6 +4,8 @@ import parent = require('../../worker/parent'); ///ts:import:generated
 import buildView = require('./buildView'); ///ts:import:generated
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
+///ts:import=autoCompleteProvider
+import autoCompleteProvider = require('./autoCompleteProvider'); ///ts:import:generated
 import path = require('path');
 
 // Utility functions for commands
@@ -77,6 +79,10 @@ export function registerCommands() {
 
     atom.commands.add('atom-text-editor', 'typescript:context-actions',(e) => {
         atom.notifications.addSuccess('Context options coming soon!');
-    
+
+    });
+
+    atom.commands.add('atom-text-editor', 'typescript:autocomplete',(e) => {
+        autoCompleteProvider.triggerAutocompletePlus();
     });
 }

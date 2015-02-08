@@ -145,7 +145,7 @@ export function activate(state: PackageState) {
     });
 
     // Registering an autocomplete provider
-    autoCompleteWatch = atom.services.provide('autocomplete.provider', '1.0.0', { provider: autoCompleteProvider });
+    autoCompleteWatch = atom.services.provide('autocomplete.provider', '1.0.0', { provider: autoCompleteProvider.provider });
 
     // Register the commands
     commands.registerCommands();

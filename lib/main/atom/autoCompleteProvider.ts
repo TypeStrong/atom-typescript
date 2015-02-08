@@ -44,7 +44,13 @@ function kindToColor(kind: string) {
     }
 }
 
-var provider = {
+export function triggerAutocompletePlus() {
+    atom.commands.dispatch(
+        atom.views.getView(atom.workspace.getActiveTextEditor()),
+        'autocomplete-plus:activate');
+}
+
+export var provider = {
     selector: '.source.ts',
     requestHandler: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
         var filePath = options.editor.getPath();
@@ -79,5 +85,3 @@ var provider = {
         return promisedSuggestions;
     }
 }
-
-export = provider;
