@@ -10,7 +10,14 @@ An auto updating version of `atom`. Other atom packages we depend upon are insta
 1. Install Atom
 1. `apm install typescript`
 
-**Note**: For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))  
+**Note**: For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))
+
+## Reviews
+"I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)
+
+"And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)
+
+[Add yours!](https://github.com/TypeStrong/atom-typescript/issues/66)
 
 # Features
 ## Auto Complete
