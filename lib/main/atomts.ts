@@ -31,6 +31,10 @@ export interface PackageState {
 
 import parent = require('../worker/parent');
 
+// Export config
+import atomConfig = require('./atom/atomConfig');
+export var config = atomConfig.schema;
+
 export function activate(state: PackageState) {
 
     // Don't activate if we have a dependency that isn't available
@@ -121,9 +125,12 @@ export function activate(state: PackageState) {
                     onDisk = true;
 
                     // TODO: store by file path
-                    parent.updateText({ filePath: filePath, text: editor.getText() })
-                        .then(() => parent.emitFile({ filePath }))
-                        .then((res) => errorView.showEmittedMessage(res));
+                    var textUpdated = parent.updateText({ filePath: filePath, text: editor.getText() });
+
+                    if (atomConfig.compileOnSave) {
+                        textUpdated.then(() => parent.emitFile({ filePath }))
+                            .then((res) => errorView.showEmittedMessage(res));
+                    }
                 });
 
                 // Observe editors closing
