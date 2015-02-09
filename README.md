@@ -11,8 +11,6 @@ An auto updating version of `atom`. Other atom packages we depend upon are insta
 1. `apm install typescript`
 
 **Note**: For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50)).  
-For dependencies to install correctly, you will also need `git` in your path.
-
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)
 <br/>
@@ -22,7 +20,7 @@ For dependencies to install correctly, you will also need `git` in your path.
 
 # Features
 ## Auto Complete
-Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
+Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` (or `enter`) to make a selection.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
 
