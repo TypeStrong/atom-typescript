@@ -14,14 +14,14 @@ An auto updating version of `atom`. Other atom packages we depend upon are insta
 
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)
-
+<br/>
 "And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)
-
-[Add yours!](https://github.com/TypeStrong/atom-typescript/issues/66)
+<br/>
+[*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
 # Features
 ## Auto Complete
-Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+shift+space` or `cmd+shift+space`. Press `tab` to make a selection. [You can also customize these](https://github.com/atom-community/autocomplete-plus#usage).
+Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
 
