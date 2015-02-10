@@ -7,7 +7,7 @@
 'patterns': [
   {
     'comment': 'Match stuff like: module name {...}'
-    'match': '\\b(module)\\s*(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
+    'match': '\\b(module)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
     'name': 'meta.function.ts'
     'captures':
       '1':
@@ -43,7 +43,7 @@
   }
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('    
+    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
     'captures':
       '1':
         'name': 'keyword.other.ts'
