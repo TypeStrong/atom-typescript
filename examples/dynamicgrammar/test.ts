@@ -11,3 +11,12 @@ interface IAwesome<T> {
     awesome: T;
 }
 var bas: IAwesome<any>;
+
+// awesome comment
+/*
+    in
+    many
+    lines
+*/
+
+console.log(foo);

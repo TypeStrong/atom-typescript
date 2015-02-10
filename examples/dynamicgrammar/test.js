@@ -10,3 +10,4 @@ var Awesome = (function () {
 })();
 var bar;
 var bas;
+console.log(foo);
