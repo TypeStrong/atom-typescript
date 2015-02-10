@@ -20,6 +20,7 @@
         "./main/atom/buildView.ts",
         "./main/atom/commands.ts",
         "./main/atom/errorView.ts",
+        "./main/atom/onSaveHandler.ts",
         "./main/atom/signatureProvider.ts",
         "./main/atom/tooltipManager.ts",
         "./main/atomts.ts",

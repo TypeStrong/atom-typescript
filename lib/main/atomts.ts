@@ -19,6 +19,8 @@ import signatureProvider = require('./atom/signatureProvider'); ///ts:import:gen
 import atomUtils = require('./atom/atomUtils'); ///ts:import:generated
 ///ts:import=commands
 import commands = require('./atom/commands'); ///ts:import:generated
+///ts:import=onSaveHandler
+import onSaveHandler = require('./atom/onSaveHandler'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -123,14 +125,9 @@ export function activate(state: PackageState) {
                 // Observe editors saving
                 var saveObserver = editor.onDidSave((event) => {
                     onDisk = true;
-
-                    // TODO: store by file path
-                    var textUpdated = parent.updateText({ filePath: filePath, text: editor.getText() });
-
-                    if (atomConfig.compileOnSave) {
-                        textUpdated.then(() => parent.emitFile({ filePath }))
-                            .then((res) => errorView.showEmittedMessage(res));
-                    }
+                    // If this is a saveAs event.path will be different so we should change it
+                    filePath = event.path;
+                    onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
 
                 // Observe editors closing
