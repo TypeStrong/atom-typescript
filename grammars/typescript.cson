@@ -43,8 +43,7 @@
   }
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
-    'name': 'keyword.other.ts'
+    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('    
     'captures':
       '1':
         'name': 'keyword.other.ts'

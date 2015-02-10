@@ -1,12 +1,17 @@
 // Function
 module func {
     function foo() { }
-    function bar(a: number, b:string) { }
+    function bar(a: number, b: string) { }
 }
 
 // interface
-interface Awesome{
+interface Awesome {
     foo: string;
     bar: any;
     bas: Awesome;
+}
+
+// class
+class Foo {
+    get awesome() { return true; }
 }
