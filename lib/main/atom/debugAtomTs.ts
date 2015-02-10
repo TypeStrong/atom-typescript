@@ -11,7 +11,7 @@ export function runDebugCode(details: { filePath: string; editor: AtomCore.IEdit
 
     console.log(details);
 
-    var textForTest = 'var foo = 123;';
+    var textForTest = details.editor.getText();
 
     //////////// Code for the built in grammar
     var grammar = (<any>atom).grammars.grammarForScopeName('source.ts'); // https://atom.io/docs/api/v0.177.0/Grammar
@@ -20,35 +20,30 @@ export function runDebugCode(details: { filePath: string; editor: AtomCore.IEdit
 
 
     var classifier: ts.Classifier = ts.createClassifier({ log: () => undefined });
-
     var classificationResult = classifier.getClassificationsForLine(textForTest, ts.EndOfLineState.Start).entries;
-
-    classificationResult.map((info) => {
-        console.log(info.classification, getStyleForToken(info));
+    var totalLength = 0;
+    classificationResult.forEach((info) => {
+        var str = textForTest.substr(totalLength, info.length);
+        console.log(info, getStyleForToken(info, ''), str);
+        totalLength = totalLength + info.length;
     });
 
 }
 
-function getStyleForToken(token: ts.ClassificationInfo): string {
+// https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
+type Token  = {
+    string: string;
+    classification: ts.TokenClass;
+    length: number;
+    position: number;
+}
+
+function getStyleForToken(token: ts.ClassificationInfo, str: string): string {
     switch (token.classification) {
-        case ts.TokenClass.NumberLiteral:
-            return 'number';
-        case TokenClass.StringLiteral:
-            return 'string';
-        case TokenClass.RegExpLiteral:
-            return 'string-2';
-        case TokenClass.Operator:
-            return 'operator';
-        case TokenClass.Comment:
-            return 'comment';
-        /*case TokenClass.Keyword:
-            switch (token.string) {
-                case 'string':
-                case 'number':
-                case 'void':
-                case 'bool':
-                case 'boolean':
-                    return 'variable-2';
+        case TokenClass.Punctuation:
+            return 'punctuation';
+        case TokenClass.Keyword:
+            switch (str) {
                 case 'static':
                 case 'public':
                 case 'private':
@@ -60,22 +55,30 @@ function getStyleForToken(token: ts.ClassificationInfo): string {
                 case 'function':
                 case 'module':
                 case 'var':
-                    return 'def';
+                    return 'definition';
+                case 'string':
+                case 'number':
+                case 'void':
+                case 'boolean':
+                    return 'keyword';
                 default:
                     return 'keyword';
             }
-
-        case TokenClass.Identifier:
-            // Show types (indentifiers in PascalCase) as variable-2, other types (camelCase) as variable
-            if (token.string.charAt(0).toLowerCase() !== token.string.charAt(0)) {
-                return 'variable-2';
-            } else {
-                return 'variable';
-            }*/
-        case TokenClass.Punctuation:
-            return 'bracket';
+        case TokenClass.Operator:
+            return 'operator';
+        case TokenClass.Comment:
+            return 'comment';
         case TokenClass.Whitespace:
+            return '';
+        case TokenClass.Identifier:
+            return 'identifier';
+        case TokenClass.NumberLiteral:
+            return 'number';
+        case TokenClass.StringLiteral:
+            return 'string';
+        case TokenClass.RegExpLiteral:
+            return 'regexp';
         default:
-            return null;
+            return null; // This should not happen
     }
 }
