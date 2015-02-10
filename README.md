@@ -4,20 +4,17 @@
 
 JavaScript developers can now just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
-## Requirements
-An auto updating version of `atom`. Other atom packages we depend upon are installed automatically.
+## Installation
 
-1. Install Atom
-1. `apm install typescript`
+1. Install Atom (it updates automatically :heart:)
+1. `apm install typescript` (you need to have `git` in your path for `apm` to work)
+1. For windows you need `node` in your path  ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))
 
-**Additional Notes**: You should have `git` in your path. For windows you also need `node` in your path ([reason](https://github.com/TypeStrong/atom-typescript/issues/50)).
-
+**Additional Notes**: Other atom packages we depend upon are installed automatically on first load.  
 
 ## Reviews
-"I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)
-<br/>
-"And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)
-<br/>
+"I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
+"And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)  
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
 # Features
