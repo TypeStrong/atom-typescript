@@ -6,8 +6,8 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 ## Installation
 
-1. Install Atom (it updates automatically :heart:)
-1. `apm install typescript` (you need to have `git` in your path for `apm` to work)
+1. Install [atom](https://atom.io).
+1. `apm install typescript` (`apm` needs `git` in your path)
 1. For windows you need `node` in your path  ([reason](https://github.com/TypeStrong/atom-typescript/issues/50))
 
 **Additional Notes**: Other atom packages we depend upon are installed automatically on first load.  
