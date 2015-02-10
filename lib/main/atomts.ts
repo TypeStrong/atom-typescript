@@ -23,6 +23,8 @@ import commands = require('./atom/commands'); ///ts:import:generated
 import onSaveHandler = require('./atom/onSaveHandler'); ///ts:import:generated
 ///ts:import=debugAtomTs
 import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
+///ts:import=typescriptGrammar
+import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -54,6 +56,9 @@ export function activate(state: PackageState) {
 
     // Start a ts worker
     parent.startWorker();
+
+    // Load our custom code based grammar
+    (<any>atom).syntax.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar(atom.syntax));
 
     // Streaming tests
     /*for (var i = 0; i < 10000; i++) {

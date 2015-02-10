@@ -20,3 +20,12 @@ var bas: IAwesome<any>;
 */
 
 console.log(foo);
+
+var multiline: any = `
+this is a multiline string
+`;
+multiline = "single line";
+
+function thisIsAFunction() {
+
+}

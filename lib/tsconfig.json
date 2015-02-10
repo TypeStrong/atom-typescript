@@ -24,6 +24,7 @@
         "./main/atom/onSaveHandler.ts",
         "./main/atom/signatureProvider.ts",
         "./main/atom/tooltipManager.ts",
+        "./main/atom/typescriptGrammar.ts",
         "./main/atomts.ts",
         "./main/lang/languageServiceHost.ts",
         "./main/lang/project.ts",

@@ -11,3 +11,7 @@ var Awesome = (function () {
 var bar;
 var bas;
 console.log(foo);
+var multiline = "\nthis is a multiline string\n";
+multiline = "single line";
+function thisIsAFunction() {
+}
