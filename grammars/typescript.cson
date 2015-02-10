@@ -6,14 +6,15 @@
 'name': 'TypeScript'
 'patterns': [
   {
+    'comment': 'Match stuff like: module name {...}'
+    'match': '\\b(module)\\s*(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
+    'name': 'meta.function.ts'
     'captures':
       '1':
         'name': 'keyword.operator.ts'
       '2':
         'name': 'variable.parameter.function.ts'
-    'comment': 'Match stuff like: module name {...}'
-    'match': '\\b(module)\\s*(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
-    'name': 'meta.function.ts'
+
   }
   {
     'comment': 'Match variable type keywords'
@@ -21,12 +22,11 @@
     'name': 'storage.type.variable.ts'
   }
   {
+    'comment': 'Match this.'
+    'match': '\\b(this)\\.'
     'captures':
       '1':
         'name': 'storage.type.variable.ts'
-    'comment': 'Match this.'
-    'match': '\\b(this)\\.'
-    'name': ''
   }
   {
     'comment': 'Match stuff like: constructor'
@@ -34,14 +34,17 @@
     'name': 'keyword.operator.ts'
   }
   {
-    'captures':
-      '1':
-        'name': 'variable.type.ts'
     'comment': 'Match stuff like: super(argument, list)'
     'match': '(super)\\)'
     'name': 'keyword.other.ts'
+    'captures':
+      '1':
+        'name': 'variable.type.ts'
   }
   {
+    'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
+    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
+    'name': 'keyword.other.ts'
     'captures':
       '1':
         'name': 'keyword.other.ts'
@@ -49,30 +52,28 @@
         'name': 'storage.modifier.ts'
       '3':
         'name': 'entity.name.function.ts'
-    'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
   }
   {
-    'captures':
-      '1':
-        'name': 'entity.name.function.ts'
     'comment': 'Match stuff like: function() {...}'
     'match': '([a-zA-Z_?.$][\\w?.$]*)\\(\\) \\{'
     'name': 'meta.function.ts'
+    'captures':
+      '1':
+        'name': 'entity.name.function.ts'
   }
   {
+    'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
+    'match': ':(\\w+\\.?(?:\\w)+)'
     'captures':
       '1':
         'name': 'variable.type.ts'
-    'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
-    'match': ':(\\w+\\.?(?:\\w)+)'
   }
   {
+    'comment': "Matches all function parameters (but not the parameter's types)"
+    'match': '([\\w$]+(?=:[\\w.]+\\s*[\\[\\],\\)]))'
     'captures':
       '1':
         'name': 'variable.parameter.function.ts'
-    'comment': "Matches all function parameters (but not the parameter's types)"
-    'match': '([\\w$]+(?=:[\\w.]+\\s*[\\[\\],\\)]))'
   }
   {
     'include': 'source.js'
