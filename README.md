@@ -66,7 +66,3 @@ Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/mas
 
 ## Changelog
 Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/docs/CHANGELOG.md).
-
-# Previous Work
-* The TypeScript language package : https://github.com/olegbl/language-typescript
-* TypeScript brackets support : https://github.com/fdecampredon/brackets-typescript
