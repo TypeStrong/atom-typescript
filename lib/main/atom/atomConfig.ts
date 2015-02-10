@@ -17,9 +17,15 @@ class Config {
             title: 'Compile on save',
             type: 'boolean',
             default: true
+        },
+        debugAtomTs:{
+            title: 'Debug: Atom-TypeScript. Please do not use.',
+            type: 'boolean',
+            default: false
         }
     }
     get compileOnSave() { return getConfig<boolean>('compileOnSave') }
+    get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
 }
 var config = new Config();
 export = config;

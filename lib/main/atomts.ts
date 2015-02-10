@@ -21,6 +21,8 @@ import atomUtils = require('./atom/atomUtils'); ///ts:import:generated
 import commands = require('./atom/commands'); ///ts:import:generated
 ///ts:import=onSaveHandler
 import onSaveHandler = require('./atom/onSaveHandler'); ///ts:import:generated
+///ts:import=debugAtomTs
+import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 
 // globals
 var statusBar;
@@ -90,6 +92,7 @@ export function activate(state: PackageState) {
 
                 // Setup the error reporter:
                 errorView.start();
+                debugAtomTs.runDebugCode({ filePath, editor });
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {

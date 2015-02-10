@@ -10,10 +10,10 @@ import parent = require('../../worker/parent'); ///ts:import:generated
 ///ts:import=errorView
 import errorView = require('./errorView'); ///ts:import:generated
 
+///ts:import=debugAtomTs
+import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated
+
 export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
-
-    // TODO: Review if it is "saveAs" and what impact it might have
-
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
 
     if (atomConfig.compileOnSave) {
