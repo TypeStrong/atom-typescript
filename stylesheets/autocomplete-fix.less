@@ -5,12 +5,4 @@ atom-text-editor[data-grammar~=ts]{
     autocomplete-suggestion-list.select-list.popover-list ol.list-group li {
         color: rgba(230, 230, 230, 0.9);
     }
-
-    // Move linter behind auto complete
-    // See https://github.com/TypeStrong/atom-typescript/issues/54
-    // I find that autocomplete shows *before* linter (because the linter is debounced) so autocomplete is openfully the `first` thing you have
-    // So just bump the z-index (the default is 4)
-    atom-overlay:first-of-type{
-        z-index: 5;
-    }
 }
