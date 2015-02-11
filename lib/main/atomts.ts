@@ -81,12 +81,20 @@ export function activate(state: PackageState) {
         tooltipManager.attach(editorView);
     });
 
+    // Observe changed active editor
+    atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
+        if (atomUtils.onDiskAndTs(editor)) {
+            var filePath = editor.getPath();
+            parent.errorsForFile({ filePath: filePath })
+                .then((resp) => errorView.setErrors(filePath, resp.errors));
+        }
+    });
+
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
         var filePath = editor.getPath();
-        var filename = path.basename(filePath);
-        var ext = path.extname(filename);
+        var ext = path.extname(filePath);
         if (ext == '.ts') {
             try {
                 // We only do analysis once the file is persisted to disk

@@ -923,6 +923,8 @@ declare module AtomCore {
 		itemOpened(item:any):void;
 		onPaneItemDestroyed(item:any):void;
 		destroyed():void;
+		
+		onDidChangeActivePaneItem(item:any):Disposable;
 	}
 
 	interface IAtomSettings {

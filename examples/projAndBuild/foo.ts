@@ -1,2 +1,1 @@
-var foo = 123;
-export = foo;
+export var something = 123;
