@@ -2,6 +2,7 @@
   "indent": 2,
   "node": true,
   "predef": {
-		"atom": true
+		"atom": true,
+    "document": true
 	}
 }

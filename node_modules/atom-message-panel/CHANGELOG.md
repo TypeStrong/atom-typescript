@@ -1,4 +1,15 @@
 
+1.2.0 / 2015-02-10
+==================
+
+  * adding option to add messages at the top instead of bottom
+  * adding the option to set another max-height at startup
+  * adding resize ability
+  * adding position option
+  * Make the heading toggle the panel. Closes #57
+  * adding contributors
+  * add option to autoScroll
+
 1.1.4 / 2014-12-18
 ==================
 
