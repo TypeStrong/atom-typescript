@@ -58,7 +58,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             finalLexState = ruleStack[0];
         }
 
-        var output = this.classifier.getClassificationsForLine(line, finalLexState);
+        var output = this.classifier.getClassificationsForLine(line, finalLexState, true);
         ruleStack = [output.finalLexState];
 
         var classificationResults = output.entries;
