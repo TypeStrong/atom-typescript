@@ -46,7 +46,6 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
     classifier: ts.Classifier = ts.createClassifier({ log: () => undefined });
 
-    /// TODO: collapse whitespace + make state persistent using stack
     getAtomTokensForLine(line: string, ruleStack: any[], firstLine: boolean): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
 
         // use finalLexState
@@ -66,7 +65,6 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // TypeScript classifier returns empty for "". But Atom wants to have some Token
         if (!classificationResults.length) return { tokens: [this.registry.createToken("", ["source.ts"])], ruleStack: ruleStack };
 
-        // TODO: collapse Whitespace
         var totalLength = 0;
         var tokens = classificationResults.map((info) => {
             var tokenStartPosition = totalLength;
