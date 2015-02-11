@@ -30,7 +30,7 @@ We make this code `async`(and promise based) by:
 ### Additional Notes:
 * `childQuery` takes the signature of the `sync` function from `projectService` of the form `Query->Response` and automatically creates an `async` function of the form `Query->Promise<Response>`. The function body from `projectService` is not used, just the function *name* and the *type information* is.
 * We automatically add all functions exported from `projectService` in the list of functions that the child uses to respond to by name. ([see code in `child.ts`](https://github.com/TypeStrong/atom-typescript/blob/b0a862cf209d18982875d5c38e3a655594316e9a/lib/worker/child.ts#L48-L51)). Here we are not concerned with the *type information*. Instead we will actively *call the function* added to responders by *name*.
-* We spawn a separate `atom` (or `node` on windows) instance and use `ipc` ([see code in `parent.ts`](https://github.com/TypeStrong/atom-typescript/blob/b0a862cf209d18982875d5c38e3a655594316e9a/lib/worker/parent.ts#L4-L141)).
+* We spawn a separate `atom` (or `node` on windows) instance and use `ipc` ([see code in `parent.ts`](https://github.com/TypeStrong/atom-typescript/blob/b0a862cf209d18982875d5c38e3a655594316e9a/lib/worker/parent.ts#L4-L141)). Also [reason for not using WebWorkers](https://github.com/atom/atom-shell/issues/797).
 
 Advantage: you only need to define the query/response interface once (in `projectService.ts`) and write it in a testable `sync` manner. The parent code is never out of sync from the function definition (thanks to `childQuery`). Adding new functions is done is a typesafe way as you would write any other sync function + additionally using only one additional line of code in `parent.ts` (`childQuery`).
 
