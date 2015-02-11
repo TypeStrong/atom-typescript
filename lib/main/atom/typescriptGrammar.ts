@@ -55,11 +55,11 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             ruleStack = [];
         }
         else {
-            finalLexState = ruleStack.pop();
+            finalLexState = ruleStack[0];
         }
 
         var output = this.classifier.getClassificationsForLine(line, finalLexState);
-        ruleStack.push(output.finalLexState);
+        ruleStack = [output.finalLexState];
 
         var classificationResults = output.entries;
 
