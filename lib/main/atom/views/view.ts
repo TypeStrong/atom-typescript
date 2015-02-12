@@ -7,6 +7,10 @@ export class View extends atom.View {
     get $(): JQuery {
         return <any>this;
     }
+
+    static content() {
+        throw new Error('Must override the base View static content member');
+    }
 }
 
 export var $: JQueryStatic = atom.$;
