@@ -19,7 +19,7 @@ export function getEditorPositionForBufferPosition(editor: AtomCore.IEditor, buf
 }
 
 export function onDiskAndTs(editor: AtomCore.IEditor) {
-    if (editor && editor.getPath && typeof editor.getPath == "function") {
+    if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
         if (ext == '.ts') {
