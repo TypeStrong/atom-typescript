@@ -11,7 +11,8 @@ import fs = require('fs');
 import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
-import TooltipView = require('views/tooltip');
+import tooltipView = require('./views/tooltipView');
+import TooltipView = tooltipView.TooltipView;
 
 export function attach(editorView: any) {
     // Only on ".ts" files
@@ -93,7 +94,7 @@ export function attach(editorView: any) {
     }
     function hideExpressionType() {
         if (!exprTypeTooltip) return;
-        exprTypeTooltip.remove();
+        exprTypeTooltip.$.remove();
         exprTypeTooltip = null;
     }
 }
