@@ -38,14 +38,14 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    formatting?: ts.FormatCodeOptions;                  // optional: formatting options
+    format?: formatting.FormatCodeOptions;                  // optional: formatting options
 }
 
 // Main configuration
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
-    formatting: ts.FormatCodeOptions;
+    format: ts.FormatCodeOptions;
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -73,6 +73,7 @@ import path = require('path');
 import expand = require('glob-expand');
 import ts = require('typescript');
 import os = require('os');
+import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
 
@@ -85,21 +86,6 @@ export var defaults: ts.CompilerOptions = {
     noImplicitAny: false,
     removeComments: true,
     noLib: false
-};
-
-export var defaultFormatCodeOptions: ts.FormatCodeOptions = {
-    IndentSize: 4,
-    TabSize: 4,
-    NewLineCharacter: os.EOL,
-    ConvertTabsToSpaces: true,
-    InsertSpaceAfterCommaDelimiter: true,
-    InsertSpaceAfterSemicolonInForStatements: true,
-    InsertSpaceBeforeAndAfterBinaryOperators: true,
-    InsertSpaceAfterKeywordsInControlFlowStatements: true,
-    InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
-    InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
-    PlaceOpenBraceOnNewLineForFunctions: false,
-    PlaceOpenBraceOnNewLineForControlBlocks: false,
 };
 
 // TODO: add validation and add all options
@@ -212,7 +198,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
                 project: {
                     compilerOptions: defaults,
                     files: [pathOrSrcFile],
-                    formatting: defaultFormatCodeOptions
+                    format: formatting.defaultFormatCodeOptions()
                 },
             }
         }
@@ -264,7 +250,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files,
-        formatting: defaultFormatCodeOptions
+        format: formatting.makeFormatCodeOptions(projectSpec.format),
     };
 
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);

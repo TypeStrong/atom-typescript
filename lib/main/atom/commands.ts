@@ -29,8 +29,11 @@ export function registerCommands() {
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
+            var currentText = editor.getText();
             var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } })
                 .then((result) => {
+                if (result.formatted == currentText) return;
+
                 var top = editor.getScrollTop();
                 editor.setText(result.formatted);
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);

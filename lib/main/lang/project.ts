@@ -75,7 +75,7 @@ export class Project {
     }
 
     formatDocument(filePath: string, cursor: languageServiceHost.Position): { formatted: string; cursor: languageServiceHost.Position } {
-        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.formatting);
+        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.format);
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
 
         // Get new cursor based on new content
@@ -88,7 +88,7 @@ export class Project {
     formatDocumentRange(filePath: string, start: languageServiceHost.Position, end: languageServiceHost.Position): string {
         var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
         var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
-        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.formatting);
+        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.format);
 
         // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
         textChanges.forEach((change) => change.span = new ts.TextSpan(change.span.start() - st, change.span.length()));
