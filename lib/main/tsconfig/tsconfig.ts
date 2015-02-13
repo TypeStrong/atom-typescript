@@ -61,7 +61,8 @@ export interface TypeScriptProjectFileDetails {
 export var errors = {
     GET_PROJECT_INVALID_PATH: 'Invalid Path',
     GET_PROJECT_NO_PROJECT_FOUND: 'No Project Found',
-    GET_PROJECT_INVALID_PROJECT_FILE: 'Failed to open / parse the project file',
+    GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE: 'Failed to fs.readFileSync the project file',
+    GET_PROJECT_JSON_PARSE_FAILED: 'Failed to JSON.parse the project file',
 
     CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
@@ -224,10 +225,16 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var projectFileDirectory = path.dirname(projectFile) + path.sep;
 
     // We now have a valid projectFile. Parse it:
+    var projectSpec: TypeScriptProjectRawSpecification;
     try {
-        var projectSpec: TypeScriptProjectRawSpecification = JSON.parse(fs.readFileSync(projectFile, 'utf8'));
+        var projectFileTextContent = fs.readFileSync(projectFile, 'utf8');
     } catch (ex) {
-        throw new Error(errors.GET_PROJECT_INVALID_PROJECT_FILE);
+        throw new Error(errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
+    }
+    try {
+        projectSpec = JSON.parse(projectFileTextContent);
+    } catch (ex) {
+        throw new Error(errors.GET_PROJECT_JSON_PARSE_FAILED);
     }
 
     // Setup default project options

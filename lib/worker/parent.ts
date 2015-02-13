@@ -7,6 +7,8 @@ var spawn = childprocess.spawn;
 
 ///ts:import=messages
 import messages = require('./messages'); ///ts:import:generated
+import tsconfig = require('../main/tsconfig/tsconfig');
+
 
 var gotENOENTonSpawnNode = false;
 var child: childprocess.ChildProcess;
@@ -57,7 +59,7 @@ export function startWorker() {
 
 
         child.stderr.on('data',(err) => {
-            console.log("CHILD ERR:", err.toString());
+            console.log("CHILD ERR:", err.toString());            
         });
         child.on('close',(code) => {
             // Handle process dropping

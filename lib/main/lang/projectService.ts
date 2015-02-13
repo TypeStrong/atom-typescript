@@ -27,11 +27,11 @@ function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails
         return projectFile;
     } catch (ex) {
         var err: Error = ex;
-        if (err.message === tsconfig.errors.GET_PROJECT_INVALID_PROJECT_FILE) {
-            throw ex;
+        if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
+            return tsconfig.createProjectRootSync(filePath);
         }
         else {
-            return tsconfig.createProjectRootSync(filePath);
+            throw ex;
         }
     }
 }
