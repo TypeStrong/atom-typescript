@@ -1,7 +1,8 @@
 # `tsconfig.json`
 A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.4` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval](https://github.com/Microsoft/TypeScript/issues/1955):
 
-* `filesGlob`: To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
+* [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
+* [`format`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob) : Code formatting options
 
 
 ## Examples
@@ -32,5 +33,26 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
         "./worker/messages.ts",
         "./worker/parent.ts"
     ]
+}
+```
+# format
+We pass these to the TypeScript language service as code formatting options.
+
+```json
+{
+    "format": {
+        "indentSize": 4,
+        "tabSize": 4,
+        "newLineCharacter": "\r\n",
+        "convertTabsToSpaces": true,
+        "insertSpaceAfterCommaDelimiter": true,
+        "insertSpaceAfterSemicolonInForStatements": true,
+        "insertSpaceBeforeAndAfterBinaryOperators": true,
+        "insertSpaceAfterKeywordsInControlFlowStatements": true,
+        "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+        "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+        "placeOpenBraceOnNewLineForFunctions": false,
+        "placeOpenBraceOnNewLineForControlBlocks": false
+    }
 }
 ```
