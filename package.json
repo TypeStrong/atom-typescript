@@ -9,6 +9,13 @@
   },
   "linter-package": true,
   "linter-implementation": "linter",
+  "providedServices": {
+      "autocomplete.provider": {
+          "versions":{
+              "1.1.0": "provide"
+          }
+      }
+  },
   "homepage": "http://atom.io/packages/typescript",
   "repository": {
     "type": "git",

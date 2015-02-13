@@ -169,9 +169,6 @@ export function activate(state: PackageState) {
         }
     });
 
-    // Registering an autocomplete provider
-    autoCompleteWatch = atom.services.provide('autocomplete.provider', '1.0.0', { provider: autoCompleteProvider.provider });
-
     // Register the commands
     commands.registerCommands();
 }
@@ -190,4 +187,9 @@ export function serialize(): PackageState {
 
 export function deserialize() {
     /* do any tear down here */
+}
+
+// Registering an autocomplete provider
+export function provide() {
+    return { providers: [autoCompleteProvider.provider] };
 }
