@@ -1,5 +1,5 @@
 # `tsconfig.json`
-A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.4` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval](https://github.com/Microsoft/TypeScript/issues/1955):
+A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.4` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval to extend the file as long as we don't conflict](https://github.com/Microsoft/TypeScript/issues/1955):
 
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 * [`format`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#format) : Code formatting options
