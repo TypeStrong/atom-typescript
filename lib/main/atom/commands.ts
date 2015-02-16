@@ -65,7 +65,10 @@ export function registerCommands() {
         var filePath = editor.getPath();
         parent.getDefinitionsAtPosition({ filePath: filePath, position: atomUtils.getEditorPosition(editor) }).then(res=> {
             var definitions = res.definitions;
-            if (!definitions || !definitions.length) return;
+            if (!definitions || !definitions.length) {
+                atom.notifications.addInfo('AtomTS: No definition found.');
+                return;
+            }
 
             // Potential future ugly hack for something (atom or TS langauge service) path handling
             // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
