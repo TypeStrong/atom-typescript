@@ -52,6 +52,7 @@ export interface TypeScriptProjectSpecification {
 
 export interface TypeScriptProjectFileDetails {
     projectFileDirectory: string; // The path to the project file. This acts as the baseDIR
+    projectFilePath: string;
     project: TypeScriptProjectSpecification;
 }
 
@@ -196,6 +197,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
             return {
                 projectFileDirectory: dir,
+                projectFilePath: dir + '/' + projectFileName,
                 project: {
                     compilerOptions: defaults,
                     files: [pathOrSrcFile],
@@ -271,6 +273,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     return {
         projectFileDirectory: projectFileDirectory,
+        projectFilePath: projectFileDirectory + '/' + projectFileName,
         project: project
     };
 
