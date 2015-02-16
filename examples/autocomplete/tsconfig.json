@@ -12,6 +12,7 @@
         "!node_modules/**/*.ts"
     ],
     "files": [
+        "./simpleType.ts",
         "./test.ts"
     ]
 }
