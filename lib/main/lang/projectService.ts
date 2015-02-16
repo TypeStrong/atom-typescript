@@ -18,17 +18,39 @@ import languageServiceHost = require('./languageServiceHost');
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
+var chokidar = require('chokidar');
+var watchingProjectFile: { [projectFilePath: string]: Project } = {}
+function watchProjectFile(projectFile: tsconfig.TypeScriptProjectFileDetails) {
+    if (watchingProjectFile[projectFile.projectFilePath]) return; // Only watch once
+
+    var watcher = chokidar.watch(projectFile.projectFilePath, { ignoreInitial: true, persistent: true });
+    watchingProjectFile[projectFile.projectFilePath] = watcher;
+
+    function clear(datPathYo) {
+        // TODO : Invalidate only matching caches for projectFilePath
+        // Right now: Just invalidate *all*
+        projectByProjectPath = {};
+        projectByFilePath = {};
+    }
+
+    watcher.on('change', clear)
+        .on('unlink', clear);
+}
+
 var projectByProjectPath: { [projectDir: string]: Project } = {}
 var projectByFilePath: { [filePath: string]: Project } = {}
 
 function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
+        watchProjectFile(projectFile);
         return projectFile;
     } catch (ex) {
         var err: Error = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
-            return tsconfig.createProjectRootSync(filePath);
+            var projectFile = tsconfig.createProjectRootSync(filePath);
+            watchProjectFile(projectFile);
+            return projectFile;
         }
         else {
             throw ex;
@@ -48,9 +70,9 @@ function getOrCreateProject(filePath) {
             // we just need to update for this file
             return projectByFilePath[filePath] = projectByProjectPath[projectFile.projectFileDirectory];
         } else {
-            var program = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
-            projectFile.project.files.forEach((file) => projectByFilePath[file] = program);
-            return program;
+            var project = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
+            projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
+            return project;
         }
     }
 }
