@@ -124,7 +124,9 @@ export interface Completion {
 }
 export interface GetCompletionsAtPositionResponse {
     completions: Completion[];
+    endsInPunctuation: boolean;
 }
+var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>']);
 /** gets the first 10 completions only */
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
@@ -133,8 +135,10 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
+    var endsInPunctuation = prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]
 
-    if (prefix.length && prefix !== '.') {
+    if (prefix.length && !endsInPunctuation) {
+        // Didn't work good for punctuation
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
 
@@ -165,7 +169,8 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
                 comment: details.comment,
                 display: details.display
             };
-        })
+        }),
+        endsInPunctuation: endsInPunctuation
     };
 }
 

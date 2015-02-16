@@ -74,7 +74,7 @@ export var provider = {
                 var suggestions = completionList.map(c => {
                     return {
                         word: c.name,
-                        prefix: options.prefix == '.' ? '' : options.prefix,
+                        prefix: resp.endsInPunctuation ? '' : options.prefix,
                         label: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
                         renderLabelAsHtml: true,
                     };
