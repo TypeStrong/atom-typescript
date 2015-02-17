@@ -1,0 +1,15 @@
+{
+  "name": "multipleCompileTargets",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server ./src/client/clientApp.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^1.5.3",
+    "webpack-dev-server": "^1.7.0"
+  }
+}

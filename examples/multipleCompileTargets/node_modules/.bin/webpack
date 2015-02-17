@@ -1,0 +1,15 @@
+#!/bin/sh
+basedir=`dirname "$0"`
+
+case `uname` in
+    *CYGWIN*) basedir=`cygpath -w "$basedir"`;;
+esac
+
+if [ -x "$basedir/node" ]; then
+  "$basedir/node"  "$basedir/../webpack/bin/webpack.js" "$@"
+  ret=$?
+else 
+  node  "$basedir/../webpack/bin/webpack.js" "$@"
+  ret=$?
+fi
+exit $ret
