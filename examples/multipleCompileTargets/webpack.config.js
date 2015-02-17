@@ -1,9 +1,9 @@
 module.exports = {
     entry: {
-        app: ['./src/client/clientApp.js']
+        app: ['./src/client/js/clientApp.js']
     },
     output: {
         path: './src/client',
-        filename: 'bundle.js'
+        filename: 'js/bundle.js'
     }
 };
