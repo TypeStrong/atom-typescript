@@ -18,7 +18,7 @@ class Config {
             type: 'boolean',
             default: true
         },
-        debugAtomTs:{
+        debugAtomTs: {
             title: 'Debug: Atom-TypeScript. Please do not use.',
             type: 'boolean',
             default: false
@@ -26,6 +26,7 @@ class Config {
     }
     get compileOnSave() { return getConfig<boolean>('compileOnSave') }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
+    get maxSuggestions(): number { return atom.config.get('autocomplete-plus.maxSuggestions') }
 }
 var config = new Config();
 export = config;

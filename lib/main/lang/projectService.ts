@@ -137,6 +137,7 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Errors
 export interface GetCompletionsAtPositionQuery extends FilePathQuery {
     position: number;
     prefix: string;
+    maxSuggestions: number;
 }
 export interface Completion {
     name: string; // stuff like "toString"
@@ -164,8 +165,8 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
 
-    // limit to 10
-    if (completionList.length > 10) completionList = completionList.slice(0, 10);
+    // limit to maxSuggestions
+    if (completionList.length > query.maxSuggestions) completionList = completionList.slice(0, query.maxSuggestions);
 
     // Potentially use it more aggresively at some point
     function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {

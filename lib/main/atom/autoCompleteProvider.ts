@@ -5,6 +5,8 @@
 
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
+///ts:import=atomConfig
+import atomConfig = require('./atomConfig'); ///ts:import:generated
 import ts = require('typescript');
 import fs = require('fs');
 
@@ -67,7 +69,8 @@ export var provider = {
                 .then(() => parent.getCompletionsAtPosition({
                 filePath: filePath,
                 position: position,
-                prefix: options.prefix
+                prefix: options.prefix,
+                maxSuggestions: atomConfig.maxSuggestions
             }))
                 .then((resp) => {
                 var completionList = resp.completions;
