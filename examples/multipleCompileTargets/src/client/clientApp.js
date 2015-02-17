@@ -5,4 +5,5 @@ var AwesomeClient = (function () {
     return AwesomeClient;
 })();
 exports.AwesomeClient = AwesomeClient;
+exports.client = new AwesomeClient();
 //# sourceMappingURL=clientApp.js.map
