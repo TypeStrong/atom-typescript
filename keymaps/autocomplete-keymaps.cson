@@ -1,5 +1,3 @@
 'atom-text-editor[data-grammar~=ts]':
   'ctrl-space': 'typescript:autocomplete'
   'cmd-space': 'typescript:autocomplete'
-'atom-text-editor[data-grammar~=ts].autocomplete-active':
-  'enter': 'autocomplete-plus:confirm'

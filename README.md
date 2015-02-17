@@ -19,7 +19,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 # Features
 ## Auto Complete
-Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` (or `enter`) to make a selection.
+Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
 
