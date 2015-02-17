@@ -34,7 +34,6 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     }
 
     var scroll = getFromShadowDom(editorView,'scroll-view');
-    console.log(scroll);
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
