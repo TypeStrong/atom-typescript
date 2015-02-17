@@ -15,9 +15,9 @@ import tooltipView = require('./views/tooltipView');
 import TooltipView = tooltipView.TooltipView;
 var $ = require('atom').$;
 
-export function getFromShadowDom(element: JQuery, className: string): JQuery {
+export function getFromShadowDom(element: JQuery, selector: string): JQuery {
     var el = element[0];
-    var found = (<any> el).shadowRoot.getElementsByClassName(className);
+    var found = (<any> el).rootElement.querySelectorAll(selector);
     return $(found[0]);
 }
 
@@ -33,7 +33,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         return;
     }
 
-    var scroll = getFromShadowDom(editorView,'scroll-view');
+    var scroll = getFromShadowDom(editorView,'.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
@@ -108,7 +108,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
 
 function pixelPositionFromMouseEvent(editorView, event: MouseEvent) {
     var clientX = event.clientX, clientY = event.clientY;
-    var linesClientRect = getFromShadowDom(editorView,'lines')[0].getBoundingClientRect();
+    var linesClientRect = getFromShadowDom(editorView,'.lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
