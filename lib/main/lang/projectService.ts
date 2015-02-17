@@ -77,14 +77,25 @@ function getOrCreateProject(filePath) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////// QUERY / RESPONSE //////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
+
+//--------------------------------------------------------------------------
+//  Utility Interfaces
+//--------------------------------------------------------------------------
 
 /** utility interface **/
 interface FilePathQuery {
     filePath: string;
 }
+
+/** utility interface **/
+interface FilePathPositionQuery {
+    filePath: string;
+    position: number;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////// QUERY / RESPONSE //////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
 
 export interface Echo {
     echo: any;
@@ -93,9 +104,7 @@ export function echo(data: Echo): Echo {
     return data;
 }
 
-export interface QuickInfoQuery extends FilePathQuery {
-    position: number;
-}
+export interface QuickInfoQuery extends FilePathPositionQuery { }
 export interface QuickInfoResponse {
     valid: boolean; // Do we have a valid response for this query
     name?: string;
@@ -134,8 +143,7 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Errors
     return { errors: errorsForFile({ filePath: query.filePath }).errors.filter((error) => path.basename(error.filePath) == fileName) };
 }
 
-export interface GetCompletionsAtPositionQuery extends FilePathQuery {
-    position: number;
+export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
     maxSuggestions: number;
 }
@@ -173,15 +181,14 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
 
         // Show the signatures for methods / functions
-        var display:string;
+        var display: string;
         if (c.kind == "method" || c.kind == "function") {
-             display = ts.displayPartsToString(completionDetails.displayParts || []);
-        }
-        else if (c.kind == "property"){
             display = ts.displayPartsToString(completionDetails.displayParts || []);
         }
-        else
-        {
+        else if (c.kind == "property") {
+            display = ts.displayPartsToString(completionDetails.displayParts || []);
+        }
+        else {
             display = c.kind;
         }
         var comment = ts.displayPartsToString(completionDetails.documentation || []);
@@ -203,9 +210,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     };
 }
 
-export interface GetSignatureHelpQuery extends FilePathQuery {
-    position: number;
-}
+export interface GetSignatureHelpQuery extends FilePathPositionQuery { }
 export interface SignatureHelp {
 
 }
@@ -251,9 +256,7 @@ export function formatDocumentRange(query: FormatDocumentRangeQuery): FormatDocu
     return { formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) };
 }
 
-export interface GetDefinitionsAtPositionQuery extends FilePathQuery {
-    position: number;
-}
+export interface GetDefinitionsAtPositionQuery extends FilePathPositionQuery { }
 export interface GetDefinitionsAtPositionResponse {
     definitions: {
         filePath: string;
