@@ -32,7 +32,7 @@ Just hover
 ![you definitely get the point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/hover.png)
 
 ## Compile on save
-TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not.
+TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not. [Configuration driven by `tsconfig.json`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20success.png)
 
