@@ -25,6 +25,7 @@ import onSaveHandler = require('./atom/onSaveHandler'); ///ts:import:generated
 import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 ///ts:import=typescriptGrammar
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
+import _atom = require('atom');
 
 // globals
 var statusBar;
@@ -80,12 +81,6 @@ export function activate(state: PackageState) {
         })();
     }*/
 
-    // This is dodgy non-documented stuff
-    // subscribe for tooltips
-    atom.workspaceView.eachEditorView((editorView) => {
-        tooltipManager.attach(editorView);
-    });
-
     // Observe changed active editor
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
@@ -97,6 +92,11 @@ export function activate(state: PackageState) {
 
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+
+        // subscribe for tooltips
+        // inspiration : https://github.com/chaika2013/ide-haskell
+        var editorView = _atom.$(atom.views.getView(editor));
+        tooltipManager.attach(editorView, editor);
 
         var filePath = editor.getPath();
         var ext = path.extname(filePath);

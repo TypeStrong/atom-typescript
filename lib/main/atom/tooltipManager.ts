@@ -13,10 +13,16 @@ import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 import tooltipView = require('./views/tooltipView');
 import TooltipView = tooltipView.TooltipView;
+var $ = require('atom').$;
 
-export function attach(editorView: any) {
+export function getFromShadowDom(element: JQuery, className: string): JQuery {
+    var el = element[0];
+    var found = (<any> el).shadowRoot.getElementsByClassName(className);
+    return $(found[0]);
+}
+
+export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     // Only on ".ts" files
-    var editor: AtomCore.IEditor = editorView.editor;
     var filePath = editor.getPath();
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
@@ -27,7 +33,8 @@ export function attach(editorView: any) {
         return;
     }
 
-    var scroll = editorView.find('.scroll-view');
+    var scroll = getFromShadowDom(editorView,'scroll-view');
+    console.log(scroll);
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
@@ -55,7 +62,7 @@ export function attach(editorView: any) {
         if (curCharPixelPt.left >= nextCharPixelPt.left) return;
 
         // find out show position
-        var offset = editorView.lineHeight * 0.7;
+        var offset = (<any>editor).getLineHeightInPixels() * 0.7;
         var tooltipRect = {
             left: e.clientX,
             right: e.clientX,
@@ -102,7 +109,7 @@ export function attach(editorView: any) {
 
 function pixelPositionFromMouseEvent(editorView, event: MouseEvent) {
     var clientX = event.clientX, clientY = event.clientY;
-    var linesClientRect = editorView.find('.lines')[0].getBoundingClientRect();
+    var linesClientRect = getFromShadowDom(editorView,'lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
