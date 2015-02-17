@@ -4,10 +4,10 @@ var Bar = (function () {
     }
     return Bar;
 })();
+var bar = new Bar();
 function bas(a, b) {
     return '';
 }
 var str = '';
 var num = 123;
 console.log(num);
-var b = new Bar();

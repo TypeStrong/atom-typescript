@@ -173,10 +173,16 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
 
         // Show the signatures for methods / functions
+        var display:string;
         if (c.kind == "method" || c.kind == "function") {
-            var display = ts.displayPartsToString(completionDetails.displayParts || []);
-        } else {
-            var display = c.kind;
+             display = ts.displayPartsToString(completionDetails.displayParts || []);
+        }
+        else if (c.kind == "property"){
+            display = ts.displayPartsToString(completionDetails.displayParts || []);
+        }
+        else
+        {
+            display = c.kind;
         }
         var comment = ts.displayPartsToString(completionDetails.documentation || []);
 

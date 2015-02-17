@@ -1,7 +1,9 @@
 var foo = 123;
 class Bar {
+    static bar: number;
     bar: number;
 }
+var bar = new Bar();
 
 function bas(a: string): string;
 function bas(a: number): string;
@@ -13,5 +15,3 @@ function bas(a: any, b?: number): any {
 var str = '';
 var num = 123;
 console.log(num);
-
-var b = new Bar();
