@@ -58,12 +58,14 @@ export function registerCommands() {
             buildView.setBuildOutput(resp.outputs);
         });
     });
-    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration',(e) => {
+
+    var handleGoToDeclaration = (e) => {
         if (!commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
-        parent.getDefinitionsAtPosition({ filePath: filePath, position: atomUtils.getEditorPosition(editor) }).then(res=> {
+        var position = atomUtils.getEditorPosition(editor);
+        parent.getDefinitionsAtPosition({ filePath: filePath, position: position }).then(res=> {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
                 atom.notifications.addInfo('AtomTS: No definition found.');
@@ -82,8 +84,11 @@ export function registerCommands() {
                 newWindow: false
             });
         });
-    });
+    };
 
+    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration', handleGoToDeclaration);
+    // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
+    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
 
     atom.commands.add('atom-text-editor', 'typescript:context-actions',(e) => {
         atom.notifications.addSuccess('Context options coming soon!');
