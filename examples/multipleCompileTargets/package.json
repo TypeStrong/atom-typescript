@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "serve": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server",
-    "prod": "node ./node_modules/webpack/bin/webpack -p"
+    "prod": "node ./node_modules/webpack/bin/webpack -p",
+    "watch": "node ./node_modules/webpack/bin/webpack --watch"
   },
   "author": "",
   "license": "ISC",

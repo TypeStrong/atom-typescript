@@ -1,2 +1,78 @@
-!function(o){function e(r){if(n[r])return n[r].exports;var t=n[r]={exports:{},id:r,loaded:!1};return o[r].call(t.exports,t,t.exports,e),t.loaded=!0,t.exports}var n={};return e.m=o,e.c=n,e.p="",e(0)}([function(o,e,n){o.exports=n(2)},function(o,e){var n=function(){function o(){console.log("awesome1"),console.log("awesome2"),console.log("awesome3"),console.error("error")}return o}();e.Awesome=n},function(o,e,n){var r=n(1);e.client=new r.Awesome}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(1);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var awesome = __webpack_require__(2);
+	exports.client = new awesome.Awesome();
+	//# sourceMappingURL=main.js.map
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Awesome = (function () {
+	    function Awesome() {
+	        console.log('awesome1');
+	        console.log('awesome2');
+	        console.log('awesome3');
+	        console.error('error');
+	        console.log('awesome4');
+	        console.log('awesome5');
+	    }
+	    return Awesome;
+	})();
+	exports.Awesome = Awesome;
+	//# sourceMappingURL=awesome.js.map
+
+/***/ }
+/******/ ])
 //# sourceMappingURL=app.js.map
