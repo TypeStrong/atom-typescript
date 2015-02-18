@@ -1,7 +1,2 @@
-export class AwesomeClient {
-    constructor() {
-        console.log('awesome');
-    }
-}
-
-export var client = new AwesomeClient();
+import awesome = require('./awesome');
+export var client = new awesome.Awesome();

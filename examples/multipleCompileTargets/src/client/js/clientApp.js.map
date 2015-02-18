@@ -1,1 +1,1 @@
-{"version":3,"file":"clientApp.js","sourceRoot":"","sources":["../ts/clientApp.ts"],"names":["AwesomeClient","AwesomeClient.constructor"],"mappings":"AAAA,IAAa,aAAa;IACtBA,SADSA,aAAaA;QAElBC,OAAOA,CAACA,GAAGA,CAACA,SAASA,CAACA,CAACA;IAC3BA,CAACA;IACLD,oBAACA;AAADA,CAACA,AAJD,IAIC;AAJY,qBAAa,GAAb,aAIZ,CAAA;AAEU,cAAM,GAAG,IAAI,aAAa,EAAE,CAAC"}
+{"version":3,"file":"clientApp.js","sourceRoot":"","sources":["../ts/clientApp.ts"],"names":[],"mappings":"AAAA,IAAO,OAAO,WAAW,WAAW,CAAC,CAAC;AAC3B,cAAM,GAAG,IAAI,OAAO,CAAC,OAAO,EAAE,CAAC"}

@@ -1,9 +1,3 @@
-var AwesomeClient = (function () {
-    function AwesomeClient() {
-        console.log('awesome');
-    }
-    return AwesomeClient;
-})();
-exports.AwesomeClient = AwesomeClient;
-exports.client = new AwesomeClient();
+var awesome = require('./awesome');
+exports.client = new awesome.Awesome();
 //# sourceMappingURL=clientApp.js.map
