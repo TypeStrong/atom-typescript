@@ -79,7 +79,7 @@ import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
 
-var defaultFilesGlob = ["./**/*.ts", "!node_modules/**/*.ts"];
+var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,

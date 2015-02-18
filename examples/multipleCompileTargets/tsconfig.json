@@ -2,15 +2,14 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "sourceMap": true,
-        "outDir": "../js"
+        "sourceMap": true
     },
     "filesGlob": [
         "./**/*.ts",
-        "!node_modules/**/*.ts"
+        "!./node_modules/**/*.ts"
     ],
     "files": [
-        "./awesome.ts",
-        "./clientApp.ts"
+        "./src/server/client/app/awesome.ts",
+        "./src/server/client/app/main.ts"
     ]
 }
