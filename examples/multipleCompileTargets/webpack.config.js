@@ -5,14 +5,13 @@ module.exports = {
         contentBase: "./src/server/client/",
     },
 
+    // Add .ts as a valid extension for webpack
+    // Source maps support
+    // Add loader for .ts files.
     resolve: {
         extensions: ['','.ts', '.js']
     },
-
-    // Source maps support
     devtool: 'source-map',
-
-    // Add loader for .ts files.
     module: {
         loaders: [
           {
@@ -22,6 +21,7 @@ module.exports = {
         ]
     },
 
+    // Your app configuration
     entry: {
         app: ['./src/server/client/app/main.ts']
     },
