@@ -30,6 +30,22 @@ export class DocumentationView extends view.View {
         content.documentation = content.documentation.replace(/(?:\r\n|\r|\n)/g, '<br />');
         this.documentation.html(content.documentation);
     }
+
+    autoPosition() {
+        var editor = atom.workspace.getActiveEditor();
+        var cursor = editor.getCursor();
+        var cursorTop = cursor.getPixelRect().top - editor.getScrollTop();
+        var editorHeight = editor.getHeight();
+
+        if (editorHeight - cursorTop < 100) {
+            this.$.removeClass('bottom');
+            this.$.addClass('top');
+        }
+        else {
+            this.$.removeClass('top');
+            this.$.addClass('bottom')
+        }
+    }
 }
 
 export var docView: DocumentationView;

@@ -761,6 +761,7 @@ declare module AtomCore {
 
 		screenPositionForPixelPosition: Function;
         pixelPositionForBufferPosition: Function;
+		getHeight(): number;
 	}
 
 	interface IGrammar {
