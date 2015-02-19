@@ -11,6 +11,7 @@ import ts = require('typescript');
 
 ///ts:import=documentationView
 import documentationView = require('./views/documentationView'); ///ts:import:generated
+var apd = require('../../../apd'); // Moved here because I customized it
 
 // Utility functions for commands
 function commandForTypeScript(e) {
@@ -105,4 +106,38 @@ export function registerCommands() {
         documentationView.docView.autoPosition();
         documentationView.docView.show();
     });
+    
+    /// Register autocomplete commands to show documentations
+    /*atom.packages.activatePackage('autocomplete-plus').then(() => {
+        var autocompletePlus = apd.require('autocomplete-plus');
+        var maxIndex = 10;
+        var currentSuggestionIndex = 0;
+        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-cancel',() => {
+            console.log('cancel');
+            documentationView.docView.hide();
+            currentSuggestionIndex = 0;
+        });
+
+        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-select-next',() => {
+            console.log('next');
+            var length = autocompletePlus.autocompleteManager.suggestionList.items.length
+            if (++currentSuggestionIndex >= maxIndex) {
+                currentSuggestionIndex = 0;
+            }
+            documentationView.docView.show();
+            documentationView.docView.autoPosition(); // TODO: only first time 
+        });
+
+        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-select-previous',() => {
+            console.log('previous');
+            var length = autocompletePlus.autocompleteManager.suggestionList.items.length
+            if (--currentSuggestionIndex < 0) {
+                currentSuggestionIndex = maxIndex - 1;
+            }
+            documentationView.docView.show();
+        });
+    }).catch((err) => {
+        console.error(err);
+    });*/
+
 }
