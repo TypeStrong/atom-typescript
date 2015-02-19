@@ -28,12 +28,9 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
                 patterns: {
                     // include: 'source.js' // Just makes us slower :P
                 },
-                fileTypes: ['ts', 'str']
+                fileTypes: ['ts']
             });
     }
-
-    // Select automatically
-    getScore = () => 1;
 
     tokenizeLine(line, ruleStack: any[], firstLine = false) {
         var response = this.getAtomTokensForLine(line, ruleStack, firstLine);
