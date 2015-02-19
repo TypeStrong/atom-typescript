@@ -258,6 +258,7 @@ export function formatDocumentRange(query: FormatDocumentRangeQuery): FormatDocu
 
 export interface GetDefinitionsAtPositionQuery extends FilePathPositionQuery { }
 export interface GetDefinitionsAtPositionResponse {
+    projectFileDirectory: string;
     definitions: {
         filePath: string;
         position: languageServiceHost.Position
@@ -266,9 +267,11 @@ export interface GetDefinitionsAtPositionResponse {
 export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): GetDefinitionsAtPositionResponse {
     var program = getOrCreateProject(query.filePath);
     var definitions = program.languageService.getDefinitionAtPosition(query.filePath, query.position);
-    if (!definitions || !definitions.length) return { definitions: [] };
+    var projectFileDirectory = program.projectFile.projectFileDirectory;
+    if (!definitions || !definitions.length) return { projectFileDirectory: projectFileDirectory, definitions: [] };
 
     return {
+        projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(d=> {
             // If we can get the filename *we are in the same program :P*
             var pos = program.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
