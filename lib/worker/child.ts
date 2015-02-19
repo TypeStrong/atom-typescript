@@ -5,7 +5,7 @@ import messages = require('./messages');
 
 // Keepalive
 var gotMessageDate = new Date();
-var maxTimeBetweenMesssages = 1000 * /* second */ 60 * /* min */ 20;
+var maxTimeBetweenMesssages = 1000 * /* second */ 60 * /* min */ 180;
 setInterval(() => {
     if ((new Date().getTime() - gotMessageDate.getTime()) > maxTimeBetweenMesssages) {
         // We have been orphaned

@@ -889,8 +889,28 @@ declare module AtomCore {
 	interface IWorkspaceStatic {
 		new():IWorkspace;
 	}
+	
+	interface IWorkspacePanelOptions{
+		item:any;
+		visible?:boolean;
+		priority?:number;
+	}
+	
+	interface Panel{		
+		getItem():any;
+		getPriority():any;
+		isVisible():boolean;
+		show();
+		hide();
+	}
 
 	interface IWorkspace {
+		addBottomPanel(options:IWorkspacePanelOptions):Panel;
+		addLeftPanel(options:IWorkspacePanelOptions):Panel;
+		addRightPanel(options:IWorkspacePanelOptions):Panel;
+		addTopPanel(options:IWorkspacePanelOptions):Panel;
+		addModalPanel(options:IWorkspacePanelOptions):Panel;
+		
 		deserializeParams(params:any):any;
 		serializeParams():{paneContainer:any;fullScreen:boolean;};
         eachEditor(callback: Function): void;

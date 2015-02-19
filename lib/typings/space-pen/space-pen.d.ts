@@ -330,6 +330,13 @@ declare class Builder {
 }
 
 declare module "space-pen" {
+	
+	interface ViewElementOptions {
+		class?:string;
+		style?:string;
+		outlet?:string;
+		click?:string;
+	}
 
 	// copy & paste start
 	class View /* implements JQueryStatic */ {
@@ -400,7 +407,7 @@ declare module "space-pen" {
 
 		static dfn(...args:any[]):any;
 
-		static div(...args:any[]):any;
+		static div(...args:ViewElementOptions[]):any;
 
 		static dl(...args:any[]):any;
 

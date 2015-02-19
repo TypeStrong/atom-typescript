@@ -65,7 +65,7 @@ export function activate(state: PackageState) {
 
     // Load our custom code based grammar
     (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
-
+    
     // Streaming tests
     /*for (var i = 0; i < 10000; i++) {
         (() => {
