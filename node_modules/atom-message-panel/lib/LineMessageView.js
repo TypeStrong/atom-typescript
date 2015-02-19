@@ -48,7 +48,7 @@ LineMessageView.prototype.goToLine = function () {
     activeFile,
     activeEditor =  atom.workspace.getActiveEditor();
   if (activeEditor !== undefined && activeEditor !== null) {
-    activeFile = Path.relative(atom.project.rootDirectory.path, activeEditor.getUri());
+    activeFile = Path.relative(atom.project.rootDirectories[0].path, activeEditor.getUri());
   }
 
   if (this.file !== undefined && this.file !== activeFile) {

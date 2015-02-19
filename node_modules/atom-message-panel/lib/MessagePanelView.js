@@ -105,7 +105,6 @@ MessagePanelView.prototype.close = function () {
     this.panel[this.closeMethod].call(this.panel);
     if (this.closeMethod === 'destroy') {
       this.panel = undefined;
-      this.resizeStopped();
     }
   }
 };
