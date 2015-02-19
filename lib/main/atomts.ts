@@ -27,6 +27,10 @@ import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 import _atom = require('atom');
 
+///ts:import=documentationView
+import documentationView = require('./atom/views/documentationView'); ///ts:import:generated
+
+
 // globals
 var statusBar;
 var statusBarMessage;
@@ -59,6 +63,9 @@ export function activate(state: PackageState) {
 
         return;
     }
+    
+    // Add the documentation view
+    documentationView.attach();
 
     // Start a ts worker
     parent.startWorker();

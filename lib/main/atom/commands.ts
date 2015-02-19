@@ -9,6 +9,9 @@ import autoCompleteProvider = require('./autoCompleteProvider'); ///ts:import:ge
 import path = require('path');
 import ts = require('typescript');
 
+///ts:import=documentationView
+import documentationView = require('./views/documentationView'); ///ts:import:generated
+
 // Utility functions for commands
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
@@ -95,5 +98,9 @@ export function registerCommands() {
 
     atom.commands.add('atom-text-editor', 'typescript:autocomplete',(e) => {
         autoCompleteProvider.triggerAutocompletePlus();
+    });
+
+    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing',(e) => {
+        documentationView.docView.toggle();
     });
 }
