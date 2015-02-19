@@ -78,10 +78,9 @@ export function registerCommands() {
             // TODO: support multiple implementations. For now we just go to first
             var definition = definitions[0];
 
-            atom.open({
-                // The file open command line is 1 indexed
-                pathsToOpen: [definition.filePath + ":" + (definition.position.line + 1).toString()],
-                newWindow: false
+            atom.workspace.open(definition.filePath, {
+                initialLine: definition.position.line,
+                initialColumn: definition.position.ch
             });
         });
     };
