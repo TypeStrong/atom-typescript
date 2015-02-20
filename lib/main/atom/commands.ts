@@ -124,17 +124,23 @@ export function registerCommands() {
                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
                 return;
             }
-            console.log(res);
+
             // TODO: if file is open change in buffer
             // otherwise open the file and change the buffer range
 
             renameView.panelView.renameThis({
                 text: res.displayName,
-                onCancel: () => {
-                    console.log('cancel');
-                },
+                onCancel: () => { },
                 onCommit: (newText) => {
-                    console.log(newText);
+
+                    atomUtils.getEditorsForAllPaths(res.locations.map(l=> l.filePath))
+                        .then((editorMap) => {
+                            console.log(editorMap);
+                    });
+
+                    // Create a map of all the open file names
+                    console.log(res);
+
                 }
             });
         });
