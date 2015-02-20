@@ -1,7 +1,7 @@
 import view = require('./view');
 var $ = view.$;
 
-export class DocumentationView extends view.View {
+export class DocumentationView extends view.View<any> {
 
     private header: JQuery;
     private documentation: JQuery;
@@ -15,10 +15,6 @@ export class DocumentationView extends view.View {
             );
     }
 
-    constructor(options?: any) {
-        super();
-    }
-    initialize() { }
 
     private shown = false;
     show() { this.$.addClass('active'); this.shown = true; }

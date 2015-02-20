@@ -11,6 +11,8 @@ import ts = require('typescript');
 
 ///ts:import=documentationView
 import documentationView = require('./views/documentationView'); ///ts:import:generated
+///ts:import=renameView
+import renameView = require('./views/renameView'); ///ts:import:generated
 var apd = require('../../../apd'); // Moved here because I customized it
 
 // Utility functions for commands
@@ -106,7 +108,17 @@ export function registerCommands() {
         documentationView.docView.autoPosition();
         documentationView.docView.show();
     });
-    
+
+    atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {
+        // TODO: get text
+        atom.notifications.addInfo('coming soon. UI test only');
+        renameView.panelView.renameThis({
+            text: 'someText',
+            onCancel: () => console.log('cancel'),
+            onCommit: (newText) => console.log(newText)
+        });
+    });
+
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
         var autocompletePlus = apd.require('autocomplete-plus');
@@ -125,7 +137,7 @@ export function registerCommands() {
                 currentSuggestionIndex = 0;
             }
             documentationView.docView.show();
-            documentationView.docView.autoPosition(); // TODO: only first time 
+            documentationView.docView.autoPosition(); // TODO: only first time
         });
 
         autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-select-previous',() => {

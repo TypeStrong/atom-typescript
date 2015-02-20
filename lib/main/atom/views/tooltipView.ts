@@ -8,7 +8,7 @@ interface Rect {
     bottom: number;
 }
 
-export class TooltipView extends view.View {
+export class TooltipView extends view.View<any> {
 
     constructor(public rect:Rect) {
         super();

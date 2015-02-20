@@ -1,7 +1,7 @@
 import view = require('./view');
 var $ = view.$;
 
-export class AwesomePanelView extends view.View {
+export class AwesomePanelView extends view.View<any> {
 
     private something: JQuery;
     static content() {
@@ -10,11 +10,7 @@ export class AwesomePanelView extends view.View {
             );
     }
 
-    constructor(options?: any) {
-        super();
-    }
-
-    initialize() {
+    init() {
         this.something.html('<div>tada</div>');
     }
 }
