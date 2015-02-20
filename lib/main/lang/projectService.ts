@@ -122,8 +122,8 @@ export interface QuickInfoResponse {
     comment?: string;
 }
 export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
-    var program = getOrCreateProject(query.filePath);
-    var info = program.languageService.getQuickInfoAtPosition(query.filePath, query.position);
+    var project = getOrCreateProject(query.filePath);
+    var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info) return { valid: false };
     else return {
         valid: true,
@@ -173,8 +173,8 @@ var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>']
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
 
-    var program = getOrCreateProject(filePath);
-    var completions: ts.CompletionInfo = program.languageService.getCompletionsAtPosition(
+    var project = getOrCreateProject(filePath);
+    var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
     var endsInPunctuation = prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]
@@ -189,7 +189,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
 
     // Potentially use it more aggresively at some point
     function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {
-        var completionDetails = program.languageService.getCompletionEntryDetails(filePath, position, c.name);
+        var completionDetails = project.languageService.getCompletionEntryDetails(filePath, position, c.name);
 
         // Show the signatures for methods / functions
         var display: string;
@@ -229,8 +229,8 @@ export interface GetSignatureHelpResponse {
     signatureHelps: SignatureHelp[];
 }
 export function getSignatureHelps(query: GetSignatureHelpQuery): GetSignatureHelpResponse {
-    var program = getOrCreateProject(query.filePath);
-    var signatureHelpItems = program.languageService.getSignatureHelpItems(query.filePath, query.position);
+    var project = getOrCreateProject(query.filePath);
+    var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
 
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
         return { signatureHelps: [] };
@@ -283,16 +283,16 @@ export interface GetDefinitionsAtPositionResponse {
     }[]
 }
 export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): GetDefinitionsAtPositionResponse {
-    var program = getOrCreateProject(query.filePath);
-    var definitions = program.languageService.getDefinitionAtPosition(query.filePath, query.position);
-    var projectFileDirectory = program.projectFile.projectFileDirectory;
+    var project = getOrCreateProject(query.filePath);
+    var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
+    var projectFileDirectory = project.projectFile.projectFileDirectory;
     if (!definitions || !definitions.length) return { projectFileDirectory: projectFileDirectory, definitions: [] };
 
     return {
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(d=> {
             // If we can get the filename *we are in the same program :P*
-            var pos = program.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
+            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
             return {
                 filePath: d.fileName,
                 position: pos
