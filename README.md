@@ -63,6 +63,12 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 ## Block Comment and Uncomment
 `ctrl+/` or `cmd+/`. Does a block comment / uncomment of code. 
 
+## Refactoring
+
+### Rename
+`f2` to initiate rename. `enter` to commit and `esc` to cancel.
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/renameRefactoring.png)
+
 ## Contributing
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
