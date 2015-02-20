@@ -1,7 +1,6 @@
 module.exports = function (grunt) {
     'use strict';
 
-    // Change this
     var srcDir = 'lib';
 
     var excludeNodeDir = ['!**/node_modules/**'];
