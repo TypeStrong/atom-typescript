@@ -1,1 +1,0 @@
-exports.something = 123;

@@ -21,38 +21,38 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Auto Complete
 Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete1.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/autocomplete1.png)
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/autocomplete2.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/autocomplete2.png)
 
 
 ## Type information on hover
 Just hover
 
-![you definitely get the point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/hover.png)
+![you definitely get the point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/hover.png)
 
 ## Compile on save
 TypeScript files will be compiled on save. Different notifications are given if `emit` was successful or not. [Configuration driven by `tsconfig.json`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md)
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20success.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/compile%20success.png)
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/compile%20error.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/compile%20error.png)
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/emit%20error.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/emit%20error.png)
 
 ## Project Support
 Supported via `tsconfig.json` ([read more](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md)) which is going to be the defacto Project file format for the next versions of TypeScript.
 
 It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/proj.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/proj.png)
 
 ### Project Build Support
 Shortcut: `ctrl+shift+b` or `cmd+shift+b`. If there are any errors they are shown as well.
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build%20success.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20success.png)
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/build%20errors.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20errors.png)
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
@@ -61,13 +61,13 @@ Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you ha
 Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
 ## Block Comment and Uncomment
-`ctrl+/` or `cmd+/`. Does a block comment / uncomment of code. 
+`ctrl+/` or `cmd+/`. Does a block comment / uncomment of code.
 
 ## Refactoring
 
 ### Rename
 `f2` to initiate rename. `enter` to commit and `esc` to cancel.
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/examples/screens/renameRefactoring.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Contributing
 
