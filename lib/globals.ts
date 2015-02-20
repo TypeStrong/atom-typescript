@@ -11,6 +11,12 @@
 /// <reference path="./node_modules/views/views.d.ts"/>
 /// <reference path="./typings/atompromise.d.ts"/>
 
-interface Function{
+interface Function {
     name?: string; // exists for named function on node / atom / "good" browsers ;)
+}
+
+// escape-html
+declare module 'escape-html' {
+    function escape(html: string): string;
+    export = escape;
 }

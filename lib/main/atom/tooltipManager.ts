@@ -14,6 +14,7 @@ var Subscriber = emissary.Subscriber;
 import tooltipView = require('./views/tooltipView');
 import TooltipView = tooltipView.TooltipView;
 var $ = require('atom').$;
+import escape = require('escape-html');
 
 export function getFromShadowDom(element: JQuery, selector: string): JQuery {
     var el = element[0];
@@ -71,14 +72,15 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         exprTypeTooltip = new TooltipView(tooltipRect);
 
         var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
+        
         // Actually make the program manager query
         parent.quickInfo({ filePath, position }).then((resp) => {
             if (!resp.valid) {
                 hideExpressionType();
             }
             else {
-                var message = `<b>${resp.name}</b>`;
-                if (resp.comment) message = message + `<br/><i>${resp.comment}</i>`;
+                var message = `<b>${escape(resp.name)}</b>`;
+                if (resp.comment) message = message + `<br/><i>${escape(resp.comment)}</i>`;
                 // Sorry about this "if". It's in the code I copied so I guess its there for a reason
                 if (exprTypeTooltip) exprTypeTooltip.updateText(message);
             }
