@@ -14,12 +14,14 @@ var MessagePanelView = require('atom-message-panel').MessagePanelView,
     LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
     PlainMessageView = require('atom-message-panel').PlainMessageView;
 
-function getTitle(errorCount: number): string {
+function getTitle(fileErrorCount: number, totalErrorCount): string {
     var title = '<span class="icon-bug"></span> TypeScript errors for open files';
-    if (errorCount > 0) {
+    if (totalErrorCount > 0) {
         title = title + ` (
-            <span class="text-highlight" style="font-weight: bold"> ${errorCount} </span>
-            <span class="text-error" style="font-weight: bold;"> file${errorCount === 1 ? "" : "s"} </span>
+            <span class="text-highlight" style="font-weight: bold"> ${fileErrorCount} </span>
+            <span class="text-error" style="font-weight: bold;"> file${fileErrorCount === 1 ? "" : "s"} </span>
+            <span class="text-highlight" style="font-weight: bold"> ${totalErrorCount} </span>
+            <span class="text-error" style="font-weight: bold;"> error${totalErrorCount === 1 ? "" : "s"} </span>
         )`;
     }
     return title;
@@ -29,7 +31,7 @@ var messagePanel;
 export function start() {
     if (messagePanel) return;
     messagePanel = new MessagePanelView({
-        title: getTitle(0),
+        title: getTitle(0, 0),
         closeMethod: 'hide',
         rawTitle: true
     });
@@ -63,18 +65,21 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     messagePanel.clear();
     messagePanel.attach();
 
-    var currentErrorCount = filePathErrors.keys().length;
-    messagePanel.setTitle(getTitle(currentErrorCount), true);
+    var fileErrorCount = filePathErrors.keys().length;
 
-    if (!currentErrorCount) {
+
+    if (!fileErrorCount) {
+        messagePanel.setTitle(getTitle(0, 0), true);
         messagePanel.add(new PlainMessageView({
             message: "No errors",
             className: "text-success"
         }));
     }
     else {
+        var totalErrorCount = 0;
         for (var path in filePathErrors.table) {
             filePathErrors.getValue(path).forEach((error) => {
+                totalErrorCount++;
                 messagePanel.add(new LineMessageView({
                     message: error.message,
                     line: error.startPos.line + 1,
@@ -83,6 +88,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
                 }));
             });
         }
+        messagePanel.setTitle(getTitle(fileErrorCount, totalErrorCount), true);
     }
 };
 

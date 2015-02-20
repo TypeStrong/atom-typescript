@@ -5,7 +5,8 @@
         "declaration": false,
         "noImplicitAny": false,
         "removeComments": true,
-        "noLib": false
+        "noLib": false,
+        "preserveConstEnums": false
     },
     "filesGlob": [
         "./**/*.ts",
