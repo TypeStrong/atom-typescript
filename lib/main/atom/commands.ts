@@ -124,6 +124,10 @@ export function registerCommands() {
                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
                 return;
             }
+            console.log(res);
+            // TODO: if file is open change in buffer
+            // otherwise open the file and change the buffer range
+
             renameView.panelView.renameThis({
                 text: res.displayName,
                 onCancel: () => {

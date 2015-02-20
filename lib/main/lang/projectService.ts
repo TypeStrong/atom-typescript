@@ -93,6 +93,17 @@ interface FilePathPositionQuery {
     position: number;
 }
 
+interface TextSpan {
+    start: number;
+    length: number;
+}
+function textSpan(span: ts.TextSpan): TextSpan {
+    return {
+        start: span.start(),
+        length: span.length()
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// QUERY / RESPONSE //////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -318,12 +329,24 @@ export interface GetRenameInfoResponse {
     fullDisplayName?: string; // this includes the namespace name
     kind?: string;
     kindModifiers?: string;
-    // TODO: add text span information
+    triggerSpan?: TextSpan;
+    locations?:  {
+        textSpan: TextSpan;
+        filePath: string;
+    }[];
 }
 export function getRenameInfo(query: GetRenameInfoQuery): GetRenameInfoResponse {
     var project = getOrCreateProject(query.filePath);
-    var info = project.languageService.getRenameInfo(query.filePath,query.position);
-    if(info && info.canRename){
+    var findInStrings = false, findInComments = false;
+    var info = project.languageService.getRenameInfo(query.filePath, query.position);
+    if (info && info.canRename) {
+        var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
+            .map(loc=> {
+            return {
+                textSpan: textSpan(loc.textSpan),
+                filePath: loc.fileName
+            }
+        });
         return {
             canRename: true,
             localizedErrorMessage: info.localizedErrorMessage,
@@ -331,10 +354,11 @@ export function getRenameInfo(query: GetRenameInfoQuery): GetRenameInfoResponse 
             fullDisplayName: info.fullDisplayName,
             kind: info.kind,
             kindModifiers: info.kindModifiers,
-            // TODO: use info.triggerSpan
+            triggerSpan: textSpan(info.triggerSpan),
+            locations: locations
         }
     }
-    else{
+    else {
         return {
             canRename: false
         }
