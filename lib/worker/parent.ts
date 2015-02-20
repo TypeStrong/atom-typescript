@@ -158,6 +158,7 @@ export var build = childQuery(projectService.build);
 export var errorsForFileFiltered = childQuery(projectService.errorsForFileFiltered);
 export var getCompletionsAtPosition = childQuery(projectService.getCompletionsAtPosition);
 export var emitFile = childQuery(projectService.emitFile);
+export var regenerateProjectGlob = childQuery(projectService.regenerateProjectGlob);
 export var formatDocument = childQuery(projectService.formatDocument);
 export var formatDocumentRange = childQuery(projectService.formatDocumentRange);
 export var getDefinitionsAtPosition = childQuery(projectService.getDefinitionsAtPosition);

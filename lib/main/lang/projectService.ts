@@ -40,6 +40,7 @@ function watchProjectFile(projectFile: tsconfig.TypeScriptProjectFileDetails) {
 var projectByProjectPath: { [projectDir: string]: Project } = {}
 var projectByFilePath: { [filePath: string]: Project } = {}
 
+/** This explicilty loads the project from the filesystem or creates one in memory (for .d.ts) / filesytem */
 function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
@@ -58,7 +59,7 @@ function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails
     }
 }
 
-function getOrCreateProject(filePath) {
+function getOrCreateProject(filePath: string) {
     filePath = tsconfig.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         return projectByFilePath[filePath];
@@ -76,7 +77,6 @@ function getOrCreateProject(filePath) {
         }
     }
 }
-
 
 //--------------------------------------------------------------------------
 //  Utility Interfaces
@@ -232,6 +232,13 @@ export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends project.EmitOutput { }
 export function emitFile(query: EmitFileQuery): EmitFileResponse {
     return getOrCreateProject(query.filePath).emitFile(query.filePath);
+}
+
+export interface RegenerateProjectGlobQuery extends FilePathQuery { }
+export interface RegenerateProjectGlobResponse { }
+export function regenerateProjectGlob(query: RegenerateProjectGlobQuery): RegenerateProjectGlobResponse {
+    getOrCreateProjectFile(query.filePath);
+    return {};
 }
 
 export interface FormatDocumentQuery extends FilePathQuery {

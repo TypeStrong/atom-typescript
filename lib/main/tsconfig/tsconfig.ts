@@ -261,7 +261,10 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
                 at projectPath : ${projectFile}
                 with error: ${ex.message}`)
         }
-        fs.writeFileSync(projectFile, prettyJSON(projectSpec));
+        var prettyJSONProjectSpec = prettyJSON(projectSpec);
+        if (prettyJSONProjectSpec !== projectFileTextContent) {
+            fs.writeFileSync(projectFile, prettyJSON(projectSpec));
+        }
     }
 
     // Remove all relativeness
