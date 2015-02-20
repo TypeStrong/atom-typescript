@@ -27,8 +27,9 @@ import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 import _atom = require('atom');
 
-///ts:import=documentationView
-import documentationView = require('./atom/views/documentationView'); ///ts:import:generated
+
+import documentationView = require('./atom/views/documentationView');
+import renameView = require('./atom/views/renameView');
 
 
 // globals
@@ -63,16 +64,19 @@ export function activate(state: PackageState) {
 
         return;
     }
-    
+
     // Add the documentation view
     documentationView.attach();
+
+    // Add the rename view
+    renameView.attach();
 
     // Start a ts worker
     parent.startWorker();
 
     // Load our custom code based grammar
     (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
-    
+
     // Streaming tests
     /*for (var i = 0; i < 10000; i++) {
         (() => {

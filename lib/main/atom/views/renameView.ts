@@ -1,7 +1,7 @@
 import view = require('./view');
 var $ = view.$;
 
-export class AwesomePanelView extends view.View {
+export class RenameView extends view.View {
 
     private something: JQuery;
     static content() {
@@ -19,15 +19,9 @@ export class AwesomePanelView extends view.View {
     }
 }
 
-export var panelView: AwesomePanelView;
+export var panelView: RenameView;
 export var panel: AtomCore.Panel;
 export function attach() {
-    panelView = new AwesomePanelView();
+    panelView = new RenameView();
     panel = atom.workspace.addModalPanel({ item: panelView, priority: 1000, visible: false });
-
-    /*setInterval(() => {
-        panel.isVisible() ? panel.hide() : panel.show();
-        console.log('called');
-    }, 1000);*/
-
 }
