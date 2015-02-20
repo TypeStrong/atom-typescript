@@ -10,5 +10,6 @@ export interface Message<T> {
         method: string;
         message: string;
         stack: string;
+        details: any;
     };
 }

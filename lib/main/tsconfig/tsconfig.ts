@@ -64,11 +64,15 @@ export var errors = {
     GET_PROJECT_NO_PROJECT_FOUND: 'No Project Found',
     GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE: 'Failed to fs.readFileSync the project file',
     GET_PROJECT_JSON_PARSE_FAILED: 'Failed to JSON.parse the project file',
+    GET_PROJECT_GLOB_EXPAND_FAILED: 'Failed to expand filesGlob in the project file',
 
     CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
 };
-
+function errorWithDetails(error: Error, details: any): Error {
+    error.details = details;
+    return error;
+}
 
 import fs = require('fs');
 import path = require('path');
@@ -240,7 +244,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     try {
         projectSpec = JSON.parse(projectFileTextContent);
     } catch (ex) {
-        throw new Error(errors.GET_PROJECT_JSON_PARSE_FAILED);
+        throw errorWithDetails(new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: projectFile, error: ex.message });
     }
 
     // Setup default project options
@@ -257,9 +261,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
         }
         catch (ex) {
-            throw new Error(`Failed to expand glob: ${projectSpec.filesGlob}
-                at projectPath : ${projectFile}
-                with error: ${ex.message}`)
+            throw errorWithDetails(new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: projectFile, error: ex.message });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {

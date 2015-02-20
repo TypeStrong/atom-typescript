@@ -26,9 +26,8 @@ function processData(m: any) {
     try {
         var response = responders[message](parsed.data);
     } catch (err) {
-        var error = { method:message, message: err.message, stack: err.stack };
+        var error = { method: message, message: err.message, stack: err.stack, details: err.details || {} };
     }
-
 
     process.send({
         message: message,

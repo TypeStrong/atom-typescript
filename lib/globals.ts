@@ -15,6 +15,10 @@ interface Function {
     name?: string; // exists for named function on node / atom / "good" browsers ;)
 }
 
+interface Error {
+    details?: any; // Really useful to have for debugging
+}
+
 // escape-html
 declare module 'escape-html' {
     function escape(html: string): string;
