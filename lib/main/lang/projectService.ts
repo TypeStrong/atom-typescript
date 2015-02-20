@@ -330,7 +330,7 @@ export interface GetRenameInfoResponse {
     kind?: string;
     kindModifiers?: string;
     triggerSpan?: TextSpan;
-    locations?:  {
+    locations?: {
         textSpan: TextSpan;
         filePath: string;
     }[];

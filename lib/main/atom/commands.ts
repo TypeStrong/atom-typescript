@@ -110,42 +110,31 @@ export function registerCommands() {
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {
-        // TODO: get text
-        atom.notifications.addInfo('coming soon. UI test only');
-
-        /*function restoreEditor() {
-            // TODO: if (activePane.isDestroyed()) return;
-
-            var v = atom.views.getView(activeEditor);
-            v.focus();
-        }*/
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
             if (!res.canRename) {
                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
                 return;
             }
 
-            // TODO: if file is open change in buffer
-            // otherwise open the file and change the buffer range
-
             renameView.panelView.renameThis({
                 text: res.displayName,
                 onCancel: () => { },
                 onCommit: (newText) => {
 
+                    // if file is open change in buffer
+                    // otherwise open the file and change the buffer range
                     atomUtils.getEditorsForAllPaths(res.locations.map(l=> l.filePath))
                         .then((editorMap) => {
-                            console.log(editorMap);
+                        // Reverse as we want to make the bottom changes first
+                        res.locations.reverse().forEach((location) => {
+                            var editor = editorMap[location.filePath];
+                            var range = atomUtils.getRangeForTextSpan(editor, location.textSpan);
+                            editor.setTextInBufferRange(range, newText);
+                        });
                     });
-
-                    // Create a map of all the open file names
-                    console.log(res);
-
                 }
             });
         });
-
-
     });
 
     /// Register autocomplete commands to show documentations
