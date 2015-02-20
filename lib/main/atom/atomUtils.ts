@@ -30,3 +30,10 @@ export function onDiskAndTs(editor: AtomCore.IEditor) {
     }
     return false;
 }
+
+export function getFilePathPosition(): { filePath: string; position: number } {
+    var editor = atom.workspace.getActiveTextEditor();
+    var filePath = editor.getPath();
+    var position = getEditorPosition(editor);
+    return { filePath, position };
+}

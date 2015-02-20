@@ -540,7 +540,7 @@ declare module AtomCore {
 		subscribeToBuffer():void;
 		subscribeToDisplayBuffer():void;
 		getViewClass():any; // return type are EditorView
-		destroyed():void;
+		isDestroyed():boolean;
 		copy():IEditor;
 		getTitle():string;
 		getLongTitle():string;
@@ -777,6 +777,7 @@ declare module AtomCore {
 		deserializeParams(params:any):any;
 		getViewClass():any; // return type are PaneView
 		isActive():boolean;
+		isDestroyed():boolean;
 		focus():void;
 		blur():void;
 		activate():void;
@@ -890,14 +891,14 @@ declare module AtomCore {
 	interface IWorkspaceStatic {
 		new():IWorkspace;
 	}
-	
+
 	interface IWorkspacePanelOptions{
 		item:any;
 		visible?:boolean;
 		priority?:number;
 	}
-	
-	interface Panel{		
+
+	interface Panel{
 		getItem():any;
 		getPriority():any;
 		isVisible():boolean;
@@ -911,7 +912,7 @@ declare module AtomCore {
 		addRightPanel(options:IWorkspacePanelOptions):Panel;
 		addTopPanel(options:IWorkspacePanelOptions):Panel;
 		addModalPanel(options:IWorkspacePanelOptions):Panel;
-		
+
 		deserializeParams(params:any):any;
 		serializeParams():{paneContainer:any;fullScreen:boolean;};
         eachEditor(callback: Function): void;
@@ -944,7 +945,7 @@ declare module AtomCore {
 		itemOpened(item:any):void;
 		onPaneItemDestroyed(item:any):void;
 		destroyed():void;
-		
+
 		onDidChangeActivePaneItem(item:any):Disposable;
 	}
 

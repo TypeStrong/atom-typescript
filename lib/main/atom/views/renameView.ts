@@ -44,14 +44,20 @@ export class RenameView
         });
     }
 
+    public editorAtRenameStart:AtomCore.IEditor = null;
     public clearView() {
+        if(this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()){
+            var view = atom.views.getView(this.editorAtRenameStart);
+            view.focus();
+        }
         panel.hide();
         this.options = <any>{};
+        this.editorAtRenameStart = null;
     }
 
     public renameThis(options: RenameViewOptions) {
-
         this.options = options;
+        this.editorAtRenameStart = atom.workspace.getActiveEditor();
         panel.show();
         this.newNameEditor.model.setText(options.text);
         this.newNameEditor.model.selectAll();

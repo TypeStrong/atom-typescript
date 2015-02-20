@@ -7,3 +7,4 @@
   'cmd-b': 'typescript:go-to-declaration'
   'ctrl-;': 'typescript:context-actions'
   'cmd-;': 'typescript:context-actions'
+  'f2': 'typescript:rename-variable'

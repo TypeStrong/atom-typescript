@@ -309,3 +309,34 @@ export function errorsForFile(query: FilePathQuery): {
 
     return { errors: diagnostics.map(project.diagnosticToTSError) };
 }
+
+export interface GetRenameInfoQuery extends FilePathPositionQuery { }
+export interface GetRenameInfoResponse {
+    canRename: boolean;
+    localizedErrorMessage?: string;
+    displayName?: string;
+    fullDisplayName?: string; // this includes the namespace name
+    kind?: string;
+    kindModifiers?: string;
+    // TODO: add text span information
+}
+export function getRenameInfo(query: GetRenameInfoQuery): GetRenameInfoResponse {
+    var project = getOrCreateProject(query.filePath);
+    var info = project.languageService.getRenameInfo(query.filePath,query.position);
+    if(info && info.canRename){
+        return {
+            canRename: true,
+            localizedErrorMessage: info.localizedErrorMessage,
+            displayName: info.displayName,
+            fullDisplayName: info.fullDisplayName,
+            kind: info.kind,
+            kindModifiers: info.kindModifiers,
+            // TODO: use info.triggerSpan
+        }
+    }
+    else{
+        return {
+            canRename: false
+        }
+    }
+}

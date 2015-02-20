@@ -165,3 +165,4 @@ export var getDefinitionsAtPosition = childQuery(projectService.getDefinitionsAt
 export var updateText = childQuery(projectService.updateText);
 export var errorsForFile = childQuery(projectService.errorsForFile);
 export var getSignatureHelps = childQuery(projectService.getSignatureHelps);
+export var getRenameInfo = childQuery(projectService.getRenameInfo);

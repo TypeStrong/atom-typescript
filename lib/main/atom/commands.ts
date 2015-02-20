@@ -112,11 +112,30 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {
         // TODO: get text
         atom.notifications.addInfo('coming soon. UI test only');
-        renameView.panelView.renameThis({
-            text: 'someText',
-            onCancel: () => console.log('cancel'),
-            onCommit: (newText) => console.log(newText)
+
+        /*function restoreEditor() {
+            // TODO: if (activePane.isDestroyed()) return;
+
+            var v = atom.views.getView(activeEditor);
+            v.focus();
+        }*/
+        parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
+            if (!res.canRename) {
+                atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
+                return;
+            }
+            renameView.panelView.renameThis({
+                text: res.displayName,
+                onCancel: () => {
+                    console.log('cancel');
+                },
+                onCommit: (newText) => {
+                    console.log(newText);
+                }
+            });
         });
+
+
     });
 
     /// Register autocomplete commands to show documentations
