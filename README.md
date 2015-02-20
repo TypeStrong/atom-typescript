@@ -60,6 +60,9 @@ Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you ha
 ## Go to Declaration
 Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
+## Block Comment and Uncomment
+`ctrl+/` or `cmd+/`. Does a block comment / uncomment of code. 
+
 ## Contributing
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
