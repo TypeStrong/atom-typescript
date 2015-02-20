@@ -23,11 +23,18 @@ function processData(m: any) {
         return;
     }
     var message = parsed.message;
+    try {
+        var response = responders[message](parsed.data);
+    } catch (err) {
+        var error = { method:message, message: err.message, stack: err.stack };
+    }
+
 
     process.send({
         message: message,
         id: parsed.id,
-        data: responders[message](parsed.data)
+        data: response,
+        error: error
     });
 }
 

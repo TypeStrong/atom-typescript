@@ -5,5 +5,10 @@ export var orphanExitCode = 100;
 export interface Message<T> {
     message: string;
     id: string;
-    data: T;
+    data?: T;
+    error?: {
+        method: string;
+        message: string;
+        stack: string;
+    };
 }

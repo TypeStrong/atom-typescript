@@ -253,7 +253,14 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         projectSpec.filesGlob = defaultFilesGlob;
     }
     if (projectSpec.filesGlob) {
-        projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
+        try {
+            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
+        }
+        catch (ex) {
+            throw new Error(`Failed to expand glob: ${projectSpec.filesGlob}
+                at projectPath : ${projectFile}
+                with error: ${ex.message}`)
+        }
         fs.writeFileSync(projectFile, prettyJSON(projectSpec));
     }
 

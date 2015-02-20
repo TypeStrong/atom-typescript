@@ -49,8 +49,13 @@ export function startWorker() {
                 console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
                 return;
             }
-            else {
-                currentListeners[parsed.message][parsed.id].resolve(parsed.data);
+            else { // Alright nothing *weird* happened
+                if (parsed.error) {
+                    currentListeners[parsed.message][parsed.id].reject(parsed.error);
+                }
+                else {
+                    currentListeners[parsed.message][parsed.id].resolve(parsed.data);
+                }
                 delete currentListeners[parsed.message][parsed.id];
             }
         }
@@ -59,7 +64,7 @@ export function startWorker() {
 
 
         child.stderr.on('data',(err) => {
-            console.log("CHILD ERR:", err.toString());            
+            console.log("CHILD ERR:", err.toString());
         });
         child.on('close',(code) => {
             // Handle process dropping
