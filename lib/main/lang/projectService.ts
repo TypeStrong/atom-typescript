@@ -18,39 +18,31 @@ import languageServiceHost = require('./languageServiceHost');
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-var chokidar = require('chokidar');
-var watchingProjectFile: { [projectFilePath: string]: Project } = {}
-function watchProjectFile(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    if (watchingProjectFile[projectFile.projectFilePath]) return; // Only watch once
-
-    var watcher = chokidar.watch(projectFile.projectFilePath, { ignoreInitial: true, persistent: true });
-    watchingProjectFile[projectFile.projectFilePath] = watcher;
-
-    function clear(datPathYo) {
-        // TODO : Invalidate only matching caches for projectFilePath
-        // Right now: Just invalidate *all*
-        projectByProjectPath = {};
-        projectByFilePath = {};
-    }
-
-    watcher.on('change', clear)
-        .on('unlink', clear);
-}
-
 var projectByProjectPath: { [projectDir: string]: Project } = {}
+/** the project file path or any source ts file path */
 var projectByFilePath: { [filePath: string]: Project } = {}
 
-/** This explicilty loads the project from the filesystem or creates one in memory (for .d.ts) / filesytem */
+/** Warning: we are loading the project from file system. This might not match what we have in the editor memory
+ This is the reason why we aggresively send text to the worker on *Tab Change* and other places
+*/
+function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetails) {
+    var project = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
+    projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
+    return project;
+}
+
+/**
+ * This explicilty loads the project from the filesystem or creates one
+ * creation is done in memory (for .d.ts) OR filesytem
+ */
 function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
-        watchProjectFile(projectFile);
         return projectFile;
     } catch (ex) {
         var err: Error = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             var projectFile = tsconfig.createProjectRootSync(filePath);
-            watchProjectFile(projectFile);
             return projectFile;
         }
         else {
@@ -62,19 +54,15 @@ function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails
 function getOrCreateProject(filePath: string) {
     filePath = tsconfig.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
+        // we are in good shape
         return projectByFilePath[filePath];
     }
     else {
+        // We are in a bad shape. Why didn't we know of this file before?
+        // Even if we find the projectFile we should invalidate it.
         var projectFile = getOrCreateProjectFile(filePath);
-        if (projectByProjectPath[projectFile.projectFileDirectory]) {
-            // we've already parsed the project file once before. This file wasn't in there for some reason
-            // we just need to update for this file
-            return projectByFilePath[filePath] = projectByProjectPath[projectFile.projectFileDirectory];
-        } else {
-            var project = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
-            projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
-            return project;
-        }
+        var project = cacheAndCreateProject(projectFile);
+        return project;
     }
 }
 
@@ -248,7 +236,8 @@ export function emitFile(query: EmitFileQuery): EmitFileResponse {
 export interface RegenerateProjectGlobQuery extends FilePathQuery { }
 export interface RegenerateProjectGlobResponse { }
 export function regenerateProjectGlob(query: RegenerateProjectGlobQuery): RegenerateProjectGlobResponse {
-    getOrCreateProjectFile(query.filePath);
+    var projectFile = getOrCreateProjectFile(query.filePath);
+    cacheAndCreateProject(projectFile);
     return {};
 }
 
