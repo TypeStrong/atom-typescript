@@ -20,18 +20,19 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity .2s ease;
-    
+
     // I shouldn't need to do this. Check why we have to do this
+    // also should use @scrollbar-background-color; at some point : https://github.com/TypeStrong/atom-typescript/issues/120
      ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
      }
      ::-webkit-scrollbar-track,
      ::-webkit-scrollbar-corner {
-         background: @scrollbar-background-color;
+         background: @pane-item-background-color;
      }
     ::-webkit-scrollbar-thumb {
-        background: @scrollbar-color;
+        background: @base-border-color;
         border-radius: 5px;
         box-shadow: 0 0 1px black inset;
     }

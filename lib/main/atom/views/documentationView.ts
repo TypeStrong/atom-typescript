@@ -53,7 +53,7 @@ export function attach() {
     //    testDocumentationView();
 }
 
-function testDocumentationView() {
+export function testDocumentationView() {
     docView.setContent({
         display: "this is awesome", documentation: `
     some docs

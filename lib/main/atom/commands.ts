@@ -106,7 +106,7 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing',(e) => {
         documentationView.docView.hide();
         documentationView.docView.autoPosition();
-        documentationView.docView.show();
+        documentationView.testDocumentationView();
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {
