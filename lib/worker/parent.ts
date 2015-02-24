@@ -34,7 +34,7 @@ export function startWorker() {
             if (err.code === "ENOENT" && err.path === node) {
                 gotENOENTonSpawnNode = true;
             }
-            console.log('CHILD ERR:', err.toString());
+            console.log('CHILD ERR ONERROR:', err.message, err.stack);
             child = null;
         });
 
@@ -64,7 +64,7 @@ export function startWorker() {
 
 
         child.stderr.on('data',(err) => {
-            console.log("CHILD ERR:", err.toString());
+            console.log("CHILD ERR STDERR:", err.toString());
         });
         child.on('close',(code) => {
             // Handle process dropping
