@@ -15,26 +15,18 @@ var child: childprocess.ChildProcess;
 var currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
 export function startWorker() {
     try {
-        var env = Object.create(process.env);
-        env.ATOM_SHELL_INTERNAL_RUN_AS_NODE = '1';
-
         var node = process.execPath; // We will run atom as node
-
-        // Sad panda : https://github.com/TypeStrong/atom-typescript/issues/50
-        if (process.platform === 'win32') {
-            node = "node";
-        }
 
         child = spawn(node, [
             // '--debug', // Uncomment if you want to debug the child process
-            __dirname + '/child.js',
-        ], { env: env, stdio: ['ipc'] });
+            __dirname + '/child.js'
+        ], { cwd: __dirname, env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
 
         child.on('error',(err) => {
             if (err.code === "ENOENT" && err.path === node) {
                 gotENOENTonSpawnNode = true;
             }
-            console.log('CHILD ERR ONERROR:', err.message, err.stack);
+            console.log('CHILD ERR ONERROR:', err.message, err.stack, err);
             child = null;
         });
 
