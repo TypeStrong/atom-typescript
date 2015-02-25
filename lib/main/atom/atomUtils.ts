@@ -42,7 +42,7 @@ export function getFilePathPosition(): { filePath: string; position: number } {
 
 export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath: string]: AtomCore.IEditor }> {
     var map = <any>{};
-    var activeEditors = atom.workspace.getEditors();
+    var activeEditors = atom.workspace.getEditors().filter(editor=> !!editor.getPath());
 
     function addConsistentlyToMap(editor: AtomCore.IEditor) {
         map[tsconfig.consistentPath(editor.getPath())] = editor;
