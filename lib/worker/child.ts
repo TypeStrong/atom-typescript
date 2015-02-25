@@ -4,11 +4,9 @@
 import messages = require('./messages');
 
 // Keepalive
-var gotMessageDate = new Date();
-var maxTimeBetweenMesssages = 1000 * /* second */ 60 * /* min */ 180;
 setInterval(() => {
-    if ((new Date().getTime() - gotMessageDate.getTime()) > maxTimeBetweenMesssages) {
-        // We have been orphaned
+    // We have been orphaned
+    if(!(<any>process).connected){
         process.exit(messages.orphanExitCode);
     }
 }, 1000);
@@ -38,7 +36,6 @@ function processData(m: any) {
 }
 
 process.on('message',(data) => {
-    gotMessageDate = new Date();
     // console.log('child got:', data.toString());
     processData(data)
 });
