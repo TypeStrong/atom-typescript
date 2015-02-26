@@ -1,15 +1,10 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
-import messages = require('./messages');
+import messages = require('./workerLib');
 
 // Keepalive
-setInterval(() => {
-    // We have been orphaned
-    if(!(<any>process).connected){
-        process.exit(messages.orphanExitCode);
-    }
-}, 1000);
+messages.keepAlive();
 
 var responders: { [message: string]: (query: any) => any } = {};
 

@@ -60,6 +60,7 @@
         "./typings/tsd.d.ts",
         "./worker/child.ts",
         "./worker/messages.ts",
-        "./worker/parent.ts"
+        "./worker/parent.ts",
+        "./worker/workerLib.ts"
     ]
 }
