@@ -73,7 +73,7 @@ class RequesterResponder {
      * and returns a function that will execute the function by name on the child
      * if the child has a responder registered
      */
-    childQuery<Query, Response>(func: (query: Query) => Response): (data: Query) => Promise<Response> {
+    childQuery<Query, Response>(func: (query: Query) => Promise<Response>): (data: Query) => Promise<Response> {
         var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
         return (data) => {
             var message = func.name;
@@ -100,7 +100,7 @@ class RequesterResponder {
     
     ////////////////////////////////// RESPONDER ////////////////////////
     
-    private responders: { [message: string]: (query: any) => any } = {};
+    private responders: { [message: string]: <Query,Response>(query: Query) => Promise<Response> } = {};
 
     protected processRequest = (m: any) => {
         var parsed: Message<any> = m;
@@ -109,23 +109,37 @@ class RequesterResponder {
             return;
         }
         var message = parsed.message;
+        var responsePromise: Promise<any>;
         try {
-            var response = this.responders[message](parsed.data);
+            responsePromise = this.responders[message](parsed.data);
         } catch (err) {
-            var error = { method: message, message: err.message, stack: err.stack, details: err.details || {} };
+            responsePromise = Promise.reject({ method: message, message: err.message, stack: err.stack, details: err.details || {} });
         }
-
-        this.getProcess().send({
-            message: message,
-            /** Note the to process a request we just pass the id as we recieve it */
-            id: parsed.id,
-            data: response,
-            error: error,
-            request: false
-        });
+        
+        responsePromise
+            .then((response)=>{
+                this.getProcess().send({
+                    message: message,
+                    /** Note: to process a request we just pass the id as we recieve it */
+                    id: parsed.id,
+                    data: response,
+                    error: null,
+                    request: false
+                });
+            })
+            .catch((error)=>{
+                this.getProcess().send({
+                    message: message,
+                    /** Note: to process a request we just pass the id as we recieve it */
+                    id: parsed.id,
+                    data: null,
+                    error: error,
+                    request: false
+                });
+            });
     }
 
-    private addToResponders<Query, Response>(func: (query: Query) => Response) {
+    private addToResponders<Query, Response>(func: (query: Query) => Promise<Response>) {
         this.responders[func.name] = func;
     }
 

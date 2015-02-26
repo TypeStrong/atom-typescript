@@ -14,6 +14,8 @@ import project = require('./project');
 import Project = project.Project;
 import languageServiceHost = require('./languageServiceHost');
 
+var resolve = Promise.resolve.bind(Promise);
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -100,9 +102,9 @@ export interface Echo {
     echo: any;
     num: number;
 }
-export function echo(data: Echo): Echo {
+export function echo(data: Echo): Promise<Echo> {
     data.num = data.num + 1;
-    return data;
+    return resolve(data);
 }
 
 export interface QuickInfoQuery extends FilePathPositionQuery { }
@@ -111,25 +113,25 @@ export interface QuickInfoResponse {
     name?: string;
     comment?: string;
 }
-export function quickInfo(query: QuickInfoQuery): QuickInfoResponse {
+export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
-    if (!info) return { valid: false };
-    else return {
+    if (!info) return Promise.resolve({ valid: false });
+    else return resolve({
         valid: true,
         name: ts.displayPartsToString(info.displayParts || []),
         comment: ts.displayPartsToString(info.documentation || []),
-    }
+    });
 }
 
 export interface BuildQuery extends FilePathQuery { }
 export interface BuildResponse {
     outputs: project.BuildOutput;
 }
-export function build(query: BuildQuery): BuildResponse {
-    return {
+export function build(query: BuildQuery): Promise<BuildResponse> {
+    return resolve({
         outputs: getOrCreateProject(query.filePath).build()
-    };
+    });
 }
 
 /** Filtered means *only* for this file i.e. exclude errors from files it references/imports */
@@ -137,11 +139,14 @@ export interface ErrorsForFileFilteredQuery extends FilePathQuery { }
 export interface ErrorsForFileFilteredResponse {
     errors: project.TSError[];
 }
-export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): ErrorsForFileFilteredResponse {
+export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promise<ErrorsForFileFilteredResponse> {
     // We have inconsistent Unix slashes.
     // TODO: Make slashes consistent all around. Something in language service is funny
     var fileName = path.basename(query.filePath);
-    return { errors: errorsForFile({ filePath: query.filePath }).errors.filter((error) => path.basename(error.filePath) == fileName) };
+
+    return errorsForFile({ filePath: query.filePath })
+        .then((resp) =>
+        <ErrorsForFileFilteredResponse>{ errors: resp.errors.filter((error) => path.basename(error.filePath) == fileName) });
 }
 
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
@@ -160,7 +165,7 @@ export interface GetCompletionsAtPositionResponse {
 }
 var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>']);
 /** gets the first 10 completions only */
-export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): GetCompletionsAtPositionResponse {
+export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
 
     var project = getOrCreateProject(filePath);
@@ -197,7 +202,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         return { display: display, comment: comment };
     }
 
-    return {
+    return resolve({
         completions: completionList.map(c=> {
             var details = docComment(c);
             return {
@@ -208,7 +213,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
             };
         }),
         endsInPunctuation: endsInPunctuation
-    };
+    });
 }
 
 export interface GetSignatureHelpQuery extends FilePathPositionQuery { }
@@ -218,12 +223,12 @@ export interface SignatureHelp {
 export interface GetSignatureHelpResponse {
     signatureHelps: SignatureHelp[];
 }
-export function getSignatureHelps(query: GetSignatureHelpQuery): GetSignatureHelpResponse {
+export function getSignatureHelps(query: GetSignatureHelpQuery): Promise<GetSignatureHelpResponse> {
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
 
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
-        return { signatureHelps: [] };
+        return resolve({ signatureHelps: [] });
 
     // TODO: WIP
     return <any>signatureHelpItems.items;
@@ -231,16 +236,16 @@ export function getSignatureHelps(query: GetSignatureHelpQuery): GetSignatureHel
 
 export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends project.EmitOutput { }
-export function emitFile(query: EmitFileQuery): EmitFileResponse {
-    return getOrCreateProject(query.filePath).emitFile(query.filePath);
+export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
+    return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 
 export interface RegenerateProjectGlobQuery extends FilePathQuery { }
 export interface RegenerateProjectGlobResponse { }
-export function regenerateProjectGlob(query: RegenerateProjectGlobQuery): RegenerateProjectGlobResponse {
+export function regenerateProjectGlob(query: RegenerateProjectGlobQuery): Promise<RegenerateProjectGlobResponse> {
     var projectFile = getOrCreateProjectFile(query.filePath);
     cacheAndCreateProject(projectFile);
-    return {};
+    return resolve({});
 }
 
 export interface FormatDocumentQuery extends FilePathQuery {
@@ -250,9 +255,9 @@ export interface FormatDocumentResponse {
     formatted: string;
     cursor: languageServiceHost.Position
 }
-export function formatDocument(query: FormatDocumentQuery): FormatDocumentResponse {
+export function formatDocument(query: FormatDocumentQuery): Promise<FormatDocumentResponse> {
     var prog = getOrCreateProject(query.filePath);
-    return prog.formatDocument(query.filePath, query.cursor);
+    return resolve(prog.formatDocument(query.filePath, query.cursor));
 }
 
 export interface FormatDocumentRangeQuery extends FilePathQuery {
@@ -260,9 +265,9 @@ export interface FormatDocumentRangeQuery extends FilePathQuery {
     end: languageServiceHost.Position;
 }
 export interface FormatDocumentRangeResponse { formatted: string; }
-export function formatDocumentRange(query: FormatDocumentRangeQuery): FormatDocumentRangeResponse {
+export function formatDocumentRange(query: FormatDocumentRangeQuery): Promise<FormatDocumentRangeResponse> {
     var prog = getOrCreateProject(query.filePath);
-    return { formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) };
+    return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
 }
 
 export interface GetDefinitionsAtPositionQuery extends FilePathPositionQuery { }
@@ -273,13 +278,13 @@ export interface GetDefinitionsAtPositionResponse {
         position: languageServiceHost.Position
     }[]
 }
-export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): GetDefinitionsAtPositionResponse {
+export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): Promise<GetDefinitionsAtPositionResponse> {
     var project = getOrCreateProject(query.filePath);
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
-    if (!definitions || !definitions.length) return { projectFileDirectory: projectFileDirectory, definitions: [] };
+    if (!definitions || !definitions.length) return resolve({ projectFileDirectory: projectFileDirectory, definitions: [] });
 
-    return {
+    return resolve({
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(d=> {
             // If we can get the filename *we are in the same program :P*
@@ -289,27 +294,27 @@ export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): 
                 position: pos
             };
         })
-    };
+    });
 }
 
 export interface UpdateTextQuery extends FilePathQuery {
     text: string;
 }
-export function updateText(query: UpdateTextQuery): any {
+export function updateText(query: UpdateTextQuery): Promise<any> {
     getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
-    return {};
+    return resolve({});
 }
 
-export function errorsForFile(query: FilePathQuery): {
+export function errorsForFile(query: FilePathQuery): Promise<{
     errors: project.TSError[]
-} {
+}> {
     var program = getOrCreateProject(query.filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
     if (diagnostics.length === 0) {
         diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
     }
 
-    return { errors: diagnostics.map(project.diagnosticToTSError) };
+    return resolve({ errors: diagnostics.map(project.diagnosticToTSError) });
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
@@ -326,19 +331,19 @@ export interface GetRenameInfoResponse {
         filePath: string;
     }[];
 }
-export function getRenameInfo(query: GetRenameInfoQuery): GetRenameInfoResponse {
+export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoResponse> {
     var project = getOrCreateProject(query.filePath);
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
     if (info && info.canRename) {
         var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
             .map(loc=> {
-            return {
+            return resolve({
                 textSpan: textSpan(loc.textSpan),
                 filePath: loc.fileName
-            }
+            });
         });
-        return {
+        return resolve({
             canRename: true,
             localizedErrorMessage: info.localizedErrorMessage,
             displayName: info.displayName,
@@ -347,11 +352,11 @@ export function getRenameInfo(query: GetRenameInfoQuery): GetRenameInfoResponse 
             kindModifiers: info.kindModifiers,
             triggerSpan: textSpan(info.triggerSpan),
             locations: locations
-        }
+        })
     }
     else {
-        return {
+        return resolve({
             canRename: false
-        }
+        });
     }
 }
