@@ -98,8 +98,10 @@ function textSpan(span: ts.TextSpan): TextSpan {
 
 export interface Echo {
     echo: any;
+    num: number;
 }
 export function echo(data: Echo): Echo {
+    data.num = data.num + 1;
     return data;
 }
 
