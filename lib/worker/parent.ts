@@ -5,13 +5,13 @@ import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 
-import workerLib = require('./workerLib');
+import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
 
 
 var parent = new workerLib.Parent();
 export function startWorker() {
-    parent.startWorker(__dirname + '/child.js', showError);
+    parent.startWorker(__dirname + '/childMain.js', showError);
     console.log('AtomTS worker started')
 }
 
@@ -51,3 +51,7 @@ export var updateText = parent.childQuery(projectService.updateText);
 export var errorsForFile = parent.childQuery(projectService.errorsForFile);
 export var getSignatureHelps = parent.childQuery(projectService.getSignatureHelps);
 export var getRenameInfo = parent.childQuery(projectService.getRenameInfo);
+
+
+import parentResponses = require('./parentResponses');
+parent.registerAllFunctionsExportedFromAsResponders(parentResponses);

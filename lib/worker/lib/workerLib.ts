@@ -19,8 +19,8 @@ export interface Message<T> {
         stack: string;
         details: any;
     };
-    /** true if child is the one querying the parent */
-    childToParent?: boolean;
+    /** Is this message a request or a response */
+    request: boolean;
 }
 
 /** Creates a Guid (UUID v4) */
@@ -34,14 +34,39 @@ function createId(): string {
 /** Used by parent and child for keepalive */
 var orphanExitCode = 100;
 
-/** The parent */
-export class Parent {
-    private child: childprocess.ChildProcess;
-    private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
-    private node = process.execPath;   
+class RequesterResponder {
+
+    /** Must be implemented in children */
+    protected getProcess: {
+        (): { send?: <T>(message: Message<T>) => any }
+    }
+    = () => { throw new Error('getProcess is abstract'); return null; }
     
-    /** If we get this error then the situation if fairly hopeless */
-    private gotENOENTonSpawnNode = false; 
+    
+    ///////////////////////////////// REQUESTOR /////////////////////////
+    
+    private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
+    
+    /** process a message from the child */
+    protected processResponse(m: any) {
+        var parsed: Message<any> = m;
+
+        if (!parsed.message || !parsed.id) {
+            console.log('PARENT ERR: Invalid JSON data from child:', m);
+        }
+        else if (!this.currentListeners[parsed.message] || !this.currentListeners[parsed.message][parsed.id]) {
+            console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
+        }
+        else { // Alright nothing *weird* happened
+            if (parsed.error) {
+                this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
+            }
+            else {
+                this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
+            }
+            delete this.currentListeners[parsed.message][parsed.id];
+        }
+    }
     
     /** 
      * Takes a sync named function 
@@ -49,28 +74,77 @@ export class Parent {
      * if the child has a responder registered
      */
     childQuery<Query, Response>(func: (query: Query) => Response): (data: Query) => Promise<Response> {
+        var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
         return (data) => {
             var message = func.name;
     
             // If we don't have a child exit
-            if (!this.child) {
+            if (!that.getProcess()) {
                 console.log('PARENT ERR: no child when you tried to send :', message);
                 return <any>Promise.reject(new Error("No worker active to recieve message: " + message));
             }
     
             // Initialize if this is the first call of this type
-            if (!this.currentListeners[message]) this.currentListeners[message] = {};
+            if (!that.currentListeners[message]) this.currentListeners[message] = {};
     
             // Create an id unique to this call and store the defered against it
             var id = createId();
             var defer = Promise.defer<Response>();
-            this.currentListeners[message][id] = defer;
+            that.currentListeners[message][id] = defer;
     
             // Send data to worker
-            this.child.send({ message: message, id: id, data: data });
+            that.getProcess().send({ message: message, id: id, data: data, request: true });
             return defer.promise;
         };
     }
+    
+    ////////////////////////////////// RESPONDER ////////////////////////
+    
+    private responders: { [message: string]: (query: any) => any } = {};
+
+    protected processRequest = (m: any) => {
+        var parsed: Message<any> = m;
+        if (!parsed.message || !this.responders[parsed.message]) {
+            // TODO: handle this error scenario. Either the message is invalid or we do not have a registered responder
+            return;
+        }
+        var message = parsed.message;
+        try {
+            var response = this.responders[message](parsed.data);
+        } catch (err) {
+            var error = { method: message, message: err.message, stack: err.stack, details: err.details || {} };
+        }
+
+        this.getProcess().send({
+            message: message,
+            /** Note the to process a request we just pass the id as we recieve it */
+            id: parsed.id,
+            data: response,
+            error: error,
+            request: false
+        });
+    }
+
+    private addToResponders<Query, Response>(func: (query: Query) => Response) {
+        this.responders[func.name] = func;
+    }
+
+    registerAllFunctionsExportedFromAsResponders(aModule: any) {
+        Object.keys(aModule)
+            .filter((funcName) => typeof aModule[funcName] == 'function')
+            .forEach((funcName) => this.addToResponders(aModule[funcName]));
+    }
+}
+
+/** The parent */
+export class Parent extends RequesterResponder {
+
+    private child: childprocess.ChildProcess;
+    private node = process.execPath;   
+    
+    /** If we get this error then the situation if fairly hopeless */
+    private gotENOENTonSpawnNode = false;
+    protected getProcess = () => this.child;
     
     /** start worker */
     startWorker(childJsPath: string, terminalError: (e: Error) => any) {
@@ -88,7 +162,14 @@ export class Parent {
                 this.child = null;
             });
 
-            this.child.on('message',(resp) => this.processResponse(resp));
+            this.child.on('message',(message: Message<any>) => {
+                if (message.request) {
+                    this.processRequest(message);
+                }
+                else {
+                    this.processResponse(message);
+                }
+            });
 
             this.child.stderr.on('data',(err) => {
                 console.log("CHILD ERR STDERR:", err.toString());
@@ -128,39 +209,26 @@ export class Parent {
         }
         this.child = null;
     }
-    
-    /** process a message from the child */
-    private processResponse(m: any) {
-        var parsed: Message<any> = m;
-
-        if (!parsed.message || !parsed.id) {
-            console.log('PARENT ERR: Invalid JSON data from child:', m);
-        }
-        else if (!this.currentListeners[parsed.message] || !this.currentListeners[parsed.message][parsed.id]) {
-            console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
-        }
-        else { // Alright nothing *weird* happened
-            if (parsed.error) {
-                this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
-            }
-            else {
-                this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
-            }
-            delete this.currentListeners[parsed.message][parsed.id];
-        }
-    }
 }
 
-export class Child {
-    private responders: { [message: string]: (query: any) => any } = {};
+export class Child extends RequesterResponder {
+
+    protected getProcess = () => process;
 
     constructor() {
+        super();
+        
         // Keep alive 
         this.keepAlive();
         
         // Start listening
-        process.on('message',(data) => {
-            this.processData(data);
+        process.on('message',(message: Message<any>) => {
+            if (message.request) {
+                this.processRequest(message);
+            }
+            else {
+                this.processResponse(message);
+            }
         });
     }
     
@@ -172,37 +240,5 @@ export class Child {
                 process.exit(orphanExitCode);
             }
         }, 1000);
-    }
-    
-    // Note: child doesn't care about 'id'
-    private processData(m: any) {
-        var parsed: Message<any> = m;
-        if (!parsed.message || !this.responders[parsed.message]) {
-            // TODO: handle this error scenario. Either the message is invalid or we do not have a registered responder
-            return;
-        }
-        var message = parsed.message;
-        try {
-            var response = this.responders[message](parsed.data);
-        } catch (err) {
-            var error = { method: message, message: err.message, stack: err.stack, details: err.details || {} };
-        }
-
-        process.send({
-            message: message,
-            id: parsed.id,
-            data: response,
-            error: error
-        });
-    }
-
-    private addToResponders<Query, Response>(func: (query: Query) => Response) {
-        this.responders[func.name] = func;
-    }
-
-    registerAllFunctionsExportedFrom(aModule: any) {
-        Object.keys(aModule)
-            .filter((funcName) => typeof aModule[funcName] == 'function')
-            .forEach((funcName) => this.addToResponders(aModule[funcName]));
     }
 }
