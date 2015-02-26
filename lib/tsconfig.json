@@ -61,6 +61,6 @@
         "./worker/child.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
-        "./worker/parentResponses.ts"
+        "./worker/queryParent.ts"
     ]
 }

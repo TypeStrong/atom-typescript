@@ -9,9 +9,9 @@ var child = new workerLib.Child();
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
-import parentResponses = require('./parentResponses');
-export var plus1 = child.sendToIpc(parentResponses.plus1);
-
 // Automatically include all functions from "projectService" as a responder
 import projectService = require('../main/lang/projectService');
 child.registerAllFunctionsExportedFromAsResponders(projectService);
+
+// push in child
+projectService.child = child;

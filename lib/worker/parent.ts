@@ -52,6 +52,6 @@ export var errorsForFile = parent.sendToIpc(projectService.errorsForFile);
 export var getSignatureHelps = parent.sendToIpc(projectService.getSignatureHelps);
 export var getRenameInfo = parent.sendToIpc(projectService.getRenameInfo);
 
-// Automatically include all functions from "parentResponses" as a responder
-import parentResponses = require('./parentResponses');
-parent.registerAllFunctionsExportedFromAsResponders(parentResponses);
+// Automatically include all functions from "parentResponses" as responders
+import queryParent = require('./queryParent');
+parent.registerAllFunctionsExportedFromAsResponders(queryParent);

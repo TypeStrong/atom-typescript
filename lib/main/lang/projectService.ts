@@ -14,7 +14,22 @@ import project = require('./project');
 import Project = project.Project;
 import languageServiceHost = require('./languageServiceHost');
 
-var resolve:typeof Promise.resolve = Promise.resolve.bind(Promise);
+var resolve: typeof Promise.resolve = Promise.resolve.bind(Promise);
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////// MECHANISM FOR THE CHILD TO QUERY THE PARENT ///////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+import workerLib = require('../../worker/lib/workerLib');
+import queryParent = require('../../worker/queryParent');
+
+// pushed in by child.ts
+// If we are in a child context we patch the functions to execute via IPC.
+// Otherwise we would call them directly.
+export var child: workerLib.Child;
+if (child) {
+    queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification)
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
@@ -103,8 +118,10 @@ export interface Echo {
     num: number;
 }
 export function echo(data: Echo): Promise<Echo> {
-    data.num = data.num + 1;
-    return resolve(data);
+    return queryParent.echoNumWithModification({ num: data.num }).then((resp) => {
+        data.num = resp.num;
+        return data;
+    });
 }
 
 export interface QuickInfoQuery extends FilePathPositionQuery { }
