@@ -11,7 +11,7 @@ import tsconfig = require('../main/tsconfig/tsconfig');
 
 var parent = new workerLib.Parent();
 export function startWorker() {
-    parent.startWorker(__dirname + '/childMain.js', showError);
+    parent.startWorker(__dirname + '/child.js', showError);
     console.log('AtomTS worker started')
 }
 
@@ -37,20 +37,20 @@ function showError(error: Error) {
 ///ts:import=projectService
 import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
-export var echo = parent.childQuery(projectService.echo);
-export var quickInfo = parent.childQuery(projectService.quickInfo);
-export var build = parent.childQuery(projectService.build);
-export var errorsForFileFiltered = parent.childQuery(projectService.errorsForFileFiltered);
-export var getCompletionsAtPosition = parent.childQuery(projectService.getCompletionsAtPosition);
-export var emitFile = parent.childQuery(projectService.emitFile);
-export var regenerateProjectGlob = parent.childQuery(projectService.regenerateProjectGlob);
-export var formatDocument = parent.childQuery(projectService.formatDocument);
-export var formatDocumentRange = parent.childQuery(projectService.formatDocumentRange);
-export var getDefinitionsAtPosition = parent.childQuery(projectService.getDefinitionsAtPosition);
-export var updateText = parent.childQuery(projectService.updateText);
-export var errorsForFile = parent.childQuery(projectService.errorsForFile);
-export var getSignatureHelps = parent.childQuery(projectService.getSignatureHelps);
-export var getRenameInfo = parent.childQuery(projectService.getRenameInfo);
+export var echo = parent.sendToIpc(projectService.echo);
+export var quickInfo = parent.sendToIpc(projectService.quickInfo);
+export var build = parent.sendToIpc(projectService.build);
+export var errorsForFileFiltered = parent.sendToIpc(projectService.errorsForFileFiltered);
+export var getCompletionsAtPosition = parent.sendToIpc(projectService.getCompletionsAtPosition);
+export var emitFile = parent.sendToIpc(projectService.emitFile);
+export var regenerateProjectGlob = parent.sendToIpc(projectService.regenerateProjectGlob);
+export var formatDocument = parent.sendToIpc(projectService.formatDocument);
+export var formatDocumentRange = parent.sendToIpc(projectService.formatDocumentRange);
+export var getDefinitionsAtPosition = parent.sendToIpc(projectService.getDefinitionsAtPosition);
+export var updateText = parent.sendToIpc(projectService.updateText);
+export var errorsForFile = parent.sendToIpc(projectService.errorsForFile);
+export var getSignatureHelps = parent.sendToIpc(projectService.getSignatureHelps);
+export var getRenameInfo = parent.sendToIpc(projectService.getRenameInfo);
 
 // Automatically include all functions from "parentResponses" as a responder
 import parentResponses = require('./parentResponses');

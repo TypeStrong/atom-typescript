@@ -41,12 +41,12 @@ class RequesterResponder {
         (): { send?: <T>(message: Message<T>) => any }
     }
     = () => { throw new Error('getProcess is abstract'); return null; }
-    
-    
+
+
     ///////////////////////////////// REQUESTOR /////////////////////////
-    
+
     private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
-    
+
     /** process a message from the child */
     protected processResponse(m: any) {
         var parsed: Message<any> = m;
@@ -67,39 +67,39 @@ class RequesterResponder {
             delete this.currentListeners[parsed.message][parsed.id];
         }
     }
-    
-    /** 
-     * Takes a sync named function 
-     * and returns a function that will execute the function by name on the child
-     * if the child has a responder registered
+
+    /**
+     * Takes a sync named function
+     * and returns a function that will execute this function by name using IPC
+     * (will only work if the process on the other side has this function as a registered responder)
      */
-    childQuery<Query, Response>(func: (query: Query) => Promise<Response>): (data: Query) => Promise<Response> {
+    sendToIpc<Query, Response>(func: (query: Query) => Promise<Response>): (data: Query) => Promise<Response> {
         var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
         return (data) => {
             var message = func.name;
-    
+
             // If we don't have a child exit
             if (!that.getProcess()) {
                 console.log('PARENT ERR: no child when you tried to send :', message);
                 return <any>Promise.reject(new Error("No worker active to recieve message: " + message));
             }
-    
+
             // Initialize if this is the first call of this type
             if (!that.currentListeners[message]) this.currentListeners[message] = {};
-    
+
             // Create an id unique to this call and store the defered against it
             var id = createId();
             var defer = Promise.defer<Response>();
             that.currentListeners[message][id] = defer;
-    
+
             // Send data to worker
             that.getProcess().send({ message: message, id: id, data: data, request: true });
             return defer.promise;
         };
     }
-    
+
     ////////////////////////////////// RESPONDER ////////////////////////
-    
+
     private responders: { [message: string]: <Query,Response>(query: Query) => Promise<Response> } = {};
 
     protected processRequest = (m: any) => {
@@ -115,7 +115,7 @@ class RequesterResponder {
         } catch (err) {
             responsePromise = Promise.reject({ method: message, message: err.message, stack: err.stack, details: err.details || {} });
         }
-        
+
         responsePromise
             .then((response)=>{
                 this.getProcess().send({
@@ -154,12 +154,12 @@ class RequesterResponder {
 export class Parent extends RequesterResponder {
 
     private child: childprocess.ChildProcess;
-    private node = process.execPath;   
-    
+    private node = process.execPath;
+
     /** If we get this error then the situation if fairly hopeless */
     private gotENOENTonSpawnNode = false;
     protected getProcess = () => this.child;
-    
+
     /** start worker */
     startWorker(childJsPath: string, terminalError: (e: Error) => any) {
         try {
@@ -211,7 +211,7 @@ export class Parent extends RequesterResponder {
             terminalError(err);
         }
     }
-    
+
     /** stop worker */
     stopWorker() {
         if (!this.child) return;
@@ -231,10 +231,10 @@ export class Child extends RequesterResponder {
 
     constructor() {
         super();
-        
-        // Keep alive 
+
+        // Keep alive
         this.keepAlive();
-        
+
         // Start listening
         process.on('message',(message: Message<any>) => {
             if (message.request) {
@@ -245,7 +245,7 @@ export class Child extends RequesterResponder {
             }
         });
     }
-    
+
     /** keep the child process alive while its connected and die otherwise */
     private keepAlive() {
         setInterval(() => {

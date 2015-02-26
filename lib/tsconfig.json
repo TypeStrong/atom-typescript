@@ -58,7 +58,7 @@
         "./typings/status-bar/status-bar.d.ts",
         "./typings/text-buffer/text-buffer.d.ts",
         "./typings/tsd.d.ts",
-        "./worker/childMain.ts",
+        "./worker/child.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
         "./worker/parentResponses.ts"
