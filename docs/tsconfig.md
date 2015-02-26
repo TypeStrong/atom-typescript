@@ -4,6 +4,7 @@ A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript]
 * [`compilerOptions`](https://github.com/TypeStrong/atom-typescript/blob/e2fa67c4715189b71430f766ed9a92d9fb3255f9/lib/main/tsconfig/tsconfig.ts#L8-L33) similar to what you would pass on the commandline to `tsc`.
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 * [`format`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#format) : Code formatting options
+* [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version): The TypeScript version
 
 
 ## Examples
@@ -57,3 +58,6 @@ We pass these to the TypeScript language service as code formatting options.
     }
 }
 ```
+
+### version
+This exists simply to make it easier for the future you to know which TypeScript version was used when this project file was created. You can read more here [Microsoft/TypeScript#2113](https://github.com/Microsoft/TypeScript/issues/2133)

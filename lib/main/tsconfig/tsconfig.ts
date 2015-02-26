@@ -35,6 +35,7 @@ interface CompilerOptions {
 }
 
 interface TypeScriptProjectRawSpecification {
+    version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
@@ -82,8 +83,8 @@ import os = require('os');
 import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
-
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var typeScriptVersion = '1.4.1';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -310,6 +311,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
 
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
+    projectSpec.version = typeScriptVersion;
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
     projectSpec.filesGlob = defaultFilesGlob;
 
