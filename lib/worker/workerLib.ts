@@ -31,17 +31,8 @@ function createId(): string {
     });
 }
 
-export var orphanExitCode = 100;
-
-/** call this from the child to keep it alive while its connected and die otherwise */
-export function keepAlive() {
-    setInterval(() => {
-        // We have been orphaned
-        if (!(<any>process).connected) {
-            process.exit(orphanExitCode);
-        }
-    }, 1000);
-}
+/** Used by parent and child for keepalive */
+var orphanExitCode = 100;
 
 /** The parent */
 export class Parent {
@@ -160,3 +151,58 @@ export class Parent {
     }
 }
 
+export class Child {
+    private responders: { [message: string]: (query: any) => any } = {};
+
+    constructor() {
+        // Keep alive 
+        this.keepAlive();
+        
+        // Start listening
+        process.on('message',(data) => {
+            this.processData(data);
+        });
+    }
+    
+    /** keep the child process alive while its connected and die otherwise */
+    private keepAlive() {
+        setInterval(() => {
+            // We have been orphaned
+            if (!(<any>process).connected) {
+                process.exit(orphanExitCode);
+            }
+        }, 1000);
+    }
+    
+    // Note: child doesn't care about 'id'
+    private processData(m: any) {
+        var parsed: Message<any> = m;
+        if (!parsed.message || !this.responders[parsed.message]) {
+            // TODO: handle this error scenario. Either the message is invalid or we do not have a registered responder
+            return;
+        }
+        var message = parsed.message;
+        try {
+            var response = this.responders[message](parsed.data);
+        } catch (err) {
+            var error = { method: message, message: err.message, stack: err.stack, details: err.details || {} };
+        }
+
+        process.send({
+            message: message,
+            id: parsed.id,
+            data: response,
+            error: error
+        });
+    }
+
+    private addToResponders<Query, Response>(func: (query: Query) => Response) {
+        this.responders[func.name] = func;
+    }
+
+    registerAllFunctionsExportedFrom(aModule: any) {
+        Object.keys(aModule)
+            .filter((funcName) => typeof aModule[funcName] == 'function')
+            .forEach((funcName) => this.addToResponders(aModule[funcName]));
+    }
+}
