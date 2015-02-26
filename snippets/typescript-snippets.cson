@@ -1,0 +1,21 @@
+'.source.ts':
+    'while':
+        'prefix': 'while'
+        'body': """
+            while (${1:true}) {
+                $2
+            }
+        """
+    'JSDoc single line':
+        'prefix': '//'
+        'body': """
+            /** $1 */
+        """
+    'JSDoc multi line':
+        'prefix': '///'
+        'body': """
+            /** 
+             * $1
+             */
+        """
+ 
