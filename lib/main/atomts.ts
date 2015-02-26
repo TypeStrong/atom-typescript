@@ -78,12 +78,12 @@ export function activate(state: PackageState) {
     (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
 
     // Streaming tests
-    /*for (var i = 0; i < 10000; i++) {
+    /*for (var i = 0; i < 100; i++) {
         (() => {
             var index = i;
             var repeat = index.toString() + ' ';
             var message = '';
-            for (var j = 0; j < 1000; j++) {
+            for (var j = 0; j < 100; j++) {
                 message = message + repeat;
             }
             parent.echo({ echo: 'awesome ' + message }).then((res) => {

@@ -52,6 +52,6 @@ export var errorsForFile = parent.childQuery(projectService.errorsForFile);
 export var getSignatureHelps = parent.childQuery(projectService.getSignatureHelps);
 export var getRenameInfo = parent.childQuery(projectService.getRenameInfo);
 
-
+// Automatically include all functions from "parentResponses" as a responder
 import parentResponses = require('./parentResponses');
 parent.registerAllFunctionsExportedFromAsResponders(parentResponses);
