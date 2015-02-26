@@ -14,7 +14,7 @@ import project = require('./project');
 import Project = project.Project;
 import languageServiceHost = require('./languageServiceHost');
 
-var resolve = Promise.resolve.bind(Promise);
+var resolve:typeof Promise.resolve = Promise.resolve.bind(Promise);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
@@ -338,10 +338,10 @@ export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoR
     if (info && info.canRename) {
         var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
             .map(loc=> {
-            return resolve({
+            return {
                 textSpan: textSpan(loc.textSpan),
                 filePath: loc.fileName
-            });
+            };
         });
         return resolve({
             canRename: true,
