@@ -96,12 +96,11 @@ export function activate(state: PackageState) {
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
-            // We have an update text here as we are highly aggressive about
-            // * loading file system changes and invalidating our project cache
-            // * crashes in the worker
-            // best to reload stuff on change active tab
-            parent.updateText({ text: editor.getText(), filePath: filePath })
-                .then(() => parent.errorsForFile({ filePath: filePath }))
+            
+            // Refresh errors stuff on change active tab. 
+            // Because the fix might be in the other file
+            // or the other file might have made this file have an error
+            parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
         }
     });

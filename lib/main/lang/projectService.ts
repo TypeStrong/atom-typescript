@@ -26,9 +26,11 @@ import queryParent = require('../../worker/queryParent');
 // pushed in by child.ts
 // If we are in a child context we patch the functions to execute via IPC.
 // Otherwise we would call them directly.
-export var child: workerLib.Child;
-if (child) {
-    queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification)
+var child: workerLib.Child;
+export function fixChild(childInjected: typeof child) {
+    child = childInjected;
+    queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
+    queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -39,12 +41,22 @@ var projectByProjectPath: { [projectDir: string]: Project } = {}
 /** the project file path or any source ts file path */
 var projectByFilePath: { [filePath: string]: Project } = {}
 
-/** Warning: we are loading the project from file system. This might not match what we have in the editor memory
- This is the reason why we aggresively send text to the worker on *Tab Change* and other places
+/** We are loading the project from file system. 
+    This might not match what we have in the editor memory, so query those as well
 */
 function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetails) {
     var project = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
     projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
+    
+    // query the parent for unsaved changes
+    // We do this lazily
+    queryParent.getUpdatedTextForUnsavedEditors({})
+        .then(resp=> {
+        resp.editors.forEach(e=> {
+            project.languageServiceHost.updateScript(e.filePath, e.text);
+        });
+    });
+
     return project;
 }
 

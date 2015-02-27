@@ -1,12 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
-///ts:import=languageServiceHost
-import languageServiceHost = require('../lang/languageServiceHost'); ///ts:import:generated
 import path = require('path');
 import fs = require('fs');
 import tsconfig = require('../tsconfig/tsconfig');
-import _atom = require('atom');
 
 // Optimized version where we do not ask this of the languageServiceHost
 export function getEditorPosition(editor: AtomCore.IEditor): number {
@@ -67,6 +64,14 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
     var buffer = editor.buffer;
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
-    var range = new _atom.Range(start, end);
+    var atom = require('atom');
+    var range = new atom.Range(start, end);
     return range;
+}
+
+/** only the editors that are persisted to disk. And are of type TypeScript */
+export function getTypeScriptEditorsWithPaths() {
+    return atom.workspace.getEditors()
+        .filter(editor=> !!editor.getPath())
+        .filter(editor=> (path.extname(editor.getPath()) === '.ts'));
 }

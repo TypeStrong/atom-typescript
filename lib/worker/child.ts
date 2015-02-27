@@ -14,4 +14,4 @@ import projectService = require('../main/lang/projectService');
 child.registerAllFunctionsExportedFromAsResponders(projectService);
 
 // push in child
-projectService.child = child;
+projectService.fixChild(child);
