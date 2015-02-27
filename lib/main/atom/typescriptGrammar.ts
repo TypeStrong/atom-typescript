@@ -14,6 +14,9 @@ declare class AtomTSBaseGrammar {
     constructor(registry, config)
 }
 
+interface AtomTSTokens { tokens: any /* Atom's Token */[]; ruleStack: any[] }
+interface TSTokens { tokens: { style: string; str: string }[]; ruleStack: any[] }
+
 // This should be
 //  {Grammar} = require "first-mate"
 // but doing so throws "Error: Cannot find module 'first-mate'"
@@ -32,7 +35,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             });
     }
 
-    tokenizeLine(line, ruleStack: any[], firstLine = false) {
+    tokenizeLine(line, ruleStack: any[], firstLine = false): AtomTSTokens {
         
         // Note: the Atom Tokenizer supports multiple nesting of ruleStacks
         // The TypeScript tokenizer has a single final state it cares about
@@ -69,26 +72,49 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     // Note this will not match multiple imports on same line. So shame on you
     importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
 
-    getfullTripleSlashReferencePathTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
-        return this.getAtomTokensForLine(line, ts.EndOfLineState.Start);
-        
-        // TODO: split this up 
-        return { tokens: [this.registry.createToken(line, ["source.ts", "keyword.using.reference"])], ruleStack: [] };
+    getfullTripleSlashReferencePathTokensForLine(line: string): AtomTSTokens {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashReferencePathRegEx);
+        if (matches[3]) {
+            var path = matches[3];
+            if (line.search('"' + path + '"') != -1) {
+                path = '"' + path + '"';
+            }
+            else {
+                path = "'" + path + "'";
+            }
+            var startPosition = line.search(path);
+            var endPosition = startPosition + path.length;
+            var atomTokens = [];
+            atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));
+            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', 'reference.path.string']));
+            atomTokens.push(this.registry.createToken(line.substr(endPosition, line.length - endPosition), ['source.ts', 'keyword']));
+            return { tokens: atomTokens, ruleStack: [] };
+        }
+        else {
+            return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
+        }
     }
 
     getImportRequireTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
-        return this.getAtomTokensForLine(line, ts.EndOfLineState.Start);
-        // TODO: 
-        // We split it into:
-        // import
-        // alias
-        // =
-        // require
-        // 
-        return { tokens: [this.registry.createToken(line, ["source.ts", "keyword.using.import"])], ruleStack: [] };
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        
+        // Based on ts tokenizer we should have a single "identifier" "string"
+        // Update these
+        tsTokensWithRuleStack.tokens.forEach(t=> {
+            if (t.style == "identifier") {
+                t.style = "require.identifier";
+            }
+            if (t.style == "string") {
+                t.style = "require.path.string";
+            }
+        });
+
+        return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
     }
 
-    getTsTokensForLine(line: string, finalLexState: ts.EndOfLineState): { tokens: { style: string; str: string }[]; ruleStack: any[] } {
+    getTsTokensForLine(line: string, finalLexState: ts.EndOfLineState = ts.EndOfLineState.Start)
+        : TSTokens {
 
         var output = this.classifier.getClassificationsForLine(line, finalLexState, true);
         var ruleStack = [output.finalLexState];
@@ -111,10 +137,12 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         return { tokens, ruleStack };
     }
 
-    getAtomTokensForLine(line: string, finalLexState: ts.EndOfLineState): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
-
+    getAtomTokensForLine(line: string, finalLexState: ts.EndOfLineState): AtomTSTokens {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line, finalLexState);
+        return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
+    }
 
+    convertTsTokensToAtomTokens(tsTokensWithRuleStack: TSTokens): AtomTSTokens {
         var tokens = tsTokensWithRuleStack.tokens.map((info) => {
             var atomToken = this.registry.createToken(info.str, ["source.ts", info.style]);
             return atomToken;

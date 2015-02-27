@@ -708,6 +708,8 @@ declare module AtomCore {
 		moveCursorToPreviousWordBoundary():void;
 		moveCursorToNextWordBoundary():void;
 		moveCursors(fn:(cursor:ICursor)=>any):any;
+		moveToBeginningOfLine():any;
+		moveToEndOfLine():any;
 		selectToScreenPosition(position:TextBuffer.IPoint):any;
 		selectRight():ISelection[];
 		selectLeft():ISelection[];
@@ -722,6 +724,7 @@ declare module AtomCore {
 		selectToPreviousWordBoundary():ISelection[];
 		selectToNextWordBoundary():ISelection[];
 		selectLine():ISelection[];
+		selectLinesContainingCursors():ISelection[];
 		addSelectionBelow():ISelection[];
 		addSelectionAbove():ISelection[];
 		splitSelectionsIntoLines():any[];

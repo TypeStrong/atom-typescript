@@ -437,3 +437,16 @@ function uniq(arr: string[]): string[] {
     var map = createMap(arr);
     return Object.keys(map);
 }
+
+// Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
+export function makeRelativePath(relativeFolder: string, filePath: string) {
+    var relativePath = path.relative(relativeFolder, filePath).split('\\').join('/');
+    if (relativePath[0] !== '.') {
+        relativePath = './' + relativePath;
+    }
+    return relativePath;
+}
+
+export function removeExt(filePath: string) {
+    return filePath.substr(0, filePath.lastIndexOf('.'));
+}

@@ -5,7 +5,7 @@ import fs = require('fs');
 import path = require('path');
 import os = require('os');
 import ts = require('typescript');
-var fuzzaldrin = require('fuzzaldrin');
+var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string }) => any } = require('fuzzaldrin');
 
 import tsconfig = require('../tsconfig/tsconfig');
 
@@ -192,7 +192,8 @@ export interface GetCompletionsAtPositionResponse {
     completions: Completion[];
     endsInPunctuation: boolean;
 }
-var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>']);
+var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
+var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
 /** gets the first 10 completions only */
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
@@ -201,7 +202,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
-    var endsInPunctuation = prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]
+    var endsInPunctuation = prefixEndsInPunctuation(prefix);
 
     if (prefix.length && !endsInPunctuation) {
         // Didn't work good for punctuation
@@ -388,4 +389,46 @@ export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoR
             canRename: false
         });
     }
+}
+
+export interface GetRelativePathsInProjectQuery extends FilePathQuery {
+    prefix: string;
+}
+export interface GetRelativePathsInProjectResponse {
+    files: {
+        name: string;
+        relativePath: string;
+        fullPath: string;
+    }[];
+    endsInPunctuation: boolean;
+}
+function filePathWithoutExtension(query: string) {
+    var base = path.basename(query, '.ts');
+    return path.dirname(query) + '/' + base;
+}
+export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
+    var project = getOrCreateProject(query.filePath);
+    query.filePath = tsconfig.consistentPath(query.filePath);
+    var sourceDir = path.dirname(query.filePath);
+    var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
+
+    var files = filePaths.map(p=> {
+        return {
+            name: path.basename(p, '.ts'),
+            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
+            fullPath: p
+        };
+    });
+    
+    var endsInPunctuation: boolean = prefixEndsInPunctuation(query.prefix);
+
+    if (!endsInPunctuation)
+        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
+
+    var response: GetRelativePathsInProjectResponse = {
+        files: files,
+        endsInPunctuation: endsInPunctuation
+    };
+
+    return resolve(response);
 }
