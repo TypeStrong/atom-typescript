@@ -34,24 +34,34 @@ function showError(error: Error) {
 
 /////////////////////////////////////// END INFRASTRUCTURE ////////////////////////////////////////////////////
 
+/** Doesn't mess with any data. Just shows it nicely in the UI */
+function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Response>): workerLib.QRFunction<Query, Response> {
+    return (q) => func(q).catch((err: Error) => {
+        if (err.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
+            atom.notifications.addError('The tsconfig.json file for this TypeScript file contains invalid JSON');
+        }
+        return <any>Promise.reject(err);
+    });
+}
+
 ///ts:import=projectService
 import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
-export var echo = parent.sendToIpc(projectService.echo);
-export var quickInfo = parent.sendToIpc(projectService.quickInfo);
-export var build = parent.sendToIpc(projectService.build);
-export var errorsForFileFiltered = parent.sendToIpc(projectService.errorsForFileFiltered);
-export var getCompletionsAtPosition = parent.sendToIpc(projectService.getCompletionsAtPosition);
-export var emitFile = parent.sendToIpc(projectService.emitFile);
-export var regenerateProjectGlob = parent.sendToIpc(projectService.regenerateProjectGlob);
-export var formatDocument = parent.sendToIpc(projectService.formatDocument);
-export var formatDocumentRange = parent.sendToIpc(projectService.formatDocumentRange);
-export var getDefinitionsAtPosition = parent.sendToIpc(projectService.getDefinitionsAtPosition);
-export var updateText = parent.sendToIpc(projectService.updateText);
-export var errorsForFile = parent.sendToIpc(projectService.errorsForFile);
-export var getSignatureHelps = parent.sendToIpc(projectService.getSignatureHelps);
-export var getRenameInfo = parent.sendToIpc(projectService.getRenameInfo);
-export var getRelativePathsInProject = parent.sendToIpc(projectService.getRelativePathsInProject);
+export var echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
+export var quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
+export var build = catchCommonErrors(parent.sendToIpc(projectService.build));
+export var errorsForFileFiltered = catchCommonErrors(parent.sendToIpc(projectService.errorsForFileFiltered));
+export var getCompletionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getCompletionsAtPosition));
+export var emitFile = catchCommonErrors(parent.sendToIpc(projectService.emitFile));
+export var regenerateProjectGlob = catchCommonErrors(parent.sendToIpc(projectService.regenerateProjectGlob));
+export var formatDocument = catchCommonErrors(parent.sendToIpc(projectService.formatDocument));
+export var formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));
+export var getDefinitionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getDefinitionsAtPosition));
+export var updateText = catchCommonErrors(parent.sendToIpc(projectService.updateText));
+export var errorsForFile = catchCommonErrors(parent.sendToIpc(projectService.errorsForFile));
+export var getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.getSignatureHelps));
+export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
+export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

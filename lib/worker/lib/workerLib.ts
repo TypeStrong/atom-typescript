@@ -23,6 +23,11 @@ export interface Message<T> {
     request: boolean;
 }
 
+/** Query Response function */
+export interface QRFunction<Query, Response> {
+    (query: Query): Promise<Response>;
+}
+
 /** Creates a Guid (UUID v4) */
 function createId(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -73,7 +78,7 @@ class RequesterResponder {
      * and returns a function that will execute this function by name using IPC
      * (will only work if the process on the other side has this function as a registered responder)
      */
-    sendToIpc<Query, Response>(func: (query: Query) => Promise<Response>): (data: Query) => Promise<Response> {
+    sendToIpc<Query, Response>(func: QRFunction<Query, Response>): QRFunction<Query,Response> {
         var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
         return (data) => {
             var message = func.name;
@@ -100,7 +105,7 @@ class RequesterResponder {
 
     ////////////////////////////////// RESPONDER ////////////////////////
 
-    private responders: { [message: string]: <Query,Response>(query: Query) => Promise<Response> } = {};
+    private responders: { [message: string]: <Query, Response>(query: Query) => Promise<Response> } = {};
 
     protected processRequest = (m: any) => {
         var parsed: Message<any> = m;
@@ -117,26 +122,26 @@ class RequesterResponder {
         }
 
         responsePromise
-            .then((response)=>{
-                this.getProcess().send({
-                    message: message,
-                    /** Note: to process a request we just pass the id as we recieve it */
-                    id: parsed.id,
-                    data: response,
-                    error: null,
-                    request: false
-                });
-            })
-            .catch((error)=>{
-                this.getProcess().send({
-                    message: message,
-                    /** Note: to process a request we just pass the id as we recieve it */
-                    id: parsed.id,
-                    data: null,
-                    error: error,
-                    request: false
-                });
+            .then((response) => {
+            this.getProcess().send({
+                message: message,
+                /** Note: to process a request we just pass the id as we recieve it */
+                id: parsed.id,
+                data: response,
+                error: null,
+                request: false
             });
+        })
+            .catch((error) => {
+            this.getProcess().send({
+                message: message,
+                /** Note: to process a request we just pass the id as we recieve it */
+                id: parsed.id,
+                data: null,
+                error: error,
+                request: false
+            });
+        });
     }
 
     private addToResponders<Query, Response>(func: (query: Query) => Promise<Response>) {
