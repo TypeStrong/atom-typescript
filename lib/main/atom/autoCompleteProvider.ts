@@ -20,6 +20,8 @@ declare module autocompleteplus {
         editor: AtomCore.IEditor;
         position: TextBuffer.IPoint; // the position of the cursor
         prefix: string;
+        scope: { scopes: string[] };
+        scopeChain: string[];
     }
 
     export interface Suggestion {
@@ -30,6 +32,7 @@ declare module autocompleteplus {
         className?: string; //'globe'
         onWillConfirm?: Function;// Do something here before the word has replaced the prefix (if you need, you usually don't need to),
         onDidConfirm?: Function;// Do something here after the word has replaced the prefix (if you need, you usually don't need to)
+        
     }
 }
 
