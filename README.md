@@ -68,6 +68,20 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 `f2` to initiate rename. `enter` to commit and `esc` to cancel.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
+## Snippets
+### Relative Paths
+Relative paths have traditionally been a pain, not anymore. Use `import` or `ref` and press `tab` to trigger snippet. 
+
+`ref`
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/ref%20snippet.gif)
+
+`import`
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/import%20snippet.gif)
+
+Note that you can change the path to some other file any point by triggering autocomplete in (`ctrl+space`/`cmd+space`) the path string (works for both `ref` and `import`).
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/pathChange.gif)
+
 ## Contributing
 
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
