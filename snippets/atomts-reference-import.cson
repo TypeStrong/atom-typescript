@@ -2,7 +2,7 @@
     'reference':
         'prefix': 'ref'
         'body': """
-            /// <reference path="$1"/>
+            /// <reference path='$1'/>
         """
     'import':
         'prefix': 'import'

@@ -31,7 +31,8 @@ declare module autocompleteplus {
         className?: string; //'globe'
         onWillConfirm?: Function;// Do something here before the word has replaced the prefix (if you need, you usually don't need to),
         onDidConfirm?: Function;// Do something here after the word has replaced the prefix (if you need, you usually don't need to)
-        
+        isSnippet?: boolean;
+        snippet?: string;
     }
 }
 
@@ -62,7 +63,7 @@ export var provider = {
         // We refuse to work on files that are not on disk.
         if (!filePath) return Promise.resolve([]);
         if (!fs.existsSync(filePath)) return Promise.resolve([]);
-        
+
         // If we are looking at reference or require path support file system completions
         var pathMatchers = ['reference.path.string', 'require.path.string'];
         var lastScope = options.scope.scopes[options.scope.scopes.length - 1];
@@ -84,7 +85,7 @@ export var provider = {
                             }
                             if (lastScope == 'require.path.string') {
                                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                                options.editor.replaceSelectedText(null, function() { return "import "+alias+" = require('" + file.relativePath + "');"; });
+                                options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + file.relativePath + "');"; });
                             }
                             options.editor.moveToEndOfLine();
                         }
@@ -97,7 +98,7 @@ export var provider = {
 
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.position);
 
-            var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>            
+            var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>
             // TODO: remove updateText once we have edit on change in place
                 = parent.updateText({ filePath: filePath, text: options.editor.getText() })
                     .then(() => parent.getCompletionsAtPosition({
@@ -116,17 +117,17 @@ export var provider = {
                             renderLabelAsHtml: true,
                         };
                     });
-                    
+
                     // Hopefully autocomplete plus can detect snippets automatically at some point
-                    if(options.prefix == 'ref' 
-                        && options.scope.scopes.length>1 
-                        && options.scope.scopes[1]=='identifier'
-                        && suggestions[0].word !== 'ref'){
+                    if (options.prefix == 'ref'
+                        && suggestions[0].word !== 'ref') {
                         suggestions.unshift({
-                            word:'ref',
-                            prefix:'ref',
-                            label:'add a reference tag',
-                            renderLabelAsHtml:false                            
+                            word: 'ref',
+                            prefix: 'ref',
+                            label: 'add a reference tag',
+                            renderLabelAsHtml: false,
+                            isSnippet: true,
+                            snippet:"/// <reference path='$1'/>"
                         });
                     }
 
