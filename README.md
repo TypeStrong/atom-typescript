@@ -78,7 +78,7 @@ Relative paths have traditionally been a pain, not anymore. Use `import` or `ref
 `import`
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/import%20snippet.gif)
 
-Note that you can change the path to some other file any point by triggering autocomplete in (`ctrl+space`/`cmd+space`) the path string (works for both `ref` and `import`).
+Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`) for all the files in the project by filename (works for both `ref` and `import`).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/pathChange.gif)
 
