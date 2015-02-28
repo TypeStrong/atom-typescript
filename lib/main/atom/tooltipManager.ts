@@ -43,7 +43,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
     subscriber.subscribe(scroll, 'mouseout',(e) => clearExprTypeTimeout());
-
+    subscriber.subscribe(scroll, 'keydown',(e) => clearExprTypeTimeout());
 
     // Setup for clearing
     subscriber.subscribe(editorView, 'editor:will-be-removed',() => deactivate());
@@ -72,7 +72,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         exprTypeTooltip = new TooltipView(tooltipRect);
 
         var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
-        
+
         // Actually make the program manager query
         parent.quickInfo({ filePath, position }).then((resp) => {
             if (!resp.valid) {
