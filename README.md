@@ -7,13 +7,17 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Installation
 
 1. Install [atom](https://atom.io).
-1. `apm install typescript` (`apm` needs `git` in your path)
+2. `apm install atom-typescript` (`apm` needs `git` in your path)
+3. Fire up atom. Wait for the message: `Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.` **It may take up to 5 minutes for this message to appear. Be patient!**
+4. Restart atom
 
 **Additional Notes**: Other atom packages we depend upon are installed automatically on first load.
 
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
 "And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)  
+"It's a thing of beauty - they had me at '*Type information on hover*'. Discovering  `tsconfig.json` support as well was just an enormous bonus." [John Reilly](https://twitter.com/johnny_reilly)
+
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
 # Features
