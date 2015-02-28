@@ -254,7 +254,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Our customizations for "tsconfig.json"
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    if (!projectSpec.files) {
+    // If there is no files or no filesGlob, we create one.
+    if (!projectSpec.files && !projectSpec.filesGlob) {
         projectSpec.filesGlob = defaultFilesGlob;
     }
     if (projectSpec.filesGlob) {
