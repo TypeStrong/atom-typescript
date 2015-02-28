@@ -52,14 +52,12 @@ export function activate(state: PackageState) {
     // Don't activate if we have a dependency that isn't available
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
-    var projectManager = apd.require('project-manager');
-    if (!projectManager) {
-        atom.notifications.addInfo('AtomTS: project-manager not found. Running "apm install project-manager" for you.')
-    }
 
-    if (!linter || !acp || !projectManager) {
+    if (!linter || !acp) {
+        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation', { dismissable: true });
         apd.install(function() {
             atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
+            notification.dismiss();
         });
 
         return;
@@ -96,8 +94,8 @@ export function activate(state: PackageState) {
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
-            
-            // Refresh errors stuff on change active tab. 
+
+            // Refresh errors stuff on change active tab.
             // Because the fix might be in the other file
             // or the other file might have made this file have an error
             parent.errorsForFile({ filePath: filePath })
