@@ -47,22 +47,8 @@ import parent = require('../worker/parent');
 import atomConfig = require('./atom/atomConfig');
 export var config = atomConfig.schema;
 
-export function activate(state: PackageState) {
-
-    // Don't activate if we have a dependency that isn't available
-    var linter = apd.require('linter');
-    var acp = apd.require('autocomplete-plus');
-
-    if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation', { dismissable: true });
-        apd.install(function() {
-            atom.notifications.addSuccess("Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.", { dismissable: true });
-            notification.dismiss();
-        });
-
-        return;
-    }
-
+/** only called once we have our dependencies */
+function readyToActivate() {
     // Add the documentation view
     documentationView.attach();
 
@@ -184,6 +170,30 @@ export function activate(state: PackageState) {
 
     // Register the commands
     commands.registerCommands();
+}
+
+export function activate(state: PackageState) {
+
+    // Don't activate if we have a dependency that isn't available
+    var linter = apd.require('linter');
+    var acp = apd.require('autocomplete-plus');
+
+    if (!linter || !acp) {
+        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation', { dismissable: true });
+        apd.install(function() {
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Best that you restart atom just this once. \u2665", { dismissable: true });
+            notification.dismiss();
+            
+            // Note: the following should work
+            // But doesn't in that atom doesn't call activate on linter or autocomplete plus if they are installed in the background. 
+            // Restore this once that happens (or you find a way to do that)
+            // readyToActivate();
+        });
+
+        return;
+    }
+
+    readyToActivate();
 }
 
 export function deactivate() {

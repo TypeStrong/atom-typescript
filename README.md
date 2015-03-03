@@ -8,7 +8,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 1. Install [atom](https://atom.io).
 2. `apm install atom-typescript` (`apm` needs `git` in your path)
-3. Fire up atom. Wait for the message: `Some dependent packages were required for atom-typescript. These are now installed. Best you restart atom just this once.` **It may take up to 5 minutes for this message to appear. Be patient!**
+3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Best you restart atom just this once ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
 4. Restart atom
 
 **Additional Notes**: Other atom packages we depend upon are installed automatically on first load.
