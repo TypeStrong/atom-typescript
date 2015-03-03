@@ -16,9 +16,6 @@ import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated
 export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
 
-    // update the project file
-    parent.regenerateProjectGlob({ filePath: event.filePath });
-
     if (atomConfig.compileOnSave) {
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
             .then((res) => errorView.showEmittedMessage(res));

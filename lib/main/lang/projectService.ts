@@ -41,6 +41,23 @@ var projectByProjectPath: { [projectDir: string]: Project } = {}
 /** the project file path or any source ts file path */
 var projectByFilePath: { [filePath: string]: Project } = {}
 
+
+var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
+function watchProjectFileIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
+    
+    if (watchingProjectFile[projectFile.projectFilePath]) return; // Only watch once
+    watchingProjectFile[projectFile.projectFilePath] = true;
+
+    fs.watch(projectFile.projectFilePath, { persistent: false, recursive: false },() => {
+        // As long as the tsconfig.json file still exists
+        if (!fs.existsSync(projectFile.projectFilePath)) return;
+
+        // Reload the project file from the file system and re cache it
+        projectFile = getOrCreateProjectFile(projectFile.projectFilePath);
+        cacheAndCreateProject(projectFile);
+    });
+}
+
 /** We are loading the project from file system. 
     This might not match what we have in the editor memory, so query those as well
 */
@@ -57,6 +74,8 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
         });
     });
 
+    watchProjectFileIfNotDoingItAlready(projectFile);
+
     return project;
 }
 
@@ -64,7 +83,7 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
  * This explicilty loads the project from the filesystem or creates one
  * creation is done in memory (for .d.ts) OR filesytem
  */
-function getOrCreateProjectFile(filePath): tsconfig.TypeScriptProjectFileDetails {
+function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
         return projectFile;
@@ -270,14 +289,6 @@ export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 
-export interface RegenerateProjectGlobQuery extends FilePathQuery { }
-export interface RegenerateProjectGlobResponse { }
-export function regenerateProjectGlob(query: RegenerateProjectGlobQuery): Promise<RegenerateProjectGlobResponse> {
-    var projectFile = getOrCreateProjectFile(query.filePath);
-    cacheAndCreateProject(projectFile);
-    return resolve({});
-}
-
 export interface FormatDocumentQuery extends FilePathQuery {
     cursor: languageServiceHost.Position
 }
@@ -419,7 +430,7 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
             fullPath: p
         };
     });
-    
+
     var endsInPunctuation: boolean = prefixEndsInPunctuation(query.prefix);
 
     if (!endsInPunctuation)

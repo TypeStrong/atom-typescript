@@ -53,7 +53,6 @@ export var build = catchCommonErrors(parent.sendToIpc(projectService.build));
 export var errorsForFileFiltered = catchCommonErrors(parent.sendToIpc(projectService.errorsForFileFiltered));
 export var getCompletionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getCompletionsAtPosition));
 export var emitFile = catchCommonErrors(parent.sendToIpc(projectService.emitFile));
-export var regenerateProjectGlob = catchCommonErrors(parent.sendToIpc(projectService.regenerateProjectGlob));
 export var formatDocument = catchCommonErrors(parent.sendToIpc(projectService.formatDocument));
 export var formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));
 export var getDefinitionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getDefinitionsAtPosition));

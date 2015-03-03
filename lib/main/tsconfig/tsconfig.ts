@@ -52,7 +52,9 @@ export interface TypeScriptProjectSpecification {
 ///////// FOR USE WITH THE API /////////////
 
 export interface TypeScriptProjectFileDetails {
-    projectFileDirectory: string; // The path to the project file. This acts as the baseDIR
+    /** The path to the project file. This acts as the baseDIR */
+    projectFileDirectory: string; 
+    /** The actual path of the project file (including tsconfig.json) */
     projectFilePath: string;
     project: TypeScriptProjectSpecification;
 }
