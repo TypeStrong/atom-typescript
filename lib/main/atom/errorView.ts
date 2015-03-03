@@ -6,13 +6,11 @@ import utils = require('../lang/utils'); ///ts:import:generated
 ///ts:import=project
 import project = require('../lang/project'); ///ts:import:generated
 
+import mainPanelView = require('./views/mainPanelView');
+import lineMessageView = require('./views/lineMessageView');
+import plainMessageView = require('./views/plainMessageView');
+
 import os = require('os')
-
-interface ILineMessageView { }
-
-var MessagePanelView = require('atom-message-panel').MessagePanelView,
-    LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
-    PlainMessageView = require('atom-message-panel').PlainMessageView;
 
 function getTitle(fileErrorCount: number, totalErrorCount): string {
     var title = '<span class="icon-bug"></span> TypeScript errors for open files';
@@ -27,50 +25,26 @@ function getTitle(fileErrorCount: number, totalErrorCount): string {
     return title;
 }
 
-var messagePanel;
 export function start() {
-    if (messagePanel) return;
-    messagePanel = new MessagePanelView({
-        title: getTitle(0, 0),
-        closeMethod: 'hide',
-        rawTitle: true
-    });
-    messagePanel.attach();
-    messagePanel.toggle(); // Start minized
+    mainPanelView.attach();
+    mainPanelView.panelView.setTitle(getTitle(0, 0));
 }
 
 var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
-
-
-// from : https://github.com/tcarlsen/atom-csslint/blob/master/lib/linter.coffee
-function isHidden() {
-    return messagePanel.summary.css("display") !== "none";
-}
-function show() {
-    if (isHidden()) {
-        messagePanel.toggle();
-    }
-}
-function hide() {
-    if (!isHidden()) {
-        messagePanel.toggle();
-    }
-}
 
 export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
     else filePathErrors.setValue(filePath, errorsForFile);
 
-    // TODO: this needs to be optimized at some point
-    messagePanel.clear();
-    messagePanel.attach();
+    // TODO: this needs to be optimized at some point    
+    mainPanelView.panelView.clear();
 
     var fileErrorCount = filePathErrors.keys().length;
 
 
     if (!fileErrorCount) {
-        messagePanel.setTitle(getTitle(0, 0), true);
-        messagePanel.add(new PlainMessageView({
+        mainPanelView.panelView.setTitle(getTitle(0, 0));
+        mainPanelView.panelView.add(new plainMessageView.PlainMessageView({
             message: "No errors",
             className: "text-success"
         }));
@@ -80,7 +54,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
         for (var path in filePathErrors.table) {
             filePathErrors.getValue(path).forEach((error) => {
                 totalErrorCount++;
-                messagePanel.add(new LineMessageView({
+                mainPanelView.panelView.add(new lineMessageView.LineMessageView({
                     message: error.message,
                     line: error.startPos.line + 1,
                     file: path,
@@ -88,7 +62,8 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
                 }));
             });
         }
-        messagePanel.setTitle(getTitle(fileErrorCount, totalErrorCount), true);
+        var title = getTitle(fileErrorCount, totalErrorCount);
+        mainPanelView.panelView.setTitle(title);
     }
 };
 

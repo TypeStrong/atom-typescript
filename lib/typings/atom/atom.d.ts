@@ -859,7 +859,9 @@ declare module AtomCore {
 		// Serializable.includeInto(Project);
 
 		path:string;
-		rootDirectory:PathWatcher.IDirectory;
+		/** deprecated */
+		rootDirectory?:PathWatcher.IDirectory;
+		rootDirectories:PathWatcher.IDirectory[];
 
 		serializeParams():any;
 		deserializeParams(params:any):any;
