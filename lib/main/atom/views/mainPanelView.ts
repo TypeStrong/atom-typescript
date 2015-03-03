@@ -199,6 +199,14 @@ export class MainPanelView extends view.View<any> {
         }
         this.buildPanelBtn.html(title);
     }
+    
+    clearBuild() {
+        this.buildBody.empty();
+    }
+    
+    addBuild(view: lineMessageView.LineMessageView) {
+        this.buildBody.append(view.$);
+    }
 }
 
 export var panelView: MainPanelView;
