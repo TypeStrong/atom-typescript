@@ -2,6 +2,7 @@
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
 // Help:
+// https://github.com/atom/first-mate/
 // https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
 // https://github.com/p-e-w/language-javascript-semantic/blob/master/lib/javascript-semantic-grammar.coffee
 
@@ -35,18 +36,34 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             });
     }
 
-    tokenizeLine(line, ruleStack: any[], firstLine = false): AtomTSTokens {
-        
+    /** only set to true if we have a trailingWhiteSpace for the currenlty analyzed line */
+    trailingWhiteSpaceLength = 0;
+    tokenizeLine(line: string, ruleStack: any[], firstLine = false): AtomTSTokens {
+
+        // BOM handling:
+        // NOTE THERE ARE OTHER BOMS. I just wanted a proof of concept.
+        // Feel free to add here if you know of ones that are giving you pain.
+        if (firstLine
+            && line.length > 1
+            && (line.charCodeAt(0) == 0xFFFE || line.charCodeAt(0) == 0xFEFF)) {
+            this.trailingWhiteSpaceLength = 1;
+        }
+        else {
+            this.trailingWhiteSpaceLength = 0;
+        }
+
+
+
         // Note: the Atom Tokenizer supports multiple nesting of ruleStacks
         // The TypeScript tokenizer has a single final state it cares about
         // So we only need to pass it the final lex state
         var finalLexState = firstLine ? ts.EndOfLineState.Start
             : ruleStack.length ? ruleStack[0]
                 : ts.EndOfLineState.Start;
-        
+
         // If we are in some TS tokenizing process use TS tokenizer
-        // Otherwise use the specific ones we match 
-        // Otherwise fall back to TS tokenizer        
+        // Otherwise use the specific ones we match
+        // Otherwise fall back to TS tokenizer
         if (finalLexState !== ts.EndOfLineState.Start) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
@@ -66,7 +83,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     ///////////////////
 
     classifier: ts.Classifier = ts.createClassifier({ log: () => undefined });
-    
+
     // Useful to tokenize these differently for autocomplete ease
     fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
     // Note this will not match multiple imports on same line. So shame on you
@@ -98,7 +115,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
     getImportRequireTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
-        
+
         // Based on ts tokenizer we should have a single "identifier" "string"
         // Update these
         tsTokensWithRuleStack.tokens.forEach(t=> {
@@ -123,7 +140,9 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // TypeScript classifier returns empty for "". But Atom wants to have some Token
         if (!classificationResults.length) return { tokens: [{ style: '', str: '' }], ruleStack: ruleStack };
 
-        var totalLength = 0;
+        // Start with trailing whitespace taken into account.
+        // This is needed because classification for that is already done by ATOM internally (somehow)
+        var totalLength = this.trailingWhiteSpaceLength;
         var tokens = classificationResults.map((info) => {
             var tokenStartPosition = totalLength;
             var str = line.substr(tokenStartPosition, info.length);
