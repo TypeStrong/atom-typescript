@@ -8,11 +8,8 @@ import project = require('../lang/project'); ///ts:import:generated
 
 import os = require('os')
 
-interface ILineMessageView { }
-
-var MessagePanelView = require('atom-message-panel').MessagePanelView,
-    LineMessageView: { new (config: any): ILineMessageView } = require('atom-message-panel').LineMessageView,
-    PlainMessageView = require('atom-message-panel').PlainMessageView;
+import mainPanelView = require('./views/mainPanelView');
+import lineMessageView = require('./views/lineMessageView');
 
 function getTitle(errorCount: number): string {
     var title = '<span class="icon-circuit-board"></span> TypeScript Build';
@@ -26,36 +23,23 @@ function getTitle(errorCount: number): string {
 }
 
 
-var messagePanel;
-export function start() {
-    if (messagePanel) return;
-    messagePanel = new MessagePanelView({
-        title: getTitle(0),
-        closeMethod: 'hide',
-        rawTitle: true,
-    });
-}
-
-
 export function setBuildOutput(buildOutput: project.BuildOutput) {
-    start();
 
+    mainPanelView.panelView.clearBuild();
+    
     if (buildOutput.counts.errors) {
-        messagePanel.attach(); // Only attach if there are some errors
-        messagePanel.setTitle(getTitle(buildOutput.counts.errors), true);
+        mainPanelView.panelView.setBuildPanelCount(buildOutput.counts.errors);
     }
     else {
-        messagePanel.setTitle(getTitle(0), true);
+        mainPanelView.panelView.setBuildPanelCount(0);
     }
-
-    messagePanel.clear();
 
     buildOutput.outputs.forEach(output => {
         if (output.success) {
             return;
         }
         output.errors.forEach(error => {
-            messagePanel.add(new LineMessageView({
+            mainPanelView.panelView.addBuild(new lineMessageView.LineMessageView({
                 message: error.message,
                 line: error.startPos.line + 1,
                 file: error.filePath,
@@ -65,10 +49,6 @@ export function setBuildOutput(buildOutput: project.BuildOutput) {
     });
 
     if (!buildOutput.counts.errors) {
-        messagePanel.add(new PlainMessageView({
-            message: "Build Success",
-            className: "text-success"
-        }));
         atom.notifications.addSuccess("Build success");
     }
     else if (buildOutput.counts.emitErrors) {

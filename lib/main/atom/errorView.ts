@@ -12,22 +12,9 @@ import plainMessageView = require('./views/plainMessageView');
 
 import os = require('os')
 
-function getTitle(fileErrorCount: number, totalErrorCount): string {
-    var title = '<span class="icon-bug"></span> TypeScript errors for open files';
-    if (totalErrorCount > 0) {
-        title = title + ` (
-            <span class="text-highlight" style="font-weight: bold"> ${fileErrorCount} </span>
-            <span class="text-error" style="font-weight: bold;"> file${fileErrorCount === 1 ? "" : "s"} </span>
-            <span class="text-highlight" style="font-weight: bold"> ${totalErrorCount} </span>
-            <span class="text-error" style="font-weight: bold;"> error${totalErrorCount === 1 ? "" : "s"} </span>
-        )`;
-    }
-    return title;
-}
-
 export function start() {
     mainPanelView.attach();
-    mainPanelView.panelView.setTitle(getTitle(0, 0));
+    mainPanelView.panelView.setErrorPanelErrorCount(0,0);
 }
 
 var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
@@ -37,24 +24,19 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     else filePathErrors.setValue(filePath, errorsForFile);
 
     // TODO: this needs to be optimized at some point    
-    mainPanelView.panelView.clear();
+    mainPanelView.panelView.clearError();
 
     var fileErrorCount = filePathErrors.keys().length;
 
-
     if (!fileErrorCount) {
-        mainPanelView.panelView.setTitle(getTitle(0, 0));
-        mainPanelView.panelView.add(new plainMessageView.PlainMessageView({
-            message: "No errors",
-            className: "text-success"
-        }));
+        mainPanelView.panelView.setErrorPanelErrorCount(0,0);
     }
     else {
         var totalErrorCount = 0;
         for (var path in filePathErrors.table) {
             filePathErrors.getValue(path).forEach((error) => {
                 totalErrorCount++;
-                mainPanelView.panelView.add(new lineMessageView.LineMessageView({
+                mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
                     message: error.message,
                     line: error.startPos.line + 1,
                     file: path,
@@ -62,8 +44,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
                 }));
             });
         }
-        var title = getTitle(fileErrorCount, totalErrorCount);
-        mainPanelView.panelView.setTitle(title);
+        mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount,totalErrorCount);
     }
 };
 

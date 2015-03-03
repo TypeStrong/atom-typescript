@@ -3,14 +3,31 @@ var $ = view.$;
 
 import lineMessageView = require('./lineMessageView');
 
+
+var panelHeaders = {
+    error: 'Errors In Open Files',
+    build: 'Last Build Output'
+}
+
 export class MainPanelView extends view.View<any> {
 
     private btnFold: JQuery;
-    private body: JQuery;
     private summary: JQuery;
     private heading: JQuery;
+    private errorPanelBtn: JQuery;
+    private buildPanelBtn: JQuery;
+    private errorBody: JQuery;
+    private buildBody: JQuery;
     static content() {
-        return this.div({
+        var btn = (view, text, className: string = '') =>
+            this.button({
+                'class': "btn " + className,
+                'click': `${view}PanelSelected`,
+                'outlet': `${view}PanelBtn`,
+                'style': 'top:-2px!important'
+            }, text);
+
+        this.div({
             class: 'am-panel tool-panel panel-bottom native-key-bindings',
             tabindex: '-1'
         },() => {
@@ -21,12 +38,30 @@ export class MainPanelView extends view.View<any> {
                 this.div({
                     class: 'panel-heading'
                 },() => {
+                        this.span({ style: 'cursor: pointer', 'click': 'toggle' },() => {
+                            this.span({ class: "icon-bug" });
+                            this.span({}, " TypeScript ");
+                        });
+
+                        this.div({
+                            class: 'btn-group'
+                        },
+                            () => {
+                                btn("error", panelHeaders.error, 'selected')
+                                // TODO: later 
+                                btn("build", panelHeaders.build)
+                            });
+
+                        this.span({}, " ");
+
                         this.div({
                             class: 'heading-title inline-block',
                             style: 'cursor: pointer',
                             outlet: 'heading',
                             click: 'toggle'
                         });
+
+
                         this.div({
                             class: 'heading-summary',
                             style: 'display:inline-block',
@@ -36,7 +71,7 @@ export class MainPanelView extends view.View<any> {
                             class: 'heading-buttoms inline-block pull-right'
                         },() => {
                                 this.div({
-                                    class: 'heading-fold inline-block icon-fold',
+                                    class: 'heading-fold inline-block icon-unfold',
                                     style: 'cursor: pointer',
                                     outlet: 'btnFold',
                                     click: 'toggle'
@@ -45,50 +80,79 @@ export class MainPanelView extends view.View<any> {
                     });
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
-                    outlet: 'body',
+                    outlet: 'errorBody',
+                    style: 'overflow-y: auto; display:none'
+                });
+                this.div({
+                    class: 'panel-body atomts-panel-body padded',
+                    outlet: 'buildBody',
                     style: 'overflow-y: auto; display:none'
                 });
             });
     }
 
+
     init() {
+        this.buildPanelBtn.html(`${panelHeaders.build} ( <span class="text-success">No Build</span> )`);
+        this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>')
     }
 
-    setTitle(html: string) {
-        this.heading.html(html);
+    errorPanelSelected() {
+        this.errorPanelBtn.addClass('selected');
+        this.buildPanelBtn.removeClass('selected');
+        this.expanded = true;
+        this.setActivePanel();
     }
 
-    toggle() {
-        this.btnFold.toggleClass('icon-fold, icon-unfold');
-        this.body.toggle('fast');
-        // Because we want to toggle between display:
-        // 'none' and 'inline-block' for the summary,
-        // we can't use .toggle().
-        if (this.summary.css('display') === 'none') {
-            this.summary.css('display', 'inline-block');
-        } else {
-            this.summary.hide();
+    buildPanelSelected() {
+        this.errorPanelBtn.removeClass('selected');
+        this.buildPanelBtn.addClass('selected');
+        this.expanded = true;
+        this.setActivePanel();
+    }
+
+    private setActivePanel() {
+        if (this.expanded) {
+            if (this.errorPanelBtn.hasClass('selected')) {
+                this.errorBody.show('fast');
+                this.buildBody.hide('fast');
+            }
+            else {
+                this.buildBody.show('fast');
+                this.errorBody.hide('fast');
+            }
+        }
+        else {
+            this.errorBody.hide('fast');
+            this.buildBody.hide('fast');
         }
     }
 
-    private cleared = true;
-    clear() {
-        this.cleared = true;
-        this.body.empty();
+    private expanded = false;
+    toggle() {
+        this.expanded = !this.expanded;
+        this.setActivePanel();
     }
 
-    add(view: any /*TODO: Type this*/) {
-        if (this.cleared && view.getSummary) {
+    ///////////// ERROR 
+    private clearedError = true;
+    clearError() {
+        this.clearedError = true;
+        this.errorBody.empty();
+    }
+
+    addError(view: lineMessageView.LineMessageView) {
+        if (this.clearedError && view.getSummary) {
             // This is the first message, so use it to
             // set the summary
-            this.setSummary(view.getSummary());
+            this.setErrorSummary(view.getSummary());
         }
-        this.cleared = false;
+        this.clearedError = false;
 
-        this.body.append(view.$);
+        this.errorBody.append(view.$);
     }
 
-    setSummary(summary: any /*TODO: Type this*/) {
+    setErrorSummary(summary: any /*TODO: Type this*/) {
         var
             message = summary.summary,
             className = summary.className,
@@ -97,17 +161,55 @@ export class MainPanelView extends view.View<any> {
         // Reset the class-attributes on the old summary
         this.summary.attr('class', 'heading-summary inline-block');
         // Set the new summary
-        if (raw) {
-            this.summary.html(message);
-        } else {
-            this.summary.text(message);
-        }
+        this.summary.html(message);
+
         if (className) {
             this.summary.addClass(className);
         }
         if (handler) {
             handler(this.summary);
         }
+    }
+
+    setErrorPanelErrorCount(fileErrorCount: number, totalErrorCount: number) {
+        var title = `${panelHeaders.error} ( <span class="text-success">No Errors</span> )`;
+        if (totalErrorCount > 0) {
+            title = `${panelHeaders.error} (
+                <span class="text-highlight" style="font-weight: bold"> ${fileErrorCount} </span>
+                <span class="text-error" style="font-weight: bold;"> file${fileErrorCount === 1 ? "" : "s"} </span>
+                <span class="text-highlight" style="font-weight: bold"> ${totalErrorCount} </span>
+                <span class="text-error" style="font-weight: bold;"> error${totalErrorCount === 1 ? "" : "s"} </span>
+            )`;
+        }
+        else {
+            this.summary.html('');
+            this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
+        }
+
+        this.errorPanelBtn.html(title);
+    }
+
+    ///////////////////// BUILD 
+    setBuildPanelCount(errorCount: number) {
+        var title = `${panelHeaders.build} ( <span class="text-success">No Errors</span> )`;
+        if (errorCount > 0) {
+            title = `${panelHeaders.build} (
+                <span class="text-highlight" style="font-weight: bold"> ${errorCount} </span>
+                <span class="text-error" style="font-weight: bold;"> error${errorCount === 1 ? "" : "s"} </span>
+            )`;
+        }
+        else {
+            this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
+        }
+        this.buildPanelBtn.html(title);
+    }
+
+    clearBuild() {
+        this.buildBody.empty();
+    }
+
+    addBuild(view: lineMessageView.LineMessageView) {
+        this.buildBody.append(view.$);
     }
 }
 
