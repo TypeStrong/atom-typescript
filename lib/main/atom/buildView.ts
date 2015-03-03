@@ -25,14 +25,14 @@ function getTitle(errorCount: number): string {
 
 export function setBuildOutput(buildOutput: project.BuildOutput) {
 
-    if (buildOutput.counts.errors) {        
+    mainPanelView.panelView.clearBuild();
+    
+    if (buildOutput.counts.errors) {
         mainPanelView.panelView.setBuildPanelCount(buildOutput.counts.errors);
     }
     else {
         mainPanelView.panelView.setBuildPanelCount(0);
     }
-
-    mainPanelView.panelView.clearBuild();
 
     buildOutput.outputs.forEach(output => {
         if (output.success) {

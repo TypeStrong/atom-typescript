@@ -19,7 +19,7 @@ export class MainPanelView extends view.View<any> {
     private errorBody: JQuery;
     private buildBody: JQuery;
     static content() {
-        var btn = (view, text, className:string = '') =>
+        var btn = (view, text, className: string = '') =>
             this.button({
                 'class': "btn " + className,
                 'click': `${view}PanelSelected`,
@@ -90,8 +90,8 @@ export class MainPanelView extends view.View<any> {
                 });
             });
     }
-    
-    
+
+
     init() {
         this.buildPanelBtn.html(`${panelHeaders.build} ( <span class="text-success">No Build</span> )`);
         this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>')
@@ -104,7 +104,7 @@ export class MainPanelView extends view.View<any> {
         this.setActivePanel();
     }
 
-    buildPanelSelected() {        
+    buildPanelSelected() {
         this.errorPanelBtn.removeClass('selected');
         this.buildPanelBtn.addClass('selected');
         this.expanded = true;
@@ -183,6 +183,7 @@ export class MainPanelView extends view.View<any> {
         }
         else {
             this.summary.html('');
+            this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
         }
 
         this.errorPanelBtn.html(title);
@@ -197,13 +198,16 @@ export class MainPanelView extends view.View<any> {
                 <span class="text-error" style="font-weight: bold;"> error${errorCount === 1 ? "" : "s"} </span>
             )`;
         }
+        else {
+            this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
+        }
         this.buildPanelBtn.html(title);
     }
-    
+
     clearBuild() {
         this.buildBody.empty();
     }
-    
+
     addBuild(view: lineMessageView.LineMessageView) {
         this.buildBody.append(view.$);
     }
