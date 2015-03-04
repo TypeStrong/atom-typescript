@@ -28,7 +28,7 @@ export class MainPanelView extends view.View<any> {
             }, text);
 
         this.div({
-            class: 'am-panel tool-panel panel-bottom native-key-bindings',
+            class: 'am-panel tool-panel panel-bottom native-key-bindings atomts-main-panel',
             tabindex: '-1'
         },() => {
                 this.div({

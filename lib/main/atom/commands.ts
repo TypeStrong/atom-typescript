@@ -52,7 +52,7 @@ export function registerCommands() {
 
         }
     });
-    atom.commands.add('atom-text-editor', 'typescript:build',(e) => {
+    atom.commands.add('atom-workspace', 'typescript:build',(e) => {
         if (!commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
@@ -91,7 +91,7 @@ export function registerCommands() {
         });
     };
 
-    atom.commands.add('atom-text-editor', 'typescript:go-to-declaration', handleGoToDeclaration);
+    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
 

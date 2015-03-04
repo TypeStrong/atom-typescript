@@ -1,0 +1,13 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'TypeScript'
+      'submenu': [
+        { 'label': 'Build', 'command': 'typescript:build' }
+        { 'label': 'Go To Declaration', 'command': 'typescript:go-to-declaration' }
+      ]
+    ]
+  }
+]
