@@ -11,7 +11,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Best you restart atom just this once ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
 4. Restart atom
 
-**Additional Notes**: Other atom packages we depend upon are installed automatically on first load.
+**Additional Notes**: Other atom packages we depend upon are installed automatically on first load. [Learn more about these](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md). 
 
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
@@ -88,7 +88,7 @@ Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`)
 
 ## Contributing
 
-Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity.
+Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity. We work hard to keep the code as approachable as possible and are highly keep on helping you help us.
 
 ## Changelog
 Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/docs/CHANGELOG.md).
