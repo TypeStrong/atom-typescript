@@ -21,6 +21,20 @@ git clone https://github.com/TypeStrong/atom-typescript.git
 
 # Various
 
+## Workflow
+**We develop atom-typescript with atom-typescript**
+
+Some shortcuts:
+* `ctrl+shift+i` will open the dev tools. These are the same chrome dev tools you are familiar with. Feel free to inspect elements. This will come handy when doing UI or even seeing why a particular code element is highlighted in some way. 
+* `ctrl+alt+r` will reload the entire atom instance. 
+
+### General Steps
+1. We open `atom-typescript` in one atom window
+1. We have [`atom-typescript-examples`](https://github.com/TypeStrong/atom-typescript-examples) open in another atom window
+1. We make changes to `atom-typescript` and save to get the JS. 
+1. We reload the `atom-typescript-examples` window to see the effects of our change. 
+1. Only reload the `atom-typescript` window once we are sure that our new code is functional.
+
 ## Architecture
 We wrap the `languageService` + our custom `languageServiceHost` + [`projectFile`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md) into a `Project` (code in `Project.ts` in the `lang` folder). The functions that interact with this `project` are exposed from `projectService` ([the query / response section](https://github.com/TypeStrong/atom-typescript/blob/6fbf860eaf971baa3aca939626db553898cb40db/lib/main/lang/projectService.ts#L58-L244)). `projectService` is where you would add new features that interact with the language service. All this code is `sync` and can be tested / run on any node instance. Be careful not to *leave* `console.log` in this code (as we use `stdio` to make this code `async`) or use `atom` specific APIs (as it may not be in the UI thread).
 
