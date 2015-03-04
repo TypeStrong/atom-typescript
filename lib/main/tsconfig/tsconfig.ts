@@ -251,7 +251,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     try {
         projectSpec = JSON.parse(projectFileTextContent);
     } catch (ex) {
-        throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: projectFile, error: ex.message });
+        throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(
+            new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: consistentPath(projectFile), error: ex.message });
     }
 
     // Setup default project options
@@ -269,7 +270,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
         }
         catch (ex) {
-            throw errorWithDetails(new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: projectFile, error: ex.message });
+            throw errorWithDetails(
+                new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), error: ex.message });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
@@ -294,6 +296,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Normalize to "/" for all files
     // And take the uniq values
     project.files = uniq(project.files.map(consistentPath));
+    projectFileDirectory = removeTrailingSlash(consistentPath(projectFileDirectory));
 
     return {
         projectFileDirectory: projectFileDirectory,
@@ -456,4 +459,10 @@ export function makeRelativePath(relativeFolder: string, filePath: string) {
 
 export function removeExt(filePath: string) {
     return filePath.substr(0, filePath.lastIndexOf('.'));
+}
+
+export function removeTrailingSlash(filePath: string) {
+    if (!filePath) return filePath;
+    if (endsWith(filePath, '/')) return filePath.substr(0, filePath.length - 1);
+    return filePath;
 }

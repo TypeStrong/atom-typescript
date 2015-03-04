@@ -3,6 +3,7 @@
 
 import path = require('path');
 import fs = require('fs');
+import _atom = require('atom');
 import tsconfig = require('../tsconfig/tsconfig');
 
 // Optimized version where we do not ask this of the languageServiceHost
@@ -64,8 +65,7 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
     var buffer = editor.buffer;
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
-    var atom = require('atom');
-    var range = new atom.Range(start, end);
+    var range = new _atom.Range(start, end);
     return range;
 }
 

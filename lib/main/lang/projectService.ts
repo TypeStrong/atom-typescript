@@ -31,6 +31,7 @@ export function fixChild(childInjected: typeof child) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
+    queryParent.setProjectFileParsedResult = child.sendToIpc(queryParent.setProjectFileParsedResult);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -43,18 +44,25 @@ var projectByFilePath: { [filePath: string]: Project } = {}
 
 
 var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
-function watchProjectFileIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    
-    if (watchingProjectFile[projectFile.projectFilePath]) return; // Only watch once
-    watchingProjectFile[projectFile.projectFilePath] = true;
+function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
 
-    fs.watch(projectFile.projectFilePath, { persistent: false, recursive: false },() => {
+    if (watchingProjectFile[projectFilePath]) return; // Only watch once
+    watchingProjectFile[projectFilePath] = true;
+
+    fs.watch(projectFilePath, { persistent: false, recursive: false },() => {
         // As long as the tsconfig.json file still exists
-        if (!fs.existsSync(projectFile.projectFilePath)) return;
-
+        if (!fs.existsSync(projectFilePath)) return;
+        
         // Reload the project file from the file system and re cache it
-        projectFile = getOrCreateProjectFile(projectFile.projectFilePath);
-        cacheAndCreateProject(projectFile);
+        try {
+            var projectFile = getOrCreateProjectFile(projectFilePath);
+            cacheAndCreateProject(projectFile);
+            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+        }
+        catch (ex) {
+            // Keep failing silently
+            // TODO: reuse reporting logic
+        }
     });
 }
 
@@ -74,7 +82,7 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
         });
     });
 
-    watchProjectFileIfNotDoingItAlready(projectFile);
+    watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
 
     return project;
 }
@@ -86,14 +94,30 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
 function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
+        queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
     } catch (ex) {
         var err: Error = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             var projectFile = tsconfig.createProjectRootSync(filePath);
+            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
             return projectFile;
         }
         else {
+            if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
+                var invalidJSONErrorDetails: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
+                queryParent.setProjectFileParsedResult({
+                    projectFilePath: invalidJSONErrorDetails.projectFilePath,
+                    error: {
+                        name: ex.name,
+                        message: ex.message,
+                        stack: ex.stack,
+                        details: ex.details
+                    }
+                });
+                // Watch this project file to see if user fixes errors
+                watchProjectFileIfNotDoingItAlready(invalidJSONErrorDetails.projectFilePath);
+            }
             throw ex;
         }
     }
