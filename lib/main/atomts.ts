@@ -127,7 +127,7 @@ function readyToActivate() {
 
                     // Update the file in the worker
                     parent.updateText({ filePath: filePath, text: text })
-                    // Set errors in project per file
+                    // Set errors in project per file                        
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 

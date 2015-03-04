@@ -14,7 +14,7 @@ import os = require('os')
 
 export function start() {
     mainPanelView.attach();
-    mainPanelView.panelView.setErrorPanelErrorCount(0,0);
+    mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
 }
 
 var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
@@ -29,22 +29,22 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     var fileErrorCount = filePathErrors.keys().length;
 
     if (!fileErrorCount) {
-        mainPanelView.panelView.setErrorPanelErrorCount(0,0);
+        mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
     }
     else {
         var totalErrorCount = 0;
         for (var path in filePathErrors.table) {
-            filePathErrors.getValue(path).forEach((error) => {
+            filePathErrors.getValue(path).forEach((error: project.TSError) => {
                 totalErrorCount++;
                 mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
                     message: error.message,
                     line: error.startPos.line + 1,
-                    file: path,
+                    file: error.filePath,
                     preview: error.preview
                 }));
             });
         }
-        mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount,totalErrorCount);
+        mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);
     }
 };
 

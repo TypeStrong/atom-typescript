@@ -72,7 +72,11 @@ export var errors = {
     CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
 };
-function errorWithDetails(error: Error, details: any): Error {
+export interface GET_PROJECT_JSON_PARSE_FAILED_Details {
+    projectFilePath: string;
+    error: Error;
+}
+function errorWithDetails<T>(error: Error, details: T): Error {
     error.details = details;
     return error;
 }
@@ -247,7 +251,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     try {
         projectSpec = JSON.parse(projectFileTextContent);
     } catch (ex) {
-        throw errorWithDetails(new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: projectFile, error: ex.message });
+        throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: projectFile, error: ex.message });
     }
 
     // Setup default project options

@@ -8,7 +8,6 @@ var spawn = childprocess.spawn;
 import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
 
-
 var parent = new workerLib.Parent();
 export function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError);
@@ -37,9 +36,11 @@ function showError(error: Error) {
 /** Doesn't mess with any data. Just shows it nicely in the UI */
 function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Response>): workerLib.QRFunction<Query, Response> {
     return (q) => func(q).catch((err: Error) => {
-        if (err.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
+        // Left only as a sample 
+        // We handle these errors elsewhere now
+        /*if (err.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {            
             atom.notifications.addError('The tsconfig.json file for this TypeScript file contains invalid JSON');
-        }
+        }*/
         return <any>Promise.reject(err);
     });
 }
