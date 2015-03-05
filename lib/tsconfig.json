@@ -40,6 +40,7 @@
         "./main/lang/projectService.ts",
         "./main/lang/utils.ts",
         "./main/tsconfig/formatting.ts",
+        "./main/tsconfig/simpleValidator.ts",
         "./main/tsconfig/tsconfig.ts",
         "./node_modules/views/views.d.ts",
         "./typings/atom/atom.d.ts",

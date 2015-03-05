@@ -1,6 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
+import simpleValidator = require('./simpleValidator');
+var types = simpleValidator.types;
+
 // Most compiler options come from require('typescript').CompilerOptions, but
 // 'module' and 'target' cannot use the same enum as that interface since we
 // do not want to force users to put magic numbers in their tsconfig files
@@ -33,6 +36,36 @@ interface CompilerOptions {
     version?: boolean;
     watch?: boolean;
 }
+
+var compilerOptionsValidation: simpleValidator.ValidationInfo = {
+    allowNonTsExtensions: { type: simpleValidator.types.boolean },
+    charset: { type: simpleValidator.types.string },
+    codepage: { type: types.number },
+    declaration: { type: types.boolean },
+    diagnostics: { type: types.boolean },
+    emitBOM: { type: types.boolean },
+    help: { type: types.boolean },
+    locals: { type: types.string },
+    mapRoot: { type: types.string },
+    module: { type: types.string, validValues: ['commonjs', 'amd'] },
+    noEmitOnError: { type: types.boolean },
+    noErrorTruncation: { type: types.boolean },
+    noImplicitAny: { type: types.boolean },
+    noLib: { type: types.boolean },
+    noLibCheck: { type: types.boolean },
+    noResolve: { type: types.boolean },
+    out: { type: types.string },
+    outDir: { type: types.string },
+    preserveConstEnums: { type: types.boolean },
+    removeComments: { type: types.boolean },
+    sourceMap: { type: types.boolean },
+    sourceRoot: { type: types.string },
+    suppressImplicitAnyIndexErrors: { type: types.boolean },
+    target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },
+    version: { type: types.boolean },
+    watch: { type: types.boolean },
+}
+var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 
 interface TypeScriptProjectRawSpecification {
     version?: string;
@@ -68,6 +101,7 @@ export var errors = {
     GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE: 'Failed to fs.readFileSync the project file',
     GET_PROJECT_JSON_PARSE_FAILED: 'Failed to JSON.parse the project file',
     GET_PROJECT_GLOB_EXPAND_FAILED: 'Failed to expand filesGlob in the project file',
+    GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS: 'Project file contains invalid options',
 
     CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
@@ -75,6 +109,10 @@ export var errors = {
 export interface GET_PROJECT_JSON_PARSE_FAILED_Details {
     projectFilePath: string;
     error: Error;
+}
+export interface GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details {
+    projectFilePath: string;
+    errorMessage: string;
 }
 function errorWithDetails<T>(error: Error, details: T): Error {
     error.details = details;
@@ -271,7 +309,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         }
         catch (ex) {
             throw errorWithDetails(
-                new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), error: ex.message });
+                new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED),
+                { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), error: ex.message });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
@@ -287,7 +326,17 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         files: projectSpec.files,
         format: formatting.makeFormatCodeOptions(projectSpec.format),
     };
-
+    
+    // Validate the raw compiler options before converting them to TS compiler options 
+    var validationResult = validator.validate(projectSpec.compilerOptions);
+    if (validationResult.errorMessage) {
+        throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
+            new Error(errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS),
+            { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage }
+            );
+    }
+    
+    // Convert the raw options to TS options
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
     // Expand files to include references
@@ -340,7 +389,7 @@ export function consistentPath(filePath: string): string {
 
 function increaseProjectForReferenceAndImports(files: string[]) {
 
-    var filesMap = createMap(files);
+    var filesMap = simpleValidator.createMap(files);
     var willNeedMoreAnalysis = (file: string) => {
         if (!filesMap[file]) {
             filesMap[file] = true;
@@ -394,13 +443,6 @@ function increaseProjectForReferenceAndImports(files: string[]) {
     return files;
 }
 
-function createMap(arr: string[]): { [string: string]: boolean } {
-    return arr.reduce((result: { [string: string]: boolean }, key: string) => {
-        result[key] = true;
-        return result;
-    }, <{ [string: string]: boolean }>{});
-}
-
 function prettyJSON(object: any): string {
     var cache = [];
     var value = JSON.stringify(object,
@@ -444,7 +486,7 @@ function endsWith(str: string, suffix: string): boolean {
 }
 
 function uniq(arr: string[]): string[] {
-    var map = createMap(arr);
+    var map = simpleValidator.createMap(arr);
     return Object.keys(map);
 }
 

@@ -35,7 +35,7 @@ export function getUpdatedTextForUnsavedEditors(query: {}): Promise<{ editors: {
     });
 }
 
-export function setProjectFileParsedResult(query: { projectFilePath: string; error: Error }): Promise<{}> {
+export function setProjectFileParsedResult(query: { projectFilePath: string; error: { message: string; details: any } }): Promise<{}> {
     var errors: project.TSError[] = [];
     if (query.error) {
         if (query.error.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
@@ -47,6 +47,18 @@ export function setProjectFileParsedResult(query: { projectFilePath: string; err
                     endPos: { line: 0, ch: 0 },
                     message: "The project file contains invalid JSON",
                     preview: invalidJSONDetails.projectFilePath,
+                }
+            ]
+        }
+        if (query.error.message == tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
+            var invalidOptionDetails: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = query.error.details;
+            errors = [
+                {
+                    filePath: invalidOptionDetails.projectFilePath,
+                    startPos: { line: 0, ch: 0 },
+                    endPos: { line: 0, ch: 0 },
+                    message: "The project file contains invalid options",
+                    preview: invalidOptionDetails.errorMessage,
                 }
             ]
         }

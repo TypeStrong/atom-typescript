@@ -109,14 +109,24 @@ function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFil
                 queryParent.setProjectFileParsedResult({
                     projectFilePath: invalidJSONErrorDetails.projectFilePath,
                     error: {
-                        name: ex.name,
                         message: ex.message,
-                        stack: ex.stack,
                         details: ex.details
                     }
                 });
                 // Watch this project file to see if user fixes errors
                 watchProjectFileIfNotDoingItAlready(invalidJSONErrorDetails.projectFilePath);
+            }
+            if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
+                var invalidOptionDetails: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
+                queryParent.setProjectFileParsedResult({
+                    projectFilePath: invalidOptionDetails.projectFilePath,
+                    error: {
+                        message: ex.message,
+                        details: ex.details
+                    }
+                });
+                // Watch this project file to see if user fixes errors
+                watchProjectFileIfNotDoingItAlready(invalidOptionDetails.projectFilePath);
             }
             throw ex;
         }

@@ -72,6 +72,9 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 `f2` to initiate rename. `enter` to commit and `esc` to cancel.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
+## tsconfig validation
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/errorcases/invalidProjectOptions/invalidProjectOptions.gif)
+
 ## Snippets
 ### Relative Paths
 Relative paths have traditionally been a pain, not anymore. Use `import` or `ref` and press `tab` to trigger snippet. 
