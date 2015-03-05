@@ -30,3 +30,6 @@ This package allows you to quickly open a specific folder. You can even store co
 
 ### Jumpy
 https://atom.io/packages/jumpy saves a lot of wrist pain.
+
+### Find selection
+https://atom.io/packages/find-selection who has time to bring up the find and replace dialog for a quick find word.
