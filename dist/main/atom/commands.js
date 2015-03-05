@@ -94,8 +94,7 @@ function registerCommands() {
             }
             renameView.panelView.renameThis({
                 text: res.displayName,
-                onCancel: function () {
-                },
+                onCancel: function () { },
                 onCommit: function (newText) {
                     atomUtils.getEditorsForAllPaths(res.locations.map(function (l) { return l.filePath; })).then(function (editorMap) {
                         res.locations.reverse().forEach(function (location) {

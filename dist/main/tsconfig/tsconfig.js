@@ -52,8 +52,8 @@ var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
 var typeScriptVersion = '1.4.1';
 exports.defaults = {
-    target: 1 /* ES5 */,
-    module: 1 /* CommonJS */,
+    target: 1,
+    module: 1,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -70,31 +70,31 @@ var deprecatedKeys = {
 };
 var typescriptEnumMap = {
     target: {
-        'es3': 0 /* ES3 */,
-        'es5': 1 /* ES5 */,
-        'es6': 2 /* ES6 */,
-        'latest': 2 /* Latest */
+        'es3': 0,
+        'es5': 1,
+        'es6': 2,
+        'latest': 2
     },
     module: {
-        'none': 0 /* None */,
-        'commonjs': 1 /* CommonJS */,
-        'amd': 2 /* AMD */
+        'none': 0,
+        'commonjs': 1,
+        'amd': 2
     }
 };
 var jsonEnumMap = {
     target: (function () {
         var map = {};
-        map[0 /* ES3 */] = 'es3';
-        map[1 /* ES5 */] = 'es5';
-        map[2 /* ES6 */] = 'es6';
-        map[2 /* Latest */] = 'latest';
+        map[0] = 'es3';
+        map[1] = 'es5';
+        map[2] = 'es6';
+        map[2] = 'latest';
         return map;
     })(),
     module: (function () {
         var map = {};
-        map[0 /* None */] = 'none';
-        map[1 /* CommonJS */] = 'commonjs';
-        map[2 /* AMD */] = 'amd';
+        map[0] = 'none';
+        map[1] = 'commonjs';
+        map[2] = 'amd';
         return map;
     })()
 };
@@ -262,10 +262,10 @@ function increaseProjectForReferenceAndImports(files) {
                 return;
             }
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
-            referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) { return path.resolve(dir, fileReference.filename); }).concat(preProcessedFileInfo.importedFiles.filter(function (fileReference) { return pathIsRelative(fileReference.filename); }).map(function (fileReference) {
-                var file = path.resolve(dir, fileReference.filename + '.ts');
+            referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) { return path.resolve(dir, fileReference.fileName); }).concat(preProcessedFileInfo.importedFiles.filter(function (fileReference) { return pathIsRelative(fileReference.fileName); }).map(function (fileReference) {
+                var file = path.resolve(dir, fileReference.fileName + '.ts');
                 if (!fs.existsSync(file)) {
-                    file = path.resolve(dir, fileReference.filename + '.d.ts');
+                    file = path.resolve(dir, fileReference.fileName + '.d.ts');
                 }
                 return file;
             })));

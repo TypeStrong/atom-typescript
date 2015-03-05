@@ -86,7 +86,7 @@ export interface TypeScriptProjectSpecification {
 
 export interface TypeScriptProjectFileDetails {
     /** The path to the project file. This acts as the baseDIR */
-    projectFileDirectory: string; 
+    projectFileDirectory: string;
     /** The actual path of the project file (including tsconfig.json) */
     projectFilePath: string;
     project: TypeScriptProjectSpecification;
@@ -415,14 +415,14 @@ function increaseProjectForReferenceAndImports(files: string[]) {
                 dir = path.dirname(file);
 
             referenced.push(
-                preProcessedFileInfo.referencedFiles.map(fileReference => path.resolve(dir, fileReference.filename))
+                preProcessedFileInfo.referencedFiles.map(fileReference => path.resolve(dir, fileReference.fileName))
                     .concat(
                     preProcessedFileInfo.importedFiles
-                        .filter((fileReference) => pathIsRelative(fileReference.filename))
+                        .filter((fileReference) => pathIsRelative(fileReference.fileName))
                         .map(fileReference => {
-                        var file = path.resolve(dir, fileReference.filename + '.ts');
+                        var file = path.resolve(dir, fileReference.fileName + '.ts');
                         if (!fs.existsSync(file)) {
-                            file = path.resolve(dir, fileReference.filename + '.d.ts');
+                            file = path.resolve(dir, fileReference.fileName + '.d.ts');
                         }
                         return file;
                     })

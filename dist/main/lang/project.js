@@ -11,14 +11,14 @@ var Project = (function () {
         this.emitFile = function (filePath) {
             var services = _this.languageService;
             var output = services.getEmitOutput(filePath);
-            var success = output.emitOutputStatus === 0 /* Succeeded */;
+            var success = !output.emitSkipped;
             var errors = [];
             if (!success) {
                 var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));
                 allDiagnostics.forEach(function (diagnostic) {
                     if (!diagnostic.file)
                         return;
-                    var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
+                    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
                     errors.push(diagnosticToTSError(diagnostic));
                 });
             }
@@ -66,7 +66,7 @@ var Project = (function () {
         var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
         var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
         var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.format);
-        textChanges.forEach(function (change) { return change.span = new ts.TextSpan(change.span.start() - st, change.span.length()); });
+        textChanges.forEach(function (change) { return change.span = { start: change.span.start - st, length: change.span.length }; });
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
         return formatted;
     };
@@ -74,33 +74,33 @@ var Project = (function () {
         var result = orig;
         for (var i = changes.length - 1; i >= 0; i--) {
             var change = changes[i];
-            var head = result.slice(0, change.span.start());
-            var tail = result.slice(change.span.start() + change.span.length());
+            var head = result.slice(0, change.span.start);
+            var tail = result.slice(change.span.start + change.span.length);
             result = head + change.newText + tail;
         }
         return result;
     };
     Project.prototype.formatCursor = function (cursor, changes) {
-        var cursorInsideChange = changes.filter(function (change) { return (change.span.start() < cursor) && ((change.span.end()) > cursor); })[0];
+        var cursorInsideChange = changes.filter(function (change) { return (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor); })[0];
         if (cursorInsideChange) {
-            cursor = cursorInsideChange.span.end();
+            cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
         }
-        var beforeCursorChanges = changes.filter(function (change) { return change.span.start() < cursor; });
+        var beforeCursorChanges = changes.filter(function (change) { return change.span.start < cursor; });
         var netChange = 0;
-        beforeCursorChanges.forEach(function (change) { return netChange = netChange - (change.span.length() - change.newText.length); });
+        beforeCursorChanges.forEach(function (change) { return netChange = netChange - (change.span.length - change.newText.length); });
         return cursor + netChange;
     };
     return Project;
 })();
 exports.Project = Project;
 function diagnosticToTSError(diagnostic) {
-    var filePath = diagnostic.file.filename;
-    var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-    var endPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start + diagnostic.length);
+    var filePath = diagnostic.file.fileName;
+    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+    var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
     return {
         filePath: filePath,
-        startPos: { line: startPosition.line - 1, ch: startPosition.character - 1 },
-        endPos: { line: endPosition.line - 1, ch: endPosition.character - 1 },
+        startPos: { line: startPosition.line, ch: startPosition.character },
+        endPos: { line: endPosition.line, ch: endPosition.character },
         message: diagnostic.messageText,
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
     };

@@ -39,7 +39,7 @@ export class Project {
     emitFile = (filePath: string): EmitOutput => {
         var services = this.languageService;
         var output = services.getEmitOutput(filePath);
-        var success = output.emitOutputStatus === ts.EmitReturnStatus.Succeeded;
+        var success = !output.emitSkipped;
         var errors: TSError[] = [];
 
 
@@ -51,7 +51,7 @@ export class Project {
             allDiagnostics.forEach(diagnostic => {
                 if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
 
-                var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
+                var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
                 errors.push(diagnosticToTSError(diagnostic));
             });
         }
@@ -91,7 +91,7 @@ export class Project {
         var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.format);
 
         // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
-        textChanges.forEach((change) => change.span = new ts.TextSpan(change.span.start() - st, change.span.length()));
+        textChanges.forEach((change) => change.span = { start: change.span.start - st, length: change.span.length });
 
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
         return formatted;
@@ -102,8 +102,8 @@ export class Project {
         var result = orig;
         for (var i = changes.length - 1; i >= 0; i--) {
             var change = changes[i];
-            var head = result.slice(0, change.span.start());
-            var tail = result.slice(change.span.start() + change.span.length());
+            var head = result.slice(0, change.span.start);
+            var tail = result.slice(change.span.start + change.span.length);
             result = head + change.newText + tail;
         }
         return result;
@@ -111,14 +111,14 @@ export class Project {
 
     private formatCursor(cursor: number, changes: ts.TextChange[]): number {
         // If cursor is inside a text change move it to the end of that text change
-        var cursorInsideChange = changes.filter((change) => (change.span.start() < cursor) && ((change.span.end()) > cursor))[0];
+        var cursorInsideChange = changes.filter((change) => (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor))[0];
         if (cursorInsideChange) {
-            cursor = cursorInsideChange.span.end();
+            cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
         }
         // Get all text changes that are *before* the cursor and determine the net *addition / subtraction* and apply that to the cursor.
-        var beforeCursorChanges = changes.filter(change => change.span.start() < cursor);
+        var beforeCursorChanges = changes.filter(change => change.span.start < cursor);
         var netChange = 0;
-        beforeCursorChanges.forEach(change => netChange = netChange - (change.span.length() - change.newText.length));
+        beforeCursorChanges.forEach(change => netChange = netChange - (change.span.length - change.newText.length));
 
         return cursor + netChange;
     }
@@ -149,15 +149,14 @@ export interface TSError {
 }
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
-    var filePath = diagnostic.file.filename;
-    var startPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start);
-    var endPosition = diagnostic.file.getLineAndCharacterFromPosition(diagnostic.start + diagnostic.length);
+    var filePath = diagnostic.file.fileName;
+    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+    var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
     return {
         filePath: filePath,
-        // NOTE: the bases of indexes are different
-        startPos: { line: startPosition.line - 1, ch: startPosition.character - 1 },
-        endPos: { line: endPosition.line - 1, ch: endPosition.character - 1 },
-        message: diagnostic.messageText,
+        startPos: { line: startPosition.line, ch: startPosition.character },
+        endPos: { line: endPosition.line, ch: endPosition.character },
+        message: <string> diagnostic.messageText,
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
     };
 }

@@ -19,9 +19,7 @@ var ContextView = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    ContextView.prototype.setItems = function (items) {
-        _super.prototype.setItems.call(this, items);
-    };
+    ContextView.prototype.setItems = function (items) { _super.prototype.setItems.call(this, items); };
     ContextView.prototype.viewForItem = function (item) {
         return "<li>" + item.title + "</li>";
     };
@@ -29,9 +27,7 @@ var ContextView = (function (_super) {
         console.log(item);
         this.hide();
     };
-    ContextView.prototype.getFilterKey = function () {
-        return 'title';
-    };
+    ContextView.prototype.getFilterKey = function () { return 'title'; };
     ContextView.prototype.show = function () {
         this.storeFocusedElement();
         if (!this.panel)

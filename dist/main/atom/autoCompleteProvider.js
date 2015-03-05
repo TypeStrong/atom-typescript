@@ -41,15 +41,11 @@ exports.provider = {
                             options.editor.moveToBeginningOfLine();
                             options.editor.selectToEndOfLine();
                             if (lastScope == 'reference.path.string') {
-                                options.editor.replaceSelectedText(null, function () {
-                                    return "/// <reference path='" + file.relativePath + "'/>";
-                                });
+                                options.editor.replaceSelectedText(null, function () { return "/// <reference path='" + file.relativePath + "'/>"; });
                             }
                             if (lastScope == 'require.path.string') {
                                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                                options.editor.replaceSelectedText(null, function () {
-                                    return "import " + alias + " = require('" + file.relativePath + "');";
-                                });
+                                options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require('" + file.relativePath + "');"; });
                             }
                             options.editor.moveToEndOfLine();
                         }
