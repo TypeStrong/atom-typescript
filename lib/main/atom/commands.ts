@@ -13,7 +13,7 @@ import ts = require('typescript');
 import documentationView = require('./views/documentationView'); ///ts:import:generated
 ///ts:import=renameView
 import renameView = require('./views/renameView'); ///ts:import:generated
-var apd = require('../../../apd'); // Moved here because I customized it
+var apd = require('atom-package-dependencies');
 import contextView = require('./views/contextView');
 
 // Utility functions for commands

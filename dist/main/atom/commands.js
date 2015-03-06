@@ -5,7 +5,7 @@ var autoCompleteProvider = require('./autoCompleteProvider');
 var path = require('path');
 var documentationView = require('./views/documentationView');
 var renameView = require('./views/renameView');
-var apd = require('../../../apd');
+var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();

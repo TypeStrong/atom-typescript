@@ -11,7 +11,7 @@ var Project = (function () {
         this.emitFile = function (filePath) {
             var services = _this.languageService;
             var output = services.getEmitOutput(filePath);
-            var success = output.emitOutputStatus === ts.EmitReturnStatus.Succeeded;
+            var success = output.emitOutputStatus === 0 /* Succeeded */;
             var errors = [];
             if (!success) {
                 var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));

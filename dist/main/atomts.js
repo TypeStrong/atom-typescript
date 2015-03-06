@@ -1,6 +1,6 @@
 var path = require('path');
 var fs = require('fs');
-var apd = require('../../apd');
+var apd = require('atom-package-dependencies');
 var errorView = require('./atom/errorView');
 var autoCompleteProvider = require('./atom/autoCompleteProvider');
 var tooltipManager = require('./atom/tooltipManager');

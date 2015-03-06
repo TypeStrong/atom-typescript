@@ -52,8 +52,8 @@ var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
 var typeScriptVersion = '1.4.1';
 exports.defaults = {
-    target: ts.ScriptTarget.ES5,
-    module: ts.ModuleKind.CommonJS,
+    target: 1 /* ES5 */,
+    module: 1 /* CommonJS */,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -70,31 +70,31 @@ var deprecatedKeys = {
 };
 var typescriptEnumMap = {
     target: {
-        'es3': ts.ScriptTarget.ES3,
-        'es5': ts.ScriptTarget.ES5,
-        'es6': ts.ScriptTarget.ES6,
-        'latest': ts.ScriptTarget.Latest
+        'es3': 0 /* ES3 */,
+        'es5': 1 /* ES5 */,
+        'es6': 2 /* ES6 */,
+        'latest': 2 /* Latest */
     },
     module: {
-        'none': ts.ModuleKind.None,
-        'commonjs': ts.ModuleKind.CommonJS,
-        'amd': ts.ModuleKind.AMD
+        'none': 0 /* None */,
+        'commonjs': 1 /* CommonJS */,
+        'amd': 2 /* AMD */
     }
 };
 var jsonEnumMap = {
     target: (function () {
         var map = {};
-        map[ts.ScriptTarget.ES3] = 'es3';
-        map[ts.ScriptTarget.ES5] = 'es5';
-        map[ts.ScriptTarget.ES6] = 'es6';
-        map[ts.ScriptTarget.Latest] = 'latest';
+        map[0 /* ES3 */] = 'es3';
+        map[1 /* ES5 */] = 'es5';
+        map[2 /* ES6 */] = 'es6';
+        map[2 /* Latest */] = 'latest';
         return map;
     })(),
     module: (function () {
         var map = {};
-        map[ts.ModuleKind.None] = 'none';
-        map[ts.ModuleKind.CommonJS] = 'commonjs';
-        map[ts.ModuleKind.AMD] = 'amd';
+        map[0 /* None */] = 'none';
+        map[1 /* CommonJS */] = 'commonjs';
+        map[2 /* AMD */] = 'amd';
         return map;
     })()
 };

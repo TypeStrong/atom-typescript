@@ -32,7 +32,8 @@
     "mkdirp": "^0.5.0",
     "typescript": "1.4.1",
     "escape-html": "^1.0.1",
-    "atom-space-pen-views": "^2.0.4"
+    "atom-space-pen-views": "^2.0.4",
+    "atom-package-dependencies": "basarat/atom-package-dependencies#cb1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
