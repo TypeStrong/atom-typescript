@@ -22,7 +22,7 @@ module.exports = {
   },
   require: function (pack) {
     var p = getPackagePath(pack);
-    if(p) return require(p.mainModulePath);
+    if(p && p.mainModulePath) return require(p.mainModulePath);
     console.log('Error: cannot find Atom package ' + pack);
   }
 }
