@@ -6,6 +6,7 @@ var path = require('path');
 var documentationView = require('./views/documentationView');
 var renameView = require('./views/renameView');
 var apd = require('../../../apd');
+var contextView = require('./views/contextView');
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
@@ -70,7 +71,11 @@ function registerCommands() {
     };
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    var theContextView;
     atom.commands.add('atom-text-editor', 'typescript:context-actions', function (e) {
+        if (!theContextView)
+            theContextView = new contextView.ContextView();
+        theContextView.show();
         atom.notifications.addSuccess('Context options coming soon!');
     });
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {

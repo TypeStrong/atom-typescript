@@ -31,8 +31,8 @@ var TypeScriptSemanticGrammar = (function (_super) {
         else {
             this.trailingWhiteSpaceLength = 0;
         }
-        var finalLexState = firstLine ? 0 /* Start */ : ruleStack.length ? ruleStack[0] : 0 /* Start */;
-        if (finalLexState !== 0 /* Start */) {
+        var finalLexState = firstLine ? ts.EndOfLineState.Start : ruleStack.length ? ruleStack[0] : ts.EndOfLineState.Start;
+        if (finalLexState !== ts.EndOfLineState.Start) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
         if (line.match(this.fullTripleSlashReferencePathRegEx)) {
@@ -81,7 +81,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
     };
     TypeScriptSemanticGrammar.prototype.getTsTokensForLine = function (line, finalLexState) {
-        if (finalLexState === void 0) { finalLexState = 0 /* Start */; }
+        if (finalLexState === void 0) { finalLexState = ts.EndOfLineState.Start; }
         var output = this.classifier.getClassificationsForLine(line, finalLexState, true);
         var ruleStack = [output.finalLexState];
         var classificationResults = output.entries;
@@ -114,9 +114,9 @@ var TypeScriptSemanticGrammar = (function (_super) {
 exports.TypeScriptSemanticGrammar = TypeScriptSemanticGrammar;
 function getAtomStyleForToken(token, str) {
     switch (token.classification) {
-        case 0 /* Punctuation */:
+        case TokenClass.Punctuation:
             return 'punctuation';
-        case 1 /* Keyword */:
+        case TokenClass.Keyword:
             switch (str) {
                 case 'static':
                 case 'public':
@@ -139,21 +139,21 @@ function getAtomStyleForToken(token, str) {
                 default:
                     return 'keyword';
             }
-        case 2 /* Operator */:
+        case TokenClass.Operator:
             return 'keyword.operator.js';
-        case 3 /* Comment */:
+        case TokenClass.Comment:
             return 'comment';
-        case 4 /* Whitespace */:
+        case TokenClass.Whitespace:
             return 'whitespace';
-        case 5 /* Identifier */:
+        case TokenClass.Identifier:
             if (!str.trim())
                 return '';
             return 'identifier';
-        case 6 /* NumberLiteral */:
+        case TokenClass.NumberLiteral:
             return 'constant.numeric';
-        case 7 /* StringLiteral */:
+        case TokenClass.StringLiteral:
             return 'string';
-        case 8 /* RegExpLiteral */:
+        case TokenClass.RegExpLiteral:
             return 'constant.character';
         default:
             return null;

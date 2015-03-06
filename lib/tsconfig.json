@@ -7,7 +7,8 @@
         "removeComments": true,
         "noLib": false,
         "preserveConstEnums": false,
-        "outDir": "../dist"
+        "outDir": "../dist",
+        "sourceMap": true
     },
     "filesGlob": [
         "./**/*.ts",
