@@ -292,4 +292,10 @@ function getRelativePathsInProject(query) {
     return resolve(response);
 }
 exports.getRelativePathsInProject = getRelativePathsInProject;
+function getIndentationAtPosition(query) {
+    var project = getOrCreateProject(query.filePath);
+    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
+    return resolve({ indent: indent });
+}
+exports.getIndentationAtPosition = getIndentationAtPosition;
 //# sourceMappingURL=projectService.js.map

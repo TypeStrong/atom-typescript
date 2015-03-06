@@ -52,6 +52,8 @@ function readyToActivate() {
                     var text = editor.getText();
                     parent.updateText({ filePath: filePath, text: text }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
+                var fasterChangeObserver = editor.getBuffer().onDidChange(function (diff) {
+                });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;
                     filePath = event.path;
@@ -60,6 +62,7 @@ function readyToActivate() {
                 var destroyObserver = editor.onDidDestroy(function () {
                     errorView.setErrors(filePath, []);
                     changeObserver.dispose();
+                    fasterChangeObserver.dispose();
                     saveObserver.dispose();
                     destroyObserver.dispose();
                 });

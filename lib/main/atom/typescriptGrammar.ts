@@ -173,10 +173,22 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
 
 /// NOTE: best way I have found for these is to just look at theme "less" files
+// Alternatively just inspect the token for a .js file
 function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string {
     switch (token.classification) {
         case TokenClass.Punctuation:
-            return 'punctuation';
+            switch(str){
+                case '{':
+                    return "punctuation.section.scope.begin.ts";
+                case '}':
+                    return "punctuation.section.scope.end.ts";
+                case ')':
+                    return "meta.brace.round.ts";
+                case '(':
+                    return "meta.brace.round.ts";
+                default:
+                    return 'punctuation';
+            }
         case TokenClass.Keyword:
             switch (str) {
                 case 'static':
