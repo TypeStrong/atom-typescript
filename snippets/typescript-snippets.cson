@@ -18,4 +18,36 @@
              * $1
              */
         """
- 
+    'exportinterface':
+            'prefix': 'exi'
+            'body': """
+                export interface ${1:IName}{${2:value:number;}}
+            """
+    'exportclass':
+        'prefix': 'exc'
+        'body': """
+            export class ${1:Name}{
+            this._init:boolean;
+            constructor(public idx:number, init:boolean){
+                  _init=init;
+                  }
+            memberFunction(){
+
+            }
+          }
+        """
+    'fatarrow':
+        'prefix': 'arr'
+        'body': """
+        (${1:parameter}) => { ${2:return true}};
+    """
+    'ifelse':
+        'prefix': 'ife'
+        'body': """
+        if($1){
+
+        }
+        else{
+
+        }
+    """ 
