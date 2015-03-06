@@ -86,7 +86,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         var ruleStack = [output.finalLexState];
         var classificationResults = output.entries;
         if (!classificationResults.length)
-            return { tokens: [{ style: '', str: '' }], ruleStack: ruleStack };
+            return { tokens: [{ style: 'whitespace', str: '' }], ruleStack: ruleStack };
         var totalLength = this.trailingWhiteSpaceLength;
         var tokens = classificationResults.map(function (info) {
             var tokenStartPosition = totalLength;

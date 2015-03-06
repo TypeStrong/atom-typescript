@@ -137,8 +137,8 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         var ruleStack = [output.finalLexState];
 
         var classificationResults = output.entries;
-        // TypeScript classifier returns empty for "". But Atom wants to have some Token
-        if (!classificationResults.length) return { tokens: [{ style: '', str: '' }], ruleStack: ruleStack };
+        // TypeScript classifier returns empty for "". But Atom wants to have some Token and it needs to be "whitespace" for autoindent to work
+        if (!classificationResults.length) return { tokens: [{ style: 'whitespace', str: '' }], ruleStack: ruleStack };
 
         // Start with trailing whitespace taken into account.
         // This is needed because classification for that is already done by ATOM internally (somehow)
