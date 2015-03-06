@@ -1,6 +1,32 @@
+### Html 2 TypeScript support
+
+Grunt-ts can re-encode html files into TypeScript and make them available as a variable.
+
+For example a file called `test.html`:
+```html
+<div> Some Content </div>
+```
+
+Will be compiled to a TypeScript file `test.html.ts` containing:
+```typescript
+module test { export var html =  '<div> Some content </div>' }
+```
+
+This will export the variable `test.html` within the TypeScript scope to get the content of test.html as a string, with the main benefit of limiting the http-requests needed to load templates in various front-end frameworks.
+
+#### Html 2 TypeScript usage in AngularJS
+
+This is great for putting variables in templateCache: http://docs.angularjs.org/api/ng.$templateCache or even using the html string directly by setting it to the `template` properties (directives/views) instead of `templateUrl`
+
+#### Html 2 TypeScript usage in EmberJS
+
+It is possible to specify this string to the template on a view: http://emberjs.com/api/classes/Ember.View.html
+
+Specifically: http://stackoverflow.com/a/9867375/390330
+
 #### Control generated TypeScript module and variable names
 
-In the task options `htmlModuleTemplate` and `htmlVarTemplate` you can specify an Underscore templates to be used in order to generate the module and variable names for the generated TypeScript.
+In the task options `htmlModuleTemplate` and `htmlVarTemplate` you can specify Underscore templates to be used in order to generate the module and variable names for the generated TypeScript.
 
 Those Underscore template receive the following parameters:
 

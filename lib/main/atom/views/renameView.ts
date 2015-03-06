@@ -1,6 +1,6 @@
 import view = require('./view');
 var $ = view.$;
-var html = require('./renameView.html');
+var html = require('../../../../views/renameView.html');
 
 interface EditorView extends JQuery {
     model: AtomCore.IEditor;
