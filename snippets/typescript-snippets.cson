@@ -1,11 +1,4 @@
 '.source.ts':
-    'while':
-        'prefix': 'while'
-        'body': """
-            while (${1:true}) {
-                $2
-            }
-        """
     'JSDoc single line':
         'prefix': '//'
         'body': """
@@ -14,8 +7,54 @@
     'JSDoc multi line':
         'prefix': '///'
         'body': """
-            /** 
+            /**
              * $1
              */
         """
- 
+    'if':
+        'prefix': 'if'
+        'body': """
+            if (${1:true}) {
+                $2
+            }
+        """
+    'ifelse':
+        'prefix': 'ifel'
+        'body': """
+            if (${1:true}) {
+                $2
+            } else {}
+        """
+    'while':
+        'prefix': 'while'
+        'body': """
+            while (${1:true}) {
+                $2
+            }
+        """
+    'interface':
+        'prefix': 'interface'
+        'body': """
+            interface ${1:Name} {
+                $2
+            }
+        """
+    'class':
+        'prefix': 'class'
+        'body': """
+            class ${1:Name} {
+                $2
+            }
+        """
+    'function':
+        'prefix': 'function'
+        'body': """
+            function ${1:name}(${2:parameter}) {
+                ${3:return true;}
+            }
+        """
+    'fatarrow':
+        'prefix': 'arr'
+        'body': """
+            (${1:parameter}) => { ${2:return true;} }
+        """
