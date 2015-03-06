@@ -79,10 +79,15 @@ function activate(state) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
     if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation', { dismissable: true });
+        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function () {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Best that you restart atom just this once. \u2665", { dismissable: true });
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665");
             notification.dismiss();
+            if (!apd.require('linter'))
+                atom.packages.loadPackage('linter');
+            if (!apd.require('autocomplete-plus'))
+                atom.packages.loadPackage('autocomplete-plus');
+            atom.packages.activatePackage('linter').then(function () { return atom.packages.activatePackage('autocomplete-plus'); }).then(function () { return readyToActivate(); });
         });
         return;
     }

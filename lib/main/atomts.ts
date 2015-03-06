@@ -184,15 +184,17 @@ export function activate(state: PackageState) {
     var acp = apd.require('autocomplete-plus');
 
     if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation', { dismissable: true });
+        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function() {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Best that you restart atom just this once. \u2665", { dismissable: true });
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665");
             notification.dismiss();
 
-            // Note: the following should work
-            // But doesn't in that atom doesn't call activate on linter or autocomplete plus if they are installed in the background.
-            // Restore this once that happens (or you find a way to do that)
-            // readyToActivate();
+            // Packages don't get loaded automatically as a result of an install
+            if (!apd.require('linter')) atom.packages.loadPackage('linter');
+            if (!apd.require('autocomplete-plus')) atom.packages.loadPackage('autocomplete-plus');
+
+            // Hazah activate them and then activate us!
+            atom.packages.activatePackage('linter').then(() => atom.packages.activatePackage('autocomplete-plus')).then(() => readyToActivate());
         });
 
         return;

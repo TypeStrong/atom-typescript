@@ -8,10 +8,9 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 1. Install [atom](https://atom.io).
 2. `apm install atom-typescript` (`apm` needs `git` in your path)
-3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Best you restart atom just this once ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
-4. Restart atom
+3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Enjoy TypeScript ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
 
-**Additional Notes**: Other atom packages we depend upon are installed automatically on first load. [Learn more about these](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md). 
+**Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md). 
 
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
@@ -77,7 +76,7 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 
 ## Snippets
 ### Relative Paths
-Relative paths have traditionally been a pain, not anymore. Use `import` or `ref` and press `tab` to trigger snippet. 
+Relative paths have traditionally been a pain, not anymore. Use `import` or `ref` and press `tab` to trigger snippet.
 
 `ref`
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/ref%20snippet.gif)
