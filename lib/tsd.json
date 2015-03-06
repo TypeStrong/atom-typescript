@@ -6,37 +6,37 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "emissary/emissary.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "pathwatcher/pathwatcher.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "mixto/mixto.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "atom/atom.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "text-buffer/text-buffer.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "status-bar/status-bar.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "space-pen/space-pen.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "jquery/jquery.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "node/node.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "q/Q.d.ts": {
-      "commit": "0545e0567d242abcd295a63babb86c88e7d9911d"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
     "mkdirp/mkdirp.d.ts": {
-      "commit": "42c8a3b74c05f6887ce21dd63c6234e424f9f8fe"
+      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     }
   }
 }

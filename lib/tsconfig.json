@@ -6,7 +6,8 @@
         "noImplicitAny": false,
         "removeComments": true,
         "noLib": false,
-        "preserveConstEnums": false
+        "preserveConstEnums": false,
+        "outDir": "../dist"
     },
     "filesGlob": [
         "./**/*.ts",
@@ -42,7 +43,6 @@
         "./main/tsconfig/formatting.ts",
         "./main/tsconfig/simpleValidator.ts",
         "./main/tsconfig/tsconfig.ts",
-        "./node_modules/views/views.d.ts",
         "./typings/atom/atom.d.ts",
         "./typings/atompromise.d.ts",
         "./typings/bluebird.d.ts",

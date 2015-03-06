@@ -3,7 +3,7 @@
 // Source based on : https://github.com/tschaub/grunt-newer/blob/master/lib/util.js
 
 import fs = require('fs');
-import _ = require('underscore');
+import _ = require('lodash');
 import path = require('path');
 import crypto = require('crypto');
 var grunt: IGrunt = require('grunt');

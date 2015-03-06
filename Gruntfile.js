@@ -3,23 +3,25 @@ module.exports = function (grunt) {
 
     var srcDir = 'lib';
 
-    var excludeNodeDir = ['!**/node_modules/**'];
-
     grunt.initConfig({
         ts: {
             options: {
                 target: 'es5',
                 module: 'commonjs',
-                sourceMap: false,
+                sourceMap: true,
                 preserveConstEnums: false,
-                compiler: './node_modules/typescript/bin/tsc',
+                compiler: './node_modules/typescript/bin/tsc'
             },
             dev: {
-                src: [srcDir + '/**/*.ts'].concat(excludeNodeDir),
-                watch: srcDir
+                src: [srcDir + '/**/*.ts'],
+                watch: srcDir,
+                outDir: './dist/',
+                baseDir: './lib/'
             },
             build: {
-                src: [srcDir + '/**/*.ts'].concat(excludeNodeDir),
+                src: [srcDir + '/**/*.ts'],
+                outDir: './dist/',
+                baseDir: './lib/'
             },
         },
     });
