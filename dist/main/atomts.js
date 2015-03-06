@@ -81,7 +81,7 @@ function activate(state) {
     if (!linter || !acp) {
         var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function () {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665");
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
             notification.dismiss();
             if (!apd.require('linter'))
                 atom.packages.loadPackage('linter');

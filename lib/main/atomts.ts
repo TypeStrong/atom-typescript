@@ -186,7 +186,7 @@ export function activate(state: PackageState) {
     if (!linter || !acp) {
         var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function() {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665");
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
             notification.dismiss();
 
             // Packages don't get loaded automatically as a result of an install
