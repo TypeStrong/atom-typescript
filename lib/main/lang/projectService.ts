@@ -38,7 +38,7 @@ export function fixChild(childInjected: typeof child) {
 //////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-var projectByProjectPath: { [projectDir: string]: Project } = {}
+var projectByProjectFilePath: { [projectFilePath: string]: Project } = {}
 /** the project file path or any source ts file path */
 var projectByFilePath: { [filePath: string]: Project } = {}
 
@@ -50,8 +50,18 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     watchingProjectFile[projectFilePath] = true;
 
     fs.watch(projectFilePath, { persistent: false, recursive: false },() => {
-        // As long as the tsconfig.json file still exists
-        if (!fs.existsSync(projectFilePath)) return;
+        // if file no longer exists
+        if (!fs.existsSync(projectFilePath)) {
+            // if we have a cache for it then clear it
+            var project = projectByProjectFilePath[projectFilePath];
+            if (project) {
+                var files = project.projectFile.project.files;
+
+                delete projectByProjectFilePath[projectFilePath];
+                files.forEach((file) => delete projectByFilePath[file]);
+            }
+            return;
+        }
         
         // Reload the project file from the file system and re cache it
         try {
@@ -70,7 +80,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     This might not match what we have in the editor memory, so query those as well
 */
 function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    var project = projectByProjectPath[projectFile.projectFileDirectory] = new Project(projectFile);
+    var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
     projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
     
     // query the parent for unsaved changes
