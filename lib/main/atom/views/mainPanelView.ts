@@ -39,15 +39,16 @@ export class MainPanelView extends view.View<any> {
                     class: 'panel-heading'
                 },() => {
                         this.span({
-                            style: 'cursor: pointer',
+                            style: 'cursor: pointer; color: rgb(0, 148, 255)',
                             click: 'toggle'
                         },() => {
-                                this.span({ class: "icon-bug" });
-                                this.span({}, " TypeScript ");
+                                this.span({ class: "icon-microscope" });
+                                this.span({ style: 'font-weight:bold' }, " TypeScript ");
                             });
 
                         this.div({
                             class: 'btn-group',
+                            style: 'margin-left: 5px'
                         },
                             () => {
                                 btn("error", panelHeaders.error, 'selected')
@@ -60,7 +61,7 @@ export class MainPanelView extends view.View<any> {
                             style: 'display:inline-block; margin-left:5px; width: calc(100% - 500px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
-                        
+
                         this.div({
                             class: 'heading-buttons pull-right',
                             style: 'width:15px; display:inline-block'
