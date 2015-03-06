@@ -758,6 +758,7 @@ declare module AtomCore {
 		getSelectionMarkerAttributes():{type: string; editorId: number; invalidate: string; };
 		// joinLine():any; // deprecated
 
+		onDidChange(callback: Function): Disposable;
         onDidDestroy(callback: Function): Disposable;
         onDidStopChanging(callback: Function): Disposable;
         onDidSave(callback: (event: { path: string }) => void): Disposable;

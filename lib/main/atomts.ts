@@ -127,7 +127,7 @@ function readyToActivate() {
 
                     // Update the file in the worker
                     parent.updateText({ filePath: filePath, text: text })
-                    // Set errors in project per file                        
+                    // Set errors in project per file
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
@@ -140,6 +140,10 @@ function readyToActivate() {
                         position: position
                     });*/
 
+                });
+
+                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.getBuffer()).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
+                    // TODO: use this for faster language service host
                 });
 
                 // Observe editors saving
@@ -157,6 +161,7 @@ function readyToActivate() {
 
                     // Clear editor observers
                     changeObserver.dispose();
+                    fasterChangeObserver.dispose();
                     saveObserver.dispose();
                     destroyObserver.dispose();
                 });
@@ -183,9 +188,9 @@ export function activate(state: PackageState) {
         apd.install(function() {
             atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Best that you restart atom just this once. \u2665", { dismissable: true });
             notification.dismiss();
-            
+
             // Note: the following should work
-            // But doesn't in that atom doesn't call activate on linter or autocomplete plus if they are installed in the background. 
+            // But doesn't in that atom doesn't call activate on linter or autocomplete plus if they are installed in the background.
             // Restore this once that happens (or you find a way to do that)
             // readyToActivate();
         });

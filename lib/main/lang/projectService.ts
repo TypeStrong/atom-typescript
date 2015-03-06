@@ -62,7 +62,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
             }
             return;
         }
-        
+
         // Reload the project file from the file system and re cache it
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
@@ -76,13 +76,13 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     });
 }
 
-/** We are loading the project from file system. 
+/** We are loading the project from file system.
     This might not match what we have in the editor memory, so query those as well
 */
 function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetails) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
     projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
-    
+
     // query the parent for unsaved changes
     // We do this lazily
     queryParent.getUpdatedTextForUnsavedEditors({})
@@ -486,4 +486,15 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
     };
 
     return resolve(response);
+}
+
+export interface GetIndentionAtPositionQuery extends FilePathPositionQuery { }
+export interface GetIndentaionAtPositionResponse {
+    indent: number;
+}
+export function getIndentationAtPosition(query: GetIndentionAtPositionQuery): Promise<GetIndentaionAtPositionResponse> {
+    var project = getOrCreateProject(query.filePath);
+    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
+
+    return resolve({ indent });
 }
