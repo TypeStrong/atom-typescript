@@ -28,6 +28,7 @@
         "./main/atom/tooltipManager.ts",
         "./main/atom/typescriptGrammar.ts",
         "./main/atom/views/awesomePanelView.ts",
+        "./main/atom/views/contextView.ts",
         "./main/atom/views/documentationView.ts",
         "./main/atom/views/lineMessageView.ts",
         "./main/atom/views/mainPanelView.ts",

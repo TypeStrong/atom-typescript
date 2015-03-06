@@ -1679,7 +1679,7 @@ declare module "atom" {
 
 		confirmSelection():any;
 
-		viewForItem(item:any):JQuery; // You must override this method!
+		viewForItem(item:any):JQuery|string|HTMLElement|View; // You must override this method!
 		confirmed(item:any):any; // You must override this method!
 		getFilterKey():any;
 

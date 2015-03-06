@@ -24,3 +24,9 @@ declare module 'escape-html' {
     function escape(html: string): string;
     export = escape;
 }
+
+
+declare module 'atom-space-pen-views'{
+    import atom = require('atom');
+    export class SelectListView extends atom.SelectListView{}
+}
