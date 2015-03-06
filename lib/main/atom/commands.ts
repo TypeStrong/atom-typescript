@@ -14,6 +14,7 @@ import documentationView = require('./views/documentationView'); ///ts:import:ge
 ///ts:import=renameView
 import renameView = require('./views/renameView'); ///ts:import:generated
 var apd = require('../../../apd'); // Moved here because I customized it
+import contextView = require('./views/contextView');
 
 // Utility functions for commands
 function commandForTypeScript(e) {
@@ -95,7 +96,10 @@ export function registerCommands() {
     // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
 
+    var theContextView: contextView.ContextView;
     atom.commands.add('atom-text-editor', 'typescript:context-actions',(e) => {
+        if(!theContextView) theContextView = new contextView.ContextView();
+        theContextView.show();
         atom.notifications.addSuccess('Context options coming soon!');
     });
 
