@@ -1,12 +1,5 @@
 # TIP
-Before doing any meaningful work or even investigating [please create an issue for discussion](https://github.com/TypeStrong/atom-typescript/issues) so we don't have duplicate work and I don't step on your toes.
-
-# Grunt Tasks
-## Building
-`grunt build`
-
-## Developing
-`grunt`
+Before doing any meaningful work or even investigating [please create an issue for discussion](https://github.com/TypeStrong/atom-typescript/issues) so we don't have duplicate work and we don't step on your toes.
 
 ## Publishing
 `apm publish minor`
@@ -34,6 +27,12 @@ Some shortcuts:
 1. We make changes to `atom-typescript` and save to get the JS. 
 1. We reload the `atom-typescript-examples` window to see the effects of our change. 
 1. Only reload the `atom-typescript` window once we are sure that our new code is functional.
+
+#### When you break atom-typescript during development 
+This shouldn't happen as long as you leave the `atom-typescript` window untouched and do testing in another atom instance. If you reload the `atom-typescript` window thinking its going to be stable but it turns out to be unstable do one of the following:  
+* Discard the *JavaScript* changes that you think broke it and reload the atom instance. 
+* Run `grunt` and leave it running to compile your atomts changes (as atomts is going to be out of order)
+* Open up the visual studio project (at your own risk, we do not keep this up to date!)
 
 ## Architecture
 We wrap the `languageService` + our custom `languageServiceHost` + [`projectFile`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md) into a `Project` (code in `Project.ts` in the `lang` folder). The functions that interact with this `project` are exposed from `projectService` ([the query / response section](https://github.com/TypeStrong/atom-typescript/blob/6fbf860eaf971baa3aca939626db553898cb40db/lib/main/lang/projectService.ts#L58-L244)). `projectService` is where you would add new features that interact with the language service. All this code is `sync` and can be tested / run on any node instance. Be careful not to *leave* `console.log` in this code (as we use `stdio` to make this code `async`) or use `atom` specific APIs (as it may not be in the UI thread).
