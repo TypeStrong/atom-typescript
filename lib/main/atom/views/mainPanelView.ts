@@ -38,13 +38,16 @@ export class MainPanelView extends view.View<any> {
                 this.div({
                     class: 'panel-heading'
                 },() => {
-                        this.span({ style: 'cursor: pointer', 'click': 'toggle' },() => {
-                            this.span({ class: "icon-bug" });
-                            this.span({}, " TypeScript ");
-                        });
+                        this.span({
+                            style: 'cursor: pointer',
+                            click: 'toggle'
+                        },() => {
+                                this.span({ class: "icon-bug" });
+                                this.span({}, " TypeScript ");
+                            });
 
                         this.div({
-                            class: 'btn-group'
+                            class: 'btn-group',
                         },
                             () => {
                                 btn("error", panelHeaders.error, 'selected')
@@ -52,26 +55,18 @@ export class MainPanelView extends view.View<any> {
                                 btn("build", panelHeaders.build)
                             });
 
-                        this.span({}, " ");
-
-                        this.div({
-                            class: 'heading-title inline-block',
-                            style: 'cursor: pointer',
-                            outlet: 'heading',
-                            click: 'toggle'
-                        });
-
-
                         this.div({
                             class: 'heading-summary',
-                            style: 'display:inline-block',
+                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 500px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
+                        
                         this.div({
-                            class: 'heading-buttoms inline-block pull-right'
+                            class: 'heading-buttons pull-right',
+                            style: 'width:15px; display:inline-block'
                         },() => {
                                 this.div({
-                                    class: 'heading-fold inline-block icon-unfold',
+                                    class: 'heading-fold icon-unfold',
                                     style: 'cursor: pointer',
                                     outlet: 'btnFold',
                                     click: 'toggle'
@@ -159,7 +154,7 @@ export class MainPanelView extends view.View<any> {
             raw = summary.rawSummary || false,
             handler = summary.handler || undefined;
         // Reset the class-attributes on the old summary
-        this.summary.attr('class', 'heading-summary inline-block');
+        this.summary.attr('class', 'heading-summary');
         // Set the new summary
         this.summary.html(message);
 

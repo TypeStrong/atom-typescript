@@ -81,10 +81,10 @@ export class LineMessageView extends view.View<ViewOptions> {
             pos += ', ' + this.options.file;
         }
         return {
-            summary: '<span>' + pos + '</span>: ' + this.options.message,
+            summary: pos + this.options.message,
             rawSummary: true,
             handler: function(element) {
-                $('span', element)
+                $(element)
                     .css('cursor', 'pointer')
                     .click(this.goToLine.bind(this));
             }.bind(this)
