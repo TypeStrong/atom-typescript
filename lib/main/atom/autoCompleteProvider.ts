@@ -55,6 +55,28 @@ export function triggerAutocompletePlus() {
         'autocomplete-plus:activate');
 }
 
+interface SnippetDescriptor {
+    prefix: string;
+    body: string;
+}
+interface SnippetsContainer {
+    [Key: string]: SnippetDescriptor;
+}
+
+var tsSnippets: SnippetsContainer;
+(() => {
+    var CSON = require("season");
+    var confPath = atom.getConfigDirPath();
+    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson",
+        (err, objRead) => {
+            if (!err) {
+                if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
+                    tsSnippets = objRead;
+                }
+            }
+        });
+})();
+
 export var provider = {
     selector: '.source.ts',
     requestHandler: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
@@ -118,19 +140,30 @@ export var provider = {
                         };
                     });
 
-                    // Hopefully autocomplete plus can detect snippets automatically at some point
-                    if (options.prefix == 'ref'
-                        && suggestions[0].word !== 'ref') {
-                        suggestions.unshift({
-                            word: 'ref',
-                            prefix: 'ref',
-                            label: 'add a reference tag',
-                            renderLabelAsHtml: false,
-                            isSnippet: true,
-                            snippet:"/// <reference path='$1'/>"
-                        });
-                    }
 
+                    if (tsSnippets) {
+                        var tsSnipSection = tsSnippets['.source.ts'];
+                        for (var key in tsSnipSection) {
+                            if (tsSnipSection.hasOwnProperty(key)) {
+                                if (tsSnipSection[key].prefix != undefined) {
+                                    if (options.prefix === tsSnipSection[key].prefix
+                                    //&&suggestions[0].word !== tsSnipSection [key].prefix// you only get the snippet suggested after you have typed the full trigger word
+                                    // and then it replace the a keyword that might also be present, e.G. "class"
+                                        ) {
+                                        suggestions.unshift({
+                                            word: options.prefix,
+                                            prefix: options.prefix,
+                                            label: "snippet: " + key,
+                                            renderLabelAsHtml: false,
+                                            isSnippet: true,
+                                            snippet: tsSnipSection[key].body
+                                        });
+                                        break;// take only the first match
+                                    }
+                                }
+                            }
+                        }
+                    }
                     return suggestions;
                 });
 
