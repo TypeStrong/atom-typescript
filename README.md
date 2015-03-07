@@ -15,7 +15,8 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
 "And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)  
-"It's a thing of beauty - they had me at '*Type information on hover*'. Discovering  `tsconfig.json` support as well was just an enormous bonus." [John Reilly](https://twitter.com/johnny_reilly)
+"It's a thing of beauty - they had me at '*Type information on hover*'. Discovering  `tsconfig.json` support as well was just an enormous bonus." [John Reilly](https://twitter.com/johnny_reilly)  
+"This may be your best option for editing TypeScript at the moment - very nice!" [Rasmus Schultz](https://twitter.com/mindplaydk)
 
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
