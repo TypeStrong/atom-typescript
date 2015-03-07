@@ -147,8 +147,9 @@ export var provider = {
                             if (tsSnipSection.hasOwnProperty(key)) {
                                 if (tsSnipSection[key].prefix != undefined) {
                                     if (options.prefix === tsSnipSection[key].prefix
-                                    //&&suggestions[0].word !== tsSnipSection [key].prefix// you only get the snippet suggested after you have typed the full trigger word
-                                    // and then it replace the a keyword that might also be present, e.G. "class"
+                                    //&&suggestions[0].word !== tsSnipSection [key].prefix
+                                    // you only get the snippet suggested after you have typed the full trigger word
+                                    // and then it replaces a keyword/other match that might also be present, e.G. "class"
                                         ) {
                                         suggestions.unshift({
                                             word: options.prefix,
