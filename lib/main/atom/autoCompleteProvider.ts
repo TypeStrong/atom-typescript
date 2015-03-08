@@ -11,6 +11,7 @@ import fs = require('fs');
 
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
+import escape = require('escape-html');
 
 var fuzzaldrin = require('fuzzaldrin');
 
@@ -94,7 +95,7 @@ var tsSnipPrefixLookup: SnippetMap = {};
 
             if (!err) {
                 if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
-                    var tsSnippets: CSONRoot =objRead;
+                    var tsSnippets: CSONRoot = objRead;
                     // rearrange/invert the way this can be looked up: we want to lookup by prefix
                     // this way the lookup gets faster because we dont have to iterate over the
                     // properties of the object
@@ -179,21 +180,21 @@ export var provider = {
 
                     if (tsSnipPrefixLookup) {
                         // see if we have a snippet for this prefix
-                        if (tsSnipPrefixLookup[options.prefix] != undefined) {
+                        if (tsSnipPrefixLookup[options.prefix]) {
                             // you only get the snippet suggested after you have typed
                             // the full trigger word/ prefex
                             // and then it replaces a keyword/match that might also be present, e.G. "class"
-                                suggestions.unshift({
-                                    word: options.prefix,
-                                    prefix: options.prefix,
-                                    label: "snippet: " + options.prefix,
-                                    renderLabelAsHtml: false,
-                                    isSnippet: true,
-                                    snippet: tsSnipPrefixLookup[options.prefix].body
-                                });
+                            suggestions.unshift({
+                                word: options.prefix,
+                                prefix: options.prefix,
+                                label: "snippet: " + options.prefix,
+                                renderLabelAsHtml: false,
+                                isSnippet: true,
+                                snippet: tsSnipPrefixLookup[options.prefix].body
+                            });
                         }
                     }
-                   
+
                     return suggestions;
                 });
 

@@ -19,6 +19,27 @@ function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
+var tsSnipPrefixLookup = {};
+(function () {
+    var CSON = require("season");
+    var confPath = atom.getConfigDirPath();
+    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, objRead) {
+        if (!err) {
+            if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
+                var tsSnippets = objRead;
+                var tsSnipSection = tsSnippets['.source.ts'];
+                for (var key in tsSnipSection) {
+                    if (tsSnipSection.hasOwnProperty(key)) {
+                        tsSnipPrefixLookup[tsSnipSection[key].prefix] = {
+                            body: tsSnipSection[key].body,
+                            Name: key
+                        };
+                    }
+                }
+            }
+        }
+    });
+})();
 exports.provider = {
     selector: '.source.ts',
     requestHandler: function (options) {
@@ -74,15 +95,17 @@ exports.provider = {
                         renderLabelAsHtml: true,
                     };
                 });
-                if (options.prefix == 'ref' && suggestions[0].word !== 'ref') {
-                    suggestions.unshift({
-                        word: 'ref',
-                        prefix: 'ref',
-                        label: 'add a reference tag',
-                        renderLabelAsHtml: false,
-                        isSnippet: true,
-                        snippet: "/// <reference path='$1'/>"
-                    });
+                if (tsSnipPrefixLookup) {
+                    if (tsSnipPrefixLookup[options.prefix]) {
+                        suggestions.unshift({
+                            word: options.prefix,
+                            prefix: options.prefix,
+                            label: "snippet: " + options.prefix,
+                            renderLabelAsHtml: false,
+                            isSnippet: true,
+                            snippet: tsSnipPrefixLookup[options.prefix].body
+                        });
+                    }
                 }
                 return suggestions;
             });

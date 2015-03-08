@@ -1,4 +1,14 @@
 '.source.ts':
+    'reference':
+        'prefix': 'ref'
+        'body': """
+            /// <reference path='$1'/>
+        """
+    'import':
+        'prefix': 'import'
+        'body': """
+            import ${1:alias} = require('${2:path}');
+        """
     'JSDoc single line':
         'prefix': '//'
         'body': """
