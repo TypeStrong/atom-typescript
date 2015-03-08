@@ -55,6 +55,65 @@ export function triggerAutocompletePlus() {
         'autocomplete-plus:activate');
 }
 
+
+
+// the structure stored in the CSON snippet file
+interface SnippetDescriptor {
+    prefix: string;
+    body: string;
+}
+interface SnippetsContianer {
+    [name: string]: SnippetDescriptor;
+}
+
+interface CSONRoot {
+    [Key: string]: SnippetsContianer;
+}
+
+
+// this is the structure we use to speed up the lookup by avoiding having to
+// iterate over the object properties during the requestHandler
+// this will take a little longer during load but I guess that is better than
+// taking longer at each key stroke
+interface SnippetDetail {
+    body: string;
+    Name: string;
+}
+
+interface SnippetMap {
+    [prefix: string]: SnippetDetail;
+}
+
+
+var tsSnipPrefixLookup: SnippetMap = {};
+(() => {
+    var CSON = require("season");
+    var confPath = atom.getConfigDirPath();
+    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson",
+        (err, objRead: CSONRoot) => {
+
+            if (!err) {
+                if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
+                    var tsSnippets: CSONRoot =objRead;
+                    // rearrange/invert the way this can be looked up: we want to lookup by prefix
+                    // this way the lookup gets faster because we dont have to iterate over the
+                    // properties of the object
+                    var tsSnipSection: SnippetsContianer = tsSnippets['.source.ts'];
+                    for (var key in tsSnipSection) {
+                        if (tsSnipSection.hasOwnProperty(key)) {
+                            // if the file contains a prefix multiple times only
+                            // the last will be active because the previous ones will be overwritten
+                            tsSnipPrefixLookup[tsSnipSection[key].prefix] = {
+                                body: tsSnipSection[key].body,
+                                Name: key
+                            }
+                        }
+                    }
+                }
+            }
+        });
+})();
+
 export var provider = {
     selector: '.source.ts',
     requestHandler: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
@@ -118,19 +177,23 @@ export var provider = {
                         };
                     });
 
-                    // Hopefully autocomplete plus can detect snippets automatically at some point
-                    if (options.prefix == 'ref'
-                        && suggestions[0].word !== 'ref') {
-                        suggestions.unshift({
-                            word: 'ref',
-                            prefix: 'ref',
-                            label: 'add a reference tag',
-                            renderLabelAsHtml: false,
-                            isSnippet: true,
-                            snippet:"/// <reference path='$1'/>"
-                        });
+                    if (tsSnipPrefixLookup) {
+                        // see if we have a snippet for this prefix
+                        if (tsSnipPrefixLookup[options.prefix] != undefined) {
+                            // you only get the snippet suggested after you have typed
+                            // the full trigger word/ prefex
+                            // and then it replaces a keyword/match that might also be present, e.G. "class"
+                                suggestions.unshift({
+                                    word: options.prefix,
+                                    prefix: options.prefix,
+                                    label: "snippet: " + options.prefix,
+                                    renderLabelAsHtml: false,
+                                    isSnippet: true,
+                                    snippet: tsSnipPrefixLookup[options.prefix].body
+                                });
+                        }
                     }
-
+                   
                     return suggestions;
                 });
 
