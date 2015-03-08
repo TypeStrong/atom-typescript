@@ -152,11 +152,12 @@ export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
     var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
+
     return {
         filePath: filePath,
         startPos: { line: startPosition.line, ch: startPosition.character },
         endPos: { line: endPosition.line, ch: endPosition.character },
-        message: <string> diagnostic.messageText,
+        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
     };
 }
