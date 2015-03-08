@@ -120,7 +120,7 @@ export var provider = {
 
                     // Hopefully autocomplete plus can detect snippets automatically at some point
                     if (options.prefix == 'ref'
-                        && suggestions[0].word !== 'ref') {
+                        && suggestions[0] && suggestions[0].word !== 'ref') {
                         suggestions.unshift({
                             word: 'ref',
                             prefix: 'ref',

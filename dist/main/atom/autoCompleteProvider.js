@@ -74,7 +74,7 @@ exports.provider = {
                         renderLabelAsHtml: true,
                     };
                 });
-                if (options.prefix == 'ref' && suggestions[0].word !== 'ref') {
+                if (options.prefix == 'ref' && suggestions[0] && suggestions[0].word !== 'ref') {
                     suggestions.unshift({
                         word: 'ref',
                         prefix: 'ref',
