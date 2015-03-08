@@ -14,6 +14,7 @@ import atomUtils = require('./atomUtils'); ///ts:import:generated
 import escape = require('escape-html');
 
 var fuzzaldrin = require('fuzzaldrin');
+var CSON = require("season");
 
 declare module autocompleteplus {
     export interface RequestOptions {
@@ -67,10 +68,6 @@ interface SnippetsContianer {
     [name: string]: SnippetDescriptor;
 }
 
-interface CSONRoot {
-    [Key: string]: SnippetsContianer;
-}
-
 
 // this is the structure we use to speed up the lookup by avoiding having to
 // iterate over the object properties during the requestHandler
@@ -78,42 +75,34 @@ interface CSONRoot {
 // taking longer at each key stroke
 interface SnippetDetail {
     body: string;
-    Name: string;
+    name: string;
 }
 
-interface SnippetMap {
-    [prefix: string]: SnippetDetail;
-}
-
-
-var tsSnipPrefixLookup: SnippetMap = {};
-(() => {
-    var CSON = require("season");
+var tsSnipPrefixLookup: { [prefix: string]: SnippetDetail; } = {};
+function loadSnippets() {
     var confPath = atom.getConfigDirPath();
     CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson",
-        (err, objRead: CSONRoot) => {
+        (err, snippetsRoot) => {
+            if (err) return;
+            if (!snippetsRoot || !snippetsRoot['.source.ts']) return;
 
-            if (!err) {
-                if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
-                    var tsSnippets: CSONRoot = objRead;
-                    // rearrange/invert the way this can be looked up: we want to lookup by prefix
-                    // this way the lookup gets faster because we dont have to iterate over the
-                    // properties of the object
-                    var tsSnipSection: SnippetsContianer = tsSnippets['.source.ts'];
-                    for (var key in tsSnipSection) {
-                        if (tsSnipSection.hasOwnProperty(key)) {
-                            // if the file contains a prefix multiple times only
-                            // the last will be active because the previous ones will be overwritten
-                            tsSnipPrefixLookup[tsSnipSection[key].prefix] = {
-                                body: tsSnipSection[key].body,
-                                Name: key
-                            }
-                        }
+            // rearrange/invert the way this can be looked up: we want to lookup by prefix
+            // this way the lookup gets faster because we dont have to iterate over the
+            // properties of the object
+            var tsSnippets: SnippetsContianer = snippetsRoot['.source.ts'];
+            for (var snippetName in tsSnippets) {
+                if (tsSnippets.hasOwnProperty(snippetName)) {
+                    // if the file contains a prefix multiple times only
+                    // the last will be active because the previous ones will be overwritten
+                    tsSnipPrefixLookup[tsSnippets[snippetName].prefix] = {
+                        body: tsSnippets[snippetName].body,
+                        name: snippetName
                     }
                 }
             }
         });
-})();
+}
+loadSnippets();
 
 export var provider = {
     selector: '.source.ts',
@@ -178,21 +167,20 @@ export var provider = {
                         };
                     });
 
-                    if (tsSnipPrefixLookup) {
-                        // see if we have a snippet for this prefix
-                        if (tsSnipPrefixLookup[options.prefix]) {
-                            // you only get the snippet suggested after you have typed
-                            // the full trigger word/ prefex
-                            // and then it replaces a keyword/match that might also be present, e.G. "class"
-                            suggestions.unshift({
-                                word: options.prefix,
-                                prefix: options.prefix,
-                                label: "snippet: " + options.prefix,
-                                renderLabelAsHtml: false,
-                                isSnippet: true,
-                                snippet: tsSnipPrefixLookup[options.prefix].body
-                            });
-                        }
+
+                    // see if we have a snippet for this prefix
+                    if (tsSnipPrefixLookup[options.prefix]) {
+                        // you only get the snippet suggested after you have typed
+                        // the full trigger word/ prefex
+                        // and then it replaces a keyword/match that might also be present, e.g. "class"
+                        suggestions.unshift({
+                            word: options.prefix,
+                            prefix: options.prefix,
+                            label: "snippet: " + options.prefix,
+                            renderLabelAsHtml: false,
+                            isSnippet: true,
+                            snippet: tsSnipPrefixLookup[options.prefix].body
+                        });
                     }
 
                     return suggestions;

@@ -3,6 +3,7 @@ var atomConfig = require('./atomConfig');
 var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
+var CSON = require("season");
 function kindToColor(kind) {
     switch (kind) {
         case 'interface':
@@ -20,26 +21,25 @@ function triggerAutocompletePlus() {
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
 var tsSnipPrefixLookup = {};
-(function () {
-    var CSON = require("season");
+function loadSnippets() {
     var confPath = atom.getConfigDirPath();
-    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, objRead) {
-        if (!err) {
-            if (typeof objRead === "object" && objRead['.source.ts'] != undefined) {
-                var tsSnippets = objRead;
-                var tsSnipSection = tsSnippets['.source.ts'];
-                for (var key in tsSnipSection) {
-                    if (tsSnipSection.hasOwnProperty(key)) {
-                        tsSnipPrefixLookup[tsSnipSection[key].prefix] = {
-                            body: tsSnipSection[key].body,
-                            Name: key
-                        };
-                    }
-                }
+    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, snippetsRoot) {
+        if (err)
+            return;
+        if (!snippetsRoot || !snippetsRoot['.source.ts'])
+            return;
+        var tsSnippets = snippetsRoot['.source.ts'];
+        for (var snippetName in tsSnippets) {
+            if (tsSnippets.hasOwnProperty(snippetName)) {
+                tsSnipPrefixLookup[tsSnippets[snippetName].prefix] = {
+                    body: tsSnippets[snippetName].body,
+                    name: snippetName
+                };
             }
         }
     });
-})();
+}
+loadSnippets();
 exports.provider = {
     selector: '.source.ts',
     requestHandler: function (options) {
@@ -95,17 +95,15 @@ exports.provider = {
                         renderLabelAsHtml: true,
                     };
                 });
-                if (tsSnipPrefixLookup) {
-                    if (tsSnipPrefixLookup[options.prefix]) {
-                        suggestions.unshift({
-                            word: options.prefix,
-                            prefix: options.prefix,
-                            label: "snippet: " + options.prefix,
-                            renderLabelAsHtml: false,
-                            isSnippet: true,
-                            snippet: tsSnipPrefixLookup[options.prefix].body
-                        });
-                    }
+                if (tsSnipPrefixLookup[options.prefix]) {
+                    suggestions.unshift({
+                        word: options.prefix,
+                        prefix: options.prefix,
+                        label: "snippet: " + options.prefix,
+                        renderLabelAsHtml: false,
+                        isSnippet: true,
+                        snippet: tsSnipPrefixLookup[options.prefix].body
+                    });
                 }
                 return suggestions;
             });
