@@ -1,6 +1,7 @@
 var utils = require('../lang/utils');
 var mainPanelView = require('./views/mainPanelView');
 var lineMessageView = require('./views/lineMessageView');
+var atomUtils = require('./atomUtils');
 function start() {
     mainPanelView.attach();
     mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
@@ -35,8 +36,8 @@ exports.setErrors = function (filePath, errorsForFile) {
 };
 function showEmittedMessage(output) {
     if (output.success) {
-        var message = 'TS Emit: <br/>' + output.outputFiles.join('<br/>');
-        atom.notifications.addSuccess(message);
+        var message = 'TS emit succeeded';
+        atomUtils.quickNotify(message);
     }
     else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');

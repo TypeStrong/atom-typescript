@@ -9,6 +9,7 @@ import project = require('../lang/project'); ///ts:import:generated
 import mainPanelView = require('./views/mainPanelView');
 import lineMessageView = require('./views/lineMessageView');
 import plainMessageView = require('./views/plainMessageView');
+import atomUtils = require('./atomUtils');
 
 import os = require('os')
 
@@ -23,7 +24,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
     else filePathErrors.setValue(filePath, errorsForFile);
 
-    // TODO: this needs to be optimized at some point    
+    // TODO: this needs to be optimized at some point
     mainPanelView.panelView.clearError();
 
     var fileErrorCount = filePathErrors.keys().length;
@@ -50,8 +51,8 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
 
 export function showEmittedMessage(output: project.EmitOutput) {
     if (output.success) {
-        var message = 'TS Emit: <br/>' + output.outputFiles.join('<br/>');
-        atom.notifications.addSuccess(message);
+        var message = 'TS emit succeeded';
+        atomUtils.quickNotify(message);
     } else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     } else {

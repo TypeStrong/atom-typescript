@@ -61,4 +61,11 @@ function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getEditors().filter(function (editor) { return !!editor.getPath(); }).filter(function (editor) { return (path.extname(editor.getPath()) === '.ts'); });
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
+function quickNotify(htmlMessage) {
+    var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
+    setTimeout(function () {
+        notification.dismiss();
+    }, 600);
+}
+exports.quickNotify = quickNotify;
 //# sourceMappingURL=atomUtils.js.map
