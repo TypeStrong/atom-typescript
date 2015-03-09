@@ -50,11 +50,9 @@ Advantage: you only need to define the query/response interface once (in `projec
 ## Debugging
 There are *lots of ways* to do this. All of these are equivalent IMHO:
 
-* You can call `projectService` in `sync` from the UI thread if you need to and debug using atom's built in tools (`ctrl+alt+i`). That's what we've been doing.
-* As mentioned the code in `projectService` is sync and testable *very* easily using just a node testing framework or simple node `require` scripts.
+* You can do `console.error` from `projectService` at it will get logged to the atom's console (`ctrl+alt+i`). That's what we've been doing.
+* You can call `projectService` in `sync` from the UI thread if you need to and debug using atom's built in tools (`ctrl+alt+i`).
 * You can spawn the child with `node` (don't use `atom` although it might work) with `--debug` flag enabled ([see code](https://github.com/TypeStrong/atom-typescript/blob/a90bd067bba8656e41c6e1ed3c1bdea06118274f/lib/worker/parent.ts#L24)) and use something like `node-inspector`.
-
-Also we tend to have two Atom instances open, one with atomts (where we edit the code) and one with examples (https://github.com/TypeStrong/atom-typescript-examples where we reload when we make changes in the atomts window to see the effects of the changes).  
 
 ## Getting the language service
 The TypeScript Language service : https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
