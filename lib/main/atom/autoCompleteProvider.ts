@@ -26,22 +26,30 @@ declare module autocompleteplus {
 
     /** The suggestion */
     export interface Suggestion {
-        word: string;
-        prefix: string;
-        label?: string; // '<span style="color: red">world</span>',
-        renderLabelAsHtml?: boolean;
-        className?: string; //'globe'
-        onWillConfirm?: Function;// Do something here before the word has replaced the prefix (if you need, you usually don't need to),
-        onDidConfirm?: Function;// Do something here after the word has replaced the prefix (if you need, you usually don't need to)
-        isSnippet?: boolean;
+        //Either text or snippet is required
+
+        text?: string;
         snippet?: string;
+
+        replacementPrefix?: string;
+
+        rightLabel?: string;
+        rightLabelHTML?: string;
+        className?: string; //'globe'
+
+        atomTS_IsReference?: {
+            relativePath: string
+        };
+        atomTS_IsImport?: {
+            relativePath: string
+        };
     }
 
     /** What the provider needs to implement */
     export interface Provider {
         selector: string;
-        getSuggestions: (options:RequestOptions) => Promise<Suggestion[]>;
-        onDidInsertSuggestion?: ({ editor: AtomCore.IEditor; triggerPosition: TextBuffer.IPoint; suggestion: Suggestion })
+        getSuggestions: (options: RequestOptions) => Promise<Suggestion[]>;
+        onDidInsertSuggestion?: (args: { editor: AtomCore.IEditor; triggerPosition: TextBuffer.IPoint; suggestion: Suggestion }) => any;
     }
 }
 
@@ -129,23 +137,9 @@ export var provider: autocompleteplus.Provider = {
                 .then((resp) => {
                 return resp.files.map(file => {
                     return {
-                        word: file.relativePath,
-                        prefix: resp.endsInPunctuation ? '' : options.prefix,
-                        label: '<span>' + file.relativePath + '</span>',
-                        renderLabelAsHtml: true,
-                        onDidConfirm: function() {
-                            options.editor.moveToBeginningOfLine();
-                            options.editor.selectToEndOfLine();
-                            if (lastScope == 'reference.path.string') {
-                                options.editor.replaceSelectedText(null, function() { return "/// <reference path='" + file.relativePath + "'/>"; });
-                            }
-                            if (lastScope == 'require.path.string') {
-                                var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                                options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + file.relativePath + "');"; });
-                            }
-                            options.editor.moveToEndOfLine();
-                        }
-
+                        text: file.relativePath,
+                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                        rightLabelHTML: '<span>' + file.relativePath + '</span>',
                     };
                 });
             });
@@ -167,10 +161,9 @@ export var provider: autocompleteplus.Provider = {
                     var completionList = resp.completions;
                     var suggestions = completionList.map(c => {
                         return {
-                            word: c.name,
-                            prefix: resp.endsInPunctuation ? '' : options.prefix,
-                            label: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
-                            renderLabelAsHtml: true,
+                            text: c.name,
+                            replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                            rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
                         };
                     });
 
@@ -181,12 +174,10 @@ export var provider: autocompleteplus.Provider = {
                         // the full trigger word/ prefex
                         // and then it replaces a keyword/match that might also be present, e.g. "class"
                         suggestions.unshift({
-                            word: options.prefix,
-                            prefix: options.prefix,
-                            label: "snippet: " + options.prefix,
-                            renderLabelAsHtml: false,
-                            isSnippet: true,
-                            snippet: tsSnipPrefixLookup[options.prefix].body
+                            text: null, // BUG IN THE TS COMPILER. text is optional but TS is refusing. 
+                            snippet: tsSnipPrefixLookup[options.prefix].body,
+                            replacementPrefix: options.prefix,
+                            rightLabelHTML: "snippet: " + options.prefix,
                         });
                     }
 
@@ -195,5 +186,24 @@ export var provider: autocompleteplus.Provider = {
 
             return promisedSuggestions;
         }
+    },
+    onDidInsertSuggestion: (options) => {
+        // Guarateed to be more than 1 because of .source.ts
+        var scopes = options.editor.getCursorScopes();
+        var lastScope = scopes[scopes.length - 1];
+
+        // if (lastScope == 'reference.path.string') {
+        //     options.editor.moveToBeginningOfLine();
+        //     options.editor.selectToEndOfLine();
+        //     options.editor.replaceSelectedText(null, function() { return "/// <reference path='" + file.relativePath + "'/>"; });
+        // }
+        // if (lastScope == 'require.path.string') {
+        //     options.editor.moveToBeginningOfLine();
+        //     options.editor.selectToEndOfLine();
+        //     var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
+        //     options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + file.relativePath + "');"; });
+        // }
+        // options.editor.moveToEndOfLine();
+
     }
 }

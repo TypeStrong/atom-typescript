@@ -54,26 +54,9 @@ exports.provider = {
             return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix }).then(function (resp) {
                 return resp.files.map(function (file) {
                     return {
-                        word: file.relativePath,
-                        prefix: resp.endsInPunctuation ? '' : options.prefix,
-                        label: '<span>' + file.relativePath + '</span>',
-                        renderLabelAsHtml: true,
-                        onDidConfirm: function () {
-                            options.editor.moveToBeginningOfLine();
-                            options.editor.selectToEndOfLine();
-                            if (lastScope == 'reference.path.string') {
-                                options.editor.replaceSelectedText(null, function () {
-                                    return "/// <reference path='" + file.relativePath + "'/>";
-                                });
-                            }
-                            if (lastScope == 'require.path.string') {
-                                var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                                options.editor.replaceSelectedText(null, function () {
-                                    return "import " + alias + " = require('" + file.relativePath + "');";
-                                });
-                            }
-                            options.editor.moveToEndOfLine();
-                        }
+                        text: file.relativePath,
+                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                        rightLabelHTML: '<span>' + file.relativePath + '</span>',
                     };
                 });
             });
@@ -89,26 +72,27 @@ exports.provider = {
                 var completionList = resp.completions;
                 var suggestions = completionList.map(function (c) {
                     return {
-                        word: c.name,
-                        prefix: resp.endsInPunctuation ? '' : options.prefix,
-                        label: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
-                        renderLabelAsHtml: true,
+                        text: c.name,
+                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                        rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
                     };
                 });
                 if (tsSnipPrefixLookup[options.prefix]) {
                     suggestions.unshift({
-                        word: options.prefix,
-                        prefix: options.prefix,
-                        label: "snippet: " + options.prefix,
-                        renderLabelAsHtml: false,
-                        isSnippet: true,
-                        snippet: tsSnipPrefixLookup[options.prefix].body
+                        text: null,
+                        snippet: tsSnipPrefixLookup[options.prefix].body,
+                        replacementPrefix: options.prefix,
+                        rightLabelHTML: "snippet: " + options.prefix,
                     });
                 }
                 return suggestions;
             });
             return promisedSuggestions;
         }
+    },
+    onDidInsertSuggestion: function (options) {
+        var scopes = options.editor.getCursorScopes();
+        var lastScope = scopes[scopes.length - 1];
     }
 };
 //# sourceMappingURL=autoCompleteProvider.js.map
