@@ -53,11 +53,22 @@ exports.provider = {
         if (pathMatchers.some(function (p) { return lastScope === p; })) {
             return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix }).then(function (resp) {
                 return resp.files.map(function (file) {
-                    return {
+                    var suggestion = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                         rightLabelHTML: '<span>' + file.relativePath + '</span>',
                     };
+                    if (lastScope == 'reference.path.string') {
+                        suggestion.atomTS_IsReference = {
+                            relativePath: file.relativePath
+                        };
+                    }
+                    if (lastScope == 'require.path.string') {
+                        suggestion.atomTS_IsImport = {
+                            relativePath: file.relativePath
+                        };
+                    }
+                    return suggestion;
                 });
             });
         }
@@ -91,8 +102,21 @@ exports.provider = {
         }
     },
     onDidInsertSuggestion: function (options) {
-        var scopes = options.editor.getCursorScopes();
-        var lastScope = scopes[scopes.length - 1];
+        if (options.suggestion.atomTS_IsReference || options.suggestion.atomTS_IsImport) {
+            options.editor.moveToBeginningOfLine();
+            options.editor.selectToEndOfLine();
+            if (options.suggestion.atomTS_IsReference)
+                options.editor.replaceSelectedText(null, function () {
+                    return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>";
+                });
+            if (options.suggestion.atomTS_IsImport) {
+                var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
+                options.editor.replaceSelectedText(null, function () {
+                    return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');";
+                });
+            }
+            options.editor.moveToEndOfLine();
+        }
     }
 };
 //# sourceMappingURL=autoCompleteProvider.js.map

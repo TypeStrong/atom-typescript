@@ -136,11 +136,25 @@ export var provider: autocompleteplus.Provider = {
             return parent.getRelativePathsInProject({ filePath, prefix: options.prefix })
                 .then((resp) => {
                 return resp.files.map(file => {
-                    return {
+                    var suggestion: autocompleteplus.Suggestion = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                         rightLabelHTML: '<span>' + file.relativePath + '</span>',
+
                     };
+                    if (lastScope == 'reference.path.string') {
+                        suggestion.atomTS_IsReference = {
+                            relativePath: file.relativePath
+                        };
+                    }
+
+                    if (lastScope == 'require.path.string') {
+                        suggestion.atomTS_IsImport = {
+                            relativePath: file.relativePath
+                        };
+                    }
+
+                    return suggestion;
                 });
             });
         }
@@ -174,7 +188,7 @@ export var provider: autocompleteplus.Provider = {
                         // the full trigger word/ prefex
                         // and then it replaces a keyword/match that might also be present, e.g. "class"
                         suggestions.unshift({
-                            text: null, // BUG IN THE TS COMPILER. text is optional but TS is refusing. 
+                            text: null, // BUG IN THE TS COMPILER. text is optional but TS is refusing.
                             snippet: tsSnipPrefixLookup[options.prefix].body,
                             replacementPrefix: options.prefix,
                             rightLabelHTML: "snippet: " + options.prefix,
@@ -188,22 +202,17 @@ export var provider: autocompleteplus.Provider = {
         }
     },
     onDidInsertSuggestion: (options) => {
-        // Guarateed to be more than 1 because of .source.ts
-        var scopes = options.editor.getCursorScopes();
-        var lastScope = scopes[scopes.length - 1];
+        if (options.suggestion.atomTS_IsReference || options.suggestion.atomTS_IsImport) {
+            options.editor.moveToBeginningOfLine();
+            options.editor.selectToEndOfLine();
 
-        // if (lastScope == 'reference.path.string') {
-        //     options.editor.moveToBeginningOfLine();
-        //     options.editor.selectToEndOfLine();
-        //     options.editor.replaceSelectedText(null, function() { return "/// <reference path='" + file.relativePath + "'/>"; });
-        // }
-        // if (lastScope == 'require.path.string') {
-        //     options.editor.moveToBeginningOfLine();
-        //     options.editor.selectToEndOfLine();
-        //     var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-        //     options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + file.relativePath + "');"; });
-        // }
-        // options.editor.moveToEndOfLine();
-
+            if (options.suggestion.atomTS_IsReference)
+                options.editor.replaceSelectedText(null, function() { return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>"; });
+            if (options.suggestion.atomTS_IsImport) {
+                var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
+                options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');"; });
+            }
+            options.editor.moveToEndOfLine();
+        }
     }
 }
