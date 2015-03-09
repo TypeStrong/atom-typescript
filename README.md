@@ -10,7 +10,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 2. `apm install atom-typescript` (`apm` needs `git` in your path)
 3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Enjoy TypeScript ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
 
-**Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md). 
+**Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md).
 
 ## Reviews
 "I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
@@ -24,9 +24,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Auto Complete
 Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/autocomplete1.png)
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/autocomplete2.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/fastErrorCheckingAndAutoComplete2.gif)
 
 
 ## Type information on hover
