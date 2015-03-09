@@ -221,5 +221,5 @@ export function deserialize() {
 
 // Registering an autocomplete provider
 export function provide() {
-    return { providers: [autoCompleteProvider.provider] };
+    return [autoCompleteProvider.provider];
 }

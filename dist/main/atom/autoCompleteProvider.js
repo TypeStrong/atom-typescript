@@ -42,14 +42,14 @@ function loadSnippets() {
 loadSnippets();
 exports.provider = {
     selector: '.source.ts',
-    requestHandler: function (options) {
+    getSuggestions: function (options) {
         var filePath = options.editor.getPath();
         if (!filePath)
             return Promise.resolve([]);
         if (!fs.existsSync(filePath))
             return Promise.resolve([]);
         var pathMatchers = ['reference.path.string', 'require.path.string'];
-        var lastScope = options.scope.scopes[options.scope.scopes.length - 1];
+        var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
         if (pathMatchers.some(function (p) { return lastScope === p; })) {
             return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix }).then(function (resp) {
                 return resp.files.map(function (file) {
@@ -79,7 +79,7 @@ exports.provider = {
             });
         }
         else {
-            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.position);
+            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
             var promisedSuggestions = parent.updateText({ filePath: filePath, text: options.editor.getText() }).then(function () { return parent.getCompletionsAtPosition({
                 filePath: filePath,
                 position: position,

@@ -112,7 +112,7 @@ function deserialize() {
 }
 exports.deserialize = deserialize;
 function provide() {
-    return { providers: [autoCompleteProvider.provider] };
+    return [autoCompleteProvider.provider];
 }
 exports.provide = provide;
 //# sourceMappingURL=atomts.js.map

@@ -8,7 +8,6 @@ import parent = require('../../worker/parent'); ///ts:import:generated
 import atomConfig = require('./atomConfig'); ///ts:import:generated
 import ts = require('typescript');
 import fs = require('fs');
-
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
 import escape = require('escape-html');
@@ -17,14 +16,15 @@ var fuzzaldrin = require('fuzzaldrin');
 var CSON = require("season");
 
 declare module autocompleteplus {
+    /** What gets passed into the handler */
     export interface RequestOptions {
         editor: AtomCore.IEditor;
-        position: TextBuffer.IPoint; // the position of the cursor
+        bufferPosition: TextBuffer.IPoint; // the position of the cursor
         prefix: string;
-        scope: { scopes: string[] };
-        scopeChain: string[];
+        scopeDescriptor: { scopes: string[] };
     }
 
+    /** The suggestion */
     export interface Suggestion {
         word: string;
         prefix: string;
@@ -35,6 +35,13 @@ declare module autocompleteplus {
         onDidConfirm?: Function;// Do something here after the word has replaced the prefix (if you need, you usually don't need to)
         isSnippet?: boolean;
         snippet?: string;
+    }
+
+    /** What the provider needs to implement */
+    export interface Provider {
+        selector: string;
+        getSuggestions: (options:RequestOptions) => Promise<Suggestion[]>;
+        onDidInsertSuggestion?: ({ editor: AtomCore.IEditor; triggerPosition: TextBuffer.IPoint; suggestion: Suggestion })
     }
 }
 
@@ -104,9 +111,9 @@ function loadSnippets() {
 }
 loadSnippets();
 
-export var provider = {
+export var provider: autocompleteplus.Provider = {
     selector: '.source.ts',
-    requestHandler: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
+    getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
         var filePath = options.editor.getPath();
 
         // We refuse to work on files that are not on disk.
@@ -115,7 +122,7 @@ export var provider = {
 
         // If we are looking at reference or require path support file system completions
         var pathMatchers = ['reference.path.string', 'require.path.string'];
-        var lastScope = options.scope.scopes[options.scope.scopes.length - 1];
+        var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
 
         if (pathMatchers.some(p=> lastScope === p)) {
             return parent.getRelativePathsInProject({ filePath, prefix: options.prefix })
@@ -145,7 +152,7 @@ export var provider = {
         }
         else {
 
-            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.position);
+            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
 
             var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>
             // TODO: remove updateText once we have edit on change in place
