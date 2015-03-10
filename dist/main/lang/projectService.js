@@ -13,7 +13,7 @@ function fixChild(childInjected) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
-    queryParent.setProjectFileParsedResult = child.sendToIpc(queryParent.setProjectFileParsedResult);
+    queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
 }
 exports.fixChild = fixChild;
 var projectByProjectFilePath = {};
@@ -36,7 +36,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
             cacheAndCreateProject(projectFile);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         }
         catch (ex) {
         }
@@ -56,38 +56,38 @@ function cacheAndCreateProject(projectFile) {
 function getOrCreateProjectFile(filePath) {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
     }
     catch (ex) {
         var err = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             var projectFile = tsconfig.createProjectRootSync(filePath);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
             return projectFile;
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var invalidJSONErrorDetails = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidJSONErrorDetails.projectFilePath,
+                var details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(invalidJSONErrorDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
             }
             if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var invalidOptionDetails = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidOptionDetails.projectFilePath,
+                var _details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: _details.projectFilePath,
                     error: {
                         message: ex.message,
-                        details: ex.details
+                        _details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(invalidOptionDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(_details.projectFilePath);
             }
             throw ex;
         }

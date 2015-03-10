@@ -14,7 +14,7 @@ var errorView: typeof _errorView;
 
 try {
     require('atom');
-    // We are in a safe context: 
+    // We are in a safe context:
     atomUtils = require('../main/atom/atomUtils');
     errorView = require('../main/atom/errorView');
 }
@@ -35,30 +35,30 @@ export function getUpdatedTextForUnsavedEditors(query: {}): Promise<{ editors: {
     });
 }
 
-export function setProjectFileParsedResult(query: { projectFilePath: string; error: { message: string; details: any } }): Promise<{}> {
+export function setConfigurationError(query: { projectFilePath: string; error: { message: string; details: any } }): Promise<{}> {
     var errors: project.TSError[] = [];
     if (query.error) {
         if (query.error.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-            var invalidJSONDetails: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = query.error.details;
+            let details: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = query.error.details;
             errors = [
                 {
-                    filePath: invalidJSONDetails.projectFilePath,
+                    filePath: details.projectFilePath,
                     startPos: { line: 0, ch: 0 },
                     endPos: { line: 0, ch: 0 },
                     message: "The project file contains invalid JSON",
-                    preview: invalidJSONDetails.projectFilePath,
+                    preview: details.projectFilePath,
                 }
             ]
         }
         if (query.error.message == tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-            var invalidOptionDetails: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = query.error.details;
+            let details: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = query.error.details;
             errors = [
                 {
-                    filePath: invalidOptionDetails.projectFilePath,
+                    filePath: details.projectFilePath,
                     startPos: { line: 0, ch: 0 },
                     endPos: { line: 0, ch: 0 },
                     message: "The project file contains invalid options",
-                    preview: invalidOptionDetails.errorMessage,
+                    preview: details.errorMessage,
                 }
             ]
         }

@@ -31,7 +31,7 @@ export function fixChild(childInjected: typeof child) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
-    queryParent.setProjectFileParsedResult = child.sendToIpc(queryParent.setProjectFileParsedResult);
+    queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
             cacheAndCreateProject(projectFile);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         }
         catch (ex) {
             // Keep failing silently
@@ -104,39 +104,39 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
 function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
         var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
     } catch (ex) {
         var err: Error = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             var projectFile = tsconfig.createProjectRootSync(filePath);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
             return projectFile;
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var invalidJSONErrorDetails: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidJSONErrorDetails.projectFilePath,
+                let details: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
                 // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(invalidJSONErrorDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
             }
             if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var invalidOptionDetails: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidOptionDetails.projectFilePath,
+                let details: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
                 // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(invalidOptionDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
             }
             throw ex;
         }
