@@ -153,17 +153,13 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     var projectFile = '';
-    while (fs.existsSync(dir)) {
-        var potentialProjectFile = dir + '/' + projectFileName;
-        if (fs.existsSync(potentialProjectFile)) {
-            projectFile = potentialProjectFile;
-            break;
-        }
-        else {
-            var before = dir;
-            dir = path.dirname(dir);
-            if (dir == before)
-                throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
+    try {
+        projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
+    }
+    catch (e) {
+        var err = e;
+        if (err.message == "not found") {
+            throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
     projectFile = path.normalize(projectFile);
@@ -345,4 +341,19 @@ function removeTrailingSlash(filePath) {
     return filePath;
 }
 exports.removeTrailingSlash = removeTrailingSlash;
+function travelUpTheDirectoryTreeTillYouFindFile(dir, fileName) {
+    while (fs.existsSync(dir)) {
+        var potentialFile = dir + '/' + fileName;
+        if (fs.existsSync(potentialFile)) {
+            return potentialFile;
+        }
+        else {
+            var before = dir;
+            dir = path.dirname(dir);
+            if (dir == before)
+                throw new Error("not found");
+        }
+    }
+}
+exports.travelUpTheDirectoryTreeTillYouFindFile = travelUpTheDirectoryTreeTillYouFindFile;
 //# sourceMappingURL=tsconfig.js.map

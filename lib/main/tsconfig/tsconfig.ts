@@ -262,18 +262,13 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Keep going up till we find the project file
     var projectFile = '';
-    while (fs.existsSync(dir)) { // while directory exists
-
-        var potentialProjectFile = dir + '/' + projectFileName;
-        if (fs.existsSync(potentialProjectFile)) { // found it
-            projectFile = potentialProjectFile;
-            break;
-        }
-        else { // go up
-            var before = dir;
-            dir = path.dirname(dir);
-            // At root:
-            if (dir == before) throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
+    try {
+        projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
+    }
+    catch (e) {
+        let err: Error = e;
+        if (err.message == "not found") {
+            throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
     projectFile = path.normalize(projectFile);
@@ -521,4 +516,21 @@ export function removeTrailingSlash(filePath: string) {
     if (!filePath) return filePath;
     if (endsWith(filePath, '/')) return filePath.substr(0, filePath.length - 1);
     return filePath;
+}
+
+/** returns the path if found or throws an error "not found" if not found */
+export function travelUpTheDirectoryTreeTillYouFindFile(dir: string, fileName: string): string {
+    while (fs.existsSync(dir)) { // while directory exists
+
+        var potentialFile = dir + '/' + fileName;
+        if (fs.existsSync(potentialFile)) { // found it
+            return potentialFile;
+        }
+        else { // go up
+            var before = dir;
+            dir = path.dirname(dir);
+            // At root:
+            if (dir == before) throw new Error("not found");
+        }
+    }
 }
