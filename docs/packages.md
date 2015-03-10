@@ -28,6 +28,17 @@ This package allows you to quickly open a specific folder. You can even store co
     'whitespace.ensureSingleTrailingNewline': false
 ```
 
+It also allows you to configure options of `atom-typescript` on a per project basis e.g. 
+```cson
+'work':
+  'title': 'work'
+  'paths': [
+    'C:\\dev\\work'
+  ],
+  'settings':
+    'atom-typescript.compileOnSave': false
+```
+
 ### Jumpy
 https://atom.io/packages/jumpy saves a lot of wrist pain.
 
