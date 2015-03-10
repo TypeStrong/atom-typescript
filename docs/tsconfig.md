@@ -12,7 +12,7 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 
 * [`compilerOptions`](https://github.com/TypeStrong/atom-typescript/blob/e2fa67c4715189b71430f766ed9a92d9fb3255f9/lib/main/tsconfig/tsconfig.ts#L8-L35): similar to what you would pass on the commandline to `tsc`.
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
-* [`format`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#format) : Code formatting options
+* [`formatCodeOptions`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#format) : Code formatting options
 * [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version): The TypeScript version
 
 
@@ -46,12 +46,12 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
     ]
 }
 ```
-### format
+### formatCodeOptions
 We pass these to the TypeScript language service as code formatting options.
 
 ```json
 {
-    "format": {
+    "formatCodeOptions": {
         "indentSize": 4,
         "tabSize": 4,
         "newLineCharacter": "\r\n",

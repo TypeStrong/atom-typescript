@@ -203,7 +203,7 @@ function getProjectSync(pathOrSrcFile) {
     var project = {
         compilerOptions: {},
         files: projectSpec.files,
-        format: formatting.makeFormatCodeOptions(projectSpec.format),
+        format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {

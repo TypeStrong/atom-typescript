@@ -72,7 +72,7 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    format?: formatting.FormatCodeOptions;                  // optional: formatting options
+    formatCodeOptions?: formatting.FormatCodeOptions;                  // optional: formatting options
 }
 
 // Main configuration
@@ -324,7 +324,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files,
-        format: formatting.makeFormatCodeOptions(projectSpec.format),
+        format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
     
     // Validate the raw compiler options before converting them to TS compiler options 
