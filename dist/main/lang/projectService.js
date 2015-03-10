@@ -106,8 +106,8 @@ function getOrCreateProject(filePath) {
 }
 function textSpan(span) {
     return {
-        start: span.start(),
-        length: span.length()
+        start: span.start,
+        length: span.length
     };
 }
 function echo(data) {
@@ -138,7 +138,9 @@ function build(query) {
 exports.build = build;
 function errorsForFileFiltered(query) {
     var fileName = path.basename(query.filePath);
-    return errorsForFile({ filePath: query.filePath }).then(function (resp) { return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) }; });
+    return errorsForFile({ filePath: query.filePath }).then(function (resp) {
+        return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
+    });
 }
 exports.errorsForFileFiltered = errorsForFileFiltered;
 var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
@@ -214,7 +216,7 @@ function getDefinitionsAtPosition(query) {
     return resolve({
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(function (d) {
-            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
+            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start);
             return {
                 filePath: d.fileName,
                 position: pos

@@ -97,10 +97,10 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
 
 
         // Store edit range + new length of script
-        editRanges.push(new ts.TextChangeRange(
-            ts.TextSpan.fromBounds(minChar, limChar),
-            newText.length
-            ));
+        editRanges.push({
+            span: { start: minChar, length: limChar - minChar },
+            newLength: newText.length
+        });
 
         // Update version #
         version++;
@@ -167,9 +167,37 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
 
 
     function getChangeRange(oldSnapshot: ts.IScriptSnapshot): ts.TextChangeRange {
+        var unchanged = { span: { start: 0, length: 0 }, newLength: 0 };
+
+        function collapseChangesAcrossMultipleVersions(changes: ts.TextChangeRange[]) {
+            if (changes.length === 0) {
+                return unchanged;
+            }
+            if (changes.length === 1) {
+                return changes[0];
+            }
+            var change0 = changes[0];
+            var oldStartN = change0.span.start;
+            var oldEndN = change0.span.start + change0.span.length;
+            var newEndN = oldStartN + change0.newLength;
+            for (var i = 1; i < changes.length; i++) {
+                var nextChange = changes[i];
+                var oldStart1 = oldStartN;
+                var oldEnd1 = oldEndN;
+                var newEnd1 = newEndN;
+                var oldStart2 = nextChange.span.start;
+                var oldEnd2 = nextChange.span.start + nextChange.span.length;
+                var newEnd2 = oldStart2 + nextChange.newLength;
+                oldStartN = Math.min(oldStart1, oldStart2);
+                oldEndN = Math.max(oldEnd1, oldEnd1 + (oldEnd2 - newEnd1));
+                newEndN = Math.max(newEnd2, newEnd2 + (newEnd1 - oldEnd2));
+            }
+            return { span: { start: oldStartN, length: oldEndN - oldStartN }, newLength: newEndN - oldStartN };
+        };
+
         var scriptVersion: number = (<any>oldSnapshot).version || 0;
         if (scriptVersion === version) {
-            return ts.TextChangeRange.unchanged;
+            return unchanged;
         }
         var initialEditRangeIndex = editRanges.length - (version - scriptVersion);
 
@@ -178,7 +206,7 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
         }
 
         var entries = editRanges.slice(initialEditRangeIndex);
-        return ts.TextChangeRange.collapseChangesAcrossMultipleVersions(entries);
+        return collapseChangesAcrossMultipleVersions(entries);
     }
 
     return {
@@ -326,7 +354,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     getCurrentDirectory = (): string  => {
         return this.config.projectFileDirectory;
     }
-    getDefaultLibFilename = (): string => {
+    getDefaultLibFileName = (): string => {
         return 'lib.d.ts'; // TODO: this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
     }
 

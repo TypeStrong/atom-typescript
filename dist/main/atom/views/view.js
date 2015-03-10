@@ -23,8 +23,7 @@ var View = (function (_super) {
     View.content = function () {
         throw new Error('Must override the base View static content member');
     };
-    View.prototype.init = function () {
-    };
+    View.prototype.init = function () { };
     return View;
 })(atom.View);
 exports.View = View;

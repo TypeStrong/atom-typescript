@@ -23,8 +23,8 @@ var MainPanelView = (function (_super) {
             if (className === void 0) { className = ''; }
             return _this.button({
                 'class': "btn " + className,
-                'click': "" + view + "PanelSelected",
-                'outlet': "" + view + "PanelBtn",
+                'click': view + "PanelSelected",
+                'outlet': view + "PanelBtn",
                 'style': 'top:-2px!important'
             }, text);
         };
@@ -83,7 +83,7 @@ var MainPanelView = (function (_super) {
         });
     };
     MainPanelView.prototype.init = function () {
-        this.buildPanelBtn.html("" + panelHeaders.build + " ( <span class=\"text-success\">No Build</span> )");
+        this.buildPanelBtn.html(panelHeaders.build + " ( <span class=\"text-success\">No Build</span> )");
         this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>');
     };
     MainPanelView.prototype.errorPanelSelected = function () {
@@ -141,9 +141,9 @@ var MainPanelView = (function (_super) {
         }
     };
     MainPanelView.prototype.setErrorPanelErrorCount = function (fileErrorCount, totalErrorCount) {
-        var title = "" + panelHeaders.error + " ( <span class=\"text-success\">No Errors</span> )";
+        var title = panelHeaders.error + " ( <span class=\"text-success\">No Errors</span> )";
         if (totalErrorCount > 0) {
-            title = "" + panelHeaders.error + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + fileErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> file" + (fileErrorCount === 1 ? "" : "s") + " </span>\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + totalErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (totalErrorCount === 1 ? "" : "s") + " </span>\n            )";
+            title = panelHeaders.error + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + fileErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> file" + (fileErrorCount === 1 ? "" : "s") + " </span>\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + totalErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (totalErrorCount === 1 ? "" : "s") + " </span>\n            )";
         }
         else {
             this.summary.html('');
@@ -152,9 +152,9 @@ var MainPanelView = (function (_super) {
         this.errorPanelBtn.html(title);
     };
     MainPanelView.prototype.setBuildPanelCount = function (errorCount) {
-        var title = "" + panelHeaders.build + " ( <span class=\"text-success\">No Errors</span> )";
+        var title = panelHeaders.build + " ( <span class=\"text-success\">No Errors</span> )";
         if (errorCount > 0) {
-            title = "" + panelHeaders.build + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + errorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (errorCount === 1 ? "" : "s") + " </span>\n            )";
+            title = panelHeaders.build + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + errorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (errorCount === 1 ? "" : "s") + " </span>\n            )";
         }
         else {
             this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');

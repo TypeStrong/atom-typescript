@@ -82,7 +82,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     ////////////////////////////////// THE REMAINING CODE IS SPECIFIC TO US ////////////////////////////////////////
     ///////////////////
 
-    classifier: ts.Classifier = ts.createClassifier({ log: () => undefined });
+    classifier: ts.Classifier = ts.createClassifier();
 
     // Useful to tokenize these differently for autocomplete ease
     fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;

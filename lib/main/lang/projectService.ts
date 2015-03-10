@@ -179,8 +179,8 @@ interface TextSpan {
 }
 function textSpan(span: ts.TextSpan): TextSpan {
     return {
-        start: span.start(),
-        length: span.length()
+        start: span.start,
+        length: span.length
     }
 }
 
@@ -373,7 +373,7 @@ export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): 
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(d=> {
             // If we can get the filename *we are in the same program :P*
-            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
+            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start);
             return {
                 filePath: d.fileName,
                 position: pos
