@@ -262,7 +262,19 @@ function increaseProjectForReferenceAndImports(files) {
                 return;
             }
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
-            referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) { return path.resolve(dir, fileReference.fileName); }).concat(preProcessedFileInfo.importedFiles.filter(function (fileReference) { return pathIsRelative(fileReference.fileName); }).map(function (fileReference) {
+            referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) {
+                var file = path.resolve(dir, fileReference.fileName);
+                if (fs.existsSync(file)) {
+                    return file;
+                }
+                if (fs.existsSync(file + '.ts')) {
+                    return file + '.ts';
+                }
+                if (fs.existsSync(file + '.d.ts')) {
+                    return file + '.d.ts';
+                }
+                return null;
+            }).filter(function (file) { return !!file; }).concat(preProcessedFileInfo.importedFiles.filter(function (fileReference) { return pathIsRelative(fileReference.fileName); }).map(function (fileReference) {
                 var file = path.resolve(dir, fileReference.fileName + '.ts');
                 if (!fs.existsSync(file)) {
                     file = path.resolve(dir, fileReference.fileName + '.d.ts');

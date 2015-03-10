@@ -326,8 +326,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         files: projectSpec.files,
         format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
-    
-    // Validate the raw compiler options before converting them to TS compiler options 
+
+    // Validate the raw compiler options before converting them to TS compiler options
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
         throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
@@ -335,7 +335,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage }
             );
     }
-    
+
     // Convert the raw options to TS options
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
@@ -415,7 +415,21 @@ function increaseProjectForReferenceAndImports(files: string[]) {
                 dir = path.dirname(file);
 
             referenced.push(
-                preProcessedFileInfo.referencedFiles.map(fileReference => path.resolve(dir, fileReference.fileName))
+                preProcessedFileInfo.referencedFiles.map(fileReference => {
+                    // We assume reference paths are always relative
+                    var file = path.resolve(dir, fileReference.fileName);
+                    // Try all three, by itself, .ts, .d.ts
+                    if (fs.existsSync(file)) {
+                        return file;
+                    }
+                    if (fs.existsSync(file + '.ts')) {
+                        return file + '.ts';
+                    }
+                    if (fs.existsSync(file + '.d.ts')) {
+                        return file + '.d.ts';
+                    }
+                    return null;
+                }).filter(file=> !!file)
                     .concat(
                     preProcessedFileInfo.importedFiles
                         .filter((fileReference) => pathIsRelative(fileReference.fileName))
