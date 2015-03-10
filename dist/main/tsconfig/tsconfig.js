@@ -139,19 +139,6 @@ function getProjectSync(pathOrSrcFile) {
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
-    if (dir !== pathOrSrcFile) {
-        if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-            return {
-                projectFileDirectory: dir,
-                projectFilePath: dir + '/' + projectFileName,
-                project: {
-                    compilerOptions: exports.defaults,
-                    files: [pathOrSrcFile],
-                    format: formatting.defaultFormatCodeOptions()
-                },
-            };
-        }
-    }
     var projectFile = '';
     try {
         projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
@@ -159,6 +146,19 @@ function getProjectSync(pathOrSrcFile) {
     catch (e) {
         var err = e;
         if (err.message == "not found") {
+            if (dir !== pathOrSrcFile) {
+                if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
+                    return {
+                        projectFileDirectory: dir,
+                        projectFilePath: dir + '/' + projectFileName,
+                        project: {
+                            compilerOptions: exports.defaults,
+                            files: [pathOrSrcFile],
+                            format: formatting.defaultFormatCodeOptions()
+                        },
+                    };
+                }
+            }
             throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }

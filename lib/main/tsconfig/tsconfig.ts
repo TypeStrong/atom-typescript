@@ -245,21 +245,6 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
 
-    // If we have a .d.ts file then it is its own project and return
-    if (dir !== pathOrSrcFile) { // Not a directory
-        if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-            return {
-                projectFileDirectory: dir,
-                projectFilePath: dir + '/' + projectFileName,
-                project: {
-                    compilerOptions: defaults,
-                    files: [pathOrSrcFile],
-                    format: formatting.defaultFormatCodeOptions()
-                },
-            }
-        }
-    }
-
     // Keep going up till we find the project file
     var projectFile = '';
     try {
@@ -268,6 +253,22 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     catch (e) {
         let err: Error = e;
         if (err.message == "not found") {
+
+            // If we have a .d.ts file then it is its own project and return
+            if (dir !== pathOrSrcFile) { // Not a directory
+                if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
+                    return {
+                        projectFileDirectory: dir,
+                        projectFilePath: dir + '/' + projectFileName,
+                        project: {
+                            compilerOptions: defaults,
+                            files: [pathOrSrcFile],
+                            format: formatting.defaultFormatCodeOptions()
+                        },
+                    }
+                }
+            }
+
             throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
