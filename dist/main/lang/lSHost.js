@@ -960,8 +960,8 @@ var ScriptInfo = (function () {
 exports.ScriptInfo = ScriptInfo;
 var path = require('path');
 var fs = require('fs');
-var LanguageServiceHost = (function () {
-    function LanguageServiceHost(config) {
+var LSHost = (function () {
+    function LSHost(config) {
         var _this = this;
         this.config = config;
         this.fileNameToScript = Object.create(null);
@@ -985,8 +985,7 @@ var LanguageServiceHost = (function () {
         this.updateScript = function (fileName, content) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
-                script.editContent(0, script.snap().getLength(), content);
-                return;
+                script.close();
             }
             else {
                 _this.addScript(fileName, content);
@@ -1020,11 +1019,10 @@ var LanguageServiceHost = (function () {
         };
         this.getPositionFromIndex = function (fileName, index) {
             var result = _this.positionToLineCol(fileName, index);
-            return { line: result.line - 1, ch: result.col - 1 };
+            return { line: result.line, ch: result.col };
         };
         this.getIndexFromPosition = function (fileName, position) {
-            var newPos = { ch: position.ch + 1, line: position.line + 1 };
-            return _this.lineColToPosition(fileName, newPos.line, newPos.ch);
+            return _this.lineColToPosition(fileName, position.line, position.ch);
         };
         this.getCompilationSettings = function () { return _this.config.project.compilerOptions; };
         this.getScriptFileNames = function () { return Object.keys(_this.fileNameToScript); };
@@ -1059,19 +1057,19 @@ var LanguageServiceHost = (function () {
         var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
         this.addScript(libFile);
     }
-    LanguageServiceHost.prototype.lineColToPosition = function (filename, line, col) {
+    LSHost.prototype.lineColToPosition = function (filename, line, col) {
         var script = this.fileNameToScript[filename];
         var index = script.snap().index;
         var lineInfo = index.lineNumberToInfo(line);
         return (lineInfo.col + col - 1);
     };
-    LanguageServiceHost.prototype.positionToLineCol = function (filename, position) {
+    LSHost.prototype.positionToLineCol = function (filename, position) {
         var script = this.fileNameToScript[filename];
         var index = script.snap().index;
         var lineCol = index.charOffsetToLineNumberAndPos(position);
         return { line: lineCol.line, col: lineCol.col + 1 };
     };
-    return LanguageServiceHost;
+    return LSHost;
 })();
-exports.LanguageServiceHost = LanguageServiceHost;
-//# sourceMappingURL=languageServiceHost.js.map
+exports.LSHost = LSHost;
+//# sourceMappingURL=lSHost.js.map
