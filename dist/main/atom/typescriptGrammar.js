@@ -157,8 +157,6 @@ function getAtomStyleForToken(token, str) {
         case 4:
             return 'whitespace';
         case 5:
-            if (!str.trim())
-                return '';
             return 'identifier';
         case 6:
             return 'constant.numeric';

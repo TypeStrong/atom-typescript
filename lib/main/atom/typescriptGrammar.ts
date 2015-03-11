@@ -219,7 +219,6 @@ function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string
         case TokenClass.Whitespace:
             return 'whitespace';
         case TokenClass.Identifier:
-            if (!str.trim()) return ''; // Hacky fix for https://github.com/Microsoft/TypeScript/issues/1997
             return 'identifier';
         case TokenClass.NumberLiteral:
             return 'constant.numeric';
