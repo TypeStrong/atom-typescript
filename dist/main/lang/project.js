@@ -11,17 +11,15 @@ var Project = (function () {
         this.emitFile = function (filePath) {
             var services = _this.languageService;
             var output = services.getEmitOutput(filePath);
-            var success = !output.emitSkipped;
+            var emitDone = !output.emitSkipped;
             var errors = [];
-            if (!success) {
-                var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));
-                allDiagnostics.forEach(function (diagnostic) {
-                    if (!diagnostic.file)
-                        return;
-                    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-                    errors.push(diagnosticToTSError(diagnostic));
-                });
-            }
+            var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));
+            allDiagnostics.forEach(function (diagnostic) {
+                if (!diagnostic.file)
+                    return;
+                var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                errors.push(diagnosticToTSError(diagnostic));
+            });
             output.outputFiles.forEach(function (o) {
                 mkdirp.sync(path.dirname(o.name));
                 fs.writeFileSync(o.name, o.text, "utf8");
@@ -32,9 +30,9 @@ var Project = (function () {
             }
             return {
                 outputFiles: outputFiles,
-                success: success,
+                success: emitDone && !errors.length,
                 errors: errors,
-                emitError: !success && outputFiles.length === 0
+                emitError: !emitDone
             };
         };
         this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);

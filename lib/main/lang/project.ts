@@ -39,22 +39,21 @@ export class Project {
     emitFile = (filePath: string): EmitOutput => {
         var services = this.languageService;
         var output = services.getEmitOutput(filePath);
-        var success = !output.emitSkipped;
+        var emitDone = !output.emitSkipped;
         var errors: TSError[] = [];
 
+        // Emit is no guarantee that there are no errors 
+        var allDiagnostics = services.getCompilerOptionsDiagnostics()
+            .concat(services.getSyntacticDiagnostics(filePath))
+            .concat(services.getSemanticDiagnostics(filePath));
 
-        if (!success) {
-            var allDiagnostics = services.getCompilerOptionsDiagnostics()
-                .concat(services.getSyntacticDiagnostics(filePath))
-                .concat(services.getSemanticDiagnostics(filePath));
+        allDiagnostics.forEach(diagnostic => {
+            // happens only for 'lib.d.ts' for some reason
+            if (!diagnostic.file) return;
 
-            allDiagnostics.forEach(diagnostic => {
-                if (!diagnostic.file) return; // TODO: happens only for 'lib.d.ts' for now
-
-                var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-                errors.push(diagnosticToTSError(diagnostic));
-            });
-        }
+            var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            errors.push(diagnosticToTSError(diagnostic));
+        });
 
         output.outputFiles.forEach(o => {
             mkdirp.sync(path.dirname(o.name));
@@ -68,9 +67,9 @@ export class Project {
 
         return {
             outputFiles: outputFiles,
-            success: success,
+            success: emitDone && !errors.length,
             errors: errors,
-            emitError: !success && outputFiles.length === 0
+            emitError: !emitDone
         };
     }
 
