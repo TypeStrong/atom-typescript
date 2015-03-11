@@ -50,15 +50,14 @@ function readyToActivate() {
                         return;
                     }
                     var text = editor.getText();
-                    parent.updateText({ filePath: filePath, text: text }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                    parent.errorsForFile({ filePath: filePath }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
-                    var position = diff.oldRange;
-                    var minChar = buffer.characterIndexForPosition(position.start);
-                    var limChar = buffer.characterIndexForPosition(position.end);
+                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
+                    var limChar = minChar + diff.oldText.length;
                     var newText = diff.newText;
-                    console.log(minChar, limChar, newText);
+                    parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;

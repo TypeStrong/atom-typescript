@@ -163,17 +163,15 @@ export var provider: autocompleteplus.Provider = {
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
 
             var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>
-            // TODO: remove updateText once we have edit on change in place
-                = parent.updateText({ filePath: filePath, text: options.editor.getText() })
-                    .then(() => parent.getCompletionsAtPosition({
+                = parent.getCompletionsAtPosition({
                     filePath: filePath,
                     position: position,
                     prefix: options.prefix,
                     maxSuggestions: atomConfig.maxSuggestions
-                }))
+                })
                     .then((resp) => {
                     var completionList = resp.completions;
-                    var suggestions = completionList.map(c => {
+                    var suggestions = completionList.map((c):autocompleteplus.Suggestion => {
                         return {
                             text: c.name,
                             replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
@@ -187,12 +185,12 @@ export var provider: autocompleteplus.Provider = {
                         // you only get the snippet suggested after you have typed
                         // the full trigger word/ prefex
                         // and then it replaces a keyword/match that might also be present, e.g. "class"
-                        suggestions.unshift({
-                            text: null, // BUG IN THE TS COMPILER. text is optional but TS is refusing.
+                        let suggestion:autocompleteplus.Suggestion = {
                             snippet: tsSnipPrefixLookup[options.prefix].body,
                             replacementPrefix: options.prefix,
                             rightLabelHTML: "snippet: " + options.prefix,
-                        });
+                        };
+                        suggestions.unshift(suggestion);
                     }
 
                     return suggestions;

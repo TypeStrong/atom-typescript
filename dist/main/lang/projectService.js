@@ -110,6 +110,11 @@ function textSpan(span) {
         length: span.length
     };
 }
+function consistentPath(query) {
+    if (!query.filePath)
+        return;
+    query.filePath = tsconfig.consistentPath(query.filePath);
+}
 function echo(data) {
     return queryParent.echoNumWithModification({ num: data.num }).then(function (resp) {
         data.num = resp.num;
@@ -137,6 +142,7 @@ function build(query) {
 }
 exports.build = build;
 function errorsForFileFiltered(query) {
+    consistentPath(query);
     var fileName = path.basename(query.filePath);
     return errorsForFile({ filePath: query.filePath }).then(function (resp) {
         return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
@@ -226,10 +232,17 @@ function getDefinitionsAtPosition(query) {
 }
 exports.getDefinitionsAtPosition = getDefinitionsAtPosition;
 function updateText(query) {
+    consistentPath(query);
     getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
     return resolve({});
 }
 exports.updateText = updateText;
+function editText(query) {
+    consistentPath(query);
+    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.minChar, query.limChar, query.newText);
+    return resolve({});
+}
+exports.editText = editText;
 function errorsForFile(query) {
     var program = getOrCreateProject(query.filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
@@ -273,8 +286,8 @@ function filePathWithoutExtension(query) {
     return path.dirname(query) + '/' + base;
 }
 function getRelativePathsInProject(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    query.filePath = tsconfig.consistentPath(query.filePath);
     var sourceDir = path.dirname(query.filePath);
     var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
     var files = filePaths.map(function (p) {

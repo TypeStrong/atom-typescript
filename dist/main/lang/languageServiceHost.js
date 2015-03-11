@@ -5,6 +5,13 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var ts = require('typescript');
+var debug;
+(function (debug) {
+    function stack() {
+        console.error((new Error()).stack);
+    }
+    debug.stack = stack;
+})(debug || (debug = {}));
 function createTextSpan(start, length) {
     if (start < 0) {
         throw new Error("start < 0");
@@ -902,10 +909,10 @@ var ScriptVersionCache = (function () {
     ScriptVersionCache.fromString = function (script) {
         var svc = new ScriptVersionCache();
         var snap = new LineIndexSnapshot(0, svc);
-        svc.versions[svc.currentVersion] = snap;
         snap.index = new LineIndex();
         var lm = LineIndex.linesFromText(script);
         snap.index.load(lm.lines);
+        svc.versions[svc.currentVersion] = snap;
         return svc;
     };
     ScriptVersionCache.changeNumberThreshold = 8;
@@ -985,6 +992,9 @@ var LanguageServiceHost = (function () {
         this.updateScript = function (fileName, content) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
+                if (script.getText() == content) {
+                    return;
+                }
                 script.editContent(0, script.snap().getLength(), content);
                 return;
             }

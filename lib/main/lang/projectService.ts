@@ -49,7 +49,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     if (watchingProjectFile[projectFilePath]) return; // Only watch once
     watchingProjectFile[projectFilePath] = true;
 
-    fs.watch(projectFilePath, { persistent: false, recursive: false },() => {
+    fs.watch(projectFilePath, { persistent: false, recursive: false }, () => {
         // if file no longer exists
         if (!fs.existsSync(projectFilePath)) {
             // if we have a cache for it then clear it
@@ -184,6 +184,12 @@ function textSpan(span: ts.TextSpan): TextSpan {
     }
 }
 
+/** mutate and fix the filePath silently */
+function consistentPath(query: FilePathQuery) {
+    if(!query.filePath) return;
+    query.filePath = tsconfig.consistentPath(query.filePath);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// QUERY / RESPONSE //////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -232,8 +238,7 @@ export interface ErrorsForFileFilteredResponse {
     errors: project.TSError[];
 }
 export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promise<ErrorsForFileFilteredResponse> {
-    // We have inconsistent Unix slashes.
-    // TODO: Make slashes consistent all around. Something in language service is funny
+    consistentPath(query);
     var fileName = path.basename(query.filePath);
 
     return errorsForFile({ filePath: query.filePath })
@@ -386,7 +391,19 @@ export interface UpdateTextQuery extends FilePathQuery {
     text: string;
 }
 export function updateText(query: UpdateTextQuery): Promise<any> {
+    consistentPath(query);
     getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
+    return resolve({});
+}
+
+export interface EditTextQuery extends FilePathQuery {
+    minChar: number;
+    limChar: number;
+    newText: string;
+}
+export function editText(query: EditTextQuery): Promise<any> {
+    consistentPath(query);
+    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.minChar, query.limChar, query.newText);
     return resolve({});
 }
 
@@ -462,8 +479,8 @@ function filePathWithoutExtension(query: string) {
     return path.dirname(query) + '/' + base;
 }
 export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    query.filePath = tsconfig.consistentPath(query.filePath);
     var sourceDir = path.dirname(query.filePath);
     var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
 

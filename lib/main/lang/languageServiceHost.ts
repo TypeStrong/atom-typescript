@@ -1,5 +1,14 @@
 import ts = require('typescript');
 
+module debug{
+    export function stack(){
+        console.error((<any>(new Error())).stack);
+    }
+}
+
+// For additional fixes we needed to do, look for
+// atom
+
 ////////////////// STUFF FROM TS NOT EXPORTED
 function createTextSpan(start, length) {
     if (start < 0) {
@@ -49,7 +58,7 @@ function createTextSpanFromBounds(start, end) {
 }
 var unchangedTextChangeRange = createTextChangeRange(createTextSpan(0, 0), 0);
 
-// Map stuff 
+// Map stuff
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 function hasProperty(map, key) {
     return hasOwnProperty.call(map, key);
@@ -57,9 +66,9 @@ function hasProperty(map, key) {
 function lookUp(map, key) {
     return hasProperty(map, key) ? map[key] : undefined;
 }
-////////////////// END STUFF FROM TS 
+////////////////// END STUFF FROM TS
 
-////////////////// STUFF FROM SYS 
+////////////////// STUFF FROM SYS
 import _fs = require('fs');
 module sys{
     export function readFile(fileName) {
@@ -90,9 +99,9 @@ module sys{
             data = '\uFEFF' + data;
         }
         _fs.writeFileSync(fileName, data, "utf8");
-    }    
+    }
 }
-/////////////////  END STUFF FROM SYS 
+/////////////////  END STUFF FROM SYS
 
 class LineLeaf implements LineCollection {
     udata: any;
@@ -204,7 +213,7 @@ export class LineNode implements LineCollection {
     }
 
     walk(rangeStart: number, rangeLength: number, walkFns: ILineIndexWalker) {
-        // assume (rangeStart < this.totalChars) && (rangeLength <= this.totalChars) 
+        // assume (rangeStart < this.totalChars) && (rangeLength <= this.totalChars)
         var childIndex = 0;
         var child = this.children[0];
         var childCharCount = child.charCount();
@@ -460,7 +469,7 @@ class EditWalker extends BaseLineIndexWalker {
     startPath: LineCollection[];
     endBranch: LineCollection[] = [];
     branchNode: LineNode;
-    // path to current node 
+    // path to current node
     stack: LineNode[];
     state = CharRangeSection.Entire;
     lineCollectionAtBranch: LineCollection;
@@ -858,7 +867,7 @@ export class LineIndexSnapshot implements ts.IScriptSnapshot {
         return this.index.root.charCount();
     }
 
-    // this requires linear space so don't hold on to these 
+    // this requires linear space so don't hold on to these
     getLineStartPositions(): number[] {
         var starts: number[] = [-1];
         var count = 1;
@@ -948,7 +957,7 @@ export class ScriptVersionCache {
         snap.index = new LineIndex();
         var lm = LineIndex.linesFromText(script);
         snap.index.load(lm.lines);
-        // REVIEW: could use linked list 
+        // REVIEW: could use linked list
         for (var i = this.minVersion; i < this.currentVersion; i++) {
             this.versions[i] = undefined;
         }
@@ -1006,10 +1015,10 @@ export class ScriptVersionCache {
     static fromString(script: string) {
         var svc = new ScriptVersionCache();
         var snap = new LineIndexSnapshot(0, svc);
-        svc.versions[svc.currentVersion] = snap;
         snap.index = new LineIndex();
         var lm = LineIndex.linesFromText(script);
         snap.index.load(lm.lines);
+        svc.versions[svc.currentVersion] = snap;
         return svc;
     }
 }
@@ -1025,11 +1034,11 @@ export class ScriptInfo {
     close() {
         this.isOpen = false;
     }
-    
+
     open() {
         this.isOpen = true;
     }
-    
+
     getIsOpen() {
         return this.isOpen;
     }
@@ -1065,9 +1074,9 @@ export class ScriptInfo {
     }
 }
 
-//////////////////////////////////////////// ACTUAL STUFF WE CARE ABOUT 
+//////////////////////////////////////////// ACTUAL STUFF WE CARE ABOUT
 
-// Note: All the magic code is really behind the ScripInfo class 
+// Note: All the magic code is really behind the ScripInfo class
 
 import tsconfig = require('../tsconfig/tsconfig');
 import path = require('path');
@@ -1121,8 +1130,14 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     updateScript = (fileName: string, content: string) => {
         var script = this.fileNameToScript[fileName];
         if (script) {
+
+            // BAD THINGS HAPPEN IF YOU DON'T DO THIS
+            if (script.getText() == content) {
+                return;
+            }
+            
             script.editContent(0, script.snap().getLength(), content);
-            return; 
+            return;
         }
         else {
             this.addScript(fileName, content);
@@ -1160,7 +1175,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     hasScript = (fileName: string) => {
         return !!this.fileNameToScript[fileName];
     }
-    
+
     /**
      * @param line 1 based index
      * @param col 1 based index
@@ -1174,7 +1189,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return (lineInfo.col + col - 1);
     }
 
-    /** 
+    /**
      * @param line 1-based index
      * @param col 1-based index
      */

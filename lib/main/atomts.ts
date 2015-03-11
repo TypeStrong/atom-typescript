@@ -125,10 +125,8 @@ function readyToActivate() {
 
                     var text = editor.getText();
 
-                    // Update the file in the worker
-                    parent.updateText({ filePath: filePath, text: text })
                     // Set errors in project per file
-                        .then(() => parent.errorsForFile({ filePath: filePath }))
+                    parent.errorsForFile({ filePath: filePath })
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // TODO: provide function completions
@@ -144,14 +142,22 @@ function readyToActivate() {
 
                 var buffer = editor.buffer;
                 var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
-                    
-                    var position = diff.oldRange;
-                    
+
+                    //// For debugging
+                    // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
+                    //     buffer.characterIndexForPosition(diff.newRange.start), buffer.characterIndexForPosition(diff.newRange.end), diff.newText);
+                    //// Examples
+                    //// 20 20 "aaaa" 20 20 ""
+                    //// 23 23 "" 23 24 "a"
+                    //// 20 20 "" 20 24 "aaaa"
+
+
                     // TODO: use this for faster language service host
-                    var minChar = buffer.characterIndexForPosition(position.start);
-                    var limChar = buffer.characterIndexForPosition(position.end);
+
+                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
+                    var limChar = minChar + diff.oldText.length;
                     var newText = diff.newText;
-                    console.log(minChar,limChar,newText);
+                    parent.editText({ filePath, minChar, limChar, newText });
                 });
 
                 // Observe editors saving

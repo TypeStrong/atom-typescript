@@ -36,9 +36,9 @@ function showError(error: Error) {
 /** Doesn't mess with any data. Just shows it nicely in the UI */
 function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Response>): workerLib.QRFunction<Query, Response> {
     return (q) => func(q).catch((err: Error) => {
-        // Left only as a sample 
+        // Left only as a sample
         // We handle these errors elsewhere now
-        /*if (err.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {            
+        /*if (err.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
             atom.notifications.addError('The tsconfig.json file for this TypeScript file contains invalid JSON');
         }*/
         return <any>Promise.reject(err);
@@ -58,6 +58,7 @@ export var formatDocument = catchCommonErrors(parent.sendToIpc(projectService.fo
 export var formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));
 export var getDefinitionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getDefinitionsAtPosition));
 export var updateText = catchCommonErrors(parent.sendToIpc(projectService.updateText));
+export var editText = catchCommonErrors(parent.sendToIpc(projectService.editText));
 export var errorsForFile = catchCommonErrors(parent.sendToIpc(projectService.errorsForFile));
 export var getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.getSignatureHelps));
 export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));

@@ -74,12 +74,12 @@ exports.provider = {
         }
         else {
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
-            var promisedSuggestions = parent.updateText({ filePath: filePath, text: options.editor.getText() }).then(function () { return parent.getCompletionsAtPosition({
+            var promisedSuggestions = parent.getCompletionsAtPosition({
                 filePath: filePath,
                 position: position,
                 prefix: options.prefix,
                 maxSuggestions: atomConfig.maxSuggestions
-            }); }).then(function (resp) {
+            }).then(function (resp) {
                 var completionList = resp.completions;
                 var suggestions = completionList.map(function (c) {
                     return {
@@ -89,12 +89,12 @@ exports.provider = {
                     };
                 });
                 if (tsSnipPrefixLookup[options.prefix]) {
-                    suggestions.unshift({
-                        text: null,
+                    var suggestion = {
                         snippet: tsSnipPrefixLookup[options.prefix].body,
                         replacementPrefix: options.prefix,
                         rightLabelHTML: "snippet: " + options.prefix,
-                    });
+                    };
+                    suggestions.unshift(suggestion);
                 }
                 return suggestions;
             });
