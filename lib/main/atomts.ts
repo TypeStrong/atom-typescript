@@ -142,8 +142,16 @@ function readyToActivate() {
 
                 });
 
-                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.getBuffer()).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
+                var buffer = editor.buffer;
+                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
+                    
+                    var position = diff.oldRange;
+                    
                     // TODO: use this for faster language service host
+                    var minChar = buffer.characterIndexForPosition(position.start);
+                    var limChar = buffer.characterIndexForPosition(position.end);
+                    var newText = diff.newText;
+                    console.log(minChar,limChar,newText);
                 });
 
                 // Observe editors saving

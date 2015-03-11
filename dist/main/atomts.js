@@ -52,7 +52,13 @@ function readyToActivate() {
                     var text = editor.getText();
                     parent.updateText({ filePath: filePath, text: text }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
-                var fasterChangeObserver = editor.getBuffer().onDidChange(function (diff) {
+                var buffer = editor.buffer;
+                var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
+                    var position = diff.oldRange;
+                    var minChar = buffer.characterIndexForPosition(position.start);
+                    var limChar = buffer.characterIndexForPosition(position.end);
+                    var newText = diff.newText;
+                    console.log(minChar, limChar, newText);
                 });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;
