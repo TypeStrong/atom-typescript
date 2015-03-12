@@ -3,6 +3,7 @@
 
 import path = require('path');
 import fs = require('fs');
+import os = require('os');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
@@ -155,11 +156,17 @@ function readyToActivate() {
                     //// 20 20 "aaaa" 20 20 ""
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
+                    
+                    // Atom only gives you an `\n` as diff but it inserts \r\n. Facepalm.
+                    var newText = diff.newText;
+                    if(newText == '\n' && os.platform() == 'win32') {
+                        newText = '\r\n'
+                    };
 
                     // use this for faster language service host
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
                     var limChar = minChar + diff.oldText.length;
-                    var newText = diff.newText;
+                    
                     parent.editText({ filePath, minChar, limChar, newText });
                 });
 

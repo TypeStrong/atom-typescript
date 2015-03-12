@@ -1,5 +1,6 @@
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 var apd = require('atom-package-dependencies');
 var errorView = require('./atom/errorView');
 var autoCompleteProvider = require('./atom/autoCompleteProvider');
@@ -56,9 +57,13 @@ function readyToActivate() {
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
+                    var newText = diff.newText;
+                    if (newText == '\n' && os.platform() == 'win32') {
+                        newText = '\r\n';
+                    }
+                    ;
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
                     var limChar = minChar + diff.oldText.length;
-                    var newText = diff.newText;
                     parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {
