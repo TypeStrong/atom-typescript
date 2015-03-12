@@ -233,6 +233,19 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
     return jsonOptions;
 }
 
+export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
+    var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+    return {
+        projectFileDirectory: dir,
+        projectFilePath: dir + '/' + projectFileName,
+        project: {
+            compilerOptions: defaults,
+            files: [srcFile],
+            format: formatting.defaultFormatCodeOptions()
+        }
+    };
+}
+
 /** Given an src (source file or directory) goes up the directory tree to find the project specifications.
  * Use this to bootstrap the UI for what project the user might want to work on.
  * Note: Definition files (.d.ts) are considered thier own project
@@ -257,15 +270,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             // If we have a .d.ts file then it is its own project and return
             if (dir !== pathOrSrcFile) { // Not a directory
                 if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-                    return {
-                        projectFileDirectory: dir,
-                        projectFilePath: dir + '/' + projectFileName,
-                        project: {
-                            compilerOptions: defaults,
-                            files: [pathOrSrcFile],
-                            format: formatting.defaultFormatCodeOptions()
-                        },
-                    }
+                    return getDefaultProject(pathOrSrcFile);
                 }
             }
 

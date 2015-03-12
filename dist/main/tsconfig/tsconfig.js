@@ -135,6 +135,19 @@ function tsToRawCompilerOptions(compilerOptions) {
     }
     return jsonOptions;
 }
+function getDefaultProject(srcFile) {
+    var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+    return {
+        projectFileDirectory: dir,
+        projectFilePath: dir + '/' + projectFileName,
+        project: {
+            compilerOptions: exports.defaults,
+            files: [srcFile],
+            format: formatting.defaultFormatCodeOptions()
+        }
+    };
+}
+exports.getDefaultProject = getDefaultProject;
 function getProjectSync(pathOrSrcFile) {
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
@@ -148,15 +161,7 @@ function getProjectSync(pathOrSrcFile) {
         if (err.message == "not found") {
             if (dir !== pathOrSrcFile) {
                 if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-                    return {
-                        projectFileDirectory: dir,
-                        projectFilePath: dir + '/' + projectFileName,
-                        project: {
-                            compilerOptions: exports.defaults,
-                            files: [pathOrSrcFile],
-                            format: formatting.defaultFormatCodeOptions()
-                        },
-                    };
+                    return getDefaultProject(pathOrSrcFile);
                 }
             }
             throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
