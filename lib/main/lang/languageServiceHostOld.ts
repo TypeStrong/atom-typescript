@@ -239,6 +239,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
 
         // Also add the `lib.d.ts`
         var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
+        libFile = libFile.split('\\').join('/');
         this.addScript(libFile);
     }
 
@@ -362,9 +363,4 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     getDefaultLibFileName = (): string => {
         return 'lib.d.ts'; // TODO: this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
     }
-
-    // ts.Logger implementation
-    log = () => void 0
-    error = () => void 0
-    trace = () => void 0
 }
