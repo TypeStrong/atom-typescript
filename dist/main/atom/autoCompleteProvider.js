@@ -20,7 +20,7 @@ function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
-var tsSnipPrefixLookup = {};
+var tsSnipPrefixLookup = Object.create(null);
 function loadSnippets() {
     var confPath = atom.getConfigDirPath();
     CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, snippetsRoot) {

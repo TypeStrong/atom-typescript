@@ -93,7 +93,7 @@ interface SnippetDetail {
     name: string;
 }
 
-var tsSnipPrefixLookup: { [prefix: string]: SnippetDetail; } = {};
+var tsSnipPrefixLookup: { [prefix: string]: SnippetDetail; } = Object.create(null);
 function loadSnippets() {
     var confPath = atom.getConfigDirPath();
     CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson",
