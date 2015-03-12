@@ -1067,6 +1067,7 @@ var LanguageServiceHost = (function () {
         };
         config.project.files.forEach(function (file) { return _this.addScript(file); });
         var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
+        libFile = libFile.split('\\').join('/');
         this.addScript(libFile);
     }
     LanguageServiceHost.prototype.lineColToPosition = function (filename, line, col) {

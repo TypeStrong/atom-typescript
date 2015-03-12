@@ -1102,6 +1102,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
 
         // Also add the `lib.d.ts`
         var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
+        libFile = libFile.split('\\').join('/');
         this.addScript(libFile);
     }
 
@@ -1201,7 +1202,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     }
 
     /** 0 based */
-    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
+    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {        
         var result = this.positionToLineCol(fileName, index);
         return { line: result.line - 1, ch: result.col - 1 };
     }

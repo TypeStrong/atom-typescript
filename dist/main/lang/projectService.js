@@ -123,6 +123,7 @@ function echo(data) {
 }
 exports.echo = echo;
 function quickInfo(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info)
@@ -136,6 +137,7 @@ function quickInfo(query) {
 }
 exports.quickInfo = quickInfo;
 function build(query) {
+    consistentPath(query);
     return resolve({
         outputs: getOrCreateProject(query.filePath).build()
     });
@@ -152,6 +154,7 @@ exports.errorsForFileFiltered = errorsForFileFiltered;
 var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
 var prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };
 function getCompletionsAtPosition(query) {
+    consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
@@ -192,6 +195,7 @@ function getCompletionsAtPosition(query) {
 }
 exports.getCompletionsAtPosition = getCompletionsAtPosition;
 function getSignatureHelps(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
@@ -200,20 +204,24 @@ function getSignatureHelps(query) {
 }
 exports.getSignatureHelps = getSignatureHelps;
 function emitFile(query) {
+    consistentPath(query);
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 exports.emitFile = emitFile;
 function formatDocument(query) {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve(prog.formatDocument(query.filePath, query.cursor));
 }
 exports.formatDocument = formatDocument;
 function formatDocumentRange(query) {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
 }
 exports.formatDocumentRange = formatDocumentRange;
 function getDefinitionsAtPosition(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
@@ -244,6 +252,7 @@ function editText(query) {
 }
 exports.editText = editText;
 function errorsForFile(query) {
+    consistentPath(query);
     var program = getOrCreateProject(query.filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
     if (diagnostics.length === 0) {
@@ -253,6 +262,7 @@ function errorsForFile(query) {
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
@@ -308,6 +318,7 @@ function getRelativePathsInProject(query) {
 }
 exports.getRelativePathsInProject = getRelativePathsInProject;
 function getIndentationAtPosition(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
     return resolve({ indent: indent });

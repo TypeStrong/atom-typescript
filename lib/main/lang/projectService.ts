@@ -212,6 +212,7 @@ export interface QuickInfoResponse {
     comment?: string;
 }
 export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info) return Promise.resolve({ valid: false });
@@ -227,6 +228,7 @@ export interface BuildResponse {
     outputs: project.BuildOutput;
 }
 export function build(query: BuildQuery): Promise<BuildResponse> {
+    consistentPath(query);
     return resolve({
         outputs: getOrCreateProject(query.filePath).build()
     });
@@ -264,6 +266,7 @@ var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>',
 var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
 /** gets the first 10 completions only */
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
+    consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
 
     var project = getOrCreateProject(filePath);
@@ -322,6 +325,7 @@ export interface GetSignatureHelpResponse {
     signatureHelps: SignatureHelp[];
 }
 export function getSignatureHelps(query: GetSignatureHelpQuery): Promise<GetSignatureHelpResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
 
@@ -335,6 +339,7 @@ export function getSignatureHelps(query: GetSignatureHelpQuery): Promise<GetSign
 export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends project.EmitOutput { }
 export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
+    consistentPath(query);
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 
@@ -346,6 +351,7 @@ export interface FormatDocumentResponse {
     cursor: languageServiceHost.Position
 }
 export function formatDocument(query: FormatDocumentQuery): Promise<FormatDocumentResponse> {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve(prog.formatDocument(query.filePath, query.cursor));
 }
@@ -356,6 +362,7 @@ export interface FormatDocumentRangeQuery extends FilePathQuery {
 }
 export interface FormatDocumentRangeResponse { formatted: string; }
 export function formatDocumentRange(query: FormatDocumentRangeQuery): Promise<FormatDocumentRangeResponse> {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
 }
@@ -369,6 +376,7 @@ export interface GetDefinitionsAtPositionResponse {
     }[]
 }
 export function getDefinitionsAtPosition(query: GetDefinitionsAtPositionQuery): Promise<GetDefinitionsAtPositionResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
@@ -410,6 +418,7 @@ export function editText(query: EditTextQuery): Promise<any> {
 export function errorsForFile(query: FilePathQuery): Promise<{
     errors: project.TSError[]
 }> {
+    consistentPath(query);
     var program = getOrCreateProject(query.filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
     if (diagnostics.length === 0) {
@@ -434,6 +443,7 @@ export interface GetRenameInfoResponse {
     }[];
 }
 export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
@@ -510,6 +520,7 @@ export interface GetIndentaionAtPositionResponse {
     indent: number;
 }
 export function getIndentationAtPosition(query: GetIndentionAtPositionQuery): Promise<GetIndentaionAtPositionResponse> {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
 
