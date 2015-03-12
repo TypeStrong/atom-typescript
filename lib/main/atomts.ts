@@ -110,6 +110,12 @@ function readyToActivate() {
                 // Setup the error reporter:
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath, editor });
+                
+                // Set errors in project per file
+                if(onDisk){
+                    parent.errorsForFile({ filePath: filePath })
+                        .then((resp) => errorView.setErrors(filePath, resp.errors));
+                }
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {

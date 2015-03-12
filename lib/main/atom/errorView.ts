@@ -22,7 +22,13 @@ var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
 
 export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
-    else filePathErrors.setValue(filePath, errorsForFile);
+    else {
+        // Currently we are limiting errors 
+        // To many errors crashes our display
+        if (errorsForFile.length > 50) errorsForFile = errorsForFile.slice(0, 50);
+        
+        filePathErrors.setValue(filePath, errorsForFile)
+    };
 
     // TODO: this needs to be optimized at some point
     mainPanelView.panelView.clearError();

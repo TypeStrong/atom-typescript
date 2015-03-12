@@ -43,6 +43,9 @@ function readyToActivate() {
                 }
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
+                if (onDisk) {
+                    parent.errorsForFile({ filePath: filePath }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
                         var root = { line: 0, ch: 0 };

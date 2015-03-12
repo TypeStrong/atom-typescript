@@ -11,8 +11,12 @@ var filePathErrors = new utils.Dict();
 exports.setErrors = function (filePath, errorsForFile) {
     if (!errorsForFile.length)
         filePathErrors.clearValue(filePath);
-    else
+    else {
+        if (errorsForFile.length > 50)
+            errorsForFile = errorsForFile.slice(0, 50);
         filePathErrors.setValue(filePath, errorsForFile);
+    }
+    ;
     mainPanelView.panelView.clearError();
     var fileErrorCount = filePathErrors.keys().length;
     if (!fileErrorCount) {
