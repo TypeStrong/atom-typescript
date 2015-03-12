@@ -63,6 +63,7 @@ export var errorsForFile = catchCommonErrors(parent.sendToIpc(projectService.err
 export var getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.getSignatureHelps));
 export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
+export var debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

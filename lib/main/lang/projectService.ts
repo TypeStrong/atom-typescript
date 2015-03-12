@@ -526,3 +526,11 @@ export function getIndentationAtPosition(query: GetIndentionAtPositionQuery): Pr
 
     return resolve({ indent });
 }
+
+export interface DebugLanguageServiceHostVersionQuery extends FilePathQuery{}
+export interface DebugLanguageServiceHostVersionResponse {text:string}
+export function debugLanguageServiceHostVersion(query:DebugLanguageServiceHostVersionQuery):Promise<DebugLanguageServiceHostVersionResponse>{
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve({text:project.languageServiceHost.getScriptContent(query.filePath)});
+}

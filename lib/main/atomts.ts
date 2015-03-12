@@ -113,7 +113,8 @@ function readyToActivate() {
                 
                 // Set errors in project per file
                 if(onDisk){
-                    parent.errorsForFile({ filePath: filePath })
+                    parent.updateText({ filePath: filePath, text: editor.getText() })
+                        .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
                 }
 
@@ -128,8 +129,6 @@ function readyToActivate() {
                             );
                         return;
                     }
-
-                    var text = editor.getText();
 
                     // Set errors in project per file
                     parent.errorsForFile({ filePath: filePath })
@@ -157,9 +156,7 @@ function readyToActivate() {
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
 
-
-                    // TODO: use this for faster language service host
-
+                    // use this for faster language service host
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
                     var limChar = minChar + diff.oldText.length;
                     var newText = diff.newText;

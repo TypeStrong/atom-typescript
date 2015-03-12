@@ -107,10 +107,12 @@ export function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing',(e) => {
-        documentationView.docView.hide();
-        documentationView.docView.autoPosition();
-        documentationView.testDocumentationView();
+    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing',(e) => {        
+        // documentationView.docView.hide();
+        // documentationView.docView.autoPosition();
+        // documentationView.testDocumentationView();
+        parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveEditor().getPath()})
+            .then((res)=>console.log(res.text));
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {

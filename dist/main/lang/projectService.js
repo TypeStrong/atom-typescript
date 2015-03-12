@@ -324,4 +324,10 @@ function getIndentationAtPosition(query) {
     return resolve({ indent: indent });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;
+function debugLanguageServiceHostVersion(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
+}
+exports.debugLanguageServiceHostVersion = debugLanguageServiceHostVersion;
 //# sourceMappingURL=projectService.js.map

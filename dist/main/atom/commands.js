@@ -3,7 +3,6 @@ var buildView = require('./buildView');
 var atomUtils = require('./atomUtils');
 var autoCompleteProvider = require('./autoCompleteProvider');
 var path = require('path');
-var documentationView = require('./views/documentationView');
 var renameView = require('./views/renameView');
 var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
@@ -82,9 +81,7 @@ function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
     atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing', function (e) {
-        documentationView.docView.hide();
-        documentationView.docView.autoPosition();
-        documentationView.testDocumentationView();
+        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) { return console.log(res.text); });
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {

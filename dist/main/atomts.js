@@ -44,7 +44,7 @@ function readyToActivate() {
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {
-                    parent.errorsForFile({ filePath: filePath }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                    parent.updateText({ filePath: filePath, text: editor.getText() }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
@@ -52,7 +52,6 @@ function readyToActivate() {
                         errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
-                    var text = editor.getText();
                     parent.errorsForFile({ filePath: filePath }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
                 var buffer = editor.buffer;
