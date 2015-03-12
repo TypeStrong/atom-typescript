@@ -1087,6 +1087,8 @@ export interface Position {
     ch: number;
 }
 
+export var defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');
+
 /**
  * This is the only class I really brought in. Everything else came from the dependency tree of this one class.
  */
@@ -1101,9 +1103,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         config.project.files.forEach((file) => this.addScript(file));
 
         // Also add the `lib.d.ts`
-        var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
-        libFile = libFile.split('\\').join('/');
-        this.addScript(libFile);
+        this.addScript(defaultLibFile);
     }
 
     addScript = (fileName: string, content?: string) => {
@@ -1136,7 +1136,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
             if (script.getText() == content) {
                 return;
             }
-            
+
             script.editContent(0, script.snap().getLength(), content);
             return;
         }
@@ -1202,7 +1202,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     }
 
     /** 0 based */
-    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {        
+    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
         var result = this.positionToLineCol(fileName, index);
         return { line: result.line - 1, ch: result.col - 1 };
     }

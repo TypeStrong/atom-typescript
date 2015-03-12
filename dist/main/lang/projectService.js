@@ -6,6 +6,7 @@ var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
 var project = require('./project');
 var Project = project.Project;
+var languageServiceHost = require('./languageServiceHost');
 var resolve = Promise.resolve.bind(Promise);
 var queryParent = require('../../worker/queryParent');
 var child;
@@ -20,6 +21,9 @@ var projectByProjectFilePath = {};
 var projectByFilePath = {};
 var watchingProjectFile = {};
 function watchProjectFileIfNotDoingItAlready(projectFilePath) {
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
     if (watchingProjectFile[projectFilePath])
         return;
     watchingProjectFile[projectFilePath] = true;
@@ -55,6 +59,9 @@ function cacheAndCreateProject(projectFile) {
 }
 function getOrCreateProjectFile(filePath) {
     try {
+        if (path.dirname(filePath) == path.dirname(languageServiceHost.defaultLibFile)) {
+            return tsconfig.getDefaultProject(filePath);
+        }
         var projectFile = tsconfig.getProjectSync(filePath);
         queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;

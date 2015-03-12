@@ -45,6 +45,12 @@ var projectByFilePath: { [filePath: string]: Project } = {}
 
 var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
 function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
+    
+    // Don't watch lib.d.ts and other
+    // projects that are "in memory" only
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
 
     if (watchingProjectFile[projectFilePath]) return; // Only watch once
     watchingProjectFile[projectFilePath] = true;
@@ -103,6 +109,11 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
  */
 function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
+        // If we are asked to look at stuff in lib.d.ts create its own project
+        if (path.dirname(filePath) == path.dirname(languageServiceHost.defaultLibFile)) {
+            return tsconfig.getDefaultProject(filePath);
+        }
+
         var projectFile = tsconfig.getProjectSync(filePath);
         queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
