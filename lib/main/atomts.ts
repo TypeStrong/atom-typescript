@@ -111,7 +111,7 @@ function readyToActivate() {
                 // Setup the error reporter:
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath, editor });
-                
+
                 // Set errors in project per file
                 if(onDisk){
                     parent.updateText({ filePath: filePath, text: editor.getText() })
@@ -156,18 +156,27 @@ function readyToActivate() {
                     //// 20 20 "aaaa" 20 20 ""
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
-                    
-                    // Atom only gives you an `\n` as diff but it inserts \r\n. Facepalm.
+
+                    // Atom only gives you an `\n` as diff but it sometimes inserts \r\n. Facepalm.
                     var newText = diff.newText;
-                    if(newText == '\n' && os.platform() == 'win32') {
-                        newText = '\r\n'
-                    };
+                    // This works reliably
+                    newText = editor.buffer.getTextInRange(diff.newRange);
 
                     // use this for faster language service host
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
                     var limChar = minChar + diff.oldText.length;
-                    
-                    parent.editText({ filePath, minChar, limChar, newText });
+
+                    var promise = parent.editText({ filePath, minChar, limChar, newText });
+
+                    // For debugging the language service going out of sync
+                    // promise.then(()=>{
+                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveEditor().getPath()})
+                    //         .then((res)=>{
+                    //             console.log(JSON.stringify({real:editor.getText()}));
+                    //             console.log(JSON.stringify({lang:res.text}));
+                    //             console.log(editor.getText() == res.text);
+                    //         });
+                    // });
                 });
 
                 // Observe editors saving
