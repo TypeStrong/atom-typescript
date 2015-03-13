@@ -45,7 +45,7 @@ var projectByFilePath: { [filePath: string]: Project } = {}
 
 var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
 function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
-    
+
     // Don't watch lib.d.ts and other
     // projects that are "in memory" only
     if (!fs.existsSync(projectFilePath)) {
@@ -456,9 +456,9 @@ export interface GetRenameInfoResponse {
     kindModifiers?: string;
     triggerSpan?: TextSpan;
     locations?: {
-        textSpan: TextSpan;
-        filePath: string;
-    }[];
+        /** Note that the Text Spans are from bottom of file to top of file */
+        [filePath: string]: TextSpan[]
+    };
 }
 export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoResponse> {
     consistentPath(query);
@@ -466,12 +466,13 @@ export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoR
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
     if (info && info.canRename) {
-        var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
-            .map(loc=> {
-            return {
-                textSpan: textSpan(loc.textSpan),
-                filePath: loc.fileName
-            };
+        var locations: { [filePath: string]: TextSpan[] } = {};
+        project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
+            .forEach(loc=> {
+            if (!locations[loc.fileName]) locations[loc.fileName] = [];
+
+            // Using unshift makes them with maximum value on top ;)
+            locations[loc.fileName].unshift(textSpan(loc.textSpan));
         });
         return resolve({
             canRename: true,

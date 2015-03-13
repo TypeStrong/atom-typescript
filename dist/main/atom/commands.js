@@ -93,11 +93,15 @@ function registerCommands() {
                 text: res.displayName,
                 onCancel: function () { },
                 onCommit: function (newText) {
-                    atomUtils.getEditorsForAllPaths(res.locations.map(function (l) { return l.filePath; })).then(function (editorMap) {
-                        res.locations.reverse().forEach(function (location) {
-                            var editor = editorMap[location.filePath];
-                            var range = atomUtils.getRangeForTextSpan(editor, location.textSpan);
-                            editor.setTextInBufferRange(range, newText);
+                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations)).then(function (editorMap) {
+                        Object.keys(res.locations).forEach(function (filePath) {
+                            var editor = editorMap[filePath];
+                            editor.transact(function () {
+                                res.locations[filePath].forEach(function (textSpan) {
+                                    var range = atomUtils.getRangeForTextSpan(editor, textSpan);
+                                    editor.setTextInBufferRange(range, newText);
+                                });
+                            });
                         });
                     });
                 }

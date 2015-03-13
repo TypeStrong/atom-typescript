@@ -279,11 +279,11 @@ function getRenameInfo(query) {
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
     if (info && info.canRename) {
-        var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments).map(function (loc) {
-            return {
-                textSpan: textSpan(loc.textSpan),
-                filePath: loc.fileName
-            };
+        var locations = {};
+        project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments).forEach(function (loc) {
+            if (!locations[loc.fileName])
+                locations[loc.fileName] = [];
+            locations[loc.fileName].unshift(textSpan(loc.textSpan));
         });
         return resolve({
             canRename: true,
