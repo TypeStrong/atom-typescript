@@ -40,14 +40,14 @@ exports.setErrors = function (filePath, errorsForFile) {
 };
 function showEmittedMessage(output) {
     if (output.success) {
-        var message = 'TS emit succeeded';
-        atomUtils.quickNotify(message);
+        var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
+        atomUtils.quickNotifySuccess(message);
     }
     else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     }
     else {
-        atom.notifications.addWarning('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
+        atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
     }
 }
 exports.showEmittedMessage = showEmittedMessage;
