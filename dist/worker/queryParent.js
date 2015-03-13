@@ -22,6 +22,13 @@ function getUpdatedTextForUnsavedEditors(query) {
     });
 }
 exports.getUpdatedTextForUnsavedEditors = getUpdatedTextForUnsavedEditors;
+function getOpenEditorPaths(query) {
+    var editors = atomUtils.getTypeScriptEditorsWithPaths();
+    return resolve({
+        filePaths: editors.map(function (e) { return tsconfig.consistentPath(e.getPath()); })
+    });
+}
+exports.getOpenEditorPaths = getOpenEditorPaths;
 function setConfigurationError(query) {
     var errors = [];
     if (query.error) {

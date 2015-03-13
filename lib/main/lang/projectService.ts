@@ -31,6 +31,7 @@ export function fixChild(childInjected: typeof child) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
+    queryParent.getOpenEditorPaths = child.sendToIpc(queryParent.getOpenEditorPaths);
     queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
     queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
 }
@@ -83,6 +84,52 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     });
 }
 
+
+import chokidar = require('chokidar');
+var watchingTheFilesInTheProject: { [projectFilePath: string]: boolean } = {}
+function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
+    var projectFilePath = projectFile.projectFilePath;
+    // Don't watch lib.d.ts and other
+    // projects that are "in memory" only
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
+
+    if (watchingTheFilesInTheProject[projectFilePath]) return; // Only watch once
+    watchingTheFilesInTheProject[projectFilePath] = true;
+
+    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
+    watcher.on('add', () => {
+        // TODO: add file to project:
+        // files + language service, and then the language service will automatically call LSHost
+    });
+    watcher.on('unlink', (filePath: string) => {
+        // TODO: remove from language service + files
+    });
+    watcher.on('change', (filePath: string) => {
+        filePath = tsconfig.consistentPath(filePath);
+        queryParent.getOpenEditorPaths({}).then((res) => {
+            var openPaths = res.filePaths;
+
+            // If we have it open, we will get this change from ATOM.
+            if (openPaths.some(x=> x == filePath)) {
+                // console.error('file change ignored. Already Open:', filePath);
+                return;
+            }
+
+            // If we don't have it cached. Then we ain't gonna do anything with this as it can get hairy
+            var project = projectByFilePath[filePath];
+            if (!project) {
+                // console.error('file change ignored. No Project!:', filePath);
+                return;
+            }
+
+            var contents = fs.readFileSync(filePath).toString();
+            project.languageServiceHost.updateScript(filePath, contents);
+        });
+    })
+}
+
 /** We are loading the project from file system.
     This might not match what we have in the editor memory, so query those as well
 */
@@ -95,11 +142,13 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
     queryParent.getUpdatedTextForUnsavedEditors({})
         .then(resp=> {
         resp.editors.forEach(e=> {
+            consistentPath(e);
             project.languageServiceHost.updateScript(e.filePath, e.text);
         });
     });
 
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
+    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
 
     return project;
 }
@@ -555,4 +604,3 @@ export function debugLanguageServiceHostVersion(query: DebugLanguageServiceHostV
     var project = getOrCreateProject(query.filePath);
     return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }
-

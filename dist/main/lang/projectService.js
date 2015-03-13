@@ -14,6 +14,7 @@ function fixChild(childInjected) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
+    queryParent.getOpenEditorPaths = child.sendToIpc(queryParent.getOpenEditorPaths);
     queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
     queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
 }
@@ -47,15 +48,48 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
         }
     });
 }
+var chokidar = require('chokidar');
+var watchingTheFilesInTheProject = {};
+function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
+    var projectFilePath = projectFile.projectFilePath;
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
+    if (watchingTheFilesInTheProject[projectFilePath])
+        return;
+    watchingTheFilesInTheProject[projectFilePath] = true;
+    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
+    watcher.on('add', function () {
+    });
+    watcher.on('unlink', function (filePath) {
+    });
+    watcher.on('change', function (filePath) {
+        filePath = tsconfig.consistentPath(filePath);
+        queryParent.getOpenEditorPaths({}).then(function (res) {
+            var openPaths = res.filePaths;
+            if (openPaths.some(function (x) { return x == filePath; })) {
+                return;
+            }
+            var project = projectByFilePath[filePath];
+            if (!project) {
+                return;
+            }
+            var contents = fs.readFileSync(filePath).toString();
+            project.languageServiceHost.updateScript(filePath, contents);
+        });
+    });
+}
 function cacheAndCreateProject(projectFile) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
     projectFile.project.files.forEach(function (file) { return projectByFilePath[file] = project; });
     queryParent.getUpdatedTextForUnsavedEditors({}).then(function (resp) {
         resp.editors.forEach(function (e) {
+            consistentPath(e);
             project.languageServiceHost.updateScript(e.filePath, e.text);
         });
     });
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
+    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
     return project;
 }
 function getOrCreateProjectFile(filePath) {

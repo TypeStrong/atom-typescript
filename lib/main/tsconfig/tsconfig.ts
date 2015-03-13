@@ -79,6 +79,7 @@ interface TypeScriptProjectRawSpecification {
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
+    filesGlob?: string[];
     format: ts.FormatCodeOptions;
 }
 
@@ -317,6 +318,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files,
+        filesGlob: projectSpec.filesGlob,
         format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
 

@@ -199,6 +199,7 @@ function getProjectSync(pathOrSrcFile) {
     var project = {
         compilerOptions: {},
         files: projectSpec.files,
+        filesGlob: projectSpec.filesGlob,
         format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
