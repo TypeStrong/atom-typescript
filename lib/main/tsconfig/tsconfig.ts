@@ -266,14 +266,6 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     catch (e) {
         let err: Error = e;
         if (err.message == "not found") {
-
-            // If we have a .d.ts file then it is its own project and return
-            if (dir !== pathOrSrcFile) { // Not a directory
-                if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-                    return getDefaultProject(pathOrSrcFile);
-                }
-            }
-
             throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
@@ -496,7 +488,7 @@ function selectMany<T>(arr: T[][]): T[] {
     return result;
 }
 
-function endsWith(str: string, suffix: string): boolean {
+export function endsWith(str: string, suffix: string): boolean {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 

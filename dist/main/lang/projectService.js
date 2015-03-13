@@ -69,9 +69,14 @@ function getOrCreateProjectFile(filePath) {
     catch (ex) {
         var err = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
-            var projectFile = tsconfig.createProjectRootSync(filePath);
-            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-            return projectFile;
+            if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
+                return tsconfig.getDefaultProject(filePath);
+            }
+            else {
+                var projectFile = tsconfig.createProjectRootSync(filePath);
+                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+                return projectFile;
+            }
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {

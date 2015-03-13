@@ -120,9 +120,16 @@ function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFil
     } catch (ex) {
         var err: Error = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
-            var projectFile = tsconfig.createProjectRootSync(filePath);
-            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-            return projectFile;
+            // If we have a .d.ts file then it is its own project and return
+            if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
+                return tsconfig.getDefaultProject(filePath);
+            }
+            // Otherwise create one on disk
+            else {
+                var projectFile = tsconfig.createProjectRootSync(filePath);
+                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+                return projectFile;
+            }
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
@@ -197,7 +204,7 @@ function textSpan(span: ts.TextSpan): TextSpan {
 
 /** mutate and fix the filePath silently */
 function consistentPath(query: FilePathQuery) {
-    if(!query.filePath) return;
+    if (!query.filePath) return;
     query.filePath = tsconfig.consistentPath(query.filePath);
 }
 
@@ -538,10 +545,10 @@ export function getIndentationAtPosition(query: GetIndentionAtPositionQuery): Pr
     return resolve({ indent });
 }
 
-export interface DebugLanguageServiceHostVersionQuery extends FilePathQuery{}
-export interface DebugLanguageServiceHostVersionResponse {text:string}
-export function debugLanguageServiceHostVersion(query:DebugLanguageServiceHostVersionQuery):Promise<DebugLanguageServiceHostVersionResponse>{
+export interface DebugLanguageServiceHostVersionQuery extends FilePathQuery { }
+export interface DebugLanguageServiceHostVersionResponse { text: string }
+export function debugLanguageServiceHostVersion(query: DebugLanguageServiceHostVersionQuery): Promise<DebugLanguageServiceHostVersionResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    return resolve({text:project.languageServiceHost.getScriptContent(query.filePath)});
+    return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }

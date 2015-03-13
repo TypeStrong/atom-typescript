@@ -159,11 +159,6 @@ function getProjectSync(pathOrSrcFile) {
     catch (e) {
         var err = e;
         if (err.message == "not found") {
-            if (dir !== pathOrSrcFile) {
-                if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-                    return getDefaultProject(pathOrSrcFile);
-                }
-            }
             throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
@@ -322,6 +317,7 @@ function selectMany(arr) {
 function endsWith(str, suffix) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
+exports.endsWith = endsWith;
 function uniq(arr) {
     var map = simpleValidator.createMap(arr);
     return Object.keys(map);
