@@ -117,6 +117,7 @@ function getScriptSnapShot(scriptInfo) {
         version: version
     };
 }
+exports.defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');
 var LanguageServiceHost = (function () {
     function LanguageServiceHost(config) {
         var _this = this;
@@ -221,9 +222,7 @@ var LanguageServiceHost = (function () {
             return 'lib.d.ts';
         };
         config.project.files.forEach(function (file) { return _this.addScript(file); });
-        var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
-        libFile = libFile.split('\\').join('/');
-        this.addScript(libFile);
+        this.addScript(exports.defaultLibFile);
     }
     return LanguageServiceHost;
 })();

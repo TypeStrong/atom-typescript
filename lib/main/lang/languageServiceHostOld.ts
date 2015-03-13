@@ -1,5 +1,5 @@
 /**
- * THIS FILE IS NO LONGER USED. 
+ * THIS FILE IS NO LONGER USED.
  * This is kept as a reference implementation for a simpler language service shot + ScriptInfo
  */
 
@@ -223,6 +223,9 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
     }
 }
 
+export var defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');
+
+
 // NOTES:
 // * fileName is * always * the absolute path to the file
 // * content is *always* the string content of the file
@@ -238,9 +241,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         config.project.files.forEach((file) => this.addScript(file));
 
         // Also add the `lib.d.ts`
-        var libFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts'));
-        libFile = libFile.split('\\').join('/');
-        this.addScript(libFile);
+        this.addScript(defaultLibFile);
     }
 
     addScript = (fileName: string, content?: string) => {
