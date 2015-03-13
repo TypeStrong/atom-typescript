@@ -79,7 +79,6 @@ export class Project {
 
         // Get new cursor based on new content
         var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
-        this.languageServiceHost.updateScript(filePath, formatted);
 
         return { formatted: formatted, cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
     }

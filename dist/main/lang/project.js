@@ -57,7 +57,6 @@ var Project = (function () {
         var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.format);
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
         var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
-        this.languageServiceHost.updateScript(filePath, formatted);
         return { formatted: formatted, cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
     };
     Project.prototype.formatDocumentRange = function (filePath, start, end) {
