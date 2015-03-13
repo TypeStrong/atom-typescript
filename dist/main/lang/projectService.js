@@ -15,6 +15,7 @@ function fixChild(childInjected) {
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
     queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
+    queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
 }
 exports.fixChild = fixChild;
 var projectByProjectFilePath = {};
@@ -74,6 +75,7 @@ function getOrCreateProjectFile(filePath) {
             }
             else {
                 var projectFile = tsconfig.createProjectRootSync(filePath);
+                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
                 queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
                 return projectFile;
             }

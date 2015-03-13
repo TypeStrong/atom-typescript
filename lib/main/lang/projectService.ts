@@ -32,6 +32,7 @@ export function fixChild(childInjected: typeof child) {
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
     queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
+    queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +128,7 @@ function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFil
             // Otherwise create one on disk
             else {
                 var projectFile = tsconfig.createProjectRootSync(filePath);
+                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
                 queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
                 return projectFile;
             }
@@ -553,3 +555,4 @@ export function debugLanguageServiceHostVersion(query: DebugLanguageServiceHostV
     var project = getOrCreateProject(query.filePath);
     return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }
+

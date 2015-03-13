@@ -54,4 +54,9 @@ function setConfigurationError(query) {
     return resolve({});
 }
 exports.setConfigurationError = setConfigurationError;
+function notifySuccess(query) {
+    atom.notifications.addSuccess(query.message);
+    return resolve({});
+}
+exports.notifySuccess = notifySuccess;
 //# sourceMappingURL=queryParent.js.map

@@ -68,4 +68,9 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
     return resolve({});
 }
 
+export function notifySuccess(query: { message: string }): Promise<{}> {
+    atom.notifications.addSuccess(query.message);
+    return resolve({});
+}
+
 export interface Test { }
