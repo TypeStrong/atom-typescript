@@ -12,7 +12,7 @@ import tsconfig = require('../tsconfig/tsconfig');
 import utils = require('./utils');
 import project = require('./project');
 import Project = project.Project;
-import languageServiceHost = require('./languageServiceHost');
+import languageServiceHost = project.languageServiceHost;
 
 var resolve: typeof Promise.resolve = Promise.resolve.bind(Promise);
 
@@ -112,8 +112,7 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.Type
             var openPaths = res.filePaths;
 
             // If we have it open, we will get this change from ATOM.
-            if (openPaths.some(x=> x == filePath)) {
-                // console.error('file change ignored. Already Open:', filePath);
+            if (openPaths.some(x => x == filePath)) {
                 return;
             }
 

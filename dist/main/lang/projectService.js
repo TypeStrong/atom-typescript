@@ -6,7 +6,7 @@ var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
 var project = require('./project');
 var Project = project.Project;
-var languageServiceHost = require('./languageServiceHost');
+var languageServiceHost = project.languageServiceHost;
 var resolve = Promise.resolve.bind(Promise);
 var queryParent = require('../../worker/queryParent');
 var child;

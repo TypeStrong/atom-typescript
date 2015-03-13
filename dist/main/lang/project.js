@@ -2,7 +2,7 @@ var ts = require('typescript');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
-var languageServiceHost = require('./languageServiceHost');
+exports.languageServiceHost = require('./languageServiceHost');
 var utils = require('./utils');
 var Project = (function () {
     function Project(projectFile) {
@@ -35,7 +35,7 @@ var Project = (function () {
                 emitError: !emitDone
             };
         };
-        this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);
+        this.languageServiceHost = new exports.languageServiceHost.LanguageServiceHost(projectFile);
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
     }
     Project.prototype.build = function () {

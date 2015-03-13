@@ -80,8 +80,8 @@ function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
     });
-    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing', function (e) {
-        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) { return console.log(res.text); });
+    atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
+        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) { return console.log(JSON.stringify({ txt: res.text })); });
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {

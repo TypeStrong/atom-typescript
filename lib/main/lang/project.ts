@@ -7,7 +7,7 @@ import mkdirp = require('mkdirp');
 import fs = require('fs');
 import os = require('os');
 
-import languageServiceHost = require('./languageServiceHost');
+export import languageServiceHost = require('./languageServiceHost');
 import tsconfig = require('../tsconfig/tsconfig');
 import utils = require('./utils');
 
@@ -42,7 +42,7 @@ export class Project {
         var emitDone = !output.emitSkipped;
         var errors: TSError[] = [];
 
-        // Emit is no guarantee that there are no errors 
+        // Emit is no guarantee that there are no errors
         var allDiagnostics = services.getCompilerOptionsDiagnostics()
             .concat(services.getSyntacticDiagnostics(filePath))
             .concat(services.getSemanticDiagnostics(filePath));
