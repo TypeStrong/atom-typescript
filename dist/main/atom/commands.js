@@ -28,14 +28,18 @@ function registerCommands() {
                 if (result.formatted == currentText)
                     return;
                 var top = editor.getScrollTop();
-                editor.setText(result.formatted);
+                editor.transact(function () {
+                    editor.setText(result.formatted);
+                });
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
                 editor.setScrollTop(top);
             });
         }
         else {
             parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then(function (res) {
-                editor.setTextInBufferRange(selection, res.formatted);
+                editor.transact(function () {
+                    editor.setTextInBufferRange(selection, res.formatted);
+                });
             });
         }
     });
@@ -81,7 +85,9 @@ function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
     atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
-        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) { return console.log(JSON.stringify({ txt: res.text })); });
+        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
+            console.log(res.text.length);
+        });
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {

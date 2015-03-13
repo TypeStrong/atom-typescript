@@ -42,13 +42,17 @@ export function registerCommands() {
                 if (result.formatted == currentText) return;
 
                 var top = editor.getScrollTop();
-                editor.setText(result.formatted);
+                editor.transact(()=>{
+                    editor.setText(result.formatted);
+                });
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
                 editor.setScrollTop(top);
             });
         } else {
             parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
-                editor.setTextInBufferRange(selection, res.formatted);
+                editor.transact(()=>{
+                    editor.setTextInBufferRange(selection, res.formatted);
+                });
             });
 
         }
@@ -112,7 +116,10 @@ export function registerCommands() {
         // documentationView.docView.autoPosition();
         // documentationView.testDocumentationView();
         parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
-            .then((res) => console.log(JSON.stringify({txt:res.text})));
+            .then((res) => {
+                console.log(res.text.length);
+                // console.log(JSON.stringify({txt:res.text}))
+            });
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', (e) => {

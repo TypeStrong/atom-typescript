@@ -159,6 +159,7 @@ function readyToActivate() {
 
                     // Atom only gives you an `\n` as diff but it sometimes inserts \r\n. Facepalm.
                     var newText = diff.newText;
+                    // console.log(JSON.stringify({txt:newText}));
                     // This works reliably
                     newText = editor.buffer.getTextInRange(diff.newRange);
 
