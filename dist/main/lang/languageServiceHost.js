@@ -244,7 +244,10 @@ var LineNode = (function () {
         }
         else {
             var lineInfo = this.lineNumberToInfo(this.lineCount(), 0);
-            return { line: this.lineCount(), col: lineInfo.leaf.charCount() };
+            var col = 1;
+            if (lineInfo.leaf)
+                col = lineInfo.leaf.charCount();
+            return { line: this.lineCount(), col: col };
         }
     };
     LineNode.prototype.lineNumberToInfo = function (lineNumber, charOffset) {

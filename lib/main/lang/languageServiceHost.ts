@@ -288,7 +288,13 @@ export class LineNode implements LineCollection {
         }
         else {
             var lineInfo = this.lineNumberToInfo(this.lineCount(), 0);
-            return { line: this.lineCount(), col: lineInfo.leaf.charCount() };
+            // atom start
+            var col = 1;
+            if(lineInfo.leaf) col = lineInfo.leaf.charCount();
+            return { line: this.lineCount(), col: col };
+            // atom old
+            // return { line: this.lineCount(), col: lineInfo.leaf.charCount() };
+            // atom end
         }
     }
 
