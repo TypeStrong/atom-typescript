@@ -39,3 +39,8 @@ declare module 'chokidar' {
 
     export function watch(path, options?: any): Watcher;
 }
+
+declare module 'basarat-text-buffer'{
+    var options;
+    export = options;
+}

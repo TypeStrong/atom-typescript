@@ -39,6 +39,7 @@
         "./main/atom/views/view.ts",
         "./main/atomts.ts",
         "./main/lang/languageServiceHost.ts",
+        "./main/lang/languageServiceHost2.ts",
         "./main/lang/languageServiceHostOld.ts",
         "./main/lang/project.ts",
         "./main/lang/projectService.ts",

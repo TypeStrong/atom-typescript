@@ -2,7 +2,7 @@ var ts = require('typescript');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
-exports.languageServiceHost = require('./languageServiceHost');
+exports.languageServiceHost = require('./languageServiceHost2');
 var utils = require('./utils');
 var Project = (function () {
     function Project(projectFile) {

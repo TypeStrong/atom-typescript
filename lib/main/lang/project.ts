@@ -7,7 +7,7 @@ import mkdirp = require('mkdirp');
 import fs = require('fs');
 import os = require('os');
 
-export import languageServiceHost = require('./languageServiceHost');
+export import languageServiceHost = require('./languageServiceHost2');
 import tsconfig = require('../tsconfig/tsconfig');
 import utils = require('./utils');
 
