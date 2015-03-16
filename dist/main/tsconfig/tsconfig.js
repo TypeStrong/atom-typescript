@@ -143,7 +143,7 @@ function getDefaultProject(srcFile) {
         project: {
             compilerOptions: exports.defaults,
             files: [srcFile],
-            format: formatting.defaultFormatCodeOptions()
+            formatCodeOptions: formatting.defaultFormatCodeOptions()
         }
     };
 }
@@ -200,7 +200,7 @@ function getProjectSync(pathOrSrcFile) {
         compilerOptions: {},
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
-        format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {

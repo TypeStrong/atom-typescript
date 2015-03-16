@@ -368,7 +368,7 @@ exports.getRelativePathsInProject = getRelativePathsInProject;
 function getIndentationAtPosition(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
+    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
     return resolve({ indent: indent });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;

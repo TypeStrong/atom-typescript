@@ -80,7 +80,7 @@ export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
     filesGlob?: string[];
-    format: ts.FormatCodeOptions;
+    formatCodeOptions: ts.FormatCodeOptions;
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -242,7 +242,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
         project: {
             compilerOptions: defaults,
             files: [srcFile],
-            format: formatting.defaultFormatCodeOptions()
+            formatCodeOptions: formatting.defaultFormatCodeOptions()
         }
     };
 }
@@ -319,7 +319,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         compilerOptions: {},
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
-        format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
     };
 
     // Validate the raw compiler options before converting them to TS compiler options

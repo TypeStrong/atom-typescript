@@ -54,7 +54,7 @@ var Project = (function () {
         };
     };
     Project.prototype.formatDocument = function (filePath, cursor) {
-        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.format);
+        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.formatCodeOptions);
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
         var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
         return { formatted: formatted, cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
@@ -62,7 +62,7 @@ var Project = (function () {
     Project.prototype.formatDocumentRange = function (filePath, start, end) {
         var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
         var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
-        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.format);
+        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.formatCodeOptions);
         textChanges.forEach(function (change) { return change.span = { start: change.span.start - st, length: change.span.length }; });
         var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
         return formatted;

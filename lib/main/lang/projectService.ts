@@ -591,7 +591,7 @@ export interface GetIndentaionAtPositionResponse {
 export function getIndentationAtPosition(query: GetIndentionAtPositionQuery): Promise<GetIndentaionAtPositionResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
+    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
 
     return resolve({ indent });
 }
