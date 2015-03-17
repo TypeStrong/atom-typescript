@@ -31,10 +31,12 @@
     "glob-expand": "0.0.2",
     "mkdirp": "^0.5.0",
     "season": "^5.1.4",
-    "typescript": "1.4.1",
+    "typescript": "Arnavion/typescript-github#2015-03-03-fedc809c3b07bc7abd44470c70468fa2da75a631",
     "escape-html": "^1.0.1",
     "atom-space-pen-views": "^2.0.4",
-    "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb1.tar.gz"
+    "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb1.tar.gz",
+    "chokidar": "^1.0.0-rc4",
+    "basarat-text-buffer": "^4.1.5"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

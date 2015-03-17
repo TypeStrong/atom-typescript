@@ -441,6 +441,8 @@ interface StringConstructor {
 declare var String: StringConstructor;
 
 interface Boolean {
+    /** Returns the primitive value of the specified object. */
+    valueOf(): boolean;
 }
 
 interface BooleanConstructor {
@@ -1906,7 +1908,7 @@ declare module Intl {
         second?: string;
         timeZoneName?: string;
         formatMatcher?: string;
-        hour12: boolean;
+        hour12?: boolean;
     }
 
     interface ResolvedDateTimeFormatOptions {

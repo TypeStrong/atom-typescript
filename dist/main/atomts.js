@@ -43,16 +43,24 @@ function readyToActivate() {
                 }
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
+                if (onDisk) {
+                    parent.updateText({ filePath: filePath, text: editor.getText() }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
                         var root = { line: 0, ch: 0 };
                         errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
-                    var text = editor.getText();
-                    parent.updateText({ filePath: filePath, text: text }).then(function () { return parent.errorsForFile({ filePath: filePath }); }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                    parent.errorsForFile({ filePath: filePath }).then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
-                var fasterChangeObserver = editor.getBuffer().onDidChange(function (diff) {
+                var buffer = editor.buffer;
+                var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
+                    var newText = diff.newText;
+                    newText = editor.buffer.getTextInRange(diff.newRange);
+                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
+                    var limChar = minChar + diff.oldText.length;
+                    var promise = parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;

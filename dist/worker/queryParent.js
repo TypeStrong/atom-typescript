@@ -22,30 +22,37 @@ function getUpdatedTextForUnsavedEditors(query) {
     });
 }
 exports.getUpdatedTextForUnsavedEditors = getUpdatedTextForUnsavedEditors;
-function setProjectFileParsedResult(query) {
+function getOpenEditorPaths(query) {
+    var editors = atomUtils.getTypeScriptEditorsWithPaths();
+    return resolve({
+        filePaths: editors.map(function (e) { return tsconfig.consistentPath(e.getPath()); })
+    });
+}
+exports.getOpenEditorPaths = getOpenEditorPaths;
+function setConfigurationError(query) {
     var errors = [];
     if (query.error) {
         if (query.error.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-            var invalidJSONDetails = query.error.details;
+            var details = query.error.details;
             errors = [
                 {
-                    filePath: invalidJSONDetails.projectFilePath,
+                    filePath: details.projectFilePath,
                     startPos: { line: 0, ch: 0 },
                     endPos: { line: 0, ch: 0 },
                     message: "The project file contains invalid JSON",
-                    preview: invalidJSONDetails.projectFilePath,
+                    preview: details.projectFilePath,
                 }
             ];
         }
         if (query.error.message == tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-            var invalidOptionDetails = query.error.details;
+            var _details = query.error.details;
             errors = [
                 {
-                    filePath: invalidOptionDetails.projectFilePath,
+                    filePath: _details.projectFilePath,
                     startPos: { line: 0, ch: 0 },
                     endPos: { line: 0, ch: 0 },
                     message: "The project file contains invalid options",
-                    preview: invalidOptionDetails.errorMessage,
+                    preview: _details.errorMessage,
                 }
             ];
         }
@@ -53,5 +60,10 @@ function setProjectFileParsedResult(query) {
     errorView.setErrors(query.projectFilePath, errors);
     return resolve({});
 }
-exports.setProjectFileParsedResult = setProjectFileParsedResult;
+exports.setConfigurationError = setConfigurationError;
+function notifySuccess(query) {
+    atom.notifications.addSuccess(query.message);
+    return resolve({});
+}
+exports.notifySuccess = notifySuccess;
 //# sourceMappingURL=queryParent.js.map

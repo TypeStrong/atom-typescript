@@ -3,7 +3,6 @@ var buildView = require('./buildView');
 var atomUtils = require('./atomUtils');
 var autoCompleteProvider = require('./autoCompleteProvider');
 var path = require('path');
-var documentationView = require('./views/documentationView');
 var renameView = require('./views/renameView');
 var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
@@ -29,14 +28,18 @@ function registerCommands() {
                 if (result.formatted == currentText)
                     return;
                 var top = editor.getScrollTop();
-                editor.setText(result.formatted);
+                editor.transact(function () {
+                    editor.setText(result.formatted);
+                });
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
                 editor.setScrollTop(top);
             });
         }
         else {
             parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then(function (res) {
-                editor.setTextInBufferRange(selection, res.formatted);
+                editor.transact(function () {
+                    editor.setTextInBufferRange(selection, res.formatted);
+                });
             });
         }
     });
@@ -81,10 +84,10 @@ function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
     });
-    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing', function (e) {
-        documentationView.docView.hide();
-        documentationView.docView.autoPosition();
-        documentationView.testDocumentationView();
+    atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
+        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
+            console.log(res.text.length);
+        });
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {
@@ -94,14 +97,17 @@ function registerCommands() {
             }
             renameView.panelView.renameThis({
                 text: res.displayName,
-                onCancel: function () {
-                },
+                onCancel: function () { },
                 onCommit: function (newText) {
-                    atomUtils.getEditorsForAllPaths(res.locations.map(function (l) { return l.filePath; })).then(function (editorMap) {
-                        res.locations.reverse().forEach(function (location) {
-                            var editor = editorMap[location.filePath];
-                            var range = atomUtils.getRangeForTextSpan(editor, location.textSpan);
-                            editor.setTextInBufferRange(range, newText);
+                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations)).then(function (editorMap) {
+                        Object.keys(res.locations).forEach(function (filePath) {
+                            var editor = editorMap[filePath];
+                            editor.transact(function () {
+                                res.locations[filePath].forEach(function (textSpan) {
+                                    var range = atomUtils.getRangeForTextSpan(editor, textSpan);
+                                    editor.setTextInBufferRange(range, newText);
+                                });
+                            });
                         });
                     });
                 }

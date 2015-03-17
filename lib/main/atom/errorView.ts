@@ -22,7 +22,13 @@ var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
 
 export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
-    else filePathErrors.setValue(filePath, errorsForFile);
+    else {
+        // Currently we are limiting errors 
+        // To many errors crashes our display
+        if (errorsForFile.length > 50) errorsForFile = errorsForFile.slice(0, 50);
+        
+        filePathErrors.setValue(filePath, errorsForFile)
+    };
 
     // TODO: this needs to be optimized at some point
     mainPanelView.panelView.clearError();
@@ -51,11 +57,11 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
 
 export function showEmittedMessage(output: project.EmitOutput) {
     if (output.success) {
-        var message = 'TS emit succeeded';
-        atomUtils.quickNotify(message);
+        var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
+        atomUtils.quickNotifySuccess(message);
     } else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     } else {
-        atom.notifications.addWarning('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
+        atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
     }
 }

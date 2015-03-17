@@ -26,7 +26,21 @@ declare module 'escape-html' {
 }
 
 
-declare module 'atom-space-pen-views'{
+declare module 'atom-space-pen-views' {
     import atom = require('atom');
-    export class SelectListView extends atom.SelectListView{}
+    export class SelectListView extends atom.SelectListView { }
+}
+
+/** https://github.com/paulmillr/chokidar */
+declare module 'chokidar' {
+    export interface Watcher {
+        on: (event: string, callback: (path: string) => any) => any;
+    }
+
+    export function watch(path, options?: any): Watcher;
+}
+
+declare module 'basarat-text-buffer'{
+    var options;
+    export = options;
 }

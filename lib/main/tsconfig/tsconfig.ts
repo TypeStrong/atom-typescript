@@ -72,21 +72,24 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    formatCodeOptions?: formatting.FormatCodeOptions;                  // optional: formatting options
+    formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
+    compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
 
 // Main configuration
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
-    format: ts.FormatCodeOptions;
+    filesGlob?: string[];
+    formatCodeOptions: ts.FormatCodeOptions;
+    compileOnSave: boolean;
 }
 
 ///////// FOR USE WITH THE API /////////////
 
 export interface TypeScriptProjectFileDetails {
     /** The path to the project file. This acts as the baseDIR */
-    projectFileDirectory: string; 
+    projectFileDirectory: string;
     /** The actual path of the project file (including tsconfig.json) */
     projectFilePath: string;
     project: TypeScriptProjectSpecification;
@@ -233,6 +236,20 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
     return jsonOptions;
 }
 
+export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
+    var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+    return {
+        projectFileDirectory: dir,
+        projectFilePath: dir + '/' + projectFileName,
+        project: {
+            compilerOptions: defaults,
+            files: [srcFile],
+            formatCodeOptions: formatting.defaultFormatCodeOptions(),
+            compileOnSave: true
+        }
+    };
+}
+
 /** Given an src (source file or directory) goes up the directory tree to find the project specifications.
  * Use this to bootstrap the UI for what project the user might want to work on.
  * Note: Definition files (.d.ts) are considered thier own project
@@ -245,35 +262,15 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
 
-    // If we have a .d.ts file then it is its own project and return
-    if (dir !== pathOrSrcFile) { // Not a directory
-        if (endsWith(pathOrSrcFile.toLowerCase(), '.d.ts')) {
-            return {
-                projectFileDirectory: dir,
-                projectFilePath: dir + '/' + projectFileName,
-                project: {
-                    compilerOptions: defaults,
-                    files: [pathOrSrcFile],
-                    format: formatting.defaultFormatCodeOptions()
-                },
-            }
-        }
-    }
-
     // Keep going up till we find the project file
     var projectFile = '';
-    while (fs.existsSync(dir)) { // while directory exists
-
-        var potentialProjectFile = dir + '/' + projectFileName;
-        if (fs.existsSync(potentialProjectFile)) { // found it
-            projectFile = potentialProjectFile;
-            break;
-        }
-        else { // go up
-            var before = dir;
-            dir = path.dirname(dir);
-            // At root:
-            if (dir == before) throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
+    try {
+        projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
+    }
+    catch (e) {
+        let err: Error = e;
+        if (err.message == "not found") {
+            throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
         }
     }
     projectFile = path.normalize(projectFile);
@@ -324,10 +321,12 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files,
-        format: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        filesGlob: projectSpec.filesGlob,
+        formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave
     };
-    
-    // Validate the raw compiler options before converting them to TS compiler options 
+
+    // Validate the raw compiler options before converting them to TS compiler options
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
         throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
@@ -335,7 +334,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage }
             );
     }
-    
+
     // Convert the raw options to TS options
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
@@ -415,14 +414,28 @@ function increaseProjectForReferenceAndImports(files: string[]) {
                 dir = path.dirname(file);
 
             referenced.push(
-                preProcessedFileInfo.referencedFiles.map(fileReference => path.resolve(dir, fileReference.filename))
+                preProcessedFileInfo.referencedFiles.map(fileReference => {
+                    // We assume reference paths are always relative
+                    var file = path.resolve(dir, fileReference.fileName);
+                    // Try all three, by itself, .ts, .d.ts
+                    if (fs.existsSync(file)) {
+                        return file;
+                    }
+                    if (fs.existsSync(file + '.ts')) {
+                        return file + '.ts';
+                    }
+                    if (fs.existsSync(file + '.d.ts')) {
+                        return file + '.d.ts';
+                    }
+                    return null;
+                }).filter(file=> !!file)
                     .concat(
                     preProcessedFileInfo.importedFiles
-                        .filter((fileReference) => pathIsRelative(fileReference.filename))
+                        .filter((fileReference) => pathIsRelative(fileReference.fileName))
                         .map(fileReference => {
-                        var file = path.resolve(dir, fileReference.filename + '.ts');
+                        var file = path.resolve(dir, fileReference.fileName + '.ts');
                         if (!fs.existsSync(file)) {
-                            file = path.resolve(dir, fileReference.filename + '.d.ts');
+                            file = path.resolve(dir, fileReference.fileName + '.d.ts');
                         }
                         return file;
                     })
@@ -481,7 +494,7 @@ function selectMany<T>(arr: T[][]): T[] {
     return result;
 }
 
-function endsWith(str: string, suffix: string): boolean {
+export function endsWith(str: string, suffix: string): boolean {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
@@ -507,4 +520,21 @@ export function removeTrailingSlash(filePath: string) {
     if (!filePath) return filePath;
     if (endsWith(filePath, '/')) return filePath.substr(0, filePath.length - 1);
     return filePath;
+}
+
+/** returns the path if found or throws an error "not found" if not found */
+export function travelUpTheDirectoryTreeTillYouFindFile(dir: string, fileName: string): string {
+    while (fs.existsSync(dir)) { // while directory exists
+
+        var potentialFile = dir + '/' + fileName;
+        if (fs.existsSync(potentialFile)) { // found it
+            return potentialFile;
+        }
+        else { // go up
+            var before = dir;
+            dir = path.dirname(dir);
+            // At root:
+            if (dir == before) throw new Error("not found");
+        }
+    }
 }

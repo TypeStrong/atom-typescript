@@ -28,7 +28,7 @@ function commandForTypeScript(e) {
 export function registerCommands() {
 
     // Setup custom commands NOTE: these need to be added to the keymaps
-    atom.commands.add('atom-text-editor', 'typescript:format-code',(e) => {
+    atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
         if (!commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
@@ -42,18 +42,22 @@ export function registerCommands() {
                 if (result.formatted == currentText) return;
 
                 var top = editor.getScrollTop();
-                editor.setText(result.formatted);
+                editor.transact(()=>{
+                    editor.setText(result.formatted);
+                });
                 editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
                 editor.setScrollTop(top);
             });
         } else {
             parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
-                editor.setTextInBufferRange(selection, res.formatted);
+                editor.transact(()=>{
+                    editor.setTextInBufferRange(selection, res.formatted);
+                });
             });
 
         }
     });
-    atom.commands.add('atom-workspace', 'typescript:build',(e) => {
+    atom.commands.add('atom-workspace', 'typescript:build', (e) => {
         if (!commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
@@ -97,23 +101,28 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
 
     var theContextView: contextView.ContextView;
-    atom.commands.add('atom-text-editor', 'typescript:context-actions',(e) => {
-        if(!theContextView) theContextView = new contextView.ContextView();
+    atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
+        if (!theContextView) theContextView = new contextView.ContextView();
         theContextView.show();
         atom.notifications.addSuccess('Context options coming soon!');
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:autocomplete',(e) => {
+    atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
         autoCompleteProvider.triggerAutocompletePlus();
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:here-for-development-testing',(e) => {
-        documentationView.docView.hide();
-        documentationView.docView.autoPosition();
-        documentationView.testDocumentationView();
+    atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', (e) => {
+        // documentationView.docView.hide();
+        // documentationView.docView.autoPosition();
+        // documentationView.testDocumentationView();
+        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
+            .then((res) => {
+                console.log(res.text.length);
+                // console.log(JSON.stringify({txt:res.text}))
+            });
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:rename-variable',(e) => {
+    atom.commands.add('atom-text-editor', 'typescript:rename-variable', (e) => {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
             if (!res.canRename) {
                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
@@ -127,13 +136,16 @@ export function registerCommands() {
 
                     // if file is open change in buffer
                     // otherwise open the file and change the buffer range
-                    atomUtils.getEditorsForAllPaths(res.locations.map(l=> l.filePath))
+                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
                         .then((editorMap) => {
-                        // Reverse as we want to make the bottom changes first
-                        res.locations.reverse().forEach((location) => {
-                            var editor = editorMap[location.filePath];
-                            var range = atomUtils.getRangeForTextSpan(editor, location.textSpan);
-                            editor.setTextInBufferRange(range, newText);
+                        Object.keys(res.locations).forEach((filePath) => {
+                            var editor = editorMap[filePath];
+                            editor.transact(() => {
+                                res.locations[filePath].forEach((textSpan) => {
+                                    var range = atomUtils.getRangeForTextSpan(editor, textSpan);
+                                    editor.setTextInBufferRange(range, newText);
+                                });
+                            })
                         });
                     });
                 }

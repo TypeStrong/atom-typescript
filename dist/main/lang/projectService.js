@@ -6,6 +6,7 @@ var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
 var project = require('./project');
 var Project = project.Project;
+var languageServiceHost = project.languageServiceHost;
 var resolve = Promise.resolve.bind(Promise);
 var queryParent = require('../../worker/queryParent');
 var child;
@@ -13,13 +14,18 @@ function fixChild(childInjected) {
     child = childInjected;
     queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
     queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
-    queryParent.setProjectFileParsedResult = child.sendToIpc(queryParent.setProjectFileParsedResult);
+    queryParent.getOpenEditorPaths = child.sendToIpc(queryParent.getOpenEditorPaths);
+    queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
+    queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
 }
 exports.fixChild = fixChild;
 var projectByProjectFilePath = {};
 var projectByFilePath = {};
 var watchingProjectFile = {};
 function watchProjectFileIfNotDoingItAlready(projectFilePath) {
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
     if (watchingProjectFile[projectFilePath])
         return;
     watchingProjectFile[projectFilePath] = true;
@@ -36,10 +42,41 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
             cacheAndCreateProject(projectFile);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         }
         catch (ex) {
         }
+    });
+}
+var chokidar = require('chokidar');
+var watchingTheFilesInTheProject = {};
+function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
+    var projectFilePath = projectFile.projectFilePath;
+    if (!fs.existsSync(projectFilePath)) {
+        return;
+    }
+    if (watchingTheFilesInTheProject[projectFilePath])
+        return;
+    watchingTheFilesInTheProject[projectFilePath] = true;
+    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
+    watcher.on('add', function () {
+    });
+    watcher.on('unlink', function (filePath) {
+    });
+    watcher.on('change', function (filePath) {
+        filePath = tsconfig.consistentPath(filePath);
+        queryParent.getOpenEditorPaths({}).then(function (res) {
+            var openPaths = res.filePaths;
+            if (openPaths.some(function (x) { return x == filePath; })) {
+                return;
+            }
+            var project = projectByFilePath[filePath];
+            if (!project) {
+                return;
+            }
+            var contents = fs.readFileSync(filePath).toString();
+            project.languageServiceHost.updateScript(filePath, contents);
+        });
     });
 }
 function cacheAndCreateProject(projectFile) {
@@ -47,47 +84,58 @@ function cacheAndCreateProject(projectFile) {
     projectFile.project.files.forEach(function (file) { return projectByFilePath[file] = project; });
     queryParent.getUpdatedTextForUnsavedEditors({}).then(function (resp) {
         resp.editors.forEach(function (e) {
+            consistentPath(e);
             project.languageServiceHost.updateScript(e.filePath, e.text);
         });
     });
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
+    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
     return project;
 }
 function getOrCreateProjectFile(filePath) {
     try {
+        if (path.dirname(filePath) == path.dirname(languageServiceHost.defaultLibFile)) {
+            return tsconfig.getDefaultProject(filePath);
+        }
         var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
+        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
     }
     catch (ex) {
         var err = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
-            var projectFile = tsconfig.createProjectRootSync(filePath);
-            queryParent.setProjectFileParsedResult({ projectFilePath: projectFile.projectFilePath, error: null });
-            return projectFile;
+            if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
+                return tsconfig.getDefaultProject(filePath);
+            }
+            else {
+                var projectFile = tsconfig.createProjectRootSync(filePath);
+                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
+                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+                return projectFile;
+            }
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var invalidJSONErrorDetails = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidJSONErrorDetails.projectFilePath,
+                var details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(invalidJSONErrorDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
             }
             if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var invalidOptionDetails = ex.details;
-                queryParent.setProjectFileParsedResult({
-                    projectFilePath: invalidOptionDetails.projectFilePath,
+                var _details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: _details.projectFilePath,
                     error: {
                         message: ex.message,
-                        details: ex.details
+                        _details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(invalidOptionDetails.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(_details.projectFilePath);
             }
             throw ex;
         }
@@ -106,9 +154,14 @@ function getOrCreateProject(filePath) {
 }
 function textSpan(span) {
     return {
-        start: span.start(),
-        length: span.length()
+        start: span.start,
+        length: span.length
     };
+}
+function consistentPath(query) {
+    if (!query.filePath)
+        return;
+    query.filePath = tsconfig.consistentPath(query.filePath);
 }
 function echo(data) {
     return queryParent.echoNumWithModification({ num: data.num }).then(function (resp) {
@@ -118,6 +171,7 @@ function echo(data) {
 }
 exports.echo = echo;
 function quickInfo(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info)
@@ -131,19 +185,24 @@ function quickInfo(query) {
 }
 exports.quickInfo = quickInfo;
 function build(query) {
+    consistentPath(query);
     return resolve({
         outputs: getOrCreateProject(query.filePath).build()
     });
 }
 exports.build = build;
 function errorsForFileFiltered(query) {
+    consistentPath(query);
     var fileName = path.basename(query.filePath);
-    return errorsForFile({ filePath: query.filePath }).then(function (resp) { return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) }; });
+    return errorsForFile({ filePath: query.filePath }).then(function (resp) {
+        return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
+    });
 }
 exports.errorsForFileFiltered = errorsForFileFiltered;
 var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
 var prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };
 function getCompletionsAtPosition(query) {
+    consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
@@ -184,6 +243,7 @@ function getCompletionsAtPosition(query) {
 }
 exports.getCompletionsAtPosition = getCompletionsAtPosition;
 function getSignatureHelps(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
@@ -192,20 +252,24 @@ function getSignatureHelps(query) {
 }
 exports.getSignatureHelps = getSignatureHelps;
 function emitFile(query) {
+    consistentPath(query);
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 exports.emitFile = emitFile;
 function formatDocument(query) {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve(prog.formatDocument(query.filePath, query.cursor));
 }
 exports.formatDocument = formatDocument;
 function formatDocumentRange(query) {
+    consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
     return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
 }
 exports.formatDocumentRange = formatDocumentRange;
 function getDefinitionsAtPosition(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
@@ -214,7 +278,7 @@ function getDefinitionsAtPosition(query) {
     return resolve({
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(function (d) {
-            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start());
+            var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start);
             return {
                 filePath: d.fileName,
                 position: pos
@@ -224,11 +288,19 @@ function getDefinitionsAtPosition(query) {
 }
 exports.getDefinitionsAtPosition = getDefinitionsAtPosition;
 function updateText(query) {
+    consistentPath(query);
     getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
     return resolve({});
 }
 exports.updateText = updateText;
+function editText(query) {
+    consistentPath(query);
+    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.minChar, query.limChar, query.newText);
+    return resolve({});
+}
+exports.editText = editText;
 function errorsForFile(query) {
+    consistentPath(query);
     var program = getOrCreateProject(query.filePath);
     var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
     if (diagnostics.length === 0) {
@@ -238,15 +310,16 @@ function errorsForFile(query) {
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var findInStrings = false, findInComments = false;
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
     if (info && info.canRename) {
-        var locations = project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments).map(function (loc) {
-            return {
-                textSpan: textSpan(loc.textSpan),
-                filePath: loc.fileName
-            };
+        var locations = {};
+        project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments).forEach(function (loc) {
+            if (!locations[loc.fileName])
+                locations[loc.fileName] = [];
+            locations[loc.fileName].unshift(textSpan(loc.textSpan));
         });
         return resolve({
             canRename: true,
@@ -271,8 +344,8 @@ function filePathWithoutExtension(query) {
     return path.dirname(query) + '/' + base;
 }
 function getRelativePathsInProject(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    query.filePath = tsconfig.consistentPath(query.filePath);
     var sourceDir = path.dirname(query.filePath);
     var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
     var files = filePaths.map(function (p) {
@@ -293,9 +366,22 @@ function getRelativePathsInProject(query) {
 }
 exports.getRelativePathsInProject = getRelativePathsInProject;
 function getIndentationAtPosition(query) {
+    consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.format);
+    var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
     return resolve({ indent: indent });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;
+function debugLanguageServiceHostVersion(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
+}
+exports.debugLanguageServiceHostVersion = debugLanguageServiceHostVersion;
+function getProjectFileDetails(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve(project.projectFile);
+}
+exports.getProjectFileDetails = getProjectFileDetails;
 //# sourceMappingURL=projectService.js.map

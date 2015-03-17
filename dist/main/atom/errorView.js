@@ -11,8 +11,12 @@ var filePathErrors = new utils.Dict();
 exports.setErrors = function (filePath, errorsForFile) {
     if (!errorsForFile.length)
         filePathErrors.clearValue(filePath);
-    else
+    else {
+        if (errorsForFile.length > 50)
+            errorsForFile = errorsForFile.slice(0, 50);
         filePathErrors.setValue(filePath, errorsForFile);
+    }
+    ;
     mainPanelView.panelView.clearError();
     var fileErrorCount = filePathErrors.keys().length;
     if (!fileErrorCount) {
@@ -36,14 +40,14 @@ exports.setErrors = function (filePath, errorsForFile) {
 };
 function showEmittedMessage(output) {
     if (output.success) {
-        var message = 'TS emit succeeded';
-        atomUtils.quickNotify(message);
+        var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
+        atomUtils.quickNotifySuccess(message);
     }
     else if (output.emitError) {
         atom.notifications.addError('TS Emit Failed');
     }
     else {
-        atom.notifications.addWarning('Compile failed but emit succeeded:<br/>' + output.outputFiles.join('<br/>'));
+        atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
     }
 }
 exports.showEmittedMessage = showEmittedMessage;

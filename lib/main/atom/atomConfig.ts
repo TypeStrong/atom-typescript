@@ -13,18 +13,12 @@ function getConfig<T>(name: string): T {
 
 class Config {
     schema = {
-        compileOnSave: {
-            title: 'Compile on save',
-            type: 'boolean',
-            default: true
-        },
         debugAtomTs: {
             title: 'Debug: Atom-TypeScript. Please do not use.',
             type: 'boolean',
             default: false
         }
     }
-    get compileOnSave() { return getConfig<boolean>('compileOnSave') }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
     get maxSuggestions(): number { return atom.config.get('autocomplete-plus.maxSuggestions') }
 }

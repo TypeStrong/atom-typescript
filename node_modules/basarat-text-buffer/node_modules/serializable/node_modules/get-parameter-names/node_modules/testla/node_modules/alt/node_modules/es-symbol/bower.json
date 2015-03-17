@@ -1,0 +1,40 @@
+{
+  "name": "es-symbol",
+  "version": "1.0.1",
+  "homepage": "https://github.com/goatslacker/es-symbol",
+  "authors": [
+    "Josh Perez <josh@goatslacker.com>"
+  ],
+  "description": "A spec-compliant as much as it could be, small, and tested ES6 Symbol implementation.",
+  "main": "dist/symbol.js",
+  "devDependencies": {
+    "6to5": "^3.3.9",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.5"
+  },
+  "keywords": [
+    "es6",
+    "symbol",
+    "polyfill",
+    "es2015",
+    "private",
+    "objects",
+    "harmony",
+    "ecmascript",
+    "javascript",
+    "property",
+    "esnext"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "coverage-test.js",
+    "coverage",
+    "TODO"
+  ]
+}

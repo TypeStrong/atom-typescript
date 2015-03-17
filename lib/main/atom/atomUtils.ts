@@ -76,9 +76,16 @@ export function getTypeScriptEditorsWithPaths() {
         .filter(editor=> (path.extname(editor.getPath()) === '.ts'));
 }
 
-export function quickNotify(htmlMessage: string) {
+export function quickNotifySuccess(htmlMessage: string) {
     var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
     setTimeout(() => {
         notification.dismiss()
-    }, 600);
+    }, 800);
+}
+
+export function quickNotifyWarning(htmlMessage: string) {
+    var notification = atom.notifications.addWarning(htmlMessage, { dismissable: true });
+    setTimeout(() => {
+        notification.dismiss()
+    }, 800);
 }

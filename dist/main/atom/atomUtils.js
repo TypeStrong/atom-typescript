@@ -61,11 +61,18 @@ function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getEditors().filter(function (editor) { return !!editor.getPath(); }).filter(function (editor) { return (path.extname(editor.getPath()) === '.ts'); });
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
-function quickNotify(htmlMessage) {
+function quickNotifySuccess(htmlMessage) {
     var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
     setTimeout(function () {
         notification.dismiss();
-    }, 600);
+    }, 800);
 }
-exports.quickNotify = quickNotify;
+exports.quickNotifySuccess = quickNotifySuccess;
+function quickNotifyWarning(htmlMessage) {
+    var notification = atom.notifications.addWarning(htmlMessage, { dismissable: true });
+    setTimeout(function () {
+        notification.dismiss();
+    }, 800);
+}
+exports.quickNotifyWarning = quickNotifyWarning;
 //# sourceMappingURL=atomUtils.js.map

@@ -20,7 +20,7 @@ function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
-var tsSnipPrefixLookup = {};
+var tsSnipPrefixLookup = Object.create(null);
 function loadSnippets() {
     var confPath = atom.getConfigDirPath();
     CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, snippetsRoot) {
@@ -74,12 +74,12 @@ exports.provider = {
         }
         else {
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
-            var promisedSuggestions = parent.updateText({ filePath: filePath, text: options.editor.getText() }).then(function () { return parent.getCompletionsAtPosition({
+            var promisedSuggestions = parent.getCompletionsAtPosition({
                 filePath: filePath,
                 position: position,
                 prefix: options.prefix,
                 maxSuggestions: atomConfig.maxSuggestions
-            }); }).then(function (resp) {
+            }).then(function (resp) {
                 var completionList = resp.completions;
                 var suggestions = completionList.map(function (c) {
                     return {
@@ -89,12 +89,12 @@ exports.provider = {
                     };
                 });
                 if (tsSnipPrefixLookup[options.prefix]) {
-                    suggestions.unshift({
-                        text: null,
+                    var suggestion = {
                         snippet: tsSnipPrefixLookup[options.prefix].body,
                         replacementPrefix: options.prefix,
                         rightLabelHTML: "snippet: " + options.prefix,
-                    });
+                    };
+                    suggestions.unshift(suggestion);
                 }
                 return suggestions;
             });
@@ -106,14 +106,10 @@ exports.provider = {
             options.editor.moveToBeginningOfLine();
             options.editor.selectToEndOfLine();
             if (options.suggestion.atomTS_IsReference)
-                options.editor.replaceSelectedText(null, function () {
-                    return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>";
-                });
+                options.editor.replaceSelectedText(null, function () { return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>"; });
             if (options.suggestion.atomTS_IsImport) {
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function () {
-                    return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');";
-                });
+                options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');"; });
             }
             options.editor.moveToEndOfLine();
         }

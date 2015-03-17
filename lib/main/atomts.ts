@@ -3,6 +3,7 @@
 
 import path = require('path');
 import fs = require('fs');
+import os = require('os');
 
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
@@ -111,6 +112,13 @@ function readyToActivate() {
                 errorView.start();
                 debugAtomTs.runDebugCode({ filePath, editor });
 
+                // Set errors in project per file
+                if(onDisk){
+                    parent.updateText({ filePath: filePath, text: editor.getText() })
+                        .then(() => parent.errorsForFile({ filePath: filePath }))
+                        .then((resp) => errorView.setErrors(filePath, resp.errors));
+                }
+
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
@@ -123,12 +131,8 @@ function readyToActivate() {
                         return;
                     }
 
-                    var text = editor.getText();
-
-                    // Update the file in the worker
-                    parent.updateText({ filePath: filePath, text: text })
                     // Set errors in project per file
-                        .then(() => parent.errorsForFile({ filePath: filePath }))
+                    parent.errorsForFile({ filePath: filePath })
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // TODO: provide function completions
@@ -142,8 +146,38 @@ function readyToActivate() {
 
                 });
 
-                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.getBuffer()).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
-                    // TODO: use this for faster language service host
+                var buffer = editor.buffer;
+                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
+
+                    //// For debugging
+                    // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
+                    //     buffer.characterIndexForPosition(diff.newRange.start), buffer.characterIndexForPosition(diff.newRange.end), diff.newText);
+                    //// Examples
+                    //// 20 20 "aaaa" 20 20 ""
+                    //// 23 23 "" 23 24 "a"
+                    //// 20 20 "" 20 24 "aaaa"
+
+                    // Atom only gives you an `\n` as diff but it sometimes inserts \r\n. Facepalm.
+                    var newText = diff.newText;
+                    // console.log(JSON.stringify({txt:newText}));
+                    // This works reliably
+                    newText = editor.buffer.getTextInRange(diff.newRange);
+
+                    // use this for faster language service host
+                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
+                    var limChar = minChar + diff.oldText.length;
+
+                    var promise = parent.editText({ filePath, minChar, limChar, newText });
+
+                    // For debugging the language service going out of sync
+                    // promise.then(()=>{
+                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveEditor().getPath()})
+                    //         .then((res)=>{
+                    //             console.log(JSON.stringify({real:editor.getText()}));
+                    //             console.log(JSON.stringify({lang:res.text}));
+                    //             console.log(editor.getText() == res.text);
+                    //         });
+                    // });
                 });
 
                 // Observe editors saving

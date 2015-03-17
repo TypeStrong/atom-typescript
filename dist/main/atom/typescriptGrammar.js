@@ -19,7 +19,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         });
         this.registry = registry;
         this.trailingWhiteSpaceLength = 0;
-        this.classifier = ts.createClassifier({ log: function () { return undefined; } });
+        this.classifier = ts.createClassifier();
         this.fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
         this.importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
     }
@@ -31,8 +31,8 @@ var TypeScriptSemanticGrammar = (function (_super) {
         else {
             this.trailingWhiteSpaceLength = 0;
         }
-        var finalLexState = firstLine ? ts.EndOfLineState.Start : ruleStack.length ? ruleStack[0] : ts.EndOfLineState.Start;
-        if (finalLexState !== ts.EndOfLineState.Start) {
+        var finalLexState = firstLine ? 0 : ruleStack.length ? ruleStack[0] : 0;
+        if (finalLexState !== 0) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
         if (line.match(this.fullTripleSlashReferencePathRegEx)) {
@@ -81,7 +81,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
     };
     TypeScriptSemanticGrammar.prototype.getTsTokensForLine = function (line, finalLexState) {
-        if (finalLexState === void 0) { finalLexState = ts.EndOfLineState.Start; }
+        if (finalLexState === void 0) { finalLexState = 0; }
         var output = this.classifier.getClassificationsForLine(line, finalLexState, true);
         var ruleStack = [output.finalLexState];
         var classificationResults = output.entries;
@@ -114,7 +114,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
 exports.TypeScriptSemanticGrammar = TypeScriptSemanticGrammar;
 function getAtomStyleForToken(token, str) {
     switch (token.classification) {
-        case TokenClass.Punctuation:
+        case 0:
             switch (str) {
                 case '{':
                     return "punctuation.section.scope.begin.ts";
@@ -127,7 +127,7 @@ function getAtomStyleForToken(token, str) {
                 default:
                     return 'punctuation';
             }
-        case TokenClass.Keyword:
+        case 1:
             switch (str) {
                 case 'static':
                 case 'public':
@@ -150,21 +150,19 @@ function getAtomStyleForToken(token, str) {
                 default:
                     return 'keyword';
             }
-        case TokenClass.Operator:
+        case 2:
             return 'keyword.operator.js';
-        case TokenClass.Comment:
+        case 3:
             return 'comment';
-        case TokenClass.Whitespace:
+        case 4:
             return 'whitespace';
-        case TokenClass.Identifier:
-            if (!str.trim())
-                return '';
+        case 5:
             return 'identifier';
-        case TokenClass.NumberLiteral:
+        case 6:
             return 'constant.numeric';
-        case TokenClass.StringLiteral:
+        case 7:
             return 'string';
-        case TokenClass.RegExpLiteral:
+        case 8:
             return 'constant.character';
         default:
             return null;

@@ -1,0 +1,3 @@
+module.exports = {
+  arg: require('../')
+}
