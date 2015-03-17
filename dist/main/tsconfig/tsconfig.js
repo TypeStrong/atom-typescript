@@ -264,7 +264,7 @@ function getProjectSync(pathOrSrcFile) {
             throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), {
                 glob: projectSpec.filesGlob,
                 projectFilePath: consistentPath(projectFile),
-                error: ex.message
+                errorMessage: ex.message
             });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);

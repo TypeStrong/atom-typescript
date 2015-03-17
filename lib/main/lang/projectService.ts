@@ -183,28 +183,40 @@ function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFil
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                let details: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
+                var details0: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
                 queryParent.setConfigurationError({
-                    projectFilePath: details.projectFilePath,
+                    projectFilePath: details0.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
                 // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
             }
             if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                let details: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
+                var details1: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
                 queryParent.setConfigurationError({
-                    projectFilePath: details.projectFilePath,
+                    projectFilePath: details1.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
                 // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
+            }
+            if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+                var details2: tsconfig.GET_PROJECT_GLOB_EXPAND_FAILED_Details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details2.projectFilePath,
+                    error: {
+                        message: ex.message,
+                        details: ex.details
+                    }
+                });
+                // Watch this project file to see if user fixes errors
+                watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
             }
             throw ex;
         }

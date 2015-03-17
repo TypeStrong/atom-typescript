@@ -117,6 +117,10 @@ export interface GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details {
     projectFilePath: string;
     errorMessage: string;
 }
+export interface GET_PROJECT_GLOB_EXPAND_FAILED_Details {
+    projectFilePath: string;
+    errorMessage: string;
+}
 function errorWithDetails<T>(error: Error, details: T): Error {
     error.details = details;
     return error;
@@ -305,9 +309,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
         }
         catch (ex) {
-            throw errorWithDetails(
+            throw errorWithDetails<GET_PROJECT_GLOB_EXPAND_FAILED_Details>(
                 new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED),
-                { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), error: ex.message });
+                { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {

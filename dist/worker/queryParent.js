@@ -77,6 +77,24 @@ function setConfigurationError(query) {
                 }
             ];
         }
+        if (query.error.message == tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+            var _details_1 = query.error.details;
+            errors = [
+                {
+                    filePath: _details_1.projectFilePath,
+                    startPos: {
+                        line: 0,
+                        col: 0
+                    },
+                    endPos: {
+                        line: 0,
+                        col: 0
+                    },
+                    message: "Failed to expand the glob for the project file",
+                    preview: _details_1.errorMessage,
+                }
+            ];
+        }
     }
     errorView.setErrors(query.projectFilePath, errors);
     return resolve({});

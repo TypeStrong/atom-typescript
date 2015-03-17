@@ -136,26 +136,37 @@ function getOrCreateProjectFile(filePath) {
         }
         else {
             if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var details = ex.details;
+                var details0 = ex.details;
                 queryParent.setConfigurationError({
-                    projectFilePath: details.projectFilePath,
+                    projectFilePath: details0.projectFilePath,
                     error: {
                         message: ex.message,
                         details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(details.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
             }
             if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var _details = ex.details;
+                var details1 = ex.details;
                 queryParent.setConfigurationError({
-                    projectFilePath: _details.projectFilePath,
+                    projectFilePath: details1.projectFilePath,
                     error: {
                         message: ex.message,
-                        _details: ex.details
+                        details: ex.details
                     }
                 });
-                watchProjectFileIfNotDoingItAlready(_details.projectFilePath);
+                watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
+            }
+            if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+                var details2 = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details2.projectFilePath,
+                    error: {
+                        message: ex.message,
+                        details: ex.details
+                    }
+                });
+                watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
             }
             throw ex;
         }

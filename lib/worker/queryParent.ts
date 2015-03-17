@@ -69,8 +69,19 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
                 }
             ]
         }
+        if (query.error.message == tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+            let details: tsconfig.GET_PROJECT_GLOB_EXPAND_FAILED_Details = query.error.details;
+            errors = [
+                {
+                    filePath: details.projectFilePath,
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
+                    message: "Failed to expand the glob for the project file",
+                    preview: details.errorMessage,
+                }
+            ]
+        }
     }
-
     errorView.setErrors(query.projectFilePath, errors);
     return resolve({});
 }
