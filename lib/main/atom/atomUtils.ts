@@ -89,3 +89,16 @@ export function quickNotifyWarning(htmlMessage: string) {
         notification.dismiss()
     }, 800);
 }
+
+type Location = { line: number; col: number };
+export interface CodeEdit {
+    start: Location;
+    end: Location;
+    newText: string;
+}
+export function formatCode(editor: AtomCore.IEditor, edits: CodeEdit[]) {
+    for (var i = edits.length - 1; i >= 0; i--) {
+        var edit = edits[i];
+        editor.setTextInBufferRange([[edit.start.line, edit.start.col], [edit.end.line, edit.end.col]], edit.newText);
+    }
+}

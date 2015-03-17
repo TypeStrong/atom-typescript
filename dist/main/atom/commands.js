@@ -22,26 +22,14 @@ function registerCommands() {
         var filePath = editor.getPath();
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
-            var cursorPosition = editor.getCursorBufferPosition();
-            var currentText = editor.getText();
-            var result = parent.formatDocument({
-                filePath: filePath,
-                cursor: {
-                    line: cursorPosition.row,
-                    col: cursorPosition.column
-                }
+            parent.formatDocument({
+                filePath: filePath
             }).then(function (result) {
-                if (result.formatted == currentText)
+                if (!result.edits.length)
                     return;
-                var top = editor.getScrollTop();
                 editor.transact(function () {
-                    editor.setText(result.formatted);
+                    atomUtils.formatCode(editor, result.edits);
                 });
-                editor.setCursorBufferPosition([
-                    result.cursor.line,
-                    result.cursor.col
-                ]);
-                editor.setScrollTop(top);
             });
         }
         else {
@@ -55,9 +43,11 @@ function registerCommands() {
                     line: selection.end.row,
                     col: selection.end.column
                 }
-            }).then(function (res) {
+            }).then(function (result) {
+                if (!result.edits.length)
+                    return;
                 editor.transact(function () {
-                    editor.setTextInBufferRange(selection, res.formatted);
+                    atomUtils.formatCode(editor, result.edits);
                 });
             });
         }

@@ -688,7 +688,7 @@ declare module AtomCore {
 		getSelectedBufferRanges():TextBuffer.IRange[];
 		getSelectedText():string;
 		getTextInBufferRange(range:TextBuffer.IRange):string;
-		setTextInBufferRange(range:TextBuffer.IRange, text:string):any;
+		setTextInBufferRange(range:TextBuffer.IRange | any[], text:string):any;
 		getCurrentParagraphBufferRange():TextBuffer.IRange;
 		getWordUnderCursor(options?:any):string;
 		moveCursorUp(lineCount?:number):void;

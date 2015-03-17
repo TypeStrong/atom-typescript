@@ -309,65 +309,43 @@ function emitFile(query) {
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 exports.emitFile = emitFile;
-function _formatCursor(cursor, changes) {
-    var cursorInsideChange = changes.filter(function (change) {
-        return (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor);
-    })[0];
-    if (cursorInsideChange) {
-        cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
-    }
-    var beforeCursorChanges = changes.filter(function (change) {
-        return change.span.start < cursor;
-    });
-    var netChange = 0;
-    beforeCursorChanges.forEach(function (change) {
-        return netChange = netChange - (change.span.length - change.newText.length);
-    });
-    return cursor + netChange;
-}
-function _formatCode(orig, changes) {
-    var result = orig;
-    for (var i = changes.length - 1; i >= 0; i--) {
-        var change = changes[i];
-        var head = result.slice(0, change.span.start);
-        var tail = result.slice(change.span.start + change.span.length);
-        result = head + change.newText + tail;
-    }
-    return result;
-}
-function _formatDocument(proj, filePath, cursor) {
+function _formatDocument(proj, filePath) {
     var textChanges = proj.languageService.getFormattingEditsForDocument(filePath, proj.projectFile.project.formatCodeOptions);
-    var formatted = _formatCode(proj.languageServiceHost.getScriptContent(filePath), textChanges);
-    var newCursor = _formatCursor(proj.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
-    return {
-        formatted: formatted,
-        cursor: proj.languageServiceHost.getPositionFromIndex(filePath, newCursor)
-    };
+    var edits = textChanges.map(function (change) {
+        return {
+            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
+            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
+            newText: change.newText
+        };
+    });
+    return edits;
 }
 function _formatDocumentRange(proj, filePath, start, end) {
     var st = proj.languageServiceHost.getIndexFromPosition(filePath, start);
     var ed = proj.languageServiceHost.getIndexFromPosition(filePath, end);
     var textChanges = proj.languageService.getFormattingEditsForRange(filePath, st, ed, proj.projectFile.project.formatCodeOptions);
-    textChanges.forEach(function (change) {
-        return change.span = {
-            start: change.span.start - st,
-            length: change.span.length
+    var edits = textChanges.map(function (change) {
+        return {
+            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
+            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
+            newText: change.newText
         };
     });
-    var formatted = _formatCode(proj.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
-    return formatted;
+    return edits;
 }
 function formatDocument(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
-    return resolve(_formatDocument(proj, query.filePath, query.cursor));
+    return resolve({
+        edits: _formatDocument(proj, query.filePath)
+    });
 }
 exports.formatDocument = formatDocument;
 function formatDocumentRange(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
     return resolve({
-        formatted: _formatDocumentRange(proj, query.filePath, query.start, query.end)
+        edits: _formatDocumentRange(proj, query.filePath, query.start, query.end)
     });
 }
 exports.formatDocumentRange = formatDocumentRange;

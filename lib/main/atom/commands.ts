@@ -25,6 +25,7 @@ function commandForTypeScript(e) {
     return true;
 }
 
+
 export function registerCommands() {
 
     // Setup custom commands NOTE: these need to be added to the keymaps
@@ -35,23 +36,17 @@ export function registerCommands() {
         var filePath = editor.getPath();
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
-            var cursorPosition = editor.getCursorBufferPosition();
-            var currentText = editor.getText();
-            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, col: cursorPosition.column } })
-                .then((result) => {
-                if (result.formatted == currentText) return;
-
-                var top = editor.getScrollTop();
-                editor.transact(()=>{
-                    editor.setText(result.formatted);
+            parent.formatDocument({ filePath: filePath }).then((result) => {
+                if (!result.edits.length) return;
+                editor.transact(() => {
+                    atomUtils.formatCode(editor, result.edits);
                 });
-                editor.setCursorBufferPosition([result.cursor.line, result.cursor.col]);
-                editor.setScrollTop(top);
             });
         } else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((res) => {
-                editor.transact(()=>{
-                    editor.setTextInBufferRange(selection, res.formatted);
+            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
+                if (!result.edits.length) return;
+                editor.transact(() => {
+                    atomUtils.formatCode(editor, result.edits);
                 });
             });
 
@@ -117,9 +112,9 @@ export function registerCommands() {
         // documentationView.testDocumentationView();
         parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
             .then((res) => {
-                console.log(res.text.length);
-                // console.log(JSON.stringify({txt:res.text}))
-            });
+            console.log(res.text.length);
+            // console.log(JSON.stringify({txt:res.text}))
+        });
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', (e) => {

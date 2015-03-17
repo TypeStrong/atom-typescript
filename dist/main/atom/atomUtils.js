@@ -92,4 +92,20 @@ function quickNotifyWarning(htmlMessage) {
     }, 800);
 }
 exports.quickNotifyWarning = quickNotifyWarning;
+function formatCode(editor, edits) {
+    for (var i = edits.length - 1; i >= 0; i--) {
+        var edit = edits[i];
+        editor.setTextInBufferRange([
+            [
+                edit.start.line,
+                edit.start.col
+            ],
+            [
+                edit.end.line,
+                edit.end.col
+            ]
+        ], edit.newText);
+    }
+}
+exports.formatCode = formatCode;
 //# sourceMappingURL=atomUtils.js.map
