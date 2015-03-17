@@ -72,54 +72,6 @@ export class Project {
             emitError: !emitDone
         };
     }
-
-    formatDocument(filePath: string, cursor: languageServiceHost.Position): { formatted: string; cursor: languageServiceHost.Position } {
-        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.formatCodeOptions);
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-
-        // Get new cursor based on new content
-        var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
-
-        return { formatted: formatted, cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
-    }
-
-    formatDocumentRange(filePath: string, start: languageServiceHost.Position, end: languageServiceHost.Position): string {
-        var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
-        var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
-        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.formatCodeOptions);
-
-        // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
-        textChanges.forEach((change) => change.span = { start: change.span.start - st, length: change.span.length });
-
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
-        return formatted;
-    }
-
-    // from https://github.com/Microsoft/TypeScript/issues/1651#issuecomment-69877863
-    private formatCode(orig: string, changes: ts.TextChange[]): string {
-        var result = orig;
-        for (var i = changes.length - 1; i >= 0; i--) {
-            var change = changes[i];
-            var head = result.slice(0, change.span.start);
-            var tail = result.slice(change.span.start + change.span.length);
-            result = head + change.newText + tail;
-        }
-        return result;
-    }
-
-    private formatCursor(cursor: number, changes: ts.TextChange[]): number {
-        // If cursor is inside a text change move it to the end of that text change
-        var cursorInsideChange = changes.filter((change) => (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor))[0];
-        if (cursorInsideChange) {
-            cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
-        }
-        // Get all text changes that are *before* the cursor and determine the net *addition / subtraction* and apply that to the cursor.
-        var beforeCursorChanges = changes.filter(change => change.span.start < cursor);
-        var netChange = 0;
-        beforeCursorChanges.forEach(change => netChange = netChange - (change.span.length - change.newText.length));
-
-        return cursor + netChange;
-    }
 }
 
 // TODO: move these interfaces *and* the associated functions out of "project" (and this file)

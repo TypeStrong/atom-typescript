@@ -411,8 +411,61 @@ export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
     return resolve(getOrCreateProject(query.filePath).emitFile(query.filePath));
 }
 
+
+
+type Location = languageServiceHost.Position;
+export interface CodeEdit {
+    start: Location;
+    end: Location;
+    newText: string;
+}
+function _formatCursor(cursor: number, changes: ts.TextChange[]): number {
+    // If cursor is inside a text change move it to the end of that text change
+    var cursorInsideChange = changes.filter((change) => (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor))[0];
+    if (cursorInsideChange) {
+        cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
+    }
+    // Get all text changes that are *before* the cursor and determine the net *addition / subtraction* and apply that to the cursor.
+    var beforeCursorChanges = changes.filter(change => change.span.start < cursor);
+    var netChange = 0;
+    beforeCursorChanges.forEach(change => netChange = netChange - (change.span.length - change.newText.length));
+
+    return cursor + netChange;
+}
+// from https://github.com/Microsoft/TypeScript/issues/1651#issuecomment-69877863
+function _formatCode(orig: string, changes: ts.TextChange[]): string {
+    var result = orig;
+    for (var i = changes.length - 1; i >= 0; i--) {
+        var change = changes[i];
+        var head = result.slice(0, change.span.start);
+        var tail = result.slice(change.span.start + change.span.length);
+        result = head + change.newText + tail;
+    }
+    return result;
+}
+function _formatDocument(proj: project.Project, filePath: string, cursor: languageServiceHost.Position): { formatted: string; cursor: languageServiceHost.Position } {
+    var textChanges = proj.languageService.getFormattingEditsForDocument(filePath, proj.projectFile.project.formatCodeOptions);
+    var formatted = _formatCode(proj.languageServiceHost.getScriptContent(filePath), textChanges);
+
+    // Get new cursor based on new content
+    var newCursor = _formatCursor(proj.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
+
+    return { formatted: formatted, cursor: proj.languageServiceHost.getPositionFromIndex(filePath, newCursor) };
+}
+function _formatDocumentRange(proj: project.Project, filePath: string, start: languageServiceHost.Position, end: languageServiceHost.Position): string {
+    var st = proj.languageServiceHost.getIndexFromPosition(filePath, start);
+    var ed = proj.languageServiceHost.getIndexFromPosition(filePath, end);
+    var textChanges = proj.languageService.getFormattingEditsForRange(filePath, st, ed, proj.projectFile.project.formatCodeOptions);
+
+    // Sadly ^ these changes are still relative to *start* of file. So lets fix that.
+    textChanges.forEach((change) => change.span = { start: change.span.start - st, length: change.span.length });
+
+    var formatted = _formatCode(proj.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
+    return formatted;
+}
+
 export interface FormatDocumentQuery extends FilePathQuery {
-    cursor: languageServiceHost.Position
+    cursor: Location;
 }
 export interface FormatDocumentResponse {
     formatted: string;
@@ -420,8 +473,8 @@ export interface FormatDocumentResponse {
 }
 export function formatDocument(query: FormatDocumentQuery): Promise<FormatDocumentResponse> {
     consistentPath(query);
-    var prog = getOrCreateProject(query.filePath);
-    return resolve(prog.formatDocument(query.filePath, query.cursor));
+    var proj = getOrCreateProject(query.filePath);
+    return resolve(_formatDocument(proj, query.filePath, query.cursor));
 }
 
 export interface FormatDocumentRangeQuery extends FilePathQuery {
@@ -431,8 +484,8 @@ export interface FormatDocumentRangeQuery extends FilePathQuery {
 export interface FormatDocumentRangeResponse { formatted: string; }
 export function formatDocumentRange(query: FormatDocumentRangeQuery): Promise<FormatDocumentRangeResponse> {
     consistentPath(query);
-    var prog = getOrCreateProject(query.filePath);
-    return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
+    var proj = getOrCreateProject(query.filePath);
+    return resolve({ formatted: _formatDocumentRange(proj, query.filePath, query.start, query.end) });
 }
 
 export interface GetDefinitionsAtPositionQuery extends FilePathPositionQuery { }

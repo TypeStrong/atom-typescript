@@ -61,54 +61,6 @@ var Project = (function () {
             }
         };
     };
-    Project.prototype.formatDocument = function (filePath, cursor) {
-        var textChanges = this.languageService.getFormattingEditsForDocument(filePath, this.projectFile.project.formatCodeOptions);
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath), textChanges);
-        var newCursor = this.formatCursor(this.languageServiceHost.getIndexFromPosition(filePath, cursor), textChanges);
-        return {
-            formatted: formatted,
-            cursor: this.languageServiceHost.getPositionFromIndex(filePath, newCursor)
-        };
-    };
-    Project.prototype.formatDocumentRange = function (filePath, start, end) {
-        var st = this.languageServiceHost.getIndexFromPosition(filePath, start);
-        var ed = this.languageServiceHost.getIndexFromPosition(filePath, end);
-        var textChanges = this.languageService.getFormattingEditsForRange(filePath, st, ed, this.projectFile.project.formatCodeOptions);
-        textChanges.forEach(function (change) {
-            return change.span = {
-                start: change.span.start - st,
-                length: change.span.length
-            };
-        });
-        var formatted = this.formatCode(this.languageServiceHost.getScriptContent(filePath).substring(st, ed), textChanges);
-        return formatted;
-    };
-    Project.prototype.formatCode = function (orig, changes) {
-        var result = orig;
-        for (var i = changes.length - 1; i >= 0; i--) {
-            var change = changes[i];
-            var head = result.slice(0, change.span.start);
-            var tail = result.slice(change.span.start + change.span.length);
-            result = head + change.newText + tail;
-        }
-        return result;
-    };
-    Project.prototype.formatCursor = function (cursor, changes) {
-        var cursorInsideChange = changes.filter(function (change) {
-            return (change.span.start < cursor) && ((change.span.start + change.span.length) > cursor);
-        })[0];
-        if (cursorInsideChange) {
-            cursor = cursorInsideChange.span.start + cursorInsideChange.span.length;
-        }
-        var beforeCursorChanges = changes.filter(function (change) {
-            return change.span.start < cursor;
-        });
-        var netChange = 0;
-        beforeCursorChanges.forEach(function (change) {
-            return netChange = netChange - (change.span.length - change.newText.length);
-        });
-        return cursor + netChange;
-    };
     return Project;
 })();
 exports.Project = Project;
