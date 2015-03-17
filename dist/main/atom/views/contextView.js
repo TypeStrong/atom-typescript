@@ -5,7 +5,17 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var sp = require('atom-space-pen-views');
-var items = [{ title: 'Toggle TypeScript Panel' }, { title: 'Tab: Errors in Open Files' }, { title: 'Tab: Last Build Output' }];
+var items = [
+    {
+        title: 'Toggle TypeScript Panel'
+    },
+    {
+        title: 'Tab: Errors in Open Files'
+    },
+    {
+        title: 'Tab: Last Build Output'
+    }
+];
 var ContextView = (function (_super) {
     __extends(ContextView, _super);
     function ContextView() {
@@ -19,7 +29,9 @@ var ContextView = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    ContextView.prototype.setItems = function (items) { _super.prototype.setItems.call(this, items); };
+    ContextView.prototype.setItems = function (items) {
+        _super.prototype.setItems.call(this, items);
+    };
     ContextView.prototype.viewForItem = function (item) {
         return "<li>" + item.title + "</li>";
     };
@@ -27,11 +39,15 @@ var ContextView = (function (_super) {
         console.log(item);
         this.hide();
     };
-    ContextView.prototype.getFilterKey = function () { return 'title'; };
+    ContextView.prototype.getFilterKey = function () {
+        return 'title';
+    };
     ContextView.prototype.show = function () {
         this.storeFocusedElement();
         if (!this.panel)
-            this.panel = atom.workspace.addModalPanel({ item: this });
+            this.panel = atom.workspace.addModalPanel({
+                item: this
+            });
         this.panel.show();
         this.setItems(items);
         this.focusFilterEditor();

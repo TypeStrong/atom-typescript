@@ -15,7 +15,9 @@ var TypeScriptSemanticGrammar = (function (_super) {
             name: "TypeScript",
             scopeName: "source.ts",
             patterns: {},
-            fileTypes: ['ts']
+            fileTypes: [
+                'ts'
+            ]
         });
         this.registry = registry;
         this.trailingWhiteSpaceLength = 0;
@@ -59,10 +61,22 @@ var TypeScriptSemanticGrammar = (function (_super) {
             var startPosition = line.search(path);
             var endPosition = startPosition + path.length;
             var atomTokens = [];
-            atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));
-            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', 'reference.path.string']));
-            atomTokens.push(this.registry.createToken(line.substr(endPosition, line.length - endPosition), ['source.ts', 'keyword']));
-            return { tokens: atomTokens, ruleStack: [] };
+            atomTokens.push(this.registry.createToken(line.substr(0, startPosition), [
+                'source.ts',
+                'keyword'
+            ]));
+            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), [
+                'source.ts',
+                'reference.path.string'
+            ]));
+            atomTokens.push(this.registry.createToken(line.substr(endPosition, line.length - endPosition), [
+                'source.ts',
+                'keyword'
+            ]));
+            return {
+                tokens: atomTokens,
+                ruleStack: []
+            };
         }
         else {
             return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
@@ -83,19 +97,35 @@ var TypeScriptSemanticGrammar = (function (_super) {
     TypeScriptSemanticGrammar.prototype.getTsTokensForLine = function (line, finalLexState) {
         if (finalLexState === void 0) { finalLexState = 0; }
         var output = this.classifier.getClassificationsForLine(line, finalLexState, true);
-        var ruleStack = [output.finalLexState];
+        var ruleStack = [
+            output.finalLexState
+        ];
         var classificationResults = output.entries;
         if (!classificationResults.length)
-            return { tokens: [{ style: 'whitespace', str: '' }], ruleStack: ruleStack };
+            return {
+                tokens: [
+                    {
+                        style: 'whitespace',
+                        str: ''
+                    }
+                ],
+                ruleStack: ruleStack
+            };
         var totalLength = this.trailingWhiteSpaceLength;
         var tokens = classificationResults.map(function (info) {
             var tokenStartPosition = totalLength;
             var str = line.substr(tokenStartPosition, info.length);
             totalLength = totalLength + info.length;
             var style = getAtomStyleForToken(info, str);
-            return { style: style, str: str };
+            return {
+                style: style,
+                str: str
+            };
         });
-        return { tokens: tokens, ruleStack: ruleStack };
+        return {
+            tokens: tokens,
+            ruleStack: ruleStack
+        };
     };
     TypeScriptSemanticGrammar.prototype.getAtomTokensForLine = function (line, finalLexState) {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line, finalLexState);
@@ -104,10 +134,16 @@ var TypeScriptSemanticGrammar = (function (_super) {
     TypeScriptSemanticGrammar.prototype.convertTsTokensToAtomTokens = function (tsTokensWithRuleStack) {
         var _this = this;
         var tokens = tsTokensWithRuleStack.tokens.map(function (info) {
-            var atomToken = _this.registry.createToken(info.str, ["source.ts", info.style]);
+            var atomToken = _this.registry.createToken(info.str, [
+                "source.ts",
+                info.style
+            ]);
             return atomToken;
         });
-        return { tokens: tokens, ruleStack: tsTokensWithRuleStack.ruleStack };
+        return {
+            tokens: tokens,
+            ruleStack: tsTokensWithRuleStack.ruleStack
+        };
     };
     return TypeScriptSemanticGrammar;
 })(AtomTSBaseGrammar);

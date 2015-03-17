@@ -125,12 +125,18 @@ var Dict = (function () {
     Dict.prototype.setValue = function (key, item) {
         this.table[key] = item;
     };
-    Dict.prototype.getValue = function (key) { return this.table[key]; };
+    Dict.prototype.getValue = function (key) {
+        return this.table[key];
+    };
     Dict.prototype.clearValue = function (key) {
         delete this.table[key];
     };
-    Dict.prototype.clearAll = function () { this.table = Object.create(null); };
-    Dict.prototype.keys = function () { return Object.keys(this.table); };
+    Dict.prototype.clearAll = function () {
+        this.table = Object.create(null);
+    };
+    Dict.prototype.keys = function () {
+        return Object.keys(this.table);
+    };
     Dict.prototype.values = function () {
         var array = [];
         for (var key in this.table) {
@@ -157,7 +163,9 @@ function delayMilliseconds(milliseconds) {
 }
 exports.delayMilliseconds = delayMilliseconds;
 ;
-var now = function () { return new Date().getTime(); };
+var now = function () {
+    return new Date().getTime();
+};
 function debounce(func, milliseconds, immediate) {
     if (immediate === void 0) { immediate = false; }
     var timeout, args, context, timestamp, result;

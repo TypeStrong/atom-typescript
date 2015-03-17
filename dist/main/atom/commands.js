@@ -24,19 +24,38 @@ function registerCommands() {
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
             var currentText = editor.getText();
-            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } }).then(function (result) {
+            var result = parent.formatDocument({
+                filePath: filePath,
+                cursor: {
+                    line: cursorPosition.row,
+                    ch: cursorPosition.column
+                }
+            }).then(function (result) {
                 if (result.formatted == currentText)
                     return;
                 var top = editor.getScrollTop();
                 editor.transact(function () {
                     editor.setText(result.formatted);
                 });
-                editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
+                editor.setCursorBufferPosition([
+                    result.cursor.line,
+                    result.cursor.ch
+                ]);
                 editor.setScrollTop(top);
             });
         }
         else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then(function (res) {
+            parent.formatDocumentRange({
+                filePath: filePath,
+                start: {
+                    line: selection.start.row,
+                    ch: selection.start.column
+                },
+                end: {
+                    line: selection.end.row,
+                    ch: selection.end.column
+                }
+            }).then(function (res) {
                 editor.transact(function () {
                     editor.setTextInBufferRange(selection, res.formatted);
                 });
@@ -49,7 +68,9 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
         atom.notifications.addInfo('Building');
-        parent.build({ filePath: filePath }).then(function (resp) {
+        parent.build({
+            filePath: filePath
+        }).then(function (resp) {
             buildView.setBuildOutput(resp.outputs);
         });
     });
@@ -59,7 +80,10 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
         var position = atomUtils.getEditorPosition(editor);
-        parent.getDefinitionsAtPosition({ filePath: filePath, position: position }).then(function (res) {
+        parent.getDefinitionsAtPosition({
+            filePath: filePath,
+            position: position
+        }).then(function (res) {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
                 atom.notifications.addInfo('AtomTS: No definition found.');
@@ -85,7 +109,9 @@ function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
     atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
-        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
+        parent.debugLanguageServiceHostVersion({
+            filePath: atom.workspace.getActiveEditor().getPath()
+        }).then(function (res) {
             console.log(res.text.length);
         });
     });
@@ -97,7 +123,8 @@ function registerCommands() {
             }
             renameView.panelView.renameThis({
                 text: res.displayName,
-                onCancel: function () { },
+                onCancel: function () {
+                },
                 onCommit: function (newText) {
                     atomUtils.getEditorsForAllPaths(Object.keys(res.locations)).then(function (editorMap) {
                         Object.keys(res.locations).forEach(function (filePath) {

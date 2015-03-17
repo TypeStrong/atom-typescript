@@ -61,7 +61,10 @@ var LineMessageView = (function (_super) {
             });
         }
         else {
-            atom.workspace.getActiveEditor().cursors[0].setBufferPosition([this.options.line - 1, char]);
+            atom.workspace.getActiveEditor().cursors[0].setBufferPosition([
+                this.options.line - 1,
+                char
+            ]);
         }
     };
     LineMessageView.prototype.getSummary = function () {

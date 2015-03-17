@@ -43,8 +43,12 @@ var MainPanelView = (function (_super) {
                     style: 'cursor: pointer; color: rgb(0, 148, 255)',
                     click: 'toggle'
                 }, function () {
-                    _this.span({ class: "icon-microscope" });
-                    _this.span({ style: 'font-weight:bold' }, " TypeScript ");
+                    _this.span({
+                        class: "icon-microscope"
+                    });
+                    _this.span({
+                        style: 'font-weight:bold'
+                    }, " TypeScript ");
                 });
                 _this.div({
                     class: 'btn-group',
@@ -176,7 +180,11 @@ function attach() {
     if (exports.panelView)
         return;
     exports.panelView = new MainPanelView();
-    panel = atom.workspace.addBottomPanel({ item: exports.panelView, priority: 1000, visible: true });
+    panel = atom.workspace.addBottomPanel({
+        item: exports.panelView,
+        priority: 1000,
+        visible: true
+    });
 }
 exports.attach = attach;
 //# sourceMappingURL=mainPanelView.js.map

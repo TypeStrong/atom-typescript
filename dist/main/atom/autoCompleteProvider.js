@@ -48,10 +48,18 @@ exports.provider = {
             return Promise.resolve([]);
         if (!fs.existsSync(filePath))
             return Promise.resolve([]);
-        var pathMatchers = ['reference.path.string', 'require.path.string'];
+        var pathMatchers = [
+            'reference.path.string',
+            'require.path.string'
+        ];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
-        if (pathMatchers.some(function (p) { return lastScope === p; })) {
-            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix }).then(function (resp) {
+        if (pathMatchers.some(function (p) {
+            return lastScope === p;
+        })) {
+            return parent.getRelativePathsInProject({
+                filePath: filePath,
+                prefix: options.prefix
+            }).then(function (resp) {
                 return resp.files.map(function (file) {
                     var suggestion = {
                         text: file.relativePath,
@@ -106,10 +114,14 @@ exports.provider = {
             options.editor.moveToBeginningOfLine();
             options.editor.selectToEndOfLine();
             if (options.suggestion.atomTS_IsReference)
-                options.editor.replaceSelectedText(null, function () { return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>"; });
+                options.editor.replaceSelectedText(null, function () {
+                    return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>";
+                });
             if (options.suggestion.atomTS_IsImport) {
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');"; });
+                options.editor.replaceSelectedText(null, function () {
+                    return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');";
+                });
             }
             options.editor.moveToEndOfLine();
         }

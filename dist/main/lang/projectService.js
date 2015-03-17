@@ -29,20 +29,28 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
     if (watchingProjectFile[projectFilePath])
         return;
     watchingProjectFile[projectFilePath] = true;
-    fs.watch(projectFilePath, { persistent: false, recursive: false }, function () {
+    fs.watch(projectFilePath, {
+        persistent: false,
+        recursive: false
+    }, function () {
         if (!fs.existsSync(projectFilePath)) {
             var project = projectByProjectFilePath[projectFilePath];
             if (project) {
                 var files = project.projectFile.project.files;
                 delete projectByProjectFilePath[projectFilePath];
-                files.forEach(function (file) { return delete projectByFilePath[file]; });
+                files.forEach(function (file) {
+                    return delete projectByFilePath[file];
+                });
             }
             return;
         }
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
             cacheAndCreateProject(projectFile);
-            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+            queryParent.setConfigurationError({
+                projectFilePath: projectFile.projectFilePath,
+                error: null
+            });
         }
         catch (ex) {
         }
@@ -67,7 +75,9 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
         filePath = tsconfig.consistentPath(filePath);
         queryParent.getOpenEditorPaths({}).then(function (res) {
             var openPaths = res.filePaths;
-            if (openPaths.some(function (x) { return x == filePath; })) {
+            if (openPaths.some(function (x) {
+                return x == filePath;
+            })) {
                 return;
             }
             var project = projectByFilePath[filePath];
@@ -81,7 +91,9 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
 }
 function cacheAndCreateProject(projectFile) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
-    projectFile.project.files.forEach(function (file) { return projectByFilePath[file] = project; });
+    projectFile.project.files.forEach(function (file) {
+        return projectByFilePath[file] = project;
+    });
     queryParent.getUpdatedTextForUnsavedEditors({}).then(function (resp) {
         resp.editors.forEach(function (e) {
             consistentPath(e);
@@ -98,7 +110,10 @@ function getOrCreateProjectFile(filePath) {
             return tsconfig.getDefaultProject(filePath);
         }
         var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+        queryParent.setConfigurationError({
+            projectFilePath: projectFile.projectFilePath,
+            error: null
+        });
         return projectFile;
     }
     catch (ex) {
@@ -109,8 +124,13 @@ function getOrCreateProjectFile(filePath) {
             }
             else {
                 var projectFile = tsconfig.createProjectRootSync(filePath);
-                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+                queryParent.notifySuccess({
+                    message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath
+                });
+                queryParent.setConfigurationError({
+                    projectFilePath: projectFile.projectFilePath,
+                    error: null
+                });
                 return projectFile;
             }
         }
@@ -164,7 +184,9 @@ function consistentPath(query) {
     query.filePath = tsconfig.consistentPath(query.filePath);
 }
 function echo(data) {
-    return queryParent.echoNumWithModification({ num: data.num }).then(function (resp) {
+    return queryParent.echoNumWithModification({
+        num: data.num
+    }).then(function (resp) {
         data.num = resp.num;
         return data;
     });
@@ -175,7 +197,9 @@ function quickInfo(query) {
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info)
-        return Promise.resolve({ valid: false });
+        return Promise.resolve({
+            valid: false
+        });
     else
         return resolve({
             valid: true,
@@ -194,22 +218,46 @@ exports.build = build;
 function errorsForFileFiltered(query) {
     consistentPath(query);
     var fileName = path.basename(query.filePath);
-    return errorsForFile({ filePath: query.filePath }).then(function (resp) {
-        return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
+    return errorsForFile({
+        filePath: query.filePath
+    }).then(function (resp) {
+        return {
+            errors: resp.errors.filter(function (error) {
+                return path.basename(error.filePath) == fileName;
+            })
+        };
     });
 }
 exports.errorsForFileFiltered = errorsForFileFiltered;
-var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
-var prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };
+var punctuations = utils.createMap([
+    ';',
+    '{',
+    '}',
+    '(',
+    ')',
+    '.',
+    ':',
+    '<',
+    '>',
+    "'",
+    '"'
+]);
+var prefixEndsInPunctuation = function (prefix) {
+    return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
+};
 function getCompletionsAtPosition(query) {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
-    var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
+    var completionList = completions ? completions.entries.filter(function (x) {
+        return !!x;
+    }) : [];
     var endsInPunctuation = prefixEndsInPunctuation(prefix);
     if (prefix.length && !endsInPunctuation) {
-        completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
+        completionList = fuzzaldrin.filter(completionList, prefix, {
+            key: 'name'
+        });
     }
     if (completionList.length > query.maxSuggestions)
         completionList = completionList.slice(0, query.maxSuggestions);
@@ -226,7 +274,10 @@ function getCompletionsAtPosition(query) {
             display = c.kind;
         }
         var comment = ts.displayPartsToString(completionDetails.documentation || []);
-        return { display: display, comment: comment };
+        return {
+            display: display,
+            comment: comment
+        };
     }
     return resolve({
         completions: completionList.map(function (c) {
@@ -247,7 +298,9 @@ function getSignatureHelps(query) {
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
-        return resolve({ signatureHelps: [] });
+        return resolve({
+            signatureHelps: []
+        });
     return signatureHelpItems.items;
 }
 exports.getSignatureHelps = getSignatureHelps;
@@ -265,7 +318,9 @@ exports.formatDocument = formatDocument;
 function formatDocumentRange(query) {
     consistentPath(query);
     var prog = getOrCreateProject(query.filePath);
-    return resolve({ formatted: prog.formatDocumentRange(query.filePath, query.start, query.end) });
+    return resolve({
+        formatted: prog.formatDocumentRange(query.filePath, query.start, query.end)
+    });
 }
 exports.formatDocumentRange = formatDocumentRange;
 function getDefinitionsAtPosition(query) {
@@ -274,7 +329,10 @@ function getDefinitionsAtPosition(query) {
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
     if (!definitions || !definitions.length)
-        return resolve({ projectFileDirectory: projectFileDirectory, definitions: [] });
+        return resolve({
+            projectFileDirectory: projectFileDirectory,
+            definitions: []
+        });
     return resolve({
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(function (d) {
@@ -306,7 +364,9 @@ function errorsForFile(query) {
     if (diagnostics.length === 0) {
         diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
     }
-    return resolve({ errors: diagnostics.map(project.diagnosticToTSError) });
+    return resolve({
+        errors: diagnostics.map(project.diagnosticToTSError)
+    });
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {
@@ -347,7 +407,9 @@ function getRelativePathsInProject(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var sourceDir = path.dirname(query.filePath);
-    var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
+    var filePaths = project.projectFile.project.files.filter(function (p) {
+        return p !== query.filePath;
+    });
     var files = filePaths.map(function (p) {
         return {
             name: path.basename(p, '.ts'),
@@ -357,7 +419,9 @@ function getRelativePathsInProject(query) {
     });
     var endsInPunctuation = prefixEndsInPunctuation(query.prefix);
     if (!endsInPunctuation)
-        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
+        files = fuzzaldrin.filter(files, query.prefix, {
+            key: 'name'
+        });
     var response = {
         files: files,
         endsInPunctuation: endsInPunctuation
@@ -369,13 +433,17 @@ function getIndentationAtPosition(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
-    return resolve({ indent: indent });
+    return resolve({
+        indent: indent
+    });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;
 function debugLanguageServiceHostVersion(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
+    return resolve({
+        text: project.languageServiceHost.getScriptContent(query.filePath)
+    });
 }
 exports.debugLanguageServiceHostVersion = debugLanguageServiceHostVersion;
 function getProjectFileDetails(query) {

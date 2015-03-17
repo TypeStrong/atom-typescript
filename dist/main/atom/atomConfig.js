@@ -13,12 +13,16 @@ var Config = (function () {
         };
     }
     Object.defineProperty(Config.prototype, "debugAtomTs", {
-        get: function () { return getConfig('debugAtomTs'); },
+        get: function () {
+            return getConfig('debugAtomTs');
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Config.prototype, "maxSuggestions", {
-        get: function () { return atom.config.get('autocomplete-plus.maxSuggestions'); },
+        get: function () {
+            return atom.config.get('autocomplete-plus.maxSuggestions');
+        },
         enumerable: true,
         configurable: true
     });

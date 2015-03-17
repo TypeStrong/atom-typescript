@@ -29,20 +29,29 @@ function getFilePathPosition() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();
     var position = getEditorPosition(editor);
-    return { filePath: filePath, position: position };
+    return {
+        filePath: filePath,
+        position: position
+    };
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getEditorsForAllPaths(filePaths) {
     var map = {};
-    var activeEditors = atom.workspace.getEditors().filter(function (editor) { return !!editor.getPath(); });
+    var activeEditors = atom.workspace.getEditors().filter(function (editor) {
+        return !!editor.getPath();
+    });
     function addConsistentlyToMap(editor) {
         map[tsconfig.consistentPath(editor.getPath())] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
-    var newPaths = filePaths.filter(function (p) { return !map[p]; });
+    var newPaths = filePaths.filter(function (p) {
+        return !map[p];
+    });
     if (!newPaths.length)
         return Promise.resolve(map);
-    var promises = newPaths.map(function (p) { return atom.workspace.open(p, {}); });
+    var promises = newPaths.map(function (p) {
+        return atom.workspace.open(p, {});
+    });
     return Promise.all(promises).then(function (editors) {
         editors.forEach(addConsistentlyToMap);
         return map;
@@ -58,18 +67,26 @@ function getRangeForTextSpan(editor, ts) {
 }
 exports.getRangeForTextSpan = getRangeForTextSpan;
 function getTypeScriptEditorsWithPaths() {
-    return atom.workspace.getEditors().filter(function (editor) { return !!editor.getPath(); }).filter(function (editor) { return (path.extname(editor.getPath()) === '.ts'); });
+    return atom.workspace.getEditors().filter(function (editor) {
+        return !!editor.getPath();
+    }).filter(function (editor) {
+        return (path.extname(editor.getPath()) === '.ts');
+    });
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function quickNotifySuccess(htmlMessage) {
-    var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
+    var notification = atom.notifications.addSuccess(htmlMessage, {
+        dismissable: true
+    });
     setTimeout(function () {
         notification.dismiss();
     }, 800);
 }
 exports.quickNotifySuccess = quickNotifySuccess;
 function quickNotifyWarning(htmlMessage) {
-    var notification = atom.notifications.addWarning(htmlMessage, { dismissable: true });
+    var notification = atom.notifications.addWarning(htmlMessage, {
+        dismissable: true
+    });
     setTimeout(function () {
         notification.dismiss();
     }, 800);

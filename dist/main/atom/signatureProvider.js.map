@@ -1,1 +1,1 @@
-{"version":3,"file":"signatureProvider.js","sourceRoot":"","sources":["../../../lib/main/atom/signatureProvider.ts"],"names":["requestHandler"],"mappings":"AAOA,SAAgB,cAAc,CAAC,MAI9B;AAeDA,CAACA;AAnBe,sBAAc,GAAd,cAmBf,CAAA"}
+{"version":3,"file":"signatureProvider.js","sourceRoot":"","sources":["../../../lib/main/atom/signatureProvider.ts"],"names":["requestHandler"],"mappings":"AAOA,wBAA+B,MAI9B;AAeDA,CAACA;AAnBe,sBAAc,iBAmB7B,CAAA"}

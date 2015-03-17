@@ -29,19 +29,33 @@ function attach(editorView, editor) {
     var exprTypeTooltip = null;
     subscriber.subscribe(scroll, 'mousemove', function (e) {
         clearExprTypeTimeout();
-        exprTypeTimeout = setTimeout(function () { return showExpressionType(e); }, 100);
+        exprTypeTimeout = setTimeout(function () {
+            return showExpressionType(e);
+        }, 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', function (e) { return clearExprTypeTimeout(); });
-    subscriber.subscribe(scroll, 'keydown', function (e) { return clearExprTypeTimeout(); });
-    subscriber.subscribe(editorView, 'editor:will-be-removed', function () { return deactivate(); });
+    subscriber.subscribe(scroll, 'mouseout', function (e) {
+        return clearExprTypeTimeout();
+    });
+    subscriber.subscribe(scroll, 'keydown', function (e) {
+        return clearExprTypeTimeout();
+    });
+    subscriber.subscribe(editorView, 'editor:will-be-removed', function () {
+        return deactivate();
+    });
     function showExpressionType(e) {
         if (exprTypeTooltip)
             return;
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        var curCharPixelPt = editor.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-        var nextCharPixelPt = editor.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
+        var curCharPixelPt = editor.pixelPositionForBufferPosition([
+            bufferPt.row,
+            bufferPt.column
+        ]);
+        var nextCharPixelPt = editor.pixelPositionForBufferPosition([
+            bufferPt.row,
+            bufferPt.column + 1
+        ]);
         if (curCharPixelPt.left >= nextCharPixelPt.left)
             return;
         var offset = editor.getLineHeightInPixels() * 0.7;
@@ -53,7 +67,10 @@ function attach(editorView, editor) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
         var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
-        parent.quickInfo({ filePath: filePath, position: position }).then(function (resp) {
+        parent.quickInfo({
+            filePath: filePath,
+            position: position
+        }).then(function (resp) {
             if (!resp.valid) {
                 hideExpressionType();
             }
@@ -90,7 +107,10 @@ function pixelPositionFromMouseEvent(editorView, event) {
     var linesClientRect = getFromShadowDom(editorView, '.lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
-    return { top: top, left: left };
+    return {
+        top: top,
+        left: left
+    };
 }
 function screenPositionFromMouseEvent(editorView, event) {
     return editorView.getModel().screenPositionForPixelPosition(pixelPositionFromMouseEvent(editorView, event));
