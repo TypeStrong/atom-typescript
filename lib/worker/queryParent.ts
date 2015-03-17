@@ -50,8 +50,8 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
             errors = [
                 {
                     filePath: details.projectFilePath,
-                    startPos: { line: 0, ch: 0 },
-                    endPos: { line: 0, ch: 0 },
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
                     message: "The project file contains invalid JSON",
                     preview: details.projectFilePath,
                 }
@@ -62,8 +62,8 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
             errors = [
                 {
                     filePath: details.projectFilePath,
-                    startPos: { line: 0, ch: 0 },
-                    endPos: { line: 0, ch: 0 },
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
                     message: "The project file contains invalid options",
                     preview: details.errorMessage,
                 }

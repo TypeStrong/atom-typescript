@@ -124,7 +124,7 @@ function readyToActivate() {
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {
-                        var root = { line: 0, ch: 0 };
+                        var root = { line: 0, col: 0 };
                         errorView.setErrors(filePath,
                             [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]
                             );

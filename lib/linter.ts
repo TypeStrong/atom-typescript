@@ -49,7 +49,7 @@ LinterTslint = (function(_super) {
             var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
                 message: err.message,
                 line: err.startPos.line + 1,
-                range: new Rng([err.startPos.line, err.startPos.ch], [err.endPos.line, err.endPos.ch]),
+                range: new Rng([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
                 level: 'error',
                 linter: 'TypeScript'
             });

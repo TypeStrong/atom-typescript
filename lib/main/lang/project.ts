@@ -153,8 +153,8 @@ export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
 
     return {
         filePath: filePath,
-        startPos: { line: startPosition.line, ch: startPosition.character },
-        endPos: { line: endPosition.line, ch: endPosition.character },
+        startPos: { line: startPosition.line, col: startPosition.character },
+        endPos: { line: endPosition.line, col: endPosition.character },
         message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
     };

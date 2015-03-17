@@ -37,7 +37,7 @@ export function registerCommands() {
         if (selection.isEmpty()) {
             var cursorPosition = editor.getCursorBufferPosition();
             var currentText = editor.getText();
-            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, ch: cursorPosition.column } })
+            var result = parent.formatDocument({ filePath: filePath, cursor: { line: cursorPosition.row, col: cursorPosition.column } })
                 .then((result) => {
                 if (result.formatted == currentText) return;
 
@@ -45,11 +45,11 @@ export function registerCommands() {
                 editor.transact(()=>{
                     editor.setText(result.formatted);
                 });
-                editor.setCursorBufferPosition([result.cursor.line, result.cursor.ch]);
+                editor.setCursorBufferPosition([result.cursor.line, result.cursor.col]);
                 editor.setScrollTop(top);
             });
         } else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, ch: selection.start.column }, end: { line: selection.end.row, ch: selection.end.column } }).then((res) => {
+            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((res) => {
                 editor.transact(()=>{
                     editor.setTextInBufferRange(selection, res.formatted);
                 });
@@ -91,7 +91,7 @@ export function registerCommands() {
 
             atom.workspace.open(definition.filePath, {
                 initialLine: definition.position.line,
-                initialColumn: definition.position.ch
+                initialColumn: definition.position.col
             });
         });
     };

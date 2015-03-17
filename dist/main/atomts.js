@@ -66,7 +66,7 @@ function readyToActivate() {
                     if (!onDisk) {
                         var root = {
                             line: 0,
-                            ch: 0
+                            col: 0
                         };
                         errorView.setErrors(filePath, [
                             {

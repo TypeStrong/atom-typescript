@@ -37,8 +37,8 @@ function createScriptInfo(fileName, content, isOpen) {
         });
         version++;
     }
-    function getPositionFromLine(line, ch) {
-        return getLineStarts()[line] + ch;
+    function getPositionFromLine(line, col) {
+        return getLineStarts()[line] + col;
     }
     function getLineAndColForPositon(position) {
         if (position < 0 || position > content.length) {
@@ -51,7 +51,7 @@ function createScriptInfo(fileName, content, isOpen) {
         }
         return {
             line: lineNumber,
-            ch: position - lineStarts[lineNumber]
+            col: position - lineStarts[lineNumber]
         };
     }
     return {

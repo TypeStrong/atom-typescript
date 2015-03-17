@@ -120,11 +120,11 @@ function diagnosticToTSError(diagnostic) {
         filePath: filePath,
         startPos: {
             line: startPosition.line,
-            ch: startPosition.character
+            col: startPosition.character
         },
         endPos: {
             line: endPosition.line,
-            ch: endPosition.character
+            col: endPosition.character
         },
         message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),

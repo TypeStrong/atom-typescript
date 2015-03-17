@@ -12,7 +12,7 @@ import tsconfig = require('../tsconfig/tsconfig');
 
 export interface Position {
     line: number;
-    ch: number;
+    col: number;
 }
 
 interface ScriptInfo {
@@ -90,7 +90,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
         // console.error(start,end);
-        buffer.setTextInRange([[start.line,start.ch],[end.line,end.ch]],newText);
+        buffer.setTextInRange([[start.line,start.col],[end.line,end.col]],newText);
         // console.error(buffer.getText().length);
 
         _lineStartIsDirty = true;
@@ -126,7 +126,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         var {row,column} = buffer.positionForCharacterIndex(position);
         return {
                 line:row,
-                ch:column
+                col:column
         };
     }
 
@@ -299,15 +299,15 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return !!this.fileNameToScript[fileName];
     }
 
-    getIndexFromPosition = (fileName: string, position: { ch: number; line: number }): number => {
+    getIndexFromPosition = (fileName: string, position: { col: number; line: number }): number => {
         var script = this.fileNameToScript[fileName];
         if (script) {
-            return script.getPositionFromLine(position.line, position.ch);
+            return script.getPositionFromLine(position.line, position.col);
         }
         return -1;
     }
 
-    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
+    getPositionFromIndex = (fileName: string, index: number): { col: number; line: number } => {
         if (!this.fileNameToScript[fileName]) this.addScript(fileName);
         var script = this.fileNameToScript[fileName];
         if (script) {

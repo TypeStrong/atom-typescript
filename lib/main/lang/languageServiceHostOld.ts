@@ -31,7 +31,7 @@ import tsconfig = require('../tsconfig/tsconfig');
 
 export interface Position {
     line: number;
-    ch: number;
+    col: number;
 }
 
 interface ScriptInfo {
@@ -119,8 +119,8 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
      * @param line line number
      * @param character charecter poisiton in the line
      */
-    function getPositionFromLine(line: number, ch: number) {
-        return getLineStarts()[line] + ch;
+    function getPositionFromLine(line: number, col: number) {
+        return getLineStarts()[line] + col;
     }
 
     /**
@@ -139,7 +139,7 @@ function createScriptInfo(fileName: string, content: string, isOpen = false): Sc
         }
         return {
             line: lineNumber,
-            ch: position - lineStarts[lineNumber]
+            col: position - lineStarts[lineNumber]
         };
     }
 
@@ -320,7 +320,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return -1;
     }
 
-    getPositionFromIndex = (fileName: string, index: number): { ch: number; line: number } => {
+    getPositionFromIndex = (fileName: string, index: number): { col: number; line: number } => {
         if (!this.fileNameToScript[fileName]) this.addScript(fileName);
         var script = this.fileNameToScript[fileName];
         if (script) {

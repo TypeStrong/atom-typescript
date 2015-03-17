@@ -48,11 +48,11 @@ function setConfigurationError(query) {
                     filePath: details.projectFilePath,
                     startPos: {
                         line: 0,
-                        ch: 0
+                        col: 0
                     },
                     endPos: {
                         line: 0,
-                        ch: 0
+                        col: 0
                     },
                     message: "The project file contains invalid JSON",
                     preview: details.projectFilePath,
@@ -66,11 +66,11 @@ function setConfigurationError(query) {
                     filePath: _details.projectFilePath,
                     startPos: {
                         line: 0,
-                        ch: 0
+                        col: 0
                     },
                     endPos: {
                         line: 0,
-                        ch: 0
+                        col: 0
                     },
                     message: "The project file contains invalid options",
                     preview: _details.errorMessage,

@@ -28,7 +28,7 @@ function registerCommands() {
                 filePath: filePath,
                 cursor: {
                     line: cursorPosition.row,
-                    ch: cursorPosition.column
+                    col: cursorPosition.column
                 }
             }).then(function (result) {
                 if (result.formatted == currentText)
@@ -39,7 +39,7 @@ function registerCommands() {
                 });
                 editor.setCursorBufferPosition([
                     result.cursor.line,
-                    result.cursor.ch
+                    result.cursor.col
                 ]);
                 editor.setScrollTop(top);
             });
@@ -49,11 +49,11 @@ function registerCommands() {
                 filePath: filePath,
                 start: {
                     line: selection.start.row,
-                    ch: selection.start.column
+                    col: selection.start.column
                 },
                 end: {
                     line: selection.end.row,
-                    ch: selection.end.column
+                    col: selection.end.column
                 }
             }).then(function (res) {
                 editor.transact(function () {
@@ -92,7 +92,7 @@ function registerCommands() {
             var definition = definitions[0];
             atom.workspace.open(definition.filePath, {
                 initialLine: definition.position.line,
-                initialColumn: definition.position.ch
+                initialColumn: definition.position.col
             });
         });
     };

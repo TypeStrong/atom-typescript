@@ -1090,7 +1090,7 @@ import fs = require('fs');
 
 export interface Position {
     line: number;
-    ch: number;
+    col: number;
 }
 
 export var defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');

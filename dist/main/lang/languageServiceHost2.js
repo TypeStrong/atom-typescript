@@ -34,11 +34,11 @@ function createScriptInfo(fileName, text, isOpen) {
         buffer.setTextInRange([
             [
                 start.line,
-                start.ch
+                start.col
             ],
             [
                 end.line,
-                end.ch
+                end.col
             ]
         ], newText);
         _lineStartIsDirty = true;
@@ -61,7 +61,7 @@ function createScriptInfo(fileName, text, isOpen) {
         var _a = buffer.positionForCharacterIndex(position), row = _a.row, column = _a.column;
         return {
             line: row,
-            ch: column
+            col: column
         };
     }
     return {
@@ -222,7 +222,7 @@ var LanguageServiceHost = (function () {
         this.getIndexFromPosition = function (fileName, position) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
-                return script.getPositionFromLine(position.line, position.ch);
+                return script.getPositionFromLine(position.line, position.col);
             }
             return -1;
         };
