@@ -72,7 +72,8 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    formatCodeOptions?: formatting.FormatCodeOptions;                  // optional: formatting options
+    formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
+    compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
 
 // Main configuration
@@ -81,6 +82,7 @@ export interface TypeScriptProjectSpecification {
     files: string[];
     filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
+    compileOnSave: boolean;
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -242,7 +244,8 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
         project: {
             compilerOptions: defaults,
             files: [srcFile],
-            formatCodeOptions: formatting.defaultFormatCodeOptions()
+            formatCodeOptions: formatting.defaultFormatCodeOptions(),
+            compileOnSave: true
         }
     };
 }
@@ -320,6 +323,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave
     };
 
     // Validate the raw compiler options before converting them to TS compiler options

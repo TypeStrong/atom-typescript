@@ -603,3 +603,11 @@ export function debugLanguageServiceHostVersion(query: DebugLanguageServiceHostV
     var project = getOrCreateProject(query.filePath);
     return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }
+
+export interface GetProjectFileDetailsQuery extends FilePathQuery { }
+export interface GetProjectFileDetailsResponse extends tsconfig.TypeScriptProjectFileDetails { }
+export function getProjectFileDetails(query: GetProjectFileDetailsQuery): Promise<GetProjectFileDetailsResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve(project.projectFile);
+}

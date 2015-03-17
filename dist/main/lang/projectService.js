@@ -378,4 +378,10 @@ function debugLanguageServiceHostVersion(query) {
     return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }
 exports.debugLanguageServiceHostVersion = debugLanguageServiceHostVersion;
+function getProjectFileDetails(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve(project.projectFile);
+}
+exports.getProjectFileDetails = getProjectFileDetails;
 //# sourceMappingURL=projectService.js.map

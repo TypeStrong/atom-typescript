@@ -5,11 +5,6 @@ function getConfig(name) {
 var Config = (function () {
     function Config() {
         this.schema = {
-            compileOnSave: {
-                title: 'Compile on save',
-                type: 'boolean',
-                default: true
-            },
             debugAtomTs: {
                 title: 'Debug: Atom-TypeScript. Please do not use.',
                 type: 'boolean',
@@ -17,11 +12,6 @@ var Config = (function () {
             }
         };
     }
-    Object.defineProperty(Config.prototype, "compileOnSave", {
-        get: function () { return getConfig('compileOnSave'); },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Config.prototype, "debugAtomTs", {
         get: function () { return getConfig('debugAtomTs'); },
         enumerable: true,

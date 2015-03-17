@@ -44,6 +44,7 @@ exports.getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.ge
 exports.getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 exports.getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 exports.debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
+exports.getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 //# sourceMappingURL=parent.js.map

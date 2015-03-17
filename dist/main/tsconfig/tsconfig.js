@@ -143,7 +143,8 @@ function getDefaultProject(srcFile) {
         project: {
             compilerOptions: exports.defaults,
             files: [srcFile],
-            formatCodeOptions: formatting.defaultFormatCodeOptions()
+            formatCodeOptions: formatting.defaultFormatCodeOptions(),
+            compileOnSave: true
         }
     };
 }
@@ -201,6 +202,7 @@ function getProjectSync(pathOrSrcFile) {
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
+        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {

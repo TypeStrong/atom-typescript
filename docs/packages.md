@@ -13,7 +13,7 @@ We don't install these but highly recommend them
 
 ### Manage your projects
 https://github.com/danielbrodin/atom-project-manager
-Atom works on the basis of "folder" based project. It remembers the settings / state for when you open a project. 
+Atom works on the basis of "folder" based project. It remembers the settings / state for when you open a project.
 
 This package allows you to quickly open a specific folder. You can even store config options specific to a project e.g. at my work we don't remove whitespace or add a new line to allow people to use whatever editor and not get insignificant diffs on legacy code:
 
@@ -28,7 +28,7 @@ This package allows you to quickly open a specific folder. You can even store co
     'whitespace.ensureSingleTrailingNewline': false
 ```
 
-It also allows you to configure options of `atom-typescript` on a per project basis e.g. 
+It also allows you to configure options of `atom-typescript` on a per project basis e.g.
 ```cson
 'work':
   'title': 'work'
@@ -36,7 +36,7 @@ It also allows you to configure options of `atom-typescript` on a per project ba
     'C:\\dev\\work'
   ],
   'settings':
-    'atom-typescript.compileOnSave': false
+    'atom-typescript.debugAtomTs': false
 ```
 
 ### Jumpy
