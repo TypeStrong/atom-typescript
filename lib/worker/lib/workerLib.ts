@@ -78,7 +78,7 @@ class RequesterResponder {
      * and returns a function that will execute this function by name using IPC
      * (will only work if the process on the other side has this function as a registered responder)
      */
-    sendToIpc<Query, Response>(func: QRFunction<Query, Response>): QRFunction<Query,Response> {
+    sendToIpc<Query, Response>(func: QRFunction<Query, Response>): QRFunction<Query, Response> {
         var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
         return (data) => {
             var message = func.name;
@@ -164,6 +164,7 @@ export class Parent extends RequesterResponder {
     /** If we get this error then the situation if fairly hopeless */
     private gotENOENTonSpawnNode = false;
     protected getProcess = () => this.child;
+    private stopped = false;
 
     /** start worker */
     startWorker(childJsPath: string, terminalError: (e: Error) => any) {
@@ -173,7 +174,7 @@ export class Parent extends RequesterResponder {
                 childJsPath
             ], { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
 
-            this.child.on('error',(err) => {
+            this.child.on('error', (err) => {
                 if (err.code === "ENOENT" && err.path === this.node) {
                     this.gotENOENTonSpawnNode = true;
                 }
@@ -181,7 +182,7 @@ export class Parent extends RequesterResponder {
                 this.child = null;
             });
 
-            this.child.on('message',(message: Message<any>) => {
+            this.child.on('message', (message: Message<any>) => {
                 if (message.request) {
                     this.processRequest(message);
                 }
@@ -190,10 +191,15 @@ export class Parent extends RequesterResponder {
                 }
             });
 
-            this.child.stderr.on('data',(err) => {
+            this.child.stderr.on('data', (err) => {
                 console.log("CHILD ERR STDERR:", err.toString());
             });
-            this.child.on('close',(code) => {
+            this.child.on('close', (code) => {
+                if (this.stopped) {
+                    console.log('ts worker successfully stopped', code);
+                    return
+                }
+
                 // Handle process dropping
                 console.log('ts worker exited with code:', code);
 
@@ -219,6 +225,7 @@ export class Parent extends RequesterResponder {
 
     /** stop worker */
     stopWorker() {
+        this.stopped = true;
         if (!this.child) return;
         try {
             this.child.kill('SIGTERM');
@@ -241,7 +248,7 @@ export class Child extends RequesterResponder {
         this.keepAlive();
 
         // Start listening
-        process.on('message',(message: Message<any>) => {
+        process.on('message', (message: Message<any>) => {
             if (message.request) {
                 this.processRequest(message);
             }

@@ -128,6 +128,7 @@ var Parent = (function (_super) {
         this.getProcess = function () {
             return _this.child;
         };
+        this.stopped = false;
     }
     Parent.prototype.startWorker = function (childJsPath, terminalError) {
         var _this = this;
@@ -162,6 +163,10 @@ var Parent = (function (_super) {
                 console.log("CHILD ERR STDERR:", err.toString());
             });
             this.child.on('close', function (code) {
+                if (_this.stopped) {
+                    console.log('ts worker successfully stopped', code);
+                    return;
+                }
                 console.log('ts worker exited with code:', code);
                 if (code === orphanExitCode) {
                     console.log('ts worker restarting');
@@ -181,6 +186,7 @@ var Parent = (function (_super) {
         }
     };
     Parent.prototype.stopWorker = function () {
+        this.stopped = true;
         if (!this.child)
             return;
         try {
