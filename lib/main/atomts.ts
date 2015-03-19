@@ -113,7 +113,7 @@ function readyToActivate() {
                 debugAtomTs.runDebugCode({ filePath, editor });
 
                 // Set errors in project per file
-                if(onDisk){
+                if (onDisk) {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
