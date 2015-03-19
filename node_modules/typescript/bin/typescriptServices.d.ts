@@ -890,9 +890,10 @@ declare module ts {
         NotAccessible = 1,
         CannotBeNamed = 2,
     }
+    type AnyImportSyntax = ImportDeclaration | ImportEqualsDeclaration;
     interface SymbolVisibilityResult {
         accessibility: SymbolAccessibility;
-        aliasesToMakeVisible?: ImportEqualsDeclaration[];
+        aliasesToMakeVisible?: AnyImportSyntax[];
         errorSymbolName?: string;
         errorNode?: Node;
     }
@@ -907,9 +908,11 @@ declare module ts {
         isTopLevelValueImportEqualsWithEntityName(node: ImportEqualsDeclaration): boolean;
         getNodeCheckFlags(node: Node): NodeCheckFlags;
         isDeclarationVisible(node: Declaration): boolean;
+        collectLinkedAliases(node: Identifier): Node[];
         isImplementationOfOverload(node: FunctionLikeDeclaration): boolean;
         writeTypeOfDeclaration(declaration: AccessorDeclaration | VariableLikeDeclaration, enclosingDeclaration: Node, flags: TypeFormatFlags, writer: SymbolWriter): void;
         writeReturnTypeOfSignatureDeclaration(signatureDeclaration: SignatureDeclaration, enclosingDeclaration: Node, flags: TypeFormatFlags, writer: SymbolWriter): void;
+        writeTypeOfExpression(expr: Expression, enclosingDeclaration: Node, flags: TypeFormatFlags, writer: SymbolWriter): void;
         isSymbolAccessible(symbol: Symbol, enclosingDeclaration: Node, meaning: SymbolFlags): SymbolAccessiblityResult;
         isEntityNameVisible(entityName: EntityName, enclosingDeclaration: Node): SymbolVisibilityResult;
         getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): number;
@@ -1138,17 +1141,6 @@ declare module ts {
     }
     interface TypeMapper {
         (t: Type): Type;
-    }
-    interface TypeInferences {
-        primary: Type[];
-        secondary: Type[];
-    }
-    interface InferenceContext {
-        typeParameters: TypeParameter[];
-        inferUnionTypes: boolean;
-        inferences: TypeInferences[];
-        inferredTypes: Type[];
-        failedTypeParameterIndex?: number;
     }
     interface DiagnosticMessage {
         key: string;
@@ -1446,7 +1438,7 @@ declare module ts {
 declare module ts {
     /** The version of the TypeScript compiler release */
     let version: string;
-    function createCompilerHost(options: CompilerOptions): CompilerHost;
+    function createCompilerHost(options: CompilerOptions, setParentNodes?: boolean): CompilerHost;
     function getPreEmitDiagnostics(program: Program): Diagnostic[];
     function flattenDiagnosticMessageText(messageText: string | DiagnosticMessageChain, newLine: string): string;
     function createProgram(rootNames: string[], options: CompilerOptions, host?: CompilerHost): Program;

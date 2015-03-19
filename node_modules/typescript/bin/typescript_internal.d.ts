@@ -184,7 +184,7 @@ declare module "typescript" {
     function isConst(node: Node): boolean;
     function isLet(node: Node): boolean;
     function isPrologueDirective(node: Node): boolean;
-    function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode?: SourceFile): CommentRange[];
+    function getLeadingCommentRangesOfNode(node: Node, sourceFileOfNode: SourceFile): CommentRange[];
     function getJsDocComments(node: Node, sourceFileOfNode: SourceFile): CommentRange[];
     let fullTripleSlashReferencePathRegEx: RegExp;
     function forEachReturnStatement<T>(body: Block, visitor: (stmt: ReturnStatement) => T): T;
@@ -278,6 +278,37 @@ declare module "typescript" {
      */
     function escapeString(s: string): string;
     function escapeNonAsciiCharacters(s: string): string;
+    interface EmitTextWriter {
+        write(s: string): void;
+        writeTextOfNode(sourceFile: SourceFile, node: Node): void;
+        writeLine(): void;
+        increaseIndent(): void;
+        decreaseIndent(): void;
+        getText(): string;
+        rawWrite(s: string): void;
+        writeLiteral(s: string): void;
+        getTextPos(): number;
+        getLine(): number;
+        getColumn(): number;
+        getIndent(): number;
+    }
+    function getIndentString(level: number): string;
+    function getIndentSize(): number;
+    function createTextWriter(newLine: String): EmitTextWriter;
+    function getOwnEmitOutputFilePath(sourceFile: SourceFile, host: EmitHost, extension: string): string;
+    function getSourceFilePathInNewDir(sourceFile: SourceFile, host: EmitHost, newDirPath: string): string;
+    function writeFile(host: EmitHost, diagnostics: Diagnostic[], fileName: string, data: string, writeByteOrderMark: boolean): void;
+    function getLineOfLocalPosition(currentSourceFile: SourceFile, pos: number): number;
+    function getFirstConstructorWithBody(node: ClassDeclaration): ConstructorDeclaration;
+    function shouldEmitToOwnFile(sourceFile: SourceFile, compilerOptions: CompilerOptions): boolean;
+    function getAllAccessorDeclarations(declarations: NodeArray<Declaration>, accessor: AccessorDeclaration): {
+        firstAccessor: AccessorDeclaration;
+        getAccessor: AccessorDeclaration;
+        setAccessor: AccessorDeclaration;
+    };
+    function emitNewLineBeforeLeadingComments(currentSourceFile: SourceFile, writer: EmitTextWriter, node: TextRange, leadingComments: CommentRange[]): void;
+    function emitComments(currentSourceFile: SourceFile, writer: EmitTextWriter, comments: CommentRange[], trailingSeparator: boolean, newLine: string, writeComment: (currentSourceFile: SourceFile, writer: EmitTextWriter, comment: CommentRange, newLine: string) => void): void;
+    function writeCommentRange(currentSourceFile: SourceFile, writer: EmitTextWriter, comment: CommentRange, newLine: string): void;
 }
 declare module "typescript" {
     var optionDeclarations: CommandLineOption[];
@@ -297,7 +328,10 @@ declare module "typescript" {
     function rangeContainsStartEnd(range: TextRange, start: number, end: number): boolean;
     function rangeOverlapsWithStartEnd(r1: TextRange, start: number, end: number): boolean;
     function startEndOverlapsWithStartEnd(start1: number, end1: number, start2: number, end2: number): boolean;
+    function positionBelongsToNode(candidate: Node, position: number, sourceFile: SourceFile): boolean;
+    function isCompletedNode(n: Node, sourceFile: SourceFile): boolean;
     function findListItemInfo(node: Node): ListItemInfo;
+    function hasChildOfKind(n: Node, kind: SyntaxKind, sourceFile?: SourceFile): boolean;
     function findChildOfKind(n: Node, kind: SyntaxKind, sourceFile?: SourceFile): Node;
     function findContainingList(node: Node): Node;
     function getTouchingWord(sourceFile: SourceFile, position: number): Node;
@@ -323,6 +357,7 @@ declare module "typescript" {
     function isComment(kind: SyntaxKind): boolean;
     function isPunctuation(kind: SyntaxKind): boolean;
     function isInsideTemplateLiteral(node: LiteralExpression, position: number): boolean;
+    function isAccessibilityModifier(kind: SyntaxKind): boolean;
     function compareDataObjects(dst: any, src: any): boolean;
 }
 declare module "typescript" {
