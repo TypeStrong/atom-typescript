@@ -23,10 +23,10 @@ function getTitle(errorCount: number): string {
 }
 
 
-export function setBuildOutput(buildOutput: project.BuildOutput) {
+export function setBuildOutput(buildOutput: BuildOutput) {
 
     mainPanelView.panelView.clearBuild();
-    
+
     if (buildOutput.counts.errors) {
         mainPanelView.panelView.setBuildPanelCount(buildOutput.counts.errors);
     }

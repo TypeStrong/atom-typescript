@@ -18,6 +18,7 @@ export class MainPanelView extends view.View<any> {
     private buildPanelBtn: JQuery;
     private errorBody: JQuery;
     private buildBody: JQuery;
+    private buildProgress: JQuery;
     static content() {
         var btn = (view, text, className: string = '') =>
             this.button({
@@ -30,18 +31,18 @@ export class MainPanelView extends view.View<any> {
         this.div({
             class: 'am-panel tool-panel panel-bottom native-key-bindings atomts-main-panel',
             tabindex: '-1'
-        },() => {
+        }, () => {
                 this.div({
                     class: 'panel-resize-handle',
                     style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3'
                 });
                 this.div({
                     class: 'panel-heading'
-                },() => {
+                }, () => {
                         this.span({
                             style: 'cursor: pointer; color: rgb(0, 148, 255)',
                             click: 'toggle'
-                        },() => {
+                        }, () => {
                                 this.span({ class: "icon-microscope" });
                                 this.span({ style: 'font-weight:bold' }, " TypeScript ");
                             });
@@ -52,7 +53,6 @@ export class MainPanelView extends view.View<any> {
                         },
                             () => {
                                 btn("error", panelHeaders.error, 'selected')
-                                // TODO: later 
                                 btn("build", panelHeaders.build)
                             });
 
@@ -65,7 +65,7 @@ export class MainPanelView extends view.View<any> {
                         this.div({
                             class: 'heading-buttons pull-right',
                             style: 'width:15px; display:inline-block'
-                        },() => {
+                        }, () => {
                                 this.div({
                                     class: 'heading-fold icon-unfold',
                                     style: 'cursor: pointer',
@@ -73,6 +73,11 @@ export class MainPanelView extends view.View<any> {
                                     click: 'toggle'
                                 });
                             });
+                        this.progress({
+                            class: 'inline-block build-progress',
+                            style: 'display: none; color:red',
+                            outlet: 'buildProgress'
+                        });
                     });
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
@@ -130,7 +135,7 @@ export class MainPanelView extends view.View<any> {
         this.setActivePanel();
     }
 
-    ///////////// ERROR 
+    ///////////// ERROR
     private clearedError = true;
     clearError() {
         this.clearedError = true;
@@ -185,17 +190,19 @@ export class MainPanelView extends view.View<any> {
         this.errorPanelBtn.html(title);
     }
 
-    ///////////////////// BUILD 
-    setBuildPanelCount(errorCount: number) {
-        var title = `${panelHeaders.build} ( <span class="text-success">No Errors</span> )`;
+    ///////////////////// BUILD
+    setBuildPanelCount(errorCount: number, inProgressBuild = false) {
+        var titleMain = inProgressBuild ? "Build Progress" : panelHeaders.build;
+        var title = `${titleMain} ( <span class="text-success">No Errors</span> )`;
         if (errorCount > 0) {
-            title = `${panelHeaders.build} (
+            title = `${titleMain} (
                 <span class="text-highlight" style="font-weight: bold"> ${errorCount} </span>
                 <span class="text-error" style="font-weight: bold;"> error${errorCount === 1 ? "" : "s"} </span>
             )`;
         }
         else {
-            this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
+            if(!inProgressBuild)
+                this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
         }
         this.buildPanelBtn.html(title);
     }
@@ -207,12 +214,48 @@ export class MainPanelView extends view.View<any> {
     addBuild(view: lineMessageView.LineMessageView) {
         this.buildBody.append(view.$);
     }
+
+    setBuildProgress(progress: BuildUpdate) {
+        // just for the first time
+        if (progress.builtCount == 1) {
+            this.buildProgress.show();
+            this.buildProgress.removeClass('warn');
+            this.buildBody.html('<span class="text-success">Things are looking good \u2665</span>');
+        }
+        
+        // For last time we don't care just return 
+        if (progress.builtCount == progress.totalCount) {
+            this.buildProgress.hide();
+            return;
+        }
+
+        this.buildProgress.prop('value', progress.builtCount);
+        this.buildProgress.prop('max', progress.totalCount);
+
+        this.setBuildPanelCount(progress.errorCount, true);
+
+        if (progress.firstError) {
+            this.buildProgress.addClass('warn');
+            this.clearBuild();
+        }
+
+        if (progress.errorsInFile.length) {
+            progress.errorsInFile.forEach(error => {
+                this.addBuild(new lineMessageView.LineMessageView({
+                    message: error.message,
+                    line: error.startPos.line + 1,
+                    file: error.filePath,
+                    preview: error.preview
+                }));
+            });
+        }
+    }
 }
 
 export var panelView: MainPanelView;
 var panel: AtomCore.Panel;
 export function attach() {
-    
+
     // Only attach once
     if (panelView) return;
 

@@ -18,15 +18,15 @@ export function start() {
     mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
 }
 
-var filePathErrors: utils.Dict<project.TSError[]> = new utils.Dict<any[]>();
+var filePathErrors: utils.Dict<TSError[]> = new utils.Dict<any[]>();
 
-export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
+export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
     if (!errorsForFile.length) filePathErrors.clearValue(filePath);
     else {
-        // Currently we are limiting errors 
+        // Currently we are limiting errors
         // To many errors crashes our display
         if (errorsForFile.length > 50) errorsForFile = errorsForFile.slice(0, 50);
-        
+
         filePathErrors.setValue(filePath, errorsForFile)
     };
 
@@ -41,7 +41,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     else {
         var totalErrorCount = 0;
         for (var path in filePathErrors.table) {
-            filePathErrors.getValue(path).forEach((error: project.TSError) => {
+            filePathErrors.getValue(path).forEach((error: TSError) => {
                 totalErrorCount++;
                 mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
                     message: error.message,
@@ -55,7 +55,7 @@ export var setErrors = (filePath: string, errorsForFile: project.TSError[]) => {
     }
 };
 
-export function showEmittedMessage(output: project.EmitOutput) {
+export function showEmittedMessage(output: EmitOutput) {
     if (output.success) {
         var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
         atomUtils.quickNotifySuccess(message);

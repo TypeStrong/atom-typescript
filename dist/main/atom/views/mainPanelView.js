@@ -6,6 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var view = require('./view');
 var $ = view.$;
+var lineMessageView = require('./lineMessageView');
 var panelHeaders = {
     error: 'Errors In Open Files',
     build: 'Last Build Output'
@@ -72,6 +73,11 @@ var MainPanelView = (function (_super) {
                         outlet: 'btnFold',
                         click: 'toggle'
                     });
+                });
+                _this.progress({
+                    class: 'inline-block build-progress',
+                    style: 'display: none; color:red',
+                    outlet: 'buildProgress'
                 });
             });
             _this.div({
@@ -155,13 +161,16 @@ var MainPanelView = (function (_super) {
         }
         this.errorPanelBtn.html(title);
     };
-    MainPanelView.prototype.setBuildPanelCount = function (errorCount) {
-        var title = panelHeaders.build + " ( <span class=\"text-success\">No Errors</span> )";
+    MainPanelView.prototype.setBuildPanelCount = function (errorCount, inProgressBuild) {
+        if (inProgressBuild === void 0) { inProgressBuild = false; }
+        var titleMain = inProgressBuild ? "Build Progress" : panelHeaders.build;
+        var title = titleMain + " ( <span class=\"text-success\">No Errors</span> )";
         if (errorCount > 0) {
-            title = panelHeaders.build + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + errorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (errorCount === 1 ? "" : "s") + " </span>\n            )";
+            title = titleMain + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + errorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (errorCount === 1 ? "" : "s") + " </span>\n            )";
         }
         else {
-            this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
+            if (!inProgressBuild)
+                this.buildBody.html('<span class="text-success">No errors in last build \u2665</span>');
         }
         this.buildPanelBtn.html(title);
     };
@@ -170,6 +179,35 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.addBuild = function (view) {
         this.buildBody.append(view.$);
+    };
+    MainPanelView.prototype.setBuildProgress = function (progress) {
+        var _this = this;
+        if (progress.builtCount == 1) {
+            this.buildProgress.show();
+            this.buildProgress.removeClass('warn');
+            this.buildBody.html('<span class="text-success">Things are looking good \u2665</span>');
+        }
+        if (progress.builtCount == progress.totalCount) {
+            this.buildProgress.hide();
+            return;
+        }
+        this.buildProgress.prop('value', progress.builtCount);
+        this.buildProgress.prop('max', progress.totalCount);
+        this.setBuildPanelCount(progress.errorCount, true);
+        if (progress.firstError) {
+            this.buildProgress.addClass('warn');
+            this.clearBuild();
+        }
+        if (progress.errorsInFile.length) {
+            progress.errorsInFile.forEach(function (error) {
+                _this.addBuild(new lineMessageView.LineMessageView({
+                    message: error.message,
+                    line: error.startPos.line + 1,
+                    file: error.filePath,
+                    preview: error.preview
+                }));
+            });
+        }
     };
     return MainPanelView;
 })(view.View);

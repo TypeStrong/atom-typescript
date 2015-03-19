@@ -40,7 +40,47 @@ declare module 'chokidar' {
     export function watch(path, options?: any): Watcher;
 }
 
-declare module 'basarat-text-buffer'{
+declare module 'basarat-text-buffer' {
     var options;
     export = options;
+}
+
+
+interface EmitOutput {
+    outputFiles: string[];
+    success: boolean;
+    errors: TSError[];
+    emitError: boolean;
+}
+
+interface BuildOutput {
+    outputs: EmitOutput[];
+    counts: {
+        inputFiles: number;
+        outputFiles: number;
+        errors: number;
+        emitErrors: number;
+    }
+}
+
+interface BuildUpdate {
+    builtCount: number; 
+    totalCount: number; 
+    errorCount: number;
+    firstError: boolean;
+    filePath: string;
+    errorsInFile: TSError[];
+}
+
+interface TSError {
+    filePath: string;
+    startPos: EditorPosition;
+    endPos: EditorPosition;
+    message: string;
+    preview: string;
+}
+
+interface EditorPosition {
+    line: number;
+    col: number;
 }

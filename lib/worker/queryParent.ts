@@ -11,15 +11,31 @@ import _atomUtils = require('../main/atom/atomUtils');
 var atomUtils: typeof _atomUtils;
 import _errorView = require('../main/atom/errorView');
 var errorView: typeof _errorView;
+import _mainPanelView = require('../main/atom/views/mainPanelView');
+var mainPanelView: typeof _mainPanelView;
 
 try {
     require('atom');
     // We are in a safe context:
     atomUtils = require('../main/atom/atomUtils');
     errorView = require('../main/atom/errorView');
+    mainPanelView = require('../main/atom/views/mainPanelView');
 }
 catch (ex) {
     // We just need to type information for this context
+}
+
+// TODO: move into globals
+export interface Position {
+    line: number;
+    col: number;
+}
+export interface TSError {
+    filePath: string;
+    startPos: Position;
+    endPos: Position;
+    message: string;
+    preview: string;
 }
 
 export function echoNumWithModification(query: { num: number }): Promise<{ num: number }> {
@@ -38,12 +54,12 @@ export function getUpdatedTextForUnsavedEditors(query: {}): Promise<{ editors: {
 export function getOpenEditorPaths(query: {}): Promise<{ filePaths: string[] }> {
     var editors = atomUtils.getTypeScriptEditorsWithPaths();
     return resolve({
-        filePaths: editors.map(e=>tsconfig.consistentPath(e.getPath()))
+        filePaths: editors.map(e=> tsconfig.consistentPath(e.getPath()))
     });
 }
 
 export function setConfigurationError(query: { projectFilePath: string; error: { message: string; details: any } }): Promise<{}> {
-    var errors: project.TSError[] = [];
+    var errors: TSError[] = [];
     if (query.error) {
         if (query.error.message == tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
             let details: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = query.error.details;
@@ -88,6 +104,11 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
 
 export function notifySuccess(query: { message: string }): Promise<{}> {
     atom.notifications.addSuccess(query.message);
+    return resolve({});
+}
+
+export function buildUpdate(query: BuildUpdate): Promise<{}> {
+    mainPanelView.panelView.setBuildProgress(query);
     return resolve({});
 }
 

@@ -10,11 +10,6 @@ import textBuffer = require('basarat-text-buffer');
 
 import tsconfig = require('../tsconfig/tsconfig');
 
-export interface Position {
-    line: number;
-    col: number;
-}
-
 interface ScriptInfo {
     getFileName(): string;
     getContent(): string;
@@ -28,7 +23,7 @@ interface ScriptInfo {
     updateContent(newContent: string): void;
     editContent(minChar: number, limChar: number, newText: string): void;
     getPositionFromLine(line: number, ch: number): number;
-    getLineAndColForPositon(position: number): Position;
+    getLineAndColForPositon(position: number): EditorPosition;
 }
 interface ITextBuffer extends TextBuffer.ITextBuffer{}
 
