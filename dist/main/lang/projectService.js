@@ -1,11 +1,12 @@
+///ts:ref=globals
+/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var fs = require('fs');
 var path = require('path');
 var ts = require('typescript');
-var mkdirp = require('mkdirp');
 var fuzzaldrin = require('fuzzaldrin');
 var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
-var project = require('./project');
+var project = require('./core/project');
 var Project = project.Project;
 var languageServiceHost = project.languageServiceHost;
 var resolve = Promise.resolve.bind(Promise);
@@ -221,30 +222,15 @@ function quickInfo(query) {
         });
 }
 exports.quickInfo = quickInfo;
-function _diagnosticToTSError(diagnostic) {
-    var filePath = diagnostic.file.fileName;
-    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-    var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
-    return {
-        filePath: filePath,
-        startPos: {
-            line: startPosition.line,
-            col: startPosition.character
-        },
-        endPos: {
-            line: endPosition.line,
-            col: endPosition.character
-        },
-        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-        preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
-    };
-}
-function _build(proj) {
+var building = require('./modules/building');
+function build(query) {
+    consistentPath(query);
+    var proj = getOrCreateProject(query.filePath);
     var totalCount = proj.projectFile.project.files.length;
     var builtCount = 0;
     var errorCount = 0;
     var outputs = proj.projectFile.project.files.map(function (filePath) {
-        var output = _emitFile(proj, filePath);
+        var output = building.emitFile(proj, filePath);
         builtCount++;
         errorCount = errorCount + output.errors.length;
         queryParent.buildUpdate({
@@ -257,53 +243,20 @@ function _build(proj) {
         });
         return output;
     });
-    return {
-        outputs: outputs,
-        counts: {
-            inputFiles: proj.projectFile.project.files.length,
-            outputFiles: utils.selectMany(outputs.map(function (out) {
-                return out.outputFiles;
-            })).length,
-            errors: errorCount,
-            emitErrors: outputs.filter(function (out) {
-                return out.emitError;
-            }).length
-        }
-    };
-}
-function _emitFile(proj, filePath) {
-    var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
-    var emitDone = !output.emitSkipped;
-    var errors = [];
-    var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));
-    allDiagnostics.forEach(function (diagnostic) {
-        if (!diagnostic.file)
-            return;
-        var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        errors.push(_diagnosticToTSError(diagnostic));
-    });
-    output.outputFiles.forEach(function (o) {
-        mkdirp.sync(path.dirname(o.name));
-        fs.writeFileSync(o.name, o.text, "utf8");
-    });
-    var outputFiles = output.outputFiles.map(function (o) {
-        return o.name;
-    });
-    if (path.extname(filePath) == '.d.ts') {
-        outputFiles.push(filePath);
-    }
-    return {
-        outputFiles: outputFiles,
-        success: emitDone && !errors.length,
-        errors: errors,
-        emitError: !emitDone
-    };
-}
-function build(query) {
-    consistentPath(query);
     return resolve({
-        outputs: _build(getOrCreateProject(query.filePath))
+        buildOutput: {
+            outputs: outputs,
+            counts: {
+                inputFiles: proj.projectFile.project.files.length,
+                outputFiles: utils.selectMany(outputs.map(function (out) {
+                    return out.outputFiles;
+                })).length,
+                errors: errorCount,
+                emitErrors: outputs.filter(function (out) {
+                    return out.emitError;
+                }).length
+            }
+        }
     });
 }
 exports.build = build;
@@ -398,38 +351,15 @@ function getSignatureHelps(query) {
 exports.getSignatureHelps = getSignatureHelps;
 function emitFile(query) {
     consistentPath(query);
-    return resolve(_emitFile(getOrCreateProject(query.filePath), query.filePath));
+    return resolve(building.emitFile(getOrCreateProject(query.filePath), query.filePath));
 }
 exports.emitFile = emitFile;
-function _formatDocument(proj, filePath) {
-    var textChanges = proj.languageService.getFormattingEditsForDocument(filePath, proj.projectFile.project.formatCodeOptions);
-    var edits = textChanges.map(function (change) {
-        return {
-            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
-            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
-            newText: change.newText
-        };
-    });
-    return edits;
-}
-function _formatDocumentRange(proj, filePath, start, end) {
-    var st = proj.languageServiceHost.getIndexFromPosition(filePath, start);
-    var ed = proj.languageServiceHost.getIndexFromPosition(filePath, end);
-    var textChanges = proj.languageService.getFormattingEditsForRange(filePath, st, ed, proj.projectFile.project.formatCodeOptions);
-    var edits = textChanges.map(function (change) {
-        return {
-            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
-            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
-            newText: change.newText
-        };
-    });
-    return edits;
-}
+var formatting = require('./modules/formatting');
 function formatDocument(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
     return resolve({
-        edits: _formatDocument(proj, query.filePath)
+        edits: formatting.formatDocument(proj, query.filePath)
     });
 }
 exports.formatDocument = formatDocument;
@@ -437,7 +367,7 @@ function formatDocumentRange(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
     return resolve({
-        edits: _formatDocumentRange(proj, query.filePath, query.start, query.end)
+        edits: formatting.formatDocumentRange(proj, query.filePath, query.start, query.end)
     });
 }
 exports.formatDocumentRange = formatDocumentRange;
@@ -483,7 +413,7 @@ function errorsForFile(query) {
         diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
     }
     return resolve({
-        errors: diagnostics.map(_diagnosticToTSError)
+        errors: diagnostics.map(building.diagnosticToTSError)
     });
 }
 exports.errorsForFile = errorsForFile;

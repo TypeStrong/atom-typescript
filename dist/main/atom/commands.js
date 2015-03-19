@@ -61,7 +61,7 @@ function registerCommands() {
         parent.build({
             filePath: filePath
         }).then(function (resp) {
-            buildView.setBuildOutput(resp.outputs);
+            buildView.setBuildOutput(resp.buildOutput);
         });
     });
     var handleGoToDeclaration = function (e) {

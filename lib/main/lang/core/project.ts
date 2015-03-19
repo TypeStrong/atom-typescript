@@ -1,5 +1,5 @@
 ///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+/// <reference path="../../../globals.ts"/> ///ts:ref:generated
 
 import ts = require('typescript');
 import path = require('path');
@@ -7,9 +7,12 @@ import fs = require('fs');
 import os = require('os');
 
 export import languageServiceHost = require('./languageServiceHost2');
-import tsconfig = require('../tsconfig/tsconfig');
-import utils = require('./utils');
+import tsconfig = require('../../tsconfig/tsconfig');
+import utils = require('../utils');
 
+/**
+ * Wraps up `langaugeService` `languageServiceHost` and `projectFile` in a single package
+ */
 export class Project {
     public languageServiceHost: languageServiceHost.LanguageServiceHost;
     public languageService: ts.LanguageService;

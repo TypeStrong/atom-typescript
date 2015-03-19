@@ -64,8 +64,8 @@ interface BuildOutput {
 }
 
 interface BuildUpdate {
-    builtCount: number; 
-    totalCount: number; 
+    builtCount: number;
+    totalCount: number;
     errorCount: number;
     firstError: boolean;
     filePath: string;
@@ -83,4 +83,10 @@ interface TSError {
 interface EditorPosition {
     line: number;
     col: number;
+}
+
+interface CodeEdit {
+    start: EditorPosition;
+    end: EditorPosition;
+    newText: string;
 }

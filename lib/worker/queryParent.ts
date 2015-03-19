@@ -3,8 +3,9 @@
 var resolve: typeof Promise.resolve = Promise.resolve.bind(Promise);
 
 // safe imports
+// stuff that exists in both Worker and Parent
 import tsconfig = require('../main/tsconfig/tsconfig');
-import project = require('../main/lang/project');
+import project = require('../main/lang/core/project');
 
 // UI Imports
 import _atomUtils = require('../main/atom/atomUtils');

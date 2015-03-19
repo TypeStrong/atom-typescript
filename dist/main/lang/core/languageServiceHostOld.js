@@ -1,7 +1,12 @@
+/**
+ * THIS FILE IS NO LONGER USED.
+ * This is kept as a reference implementation for a simpler language service shot + ScriptInfo
+ */
+/// <reference path="../../../typings/atom/atom.d.ts"/> ///ts:ref:generated
 'use strict';
 var ts = require('typescript');
 var path = require('path');
-var utils = require('./utils');
+var utils = require('../utils');
 var fs = require('fs');
 function createScriptInfo(fileName, content, isOpen) {
     if (isOpen === void 0) { isOpen = false; }

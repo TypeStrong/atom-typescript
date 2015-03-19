@@ -61,7 +61,7 @@ export function registerCommands() {
         atom.notifications.addInfo('Building');
 
         parent.build({ filePath: filePath }).then((resp) => {
-            buildView.setBuildOutput(resp.outputs);
+            buildView.setBuildOutput(resp.buildOutput);
         });
     });
 

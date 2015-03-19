@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var atomUtils = require('./atomUtils');
 var parent = require('../../worker/parent');
 var path = require('path');

@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var packageName = 'atom-typescript';
 function getConfig(name) {
     return atom.config.get(packageName + '.' + name);

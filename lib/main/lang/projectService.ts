@@ -11,7 +11,7 @@ var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string
 import tsconfig = require('../tsconfig/tsconfig');
 
 import utils = require('./utils');
-import project = require('./project');
+import project = require('./core/project');
 import Project = project.Project;
 import languageServiceHost = project.languageServiceHost;
 
@@ -307,90 +307,41 @@ export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
 
 export interface BuildQuery extends FilePathQuery { }
 export interface BuildResponse {
-    outputs: BuildOutput;
+    buildOutput: BuildOutput;
 }
-function _diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
-    var filePath = diagnostic.file.fileName;
-    var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-    var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
+import building = require('./modules/building');
+export function build(query: BuildQuery): Promise<BuildResponse> {
+    consistentPath(query);
+    var proj = getOrCreateProject(query.filePath);
 
-    return {
-        filePath: filePath,
-        startPos: { line: startPosition.line, col: startPosition.character },
-        endPos: { line: endPosition.line, col: endPosition.character },
-        message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-        preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
-    };
-}
-function _build(proj: project.Project): BuildOutput {
     var totalCount = proj.projectFile.project.files.length;
     var builtCount = 0;
     var errorCount = 0;
     var outputs = proj.projectFile.project.files.map((filePath) => {
-        var output = _emitFile(proj, filePath);
+        var output = building.emitFile(proj, filePath);
         builtCount++;
         errorCount = errorCount + output.errors.length;
-        queryParent.buildUpdate({ 
-            totalCount, 
-            builtCount, 
+        queryParent.buildUpdate({
+            totalCount,
+            builtCount,
             errorCount,
             firstError: errorCount && !(errorCount - output.errors.length),
             filePath,
-            errorsInFile:output.errors
+            errorsInFile: output.errors
         });
         return output;
     });
 
-    return {
-        outputs: outputs,
-        counts: {
-            inputFiles: proj.projectFile.project.files.length,
-            outputFiles: utils.selectMany(outputs.map((out) => out.outputFiles)).length,
-            errors: errorCount,
-            emitErrors: outputs.filter(out => out.emitError).length
-        }
-    };
-}
-function _emitFile(proj: project.Project, filePath: string): EmitOutput {
-    var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
-    var emitDone = !output.emitSkipped;
-    var errors: TSError[] = [];
-
-    // Emit is no guarantee that there are no errors
-    var allDiagnostics = services.getCompilerOptionsDiagnostics()
-        .concat(services.getSyntacticDiagnostics(filePath))
-        .concat(services.getSemanticDiagnostics(filePath));
-
-    allDiagnostics.forEach(diagnostic => {
-        // happens only for 'lib.d.ts' for some reason
-        if (!diagnostic.file) return;
-
-        var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        errors.push(_diagnosticToTSError(diagnostic));
-    });
-
-    output.outputFiles.forEach(o => {
-        mkdirp.sync(path.dirname(o.name));
-        fs.writeFileSync(o.name, o.text, "utf8");
-    });
-
-    var outputFiles = output.outputFiles.map((o) => o.name);
-    if (path.extname(filePath) == '.d.ts') {
-        outputFiles.push(filePath);
-    }
-
-    return {
-        outputFiles: outputFiles,
-        success: emitDone && !errors.length,
-        errors: errors,
-        emitError: !emitDone
-    };
-}
-export function build(query: BuildQuery): Promise<BuildResponse> {
-    consistentPath(query);
     return resolve({
-        outputs: _build(getOrCreateProject(query.filePath))
+        buildOutput: {
+            outputs: outputs,
+            counts: {
+                inputFiles: proj.projectFile.project.files.length,
+                outputFiles: utils.selectMany(outputs.map((out) => out.outputFiles)).length,
+                errors: errorCount,
+                emitErrors: outputs.filter(out => out.emitError).length
+            }
+        }
     });
 }
 
@@ -500,42 +451,10 @@ export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends EmitOutput { }
 export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
     consistentPath(query);
-    return resolve(_emitFile(getOrCreateProject(query.filePath), query.filePath));
+    return resolve(building.emitFile(getOrCreateProject(query.filePath), query.filePath));
 }
 
-export interface CodeEdit {
-    start: EditorPosition;
-    end: EditorPosition;
-    newText: string;
-}
-function _formatDocument(proj: project.Project, filePath: string): CodeEdit[] {
-    var textChanges = proj.languageService.getFormattingEditsForDocument(filePath, proj.projectFile.project.formatCodeOptions);
-
-    var edits: CodeEdit[] = textChanges.map(change=> {
-        return {
-            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
-            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
-            newText: change.newText
-        };
-    });
-
-    return edits;
-}
-function _formatDocumentRange(proj: project.Project, filePath: string, start: EditorPosition, end: EditorPosition): CodeEdit[] {
-    var st = proj.languageServiceHost.getIndexFromPosition(filePath, start);
-    var ed = proj.languageServiceHost.getIndexFromPosition(filePath, end);
-    var textChanges = proj.languageService.getFormattingEditsForRange(filePath, st, ed, proj.projectFile.project.formatCodeOptions);
-
-    var edits: CodeEdit[] = textChanges.map(change=> {
-        return {
-            start: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start),
-            end: proj.languageServiceHost.getPositionFromIndex(filePath, change.span.start + change.span.length),
-            newText: change.newText
-        };
-    });
-    return edits;
-}
-
+import formatting = require('./modules/formatting');
 export interface FormatDocumentQuery extends FilePathQuery {
 }
 export interface FormatDocumentResponse {
@@ -544,7 +463,7 @@ export interface FormatDocumentResponse {
 export function formatDocument(query: FormatDocumentQuery): Promise<FormatDocumentResponse> {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
-    return resolve({ edits: _formatDocument(proj, query.filePath) });
+    return resolve({ edits: formatting.formatDocument(proj, query.filePath) });
 }
 
 export interface FormatDocumentRangeQuery extends FilePathQuery {
@@ -555,7 +474,7 @@ export interface FormatDocumentRangeResponse { edits: CodeEdit[]; }
 export function formatDocumentRange(query: FormatDocumentRangeQuery): Promise<FormatDocumentRangeResponse> {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
-    return resolve({ edits: _formatDocumentRange(proj, query.filePath, query.start, query.end) });
+    return resolve({ edits: formatting.formatDocumentRange(proj, query.filePath, query.start, query.end) });
 }
 
 export interface GetDefinitionsAtPositionQuery extends FilePathPositionQuery { }
@@ -616,7 +535,7 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
     }
 
-    return resolve({ errors: diagnostics.map(_diagnosticToTSError) });
+    return resolve({ errors: diagnostics.map(building.diagnosticToTSError) });
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }

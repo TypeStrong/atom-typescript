@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../globals.ts"/> ///ts:ref:generated
 var childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;

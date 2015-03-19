@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var path = require('path');
 var fs = require('fs');
 var _atom = require('atom');

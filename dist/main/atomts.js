@@ -1,3 +1,5 @@
+///ts:ref=globals
+/// <reference path="../globals.ts"/> ///ts:ref:generated
 var path = require('path');
 var fs = require('fs');
 var apd = require('atom-package-dependencies');
@@ -87,6 +89,13 @@ function readyToActivate() {
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
+                    //// For debugging
+                    // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
+                    //     buffer.characterIndexForPosition(diff.newRange.start), buffer.characterIndexForPosition(diff.newRange.end), diff.newText);
+                    //// Examples
+                    //// 20 20 "aaaa" 20 20 ""
+                    //// 23 23 "" 23 24 "a"
+                    //// 20 20 "" 20 24 "aaaa"
                     var newText = diff.newText;
                     newText = editor.buffer.getTextInRange(diff.newRange);
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);

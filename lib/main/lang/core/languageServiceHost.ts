@@ -1084,7 +1084,7 @@ export class ScriptInfo {
 
 // Note: All the magic code is really behind the ScripInfo class
 
-import tsconfig = require('../tsconfig/tsconfig');
+import tsconfig = require('../../tsconfig/tsconfig');
 import path = require('path');
 import fs = require('fs');
 

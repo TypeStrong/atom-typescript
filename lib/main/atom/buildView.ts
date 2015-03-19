@@ -4,7 +4,7 @@
 ///ts:import=utils
 import utils = require('../lang/utils'); ///ts:import:generated
 ///ts:import=project
-import project = require('../lang/project'); ///ts:import:generated
+import project = require('../lang/core/project'); ///ts:import:generated
 
 import os = require('os')
 

@@ -18,16 +18,16 @@
 //   limitations under the License.
 
 ///ts:ref=atom.d
-/// <reference path="../../typings/atom/atom.d.ts"/> ///ts:ref:generated
+/// <reference path="../../../typings/atom/atom.d.ts"/> ///ts:ref:generated
 
 'use strict';
 
 import ts = require('typescript');
 import path = require('path');
-import utils = require('./utils');
+import utils = require('../utils');
 import fs = require('fs');
 
-import tsconfig = require('../tsconfig/tsconfig');
+import tsconfig = require('../../tsconfig/tsconfig');
 
 interface ScriptInfo {
     getFileName(): string;

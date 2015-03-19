@@ -1,14 +1,10 @@
-/// <reference path="../../typings/atom/atom.d.ts"/>
-
-'use strict';
-
 import ts = require('typescript');
 import path = require('path');
-import utils = require('./utils');
+import utils = require('../utils');
 import fs = require('fs');
 import textBuffer = require('basarat-text-buffer');
 
-import tsconfig = require('../tsconfig/tsconfig');
+import tsconfig = require('../../tsconfig/tsconfig');
 
 interface ScriptInfo {
     getFileName(): string;
