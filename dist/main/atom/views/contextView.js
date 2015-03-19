@@ -5,15 +5,21 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var sp = require('atom-space-pen-views');
+var mainPanelView = require('./mainPanelView');
+var titles = {
+    togglePanel: 'Toggle TypeScript Panel',
+    tabErrors: 'Tab: Errors in Open Files',
+    tabLastBuild: 'Tab: Last Build Output'
+};
 var items = [
     {
-        title: 'Toggle TypeScript Panel'
+        title: titles.togglePanel
     },
     {
-        title: 'Tab: Errors in Open Files'
+        title: titles.tabErrors
     },
     {
-        title: 'Tab: Last Build Output'
+        title: titles.tabLastBuild
     }
 ];
 var ContextView = (function (_super) {
@@ -36,7 +42,15 @@ var ContextView = (function (_super) {
         return "<li>" + item.title + "</li>";
     };
     ContextView.prototype.confirmed = function (item) {
-        console.log(item);
+        if (item.title == titles.togglePanel) {
+            mainPanelView.panelView.toggle();
+        }
+        if (item.title == titles.tabErrors) {
+            mainPanelView.panelView.errorPanelSelected();
+        }
+        if (item.title == titles.tabLastBuild) {
+            mainPanelView.panelView.buildPanelSelected();
+        }
         this.hide();
     };
     ContextView.prototype.getFilterKey = function () {
