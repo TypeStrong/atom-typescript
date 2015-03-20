@@ -48,7 +48,7 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
 }
 ```
 ### formatCodeOptions
-We pass these to the TypeScript language service as code formatting options.
+These are used when you request the IDE to format TypeScript code.
 
 ```json
 {
