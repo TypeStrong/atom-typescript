@@ -24,9 +24,17 @@ var RenameView = (function (_super) {
             }
         });
         this.newNameEditor.on('keydown', function (e) {
+            var newText = _this.newNameEditor.model.getText();
             if (e.keyCode == 13) {
+                var invalid = _this.options.onValidate(newText);
+                if (invalid) {
+                    _this.validationMessage.text(invalid);
+                    _this.validationMessage.show();
+                    return;
+                }
+                _this.validationMessage.hide();
                 if (_this.options.onCommit) {
-                    _this.options.onCommit(_this.newNameEditor.model.getText());
+                    _this.options.onCommit(newText);
                     _this.clearView();
                 }
             }

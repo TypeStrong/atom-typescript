@@ -127,8 +127,17 @@ export function registerCommands() {
             renameView.panelView.renameThis({
                 text: res.displayName,
                 onCancel: () => { },
+                onValidate: (newText): string => {
+                    if (newText.replace(/\s/g, '') !== newText.trim()) {
+                        return 'The new variable must not contain a space';
+                    }
+                    if(!newText.trim()){
+                        return 'If you want to abort : Press esc to exit'
+                    }
+                    return '';
+                },
                 onCommit: (newText) => {
-
+                    newText = newText.trim();
                     // if file is open change in buffer
                     // otherwise open the file and change the buffer range
                     atomUtils.getEditorsForAllPaths(Object.keys(res.locations))

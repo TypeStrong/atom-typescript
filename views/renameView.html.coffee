@@ -16,3 +16,5 @@ module.exports =
             @div class: 'find-container block', =>
                 @div class: 'editor-container', =>
                     @subview 'newNameEditor', new TextEditorView(mini: true, placeholderText: 'new name')
+            
+            @div {class: 'highlight-error', style:'display:none', outlet:'validationMessage'}, 

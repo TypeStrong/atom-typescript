@@ -115,7 +115,17 @@ function registerCommands() {
                 text: res.displayName,
                 onCancel: function () {
                 },
+                onValidate: function (newText) {
+                    if (newText.replace(/\s/g, '') !== newText.trim()) {
+                        return 'The new variable must not contain a space';
+                    }
+                    if (!newText.trim()) {
+                        return 'If you want to abort : Press esc to exit';
+                    }
+                    return '';
+                },
                 onCommit: function (newText) {
+                    newText = newText.trim();
                     atomUtils.getEditorsForAllPaths(Object.keys(res.locations)).then(function (editorMap) {
                         Object.keys(res.locations).forEach(function (filePath) {
                             var editor = editorMap[filePath];

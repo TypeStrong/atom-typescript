@@ -10,12 +10,15 @@ interface RenameViewOptions {
     text: string;
     onCommit: (newValue: string) => any;
     onCancel: () => any;
+    /** A truthy string return indicates a validation error */
+    onValidate: (newValue: string) => string;
 }
 
 export class RenameView
     extends view.View<RenameViewOptions> {
 
     private newNameEditor: EditorView;
+    private validationMessage: JQuery;
     static content = html;
 
     public init() {
@@ -29,9 +32,18 @@ export class RenameView
         });
 
         this.newNameEditor.on('keydown',(e) => {
+            var newText = this.newNameEditor.model.getText();
             if (e.keyCode == 13) { // enter
+                var invalid = this.options.onValidate(newText);
+                if(invalid){
+                    this.validationMessage.text(invalid);
+                    this.validationMessage.show();
+                    return;
+                }
+                this.validationMessage.hide();
+                
                 if (this.options.onCommit) {
-                    this.options.onCommit(this.newNameEditor.model.getText());
+                    this.options.onCommit(newText);
                     this.clearView();
                 }
             }
