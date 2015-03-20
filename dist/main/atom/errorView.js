@@ -4,6 +4,7 @@ var utils = require('../lang/utils');
 var mainPanelView = require('./views/mainPanelView');
 var lineMessageView = require('./views/lineMessageView');
 var atomUtils = require('./atomUtils');
+var gotoHistory = require('./gotoHistory');
 function start() {
     mainPanelView.attach();
     mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
@@ -21,6 +22,7 @@ exports.setErrors = function (filePath, errorsForFile) {
     ;
     mainPanelView.panelView.clearError();
     var fileErrorCount = filePathErrors.keys().length;
+    gotoHistory.errorsInOpenFiles.members = [];
     if (!fileErrorCount) {
         mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
     }
@@ -30,11 +32,20 @@ exports.setErrors = function (filePath, errorsForFile) {
             filePathErrors.getValue(path).forEach(function (error) {
                 totalErrorCount++;
                 mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
+                    goToLine: function (filePath, line, col) {
+                        return gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles);
+                    },
                     message: error.message,
                     line: error.startPos.line + 1,
+                    col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
+                gotoHistory.errorsInOpenFiles.members.push({
+                    filePath: error.filePath,
+                    line: error.startPos.line + 1,
+                    col: error.startPos.col
+                });
             });
         }
         mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);

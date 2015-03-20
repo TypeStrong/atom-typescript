@@ -3,10 +3,16 @@ var $ = view.$;
 import path = require('path');
 
 export interface ViewOptions {
+    /** This is needed to support good goto next / goto previous logic 
+     *  We inform the parent about our navigation
+     */
+    goToLine: (filePath: string, line: number, col: number) => any;
     /** your message to the people */
     message: string;
-    /**  what line are we talking about? */
+    /** what line are we talking about? */
     line: number;
+    /** which column */
+    col: number;
     /** so, was that in some other file? */
     file: string; 
     /** lets you display a code snippet inside a pre tag */
@@ -15,6 +21,7 @@ export interface ViewOptions {
 
 export class LineMessageView extends view.View<ViewOptions> {
 
+    public index: number;
     private position: JQuery;
     private contents: JQuery;
     private code: JQuery;
@@ -58,21 +65,7 @@ export class LineMessageView extends view.View<ViewOptions> {
     }
 
     goToLine() {
-        var char = 0;
-        var activeFile,
-            activeEditor = atom.workspace.getActiveEditor();
-        if (activeEditor !== undefined && activeEditor !== null) {
-            activeFile = activeEditor.getPath();
-        }
-
-        if (this.options.file !== undefined && this.options.file !== activeFile) {
-            atom.workspace.open(this.options.file, {
-                initialLine: this.options.line - 1,
-                initialColumn: char
-            });
-        } else {
-            atom.workspace.getActiveEditor().cursors[0].setBufferPosition([this.options.line - 1, char]);
-        }
+        this.options.goToLine(this.options.file,this.options.line, this.options.col);
     }
 
     getSummary() {

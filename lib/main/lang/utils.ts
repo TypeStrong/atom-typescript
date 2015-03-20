@@ -220,6 +220,7 @@ export function pathIsRelative(str: string) {
     return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
 }
 
+/** Key is string. Note: this data structure might have been a bad idea. Sorry. */
 export class Dict<T>{
     public table = Object.create(null);
     constructor() { }
@@ -232,7 +233,7 @@ export class Dict<T>{
     }
     clearAll() { this.table = Object.create(null); }
     keys() { return Object.keys(this.table); }
-    values() {
+    values(): T[] {
         var array = [];
         for (var key in this.table) {
             array.push(this.table[key]);

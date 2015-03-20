@@ -64,6 +64,12 @@ Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said it
 ## Block Comment and Uncomment
 `ctrl+/` or `cmd+/`. Does a block comment / uncomment of code.
 
+## Go to Next / Go to Previous
+`f8` and `shift+f8` respectively. This will go to next/previous *errors in open files* OR *build error* based on which tab you have selected.
+
+## Context menu
+Quickly toggle the TypeScript panel OR select active TypeScript panel tab and other stuff using the context menu. `ctrl+;` or `cmd+;`.
+
 ## Refactoring
 
 ### Rename

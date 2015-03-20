@@ -49,23 +49,7 @@ var LineMessageView = (function (_super) {
         }
     };
     LineMessageView.prototype.goToLine = function () {
-        var char = 0;
-        var activeFile, activeEditor = atom.workspace.getActiveEditor();
-        if (activeEditor !== undefined && activeEditor !== null) {
-            activeFile = activeEditor.getPath();
-        }
-        if (this.options.file !== undefined && this.options.file !== activeFile) {
-            atom.workspace.open(this.options.file, {
-                initialLine: this.options.line - 1,
-                initialColumn: char
-            });
-        }
-        else {
-            atom.workspace.getActiveEditor().cursors[0].setBufferPosition([
-                this.options.line - 1,
-                char
-            ]);
-        }
+        this.options.goToLine(this.options.file, this.options.line, this.options.col);
     };
     LineMessageView.prototype.getSummary = function () {
         var pos = this.options.line.toString();

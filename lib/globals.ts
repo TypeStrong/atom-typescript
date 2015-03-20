@@ -90,3 +90,14 @@ interface CodeEdit {
     end: EditorPosition;
     newText: string;
 }
+
+/** Interfaces used by GotoHistory feature */
+interface GotoPosition {
+    filePath: string;
+    line: number;
+    col: number;
+}
+interface TabWithGotoPositions {
+    lastPosition?: GotoPosition;
+    members: GotoPosition[];
+}

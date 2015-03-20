@@ -10,6 +10,7 @@ import os = require('os')
 
 import mainPanelView = require('./views/mainPanelView');
 import lineMessageView = require('./views/lineMessageView');
+import gotoHistory = require('./gotoHistory');
 
 function getTitle(errorCount: number): string {
     var title = '<span class="icon-circuit-board"></span> TypeScript Build';
@@ -33,6 +34,9 @@ export function setBuildOutput(buildOutput: BuildOutput) {
     else {
         mainPanelView.panelView.setBuildPanelCount(0);
     }
+    
+    // Update the errors list for goto history
+    gotoHistory.buildOutput.members = [];
 
     buildOutput.outputs.forEach(output => {
         if (output.success) {
@@ -40,11 +44,15 @@ export function setBuildOutput(buildOutput: BuildOutput) {
         }
         output.errors.forEach(error => {
             mainPanelView.panelView.addBuild(new lineMessageView.LineMessageView({
+                goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput),
                 message: error.message,
                 line: error.startPos.line + 1,
+                col: error.startPos.col,
                 file: error.filePath,
                 preview: error.preview
             }));
+            // Update the errors list for goto history
+            gotoHistory.buildOutput.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
         });
     });
 

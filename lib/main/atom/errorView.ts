@@ -10,6 +10,7 @@ import mainPanelView = require('./views/mainPanelView');
 import lineMessageView = require('./views/lineMessageView');
 import plainMessageView = require('./views/plainMessageView');
 import atomUtils = require('./atomUtils');
+import gotoHistory = require('./gotoHistory');
 
 import os = require('os')
 
@@ -35,6 +36,9 @@ export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
 
     var fileErrorCount = filePathErrors.keys().length;
 
+    // Update the errors list for goto history
+    gotoHistory.errorsInOpenFiles.members = [];
+
     if (!fileErrorCount) {
         mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
     }
@@ -44,11 +48,15 @@ export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
             filePathErrors.getValue(path).forEach((error: TSError) => {
                 totalErrorCount++;
                 mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
+                    goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles),
                     message: error.message,
                     line: error.startPos.line + 1,
+                    col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
+                // Update the errors list for goto history
+                gotoHistory.errorsInOpenFiles.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
             });
         }
         mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);

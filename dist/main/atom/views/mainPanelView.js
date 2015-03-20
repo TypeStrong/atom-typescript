@@ -11,6 +11,7 @@ var panelHeaders = {
     error: 'Errors In Open Files',
     build: 'Last Build Output'
 };
+var gotoHistory = require('../gotoHistory');
 var MainPanelView = (function (_super) {
     __extends(MainPanelView, _super);
     function MainPanelView() {
@@ -101,12 +102,16 @@ var MainPanelView = (function (_super) {
         this.buildPanelBtn.removeClass('selected');
         this.expanded = true;
         this.setActivePanel();
+        gotoHistory.activeList = gotoHistory.errorsInOpenFiles;
+        gotoHistory.activeList.lastPosition = null;
     };
     MainPanelView.prototype.buildPanelSelected = function () {
         this.errorPanelBtn.removeClass('selected');
         this.buildPanelBtn.addClass('selected');
         this.expanded = true;
         this.setActivePanel();
+        gotoHistory.activeList = gotoHistory.buildOutput;
+        gotoHistory.activeList.lastPosition = null;
     };
     MainPanelView.prototype.setActivePanel = function () {
         if (this.expanded) {
@@ -186,6 +191,7 @@ var MainPanelView = (function (_super) {
             this.buildProgress.show();
             this.buildProgress.removeClass('warn');
             this.buildBody.html('<span class="text-success">Things are looking good \u2665</span>');
+            gotoHistory.buildOutput.members = [];
         }
         if (progress.builtCount == progress.totalCount) {
             this.buildProgress.hide();
@@ -201,11 +207,20 @@ var MainPanelView = (function (_super) {
         if (progress.errorsInFile.length) {
             progress.errorsInFile.forEach(function (error) {
                 _this.addBuild(new lineMessageView.LineMessageView({
+                    goToLine: function (filePath, line, col) {
+                        return gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput);
+                    },
                     message: error.message,
                     line: error.startPos.line + 1,
+                    col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
+                gotoHistory.buildOutput.members.push({
+                    filePath: error.filePath,
+                    line: error.startPos.line + 1,
+                    col: error.startPos.col
+                });
             });
         }
     };

@@ -9,6 +9,8 @@ var panelHeaders = {
     build: 'Last Build Output'
 }
 
+import gotoHistory = require('../gotoHistory');
+
 export class MainPanelView extends view.View<any> {
 
     private btnFold: JQuery;
@@ -102,7 +104,9 @@ export class MainPanelView extends view.View<any> {
         this.errorPanelBtn.addClass('selected');
         this.buildPanelBtn.removeClass('selected');
         this.expanded = true;
-        this.setActivePanel();
+        this.setActivePanel();        
+        gotoHistory.activeList = gotoHistory.errorsInOpenFiles;
+        gotoHistory.activeList.lastPosition = null;
     }
 
     buildPanelSelected() {
@@ -110,6 +114,8 @@ export class MainPanelView extends view.View<any> {
         this.buildPanelBtn.addClass('selected');
         this.expanded = true;
         this.setActivePanel();
+        gotoHistory.activeList = gotoHistory.buildOutput;
+        gotoHistory.activeList.lastPosition = null;
     }
 
     private setActivePanel() {
@@ -221,6 +227,9 @@ export class MainPanelView extends view.View<any> {
             this.buildProgress.show();
             this.buildProgress.removeClass('warn');
             this.buildBody.html('<span class="text-success">Things are looking good \u2665</span>');
+            
+            // Update the errors list for goto history
+            gotoHistory.buildOutput.members = [];
         }
         
         // For last time we don't care just return 
@@ -242,11 +251,15 @@ export class MainPanelView extends view.View<any> {
         if (progress.errorsInFile.length) {
             progress.errorsInFile.forEach(error => {
                 this.addBuild(new lineMessageView.LineMessageView({
+                    goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput),
                     message: error.message,
                     line: error.startPos.line + 1,
+                    col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
+                // Update the errors list for goto history
+                gotoHistory.buildOutput.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
             });
         }
     }

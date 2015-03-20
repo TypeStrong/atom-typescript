@@ -24,6 +24,7 @@
         "./main/atom/commands.ts",
         "./main/atom/debugAtomTs.ts",
         "./main/atom/errorView.ts",
+        "./main/atom/gotoHistory.ts",
         "./main/atom/onSaveHandler.ts",
         "./main/atom/signatureProvider.ts",
         "./main/atom/tooltipManager.ts",

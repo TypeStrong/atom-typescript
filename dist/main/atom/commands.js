@@ -6,6 +6,7 @@ var path = require('path');
 var renameView = require('./views/renameView');
 var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
+var gotoHistory = require('./gotoHistory');
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
@@ -93,7 +94,6 @@ function registerCommands() {
         if (!theContextView)
             theContextView = new contextView.ContextView();
         theContextView.show();
-        atom.notifications.addSuccess('Context options coming soon!');
     });
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
@@ -130,6 +130,12 @@ function registerCommands() {
                 }
             });
         });
+    });
+    atom.commands.add('atom-workspace', 'typescript:go-to-next', function (e) {
+        gotoHistory.gotoNext();
+    });
+    atom.commands.add('atom-workspace', 'typescript:go-to-previous', function (e) {
+        gotoHistory.gotoPrevious();
     });
 }
 exports.registerCommands = registerCommands;

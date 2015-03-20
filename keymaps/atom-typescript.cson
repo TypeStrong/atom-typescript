@@ -17,3 +17,7 @@
   'cmd-shift-b': 'typescript:build'
   'cmd-b': 'typescript:go-to-declaration'
 
+# Quick navigations
+'.platform-win32, .platform-linux, .platform-darwin':
+  'f8': 'typescript:go-to-next'
+  'shift-f8': 'typescript:go-to-previous'

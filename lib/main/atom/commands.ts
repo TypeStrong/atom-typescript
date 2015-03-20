@@ -15,6 +15,7 @@ import documentationView = require('./views/documentationView'); ///ts:import:ge
 import renameView = require('./views/renameView'); ///ts:import:generated
 var apd = require('atom-package-dependencies');
 import contextView = require('./views/contextView');
+import gotoHistory = require('./gotoHistory');
 
 // Utility functions for commands
 function commandForTypeScript(e) {
@@ -99,7 +100,6 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
         if (!theContextView) theContextView = new contextView.ContextView();
         theContextView.show();
-        atom.notifications.addSuccess('Context options coming soon!');
     });
 
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
@@ -147,6 +147,14 @@ export function registerCommands() {
             });
         });
     });
+
+    atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {
+        gotoHistory.gotoNext();
+    });
+    atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
+        gotoHistory.gotoPrevious();
+    });
+
 
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
