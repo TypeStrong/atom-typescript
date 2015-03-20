@@ -21,16 +21,6 @@ function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
-var pendingActivation = false;
-function delayTriggerAutocompletePlus() {
-    if (pendingActivation)
-        return;
-    pendingActivation = true;
-    setTimeout(function () {
-        triggerAutocompletePlus();
-        pendingActivation = false;
-    }, 50);
-}
 var tsSnipPrefixLookup = Object.create(null);
 function loadSnippets() {
     var confPath = atom.getConfigDirPath();
@@ -102,7 +92,6 @@ exports.provider = {
                 var completionList = resp.completions;
                 var suggestions = completionList.map(function (c) {
                     if (c.snippet) {
-                        delayTriggerAutocompletePlus();
                         return {
                             snippet: c.snippet,
                             replacementPrefix: '',

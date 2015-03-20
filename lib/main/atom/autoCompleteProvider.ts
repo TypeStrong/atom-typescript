@@ -72,17 +72,6 @@ export function triggerAutocompletePlus() {
         'autocomplete-plus:activate');
 }
 
-var pendingActivation = false;
-function delayTriggerAutocompletePlus() {
-    if (pendingActivation) return;
-    pendingActivation = true;
-    setTimeout(() => {
-        triggerAutocompletePlus();
-        pendingActivation = false;
-    }, 50);
-}
-
-
 // the structure stored in the CSON snippet file
 interface SnippetDescriptor {
     prefix: string;
@@ -180,14 +169,12 @@ export var provider: autocompleteplus.Provider = {
                     maxSuggestions: atomConfig.maxSuggestions
                 })
                     .then((resp) => {
+                        
                     var completionList = resp.completions;
                     var suggestions = completionList.map((c): autocompleteplus.Suggestion => {
 
                         if (c.snippet) // currently only function completions are snippet
                         {
-                            // TODO: remove once https://github.com/atom-community/autocomplete-plus/issues/329 is solved
-                            delayTriggerAutocompletePlus(); 
-                            
                             return {
                                 snippet: c.snippet,
                                 replacementPrefix: '',
