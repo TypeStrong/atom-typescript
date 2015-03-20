@@ -72,6 +72,15 @@ export function triggerAutocompletePlus() {
         'autocomplete-plus:activate');
 }
 
+var pendingActivation = false;
+function delayTriggerAutocompletePlus() {
+    if (pendingActivation) return;
+    pendingActivation = true;
+    setTimeout(() => {
+        triggerAutocompletePlus();
+        pendingActivation = false;
+    }, 50);
+}
 
 
 // the structure stored in the CSON snippet file
@@ -132,6 +141,7 @@ export var provider: autocompleteplus.Provider = {
         var pathMatchers = ['reference.path.string', 'require.path.string'];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
 
+        // For file path completions
         if (pathMatchers.some(p=> lastScope === p)) {
             return parent.getRelativePathsInProject({ filePath, prefix: options.prefix })
                 .then((resp) => {
@@ -171,12 +181,26 @@ export var provider: autocompleteplus.Provider = {
                 })
                     .then((resp) => {
                     var completionList = resp.completions;
-                    var suggestions = completionList.map((c):autocompleteplus.Suggestion => {
-                        return {
-                            text: c.name,
-                            replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                            rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
-                        };
+                    var suggestions = completionList.map((c): autocompleteplus.Suggestion => {
+
+                        if (c.snippet) // currently only function completions are snippet
+                        {
+                            // TODO: remove once https://github.com/atom-community/autocomplete-plus/issues/329 is solved
+                            delayTriggerAutocompletePlus(); 
+                            
+                            return {
+                                snippet: c.snippet,
+                                replacementPrefix: '',
+                                rightLabel: 'signature'
+                            };
+                        }
+                        else {
+                            return {
+                                text: c.name,
+                                replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                                rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
+                            };
+                        }
                     });
 
 
@@ -185,7 +209,7 @@ export var provider: autocompleteplus.Provider = {
                         // you only get the snippet suggested after you have typed
                         // the full trigger word/ prefex
                         // and then it replaces a keyword/match that might also be present, e.g. "class"
-                        let suggestion:autocompleteplus.Suggestion = {
+                        let suggestion: autocompleteplus.Suggestion = {
                             snippet: tsSnipPrefixLookup[options.prefix].body,
                             replacementPrefix: options.prefix,
                             rightLabelHTML: "snippet: " + options.prefix,

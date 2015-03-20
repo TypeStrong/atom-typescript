@@ -364,10 +364,13 @@ export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     maxSuggestions: number;
 }
 export interface Completion {
-    name: string; // stuff like "toString"
-    kind: string; // stuff like "var"
-    comment: string; // the docComment if any
-    display: string; // This is either displayParts (for functions) or just the kind duplicated
+    name?: string; // stuff like "toString"
+    kind?: string; // stuff like "var"
+    comment?: string; // the docComment if any
+    display?: string; // This is either displayParts (for functions) or just the kind duplicated
+    
+    /** If snippet is specified then the above stuff is ignored */
+    snippet?: string;
 }
 export interface GetCompletionsAtPositionResponse {
     completions: Completion[];
@@ -375,7 +378,6 @@ export interface GetCompletionsAtPositionResponse {
 }
 var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
 var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
-/** gets the first 10 completions only */
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
@@ -414,16 +416,40 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         return { display: display, comment: comment };
     }
 
+    var completionsToReturn: Completion[] = completionList.map(c=> {
+        var details = docComment(c);
+        return {
+            name: c.name,
+            kind: c.kind,
+            comment: details.comment,
+            display: details.display
+        };
+    });
+
+    if (query.prefix == '(') {
+        var signatures = project.languageService.getSignatureHelpItems(query.filePath, query.position);
+        if (signatures && signatures.items) {
+            signatures.items.forEach((item) => {
+                var snippet: string = item.parameters.map((p, i) => {
+                    var display = '${' + (i + 1) + ':' + ts.displayPartsToString(p.displayParts) + '}';
+                    if (i === signatures.argumentIndex) {
+                        return display;
+                    }
+                    return display;
+                }).join(ts.displayPartsToString(item.separatorDisplayParts));
+            
+                // We do not use the label for now. But it looks too good to kill off
+                var label: string = ts.displayPartsToString(item.prefixDisplayParts)
+                    + snippet
+                    + ts.displayPartsToString(item.suffixDisplayParts);
+
+                completionsToReturn.unshift({ snippet });
+            });
+        }
+    }
+
     return resolve({
-        completions: completionList.map(c=> {
-            var details = docComment(c);
-            return {
-                name: c.name,
-                kind: c.kind,
-                comment: details.comment,
-                display: details.display
-            };
-        }),
+        completions: completionsToReturn,
         endsInPunctuation: endsInPunctuation
     });
 }

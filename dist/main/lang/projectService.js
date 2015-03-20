@@ -324,16 +324,35 @@ function getCompletionsAtPosition(query) {
             comment: comment
         };
     }
+    var completionsToReturn = completionList.map(function (c) {
+        var details = docComment(c);
+        return {
+            name: c.name,
+            kind: c.kind,
+            comment: details.comment,
+            display: details.display
+        };
+    });
+    if (query.prefix == '(') {
+        var signatures = project.languageService.getSignatureHelpItems(query.filePath, query.position);
+        if (signatures && signatures.items) {
+            signatures.items.forEach(function (item) {
+                var snippet = item.parameters.map(function (p, i) {
+                    var display = '${' + (i + 1) + ':' + ts.displayPartsToString(p.displayParts) + '}';
+                    if (i === signatures.argumentIndex) {
+                        return display;
+                    }
+                    return display;
+                }).join(ts.displayPartsToString(item.separatorDisplayParts));
+                var label = ts.displayPartsToString(item.prefixDisplayParts) + snippet + ts.displayPartsToString(item.suffixDisplayParts);
+                completionsToReturn.unshift({
+                    snippet: snippet
+                });
+            });
+        }
+    }
     return resolve({
-        completions: completionList.map(function (c) {
-            var details = docComment(c);
-            return {
-                name: c.name,
-                kind: c.kind,
-                comment: details.comment,
-                display: details.display
-            };
-        }),
+        completions: completionsToReturn,
         endsInPunctuation: endsInPunctuation
     });
 }
