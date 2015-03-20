@@ -16,14 +16,14 @@
       }
     }
   },
-  "homepage": "http://atom.io/packages/typescript",
+  "homepage": "http://atom.io/packages/atom-typescript",
   "repository": {
     "type": "git",
     "url": "https://github.com/TypeStrong/atom-typescript.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/atom-typescript/issues"
+    "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
     "emissary": "^1.3.3",
