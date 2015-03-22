@@ -35,7 +35,7 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
     },
     "filesGlob": [
         "./**/*.ts",
-        "!node_modules/**/*.ts"
+        "!./node_modules/**/*.ts"
     ],
     "files": [
         "./globals.ts",
