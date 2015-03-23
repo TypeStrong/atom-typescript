@@ -216,10 +216,10 @@ export var provider: autocompleteplus.Provider = {
             options.editor.selectToEndOfLine();
 
             if (options.suggestion.atomTS_IsReference)
-                options.editor.replaceSelectedText(null, function() { return "/// <reference path='" + options.suggestion.atomTS_IsReference.relativePath + "'/>"; });
+                options.editor.replaceSelectedText(null, function() { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>'; });
             if (options.suggestion.atomTS_IsImport) {
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function() { return "import " + alias + " = require('" + options.suggestion.atomTS_IsImport.relativePath + "');"; });
+                options.editor.replaceSelectedText(null, function() { return "import " + alias + ' = require("'+ options.suggestion.atomTS_IsImport.relativePath + '");'; });
             }
             options.editor.moveToEndOfLine();
         }
