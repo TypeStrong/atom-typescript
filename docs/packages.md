@@ -42,5 +42,8 @@ It also allows you to configure options of `atom-typescript` on a per project ba
 ### Jumpy
 https://atom.io/packages/jumpy saves a lot of wrist pain.
 
+### last-cursor-position
+https://atom.io/packages/last-cursor-position Like visual studio go back to previous location. Really useful when you do `ctrl+b`.
+
 ### Find selection
 https://atom.io/packages/find-selection who has time to bring up the find and replace dialog for a quick find word.
