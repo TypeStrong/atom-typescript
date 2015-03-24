@@ -45,6 +45,7 @@ function findCurrentIndexInList(): number {
     if (index == -1) {
         return 0;
     }
+    return index;
 }
 
 /** Uses `activeList` to go to the next position or loop back */

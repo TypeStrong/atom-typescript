@@ -43,6 +43,7 @@ function findCurrentIndexInList() {
     if (index == -1) {
         return 0;
     }
+    return index;
 }
 function gotoNext() {
     var currentIndex = findCurrentIndexInList();
