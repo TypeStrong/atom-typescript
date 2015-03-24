@@ -37,9 +37,12 @@ function findCurrentIndexInList() {
     if (!exports.activeList.lastPosition)
         return 0;
     var lastPosition = exports.activeList.lastPosition;
-    return indexOf(exports.activeList.members, function (item) {
+    var index = indexOf(exports.activeList.members, function (item) {
         return item.filePath == lastPosition.filePath && item.line == lastPosition.line;
     });
+    if (index == -1) {
+        return 0;
+    }
 }
 function gotoNext() {
     var currentIndex = findCurrentIndexInList();

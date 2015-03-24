@@ -39,7 +39,12 @@ function findCurrentIndexInList(): number {
         return 0;
 
     var lastPosition = activeList.lastPosition;
-    return indexOf(activeList.members, (item) => item.filePath == lastPosition.filePath && item.line == lastPosition.line);
+    var index = indexOf(activeList.members, (item) => item.filePath == lastPosition.filePath && item.line == lastPosition.line);
+    
+    // if the item has since been removed go to 0
+    if (index == -1) {
+        return 0;
+    }
 }
 
 /** Uses `activeList` to go to the next position or loop back */
