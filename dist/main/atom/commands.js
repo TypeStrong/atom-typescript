@@ -160,7 +160,7 @@ function registerCommands() {
             theFileSymbolsView.show();
         });
     }, 400);
-    atom.commands.add('.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols', function (e) {
+    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols', function (e) {
         var editor = atom.workspace.getActiveTextEditor();
         if (!editor)
             return false;

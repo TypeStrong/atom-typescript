@@ -180,17 +180,18 @@ export function registerCommands() {
     }, 400);
     
     // We support symbols view as well
-    atom.commands.add('.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols', (e) => {
-        var editor = atom.workspace.getActiveTextEditor();
-        if (!editor) return false;
-        if (path.extname(editor.getPath()) !== '.ts') return false;
+    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols',
+        (e) => {
+            var editor = atom.workspace.getActiveTextEditor();
+            if (!editor) return false;
+            if (path.extname(editor.getPath()) !== '.ts') return false;
 
         
-        // Abort it for others 
-        e.abortKeyBinding();
-        var filePath = editor.getPath();
-        showNavBarItems(filePath);
-    });
+            // Abort it for others 
+            e.abortKeyBinding();
+            var filePath = editor.getPath();
+            showNavBarItems(filePath);
+        });
 
 
     /// Register autocomplete commands to show documentations
