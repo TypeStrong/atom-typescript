@@ -73,7 +73,7 @@ Quickly toggle the TypeScript panel OR select active TypeScript panel tab and ot
 ## Symbols View
 Integrates with atom's symbols view (`ctrl+r` or `cmd+r`) to provide you with a list of searchable symbols in the current file.
 
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/symbolsView.png)
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/symbolsView.gif)
 
 ## Refactoring
 
