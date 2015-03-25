@@ -186,25 +186,25 @@ var LineNode = (function () {
         var childCharCount = child.charCount();
         var adjustedStart = rangeStart;
         while (adjustedStart >= childCharCount) {
-            this.skipChild(adjustedStart, rangeLength, childIndex, walkFns, 0);
+            this.skipChild(adjustedStart, rangeLength, childIndex, walkFns, CharRangeSection.PreStart);
             adjustedStart -= childCharCount;
             child = this.children[++childIndex];
             childCharCount = child.charCount();
         }
         if ((adjustedStart + rangeLength) <= childCharCount) {
-            if (this.execWalk(adjustedStart, rangeLength, walkFns, childIndex, 2)) {
+            if (this.execWalk(adjustedStart, rangeLength, walkFns, childIndex, CharRangeSection.Entire)) {
                 return;
             }
         }
         else {
-            if (this.execWalk(adjustedStart, childCharCount - adjustedStart, walkFns, childIndex, 1)) {
+            if (this.execWalk(adjustedStart, childCharCount - adjustedStart, walkFns, childIndex, CharRangeSection.Start)) {
                 return;
             }
             var adjustedLength = rangeLength - (childCharCount - adjustedStart);
             child = this.children[++childIndex];
             childCharCount = child.charCount();
             while (adjustedLength > childCharCount) {
-                if (this.execWalk(0, childCharCount, walkFns, childIndex, 3)) {
+                if (this.execWalk(0, childCharCount, walkFns, childIndex, CharRangeSection.Mid)) {
                     return;
                 }
                 adjustedLength -= childCharCount;
@@ -212,7 +212,7 @@ var LineNode = (function () {
                 childCharCount = child.charCount();
             }
             if (adjustedLength > 0) {
-                if (this.execWalk(0, adjustedLength, walkFns, childIndex, 4)) {
+                if (this.execWalk(0, adjustedLength, walkFns, childIndex, CharRangeSection.End)) {
                     return;
                 }
             }
@@ -221,7 +221,7 @@ var LineNode = (function () {
             var clen = this.children.length;
             if (childIndex < (clen - 1)) {
                 for (var ej = childIndex + 1; ej < clen; ej++) {
-                    this.skipChild(0, 0, ej, walkFns, 5);
+                    this.skipChild(0, 0, ej, walkFns, CharRangeSection.PostEnd);
                 }
             }
         }
@@ -429,7 +429,7 @@ var EditWalker = (function (_super) {
         _super.call(this);
         this.lineIndex = new LineIndex();
         this.endBranch = [];
-        this.state = 2;
+        this.state = CharRangeSection.Entire;
         this.initialText = "";
         this.trailingText = "";
         this.suppressTrailingText = false;
@@ -519,15 +519,15 @@ var EditWalker = (function (_super) {
     };
     EditWalker.prototype.post = function (relativeStart, relativeLength, lineCollection, parent, nodeType) {
         if (lineCollection == this.lineCollectionAtBranch) {
-            this.state = 4;
+            this.state = CharRangeSection.End;
         }
         this.stack.length--;
         return undefined;
     };
     EditWalker.prototype.pre = function (relativeStart, relativeLength, lineCollection, parent, nodeType) {
         var currentNode = this.stack[this.stack.length - 1];
-        if ((this.state == 2) && (nodeType == 1)) {
-            this.state = 1;
+        if ((this.state == CharRangeSection.Entire) && (nodeType == CharRangeSection.Start)) {
+            this.state = CharRangeSection.Start;
             this.branchNode = currentNode;
             this.lineCollectionAtBranch = lineCollection;
         }
@@ -540,14 +540,14 @@ var EditWalker = (function (_super) {
                 return new LineNode();
         }
         switch (nodeType) {
-            case 0:
+            case CharRangeSection.PreStart:
                 this.goSubtree = false;
-                if (this.state != 4) {
+                if (this.state != CharRangeSection.End) {
                     currentNode.add(lineCollection);
                 }
                 break;
-            case 1:
-                if (this.state == 4) {
+            case CharRangeSection.Start:
+                if (this.state == CharRangeSection.End) {
                     this.goSubtree = false;
                 }
                 else {
@@ -556,8 +556,8 @@ var EditWalker = (function (_super) {
                     this.startPath[this.startPath.length] = child;
                 }
                 break;
-            case 2:
-                if (this.state != 4) {
+            case CharRangeSection.Entire:
+                if (this.state != CharRangeSection.End) {
                     child = fresh(lineCollection);
                     currentNode.add(child);
                     this.startPath[this.startPath.length] = child;
@@ -570,11 +570,11 @@ var EditWalker = (function (_super) {
                     }
                 }
                 break;
-            case 3:
+            case CharRangeSection.Mid:
                 this.goSubtree = false;
                 break;
-            case 4:
-                if (this.state != 4) {
+            case CharRangeSection.End:
+                if (this.state != CharRangeSection.End) {
                     this.goSubtree = false;
                 }
                 else {
@@ -585,9 +585,9 @@ var EditWalker = (function (_super) {
                     }
                 }
                 break;
-            case 5:
+            case CharRangeSection.PostEnd:
                 this.goSubtree = false;
-                if (this.state != 1) {
+                if (this.state != CharRangeSection.Start) {
                     currentNode.add(lineCollection);
                 }
                 break;
@@ -598,10 +598,10 @@ var EditWalker = (function (_super) {
         return lineCollection;
     };
     EditWalker.prototype.leaf = function (relativeStart, relativeLength, ll) {
-        if (this.state == 1) {
+        if (this.state == CharRangeSection.Start) {
             this.initialText = ll.text.substring(0, relativeStart);
         }
-        else if (this.state == 2) {
+        else if (this.state == CharRangeSection.Entire) {
             this.initialText = ll.text.substring(0, relativeStart);
             this.trailingText = ll.text.substring(relativeStart + relativeLength);
         }

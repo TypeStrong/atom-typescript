@@ -679,3 +679,74 @@ export function getProjectFileDetails(query: GetProjectFileDetailsQuery): Promis
     var project = getOrCreateProject(query.filePath);
     return resolve(project.projectFile);
 }
+
+
+//--------------------------------------------------------------------------
+//  getNavigationBarItems
+//--------------------------------------------------------------------------
+
+export interface GetNavigationBarItemsResponse {
+    items: NavigationBarItem[];
+}
+
+function sortNavbarItemsBySpan(items: ts.NavigationBarItem[]) {
+    items.sort((a, b) => a.spans[0].start - b.spans[0].start);
+    
+    // sort children recursively
+    for (let item of items) {
+        if (item.childItems) {
+            sortNavbarItemsBySpan(item.childItems);
+        }
+    }
+}
+/** 
+ * Note the `indent` is fairly useless in ts service
+ * Basically only exists for global / module level and 0 elsewhere
+ * We make it true indent here ;)
+ */
+function flattenNavBarItems(items: ts.NavigationBarItem[]): ts.NavigationBarItem[] {
+
+    var toreturn: ts.NavigationBarItem[] = [];
+    function keepAdding(item: ts.NavigationBarItem, depth: number) {
+        item.indent = depth;
+        var children = item.childItems;
+        delete item.childItems;
+        toreturn.push(item);
+
+        if (children) {
+            children.forEach(child => keepAdding(child, depth + 1));
+        }
+    }
+    // Kick it off 
+    items.forEach(item => keepAdding(item, 0));
+
+    return toreturn;
+}
+
+export function getNavigationBarItems(query: FilePathQuery): Promise<GetNavigationBarItemsResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+    var navBarItems = languageService.getNavigationBarItems(query.filePath);
+    
+    // remove the first global (whatever that is???)
+    if (navBarItems.length && navBarItems[0].text == "<global>") {
+        navBarItems.shift();
+    }
+        
+    // Sort items by first spans:
+    sortNavbarItemsBySpan(navBarItems);
+    
+    // And flatten
+    navBarItems = flattenNavBarItems(navBarItems);
+    
+    // Add a position    
+    var items = navBarItems.map(item=> {
+        (<any>item).position = project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start);
+        delete item.spans;
+        return <NavigationBarItem><any>item;
+    })
+
+    return resolve({ items });
+}
+

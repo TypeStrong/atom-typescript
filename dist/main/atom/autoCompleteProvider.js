@@ -5,18 +5,6 @@ var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
 var CSON = require("season");
-function kindToColor(kind) {
-    switch (kind) {
-        case 'interface':
-            return 'rgb(16, 255, 0)';
-        case 'keyword':
-            return 'rgb(0, 207, 255)';
-        case 'class':
-            return 'rgb(255, 0, 194)';
-        default:
-            return 'white';
-    }
-}
 function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
 }
@@ -102,7 +90,7 @@ exports.provider = {
                         return {
                             text: c.name,
                             replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                            rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
+                            rightLabelHTML: '<span style="color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                         };
                     }
                 });

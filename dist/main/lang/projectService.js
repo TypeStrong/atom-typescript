@@ -519,4 +519,53 @@ function getProjectFileDetails(query) {
     return resolve(project.projectFile);
 }
 exports.getProjectFileDetails = getProjectFileDetails;
+function sortNavbarItemsBySpan(items) {
+    items.sort(function (a, b) {
+        return a.spans[0].start - b.spans[0].start;
+    });
+    for (var _i = 0; _i < items.length; _i++) {
+        var _item = items[_i];
+        if (_item.childItems) {
+            sortNavbarItemsBySpan(_item.childItems);
+        }
+    }
+}
+function flattenNavBarItems(items) {
+    var toreturn = [];
+    function keepAdding(item, depth) {
+        item.indent = depth;
+        var children = item.childItems;
+        delete item.childItems;
+        toreturn.push(item);
+        if (children) {
+            children.forEach(function (child) {
+                return keepAdding(child, depth + 1);
+            });
+        }
+    }
+    items.forEach(function (item) {
+        return keepAdding(item, 0);
+    });
+    return toreturn;
+}
+function getNavigationBarItems(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+    var navBarItems = languageService.getNavigationBarItems(query.filePath);
+    if (navBarItems.length && navBarItems[0].text == "<global>") {
+        navBarItems.shift();
+    }
+    sortNavbarItemsBySpan(navBarItems);
+    navBarItems = flattenNavBarItems(navBarItems);
+    var items = navBarItems.map(function (item) {
+        item.position = project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start);
+        delete item.spans;
+        return item;
+    });
+    return resolve({
+        items: items
+    });
+}
+exports.getNavigationBarItems = getNavigationBarItems;
 //# sourceMappingURL=projectService.js.map

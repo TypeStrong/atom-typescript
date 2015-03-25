@@ -101,3 +101,14 @@ interface TabWithGotoPositions {
     lastPosition?: GotoPosition;
     members: GotoPosition[];
 }
+
+/** Interfaces needed for file symbols view */
+interface NavigationBarItem {
+    text: string;
+    kind: string;
+    kindModifiers: string;    
+    position: EditorPosition;
+    indent: number;
+    bolded: boolean;
+    grayed: boolean;
+}

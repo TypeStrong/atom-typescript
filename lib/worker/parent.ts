@@ -65,6 +65,7 @@ export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.get
 export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 export var debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 export var getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
+export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

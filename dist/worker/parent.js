@@ -51,6 +51,7 @@ exports.getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRen
 exports.getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 exports.debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 exports.getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
+exports.getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 //# sourceMappingURL=parent.js.map

@@ -102,3 +102,16 @@ export function formatCode(editor: AtomCore.IEditor, edits: CodeEdit[]) {
         editor.setTextInBufferRange([[edit.start.line, edit.start.col], [edit.end.line, edit.end.col]], edit.newText);
     }
 }
+
+export function kindToColor(kind: string) {
+    switch (kind) {
+        case 'interface':
+            return 'rgb(16, 255, 0)';
+        case 'keyword':
+            return 'rgb(0, 207, 255)';
+        case 'class':
+            return 'rgb(255, 0, 194)';
+        default:
+            return 'white';
+    }
+}

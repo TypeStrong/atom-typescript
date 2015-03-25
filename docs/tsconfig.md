@@ -74,3 +74,6 @@ We highly recommend you leave it as the default (true). But if you want you can 
 
 ### version
 This exists simply to make it easier for the future you to know which TypeScript version was used when this project file was created. You can read more here [Microsoft/TypeScript#2113](https://github.com/Microsoft/TypeScript/issues/2133)
+
+## Additional Notes 
+FWIW [a json schema is also available](http://json.schemastore.org/tsconfig)

@@ -152,7 +152,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
 exports.TypeScriptSemanticGrammar = TypeScriptSemanticGrammar;
 function getAtomStyleForToken(token, str) {
     switch (token.classification) {
-        case 0:
+        case TokenClass.Punctuation:
             switch (str) {
                 case '{':
                     return "punctuation.section.scope.begin.ts";
@@ -165,7 +165,7 @@ function getAtomStyleForToken(token, str) {
                 default:
                     return 'punctuation';
             }
-        case 1:
+        case TokenClass.Keyword:
             switch (str) {
                 case 'static':
                 case 'public':
@@ -188,19 +188,19 @@ function getAtomStyleForToken(token, str) {
                 default:
                     return 'keyword';
             }
-        case 2:
+        case TokenClass.Operator:
             return 'keyword.operator.js';
-        case 3:
+        case TokenClass.Comment:
             return 'comment';
-        case 4:
+        case TokenClass.Whitespace:
             return 'whitespace';
-        case 5:
+        case TokenClass.Identifier:
             return 'identifier';
-        case 6:
+        case TokenClass.NumberLiteral:
             return 'constant.numeric';
-        case 7:
+        case TokenClass.StringLiteral:
             return 'string';
-        case 8:
+        case TokenClass.RegExpLiteral:
             return 'constant.character';
         default:
             return null;

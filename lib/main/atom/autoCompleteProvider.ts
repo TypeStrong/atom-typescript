@@ -53,19 +53,6 @@ declare module autocompleteplus {
     }
 }
 
-function kindToColor(kind: string) {
-    switch (kind) {
-        case 'interface':
-            return 'rgb(16, 255, 0)';
-        case 'keyword':
-            return 'rgb(0, 207, 255)';
-        case 'class':
-            return 'rgb(255, 0, 194)';
-        default:
-            return 'white';
-    }
-}
-
 export function triggerAutocompletePlus() {
     atom.commands.dispatch(
         atom.views.getView(atom.workspace.getActiveTextEditor()),
@@ -185,7 +172,7 @@ export var provider: autocompleteplus.Provider = {
                             return {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                                rightLabelHTML: '<span style="color: ' + kindToColor(c.kind) + '">' + c.display + '</span>',
+                                rightLabelHTML: '<span style="color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                             };
                         }
                     });

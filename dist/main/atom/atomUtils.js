@@ -110,4 +110,17 @@ function formatCode(editor, edits) {
     }
 }
 exports.formatCode = formatCode;
+function kindToColor(kind) {
+    switch (kind) {
+        case 'interface':
+            return 'rgb(16, 255, 0)';
+        case 'keyword':
+            return 'rgb(0, 207, 255)';
+        case 'class':
+            return 'rgb(255, 0, 194)';
+        default:
+            return 'white';
+    }
+}
+exports.kindToColor = kindToColor;
 //# sourceMappingURL=atomUtils.js.map

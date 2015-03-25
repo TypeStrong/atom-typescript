@@ -15,7 +15,9 @@ import documentationView = require('./views/documentationView'); ///ts:import:ge
 import renameView = require('./views/renameView'); ///ts:import:generated
 var apd = require('atom-package-dependencies');
 import contextView = require('./views/contextView');
+import fileSymbolsView = require("./views/fileSymbolsView");
 import gotoHistory = require('./gotoHistory');
+import utils = require("../lang/utils");
 
 // Utility functions for commands
 function commandForTypeScript(e) {
@@ -131,7 +133,7 @@ export function registerCommands() {
                     if (newText.replace(/\s/g, '') !== newText.trim()) {
                         return 'The new variable must not contain a space';
                     }
-                    if(!newText.trim()){
+                    if (!newText.trim()) {
                         return 'If you want to abort : Press esc to exit'
                     }
                     return '';
@@ -162,6 +164,32 @@ export function registerCommands() {
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
         gotoHistory.gotoPrevious();
+    });
+    
+    // I've needed to debounce this as it gets called multiple times for some reason 
+    // Has to do with how we override toggle-file-symbols
+    var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
+    var showNavBarItems = utils.debounce((filePath: string) => {
+        if (!theFileSymbolsView) theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
+
+        parent.getNavigationBarItems({ filePath }).then((res) => {
+            theFileSymbolsView.setNavBarItems(res.items, filePath);
+            theFileSymbolsView.show();
+        });
+
+    }, 400);
+    
+    // We support symbols view as well
+    atom.commands.add('.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols', (e) => {
+        var editor = atom.workspace.getActiveTextEditor();
+        if (!editor) return false;
+        if (path.extname(editor.getPath()) !== '.ts') return false;
+
+        
+        // Abort it for others 
+        e.abortKeyBinding();
+        var filePath = editor.getPath();
+        showNavBarItems(filePath);
     });
 
 

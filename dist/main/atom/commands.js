@@ -6,7 +6,9 @@ var path = require('path');
 var renameView = require('./views/renameView');
 var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
+var fileSymbolsView = require("./views/fileSymbolsView");
 var gotoHistory = require('./gotoHistory');
+var utils = require("../lang/utils");
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
@@ -146,6 +148,27 @@ function registerCommands() {
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-previous', function (e) {
         gotoHistory.gotoPrevious();
+    });
+    var theFileSymbolsView;
+    var showNavBarItems = utils.debounce(function (filePath) {
+        if (!theFileSymbolsView)
+            theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
+        parent.getNavigationBarItems({
+            filePath: filePath
+        }).then(function (res) {
+            theFileSymbolsView.setNavBarItems(res.items, filePath);
+            theFileSymbolsView.show();
+        });
+    }, 400);
+    atom.commands.add('.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols', function (e) {
+        var editor = atom.workspace.getActiveTextEditor();
+        if (!editor)
+            return false;
+        if (path.extname(editor.getPath()) !== '.ts')
+            return false;
+        e.abortKeyBinding();
+        var filePath = editor.getPath();
+        showNavBarItems(filePath);
     });
 }
 exports.registerCommands = registerCommands;
