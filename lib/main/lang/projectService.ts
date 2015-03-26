@@ -750,3 +750,69 @@ export function getNavigationBarItems(query: FilePathQuery): Promise<GetNavigati
     return resolve({ items });
 }
 
+//--------------------------------------------------------------------------
+//  getNavigateToItems
+//--------------------------------------------------------------------------
+
+// Look at 
+// https://github.com/Microsoft/TypeScript/blob/master/src/services/navigateTo.ts 
+// for inspiration
+// Reason for forking: 
+//  didn't give all results
+//  gave results from lib.d.ts 
+//  I wanted the practice
+
+export interface GetNavigateToItemsResponse {
+    items: NavigateToItem[];
+}
+export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToItemsResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+    
+    // forgive me, for I have sinned, i.e. used copy paste and non public API.
+    let ts2: any = ts;
+    let getNodeKind = ts2.getNodeKind;
+    function getDeclarationName(declaration: ts.Declaration): string {
+        let result = getTextOfIdentifierOrLiteral(declaration.name);
+        if (result !== undefined) {
+            return result;
+        }
+
+        if (declaration.name.kind === ts.SyntaxKind.ComputedPropertyName) {
+            let expr = (<ts.ComputedPropertyName>declaration.name).expression;
+            if (expr.kind === ts.SyntaxKind.PropertyAccessExpression) {
+                return (<ts.PropertyAccessExpression>expr).name.text;
+            }
+            return ts2.getTextOfIdentifierOrLiteral(expr);
+        }
+
+        return undefined;
+    }
+    function getTextOfIdentifierOrLiteral(node: ts.Node) {
+        if (node.kind === ts.SyntaxKind.Identifier ||
+            node.kind === ts.SyntaxKind.StringLiteral ||
+            node.kind === ts.SyntaxKind.NumericLiteral) {
+
+            return (<ts.Identifier | ts.LiteralExpression>node).text;
+        }
+
+        return undefined;
+    }
+
+    var items: NavigateToItem[] = [];
+    for (let file of project.getProjectSourceFiles()) {
+        for (let declaration of file.getNamedDeclarations()) {
+            let item: NavigateToItem = {
+                name: getDeclarationName(declaration),
+                kind: getNodeKind(declaration),
+                filePath: file.fileName,
+                fileName: path.basename(file.fileName),
+                position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+            }
+            items.push(item);
+        }
+    }
+
+    return resolve({ items });
+}

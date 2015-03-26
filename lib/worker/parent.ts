@@ -66,6 +66,7 @@ export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projec
 export var debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 export var getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
 export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
+export var getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

@@ -52,6 +52,7 @@ exports.getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectSe
 exports.debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 exports.getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
 exports.getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
+exports.getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 //# sourceMappingURL=parent.js.map

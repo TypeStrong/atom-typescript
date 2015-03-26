@@ -568,4 +568,50 @@ function getNavigationBarItems(query) {
     });
 }
 exports.getNavigationBarItems = getNavigationBarItems;
+function getNavigateToItems(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+    var ts2 = ts;
+    var getNodeKind = ts2.getNodeKind;
+    function getDeclarationName(declaration) {
+        var result = getTextOfIdentifierOrLiteral(declaration.name);
+        if (result !== undefined) {
+            return result;
+        }
+        if (declaration.name.kind === 126) {
+            var expr = declaration.name.expression;
+            if (expr.kind === 153) {
+                return expr.name.text;
+            }
+            return ts2.getTextOfIdentifierOrLiteral(expr);
+        }
+        return undefined;
+    }
+    function getTextOfIdentifierOrLiteral(node) {
+        if (node.kind === 64 || node.kind === 8 || node.kind === 7) {
+            return node.text;
+        }
+        return undefined;
+    }
+    var items = [];
+    for (var _i = 0, _a = project.getProjectSourceFiles(); _i < _a.length; _i++) {
+        var file = _a[_i];
+        for (var _b = 0, _c = file.getNamedDeclarations(); _b < _c.length; _b++) {
+            var declaration = _c[_b];
+            var _item = {
+                name: getDeclarationName(declaration),
+                kind: getNodeKind(declaration),
+                filePath: file.fileName,
+                fileName: path.basename(file.fileName),
+                position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+            };
+            items.push(_item);
+        }
+    }
+    return resolve({
+        items: items
+    });
+}
+exports.getNavigateToItems = getNavigateToItems;
 //# sourceMappingURL=projectService.js.map

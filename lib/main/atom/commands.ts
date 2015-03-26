@@ -16,6 +16,7 @@ import renameView = require('./views/renameView'); ///ts:import:generated
 var apd = require('atom-package-dependencies');
 import contextView = require('./views/contextView');
 import fileSymbolsView = require("./views/fileSymbolsView");
+import projectSymbolsView = require("./views/projectSymbolsView");
 import gotoHistory = require('./gotoHistory');
 import utils = require("../lang/utils");
 
@@ -169,7 +170,7 @@ export function registerCommands() {
     // I've needed to debounce this as it gets called multiple times for some reason 
     // Has to do with how we override toggle-file-symbols
     var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
-    var showNavBarItems = utils.debounce((filePath: string) => {
+    var showFileSymbols = utils.debounce((filePath: string) => {
         if (!theFileSymbolsView) theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
 
         parent.getNavigationBarItems({ filePath }).then((res) => {
@@ -190,7 +191,32 @@ export function registerCommands() {
             // Abort it for others 
             e.abortKeyBinding();
             var filePath = editor.getPath();
-            showNavBarItems(filePath);
+            showFileSymbols(filePath);
+        });
+
+
+    
+    // We support project level symbols
+    var theProjectSymbolsView: projectSymbolsView.ProjectSymbolsView;
+    var showProjectSymbols = utils.debounce((filePath: string) => {
+        if (!theProjectSymbolsView) theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
+
+        parent.getNavigateToItems({filePath}).then((res) => {
+            theProjectSymbolsView.setNavBarItems(res.items);
+            theProjectSymbolsView.show();
+        })
+    }, 400);
+    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-project-symbols',
+        (e) => {
+            var editor = atom.workspace.getActiveTextEditor();
+            if (!editor) return false;
+            if (path.extname(editor.getPath()) !== '.ts') return false;
+    
+            
+            // Abort it for others 
+            e.abortKeyBinding();
+            var filePath = editor.getPath();
+            showProjectSymbols(filePath);
         });
 
 

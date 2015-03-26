@@ -7,6 +7,7 @@ var renameView = require('./views/renameView');
 var apd = require('atom-package-dependencies');
 var contextView = require('./views/contextView');
 var fileSymbolsView = require("./views/fileSymbolsView");
+var projectSymbolsView = require("./views/projectSymbolsView");
 var gotoHistory = require('./gotoHistory');
 var utils = require("../lang/utils");
 function commandForTypeScript(e) {
@@ -150,7 +151,7 @@ function registerCommands() {
         gotoHistory.gotoPrevious();
     });
     var theFileSymbolsView;
-    var showNavBarItems = utils.debounce(function (filePath) {
+    var showFileSymbols = utils.debounce(function (filePath) {
         if (!theFileSymbolsView)
             theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
         parent.getNavigationBarItems({
@@ -168,7 +169,28 @@ function registerCommands() {
             return false;
         e.abortKeyBinding();
         var filePath = editor.getPath();
-        showNavBarItems(filePath);
+        showFileSymbols(filePath);
+    });
+    var theProjectSymbolsView;
+    var showProjectSymbols = utils.debounce(function (filePath) {
+        if (!theProjectSymbolsView)
+            theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
+        parent.getNavigateToItems({
+            filePath: filePath
+        }).then(function (res) {
+            theProjectSymbolsView.setNavBarItems(res.items);
+            theProjectSymbolsView.show();
+        });
+    }, 400);
+    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-project-symbols', function (e) {
+        var editor = atom.workspace.getActiveTextEditor();
+        if (!editor)
+            return false;
+        if (path.extname(editor.getPath()) !== '.ts')
+            return false;
+        e.abortKeyBinding();
+        var filePath = editor.getPath();
+        showProjectSymbols(filePath);
     });
 }
 exports.registerCommands = registerCommands;

@@ -112,3 +112,11 @@ interface NavigationBarItem {
     bolded: boolean;
     grayed: boolean;
 }
+/** for project symbols view */
+interface NavigateToItem {
+    name: string;
+    kind: string;
+    filePath: string;
+    position: EditorPosition;
+    fileName: string;
+}
