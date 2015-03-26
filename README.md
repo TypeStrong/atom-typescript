@@ -75,6 +75,11 @@ Integrates with atom's symbols view (`ctrl+r` or `cmd+r`) to provide you with a 
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/symbolsView.gif)
 
+## Project Symbols View
+Also called Go To Type in other IDEs. Integrates with atom's project level symbols (`ctrl+shift+r` or `cmd+shift+r`) to provide you with a list of searchable symbols in the *entire typescript project*.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/projectSymbolView.png)
+
 ## Refactoring
 
 ### Rename
