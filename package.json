@@ -10,9 +10,14 @@
   "linter-package": true,
   "linter-implementation": "../dist/linter",
   "providedServices": {
+    "formatter": {
+      "versions": {
+        "1.0.0": "provideFormatter"
+      }
+    },
     "autocomplete.provider": {
       "versions": {
-        "2.0.0": "provide"
+        "2.0.0": "autoCompleteProvide"
       }
     }
   },
@@ -45,6 +50,7 @@
   "activationEvents": [],
   "package-dependencies": {
     "linter": "//this field will be ignored right now",
-    "autocomplete-plus": "//this field will be ignored right now"
+    "autocomplete-plus": "//this field will be ignored right now",
+    "formatter": "//this field will be ignored right now"
   }
 }

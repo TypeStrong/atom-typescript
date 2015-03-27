@@ -134,7 +134,8 @@ function readyToActivate() {
 function activate(state) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
-    if (!linter || !acp) {
+    var formatter = apd.require('formatter');
+    if (!linter || !acp || !formatter) {
         var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', {
             dismissable: true
         });
@@ -147,9 +148,13 @@ function activate(state) {
                 atom.packages.loadPackage('linter');
             if (!apd.require('autocomplete-plus'))
                 atom.packages.loadPackage('autocomplete-plus');
-            atom.packages.activatePackage('linter').then(function () {
-                return atom.packages.activatePackage('autocomplete-plus');
-            }).then(function () {
+            if (!apd.require('formatter'))
+                atom.packages.loadPackage('formatter');
+            Promise.all([
+                atom.packages.activatePackage('linter'),
+                atom.packages.activatePackage('autocomplete-plus'),
+                atom.packages.activatePackage('formatter'),
+            ]).then(function () {
                 return readyToActivate();
             });
         });
@@ -175,10 +180,35 @@ exports.serialize = serialize;
 function deserialize() {
 }
 exports.deserialize = deserialize;
-function provide() {
-    return [
-        autoCompleteProvider.provider
-    ];
+function autoCompleteProvide() {
+    return autoCompleteProvider.provider;
 }
-exports.provide = provide;
+exports.autoCompleteProvide = autoCompleteProvide;
+function provideFormatter() {
+    var formatter;
+    formatter = {
+        selector: '.source.ts',
+        getCodeEdits: function (options) {
+            var filePath = options.editor.getPath();
+            if (!options.selection) {
+                return parent.formatDocument({
+                    filePath: filePath
+                }).then(function (result) {
+                    return result.edits;
+                });
+            }
+            else {
+                return parent.formatDocumentRange({
+                    filePath: filePath,
+                    start: options.selection.start,
+                    end: options.selection.end
+                }).then(function (result) {
+                    return result.edits;
+                });
+            }
+        }
+    };
+    return formatter;
+}
+exports.provideFormatter = provideFormatter;
 //# sourceMappingURL=atomts.js.map
