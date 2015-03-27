@@ -19,43 +19,6 @@ function commandForTypeScript(e) {
     return true;
 }
 function registerCommands() {
-    atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
-        if (!commandForTypeScript(e))
-            return;
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var selection = editor.getSelectedBufferRange();
-        if (selection.isEmpty()) {
-            parent.formatDocument({
-                filePath: filePath
-            }).then(function (result) {
-                if (!result.edits.length)
-                    return;
-                editor.transact(function () {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
-        }
-        else {
-            parent.formatDocumentRange({
-                filePath: filePath,
-                start: {
-                    line: selection.start.row,
-                    col: selection.start.column
-                },
-                end: {
-                    line: selection.end.row,
-                    col: selection.end.column
-                }
-            }).then(function (result) {
-                if (!result.edits.length)
-                    return;
-                editor.transact(function () {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
-        }
-    });
     atom.commands.add('atom-workspace', 'typescript:build', function (e) {
         if (!commandForTypeScript(e))
             return;

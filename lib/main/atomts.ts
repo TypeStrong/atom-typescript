@@ -216,8 +216,9 @@ export function activate(state: PackageState) {
     // Don't activate if we have a dependency that isn't available
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
+    var formatter = apd.require('formatter');
 
-    if (!linter || !acp) {
+    if (!linter || !acp || !formatter) {
         var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function() {
             atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
@@ -226,9 +227,14 @@ export function activate(state: PackageState) {
             // Packages don't get loaded automatically as a result of an install
             if (!apd.require('linter')) atom.packages.loadPackage('linter');
             if (!apd.require('autocomplete-plus')) atom.packages.loadPackage('autocomplete-plus');
+            if (!apd.require('formatter')) atom.packages.loadPackage('formatter');
 
             // Hazah activate them and then activate us!
-            atom.packages.activatePackage('linter').then(() => atom.packages.activatePackage('autocomplete-plus')).then(() => readyToActivate());
+            Promise.all([
+              atom.packages.activatePackage('linter'),
+              atom.packages.activatePackage('autocomplete-plus'),
+              atom.packages.activatePackage('formatter'),
+            ]).then(() => readyToActivate());
         });
 
         return;
@@ -254,6 +260,58 @@ export function deserialize() {
 }
 
 // Registering an autocomplete provider
-export function provide() {
-    return [autoCompleteProvider.provider];
+export function autoCompleteProvide() {
+    return autoCompleteProvider.provider;
+}
+
+
+/** 0 based */
+interface EditorPosition {
+    line: number;
+    col: number;
+}
+
+interface CodeEdit {
+    start: EditorPosition;
+    end: EditorPosition;
+    newText: string;
+}
+
+interface Selection {
+    start: EditorPosition;
+    end: EditorPosition;
+}
+
+interface FormattingOptions {
+    editor: AtomCore.IEditor;
+
+    // only if there is a selection
+    selection: Selection;
+}
+
+interface FormatterProvider {
+    selector?: string;
+    disableForSelector?: string;
+    getCodeEdits: (options: FormattingOptions) => Promise<CodeEdit[]>;
+}
+
+export function provideFormatter() {
+    var formatter: FormatterProvider;
+    formatter = {
+        selector: '.source.ts',
+        getCodeEdits: (options: FormattingOptions): Promise<CodeEdit[]> => {
+            var filePath = options.editor.getPath();
+            if (!options.selection) {
+                return parent.formatDocument({ filePath: filePath }).then((result) => {
+                    return result.edits;
+                });
+            }
+            else {
+                return parent.formatDocumentRange({ filePath: filePath, start: options.selection.start, end: options.selection.end }).then((result) => {
+                    return result.edits;
+                });
+            }
+        }
+    };
+    return formatter;
 }

@@ -33,29 +33,6 @@ function commandForTypeScript(e) {
 export function registerCommands() {
 
     // Setup custom commands NOTE: these need to be added to the keymaps
-    atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
-        if (!commandForTypeScript(e)) return;
-
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var selection = editor.getSelectedBufferRange();
-        if (selection.isEmpty()) {
-            parent.formatDocument({ filePath: filePath }).then((result) => {
-                if (!result.edits.length) return;
-                editor.transact(() => {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
-        } else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-                if (!result.edits.length) return;
-                editor.transact(() => {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
-
-        }
-    });
     atom.commands.add('atom-workspace', 'typescript:build', (e) => {
         if (!commandForTypeScript(e)) return;
 
@@ -166,8 +143,8 @@ export function registerCommands() {
     atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
         gotoHistory.gotoPrevious();
     });
-    
-    // I've needed to debounce this as it gets called multiple times for some reason 
+
+    // I've needed to debounce this as it gets called multiple times for some reason
     // Has to do with how we override toggle-file-symbols
     var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
     var showFileSymbols = utils.debounce((filePath: string) => {
@@ -179,7 +156,7 @@ export function registerCommands() {
         });
 
     }, 400);
-    
+
     // We support symbols view as well
     atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols',
         (e) => {
@@ -187,15 +164,15 @@ export function registerCommands() {
             if (!editor) return false;
             if (path.extname(editor.getPath()) !== '.ts') return false;
 
-        
-            // Abort it for others 
+
+            // Abort it for others
             e.abortKeyBinding();
             var filePath = editor.getPath();
             showFileSymbols(filePath);
         });
 
 
-    
+
     // We support project level symbols
     var theProjectSymbolsView: projectSymbolsView.ProjectSymbolsView;
     var showProjectSymbols = utils.debounce((filePath: string) => {
@@ -211,9 +188,9 @@ export function registerCommands() {
             var editor = atom.workspace.getActiveTextEditor();
             if (!editor) return false;
             if (path.extname(editor.getPath()) !== '.ts') return false;
-    
-            
-            // Abort it for others 
+
+
+            // Abort it for others
             e.abortKeyBinding();
             var filePath = editor.getPath();
             showProjectSymbols(filePath);

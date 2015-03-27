@@ -1,14 +1,12 @@
 'atom-text-editor[data-grammar~=ts]':
-  'alt-cmd-l': 'typescript:format-code'
-  'alt-ctrl-l': 'typescript:format-code'
   'ctrl-;': 'typescript:context-actions'
   'cmd-;': 'typescript:context-actions'
   'f2': 'typescript:rename-variable'
 
 # Note that we are good citizens in our commands handling logic
 # we will gladly hand off the command to something else if a ts file is not active
-# That said : 
-# These need to be *platform specific* + on *body* to increase specifity + we need to have a menu item for these 
+# That said :
+# These need to be *platform specific* + on *body* to increase specifity + we need to have a menu item for these
 # if we want them to override what atom has by default (find buffer / find modified file)
 'body.platform-win32, body.platform-linux':
   'ctrl-shift-b': 'typescript:build'
