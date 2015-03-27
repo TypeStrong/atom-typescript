@@ -20,7 +20,26 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
-# Features
+# Features 
+* Autocomplete
+* Live error analysis
+* Type information on hover
+* Compile on save 
+* Project Context Support (`tsconfig.json`)
+* Project Build Support
+* Format code 
+* Goto Declaration
+* Block comment and uncomment
+* Goto history (goto next/previous error in open files, goto next/previous build)
+* Auto indent for new lines
+* TypeScript context menu
+* Symbols in Project 
+* Symbols in File
+* Rename refactoring
+* Common Snippets 
+* `import` / `/// <reference` relative path resolution
+
+# Feature Details
 ## Auto Complete
 Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
 
