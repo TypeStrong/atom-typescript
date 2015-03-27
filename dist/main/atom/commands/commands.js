@@ -1,26 +1,18 @@
-var parent = require('../../worker/parent');
-var buildView = require('./buildView');
-var atomUtils = require('./atomUtils');
-var autoCompleteProvider = require('./autoCompleteProvider');
+var parent = require("../../../worker/parent");
+var buildView = require("../buildView");
+var atomUtils = require("../atomUtils");
+var autoCompleteProvider = require("../autoCompleteProvider");
 var path = require('path');
-var renameView = require('./views/renameView');
+var renameView = require("../views/renameView");
 var apd = require('atom-package-dependencies');
-var contextView = require('./views/contextView');
-var fileSymbolsView = require("./views/fileSymbolsView");
-var projectSymbolsView = require("./views/projectSymbolsView");
-var gotoHistory = require('./gotoHistory');
-var utils = require("../lang/utils");
-function commandForTypeScript(e) {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
-        return e.abortKeyBinding() && false;
-    if (path.extname(editor.getPath()) !== '.ts')
-        return e.abortKeyBinding() && false;
-    return true;
-}
+var contextView = require("../views/contextView");
+var fileSymbolsView = require("../views/fileSymbolsView");
+var projectSymbolsView = require("../views/projectSymbolsView");
+var gotoHistory = require("../gotoHistory");
+var utils = require("../../lang/utils");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
-        if (!commandForTypeScript(e))
+        if (!atomUtils.commandForTypeScript(e))
             return;
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
@@ -57,7 +49,7 @@ function registerCommands() {
         }
     });
     atom.commands.add('atom-workspace', 'typescript:build', function (e) {
-        if (!commandForTypeScript(e))
+        if (!atomUtils.commandForTypeScript(e))
             return;
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
@@ -69,7 +61,7 @@ function registerCommands() {
         });
     });
     var handleGoToDeclaration = function (e) {
-        if (!commandForTypeScript(e))
+        if (!atomUtils.commandForTypeScript(e))
             return;
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();

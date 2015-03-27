@@ -1,40 +1,23 @@
-///ts:import=parent
-import parent = require('../../worker/parent'); ///ts:import:generated
-///ts:import=buildView
-import buildView = require('./buildView'); ///ts:import:generated
-///ts:import=atomUtils
-import atomUtils = require('./atomUtils'); ///ts:import:generated
-///ts:import=autoCompleteProvider
-import autoCompleteProvider = require('./autoCompleteProvider'); ///ts:import:generated
+import parent = require("../../../worker/parent");
+import buildView = require("../buildView");
+import atomUtils = require("../atomUtils");
+import autoCompleteProvider = require("../autoCompleteProvider");
 import path = require('path');
 import ts = require('typescript');
-
-///ts:import=documentationView
-import documentationView = require('./views/documentationView'); ///ts:import:generated
-///ts:import=renameView
-import renameView = require('./views/renameView'); ///ts:import:generated
+import documentationView = require("../views/documentationView");
+import renameView = require("../views/renameView");
 var apd = require('atom-package-dependencies');
-import contextView = require('./views/contextView');
-import fileSymbolsView = require("./views/fileSymbolsView");
-import projectSymbolsView = require("./views/projectSymbolsView");
-import gotoHistory = require('./gotoHistory');
-import utils = require("../lang/utils");
-
-// Utility functions for commands
-function commandForTypeScript(e) {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor) return e.abortKeyBinding() && false;
-    if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
-
-    return true;
-}
-
+import contextView = require("../views/contextView");
+import fileSymbolsView = require("../views/fileSymbolsView");
+import projectSymbolsView = require("../views/projectSymbolsView");
+import gotoHistory = require("../gotoHistory");
+import utils = require("../../lang/utils");
 
 export function registerCommands() {
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
-        if (!commandForTypeScript(e)) return;
+        if (!atomUtils.commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
@@ -57,7 +40,7 @@ export function registerCommands() {
         }
     });
     atom.commands.add('atom-workspace', 'typescript:build', (e) => {
-        if (!commandForTypeScript(e)) return;
+        if (!atomUtils.commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
@@ -70,7 +53,7 @@ export function registerCommands() {
     });
 
     var handleGoToDeclaration = (e) => {
-        if (!commandForTypeScript(e)) return;
+        if (!atomUtils.commandForTypeScript(e)) return;
 
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
@@ -166,8 +149,8 @@ export function registerCommands() {
     atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
         gotoHistory.gotoPrevious();
     });
-    
-    // I've needed to debounce this as it gets called multiple times for some reason 
+
+    // I've needed to debounce this as it gets called multiple times for some reason
     // Has to do with how we override toggle-file-symbols
     var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
     var showFileSymbols = utils.debounce((filePath: string) => {
@@ -179,7 +162,7 @@ export function registerCommands() {
         });
 
     }, 400);
-    
+
     // We support symbols view as well
     atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols',
         (e) => {
@@ -187,15 +170,15 @@ export function registerCommands() {
             if (!editor) return false;
             if (path.extname(editor.getPath()) !== '.ts') return false;
 
-        
-            // Abort it for others 
+
+            // Abort it for others
             e.abortKeyBinding();
             var filePath = editor.getPath();
             showFileSymbols(filePath);
         });
 
 
-    
+
     // We support project level symbols
     var theProjectSymbolsView: projectSymbolsView.ProjectSymbolsView;
     var showProjectSymbols = utils.debounce((filePath: string) => {
@@ -211,9 +194,9 @@ export function registerCommands() {
             var editor = atom.workspace.getActiveTextEditor();
             if (!editor) return false;
             if (path.extname(editor.getPath()) !== '.ts') return false;
-    
-            
-            // Abort it for others 
+
+
+            // Abort it for others
             e.abortKeyBinding();
             var filePath = editor.getPath();
             showProjectSymbols(filePath);

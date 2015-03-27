@@ -123,4 +123,13 @@ function kindToColor(kind) {
     }
 }
 exports.kindToColor = kindToColor;
+function commandForTypeScript(e) {
+    var editor = atom.workspace.getActiveTextEditor();
+    if (!editor)
+        return e.abortKeyBinding() && false;
+    if (path.extname(editor.getPath()) !== '.ts')
+        return e.abortKeyBinding() && false;
+    return true;
+}
+exports.commandForTypeScript = commandForTypeScript;
 //# sourceMappingURL=atomUtils.js.map

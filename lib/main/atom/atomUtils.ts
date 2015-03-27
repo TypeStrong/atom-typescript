@@ -115,3 +115,12 @@ export function kindToColor(kind: string) {
             return 'white';
     }
 }
+
+/** Utility functions for commands */
+export function commandForTypeScript(e) {
+    var editor = atom.workspace.getActiveTextEditor();
+    if (!editor) return e.abortKeyBinding() && false;
+    if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
+
+    return true;
+}
