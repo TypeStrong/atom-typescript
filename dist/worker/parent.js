@@ -34,6 +34,12 @@ function catchCommonErrors(func) {
     };
 }
 var projectService = require('../main/lang/projectService');
+var debug = false;
+if (debug) {
+    parent.sendToIpc = function (x) {
+        return x;
+    };
+}
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
