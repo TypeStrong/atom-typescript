@@ -186,4 +186,3 @@ function registerCommands() {
     });
 }
 exports.registerCommands = registerCommands;
-//# sourceMappingURL=commands.js.map

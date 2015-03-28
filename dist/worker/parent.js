@@ -61,4 +61,3 @@ exports.getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBar
 exports.getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
-//# sourceMappingURL=parent.js.map

@@ -56,4 +56,3 @@ var FileSymbolsView = (function (_super) {
     return FileSymbolsView;
 })(sp.SelectListView);
 exports.FileSymbolsView = FileSymbolsView;
-//# sourceMappingURL=fileSymbolsView.js.map

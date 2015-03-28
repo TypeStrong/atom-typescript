@@ -30,4 +30,3 @@ var PlainMessageView = (function (_super) {
     return PlainMessageView;
 })(view.View);
 exports.PlainMessageView = PlainMessageView;
-//# sourceMappingURL=plainMessageView.js.map

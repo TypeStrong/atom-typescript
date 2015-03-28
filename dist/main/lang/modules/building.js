@@ -51,4 +51,3 @@ function emitFile(proj, filePath) {
     };
 }
 exports.emitFile = emitFile;
-//# sourceMappingURL=building.js.map

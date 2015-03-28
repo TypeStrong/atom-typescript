@@ -113,4 +113,3 @@ function buildUpdate(query) {
     return resolve({});
 }
 exports.buildUpdate = buildUpdate;
-//# sourceMappingURL=queryParent.js.map

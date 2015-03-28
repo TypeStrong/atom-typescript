@@ -6,4 +6,3 @@ function runDebugCode(details) {
         return;
 }
 exports.runDebugCode = runDebugCode;
-//# sourceMappingURL=debugAtomTs.js.map

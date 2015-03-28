@@ -240,4 +240,3 @@ function attach() {
     });
 }
 exports.attach = attach;
-//# sourceMappingURL=mainPanelView.js.map

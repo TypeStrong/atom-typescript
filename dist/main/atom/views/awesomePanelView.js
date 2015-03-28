@@ -39,4 +39,3 @@ function attach() {
     });
 }
 exports.attach = attach;
-//# sourceMappingURL=awesomePanelView.js.map

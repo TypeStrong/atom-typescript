@@ -52,4 +52,3 @@ function setBuildOutput(buildOutput) {
     }
 }
 exports.setBuildOutput = setBuildOutput;
-//# sourceMappingURL=buildView.js.map

@@ -78,4 +78,3 @@ function attach() {
     });
 }
 exports.attach = attach;
-//# sourceMappingURL=renameView.js.map

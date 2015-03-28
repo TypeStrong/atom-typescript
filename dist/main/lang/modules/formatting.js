@@ -24,4 +24,3 @@ function formatDocumentRange(proj, filePath, start, end) {
     return edits;
 }
 exports.formatDocumentRange = formatDocumentRange;
-//# sourceMappingURL=formatting.js.map

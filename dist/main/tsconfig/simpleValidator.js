@@ -64,4 +64,3 @@ function createMap(arr) {
     }, {});
 }
 exports.createMap = createMap;
-//# sourceMappingURL=simpleValidator.js.map

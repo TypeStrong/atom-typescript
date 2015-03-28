@@ -7,4 +7,3 @@
 /// <reference path="./typings/mustache.d.ts"/>
 /// <reference path="../views/views.d.ts"/>
 /// <reference path="./typings/atompromise.d.ts"/>
-//# sourceMappingURL=globals.js.map

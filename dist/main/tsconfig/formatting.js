@@ -62,4 +62,3 @@ function makeFormatCodeOptions(config) {
     return options;
 }
 exports.makeFormatCodeOptions = makeFormatCodeOptions;
-//# sourceMappingURL=formatting.js.map

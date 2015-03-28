@@ -82,4 +82,3 @@ function testDocumentationView() {
     exports.docView.show();
 }
 exports.testDocumentationView = testDocumentationView;
-//# sourceMappingURL=documentationView.js.map

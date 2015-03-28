@@ -132,4 +132,3 @@ function commandForTypeScript(e) {
     return true;
 }
 exports.commandForTypeScript = commandForTypeScript;
-//# sourceMappingURL=atomUtils.js.map

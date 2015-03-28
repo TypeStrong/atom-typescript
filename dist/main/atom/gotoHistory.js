@@ -77,4 +77,3 @@ function indexOf(items, filter) {
     }
     return -1;
 }
-//# sourceMappingURL=gotoHistory.js.map

@@ -49,4 +49,3 @@ var TooltipView = (function (_super) {
     return TooltipView;
 })(view.View);
 exports.TooltipView = TooltipView;
-//# sourceMappingURL=tooltipView.js.map

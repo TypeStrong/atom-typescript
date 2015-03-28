@@ -32,4 +32,3 @@ var Config = (function () {
 })();
 var config = new Config();
 module.exports = config;
-//# sourceMappingURL=atomConfig.js.map

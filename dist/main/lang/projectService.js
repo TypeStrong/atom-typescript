@@ -614,4 +614,3 @@ function getNavigateToItems(query) {
     });
 }
 exports.getNavigateToItems = getNavigateToItems;
-//# sourceMappingURL=projectService.js.map

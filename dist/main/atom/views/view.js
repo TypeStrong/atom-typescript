@@ -31,4 +31,3 @@ var View = (function (_super) {
 })(atom.View);
 exports.View = View;
 exports.$ = atom.$;
-//# sourceMappingURL=view.js.map

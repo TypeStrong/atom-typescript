@@ -56,4 +56,3 @@ var ProjectSymbolsView = (function (_super) {
     return ProjectSymbolsView;
 })(sp.SelectListView);
 exports.ProjectSymbolsView = ProjectSymbolsView;
-//# sourceMappingURL=projectSymbolsView.js.map

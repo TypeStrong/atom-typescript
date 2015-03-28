@@ -55,4 +55,3 @@ LinterTslint = (function (_super) {
     return LinterTslint;
 })(Linter);
 module.exports = LinterTslint;
-//# sourceMappingURL=linter.js.map

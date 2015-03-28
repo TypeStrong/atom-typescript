@@ -22,4 +22,3 @@ function handle(event) {
     });
 }
 exports.handle = handle;
-//# sourceMappingURL=onSaveHandler.js.map

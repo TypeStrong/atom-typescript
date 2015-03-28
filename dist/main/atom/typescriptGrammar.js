@@ -206,4 +206,3 @@ function getAtomStyleForToken(token, str) {
             return null;
     }
 }
-//# sourceMappingURL=typescriptGrammar.js.map

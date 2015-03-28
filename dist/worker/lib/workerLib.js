@@ -228,4 +228,3 @@ var Child = (function (_super) {
     return Child;
 })(RequesterResponder);
 exports.Child = Child;
-//# sourceMappingURL=workerLib.js.map

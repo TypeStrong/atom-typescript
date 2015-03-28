@@ -8,7 +8,7 @@
         "noLib": false,
         "preserveConstEnums": false,
         "outDir": "../dist",
-        "sourceMap": true
+        "sourceMap": false
     },
     "filesGlob": [
         "./**/*.ts",

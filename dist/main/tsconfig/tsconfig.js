@@ -447,4 +447,3 @@ function travelUpTheDirectoryTreeTillYouFindFile(dir, fileName) {
     }
 }
 exports.travelUpTheDirectoryTreeTillYouFindFile = travelUpTheDirectoryTreeTillYouFindFile;
-//# sourceMappingURL=tsconfig.js.map

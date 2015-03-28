@@ -67,4 +67,3 @@ var LineMessageView = (function (_super) {
     return LineMessageView;
 })(view.View);
 exports.LineMessageView = LineMessageView;
-//# sourceMappingURL=lineMessageView.js.map

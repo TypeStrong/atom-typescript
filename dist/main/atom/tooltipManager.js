@@ -117,4 +117,3 @@ function pixelPositionFromMouseEvent(editorView, event) {
 function screenPositionFromMouseEvent(editorView, event) {
     return editorView.getModel().screenPositionForPixelPosition(pixelPositionFromMouseEvent(editorView, event));
 }
-//# sourceMappingURL=tooltipManager.js.map

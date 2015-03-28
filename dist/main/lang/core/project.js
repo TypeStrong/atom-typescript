@@ -17,4 +17,3 @@ var Project = (function () {
     return Project;
 })();
 exports.Project = Project;
-//# sourceMappingURL=project.js.map
