@@ -1,9 +1,6 @@
 # TIP
 Before doing any meaningful work or even investigating [please create an issue for discussion](https://github.com/TypeStrong/atom-typescript/issues) so we don't have duplicate work and we don't step on your toes.
 
-## Publishing
-`apm publish minor`
-
 # Setup Dev Machine
 Best solution I have found is to simply clone at your packages directory. On Windows:
 
@@ -12,7 +9,12 @@ cd %HOMEPATH%\.atom\packages
 git clone https://github.com/TypeStrong/atom-typescript.git
 ```
 
+
+
 # Various
+
+## Publishing
+`apm publish minor`
 
 ## Workflow
 **We develop atom-typescript with atom-typescript**
@@ -20,6 +22,12 @@ git clone https://github.com/TypeStrong/atom-typescript.git
 Some shortcuts:
 * `ctrl+shift+i` will open the dev tools. These are the same chrome dev tools you are familiar with. Feel free to inspect elements. This will come handy when doing UI or even seeing why a particular code element is highlighted in some way.
 * `ctrl+alt+r` will reload the entire atom instance.
+
+### Debugging
+There are *lots of ways* to do this. The ones we use right now:
+
+* You can do `console.error` from `projectService` and it will get logged to the atom's console (`ctrl+alt+i`). That's the quickest.
+* You can call `projectService` in `sync` from the UI thread if you want to debug using atom's built in tools (`ctrl+alt+i`). Set `parent.debug` to true and it takes care of the rest. [Here is the code](https://github.com/TypeStrong/atom-typescript/blob/d88babd82a8390ef43acac474965bc6d2f65083b/lib/worker/parent.ts#L5).
 
 ### General Steps
 1. We open `atom-typescript` in one atom window
@@ -46,13 +54,6 @@ We make this code `async`(and promise based) by:
 * We spawn a separate `atom` (or `node` on windows) instance and use `ipc` ([see code in `parent.ts`](https://github.com/TypeStrong/atom-typescript/blob/b0a862cf209d18982875d5c38e3a655594316e9a/lib/worker/parent.ts#L4-L141)). Also [reason for not using WebWorkers](https://github.com/atom/atom-shell/issues/797).
 
 Advantage: you only need to define the query/response interface once (in `projectService.ts`) and write it in a testable `sync` manner. The parent code is never out of sync from the function definition (thanks to `childQuery`). Adding new functions is done is a typesafe way as you would write any other sync function + additionally using only one additional line of code in `parent.ts` (`childQuery`).
-
-## Debugging
-There are *lots of ways* to do this. All of these are equivalent IMHO:
-
-* You can do `console.error` from `projectService` at it will get logged to the atom's console (`ctrl+alt+i`). That's what we've been doing.
-* You can call `projectService` in `sync` from the UI thread if you need to and debug using atom's built in tools (`ctrl+alt+i`).
-* You can spawn the child with `node` (don't use `atom` although it might work) with `--debug` flag enabled ([see code](https://github.com/TypeStrong/atom-typescript/blob/a90bd067bba8656e41c6e1ed3c1bdea06118274f/lib/worker/parent.ts#L24)) and use something like `node-inspector`.
 
 ## Getting the language service
 The TypeScript Language service : https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
