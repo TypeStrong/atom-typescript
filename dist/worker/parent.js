@@ -1,10 +1,16 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
+var debug = false;
 var childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 var workerLib = require('./lib/workerLib');
 var parent = new workerLib.Parent();
+if (debug) {
+    parent.sendToIpc = function (x) {
+        return x;
+    };
+}
 function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError);
     console.log('AtomTS worker started');
@@ -34,12 +40,6 @@ function catchCommonErrors(func) {
     };
 }
 var projectService = require('../main/lang/projectService');
-var debug = false;
-if (debug) {
-    parent.sendToIpc = function (x) {
-        return x;
-    };
-}
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));

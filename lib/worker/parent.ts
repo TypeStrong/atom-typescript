@@ -1,6 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
+/** Set this to true to run the child code in the UI thread and just debug using the dev tools */
+var debug = false;
+
 import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
@@ -9,6 +12,12 @@ import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
 
 var parent = new workerLib.Parent();
+
+/** The only effect of debug is to really not route stuff to the child */
+if (debug) {
+    parent.sendToIpc = x => x;
+}
+
 export function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError);
     console.log('AtomTS worker started')
@@ -47,12 +56,6 @@ function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Re
 
 ///ts:import=projectService
 import projectService = require('../main/lang/projectService'); ///ts:import:generated
-
-
-var debug = false;
-if (debug) {
-    parent.sendToIpc = x => x;
-}
 
 export var echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 export var quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
