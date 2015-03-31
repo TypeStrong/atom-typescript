@@ -203,17 +203,20 @@ function tsToRawCompilerOptions(compilerOptions) {
 }
 function getDefaultProject(srcFile) {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+    var project = {
+        compilerOptions: exports.defaults,
+        files: [
+            srcFile
+        ],
+        formatCodeOptions: formatting.defaultFormatCodeOptions(),
+        compileOnSave: true
+    };
+    project.files = increaseProjectForReferenceAndImports(project.files);
+    project.files = uniq(project.files.map(consistentPath));
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
-        project: {
-            compilerOptions: exports.defaults,
-            files: [
-                srcFile
-            ],
-            formatCodeOptions: formatting.defaultFormatCodeOptions(),
-            compileOnSave: true
-        }
+        project: project
     };
 }
 exports.getDefaultProject = getDefaultProject;

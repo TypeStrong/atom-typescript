@@ -242,15 +242,21 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
 
 export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+
+    var project = {
+        compilerOptions: defaults,
+        files: [srcFile],
+        formatCodeOptions: formatting.defaultFormatCodeOptions(),
+        compileOnSave: true
+    };
+
+    project.files = increaseProjectForReferenceAndImports(project.files);
+    project.files = uniq(project.files.map(consistentPath));
+
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
-        project: {
-            compilerOptions: defaults,
-            files: [srcFile],
-            formatCodeOptions: formatting.defaultFormatCodeOptions(),
-            compileOnSave: true
-        }
+        project: project
     };
 }
 
@@ -390,7 +396,7 @@ export function consistentPath(filePath: string): string {
 /////////////// UTILITIES ///////////////////
 /////////////////////////////////////////////
 
-function increaseProjectForReferenceAndImports(files: string[]) {
+function increaseProjectForReferenceAndImports(files: string[]): string[] {
 
     var filesMap = simpleValidator.createMap(files);
     var willNeedMoreAnalysis = (file: string) => {
