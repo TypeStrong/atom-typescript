@@ -483,6 +483,7 @@ function prettyJSON(object: any): string {
         },
     // indent 4 spaces
         4);
+    value = value.split('\n').join(os.EOL);
     cache = null;
     return value;
 }

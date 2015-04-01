@@ -110,6 +110,7 @@ var fs = require('fs');
 var path = require('path');
 var expand = require('glob-expand');
 var ts = require('typescript');
+var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
@@ -390,6 +391,7 @@ function prettyJSON(object) {
         }
         return value;
     }, 4);
+    value = value.split('\n').join(os.EOL);
     cache = null;
     return value;
 }
