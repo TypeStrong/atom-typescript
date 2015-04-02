@@ -42,8 +42,10 @@ function attach(editorView, editor) {
     subscriber.subscribe(scroll, 'keydown', function (e) {
         return clearExprTypeTimeout();
     });
-    subscriber.subscribe(editorView, 'editor:will-be-removed', function () {
-        return deactivate();
+    atom.commands.add('atom-text-editor', 'editor:will-be-removed', function (e) {
+        if (e.currentTarget == editorView[0]) {
+            deactivate();
+        }
     });
     function showExpressionType(e) {
         if (exprTypeTooltip)

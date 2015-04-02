@@ -37,19 +37,23 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         return;
     }
 
-    var scroll = getFromShadowDom(editorView,'.scroll-view');
+    var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
-    subscriber.subscribe(scroll, 'mousemove',(e) => {
+    subscriber.subscribe(scroll, 'mousemove', (e) => {
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
-    subscriber.subscribe(scroll, 'mouseout',(e) => clearExprTypeTimeout());
-    subscriber.subscribe(scroll, 'keydown',(e) => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'mouseout', (e) => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
 
     // Setup for clearing
-    subscriber.subscribe(editorView, 'editor:will-be-removed',() => deactivate());
+    atom.commands.add('atom-text-editor', 'editor:will-be-removed', (e) => {
+        if(e.currentTarget == editorView[0]){
+            deactivate();
+        }
+    });
 
     function showExpressionType(e: MouseEvent) {
 
@@ -82,8 +86,8 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
                 hideExpressionType();
             }
             else {
-                var message = `<b>${escape(resp.name)}</b>`;
-                if (resp.comment) message = message + `<br/><i>${escape(resp.comment)}</i>`;
+                var message = `<b>${escape(resp.name) }</b>`;
+                if (resp.comment) message = message + `<br/><i>${escape(resp.comment) }</i>`;
                 // Sorry about this "if". It's in the code I copied so I guess its there for a reason
                 if (exprTypeTooltip) exprTypeTooltip.updateText(message);
             }
@@ -113,7 +117,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
 
 function pixelPositionFromMouseEvent(editorView, event: MouseEvent) {
     var clientX = event.clientX, clientY = event.clientY;
-    var linesClientRect = getFromShadowDom(editorView,'.lines')[0].getBoundingClientRect();
+    var linesClientRect = getFromShadowDom(editorView, '.lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
