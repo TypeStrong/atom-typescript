@@ -102,7 +102,7 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.init = function () {
         this.buildPanelBtn.html(panelHeaders.build + " ( <span class=\"text-success\">No Build</span> )");
-        this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>');
+        this.buildBody.html('<span class="text-success"> No Build. Press ( F12 ) to start a build for an active TypeScript file\'s project. </span>');
         this.referencesPanelBtn.html(panelHeaders.references + " ( <span class=\"text-success\">No Search</span> )");
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>');
     };

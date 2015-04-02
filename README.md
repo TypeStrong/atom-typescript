@@ -69,7 +69,7 @@ It also supports `filesGlob` which will expand `files` for you based on `minmatc
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/proj.png)
 
 ### Project Build Support
-Shortcut: `ctrl+shift+b` or `cmd+shift+b`. If there are any errors they are shown as well.
+Shortcut: `F6`. If there are any errors they are shown as well.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20success.png)
 
@@ -79,7 +79,7 @@ Shortcut: `ctrl+shift+b` or `cmd+shift+b`. If there are any errors they are show
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
 
 ## Go to Declaration
-Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
+Shortcut : `F12`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
 ## Find References
 Shortcut `shift+F12`. Also called *find usages*.
