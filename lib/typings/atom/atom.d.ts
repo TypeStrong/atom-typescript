@@ -922,7 +922,7 @@ declare module AtomCore {
 		deserializeParams(params:any):any;
 		serializeParams():{paneContainer:any;fullScreen:boolean;};
         eachEditor(callback: Function): void;
-		getEditors():IEditor[];
+		getTextEditors():IEditor[];
 		open(uri:string, options:any):Q.Promise<View>;
 		openLicense():void;
 		openSync(uri:string, options:any):any;

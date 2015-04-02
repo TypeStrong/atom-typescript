@@ -39,7 +39,7 @@ function getFilePathPosition() {
 exports.getFilePathPosition = getFilePathPosition;
 function getEditorsForAllPaths(filePaths) {
     var map = {};
-    var activeEditors = atom.workspace.getEditors().filter(function (editor) {
+    var activeEditors = atom.workspace.getTextEditors().filter(function (editor) {
         return !!editor.getPath();
     });
     function addConsistentlyToMap(editor) {
@@ -69,7 +69,7 @@ function getRangeForTextSpan(editor, ts) {
 }
 exports.getRangeForTextSpan = getRangeForTextSpan;
 function getTypeScriptEditorsWithPaths() {
-    return atom.workspace.getEditors().filter(function (editor) {
+    return atom.workspace.getTextEditors().filter(function (editor) {
         return !!editor.getPath();
     }).filter(function (editor) {
         return (path.extname(editor.getPath()) === '.ts');

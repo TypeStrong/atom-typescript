@@ -1,9 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../../../globals.ts"/> ///ts:ref:generated
 
-import atom = require('atom');
+import sp = require("atom-space-pen-views");
 
-export class View<Options> extends atom.View {
+export class View<Options> extends sp.View {
     get $(): JQuery {
         return <any>this;
     }
@@ -19,4 +19,4 @@ export class View<Options> extends atom.View {
     init() { }
 }
 
-export var $: JQueryStatic = atom.$;
+export var $ = sp.$;

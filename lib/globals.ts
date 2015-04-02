@@ -29,6 +29,8 @@ declare module 'escape-html' {
 declare module 'atom-space-pen-views' {
     import atom = require('atom');
     export class SelectListView extends atom.SelectListView { }
+    export class View extends atom.View { }
+    export var $: JQueryStatic;
 }
 
 /** https://github.com/paulmillr/chokidar */
@@ -106,7 +108,7 @@ interface TabWithGotoPositions {
 interface NavigationBarItem {
     text: string;
     kind: string;
-    kindModifiers: string;    
+    kindModifiers: string;
     position: EditorPosition;
     indent: number;
     bolded: boolean;

@@ -11,7 +11,7 @@ var commands = require("./atom/commands/commands");
 var onSaveHandler = require('./atom/onSaveHandler');
 var debugAtomTs = require('./atom/debugAtomTs');
 var typescriptGrammar = require('./atom/typescriptGrammar');
-var _atom = require('atom');
+var _atom_space_pen_views = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var statusBar;
@@ -37,7 +37,7 @@ function readyToActivate() {
         }
     });
     editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        var editorView = _atom.$(atom.views.getView(editor));
+        var editorView = _atom_space_pen_views.$(atom.views.getView(editor));
         tooltipManager.attach(editorView, editor);
         var filePath = editor.getPath();
         var ext = path.extname(filePath);

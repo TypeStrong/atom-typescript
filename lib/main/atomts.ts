@@ -26,6 +26,7 @@ import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 ///ts:import=typescriptGrammar
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 import _atom = require('atom');
+import {$} from "atom-space-pen-views";
 
 
 import documentationView = require('./atom/views/documentationView');
@@ -94,7 +95,7 @@ function readyToActivate() {
 
         // subscribe for tooltips
         // inspiration : https://github.com/chaika2013/ide-haskell
-        var editorView = _atom.$(atom.views.getView(editor));
+        var editorView = $(atom.views.getView(editor));
         tooltipManager.attach(editorView, editor);
 
         var filePath = editor.getPath();

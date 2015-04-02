@@ -9,8 +9,6 @@
 import ts = require('typescript');
 import TokenClass = ts.TokenClass;
 
-var atom$: { extend: Function } = require('atom').$;
-
 declare class AtomTSBaseGrammar {
     constructor(registry, config)
 }

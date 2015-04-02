@@ -40,7 +40,7 @@ export function getFilePathPosition(): { filePath: string; position: number } {
 
 export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath: string]: AtomCore.IEditor }> {
     var map = <any>{};
-    var activeEditors = atom.workspace.getEditors().filter(editor=> !!editor.getPath());
+    var activeEditors = atom.workspace.getTextEditors().filter(editor=> !!editor.getPath());
 
     function addConsistentlyToMap(editor: AtomCore.IEditor) {
         map[tsconfig.consistentPath(editor.getPath())] = editor;
@@ -71,7 +71,7 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
 
 /** only the editors that are persisted to disk. And are of type TypeScript */
 export function getTypeScriptEditorsWithPaths() {
-    return atom.workspace.getEditors()
+    return atom.workspace.getTextEditors()
         .filter(editor=> !!editor.getPath())
         .filter(editor=> (path.extname(editor.getPath()) === '.ts'));
 }

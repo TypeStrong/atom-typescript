@@ -1,4 +1,5 @@
-///ts:ref=globals
+// Inspiration : https://atom.io/packages/ide-haskell
+// and https://atom.io/packages/ide-flow
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 var atomUtils = require('./atomUtils');
 var parent = require('../../worker/parent');
@@ -8,12 +9,12 @@ var emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 var tooltipView = require('./views/tooltipView');
 var TooltipView = tooltipView.TooltipView;
-var $ = require('atom').$;
+var _atom_space_pen_views = require("atom-space-pen-views");
 var escape = require('escape-html');
 function getFromShadowDom(element, selector) {
     var el = element[0];
     var found = el.rootElement.querySelectorAll(selector);
-    return $(found[0]);
+    return _atom_space_pen_views.$(found[0]);
 }
 exports.getFromShadowDom = getFromShadowDom;
 function attach(editorView, editor) {

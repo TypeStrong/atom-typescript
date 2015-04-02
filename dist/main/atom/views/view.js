@@ -6,7 +6,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var atom = require('atom');
+var sp = require("atom-space-pen-views");
 var View = (function (_super) {
     __extends(View, _super);
     function View(options) {
@@ -28,6 +28,6 @@ var View = (function (_super) {
     View.prototype.init = function () {
     };
     return View;
-})(atom.View);
+})(sp.View);
 exports.View = View;
-exports.$ = atom.$;
+exports.$ = sp.$;

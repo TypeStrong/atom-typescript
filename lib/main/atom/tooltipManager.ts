@@ -1,3 +1,6 @@
+// Inspiration : https://atom.io/packages/ide-haskell
+// and https://atom.io/packages/ide-flow
+
 ///ts:ref=globals
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 
@@ -13,7 +16,7 @@ import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 import tooltipView = require('./views/tooltipView');
 import TooltipView = tooltipView.TooltipView;
-var $ = require('atom').$;
+import {$} from "atom-space-pen-views";
 import escape = require('escape-html');
 
 export function getFromShadowDom(element: JQuery, selector: string): JQuery {

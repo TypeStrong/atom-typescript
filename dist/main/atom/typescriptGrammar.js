@@ -8,7 +8,6 @@ var __extends = this.__extends || function (d, b) {
 };
 var ts = require('typescript');
 var TokenClass = ts.TokenClass;
-var atom$ = require('atom').$;
 global.AtomTSBaseGrammar = require(atom.config.resourcePath + "/node_modules/first-mate/lib/grammar.js");
 var TypeScriptSemanticGrammar = (function (_super) {
     __extends(TypeScriptSemanticGrammar, _super);
