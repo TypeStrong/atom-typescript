@@ -9,7 +9,8 @@ var $ = view.$;
 var lineMessageView = require('./lineMessageView');
 var panelHeaders = {
     error: 'Errors In Open Files',
-    build: 'Last Build Output'
+    build: 'Last Build Output',
+    references: 'References'
 };
 var gotoHistory = require('../gotoHistory');
 var MainPanelView = (function (_super) {
@@ -58,10 +59,11 @@ var MainPanelView = (function (_super) {
                 }, function () {
                     btn("error", panelHeaders.error, 'selected');
                     btn("build", panelHeaders.build);
+                    btn("references", panelHeaders.references);
                 });
                 _this.div({
                     class: 'heading-summary',
-                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 500px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 600px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                     outlet: 'summary'
                 });
                 _this.div({
@@ -91,47 +93,114 @@ var MainPanelView = (function (_super) {
                 outlet: 'buildBody',
                 style: 'overflow-y: auto; display:none'
             });
+            _this.div({
+                class: 'panel-body atomts-panel-body padded',
+                outlet: 'referencesBody',
+                style: 'overflow-y: auto; display:none'
+            });
         });
     };
     MainPanelView.prototype.init = function () {
         this.buildPanelBtn.html(panelHeaders.build + " ( <span class=\"text-success\">No Build</span> )");
         this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>');
+        this.referencesPanelBtn.html(panelHeaders.references + " ( <span class=\"text-success\">No Search</span> )");
+        this.referencesBody.html('<span class="text-success"> You haven\'t search for TypeScript references yet. </span>');
     };
-    MainPanelView.prototype.errorPanelSelected = function () {
-        this.errorPanelBtn.addClass('selected');
-        this.buildPanelBtn.removeClass('selected');
-        this.expanded = true;
-        this.setActivePanel();
-        gotoHistory.activeList = gotoHistory.errorsInOpenFiles;
-        gotoHistory.activeList.lastPosition = null;
+    MainPanelView.prototype.errorPanelSelected = function (forceExpand) {
+        if (forceExpand === void 0) { forceExpand = true; }
+        this.expanded = forceExpand;
+        this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);
     };
-    MainPanelView.prototype.buildPanelSelected = function () {
-        this.errorPanelBtn.removeClass('selected');
-        this.buildPanelBtn.addClass('selected');
-        this.expanded = true;
-        this.setActivePanel();
-        gotoHistory.activeList = gotoHistory.buildOutput;
+    MainPanelView.prototype.buildPanelSelected = function (forceExpand) {
+        if (forceExpand === void 0) { forceExpand = true; }
+        this.expanded = forceExpand;
+        this.selectPanel(this.buildPanelBtn, this.buildBody, gotoHistory.buildOutput);
+    };
+    MainPanelView.prototype.referencesPanelSelected = function (forceExpand) {
+        if (forceExpand === void 0) { forceExpand = true; }
+        this.expanded = forceExpand;
+        this.selectPanel(this.referencesPanelBtn, this.referencesBody, gotoHistory.referencesOutput);
+    };
+    MainPanelView.prototype.selectPanel = function (btn, body, activeList) {
+        var _this = this;
+        var buttons = [
+            this.errorPanelBtn,
+            this.buildPanelBtn,
+            this.referencesPanelBtn
+        ];
+        var bodies = [
+            this.errorBody,
+            this.buildBody,
+            this.referencesBody
+        ];
+        buttons.forEach(function (b) {
+            if (b !== btn)
+                b.removeClass('selected');
+            else
+                b.addClass('selected');
+        });
+        bodies.forEach(function (b) {
+            if (!_this.expanded) {
+                b.hide('fast');
+            }
+            else {
+                if (b !== body)
+                    b.hide('fast');
+                else {
+                    body.show('fast');
+                }
+            }
+        });
+        gotoHistory.activeList = activeList;
         gotoHistory.activeList.lastPosition = null;
     };
     MainPanelView.prototype.setActivePanel = function () {
-        if (this.expanded) {
-            if (this.errorPanelBtn.hasClass('selected')) {
-                this.errorBody.show('fast');
-                this.buildBody.hide('fast');
-            }
-            else {
-                this.buildBody.show('fast');
-                this.errorBody.hide('fast');
-            }
+        if (this.errorPanelBtn.hasClass('selected')) {
+            this.errorPanelSelected(this.expanded);
         }
-        else {
-            this.errorBody.hide('fast');
-            this.buildBody.hide('fast');
+        if (this.buildPanelBtn.hasClass('selected')) {
+            this.buildPanelSelected(this.expanded);
+        }
+        if (this.referencesPanelBtn.hasClass('selected')) {
+            this.referencesPanelSelected(this.expanded);
         }
     };
     MainPanelView.prototype.toggle = function () {
         this.expanded = !this.expanded;
         this.setActivePanel();
+    };
+    MainPanelView.prototype.setReferences = function (references) {
+        this.referencesPanelSelected(true);
+        this.referencesBody.empty();
+        if (references.length == 0) {
+            var title = panelHeaders.references + " ( <span class=\"text-success\">No References</span> )";
+            this.referencesPanelBtn.html(title);
+            this.referencesBody.html('<span class="text-success">No references found \u2665</span>');
+            atom.notifications.addInfo('AtomTS: No References Found.');
+            return;
+        }
+        var title = panelHeaders.references + " ( <span class=\"text-highlight\" style=\"font-weight: bold\">Found: " + references.length + "</span> )";
+        this.referencesPanelBtn.html(title);
+        gotoHistory.referencesOutput.members = [];
+        for (var _i = 0; _i < references.length; _i++) {
+            var ref = references[_i];
+            var view = new lineMessageView.LineMessageView({
+                goToLine: function (filePath, line, col) {
+                    return gotoHistory.gotoLine(filePath, line, col, gotoHistory.referencesOutput);
+                },
+                message: '',
+                line: ref.position.line + 1,
+                col: ref.position.col,
+                file: ref.filePath,
+                preview: ref.preview
+            });
+            this.referencesBody.append(view.$);
+            gotoHistory.referencesOutput.members.push({
+                filePath: ref.filePath,
+                line: ref.position.line + 1,
+                col: ref.position.col
+            });
+        }
     };
     MainPanelView.prototype.clearError = function () {
         this.clearedError = true;

@@ -8,12 +8,13 @@ interface ContextViewItem {
 var titles = {
     togglePanel: 'Toggle TypeScript Panel',
     tabErrors: 'Tab: Errors in Open Files',
-    tabLastBuild: 'Tab: Last Build Output'
+    tabLastBuild: 'Tab: Last Build Output',
+    tabReferences: 'Tab: Find References'
 }
 
-var items = [{ title: titles.togglePanel }, { title: titles.tabErrors }, { title: titles.tabLastBuild }];
+var items = Object.keys(titles).map(item=> { return { title: titles[item] } });
 
-/** 
+/**
  * https://github.com/atom/atom-space-pen-views
  */
 export class ContextView extends sp.SelectListView {
@@ -28,7 +29,7 @@ export class ContextView extends sp.SelectListView {
     viewForItem(item: ContextViewItem) {
         return `<li>${item.title}</li>`;
     }
-    
+
     /** override */
     confirmed(item: ContextViewItem) {
         if (item.title == titles.togglePanel) {
@@ -40,7 +41,10 @@ export class ContextView extends sp.SelectListView {
         if (item.title == titles.tabLastBuild) {
             mainPanelView.panelView.buildPanelSelected();
         }
-        
+        if (item.title == titles.tabReferences) {
+            mainPanelView.panelView.referencesPanelSelected();
+        }
+
         this.hide();
     }
 

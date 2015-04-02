@@ -10,6 +10,7 @@ var fileSymbolsView = require("../views/fileSymbolsView");
 var projectSymbolsView = require("../views/projectSymbolsView");
 var gotoHistory = require("../gotoHistory");
 var utils = require("../../lang/utils");
+var _mainPanelView = require("../views/mainPanelView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -94,11 +95,15 @@ function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
     atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
-        parent.debugLanguageServiceHostVersion({
-            filePath: atom.workspace.getActiveEditor().getPath()
-        }).then(function (res) {
-            console.log(res.text.length);
-        });
+        // documentationView.docView.hide();
+        // documentationView.docView.autoPosition();
+        // documentationView.testDocumentationView();
+        // parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
+        //     .then((res) => {
+        //     console.log(res.text.length);
+        //     // console.log(JSON.stringify({txt:res.text}))
+        // });
+        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:find-references');
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {
@@ -141,6 +146,19 @@ function registerCommands() {
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-previous', function (e) {
         gotoHistory.gotoPrevious();
+    });
+    atom.commands.add('atom-workspace', 'typescript:find-references', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        var position = atomUtils.getEditorPosition(editor);
+        parent.getReferences({
+            filePath: filePath,
+            position: position
+        }).then(function (res) {
+            _mainPanelView.panelView.setReferences(res.references);
+        });
     });
     var theFileSymbolsView;
     var showFileSymbols = utils.debounce(function (filePath) {

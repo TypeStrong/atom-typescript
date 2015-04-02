@@ -1,6 +1,7 @@
 
 export var errorsInOpenFiles: TabWithGotoPositions = { members: [] };
 export var buildOutput: TabWithGotoPositions = { members: [] };
+export var referencesOutput: TabWithGotoPositions = { members: [] };
 
 /** This *must* always be set */
 export var activeList: TabWithGotoPositions = errorsInOpenFiles;
@@ -40,7 +41,7 @@ function findCurrentIndexInList(): number {
 
     var lastPosition = activeList.lastPosition;
     var index = indexOf(activeList.members, (item) => item.filePath == lastPosition.filePath && item.line == lastPosition.line);
-    
+
     // if the item has since been removed go to 0
     if (index == -1) {
         return 0;

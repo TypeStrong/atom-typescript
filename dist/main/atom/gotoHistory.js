@@ -4,6 +4,9 @@ exports.errorsInOpenFiles = {
 exports.buildOutput = {
     members: []
 };
+exports.referencesOutput = {
+    members: []
+};
 exports.activeList = exports.errorsInOpenFiles;
 function gotoLine(filePath, line, col, list) {
     var activeFile, activeEditor = atom.workspace.getActiveEditor();

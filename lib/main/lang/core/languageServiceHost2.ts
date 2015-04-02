@@ -20,8 +20,9 @@ interface ScriptInfo {
     editContent(minChar: number, limChar: number, newText: string): void;
     getPositionFromLine(line: number, ch: number): number;
     getLineAndColForPositon(position: number): EditorPosition;
+    getLinePreview(line: number): string;
 }
-interface ITextBuffer extends TextBuffer.ITextBuffer{}
+interface ITextBuffer extends TextBuffer.ITextBuffer { }
 
 /**
  * Manage a script in the language service host
@@ -41,7 +42,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
             // TODO: pref
             _lineStarts = [];
             var totalLength = 0;
-            buffer.lines.forEach((line,index)=>{
+            buffer.lines.forEach((line, index) => {
                 _lineStarts.push(totalLength);
                 var lineLength = line.length;
                 totalLength = totalLength + lineLength + buffer.lineEndings[index];
@@ -81,7 +82,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
         // console.error(start,end);
-        buffer.setTextInRange([[start.line,start.col],[end.line,end.col]],newText);
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText);
         // console.error(buffer.getText().length);
 
         _lineStartIsDirty = true;
@@ -105,7 +106,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
      * @param character charecter poisiton in the line
      */
     function getPositionFromLine(line: number, ch: number) {
-        return buffer.characterIndexForPosition([line,ch]);
+        return buffer.characterIndexForPosition([line, ch]);
     }
 
     /**
@@ -114,14 +115,16 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
      * @param position
      */
     function getLineAndColForPositon(position: number) {
-        var {row,column} = buffer.positionForCharacterIndex(position);
+        var {row, column} = buffer.positionForCharacterIndex(position);
         return {
-                line:row,
-                col:column
+            line: row,
+            col: column
         };
     }
 
-
+    function getLinePreview(line: number) {
+        return (buffer.lines[line] || '').trim();
+    }
 
 
     return {
@@ -136,7 +139,8 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         updateContent: updateContent,
         editContent: editContent,
         getPositionFromLine: getPositionFromLine,
-        getLineAndColForPositon: getLineAndColForPositon
+        getLineAndColForPositon: getLineAndColForPositon,
+        getLinePreview: getLinePreview
     }
 }
 
@@ -307,7 +311,13 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return null;
     }
 
+    getPositionFromTextSpanWithLinePreview = (fileName: string, textSpan: ts.TextSpan): { position: EditorPosition, preview: string } => {
+        var position = this.getPositionFromIndex(fileName, textSpan.start);
+        var script = this.fileNameToScript[fileName];
+        var preview = script.getLinePreview(position.line);
 
+        return { preview, position };
+    }
 
     ////////////////////////////////////////
     // ts.LanguageServiceHost implementation

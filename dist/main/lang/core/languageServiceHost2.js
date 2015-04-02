@@ -63,6 +63,9 @@ function createScriptInfo(fileName, text, isOpen) {
             col: column
         };
     }
+    function getLinePreview(line) {
+        return (buffer.lines[line] || '').trim();
+    }
     return {
         getFileName: function () {
             return fileName;
@@ -86,7 +89,8 @@ function createScriptInfo(fileName, text, isOpen) {
         updateContent: updateContent,
         editContent: editContent,
         getPositionFromLine: getPositionFromLine,
-        getLineAndColForPositon: getLineAndColForPositon
+        getLineAndColForPositon: getLineAndColForPositon,
+        getLinePreview: getLinePreview
     };
 }
 function getScriptSnapShot(scriptInfo) {
@@ -233,6 +237,15 @@ var LanguageServiceHost = (function () {
                 return script.getLineAndColForPositon(index);
             }
             return null;
+        };
+        this.getPositionFromTextSpanWithLinePreview = function (fileName, textSpan) {
+            var position = _this.getPositionFromIndex(fileName, textSpan.start);
+            var script = _this.fileNameToScript[fileName];
+            var preview = script.getLinePreview(position.line);
+            return {
+                preview: preview,
+                position: position
+            };
         };
         this.getCompilationSettings = function () {
             return _this.config.project.compilerOptions;

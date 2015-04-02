@@ -12,6 +12,7 @@ import fileSymbolsView = require("../views/fileSymbolsView");
 import projectSymbolsView = require("../views/projectSymbolsView");
 import gotoHistory = require("../gotoHistory");
 import utils = require("../../lang/utils");
+import {panelView} from "../views/mainPanelView";
 
 export function registerCommands() {
 
@@ -96,11 +97,15 @@ export function registerCommands() {
         // documentationView.docView.hide();
         // documentationView.docView.autoPosition();
         // documentationView.testDocumentationView();
-        parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
-            .then((res) => {
-            console.log(res.text.length);
-            // console.log(JSON.stringify({txt:res.text}))
-        });
+        // parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
+        //     .then((res) => {
+        //     console.log(res.text.length);
+        //     // console.log(JSON.stringify({txt:res.text}))
+        // });
+
+        atom.commands.dispatch(
+            atom.views.getView(atom.workspace.getActiveTextEditor()),
+            'typescript:find-references');
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', (e) => {
@@ -150,6 +155,18 @@ export function registerCommands() {
         gotoHistory.gotoPrevious();
     });
 
+    atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        var position = atomUtils.getEditorPosition(editor);
+
+        parent.getReferences({ filePath, position }).then(res=> {
+            panelView.setReferences(res.references);
+        });
+    });
+
     // I've needed to debounce this as it gets called multiple times for some reason
     // Has to do with how we override toggle-file-symbols
     var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
@@ -184,7 +201,7 @@ export function registerCommands() {
     var showProjectSymbols = utils.debounce((filePath: string) => {
         if (!theProjectSymbolsView) theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
 
-        parent.getNavigateToItems({filePath}).then((res) => {
+        parent.getNavigateToItems({ filePath }).then((res) => {
             theProjectSymbolsView.setNavBarItems(res.items);
             theProjectSymbolsView.show();
         })

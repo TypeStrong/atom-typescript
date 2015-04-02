@@ -368,7 +368,7 @@ export interface Completion {
     kind?: string; // stuff like "var"
     comment?: string; // the docComment if any
     display?: string; // This is either displayParts (for functions) or just the kind duplicated
-    
+
     /** If snippet is specified then the above stuff is ignored */
     snippet?: string;
 }
@@ -437,7 +437,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
                     }
                     return display;
                 }).join(ts.displayPartsToString(item.separatorDisplayParts));
-            
+
                 // We do not use the label for now. But it looks too good to kill off
                 var label: string = ts.displayPartsToString(item.prefixDisplayParts)
                     + snippet
@@ -691,7 +691,7 @@ export interface GetNavigationBarItemsResponse {
 
 function sortNavbarItemsBySpan(items: ts.NavigationBarItem[]) {
     items.sort((a, b) => a.spans[0].start - b.spans[0].start);
-    
+
     // sort children recursively
     for (let item of items) {
         if (item.childItems) {
@@ -699,7 +699,7 @@ function sortNavbarItemsBySpan(items: ts.NavigationBarItem[]) {
         }
     }
 }
-/** 
+/**
  * Note the `indent` is fairly useless in ts service
  * Basically only exists for global / module level and 0 elsewhere
  * We make it true indent here ;)
@@ -717,7 +717,7 @@ function flattenNavBarItems(items: ts.NavigationBarItem[]): ts.NavigationBarItem
             children.forEach(child => keepAdding(child, depth + 1));
         }
     }
-    // Kick it off 
+    // Kick it off
     items.forEach(item => keepAdding(item, 0));
 
     return toreturn;
@@ -728,19 +728,19 @@ export function getNavigationBarItems(query: FilePathQuery): Promise<GetNavigati
     var project = getOrCreateProject(query.filePath);
     var languageService = project.languageService;
     var navBarItems = languageService.getNavigationBarItems(query.filePath);
-    
+
     // remove the first global (whatever that is???)
     if (navBarItems.length && navBarItems[0].text == "<global>") {
         navBarItems.shift();
     }
-        
+
     // Sort items by first spans:
     sortNavbarItemsBySpan(navBarItems);
-    
+
     // And flatten
     navBarItems = flattenNavBarItems(navBarItems);
-    
-    // Add a position    
+
+    // Add a position
     var items = navBarItems.map(item=> {
         (<any>item).position = project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start);
         delete item.spans;
@@ -754,12 +754,12 @@ export function getNavigationBarItems(query: FilePathQuery): Promise<GetNavigati
 //  getNavigateToItems
 //--------------------------------------------------------------------------
 
-// Look at 
-// https://github.com/Microsoft/TypeScript/blob/master/src/services/navigateTo.ts 
+// Look at
+// https://github.com/Microsoft/TypeScript/blob/master/src/services/navigateTo.ts
 // for inspiration
-// Reason for forking: 
+// Reason for forking:
 //  didn't give all results
-//  gave results from lib.d.ts 
+//  gave results from lib.d.ts
 //  I wanted the practice
 
 export interface GetNavigateToItemsResponse {
@@ -769,7 +769,7 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var languageService = project.languageService;
-    
+
     // forgive me, for I have sinned, i.e. used copy paste and non public API.
     let ts2: any = ts;
     let getNodeKind = ts2.getNodeKind;
@@ -815,4 +815,29 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
     }
 
     return resolve({ items });
+}
+
+//--------------------------------------------------------------------------
+//  getReferences
+//--------------------------------------------------------------------------
+export interface GetReferencesQuery extends FilePathPositionQuery { }
+export interface GetReferencesResponse {
+    references: ReferenceDetails[];
+}
+export function getReferences(query: GetReferencesQuery): Promise<GetReferencesResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+
+    var references: ReferenceDetails[] = [];
+    var refs = languageService.getReferencesAtPosition(query.filePath, query.position) || [];
+
+    references = refs.map(r=> {
+        var res = project.languageServiceHost.getPositionFromTextSpanWithLinePreview(r.fileName, r.textSpan);
+        return { filePath: r.fileName, position: res.position, preview: res.preview  }
+    });
+
+    return resolve({
+        references
+    })
 }

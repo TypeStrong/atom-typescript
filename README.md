@@ -20,23 +20,24 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
 
-# Features 
+# Features
 * Autocomplete
 * Live error analysis
 * Type information on hover
-* Compile on save 
+* Compile on save
 * Project Context Support (`tsconfig.json`)
 * Project Build Support
-* Format code 
+* Format code
 * Goto Declaration
+* Find References
 * Block comment and uncomment
 * Goto history (goto next/previous error in open files, goto next/previous build)
 * Auto indent for new lines
 * TypeScript context menu
-* Symbols in Project 
+* Symbols in Project
 * Symbols in File
 * Rename refactoring
-* Common Snippets 
+* Common Snippets
 * `import` / `/// <reference` relative path resolution
 
 # Feature Details
@@ -80,11 +81,16 @@ Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you ha
 ## Go to Declaration
 Shortcut : `ctrl+b` or `cmd+b`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
+## Find References
+Shortcut `shift+F12`. Also called *find usages*.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/findReferences.png)
+
 ## Block Comment and Uncomment
 `ctrl+/` or `cmd+/`. Does a block comment / uncomment of code.
 
 ## Go to Next / Go to Previous
-`f8` and `shift+f8` respectively. This will go to next/previous *errors in open files* OR *build error* based on which tab you have selected.
+`f8` and `shift+f8` respectively. This will go to next/previous *errors in open files* OR *build error* OR *references* based on which tab you have selected.
 
 ## Context menu
 Quickly toggle the TypeScript panel OR select active TypeScript panel tab and other stuff using the context menu. `ctrl+;` or `cmd+;`.

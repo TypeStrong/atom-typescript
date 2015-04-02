@@ -122,3 +122,9 @@ interface NavigateToItem {
     position: EditorPosition;
     fileName: string;
 }
+
+interface ReferenceDetails {
+    filePath: string;
+    position: EditorPosition
+    preview: string;
+}

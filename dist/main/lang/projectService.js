@@ -614,3 +614,22 @@ function getNavigateToItems(query) {
     });
 }
 exports.getNavigateToItems = getNavigateToItems;
+function getReferences(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var languageService = project.languageService;
+    var references = [];
+    var refs = languageService.getReferencesAtPosition(query.filePath, query.position) || [];
+    references = refs.map(function (r) {
+        var res = project.languageServiceHost.getPositionFromTextSpanWithLinePreview(r.fileName, r.textSpan);
+        return {
+            filePath: r.fileName,
+            position: res.position,
+            preview: res.preview
+        };
+    });
+    return resolve({
+        references: references
+    });
+}
+exports.getReferences = getReferences;

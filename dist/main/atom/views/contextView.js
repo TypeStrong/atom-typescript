@@ -9,19 +9,14 @@ var mainPanelView = require('./mainPanelView');
 var titles = {
     togglePanel: 'Toggle TypeScript Panel',
     tabErrors: 'Tab: Errors in Open Files',
-    tabLastBuild: 'Tab: Last Build Output'
+    tabLastBuild: 'Tab: Last Build Output',
+    tabReferences: 'Tab: Find References'
 };
-var items = [
-    {
-        title: titles.togglePanel
-    },
-    {
-        title: titles.tabErrors
-    },
-    {
-        title: titles.tabLastBuild
-    }
-];
+var items = Object.keys(titles).map(function (item) {
+    return {
+        title: titles[item]
+    };
+});
 var ContextView = (function (_super) {
     __extends(ContextView, _super);
     function ContextView() {
@@ -50,6 +45,9 @@ var ContextView = (function (_super) {
         }
         if (item.title == titles.tabLastBuild) {
             mainPanelView.panelView.buildPanelSelected();
+        }
+        if (item.title == titles.tabReferences) {
+            mainPanelView.panelView.referencesPanelSelected();
         }
         this.hide();
     };
