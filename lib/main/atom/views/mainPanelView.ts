@@ -113,7 +113,7 @@ export class MainPanelView extends view.View<any> {
         this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>')
 
         this.referencesPanelBtn.html(`${panelHeaders.references} ( <span class="text-success">No Search</span> )`)
-        this.referencesBody.html('<span class="text-success"> You haven\'t search for TypeScript references yet. </span>')
+        this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>')
     }
 
     errorPanelSelected(forceExpand = true) {
