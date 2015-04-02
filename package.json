@@ -42,7 +42,6 @@
     "grunt": "^0.4.5",
     "grunt-ts": "^3.0.0"
   },
-  "activationEvents": [],
   "package-dependencies": {
     "linter": "//this field will be ignored right now",
     "autocomplete-plus": "//this field will be ignored right now"
