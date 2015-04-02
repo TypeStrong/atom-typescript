@@ -7,7 +7,7 @@ We only plan strictly document the breaking changes. The rest is optional.
 * `compileOnSave` is now a tsconfig option : https://github.com/TypeStrong/atom-typescript/issues/187
 
 # v2
-* New default shortcuts for `build` : `F6` an `goto definition`: `F12`. Because I don't want to mess with your atom defaults and a major use base is VS users.
+* New default shortcuts for `build` : `F6` an `goto definition`: `F12`. Because I don't want to mess with your atom defaults and a major use base is VS users. [Link #145](https://github.com/TypeStrong/atom-typescript/issues/145)
 
 # Planned
 * No breaking changes yet.
