@@ -104,7 +104,7 @@ var MainPanelView = (function (_super) {
         this.buildPanelBtn.html(panelHeaders.build + " ( <span class=\"text-success\">No Build</span> )");
         this.buildBody.html('<span class="text-success"> No Build. Press (ctrl+shift+b / cmd+shift+b ) to start a build for an active TypeScript file\'s project. </span>');
         this.referencesPanelBtn.html(panelHeaders.references + " ( <span class=\"text-success\">No Search</span> )");
-        this.referencesBody.html('<span class="text-success"> You haven\'t search for TypeScript references yet. </span>');
+        this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>');
     };
     MainPanelView.prototype.errorPanelSelected = function (forceExpand) {
         if (forceExpand === void 0) { forceExpand = true; }
