@@ -90,7 +90,7 @@ exports.provider = {
                         return {
                             text: c.name,
                             replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                            rightLabelHTML: '<span style="color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
+                            rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                         };
                     }
                 });

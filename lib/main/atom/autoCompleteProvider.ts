@@ -156,7 +156,7 @@ export var provider: autocompleteplus.Provider = {
                     maxSuggestions: atomConfig.maxSuggestions
                 })
                     .then((resp) => {
-                        
+
                     var completionList = resp.completions;
                     var suggestions = completionList.map((c): autocompleteplus.Suggestion => {
 
@@ -172,7 +172,7 @@ export var provider: autocompleteplus.Provider = {
                             return {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                                rightLabelHTML: '<span style="color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
+                                rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                             };
                         }
                     });
