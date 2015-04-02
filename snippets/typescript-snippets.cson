@@ -7,7 +7,7 @@
     'import':
         'prefix': 'import'
         'body': """
-            import ${1:alias} = require("${2:path}");
+            import ${2} from "${1:path}";
         """
     'JSDoc single line':
         'prefix': '//'

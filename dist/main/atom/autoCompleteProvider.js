@@ -39,7 +39,8 @@ exports.provider = {
             return Promise.resolve([]);
         var pathMatchers = [
             'reference.path.string',
-            'require.path.string'
+            'require.path.string',
+            'es6import.path.string'
         ];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
         if (pathMatchers.some(function (p) {
@@ -62,6 +63,11 @@ exports.provider = {
                     }
                     if (lastScope == 'require.path.string') {
                         suggestion.atomTS_IsImport = {
+                            relativePath: file.relativePath
+                        };
+                    }
+                    if (lastScope == 'es6import.path.string') {
+                        suggestion.atomTS_IsES6Import = {
                             relativePath: file.relativePath
                         };
                     }
@@ -108,18 +114,37 @@ exports.provider = {
         }
     },
     onDidInsertSuggestion: function (options) {
-        if (options.suggestion.atomTS_IsReference || options.suggestion.atomTS_IsImport) {
-            options.editor.moveToBeginningOfLine();
-            options.editor.selectToEndOfLine();
-            if (options.suggestion.atomTS_IsReference)
+        if (options.suggestion.atomTS_IsReference || options.suggestion.atomTS_IsImport || options.suggestion.atomTS_IsES6Import) {
+            if (options.suggestion.atomTS_IsReference) {
+                options.editor.moveToBeginningOfLine();
+                options.editor.selectToEndOfLine();
                 options.editor.replaceSelectedText(null, function () {
                     return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>';
                 });
+            }
             if (options.suggestion.atomTS_IsImport) {
+                options.editor.moveToBeginningOfLine();
+                options.editor.selectToEndOfLine();
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
                 options.editor.replaceSelectedText(null, function () {
                     return "import " + alias + ' = require("' + options.suggestion.atomTS_IsImport.relativePath + '");';
                 });
+            }
+            if (options.suggestion.atomTS_IsES6Import) {
+                var row = (options.editor.getCursorBufferPosition()).row;
+                var originalText = options.editor.lineTextForBufferRow(row);
+                var beforeFrom = originalText.match(/(.*)from/)[1];
+                var newTextAfterFrom = 'from "' + options.suggestion.atomTS_IsES6Import.relativePath + '";';
+                options.editor.setTextInBufferRange([
+                    [
+                        row,
+                        beforeFrom.length
+                    ],
+                    [
+                        row,
+                        originalText.length
+                    ]
+                ], newTextAfterFrom);
             }
             options.editor.moveToEndOfLine();
         }

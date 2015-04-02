@@ -71,6 +71,9 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         else if (line.match(this.importRequireRegex)) {
             return this.getImportRequireTokensForLine(line);
         }
+        else if (line.match(this.es6importRegex)) {
+            return this.getEs6importTokensForLine(line);
+        }
         else {
             return this.getAtomTokensForLine(line, finalLexState);
         }
@@ -86,6 +89,8 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
     // Note this will not match multiple imports on same line. So shame on you
     importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
+    // es6
+    es6importRegex = /^import.*from.*/;
 
     getfullTripleSlashReferencePathTokensForLine(line: string): AtomTSTokens {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
@@ -114,14 +119,31 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     getImportRequireTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
 
-        // Based on ts tokenizer we should have a single "identifier" "string"
-        // Update these
+        // Based on ts tokenizer we should have a single "identifier" and a single "string"
+        // Update these tokens to be more specific
         tsTokensWithRuleStack.tokens.forEach(t=> {
             if (t.style == "identifier") {
                 t.style = "require.identifier";
             }
             if (t.style == "string") {
                 t.style = "require.path.string";
+            }
+        });
+
+        return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
+    }
+
+    getEs6importTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+
+        // Based on ts tokenizer we should have a few "identifiers" and a single "string"
+        // Update these tokens to be more specific
+        tsTokensWithRuleStack.tokens.forEach(t=> {
+            if (t.style == "identifier") {
+                t.style = "es6import.identifier";
+            }
+            if (t.style == "string") {
+                t.style = "es6import.path.string";
             }
         });
 

@@ -25,6 +25,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         this.classifier = ts.createClassifier();
         this.fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
         this.importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
+        this.es6importRegex = /^import.*from.*/;
     }
     TypeScriptSemanticGrammar.prototype.tokenizeLine = function (line, ruleStack, firstLine) {
         if (firstLine === void 0) { firstLine = false; }
@@ -43,6 +44,9 @@ var TypeScriptSemanticGrammar = (function (_super) {
         }
         else if (line.match(this.importRequireRegex)) {
             return this.getImportRequireTokensForLine(line);
+        }
+        else if (line.match(this.es6importRegex)) {
+            return this.getEs6importTokensForLine(line);
         }
         else {
             return this.getAtomTokensForLine(line, finalLexState);
@@ -91,6 +95,18 @@ var TypeScriptSemanticGrammar = (function (_super) {
             }
             if (t.style == "string") {
                 t.style = "require.path.string";
+            }
+        });
+        return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
+    };
+    TypeScriptSemanticGrammar.prototype.getEs6importTokensForLine = function (line) {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        tsTokensWithRuleStack.tokens.forEach(function (t) {
+            if (t.style == "identifier") {
+                t.style = "es6import.identifier";
+            }
+            if (t.style == "string") {
+                t.style = "es6import.path.string";
             }
         });
         return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
