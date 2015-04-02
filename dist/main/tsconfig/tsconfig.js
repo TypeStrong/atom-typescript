@@ -295,6 +295,12 @@ function getProjectSync(pathOrSrcFile) {
             errorMessage: validationResult.errorMessage
         });
     }
+    if (projectSpec.compilerOptions && projectSpec.compilerOptions.out) {
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), {
+            projectFilePath: consistentPath(projectFile),
+            errorMessage: "We don't support --out because it will hurt you in the long run."
+        });
+    }
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
     project.files = increaseProjectForReferenceAndImports(project.files);
     project.files = uniq(project.files.map(consistentPath));
