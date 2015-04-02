@@ -26,6 +26,8 @@ export function getFromShadowDom(element: JQuery, selector: string): JQuery {
 }
 
 export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
+    var rawView:any = editorView[0];
+
     // Only on ".ts" files
     var filePath = editor.getPath();
     var filename = path.basename(filePath);
@@ -55,6 +57,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         }
     });
 
+
     function showExpressionType(e: MouseEvent) {
 
         // If we are already showing we should wait for that to clear
@@ -63,8 +66,8 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        var curCharPixelPt = editor.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-        var nextCharPixelPt = editor.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
+        var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
+        var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
 
         if (curCharPixelPt.left >= nextCharPixelPt.left) return;
 

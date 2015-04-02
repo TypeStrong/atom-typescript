@@ -18,6 +18,7 @@ function getFromShadowDom(element, selector) {
 }
 exports.getFromShadowDom = getFromShadowDom;
 function attach(editorView, editor) {
+    var rawView = editorView[0];
     var filePath = editor.getPath();
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
@@ -53,11 +54,11 @@ function attach(editorView, editor) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        var curCharPixelPt = editor.pixelPositionForBufferPosition([
+        var curCharPixelPt = rawView.pixelPositionForBufferPosition([
             bufferPt.row,
             bufferPt.column
         ]);
-        var nextCharPixelPt = editor.pixelPositionForBufferPosition([
+        var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
             bufferPt.row,
             bufferPt.column + 1
         ]);
