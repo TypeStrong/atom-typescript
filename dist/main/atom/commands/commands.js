@@ -64,13 +64,7 @@ function registerCommands() {
     var handleGoToDeclaration = function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var position = atomUtils.getEditorPosition(editor);
-        parent.getDefinitionsAtPosition({
-            filePath: filePath,
-            position: position
-        }).then(function (res) {
+        parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(function (res) {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
                 atom.notifications.addInfo('AtomTS: No definition found.');
@@ -111,8 +105,19 @@ function registerCommands() {
                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
                 return;
             }
+            var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+            var openPathsMap = utils.createMap(paths);
+            var refactorPaths = Object.keys(res.locations);
+            var openFiles = refactorPaths.filter(function (p) {
+                return openPathsMap[p];
+            });
+            var closedFiles = refactorPaths.filter(function (p) {
+                return !openPathsMap[p];
+            });
             renameView.panelView.renameThis({
                 text: res.displayName,
+                openFiles: openFiles,
+                closedFiles: closedFiles,
                 onCancel: function () {
                 },
                 onValidate: function (newText) {
@@ -150,13 +155,7 @@ function registerCommands() {
     atom.commands.add('atom-workspace', 'typescript:find-references', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var position = atomUtils.getEditorPosition(editor);
-        parent.getReferences({
-            filePath: filePath,
-            position: position
-        }).then(function (res) {
+        parent.getReferences(atomUtils.getFilePathPosition()).then(function (res) {
             _mainPanelView.panelView.setReferences(res.references);
         });
     });

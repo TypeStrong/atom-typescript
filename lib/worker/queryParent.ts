@@ -53,9 +53,9 @@ export function getUpdatedTextForUnsavedEditors(query: {}): Promise<{ editors: {
 }
 
 export function getOpenEditorPaths(query: {}): Promise<{ filePaths: string[] }> {
-    var editors = atomUtils.getTypeScriptEditorsWithPaths();
+    var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
     return resolve({
-        filePaths: editors.map(e=> tsconfig.consistentPath(e.getPath()))
+        filePaths: paths
     });
 }
 

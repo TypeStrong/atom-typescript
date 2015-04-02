@@ -56,10 +56,7 @@ export function registerCommands() {
     var handleGoToDeclaration = (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var position = atomUtils.getEditorPosition(editor);
-        parent.getDefinitionsAtPosition({ filePath: filePath, position: position }).then(res=> {
+        parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(res=> {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
                 atom.notifications.addInfo('AtomTS: No definition found.');
@@ -115,8 +112,18 @@ export function registerCommands() {
                 return;
             }
 
+            var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+            var openPathsMap = utils.createMap(paths);
+
+            var refactorPaths = Object.keys(res.locations);
+
+            var openFiles = refactorPaths.filter(p=> openPathsMap[p]);
+            var closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
+
             renameView.panelView.renameThis({
                 text: res.displayName,
+                openFiles: openFiles,
+                closedFiles: closedFiles,
                 onCancel: () => { },
                 onValidate: (newText): string => {
                     if (newText.replace(/\s/g, '') !== newText.trim()) {
@@ -158,11 +165,7 @@ export function registerCommands() {
     atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var position = atomUtils.getEditorPosition(editor);
-
-        parent.getReferences({ filePath, position }).then(res=> {
+        parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
             panelView.setReferences(res.references);
         });
     });

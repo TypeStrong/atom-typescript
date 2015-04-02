@@ -33,11 +33,9 @@ function getUpdatedTextForUnsavedEditors(query) {
 }
 exports.getUpdatedTextForUnsavedEditors = getUpdatedTextForUnsavedEditors;
 function getOpenEditorPaths(query) {
-    var editors = atomUtils.getTypeScriptEditorsWithPaths();
+    var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
     return resolve({
-        filePaths: editors.map(function (e) {
-            return tsconfig.consistentPath(e.getPath());
-        })
+        filePaths: paths
     });
 }
 exports.getOpenEditorPaths = getOpenEditorPaths;

@@ -76,6 +76,10 @@ export function getTypeScriptEditorsWithPaths() {
         .filter(editor=> (path.extname(editor.getPath()) === '.ts'));
 }
 
+export function getOpenTypeScritEditorsConsistentPaths() {
+    return getTypeScriptEditorsWithPaths().map(e=> tsconfig.consistentPath(e.getPath()));
+}
+
 export function quickNotifySuccess(htmlMessage: string) {
     var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
     setTimeout(() => {

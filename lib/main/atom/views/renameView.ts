@@ -12,6 +12,8 @@ interface RenameViewOptions {
     onCancel: () => any;
     /** A truthy string return indicates a validation error */
     onValidate: (newValue: string) => string;
+    openFiles: string[];
+    closedFiles: string[];
 }
 
 export class RenameView
@@ -19,10 +21,11 @@ export class RenameView
 
     private newNameEditor: EditorView;
     private validationMessage: JQuery;
+    private fileCount: JQuery;
     static content = html;
 
     public init() {
-        $(atom.views.getView(atom.workspace)).on('keydown',(e) => {
+        $(atom.views.getView(atom.workspace)).on('keydown', (e) => {
             if (e.keyCode == 27) { // escape
                 if (this.options.onCancel) {
                     this.options.onCancel();
@@ -31,17 +34,17 @@ export class RenameView
             }
         });
 
-        this.newNameEditor.on('keydown',(e) => {
+        this.newNameEditor.on('keydown', (e) => {
             var newText = this.newNameEditor.model.getText();
             if (e.keyCode == 13) { // enter
                 var invalid = this.options.onValidate(newText);
-                if(invalid){
+                if (invalid) {
                     this.validationMessage.text(invalid);
                     this.validationMessage.show();
                     return;
                 }
                 this.validationMessage.hide();
-                
+
                 if (this.options.onCommit) {
                     this.options.onCommit(newText);
                     this.clearView();
@@ -56,9 +59,9 @@ export class RenameView
         });
     }
 
-    public editorAtRenameStart:AtomCore.IEditor = null;
+    public editorAtRenameStart: AtomCore.IEditor = null;
     public clearView() {
-        if(this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()){
+        if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
             var view = atom.views.getView(this.editorAtRenameStart);
             view.focus();
         }
@@ -71,9 +74,16 @@ export class RenameView
         this.options = options;
         this.editorAtRenameStart = atom.workspace.getActiveEditor();
         panel.show();
+
         this.newNameEditor.model.setText(options.text);
         this.newNameEditor.model.selectAll();
         this.newNameEditor.focus();
+
+        this.validationMessage.hide();
+
+        this.fileCount.html(`<div>
+            Files Counts: <span class='highlight'> Already Open ( ${options.openFiles.length} )</span> and <span class='highlight'> Currently Closed ( ${options.closedFiles.length} ) </span>
+        </div>`);
     }
 }
 

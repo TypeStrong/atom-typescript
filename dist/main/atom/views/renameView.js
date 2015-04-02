@@ -62,6 +62,8 @@ var RenameView = (function (_super) {
         this.newNameEditor.model.setText(options.text);
         this.newNameEditor.model.selectAll();
         this.newNameEditor.focus();
+        this.validationMessage.hide();
+        this.fileCount.html("<div>\n            Files Counts: <span class='highlight'> Already Open ( " + options.openFiles.length + " )</span> and <span class='highlight'> Currently Closed ( " + options.closedFiles.length + " ) </span>\n        </div>");
     };
     RenameView.content = html;
     return RenameView;

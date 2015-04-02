@@ -76,6 +76,12 @@ function getTypeScriptEditorsWithPaths() {
     });
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
+function getOpenTypeScritEditorsConsistentPaths() {
+    return getTypeScriptEditorsWithPaths().map(function (e) {
+        return tsconfig.consistentPath(e.getPath());
+    });
+}
+exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
     var notification = atom.notifications.addSuccess(htmlMessage, {
         dismissable: true
