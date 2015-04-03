@@ -23,7 +23,8 @@ var RequesterResponder = (function () {
         var _this = this;
         this.getProcess = function () { throw new Error('getProcess is abstract'); return null; };
         this.currentListeners = {};
-        this.pendingRequestCount = 0;
+        this.pendingRequests = [];
+        this.pendingRequestsChanged = function (pending) { return null; };
         this.responders = {};
         this.processRequest = function (m) {
             var parsed = m;
@@ -61,7 +62,8 @@ var RequesterResponder = (function () {
     }
     RequesterResponder.prototype.processResponse = function (m) {
         var parsed = m;
-        this.pendingRequestCount--;
+        this.pendingRequests.pop();
+        this.pendingRequestsChanged(this.pendingRequests);
         if (!parsed.message || !parsed.id) {
             console.log('PARENT ERR: Invalid JSON data from child:', m);
         }
@@ -92,7 +94,8 @@ var RequesterResponder = (function () {
             var id = createId();
             var defer = Promise.defer();
             that.currentListeners[message][id] = defer;
-            _this.pendingRequestCount++;
+            _this.pendingRequests.push(message);
+            _this.pendingRequestsChanged(_this.pendingRequests);
             that.getProcess().send({ message: message, id: id, data: data, request: true });
             return defer.promise;
         };

@@ -559,3 +559,15 @@ function getRelativePathsInProject(query) {
     return resolve(response);
 }
 exports.getRelativePathsInProject = getRelativePathsInProject;
+function getAST(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var service = project.languageService;
+    var files = service.getProgram().getSourceFiles().filter(function (x) { return x.fileName == query.filePath; });
+    if (!files.length)
+        resolve({ ast: {} });
+    var sourceFile = files[0];
+    console.error(sourceFile);
+    return resolve({ ast: {} });
+}
+exports.getAST = getAST;

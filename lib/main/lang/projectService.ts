@@ -855,3 +855,27 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
 
     return resolve(response);
 }
+
+
+/**
+ * Get AST
+ */
+export interface GetASTQuery extends FilePathQuery { }
+export interface GetASTResponse {
+    ast: {
+
+    }
+}
+export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var service = project.languageService;
+
+    var files = service.getProgram().getSourceFiles().filter(x=>x.fileName == query.filePath);
+    if(!files.length) resolve({ast:{}});
+
+    var sourceFile = files[0];
+    console.error(sourceFile);
+
+    return resolve({ast:{}})
+}

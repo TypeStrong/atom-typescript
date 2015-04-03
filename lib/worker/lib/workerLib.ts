@@ -52,13 +52,15 @@ class RequesterResponder {
 
     private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
     /** TODO: Display this in the UI  */
-    public pendingRequestCount = 0;
+    private pendingRequests: string[] = [];
+    public pendingRequestsChanged = (pending:string[]) => null;
 
     /** process a message from the child */
     protected processResponse(m: any) {
         var parsed: Message<any> = m;
 
-        this.pendingRequestCount--;
+        this.pendingRequests.pop();
+        this.pendingRequestsChanged(this.pendingRequests);
 
         if (!parsed.message || !parsed.id) {
             console.log('PARENT ERR: Invalid JSON data from child:', m);
@@ -102,7 +104,8 @@ class RequesterResponder {
             that.currentListeners[message][id] = defer;
 
             // Send data to worker
-            this.pendingRequestCount++;
+            this.pendingRequests.push(message);
+            this.pendingRequestsChanged(this.pendingRequests);
             that.getProcess().send({ message: message, id: id, data: data, request: true });
             return defer.promise;
         };

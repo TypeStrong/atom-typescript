@@ -12,6 +12,13 @@ import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
 
 var parent = new workerLib.Parent();
+import * as mainPanel from "../main/atom/views/mainPanelView";
+parent.pendingRequestsChanged = (pending) => {
+    // We only start once the panel view is initialized
+    if(!mainPanel.panelView) return;
+
+    mainPanel.panelView.updatePendingRequests(pending);
+};
 
 /** The only effect of debug is to really not route stuff to the child */
 if (debug) {

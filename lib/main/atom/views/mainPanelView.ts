@@ -28,6 +28,10 @@ export class MainPanelView extends view.View<any> {
 
     private buildProgress: JQuery;
 
+    private sectionPending: JQuery;
+    private txtPendingCount: JQuery;
+    private pendingRequests: string[];
+
     static content() {
         var btn = (view, text, className: string = '') =>
             this.button({
@@ -68,7 +72,7 @@ export class MainPanelView extends view.View<any> {
 
                         this.div({
                             class: 'heading-summary',
-                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 600px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 700px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
 
@@ -76,17 +80,28 @@ export class MainPanelView extends view.View<any> {
                             class: 'heading-buttons pull-right',
                             style: 'width:15px; display:inline-block'
                         }, () => {
-                                this.div({
+                                this.span({
                                     class: 'heading-fold icon-unfold',
                                     style: 'cursor: pointer',
                                     outlet: 'btnFold',
                                     click: 'toggle'
                                 });
                             });
+
                         this.progress({
                             class: 'inline-block build-progress',
                             style: 'display: none; color:red',
                             outlet: 'buildProgress'
+                        });
+                        this.span({ class:'pull-right', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
+                            this.span({
+                                outlet: 'txtPendingCount'
+                            });
+                            this.span({
+                                class: 'loading loading-spinner-tiny inline-block',
+                                style: 'cursor: pointer; margin-right: 7px;',
+                                click: 'showPending'
+                            });
                         });
                     });
                 this.div({
@@ -116,6 +131,19 @@ export class MainPanelView extends view.View<any> {
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>')
     }
 
+    ///////////// Pending Requests
+    showPending() {
+        atom.notifications.addInfo('Pending Requests: <br/> - ' + this.pendingRequests.join('<br/> - '));
+    }
+    updatePendingRequests(pending: string[]) {
+        this.pendingRequests = pending;
+        this.txtPendingCount.html(`<span class="text-highlight">${this.pendingRequests.length}</span>`);
+
+        if (pending.length) this.sectionPending.show();
+        else this.sectionPending.hide();
+    }
+
+    ///// Panel selection
     errorPanelSelected(forceExpand = true) {
         this.expanded = forceExpand;
         this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);

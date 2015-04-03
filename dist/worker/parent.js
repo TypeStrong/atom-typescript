@@ -6,6 +6,12 @@ var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 var workerLib = require('./lib/workerLib');
 var parent = new workerLib.Parent();
+var mainPanel = require("../main/atom/views/mainPanelView");
+parent.pendingRequestsChanged = function (pending) {
+    if (!mainPanel.panelView)
+        return;
+    mainPanel.panelView.updatePendingRequests(pending);
+};
 if (debug) {
     parent.sendToIpc = function (x) { return x; };
 }

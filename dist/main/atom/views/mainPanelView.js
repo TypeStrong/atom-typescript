@@ -59,14 +59,14 @@ var MainPanelView = (function (_super) {
                 });
                 _this.div({
                     class: 'heading-summary',
-                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 600px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 700px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                     outlet: 'summary'
                 });
                 _this.div({
                     class: 'heading-buttons pull-right',
                     style: 'width:15px; display:inline-block'
                 }, function () {
-                    _this.div({
+                    _this.span({
                         class: 'heading-fold icon-unfold',
                         style: 'cursor: pointer',
                         outlet: 'btnFold',
@@ -77,6 +77,16 @@ var MainPanelView = (function (_super) {
                     class: 'inline-block build-progress',
                     style: 'display: none; color:red',
                     outlet: 'buildProgress'
+                });
+                _this.span({ class: 'pull-right', outlet: 'sectionPending', style: 'display: none; width: 50px' }, function () {
+                    _this.span({
+                        outlet: 'txtPendingCount'
+                    });
+                    _this.span({
+                        class: 'loading loading-spinner-tiny inline-block',
+                        style: 'cursor: pointer; margin-right: 7px;',
+                        click: 'showPending'
+                    });
                 });
             });
             _this.div({
@@ -101,6 +111,17 @@ var MainPanelView = (function (_super) {
         this.buildBody.html('<span class="text-success"> No Build. Press ( F12 ) to start a build for an active TypeScript file\'s project. </span>');
         this.referencesPanelBtn.html(panelHeaders.references + " ( <span class=\"text-success\">No Search</span> )");
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>');
+    };
+    MainPanelView.prototype.showPending = function () {
+        atom.notifications.addInfo('Pending Requests: <br/> - ' + this.pendingRequests.join('<br/> - '));
+    };
+    MainPanelView.prototype.updatePendingRequests = function (pending) {
+        this.pendingRequests = pending;
+        this.txtPendingCount.html("<span class=\"text-highlight\">" + this.pendingRequests.length + "</span>");
+        if (pending.length)
+            this.sectionPending.show();
+        else
+            this.sectionPending.hide();
     };
     MainPanelView.prototype.errorPanelSelected = function (forceExpand) {
         if (forceExpand === void 0) { forceExpand = true; }
