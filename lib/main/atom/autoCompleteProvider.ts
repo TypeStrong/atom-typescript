@@ -35,7 +35,7 @@ declare module autocompleteplus {
 
         rightLabel?: string;
         rightLabelHTML?: string;
-        className?: string; //'globe'
+        type: string;
 
         atomTS_IsReference?: {
             relativePath: string
@@ -129,7 +129,7 @@ export var provider: autocompleteplus.Provider = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                         rightLabelHTML: '<span>' + file.relativePath + '</span>',
-
+                        type: 'path'
                     };
                     if (lastScope == 'reference.path.string') {
                         suggestion.atomTS_IsReference = {
@@ -174,7 +174,8 @@ export var provider: autocompleteplus.Provider = {
                             return {
                                 snippet: c.snippet,
                                 replacementPrefix: '',
-                                rightLabel: 'signature'
+                                rightLabel: 'signature',
+                                type: 'function'
                             };
                         }
                         else {
@@ -182,6 +183,7 @@ export var provider: autocompleteplus.Provider = {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                                 rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
+                                type: c.kind
                             };
                         }
                     });
@@ -196,6 +198,7 @@ export var provider: autocompleteplus.Provider = {
                             snippet: tsSnipPrefixLookup[options.prefix].body,
                             replacementPrefix: options.prefix,
                             rightLabelHTML: "snippet: " + options.prefix,
+                            type: 'snippet'
                         };
                         suggestions.unshift(suggestion);
                     }

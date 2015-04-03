@@ -47,6 +47,7 @@ exports.provider = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                         rightLabelHTML: '<span>' + file.relativePath + '</span>',
+                        type: 'path'
                     };
                     if (lastScope == 'reference.path.string') {
                         suggestion.atomTS_IsReference = {
@@ -82,7 +83,8 @@ exports.provider = {
                         return {
                             snippet: c.snippet,
                             replacementPrefix: '',
-                            rightLabel: 'signature'
+                            rightLabel: 'signature',
+                            type: 'function'
                         };
                     }
                     else {
@@ -90,6 +92,7 @@ exports.provider = {
                             text: c.name,
                             replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                             rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
+                            type: c.kind
                         };
                     }
                 });
@@ -98,6 +101,7 @@ exports.provider = {
                         snippet: tsSnipPrefixLookup[options.prefix].body,
                         replacementPrefix: options.prefix,
                         rightLabelHTML: "snippet: " + options.prefix,
+                        type: 'snippet'
                     };
                     suggestions.unshift(suggestion);
                 }
