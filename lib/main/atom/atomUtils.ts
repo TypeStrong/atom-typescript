@@ -123,14 +123,18 @@ export function kindToColor(kind: string) {
 /** See types :
  * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
  */
-export function kindToType(kind:string){
-    switch(kind){
+export function kindToType(kind: string) {
+    switch (kind) {
         case 'interface':
             return 'type';
         case 'identifier':
             return 'variable';
         case 'local function':
             return 'function';
+        case 'local var':
+            return 'variable';
+        case 'var':
+            return 'variable';
         default:
             return kind;
     }

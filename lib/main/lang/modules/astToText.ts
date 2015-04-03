@@ -8,10 +8,23 @@
 
 import * as ts from "typescript";
 
+interface NodeDisplay {
+    name: string;
+    kind: string;
+    children: NodeDisplay[];
+    orig: string;
+}
+
 export default function astToText(srcFile: ts.SourceFile) {
-    ts.forEachChild(srcFile, (node) => {
-        console.error((<any> node).name, node.kind);
-    });
+
+    //// A useful function for debugging
+    // aggregate(srcFile, 0);
+    // function aggregate(node: ts.Node, depth: number): void {
+    //     console.error(node.kind, (node.name && node.name.text), (node.parent), depth, node);
+    //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
+    // }
+
+    var root;
 }
 
 // import {Node,SyntaxKind,visitNode} from "typescript";

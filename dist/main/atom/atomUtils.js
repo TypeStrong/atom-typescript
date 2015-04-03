@@ -111,6 +111,10 @@ function kindToType(kind) {
             return 'variable';
         case 'local function':
             return 'function';
+        case 'local var':
+            return 'variable';
+        case 'var':
+            return 'variable';
         default:
             return kind;
     }
