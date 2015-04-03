@@ -134,7 +134,10 @@ export function kindToType(kind: string) {
         case 'local var':
             return 'variable';
         case 'var':
+        case 'parameter':
             return 'variable';
+        case 'alias':
+            return 'import';
         default:
             return kind;
     }

@@ -129,3 +129,13 @@ interface ReferenceDetails {
     position: EditorPosition
     preview: string;
 }
+
+/** Used by AST display */
+interface NodeDisplay {
+    display: string;
+    kind: string;
+    children: NodeDisplay[];
+
+    /** Laterz */
+    original?: any;
+}

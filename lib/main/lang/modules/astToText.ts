@@ -7,13 +7,8 @@
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 
 import * as ts from "typescript";
-
-interface NodeDisplay {
-    name: string;
-    kind: string;
-    children: NodeDisplay[];
-    orig: string;
-}
+import syntaxKindToString from "./syntaxKindToString";
+import {SyntaxKind, Node} from "typescript";
 
 export default function astToText(srcFile: ts.SourceFile) {
 
@@ -24,8 +19,46 @@ export default function astToText(srcFile: ts.SourceFile) {
     //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
     // }
 
-    var root;
+    function nodeToNodeDisplay(node: ts.Node): NodeDisplay {
+
+        var kind = syntaxKindToString(node.kind);
+        var display = nodeDisplayString(node);
+
+        var children = [];
+        ts.forEachChild(node, (cNode) => {
+            var child = nodeToNodeDisplay(cNode);
+            children.push(child);
+        });
+
+        var ret: NodeDisplay = {
+            display,
+            kind,
+            children,
+        };
+
+        return ret;
+    }
+
+    var root = nodeToNodeDisplay(srcFile);
+
+    return root;
 }
+
+
+function nodeDisplayString(node: Node): string {
+    let n: any = node;
+    if (node.kind == SyntaxKind.SourceFile) {
+        return (<ts.SourceFile>node).fileName;
+    }
+    else if (n.name && n.name.text) {
+        return (n.name.text);
+    }
+    else {
+        // Last fallback is just kind:
+        return 'Kind: ' + syntaxKindToString(node.kind);
+    }
+}
+
 
 // import {Node,SyntaxKind,visitNode} from "typescript";
 //

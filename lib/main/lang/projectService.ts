@@ -865,7 +865,7 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
 import astToText from "./modules/astToText";
 export interface GetASTQuery extends FilePathQuery { }
 export interface GetASTResponse {
-    sourceFile?: ts.SourceFile
+    root?: NodeDisplay
 }
 export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
     consistentPath(query);
@@ -877,7 +877,7 @@ export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
 
     var sourceFile = files[0];
 
-    astToText(sourceFile);
+    var root = astToText(sourceFile);
 
-    return resolve({ sourceFile });
+    return resolve({ root });
 }

@@ -105,7 +105,7 @@ export function registerCommands() {
         //     'typescript:find-references');
 
         parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res)=>{
-            console.log(res.sourceFile);
+            console.log(res.root);
         });
     });
 

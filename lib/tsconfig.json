@@ -49,6 +49,7 @@
         "./main/lang/modules/building.ts",
         "./main/lang/modules/formatting.ts",
         "./main/lang/modules/getExternalModules.ts",
+        "./main/lang/modules/syntaxKindToString.ts",
         "./main/lang/projectService.ts",
         "./main/lang/utils.ts",
         "./main/tsconfig/formatting.ts",

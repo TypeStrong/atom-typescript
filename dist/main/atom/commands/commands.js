@@ -84,7 +84,7 @@ function registerCommands() {
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
         parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
-            console.log(res.sourceFile);
+            console.log(res.root);
         });
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {

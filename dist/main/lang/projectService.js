@@ -569,7 +569,7 @@ function getAST(query) {
     if (!files.length)
         resolve({});
     var sourceFile = files[0];
-    astToText_1.default(sourceFile);
-    return resolve({ sourceFile: sourceFile });
+    var root = astToText_1.default(sourceFile);
+    return resolve({ root: root });
 }
 exports.getAST = getAST;
