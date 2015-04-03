@@ -183,19 +183,15 @@ function registerCommands() {
         var filePath = editor.getPath();
         showProjectSymbols(filePath);
     });
-    var astURI = "ts-ast:";
     atom.commands.add('atom-text-editor', 'typescript:ast', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
-        var uri = astURI + '//' + atomUtils.getCurrentPath();
+        var uri = astView_1.astUriForPath(atomUtils.getCurrentPath());
         var old_pane = atom.workspace.paneForUri(uri);
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
         atom.workspace.open(uri, {});
-        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
-            console.log(res.root);
-        });
     });
     atom.workspace.addOpener(function (uri) {
         var error, host, pathname, protocol, ref;
@@ -209,10 +205,11 @@ function registerCommands() {
             error = _error;
             return;
         }
-        if (protocol !== astURI) {
+        if (protocol !== astView_1.astURI) {
             return;
         }
-        return new astView_1.AstView(host);
+        var filePath = atomUtils.getCurrentPath();
+        return new astView_1.AstView(filePath);
     });
 }
 exports.registerCommands = registerCommands;
