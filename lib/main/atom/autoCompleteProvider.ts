@@ -122,13 +122,13 @@ export var provider: autocompleteplus.Provider = {
 
         // For file path completions
         if (pathMatchers.some(p=> lastScope === p)) {
-            return parent.getRelativePathsInProject({ filePath, prefix: options.prefix })
+            return parent.getRelativePathsInProject({ filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.string' })
                 .then((resp) => {
                 return resp.files.map(file => {
                     var suggestion: autocompleteplus.Suggestion = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                        rightLabelHTML: '<span>' + file.relativePath + '</span>',
+                        rightLabelHTML: '<span>' + file.name + '</span>',
                         type: 'path'
                     };
                     if (lastScope == 'reference.path.string') {

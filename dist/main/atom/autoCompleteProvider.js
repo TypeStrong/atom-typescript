@@ -40,13 +40,13 @@ exports.provider = {
         var pathMatchers = ['reference.path.string', 'require.path.string', 'es6import.path.string'];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
         if (pathMatchers.some(function (p) { return lastScope === p; })) {
-            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix })
+            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.string' })
                 .then(function (resp) {
                 return resp.files.map(function (file) {
                     var suggestion = {
                         text: file.relativePath,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                        rightLabelHTML: '<span>' + file.relativePath + '</span>',
+                        rightLabelHTML: '<span>' + file.name + '</span>',
                         type: 'path'
                     };
                     if (lastScope == 'reference.path.string') {

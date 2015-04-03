@@ -1,5 +1,6 @@
 /// <reference path="./typings/tsd.d.ts"/>
 /// <reference path="../node_modules/typescript/bin/typescript.d.ts"/>
+/// <reference path="../node_modules/typescript/bin/typescript_internal.d.ts"/>
 /// <reference path="./typings/bluebird.d.ts"/>
 /// <reference path="./typings/codemirror.d.ts"/>
 /// <reference path="./typings/brackets.d.ts"/>

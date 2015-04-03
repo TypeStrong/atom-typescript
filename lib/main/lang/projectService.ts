@@ -610,48 +610,6 @@ export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoR
     }
 }
 
-export interface GetRelativePathsInProjectQuery extends FilePathQuery {
-    prefix: string;
-}
-export interface GetRelativePathsInProjectResponse {
-    files: {
-        name: string;
-        relativePath: string;
-        fullPath: string;
-    }[];
-    endsInPunctuation: boolean;
-}
-function filePathWithoutExtension(query: string) {
-    var base = path.basename(query, '.ts');
-    return path.dirname(query) + '/' + base;
-}
-export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
-    consistentPath(query);
-    var project = getOrCreateProject(query.filePath);
-    var sourceDir = path.dirname(query.filePath);
-    var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
-
-    var files = filePaths.map(p=> {
-        return {
-            name: path.basename(p, '.ts'),
-            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
-            fullPath: p
-        };
-    });
-
-    var endsInPunctuation: boolean = prefixEndsInPunctuation(query.prefix);
-
-    if (!endsInPunctuation)
-        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
-
-    var response: GetRelativePathsInProjectResponse = {
-        files: files,
-        endsInPunctuation: endsInPunctuation
-    };
-
-    return resolve(response);
-}
-
 export interface GetIndentionAtPositionQuery extends FilePathPositionQuery { }
 export interface GetIndentaionAtPositionResponse {
     indent: number;
@@ -834,10 +792,66 @@ export function getReferences(query: GetReferencesQuery): Promise<GetReferencesR
 
     references = refs.map(r=> {
         var res = project.languageServiceHost.getPositionFromTextSpanWithLinePreview(r.fileName, r.textSpan);
-        return { filePath: r.fileName, position: res.position, preview: res.preview  }
+        return { filePath: r.fileName, position: res.position, preview: res.preview }
     });
 
     return resolve({
         references
     })
+}
+
+/**
+ * Get Completions for external modules + references tags
+ */
+import {getExternalModuleNames} from "./modules/getExternalModules";
+export interface GetRelativePathsInProjectQuery extends FilePathQuery {
+    prefix: string;
+    includeExternalModules: boolean;
+}
+export interface GetRelativePathsInProjectResponse {
+    files: {
+        name: string;
+        relativePath: string;
+        fullPath: string;
+    }[];
+    endsInPunctuation: boolean;
+}
+function filePathWithoutExtension(query: string) {
+    var base = path.basename(query, '.ts');
+    return path.dirname(query) + '/' + base;
+}
+export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var sourceDir = path.dirname(query.filePath);
+    var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
+
+    var files = filePaths.map(p=> {
+        return {
+            name: path.basename(p, '.ts'),
+            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
+            fullPath: p
+        };
+    });
+
+    if (query.includeExternalModules) {
+        var externalModules = getExternalModuleNames(project.languageService.getProgram());
+        externalModules.forEach(e=> files.push({
+            name: `module "${e}"`,
+            relativePath: e,
+            fullPath: e
+        }));
+    }
+
+    var endsInPunctuation: boolean = prefixEndsInPunctuation(query.prefix);
+
+    if (!endsInPunctuation)
+        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
+
+    var response: GetRelativePathsInProjectResponse = {
+        files: files,
+        endsInPunctuation: endsInPunctuation
+    };
+
+    return resolve(response);
 }
