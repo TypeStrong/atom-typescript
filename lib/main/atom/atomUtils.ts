@@ -151,3 +151,9 @@ export function commandForTypeScript(e) {
 
     return true;
 }
+
+/** Gets the consisten path for the current editor */
+export function getCurrentPath(){
+    var editor = atom.workspace.getActiveTextEditor();
+    return tsconfig.consistentPath(editor.getPath());
+}

@@ -132,3 +132,8 @@ function commandForTypeScript(e) {
     return true;
 }
 exports.commandForTypeScript = commandForTypeScript;
+function getCurrentPath() {
+    var editor = atom.workspace.getActiveTextEditor();
+    return tsconfig.consistentPath(editor.getPath());
+}
+exports.getCurrentPath = getCurrentPath;

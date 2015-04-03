@@ -918,6 +918,7 @@ declare module AtomCore {
 		addRightPanel(options:IWorkspacePanelOptions):Panel;
 		addTopPanel(options:IWorkspacePanelOptions):Panel;
 		addModalPanel(options:IWorkspacePanelOptions):Panel;
+        addOpener(opener: Function): any;
 
 		deserializeParams(params:any):any;
 		serializeParams():{paneContainer:any;fullScreen:boolean;};

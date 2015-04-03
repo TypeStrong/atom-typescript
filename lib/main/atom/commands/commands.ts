@@ -13,6 +13,9 @@ import projectSymbolsView = require("../views/projectSymbolsView");
 import gotoHistory = require("../gotoHistory");
 import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
+import * as url from "url";
+import {AstView} from "../views/astView";
+
 
 export function registerCommands() {
 
@@ -104,7 +107,7 @@ export function registerCommands() {
         //     atom.views.getView(atom.workspace.getActiveTextEditor()),
         //     'typescript:find-references');
 
-        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res)=>{
+        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
             console.log(res.root);
         });
     });
@@ -211,7 +214,7 @@ export function registerCommands() {
         parent.getNavigateToItems({ filePath }).then((res) => {
             theProjectSymbolsView.setNavBarItems(res.items);
             theProjectSymbolsView.show();
-        })
+        });
     }, 400);
     atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-project-symbols',
         (e) => {
@@ -226,6 +229,41 @@ export function registerCommands() {
             showProjectSymbols(filePath);
         });
 
+    var astURI = "ts-ast:";
+    atom.commands.add('atom-text-editor', 'typescript:ast', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        var uri = astURI + '//' + atomUtils.getCurrentPath();
+        var old_pane = atom.workspace.paneForUri(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, {});
+
+        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
+            console.log(res.root);
+        });
+    });
+
+    atom.workspace.addOpener(function(uri) {
+        var error, host, pathname, protocol, ref;
+        try {
+            ref = url.parse(uri);
+            protocol = ref.protocol;
+            host = ref.host;
+            pathname = ref.pathname;
+        }
+        catch (_error) {
+            error = _error;
+            return;
+        }
+
+        if (protocol !== astURI) {
+            return;
+        }
+
+        return new AstView(host);
+    });
 
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {

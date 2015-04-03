@@ -29,6 +29,7 @@
         "./main/atom/signatureProvider.ts",
         "./main/atom/tooltipManager.ts",
         "./main/atom/typescriptGrammar.ts",
+        "./main/atom/views/astView.ts",
         "./main/atom/views/awesomePanelView.ts",
         "./main/atom/views/contextView.ts",
         "./main/atom/views/documentationView.ts",

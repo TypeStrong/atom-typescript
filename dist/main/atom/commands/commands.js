@@ -11,6 +11,8 @@ var projectSymbolsView = require("../views/projectSymbolsView");
 var gotoHistory = require("../gotoHistory");
 var utils = require("../../lang/utils");
 var mainPanelView_1 = require("../views/mainPanelView");
+var url = require("url");
+var astView_1 = require("../views/astView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -180,6 +182,37 @@ function registerCommands() {
         e.abortKeyBinding();
         var filePath = editor.getPath();
         showProjectSymbols(filePath);
+    });
+    var astURI = "ts-ast:";
+    atom.commands.add('atom-text-editor', 'typescript:ast', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        var uri = astURI + '//' + atomUtils.getCurrentPath();
+        var old_pane = atom.workspace.paneForUri(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, {});
+        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
+            console.log(res.root);
+        });
+    });
+    atom.workspace.addOpener(function (uri) {
+        var error, host, pathname, protocol, ref;
+        try {
+            ref = url.parse(uri);
+            protocol = ref.protocol;
+            host = ref.host;
+            pathname = ref.pathname;
+        }
+        catch (_error) {
+            error = _error;
+            return;
+        }
+        if (protocol !== astURI) {
+            return;
+        }
+        return new astView_1.AstView(host);
     });
 }
 exports.registerCommands = registerCommands;
