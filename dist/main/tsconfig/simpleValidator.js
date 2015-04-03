@@ -11,18 +11,12 @@ var SimpleValidator = (function () {
         var _this = this;
         this.validationInfo = validationInfo;
         this.potentialLowerCaseMatch = {};
-        Object.keys(validationInfo).forEach(function (k) {
-            return _this.potentialLowerCaseMatch[k.toLowerCase()] = k;
-        });
+        Object.keys(validationInfo).forEach(function (k) { return _this.potentialLowerCaseMatch[k.toLowerCase()] = k; });
     }
     SimpleValidator.prototype.validate = function (config) {
         var _this = this;
         var keys = Object.keys(config);
-        var errors = {
-            invalidValues: [],
-            extraKeys: [],
-            errorMessage: ''
-        };
+        var errors = { invalidValues: [], extraKeys: [], errorMessage: '' };
         keys.forEach(function (k) {
             if (!_this.validationInfo[k]) {
                 if (_this.potentialLowerCaseMatch[k]) {
@@ -37,9 +31,7 @@ var SimpleValidator = (function () {
                 var value = config[k];
                 if (validationInfo.validValues && validationInfo.validValues.length) {
                     var validValues = validationInfo.validValues;
-                    if (!validValues.some(function (valid) {
-                        return valid === value;
-                    })) {
+                    if (!validValues.some(function (valid) { return valid === value; })) {
                         errors.invalidValues.push("Key: '" + k + "' has an invalid value: " + value);
                     }
                 }

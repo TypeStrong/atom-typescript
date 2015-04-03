@@ -34,15 +34,11 @@ var ProjectSymbolsView = (function (_super) {
         });
         this.hide();
     };
-    ProjectSymbolsView.prototype.getFilterKey = function () {
-        return 'name';
-    };
+    ProjectSymbolsView.prototype.getFilterKey = function () { return 'name'; };
     ProjectSymbolsView.prototype.show = function () {
         this.storeFocusedElement();
         if (!this.panel)
-            this.panel = atom.workspace.addModalPanel({
-                item: this
-            });
+            this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show();
         this.focusFilterEditor();
     };

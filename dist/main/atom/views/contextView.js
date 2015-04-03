@@ -12,11 +12,7 @@ var titles = {
     tabLastBuild: 'Tab: Last Build Output',
     tabReferences: 'Tab: Find References'
 };
-var items = Object.keys(titles).map(function (item) {
-    return {
-        title: titles[item]
-    };
-});
+var items = Object.keys(titles).map(function (item) { return { title: titles[item] }; });
 var ContextView = (function (_super) {
     __extends(ContextView, _super);
     function ContextView() {
@@ -30,9 +26,7 @@ var ContextView = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    ContextView.prototype.setItems = function (items) {
-        _super.prototype.setItems.call(this, items);
-    };
+    ContextView.prototype.setItems = function (items) { _super.prototype.setItems.call(this, items); };
     ContextView.prototype.viewForItem = function (item) {
         return "<li>" + item.title + "</li>";
     };
@@ -51,15 +45,11 @@ var ContextView = (function (_super) {
         }
         this.hide();
     };
-    ContextView.prototype.getFilterKey = function () {
-        return 'title';
-    };
+    ContextView.prototype.getFilterKey = function () { return 'title'; };
     ContextView.prototype.show = function () {
         this.storeFocusedElement();
         if (!this.panel)
-            this.panel = atom.workspace.addModalPanel({
-                item: this
-            });
+            this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show();
         this.setItems(items);
         this.focusFilterEditor();

@@ -30,31 +30,16 @@ function createScriptInfo(fileName, text, isOpen) {
     function editContent(minChar, limChar, newText) {
         var start = getLineAndColForPositon(minChar);
         var end = getLineAndColForPositon(limChar);
-        buffer.setTextInRange([
-            [
-                start.line,
-                start.col
-            ],
-            [
-                end.line,
-                end.col
-            ]
-        ], newText);
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText);
         _lineStartIsDirty = true;
         editRanges.push({
-            span: {
-                start: minChar,
-                length: limChar - minChar
-            },
+            span: { start: minChar, length: limChar - minChar },
             newLength: newText.length
         });
         version++;
     }
     function getPositionFromLine(line, ch) {
-        return buffer.characterIndexForPosition([
-            line,
-            ch
-        ]);
+        return buffer.characterIndexForPosition([line, ch]);
     }
     function getLineAndColForPositon(position) {
         var _a = buffer.positionForCharacterIndex(position), row = _a.row, column = _a.column;
@@ -67,24 +52,12 @@ function createScriptInfo(fileName, text, isOpen) {
         return (buffer.lines[line] || '').trim();
     }
     return {
-        getFileName: function () {
-            return fileName;
-        },
-        getContent: function () {
-            return buffer.getText();
-        },
-        getVersion: function () {
-            return version;
-        },
-        getIsOpen: function () {
-            return isOpen;
-        },
-        setIsOpen: function (val) {
-            return isOpen = val;
-        },
-        getEditRanges: function () {
-            return editRanges;
-        },
+        getFileName: function () { return fileName; },
+        getContent: function () { return buffer.getText(); },
+        getVersion: function () { return version; },
+        getIsOpen: function () { return isOpen; },
+        setIsOpen: function (val) { return isOpen = val; },
+        getEditRanges: function () { return editRanges; },
         getLineStarts: getLineStarts,
         updateContent: updateContent,
         editContent: editContent,
@@ -99,13 +72,7 @@ function getScriptSnapShot(scriptInfo) {
     var version = scriptInfo.getVersion();
     var editRanges = scriptInfo.getEditRanges();
     function getChangeRange(oldSnapshot) {
-        var unchanged = {
-            span: {
-                start: 0,
-                length: 0
-            },
-            newLength: 0
-        };
+        var unchanged = { span: { start: 0, length: 0 }, newLength: 0 };
         function collapseChangesAcrossMultipleVersions(changes) {
             if (changes.length === 0) {
                 return unchanged;
@@ -129,13 +96,7 @@ function getScriptSnapShot(scriptInfo) {
                 oldEndN = Math.max(oldEnd1, oldEnd1 + (oldEnd2 - newEnd1));
                 newEndN = Math.max(newEnd2, newEnd2 + (newEnd1 - oldEnd2));
             }
-            return {
-                span: {
-                    start: oldStartN,
-                    length: oldEndN - oldStartN
-                },
-                newLength: newEndN - oldStartN
-            };
+            return { span: { start: oldStartN, length: oldEndN - oldStartN }, newLength: newEndN - oldStartN };
         }
         ;
         var scriptVersion = oldSnapshot.version || 0;
@@ -150,16 +111,10 @@ function getScriptSnapShot(scriptInfo) {
         return collapseChangesAcrossMultipleVersions(entries);
     }
     return {
-        getText: function (start, end) {
-            return textSnapshot.substring(start, end);
-        },
-        getLength: function () {
-            return textSnapshot.length;
-        },
+        getText: function (start, end) { return textSnapshot.substring(start, end); },
+        getLength: function () { return textSnapshot.length; },
         getChangeRange: getChangeRange,
-        getLineStartPositions: function () {
-            return lineStarts;
-        },
+        getLineStartPositions: function () { return lineStarts; },
         version: version
     };
 }
@@ -242,17 +197,10 @@ var LanguageServiceHost = (function () {
             var position = _this.getPositionFromIndex(fileName, textSpan.start);
             var script = _this.fileNameToScript[fileName];
             var preview = script.getLinePreview(position.line);
-            return {
-                preview: preview,
-                position: position
-            };
+            return { preview: preview, position: position };
         };
-        this.getCompilationSettings = function () {
-            return _this.config.project.compilerOptions;
-        };
-        this.getScriptFileNames = function () {
-            return Object.keys(_this.fileNameToScript);
-        };
+        this.getCompilationSettings = function () { return _this.config.project.compilerOptions; };
+        this.getScriptFileNames = function () { return Object.keys(_this.fileNameToScript); };
         this.getScriptVersion = function (fileName) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
@@ -280,9 +228,7 @@ var LanguageServiceHost = (function () {
         this.getDefaultLibFileName = function () {
             return 'lib.d.ts';
         };
-        config.project.files.forEach(function (file) {
-            return _this.addScript(file);
-        });
+        config.project.files.forEach(function (file) { return _this.addScript(file); });
         this.addScript(exports.defaultLibFile);
     }
     return LanguageServiceHost;

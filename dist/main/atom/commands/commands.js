@@ -10,7 +10,7 @@ var fileSymbolsView = require("../views/fileSymbolsView");
 var projectSymbolsView = require("../views/projectSymbolsView");
 var gotoHistory = require("../gotoHistory");
 var utils = require("../../lang/utils");
-var _mainPanelView = require("../views/mainPanelView");
+var mainPanelView_1 = require("../views/mainPanelView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -19,9 +19,7 @@ function registerCommands() {
         var filePath = editor.getPath();
         var selection = editor.getSelectedBufferRange();
         if (selection.isEmpty()) {
-            parent.formatDocument({
-                filePath: filePath
-            }).then(function (result) {
+            parent.formatDocument({ filePath: filePath }).then(function (result) {
                 if (!result.edits.length)
                     return;
                 editor.transact(function () {
@@ -30,17 +28,7 @@ function registerCommands() {
             });
         }
         else {
-            parent.formatDocumentRange({
-                filePath: filePath,
-                start: {
-                    line: selection.start.row,
-                    col: selection.start.column
-                },
-                end: {
-                    line: selection.end.row,
-                    col: selection.end.column
-                }
-            }).then(function (result) {
+            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then(function (result) {
                 if (!result.edits.length)
                     return;
                 editor.transact(function () {
@@ -55,9 +43,7 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
         atom.notifications.addInfo('Building');
-        parent.build({
-            filePath: filePath
-        }).then(function (resp) {
+        parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
         });
     });
@@ -108,18 +94,13 @@ function registerCommands() {
             var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
             var openPathsMap = utils.createMap(paths);
             var refactorPaths = Object.keys(res.locations);
-            var openFiles = refactorPaths.filter(function (p) {
-                return openPathsMap[p];
-            });
-            var closedFiles = refactorPaths.filter(function (p) {
-                return !openPathsMap[p];
-            });
+            var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
+            var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
             renameView.panelView.renameThis({
                 text: res.displayName,
                 openFiles: openFiles,
                 closedFiles: closedFiles,
-                onCancel: function () {
-                },
+                onCancel: function () { },
                 onValidate: function (newText) {
                     if (newText.replace(/\s/g, '') !== newText.trim()) {
                         return 'The new variable must not contain a space';
@@ -131,7 +112,8 @@ function registerCommands() {
                 },
                 onCommit: function (newText) {
                     newText = newText.trim();
-                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations)).then(function (editorMap) {
+                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
+                        .then(function (editorMap) {
                         Object.keys(res.locations).forEach(function (filePath) {
                             var editor = editorMap[filePath];
                             editor.transact(function () {
@@ -156,16 +138,14 @@ function registerCommands() {
         if (!atomUtils.commandForTypeScript(e))
             return;
         parent.getReferences(atomUtils.getFilePathPosition()).then(function (res) {
-            _mainPanelView.panelView.setReferences(res.references);
+            mainPanelView_1.panelView.setReferences(res.references);
         });
     });
     var theFileSymbolsView;
     var showFileSymbols = utils.debounce(function (filePath) {
         if (!theFileSymbolsView)
             theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
-        parent.getNavigationBarItems({
-            filePath: filePath
-        }).then(function (res) {
+        parent.getNavigationBarItems({ filePath: filePath }).then(function (res) {
             theFileSymbolsView.setNavBarItems(res.items, filePath);
             theFileSymbolsView.show();
         });
@@ -184,9 +164,7 @@ function registerCommands() {
     var showProjectSymbols = utils.debounce(function (filePath) {
         if (!theProjectSymbolsView)
             theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
-        parent.getNavigateToItems({
-            filePath: filePath
-        }).then(function (res) {
+        parent.getNavigateToItems({ filePath: filePath }).then(function (res) {
             theProjectSymbolsView.setNavBarItems(res.items);
             theProjectSymbolsView.show();
         });

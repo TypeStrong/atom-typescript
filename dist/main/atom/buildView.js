@@ -25,20 +25,14 @@ function setBuildOutput(buildOutput) {
         }
         output.errors.forEach(function (error) {
             mainPanelView.panelView.addBuild(new lineMessageView.LineMessageView({
-                goToLine: function (filePath, line, col) {
-                    return gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput);
-                },
+                goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput); },
                 message: error.message,
                 line: error.startPos.line + 1,
                 col: error.startPos.col,
                 file: error.filePath,
                 preview: error.preview
             }));
-            gotoHistory.buildOutput.members.push({
-                filePath: error.filePath,
-                line: error.startPos.line + 1,
-                col: error.startPos.col
-            });
+            gotoHistory.buildOutput.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
         });
     });
     if (!buildOutput.counts.errors) {

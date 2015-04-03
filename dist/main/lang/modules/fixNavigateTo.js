@@ -27,13 +27,7 @@ ts.NavigateTo.getNavigateToItems = function getNavigateToItems(program, cancella
                 }
                 var fileName = sourceFile.fileName;
                 var matchKind = bestMatchKind(matches);
-                rawItems.push({
-                    name: name,
-                    fileName: fileName,
-                    matchKind: matchKind,
-                    isCaseSensitive: allMatchesAreCaseSensitive(matches),
-                    declaration: declaration
-                });
+                rawItems.push({ name: name, fileName: fileName, matchKind: matchKind, isCaseSensitive: allMatchesAreCaseSensitive(matches), declaration: declaration });
             }
         }
     });
@@ -68,7 +62,9 @@ ts.NavigateTo.getNavigateToItems = function getNavigateToItems(program, cancella
         return undefined;
     }
     function getTextOfIdentifierOrLiteral(node) {
-        if (node.kind === 64 || node.kind === 8 || node.kind === 7) {
+        if (node.kind === 64 ||
+            node.kind === 8 ||
+            node.kind === 7) {
             return node.text;
         }
         return undefined;
@@ -133,11 +129,11 @@ ts.NavigateTo.getNavigateToItems = function getNavigateToItems(program, cancella
         }
         return _bestMatchKind;
     }
-    var baseSensitivity = {
-        sensitivity: "base"
-    };
+    var baseSensitivity = { sensitivity: "base" };
     function compareNavigateToItems(i1, i2) {
-        return i1.matchKind - i2.matchKind || i1.name.localeCompare(i2.name, undefined, baseSensitivity) || i1.name.localeCompare(i2.name);
+        return i1.matchKind - i2.matchKind ||
+            i1.name.localeCompare(i2.name, undefined, baseSensitivity) ||
+            i1.name.localeCompare(i2.name);
     }
     function createNavigateToItem(rawItem) {
         var declaration = rawItem.declaration;

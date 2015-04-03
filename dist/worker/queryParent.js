@@ -13,21 +13,14 @@ try {
 catch (ex) {
 }
 function echoNumWithModification(query) {
-    return Promise.resolve({
-        num: query.num + 10
-    });
+    return Promise.resolve({ num: query.num + 10 });
 }
 exports.echoNumWithModification = echoNumWithModification;
 function getUpdatedTextForUnsavedEditors(query) {
-    var editors = atomUtils.getTypeScriptEditorsWithPaths().filter(function (editor) {
-        return editor.isModified();
-    });
+    var editors = atomUtils.getTypeScriptEditorsWithPaths().filter(function (editor) { return editor.isModified(); });
     return resolve({
         editors: editors.map(function (e) {
-            return {
-                filePath: e.getPath(),
-                text: e.getText()
-            };
+            return { filePath: e.getPath(), text: e.getText() };
         })
     });
 }
@@ -47,52 +40,34 @@ function setConfigurationError(query) {
             errors = [
                 {
                     filePath: details.projectFilePath,
-                    startPos: {
-                        line: 0,
-                        col: 0
-                    },
-                    endPos: {
-                        line: 0,
-                        col: 0
-                    },
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
                     message: "The project file contains invalid JSON",
                     preview: details.projectFilePath,
                 }
             ];
         }
         if (query.error.message == tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-            var _details = query.error.details;
+            var details = query.error.details;
             errors = [
                 {
-                    filePath: _details.projectFilePath,
-                    startPos: {
-                        line: 0,
-                        col: 0
-                    },
-                    endPos: {
-                        line: 0,
-                        col: 0
-                    },
+                    filePath: details.projectFilePath,
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
                     message: "The project file contains invalid options",
-                    preview: _details.errorMessage,
+                    preview: details.errorMessage,
                 }
             ];
         }
         if (query.error.message == tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
-            var _details_1 = query.error.details;
+            var details = query.error.details;
             errors = [
                 {
-                    filePath: _details_1.projectFilePath,
-                    startPos: {
-                        line: 0,
-                        col: 0
-                    },
-                    endPos: {
-                        line: 0,
-                        col: 0
-                    },
+                    filePath: details.projectFilePath,
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
                     message: "Failed to expand the glob for the project file",
-                    preview: _details_1.errorMessage,
+                    preview: details.errorMessage,
                 }
             ];
         }

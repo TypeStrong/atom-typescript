@@ -34,15 +34,11 @@ var FileSymbolsView = (function (_super) {
         });
         this.hide();
     };
-    FileSymbolsView.prototype.getFilterKey = function () {
-        return 'text';
-    };
+    FileSymbolsView.prototype.getFilterKey = function () { return 'text'; };
     FileSymbolsView.prototype.show = function () {
         this.storeFocusedElement();
         if (!this.panel)
-            this.panel = atom.workspace.addModalPanel({
-                item: this
-            });
+            this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show();
         this.focusFilterEditor();
     };

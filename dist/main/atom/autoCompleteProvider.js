@@ -37,19 +37,11 @@ exports.provider = {
             return Promise.resolve([]);
         if (!fs.existsSync(filePath))
             return Promise.resolve([]);
-        var pathMatchers = [
-            'reference.path.string',
-            'require.path.string',
-            'es6import.path.string'
-        ];
+        var pathMatchers = ['reference.path.string', 'require.path.string', 'es6import.path.string'];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
-        if (pathMatchers.some(function (p) {
-            return lastScope === p;
-        })) {
-            return parent.getRelativePathsInProject({
-                filePath: filePath,
-                prefix: options.prefix
-            }).then(function (resp) {
+        if (pathMatchers.some(function (p) { return lastScope === p; })) {
+            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix })
+                .then(function (resp) {
                 return resp.files.map(function (file) {
                     var suggestion = {
                         text: file.relativePath,
@@ -82,7 +74,8 @@ exports.provider = {
                 position: position,
                 prefix: options.prefix,
                 maxSuggestions: atomConfig.maxSuggestions
-            }).then(function (resp) {
+            })
+                .then(function (resp) {
                 var completionList = resp.completions;
                 var suggestions = completionList.map(function (c) {
                     if (c.snippet) {
@@ -114,37 +107,26 @@ exports.provider = {
         }
     },
     onDidInsertSuggestion: function (options) {
-        if (options.suggestion.atomTS_IsReference || options.suggestion.atomTS_IsImport || options.suggestion.atomTS_IsES6Import) {
+        if (options.suggestion.atomTS_IsReference
+            || options.suggestion.atomTS_IsImport
+            || options.suggestion.atomTS_IsES6Import) {
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                options.editor.replaceSelectedText(null, function () {
-                    return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>';
-                });
+                options.editor.replaceSelectedText(null, function () { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>'; });
             }
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function () {
-                    return "import " + alias + ' = require("' + options.suggestion.atomTS_IsImport.relativePath + '");';
-                });
+                options.editor.replaceSelectedText(null, function () { return "import " + alias + ' = require("' + options.suggestion.atomTS_IsImport.relativePath + '");'; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
                 var row = (options.editor.getCursorBufferPosition()).row;
                 var originalText = options.editor.lineTextForBufferRow(row);
                 var beforeFrom = originalText.match(/(.*)from/)[1];
                 var newTextAfterFrom = 'from "' + options.suggestion.atomTS_IsES6Import.relativePath + '";';
-                options.editor.setTextInBufferRange([
-                    [
-                        row,
-                        beforeFrom.length
-                    ],
-                    [
-                        row,
-                        originalText.length
-                    ]
-                ], newTextAfterFrom);
+                options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom);
             }
             options.editor.moveToEndOfLine();
         }

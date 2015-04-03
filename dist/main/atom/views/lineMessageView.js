@@ -60,7 +60,9 @@ var LineMessageView = (function (_super) {
             summary: pos + this.options.message,
             rawSummary: true,
             handler: function (element) {
-                $(element).css('cursor', 'pointer').click(this.goToLine.bind(this));
+                $(element)
+                    .css('cursor', 'pointer')
+                    .click(this.goToLine.bind(this));
             }.bind(this)
         };
     };

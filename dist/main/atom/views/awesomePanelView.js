@@ -13,14 +13,7 @@ var AwesomePanelView = (function (_super) {
     }
     AwesomePanelView.content = function () {
         var _this = this;
-        return this.div({
-            class: 'awesome'
-        }, function () {
-            return _this.div({
-                class: 'dude',
-                outlet: 'something'
-            });
-        });
+        return this.div({ class: 'awesome' }, function () { return _this.div({ class: 'dude', outlet: 'something' }); });
     };
     AwesomePanelView.prototype.init = function () {
         this.something.html('<div>tada</div>');
@@ -32,10 +25,6 @@ exports.panelView;
 exports.panel;
 function attach() {
     exports.panelView = new AwesomePanelView();
-    exports.panel = atom.workspace.addModalPanel({
-        item: exports.panelView,
-        priority: 1000,
-        visible: false
-    });
+    exports.panel = atom.workspace.addModalPanel({ item: exports.panelView, priority: 1000, visible: false });
 }
 exports.attach = attach;

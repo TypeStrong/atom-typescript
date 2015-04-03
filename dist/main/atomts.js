@@ -11,7 +11,7 @@ var commands = require("./atom/commands/commands");
 var onSaveHandler = require('./atom/onSaveHandler');
 var debugAtomTs = require('./atom/debugAtomTs');
 var typescriptGrammar = require('./atom/typescriptGrammar');
-var _atom_space_pen_views = require("atom-space-pen-views");
+var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var statusBar;
@@ -29,15 +29,12 @@ function readyToActivate() {
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
-            parent.errorsForFile({
-                filePath: filePath
-            }).then(function (resp) {
-                return errorView.setErrors(filePath, resp.errors);
-            });
+            parent.errorsForFile({ filePath: filePath })
+                .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
         }
     });
     editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        var editorView = _atom_space_pen_views.$(atom.views.getView(editor));
+        var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
         tooltipManager.attach(editorView, editor);
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
@@ -48,44 +45,20 @@ function readyToActivate() {
                     onDisk = true;
                 }
                 errorView.start();
-                debugAtomTs.runDebugCode({
-                    filePath: filePath,
-                    editor: editor
-                });
+                debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {
-                    parent.updateText({
-                        filePath: filePath,
-                        text: editor.getText()
-                    }).then(function () {
-                        return parent.errorsForFile({
-                            filePath: filePath
-                        });
-                    }).then(function (resp) {
-                        return errorView.setErrors(filePath, resp.errors);
-                    });
+                    parent.updateText({ filePath: filePath, text: editor.getText() })
+                        .then(function () { return parent.errorsForFile({ filePath: filePath }); })
+                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
-                        var root = {
-                            line: 0,
-                            col: 0
-                        };
-                        errorView.setErrors(filePath, [
-                            {
-                                startPos: root,
-                                endPos: root,
-                                filePath: filePath,
-                                message: "Please save file for it be processed by TypeScript",
-                                preview: ""
-                            }
-                        ]);
+                        var root = { line: 0, col: 0 };
+                        errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
-                    parent.errorsForFile({
-                        filePath: filePath
-                    }).then(function (resp) {
-                        return errorView.setErrors(filePath, resp.errors);
-                    });
+                    parent.errorsForFile({ filePath: filePath })
+                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
@@ -100,20 +73,12 @@ function readyToActivate() {
                     newText = editor.buffer.getTextInRange(diff.newRange);
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
                     var limChar = minChar + diff.oldText.length;
-                    var promise = parent.editText({
-                        filePath: filePath,
-                        minChar: minChar,
-                        limChar: limChar,
-                        newText: newText
-                    });
+                    var promise = parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;
                     filePath = event.path;
-                    onSaveHandler.handle({
-                        filePath: filePath,
-                        editor: editor
-                    });
+                    onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
                 var destroyObserver = editor.onDidDestroy(function () {
                     errorView.setErrors(filePath, []);
@@ -135,23 +100,15 @@ function activate(state) {
     var linter = apd.require('linter');
     var acp = apd.require('autocomplete-plus');
     if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', {
-            dismissable: true
-        });
+        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
         apd.install(function () {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", {
-                dismissable: true
-            });
+            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
             notification.dismiss();
             if (!apd.require('linter'))
                 atom.packages.loadPackage('linter');
             if (!apd.require('autocomplete-plus'))
                 atom.packages.loadPackage('autocomplete-plus');
-            atom.packages.activatePackage('linter').then(function () {
-                return atom.packages.activatePackage('autocomplete-plus');
-            }).then(function () {
-                return readyToActivate();
-            });
+            atom.packages.activatePackage('linter').then(function () { return atom.packages.activatePackage('autocomplete-plus'); }).then(function () { return readyToActivate(); });
         });
         return;
     }
@@ -176,8 +133,6 @@ function deserialize() {
 }
 exports.deserialize = deserialize;
 function provide() {
-    return [
-        autoCompleteProvider.provider
-    ];
+    return [autoCompleteProvider.provider];
 }
 exports.provide = provide;

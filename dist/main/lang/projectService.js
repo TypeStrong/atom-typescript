@@ -32,28 +32,20 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
     if (watchingProjectFile[projectFilePath])
         return;
     watchingProjectFile[projectFilePath] = true;
-    fs.watch(projectFilePath, {
-        persistent: false,
-        recursive: false
-    }, function () {
+    fs.watch(projectFilePath, { persistent: false, recursive: false }, function () {
         if (!fs.existsSync(projectFilePath)) {
             var project = projectByProjectFilePath[projectFilePath];
             if (project) {
                 var files = project.projectFile.project.files;
                 delete projectByProjectFilePath[projectFilePath];
-                files.forEach(function (file) {
-                    return delete projectByFilePath[file];
-                });
+                files.forEach(function (file) { return delete projectByFilePath[file]; });
             }
             return;
         }
         try {
             var projectFile = getOrCreateProjectFile(projectFilePath);
             cacheAndCreateProject(projectFile);
-            queryParent.setConfigurationError({
-                projectFilePath: projectFile.projectFilePath,
-                error: null
-            });
+            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         }
         catch (ex) {
         }
@@ -78,9 +70,7 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
         filePath = tsconfig.consistentPath(filePath);
         queryParent.getOpenEditorPaths({}).then(function (res) {
             var openPaths = res.filePaths;
-            if (openPaths.some(function (x) {
-                return x == filePath;
-            })) {
+            if (openPaths.some(function (x) { return x == filePath; })) {
                 return;
             }
             var project = projectByFilePath[filePath];
@@ -94,10 +84,9 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
 }
 function cacheAndCreateProject(projectFile) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
-    projectFile.project.files.forEach(function (file) {
-        return projectByFilePath[file] = project;
-    });
-    queryParent.getUpdatedTextForUnsavedEditors({}).then(function (resp) {
+    projectFile.project.files.forEach(function (file) { return projectByFilePath[file] = project; });
+    queryParent.getUpdatedTextForUnsavedEditors({})
+        .then(function (resp) {
         resp.editors.forEach(function (e) {
             consistentPath(e);
             project.languageServiceHost.updateScript(e.filePath, e.text);
@@ -113,10 +102,7 @@ function getOrCreateProjectFile(filePath) {
             return tsconfig.getDefaultProject(filePath);
         }
         var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setConfigurationError({
-            projectFilePath: projectFile.projectFilePath,
-            error: null
-        });
+        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
         return projectFile;
     }
     catch (ex) {
@@ -127,13 +113,8 @@ function getOrCreateProjectFile(filePath) {
             }
             else {
                 var projectFile = tsconfig.createProjectRootSync(filePath);
-                queryParent.notifySuccess({
-                    message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath
-                });
-                queryParent.setConfigurationError({
-                    projectFilePath: projectFile.projectFilePath,
-                    error: null
-                });
+                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
+                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
                 return projectFile;
             }
         }
@@ -198,9 +179,7 @@ function consistentPath(query) {
     query.filePath = tsconfig.consistentPath(query.filePath);
 }
 function echo(data) {
-    return queryParent.echoNumWithModification({
-        num: data.num
-    }).then(function (resp) {
+    return queryParent.echoNumWithModification({ num: data.num }).then(function (resp) {
         data.num = resp.num;
         return data;
     });
@@ -211,9 +190,7 @@ function quickInfo(query) {
     var project = getOrCreateProject(query.filePath);
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info)
-        return Promise.resolve({
-            valid: false
-        });
+        return Promise.resolve({ valid: false });
     else
         return resolve({
             valid: true,
@@ -248,13 +225,9 @@ function build(query) {
             outputs: outputs,
             counts: {
                 inputFiles: proj.projectFile.project.files.length,
-                outputFiles: utils.selectMany(outputs.map(function (out) {
-                    return out.outputFiles;
-                })).length,
+                outputFiles: utils.selectMany(outputs.map(function (out) { return out.outputFiles; })).length,
                 errors: errorCount,
-                emitErrors: outputs.filter(function (out) {
-                    return out.emitError;
-                }).length
+                emitErrors: outputs.filter(function (out) { return out.emitError; }).length
             }
         }
     });
@@ -263,46 +236,23 @@ exports.build = build;
 function errorsForFileFiltered(query) {
     consistentPath(query);
     var fileName = path.basename(query.filePath);
-    return errorsForFile({
-        filePath: query.filePath
-    }).then(function (resp) {
-        return {
-            errors: resp.errors.filter(function (error) {
-                return path.basename(error.filePath) == fileName;
-            })
-        };
+    return errorsForFile({ filePath: query.filePath })
+        .then(function (resp) {
+        return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
     });
 }
 exports.errorsForFileFiltered = errorsForFileFiltered;
-var punctuations = utils.createMap([
-    ';',
-    '{',
-    '}',
-    '(',
-    ')',
-    '.',
-    ':',
-    '<',
-    '>',
-    "'",
-    '"'
-]);
-var prefixEndsInPunctuation = function (prefix) {
-    return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
-};
+var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
+var prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };
 function getCompletionsAtPosition(query) {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
-    var completionList = completions ? completions.entries.filter(function (x) {
-        return !!x;
-    }) : [];
+    var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
     var endsInPunctuation = prefixEndsInPunctuation(prefix);
     if (prefix.length && !endsInPunctuation) {
-        completionList = fuzzaldrin.filter(completionList, prefix, {
-            key: 'name'
-        });
+        completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
     if (completionList.length > query.maxSuggestions)
         completionList = completionList.slice(0, query.maxSuggestions);
@@ -319,10 +269,7 @@ function getCompletionsAtPosition(query) {
             display = c.kind;
         }
         var comment = ts.displayPartsToString(completionDetails.documentation || []);
-        return {
-            display: display,
-            comment: comment
-        };
+        return { display: display, comment: comment };
     }
     var completionsToReturn = completionList.map(function (c) {
         var details = docComment(c);
@@ -344,10 +291,10 @@ function getCompletionsAtPosition(query) {
                     }
                     return display;
                 }).join(ts.displayPartsToString(item.separatorDisplayParts));
-                var label = ts.displayPartsToString(item.prefixDisplayParts) + snippet + ts.displayPartsToString(item.suffixDisplayParts);
-                completionsToReturn.unshift({
-                    snippet: snippet
-                });
+                var label = ts.displayPartsToString(item.prefixDisplayParts)
+                    + snippet
+                    + ts.displayPartsToString(item.suffixDisplayParts);
+                completionsToReturn.unshift({ snippet: snippet });
             });
         }
     }
@@ -362,9 +309,7 @@ function getSignatureHelps(query) {
     var project = getOrCreateProject(query.filePath);
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
-        return resolve({
-            signatureHelps: []
-        });
+        return resolve({ signatureHelps: [] });
     return signatureHelpItems.items;
 }
 exports.getSignatureHelps = getSignatureHelps;
@@ -377,17 +322,13 @@ var formatting = require('./modules/formatting');
 function formatDocument(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
-    return resolve({
-        edits: formatting.formatDocument(proj, query.filePath)
-    });
+    return resolve({ edits: formatting.formatDocument(proj, query.filePath) });
 }
 exports.formatDocument = formatDocument;
 function formatDocumentRange(query) {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
-    return resolve({
-        edits: formatting.formatDocumentRange(proj, query.filePath, query.start, query.end)
-    });
+    return resolve({ edits: formatting.formatDocumentRange(proj, query.filePath, query.start, query.end) });
 }
 exports.formatDocumentRange = formatDocumentRange;
 function getDefinitionsAtPosition(query) {
@@ -396,10 +337,7 @@ function getDefinitionsAtPosition(query) {
     var definitions = project.languageService.getDefinitionAtPosition(query.filePath, query.position);
     var projectFileDirectory = project.projectFile.projectFileDirectory;
     if (!definitions || !definitions.length)
-        return resolve({
-            projectFileDirectory: projectFileDirectory,
-            definitions: []
-        });
+        return resolve({ projectFileDirectory: projectFileDirectory, definitions: [] });
     return resolve({
         projectFileDirectory: projectFileDirectory,
         definitions: definitions.map(function (d) {
@@ -431,9 +369,7 @@ function errorsForFile(query) {
     if (diagnostics.length === 0) {
         diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
     }
-    return resolve({
-        errors: diagnostics.map(building.diagnosticToTSError)
-    });
+    return resolve({ errors: diagnostics.map(building.diagnosticToTSError) });
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {
@@ -443,7 +379,8 @@ function getRenameInfo(query) {
     var info = project.languageService.getRenameInfo(query.filePath, query.position);
     if (info && info.canRename) {
         var locations = {};
-        project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments).forEach(function (loc) {
+        project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
+            .forEach(function (loc) {
             if (!locations[loc.fileName])
                 locations[loc.fileName] = [];
             locations[loc.fileName].unshift(textSpan(loc.textSpan));
@@ -474,9 +411,7 @@ function getRelativePathsInProject(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var sourceDir = path.dirname(query.filePath);
-    var filePaths = project.projectFile.project.files.filter(function (p) {
-        return p !== query.filePath;
-    });
+    var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
     var files = filePaths.map(function (p) {
         return {
             name: path.basename(p, '.ts'),
@@ -486,9 +421,7 @@ function getRelativePathsInProject(query) {
     });
     var endsInPunctuation = prefixEndsInPunctuation(query.prefix);
     if (!endsInPunctuation)
-        files = fuzzaldrin.filter(files, query.prefix, {
-            key: 'name'
-        });
+        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
     var response = {
         files: files,
         endsInPunctuation: endsInPunctuation
@@ -500,17 +433,13 @@ function getIndentationAtPosition(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
-    return resolve({
-        indent: indent
-    });
+    return resolve({ indent: indent });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;
 function debugLanguageServiceHostVersion(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    return resolve({
-        text: project.languageServiceHost.getScriptContent(query.filePath)
-    });
+    return resolve({ text: project.languageServiceHost.getScriptContent(query.filePath) });
 }
 exports.debugLanguageServiceHostVersion = debugLanguageServiceHostVersion;
 function getProjectFileDetails(query) {
@@ -520,13 +449,11 @@ function getProjectFileDetails(query) {
 }
 exports.getProjectFileDetails = getProjectFileDetails;
 function sortNavbarItemsBySpan(items) {
-    items.sort(function (a, b) {
-        return a.spans[0].start - b.spans[0].start;
-    });
+    items.sort(function (a, b) { return a.spans[0].start - b.spans[0].start; });
     for (var _i = 0; _i < items.length; _i++) {
-        var _item = items[_i];
-        if (_item.childItems) {
-            sortNavbarItemsBySpan(_item.childItems);
+        var item_1 = items[_i];
+        if (item_1.childItems) {
+            sortNavbarItemsBySpan(item_1.childItems);
         }
     }
 }
@@ -538,14 +465,10 @@ function flattenNavBarItems(items) {
         delete item.childItems;
         toreturn.push(item);
         if (children) {
-            children.forEach(function (child) {
-                return keepAdding(child, depth + 1);
-            });
+            children.forEach(function (child) { return keepAdding(child, depth + 1); });
         }
     }
-    items.forEach(function (item) {
-        return keepAdding(item, 0);
-    });
+    items.forEach(function (item) { return keepAdding(item, 0); });
     return toreturn;
 }
 function getNavigationBarItems(query) {
@@ -563,9 +486,7 @@ function getNavigationBarItems(query) {
         delete item.spans;
         return item;
     });
-    return resolve({
-        items: items
-    });
+    return resolve({ items: items });
 }
 exports.getNavigationBarItems = getNavigationBarItems;
 function getNavigateToItems(query) {
@@ -579,9 +500,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 126) {
+        if (declaration.name.kind === 127) {
             var expr = declaration.name.expression;
-            if (expr.kind === 153) {
+            if (expr.kind === 155) {
                 return expr.name.text;
             }
             return ts2.getTextOfIdentifierOrLiteral(expr);
@@ -589,7 +510,9 @@ function getNavigateToItems(query) {
         return undefined;
     }
     function getTextOfIdentifierOrLiteral(node) {
-        if (node.kind === 64 || node.kind === 8 || node.kind === 7) {
+        if (node.kind === 65 ||
+            node.kind === 8 ||
+            node.kind === 7) {
             return node.text;
         }
         return undefined;
@@ -599,19 +522,17 @@ function getNavigateToItems(query) {
         var file = _a[_i];
         for (var _b = 0, _c = file.getNamedDeclarations(); _b < _c.length; _b++) {
             var declaration = _c[_b];
-            var _item = {
+            var item_2 = {
                 name: getDeclarationName(declaration),
                 kind: getNodeKind(declaration),
                 filePath: file.fileName,
                 fileName: path.basename(file.fileName),
                 position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
             };
-            items.push(_item);
+            items.push(item_2);
         }
     }
-    return resolve({
-        items: items
-    });
+    return resolve({ items: items });
 }
 exports.getNavigateToItems = getNavigateToItems;
 function getReferences(query) {
@@ -622,11 +543,7 @@ function getReferences(query) {
     var refs = languageService.getReferencesAtPosition(query.filePath, query.position) || [];
     references = refs.map(function (r) {
         var res = project.languageServiceHost.getPositionFromTextSpanWithLinePreview(r.fileName, r.textSpan);
-        return {
-            filePath: r.fileName,
-            position: res.position,
-            preview: res.preview
-        };
+        return { filePath: r.fileName, position: res.position, preview: res.preview };
     });
     return resolve({
         references: references

@@ -32,20 +32,14 @@ exports.setErrors = function (filePath, errorsForFile) {
             filePathErrors.getValue(path).forEach(function (error) {
                 totalErrorCount++;
                 mainPanelView.panelView.addError(new lineMessageView.LineMessageView({
-                    goToLine: function (filePath, line, col) {
-                        return gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles);
-                    },
+                    goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles); },
                     message: error.message,
                     line: error.startPos.line + 1,
                     col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
-                gotoHistory.errorsInOpenFiles.members.push({
-                    filePath: error.filePath,
-                    line: error.startPos.line + 1,
-                    col: error.startPos.col
-                });
+                gotoHistory.errorsInOpenFiles.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
             });
         }
         mainPanelView.panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);

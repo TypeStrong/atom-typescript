@@ -19,19 +19,13 @@ function createTextSpan(start, length) {
     if (length < 0) {
         throw new Error("length < 0");
     }
-    return {
-        start: start,
-        length: length
-    };
+    return { start: start, length: length };
 }
 function createTextChangeRange(span, newLength) {
     if (newLength < 0) {
         throw new Error("newLength < 0");
     }
-    return {
-        span: span,
-        newLength: newLength
-    };
+    return { span: span, newLength: newLength };
 }
 function textSpanEnd(span) {
     return span.start + span.length;
@@ -253,10 +247,7 @@ var LineNode = (function () {
             var col = 1;
             if (lineInfo.leaf)
                 col = lineInfo.leaf.charCount();
-            return {
-                line: this.lineCount(),
-                col: col
-            };
+            return { line: this.lineCount(), col: col };
         }
     };
     LineNode.prototype.lineNumberToInfo = function (lineNumber, charOffset) {
@@ -434,12 +425,8 @@ var EditWalker = (function (_super) {
         this.trailingText = "";
         this.suppressTrailingText = false;
         this.lineIndex.root = new LineNode();
-        this.startPath = [
-            this.lineIndex.root
-        ];
-        this.stack = [
-            this.lineIndex.root
-        ];
+        this.startPath = [this.lineIndex.root];
+        this.stack = [this.lineIndex.root];
     }
     EditWalker.prototype.insertLines = function (insertedText) {
         if (this.suppressTrailingText) {
@@ -759,10 +746,7 @@ var LineIndex = (function () {
     LineIndex.linesFromText = function (text) {
         var lineStarts = ts.computeLineStarts(text);
         if (lineStarts.length == 0) {
-            return {
-                lines: [],
-                lineMap: lineStarts
-            };
+            return { lines: [], lineMap: lineStarts };
         }
         var lines = new Array(lineStarts.length);
         var lc = lineStarts.length - 1;
@@ -776,10 +760,7 @@ var LineIndex = (function () {
         else {
             lines.length--;
         }
-        return {
-            lines: lines,
-            lineMap: lineStarts
-        };
+        return { lines: lines, lineMap: lineStarts };
     };
     return LineIndex;
 })();
@@ -797,9 +778,7 @@ var LineIndexSnapshot = (function () {
         return this.index.root.charCount();
     };
     LineIndexSnapshot.prototype.getLineStartPositions = function () {
-        var starts = [
-            -1
-        ];
+        var starts = [-1];
         var count = 1;
         var pos = 0;
         this.index.every(function (ll, s, len) {
@@ -851,7 +830,9 @@ var ScriptVersionCache = (function () {
     }
     ScriptVersionCache.prototype.edit = function (pos, deleteLen, insertedText) {
         this.changes[this.changes.length] = new TextChange(pos, deleteLen, insertedText);
-        if ((this.changes.length > ScriptVersionCache.changeNumberThreshold) || (deleteLen > ScriptVersionCache.changeLengthThreshold) || (insertedText && (insertedText.length > ScriptVersionCache.changeLengthThreshold))) {
+        if ((this.changes.length > ScriptVersionCache.changeNumberThreshold) ||
+            (deleteLen > ScriptVersionCache.changeLengthThreshold) ||
+            (insertedText && (insertedText.length > ScriptVersionCache.changeLengthThreshold))) {
             this.getSnapshot();
         }
     };
@@ -1053,24 +1034,14 @@ var LanguageServiceHost = (function () {
         };
         this.getPositionFromIndex = function (fileName, index) {
             var result = _this.positionToLineCol(fileName, index);
-            return {
-                line: result.line - 1,
-                ch: result.col - 1
-            };
+            return { line: result.line - 1, ch: result.col - 1 };
         };
         this.getIndexFromPosition = function (fileName, position) {
-            var newPos = {
-                ch: position.ch + 1,
-                line: position.line + 1
-            };
+            var newPos = { ch: position.ch + 1, line: position.line + 1 };
             return _this.lineColToPosition(fileName, newPos.line, newPos.ch);
         };
-        this.getCompilationSettings = function () {
-            return _this.config.project.compilerOptions;
-        };
-        this.getScriptFileNames = function () {
-            return Object.keys(_this.fileNameToScript);
-        };
+        this.getCompilationSettings = function () { return _this.config.project.compilerOptions; };
+        this.getScriptFileNames = function () { return Object.keys(_this.fileNameToScript); };
         this.getScriptVersion = function (fileName) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
@@ -1098,9 +1069,7 @@ var LanguageServiceHost = (function () {
         this.getDefaultLibFileName = function () {
             return 'lib.d.ts';
         };
-        config.project.files.forEach(function (file) {
-            return _this.addScript(file);
-        });
+        config.project.files.forEach(function (file) { return _this.addScript(file); });
         this.addScript(exports.defaultLibFile);
     }
     LanguageServiceHost.prototype.lineColToPosition = function (filename, line, col) {
@@ -1113,10 +1082,7 @@ var LanguageServiceHost = (function () {
         var script = this.fileNameToScript[filename];
         var index = script.snap().index;
         var lineCol = index.charOffsetToLineNumberAndPos(position);
-        return {
-            line: lineCol.line,
-            col: lineCol.col + 1
-        };
+        return { line: lineCol.line, col: lineCol.col + 1 };
     };
     return LanguageServiceHost;
 })();

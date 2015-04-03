@@ -46,12 +46,8 @@ var MainPanelView = (function (_super) {
                     style: 'cursor: pointer; color: rgb(0, 148, 255)',
                     click: 'toggle'
                 }, function () {
-                    _this.span({
-                        class: "icon-microscope"
-                    });
-                    _this.span({
-                        style: 'font-weight:bold'
-                    }, " TypeScript ");
+                    _this.span({ class: "icon-microscope" });
+                    _this.span({ style: 'font-weight:bold' }, " TypeScript ");
                 });
                 _this.div({
                     class: 'btn-group',
@@ -123,16 +119,8 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.selectPanel = function (btn, body, activeList) {
         var _this = this;
-        var buttons = [
-            this.errorPanelBtn,
-            this.buildPanelBtn,
-            this.referencesPanelBtn
-        ];
-        var bodies = [
-            this.errorBody,
-            this.buildBody,
-            this.referencesBody
-        ];
+        var buttons = [this.errorPanelBtn, this.buildPanelBtn, this.referencesPanelBtn];
+        var bodies = [this.errorBody, this.buildBody, this.referencesBody];
         buttons.forEach(function (b) {
             if (b !== btn)
                 b.removeClass('selected');
@@ -185,9 +173,7 @@ var MainPanelView = (function (_super) {
         for (var _i = 0; _i < references.length; _i++) {
             var ref = references[_i];
             var view = new lineMessageView.LineMessageView({
-                goToLine: function (filePath, line, col) {
-                    return gotoHistory.gotoLine(filePath, line, col, gotoHistory.referencesOutput);
-                },
+                goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.referencesOutput); },
                 message: '',
                 line: ref.position.line + 1,
                 col: ref.position.col,
@@ -195,11 +181,7 @@ var MainPanelView = (function (_super) {
                 preview: ref.preview
             });
             this.referencesBody.append(view.$);
-            gotoHistory.referencesOutput.members.push({
-                filePath: ref.filePath,
-                line: ref.position.line + 1,
-                col: ref.position.col
-            });
+            gotoHistory.referencesOutput.members.push({ filePath: ref.filePath, line: ref.position.line + 1, col: ref.position.col });
         }
     };
     MainPanelView.prototype.clearError = function () {
@@ -276,20 +258,14 @@ var MainPanelView = (function (_super) {
         if (progress.errorsInFile.length) {
             progress.errorsInFile.forEach(function (error) {
                 _this.addBuild(new lineMessageView.LineMessageView({
-                    goToLine: function (filePath, line, col) {
-                        return gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput);
-                    },
+                    goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput); },
                     message: error.message,
                     line: error.startPos.line + 1,
                     col: error.startPos.col,
                     file: error.filePath,
                     preview: error.preview
                 }));
-                gotoHistory.buildOutput.members.push({
-                    filePath: error.filePath,
-                    line: error.startPos.line + 1,
-                    col: error.startPos.col
-                });
+                gotoHistory.buildOutput.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
             });
         }
     };
@@ -302,10 +278,6 @@ function attach() {
     if (exports.panelView)
         return;
     exports.panelView = new MainPanelView();
-    panel = atom.workspace.addBottomPanel({
-        item: exports.panelView,
-        priority: 1000,
-        visible: true
-    });
+    panel = atom.workspace.addBottomPanel({ item: exports.panelView, priority: 1000, visible: true });
 }
 exports.attach = attach;

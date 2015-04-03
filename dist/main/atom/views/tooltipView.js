@@ -15,9 +15,7 @@ var TooltipView = (function (_super) {
         this.updatePosition();
     }
     TooltipView.content = function () {
-        return this.div({
-            class: 'atom-typescript-tooltip'
-        });
+        return this.div({ class: 'atom-typescript-tooltip' });
     };
     TooltipView.prototype.updateText = function (text) {
         this.$.html(text);
@@ -31,20 +29,14 @@ var TooltipView = (function (_super) {
         if (left + this.$[0].offsetWidth >= view.$(document.body).width())
             left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
         if (left < 0) {
-            this.$.css({
-                'white-space': 'pre-wrap'
-            });
+            this.$.css({ 'white-space': 'pre-wrap' });
             left = offset;
             right = offset;
         }
         if (top + this.$[0].offsetHeight >= $(document.body).height()) {
             top = this.rect.top - this.$[0].offsetHeight;
         }
-        this.$.css({
-            left: left,
-            top: top,
-            right: right
-        });
+        this.$.css({ left: left, top: top, right: right });
     };
     return TooltipView;
 })(view.View);

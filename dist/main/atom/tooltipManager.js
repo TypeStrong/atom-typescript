@@ -9,12 +9,12 @@ var emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 var tooltipView = require('./views/tooltipView');
 var TooltipView = tooltipView.TooltipView;
-var _atom_space_pen_views = require("atom-space-pen-views");
+var atom_space_pen_views_1 = require("atom-space-pen-views");
 var escape = require('escape-html');
 function getFromShadowDom(element, selector) {
     var el = element[0];
     var found = el.rootElement.querySelectorAll(selector);
-    return _atom_space_pen_views.$(found[0]);
+    return atom_space_pen_views_1.$(found[0]);
 }
 exports.getFromShadowDom = getFromShadowDom;
 function attach(editorView, editor) {
@@ -33,16 +33,10 @@ function attach(editorView, editor) {
     var exprTypeTooltip = null;
     subscriber.subscribe(scroll, 'mousemove', function (e) {
         clearExprTypeTimeout();
-        exprTypeTimeout = setTimeout(function () {
-            return showExpressionType(e);
-        }, 100);
+        exprTypeTimeout = setTimeout(function () { return showExpressionType(e); }, 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', function (e) {
-        return clearExprTypeTimeout();
-    });
-    subscriber.subscribe(scroll, 'keydown', function (e) {
-        return clearExprTypeTimeout();
-    });
+    subscriber.subscribe(scroll, 'mouseout', function (e) { return clearExprTypeTimeout(); });
+    subscriber.subscribe(scroll, 'keydown', function (e) { return clearExprTypeTimeout(); });
     atom.commands.add('atom-text-editor', 'editor:will-be-removed', function (e) {
         if (e.currentTarget == editorView[0]) {
             deactivate();
@@ -54,14 +48,8 @@ function attach(editorView, editor) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        var curCharPixelPt = rawView.pixelPositionForBufferPosition([
-            bufferPt.row,
-            bufferPt.column
-        ]);
-        var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
-            bufferPt.row,
-            bufferPt.column + 1
-        ]);
+        var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
+        var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
         if (curCharPixelPt.left >= nextCharPixelPt.left)
             return;
         var offset = editor.getLineHeightInPixels() * 0.7;
@@ -73,10 +61,7 @@ function attach(editorView, editor) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
         var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
-        parent.quickInfo({
-            filePath: filePath,
-            position: position
-        }).then(function (resp) {
+        parent.quickInfo({ filePath: filePath, position: position }).then(function (resp) {
             if (!resp.valid) {
                 hideExpressionType();
             }
@@ -113,10 +98,7 @@ function pixelPositionFromMouseEvent(editorView, event) {
     var linesClientRect = getFromShadowDom(editorView, '.lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
-    return {
-        top: top,
-        left: left
-    };
+    return { top: top, left: left };
 }
 function screenPositionFromMouseEvent(editorView, event) {
     return editorView.getModel().screenPositionForPixelPosition(pixelPositionFromMouseEvent(editorView, event));

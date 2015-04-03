@@ -21,10 +21,7 @@ var orphanExitCode = 100;
 var RequesterResponder = (function () {
     function RequesterResponder() {
         var _this = this;
-        this.getProcess = function () {
-            throw new Error('getProcess is abstract');
-            return null;
-        };
+        this.getProcess = function () { throw new Error('getProcess is abstract'); return null; };
         this.currentListeners = {};
         this.responders = {};
         this.processRequest = function (m) {
@@ -38,14 +35,10 @@ var RequesterResponder = (function () {
                 responsePromise = _this.responders[message](parsed.data);
             }
             catch (err) {
-                responsePromise = Promise.reject({
-                    method: message,
-                    message: err.message,
-                    stack: err.stack,
-                    details: err.details || {}
-                });
+                responsePromise = Promise.reject({ method: message, message: err.message, stack: err.stack, details: err.details || {} });
             }
-            responsePromise.then(function (response) {
+            responsePromise
+                .then(function (response) {
                 _this.getProcess().send({
                     message: message,
                     id: parsed.id,
@@ -53,7 +46,8 @@ var RequesterResponder = (function () {
                     error: null,
                     request: false
                 });
-            }).catch(function (error) {
+            })
+                .catch(function (error) {
                 _this.getProcess().send({
                     message: message,
                     id: parsed.id,
@@ -96,12 +90,7 @@ var RequesterResponder = (function () {
             var id = createId();
             var defer = Promise.defer();
             that.currentListeners[message][id] = defer;
-            that.getProcess().send({
-                message: message,
-                id: id,
-                data: data,
-                request: true
-            });
+            that.getProcess().send({ message: message, id: id, data: data, request: true });
             return defer.promise;
         };
     };
@@ -110,11 +99,9 @@ var RequesterResponder = (function () {
     };
     RequesterResponder.prototype.registerAllFunctionsExportedFromAsResponders = function (aModule) {
         var _this = this;
-        Object.keys(aModule).filter(function (funcName) {
-            return typeof aModule[funcName] == 'function';
-        }).forEach(function (funcName) {
-            return _this.addToResponders(aModule[funcName]);
-        });
+        Object.keys(aModule)
+            .filter(function (funcName) { return typeof aModule[funcName] == 'function'; })
+            .forEach(function (funcName) { return _this.addToResponders(aModule[funcName]); });
     };
     return RequesterResponder;
 })();
@@ -125,9 +112,7 @@ var Parent = (function (_super) {
         _super.apply(this, arguments);
         this.node = process.execPath;
         this.gotENOENTonSpawnNode = false;
-        this.getProcess = function () {
-            return _this.child;
-        };
+        this.getProcess = function () { return _this.child; };
         this.stopped = false;
     }
     Parent.prototype.startWorker = function (childJsPath, terminalError) {
@@ -135,15 +120,7 @@ var Parent = (function (_super) {
         try {
             this.child = spawn(this.node, [
                 childJsPath
-            ], {
-                cwd: path.dirname(childJsPath),
-                env: {
-                    ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1'
-                },
-                stdio: [
-                    'ipc'
-                ]
-            });
+            ], { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
             this.child.on('error', function (err) {
                 if (err.code === "ENOENT" && err.path === _this.node) {
                     _this.gotENOENTonSpawnNode = true;
@@ -205,9 +182,7 @@ var Child = (function (_super) {
     function Child() {
         var _this = this;
         _super.call(this);
-        this.getProcess = function () {
-            return process;
-        };
+        this.getProcess = function () { return process; };
         this.keepAlive();
         process.on('message', function (message) {
             if (message.request) {

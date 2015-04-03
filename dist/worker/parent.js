@@ -7,9 +7,7 @@ var spawn = childprocess.spawn;
 var workerLib = require('./lib/workerLib');
 var parent = new workerLib.Parent();
 if (debug) {
-    parent.sendToIpc = function (x) {
-        return x;
-    };
+    parent.sendToIpc = function (x) { return x; };
 }
 function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError);
@@ -25,19 +23,15 @@ function showError(error) {
     if (process.platform === "win32") {
         message = message + " Make sure you have 'node' installed and available in your system path.";
     }
-    atom.notifications.addError(message, {
-        dismissable: true
-    });
+    atom.notifications.addError(message, { dismissable: true });
     if (error) {
         console.error('Failed to activate ts-worker:', error);
     }
 }
 function catchCommonErrors(func) {
-    return function (q) {
-        return func(q).catch(function (err) {
-            return Promise.reject(err);
-        });
-    };
+    return function (q) { return func(q).catch(function (err) {
+        return Promise.reject(err);
+    }); };
 }
 var projectService = require('../main/lang/projectService');
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));

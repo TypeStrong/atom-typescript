@@ -8,14 +8,8 @@ function diagnosticToTSError(diagnostic) {
     var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
     return {
         filePath: filePath,
-        startPos: {
-            line: startPosition.line,
-            col: startPosition.character
-        },
-        endPos: {
-            line: endPosition.line,
-            col: endPosition.character
-        },
+        startPos: { line: startPosition.line, col: startPosition.character },
+        endPos: { line: endPosition.line, col: endPosition.character },
         message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
         preview: diagnostic.file.text.substr(diagnostic.start, diagnostic.length),
     };
@@ -26,7 +20,9 @@ function emitFile(proj, filePath) {
     var output = services.getEmitOutput(filePath);
     var emitDone = !output.emitSkipped;
     var errors = [];
-    var allDiagnostics = services.getCompilerOptionsDiagnostics().concat(services.getSyntacticDiagnostics(filePath)).concat(services.getSemanticDiagnostics(filePath));
+    var allDiagnostics = services.getCompilerOptionsDiagnostics()
+        .concat(services.getSyntacticDiagnostics(filePath))
+        .concat(services.getSemanticDiagnostics(filePath));
     allDiagnostics.forEach(function (diagnostic) {
         if (!diagnostic.file)
             return;
@@ -37,9 +33,7 @@ function emitFile(proj, filePath) {
         mkdirp.sync(path.dirname(o.name));
         fs.writeFileSync(o.name, o.text, "utf8");
     });
-    var outputFiles = output.outputFiles.map(function (o) {
-        return o.name;
-    });
+    var outputFiles = output.outputFiles.map(function (o) { return o.name; });
     if (path.extname(filePath) == '.d.ts') {
         outputFiles.push(filePath);
     }

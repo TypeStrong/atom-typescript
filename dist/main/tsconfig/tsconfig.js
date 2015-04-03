@@ -3,93 +3,32 @@
 var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
-    allowNonTsExtensions: {
-        type: simpleValidator.types.boolean
-    },
-    charset: {
-        type: simpleValidator.types.string
-    },
-    codepage: {
-        type: types.number
-    },
-    declaration: {
-        type: types.boolean
-    },
-    diagnostics: {
-        type: types.boolean
-    },
-    emitBOM: {
-        type: types.boolean
-    },
-    help: {
-        type: types.boolean
-    },
-    locals: {
-        type: types.string
-    },
-    mapRoot: {
-        type: types.string
-    },
-    module: {
-        type: types.string,
-        validValues: [
-            'commonjs',
-            'amd'
-        ]
-    },
-    noEmitOnError: {
-        type: types.boolean
-    },
-    noErrorTruncation: {
-        type: types.boolean
-    },
-    noImplicitAny: {
-        type: types.boolean
-    },
-    noLib: {
-        type: types.boolean
-    },
-    noLibCheck: {
-        type: types.boolean
-    },
-    noResolve: {
-        type: types.boolean
-    },
-    out: {
-        type: types.string
-    },
-    outDir: {
-        type: types.string
-    },
-    preserveConstEnums: {
-        type: types.boolean
-    },
-    removeComments: {
-        type: types.boolean
-    },
-    sourceMap: {
-        type: types.boolean
-    },
-    sourceRoot: {
-        type: types.string
-    },
-    suppressImplicitAnyIndexErrors: {
-        type: types.boolean
-    },
-    target: {
-        type: types.string,
-        validValues: [
-            'es3',
-            'es5',
-            'es6'
-        ]
-    },
-    version: {
-        type: types.boolean
-    },
-    watch: {
-        type: types.boolean
-    },
+    allowNonTsExtensions: { type: simpleValidator.types.boolean },
+    charset: { type: simpleValidator.types.string },
+    codepage: { type: types.number },
+    declaration: { type: types.boolean },
+    diagnostics: { type: types.boolean },
+    emitBOM: { type: types.boolean },
+    help: { type: types.boolean },
+    locals: { type: types.string },
+    mapRoot: { type: types.string },
+    module: { type: types.string, validValues: ['commonjs', 'amd'] },
+    noEmitOnError: { type: types.boolean },
+    noErrorTruncation: { type: types.boolean },
+    noImplicitAny: { type: types.boolean },
+    noLib: { type: types.boolean },
+    noLibCheck: { type: types.boolean },
+    noResolve: { type: types.boolean },
+    out: { type: types.string },
+    outDir: { type: types.string },
+    preserveConstEnums: { type: types.boolean },
+    removeComments: { type: types.boolean },
+    sourceMap: { type: types.boolean },
+    sourceRoot: { type: types.string },
+    suppressImplicitAnyIndexErrors: { type: types.boolean },
+    target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },
+    version: { type: types.boolean },
+    watch: { type: types.boolean },
 };
 var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 exports.errors = {
@@ -113,10 +52,7 @@ var ts = require('typescript');
 var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
-var defaultFilesGlob = [
-    "./**/*.ts",
-    "!./node_modules/**/*.ts"
-];
+var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
 var typeScriptVersion = '1.4.1';
 exports.defaults = {
     target: 1,
@@ -206,9 +142,7 @@ function getDefaultProject(srcFile) {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
     var project = {
         compilerOptions: exports.defaults,
-        files: [
-            srcFile
-        ],
+        files: [srcFile],
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true
     };
@@ -248,10 +182,7 @@ function getProjectSync(pathOrSrcFile) {
         projectSpec = JSON.parse(projectFileTextContent);
     }
     catch (ex) {
-        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), {
-            projectFilePath: consistentPath(projectFile),
-            error: ex.message
-        });
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: consistentPath(projectFile), error: ex.message });
     }
     if (!projectSpec.compilerOptions)
         projectSpec.compilerOptions = {};
@@ -261,26 +192,17 @@ function getProjectSync(pathOrSrcFile) {
     }
     if (projectSpec.filesGlob) {
         try {
-            projectSpec.files = expand({
-                filter: 'isFile',
-                cwd: cwdPath
-            }, projectSpec.filesGlob);
+            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
         }
         catch (ex) {
-            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), {
-                glob: projectSpec.filesGlob,
-                projectFilePath: consistentPath(projectFile),
-                errorMessage: ex.message
-            });
+            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
         }
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
         }
     }
-    projectSpec.files = projectSpec.files.map(function (file) {
-        return path.resolve(projectFileDirectory, file);
-    });
+    projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
     var project = {
         compilerOptions: {},
         files: projectSpec.files,
@@ -290,16 +212,10 @@ function getProjectSync(pathOrSrcFile) {
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
-        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), {
-            projectFilePath: consistentPath(projectFile),
-            errorMessage: validationResult.errorMessage
-        });
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage });
     }
     if (projectSpec.compilerOptions && projectSpec.compilerOptions.out) {
-        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), {
-            projectFilePath: consistentPath(projectFile),
-            errorMessage: "We don't support --out because it will hurt you in the long run."
-        });
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), { projectFilePath: consistentPath(projectFile), errorMessage: "We don't support --out because it will hurt you in the long run." });
     }
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
     project.files = increaseProjectForReferenceAndImports(project.files);
@@ -366,11 +282,10 @@ function increaseProjectForReferenceAndImports(files) {
                     return file + '.d.ts';
                 }
                 return null;
-            }).filter(function (file) {
-                return !!file;
-            }).concat(preProcessedFileInfo.importedFiles.filter(function (fileReference) {
-                return pathIsRelative(fileReference.fileName);
-            }).map(function (fileReference) {
+            }).filter(function (file) { return !!file; })
+                .concat(preProcessedFileInfo.importedFiles
+                .filter(function (fileReference) { return pathIsRelative(fileReference.fileName); })
+                .map(function (fileReference) {
                 var file = path.resolve(dir, fileReference.fileName + '.ts');
                 if (!fs.existsSync(file)) {
                     file = path.resolve(dir, fileReference.fileName + '.d.ts');
@@ -380,9 +295,11 @@ function increaseProjectForReferenceAndImports(files) {
         });
         return selectMany(referenced);
     };
-    var more = getReferencedOrImportedFiles(files).filter(willNeedMoreAnalysis);
+    var more = getReferencedOrImportedFiles(files)
+        .filter(willNeedMoreAnalysis);
     while (more.length) {
-        more = getReferencedOrImportedFiles(files).filter(willNeedMoreAnalysis);
+        more = getReferencedOrImportedFiles(files)
+            .filter(willNeedMoreAnalysis);
     }
     return files;
 }

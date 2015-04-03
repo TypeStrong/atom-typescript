@@ -1,12 +1,6 @@
-exports.errorsInOpenFiles = {
-    members: []
-};
-exports.buildOutput = {
-    members: []
-};
-exports.referencesOutput = {
-    members: []
-};
+exports.errorsInOpenFiles = { members: [] };
+exports.buildOutput = { members: [] };
+exports.referencesOutput = { members: [] };
 exports.activeList = exports.errorsInOpenFiles;
 function gotoLine(filePath, line, col, list) {
     var activeFile, activeEditor = atom.workspace.getActiveEditor();
@@ -20,16 +14,9 @@ function gotoLine(filePath, line, col, list) {
         });
     }
     else {
-        atom.workspace.getActiveEditor().cursors[0].setBufferPosition([
-            line - 1,
-            col
-        ]);
+        atom.workspace.getActiveEditor().cursors[0].setBufferPosition([line - 1, col]);
     }
-    list.lastPosition = {
-        filePath: filePath,
-        line: line,
-        col: col
-    };
+    list.lastPosition = { filePath: filePath, line: line, col: col };
 }
 exports.gotoLine = gotoLine;
 function findCurrentIndexInList() {
@@ -40,9 +27,7 @@ function findCurrentIndexInList() {
     if (!exports.activeList.lastPosition)
         return 0;
     var lastPosition = exports.activeList.lastPosition;
-    var index = indexOf(exports.activeList.members, function (item) {
-        return item.filePath == lastPosition.filePath && item.line == lastPosition.line;
-    });
+    var index = indexOf(exports.activeList.members, function (item) { return item.filePath == lastPosition.filePath && item.line == lastPosition.line; });
     if (index == -1) {
         return 0;
     }
