@@ -51,9 +51,13 @@ class RequesterResponder {
     ///////////////////////////////// REQUESTOR /////////////////////////
 
     private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
-    /** TODO: Display this in the UI  */
+
+
+    /** For analytics  */
     private pendingRequests: string[] = [];
-    public pendingRequestsChanged = (pending:string[]) => null;
+    public pendingRequestsChanged = (pending: string[]) => null;
+    private pendingTimers: { [id: string]: number } = {};
+    public runningSum: { [message: string]: { count: number; sum: number } } = {};
 
     /** process a message from the child */
     protected processResponse(m: any) {
@@ -69,6 +73,24 @@ class RequesterResponder {
             console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
         }
         else { // Alright nothing *weird* happened
+
+            var duration = new Date().getTime() - this.pendingTimers[parsed.id];
+            delete this.pendingTimers[parsed.id];
+            if (this.runningSum[parsed.message].count == 0) {
+                this.runningSum[parsed.message].count = 1;
+                this.runningSum[parsed.message].sum = duration;
+            }
+            else {
+                let {count, sum} = this.runningSum[parsed.message];
+                var [newCount, newSum] = [count++, sum + duration];
+                this.runningSum[parsed.message] = { count: newCount, sum: newSum };
+            }
+            //// If you want to see the average time by message type. Note: A bit misleading as these messages might be throttled because of being blocked by some other thing
+            // console.log(Object.keys(this.runningSum).map(message=> {
+            //     var {count, sum} = this.runningSum[message];
+            //     return `message: ${message}, average: ${sum / count}`;
+            // }).join('\n'));
+
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
             }
@@ -102,6 +124,10 @@ class RequesterResponder {
             var id = createId();
             var defer = Promise.defer<Response>();
             that.currentListeners[message][id] = defer;
+
+            // Also instrument
+            this.pendingTimers[id] = new Date().getTime();
+            if (!this.runningSum[message]) this.runningSum[message] = { count: 0, sum: 0 };
 
             // Send data to worker
             this.pendingRequests.push(message);

@@ -25,6 +25,8 @@ var RequesterResponder = (function () {
         this.currentListeners = {};
         this.pendingRequests = [];
         this.pendingRequestsChanged = function (pending) { return null; };
+        this.pendingTimers = {};
+        this.runningSum = {};
         this.responders = {};
         this.processRequest = function (m) {
             var parsed = m;
@@ -71,6 +73,17 @@ var RequesterResponder = (function () {
             console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
         }
         else {
+            var duration = new Date().getTime() - this.pendingTimers[parsed.id];
+            delete this.pendingTimers[parsed.id];
+            if (this.runningSum[parsed.message].count == 0) {
+                this.runningSum[parsed.message].count = 1;
+                this.runningSum[parsed.message].sum = duration;
+            }
+            else {
+                var _a = this.runningSum[parsed.message], count = _a.count, sum = _a.sum;
+                var _b = [count++, sum + duration], newCount = _b[0], newSum = _b[1];
+                this.runningSum[parsed.message] = { count: newCount, sum: newSum };
+            }
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
             }
@@ -94,6 +107,9 @@ var RequesterResponder = (function () {
             var id = createId();
             var defer = Promise.defer();
             that.currentListeners[message][id] = defer;
+            _this.pendingTimers[id] = new Date().getTime();
+            if (!_this.runningSum[message])
+                _this.runningSum[message] = { count: 0, sum: 0 };
             _this.pendingRequests.push(message);
             _this.pendingRequestsChanged(_this.pendingRequests);
             that.getProcess().send({ message: message, id: id, data: data, request: true });
