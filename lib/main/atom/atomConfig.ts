@@ -20,7 +20,6 @@ class Config {
         }
     }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
-    get maxSuggestions(): number { return atom.config.get('autocomplete-plus.maxSuggestions') }
 }
 var config = new Config();
 export = config;

@@ -7,7 +7,7 @@
     'import':
         'prefix': 'import'
         'body': """
-            import ${2} from "${1:path}";
+            import ${2} from "${1:path}";$3
         """
     'JSDoc single line':
         'prefix': '//'

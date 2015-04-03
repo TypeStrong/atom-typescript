@@ -120,6 +120,20 @@ export function kindToColor(kind: string) {
     }
 }
 
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
+export function kindToType(kind:string){
+    switch(kind){
+        case 'interface':
+            return 'type';
+        case 'identifier':
+            return 'variable';
+        default:
+            return kind;
+    }
+}
+
 /** Utility functions for commands */
 export function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();

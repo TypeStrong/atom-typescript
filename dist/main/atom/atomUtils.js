@@ -103,6 +103,17 @@ function kindToColor(kind) {
     }
 }
 exports.kindToColor = kindToColor;
+function kindToType(kind) {
+    switch (kind) {
+        case 'interface':
+            return 'type';
+        case 'identifier':
+            return 'variable';
+        default:
+            return kind;
+    }
+}
+exports.kindToType = kindToType;
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)

@@ -45,6 +45,7 @@
         "./main/lang/core/languageServiceHost2.ts",
         "./main/lang/core/languageServiceHostOld.ts",
         "./main/lang/core/project.ts",
+        "./main/lang/modules/astToText.ts",
         "./main/lang/modules/building.ts",
         "./main/lang/modules/fixNavigateTo.ts",
         "./main/lang/modules/formatting.ts",

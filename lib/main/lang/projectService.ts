@@ -361,7 +361,6 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promis
 
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
-    maxSuggestions: number;
 }
 export interface Completion {
     name?: string; // stuff like "toString"
@@ -381,8 +380,11 @@ var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length 
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
-
     var project = getOrCreateProject(filePath);
+
+    /** Doing too many suggestions is slowing us down in some cases */
+    var maxSuggestions = 100;
+
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
@@ -394,7 +396,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     }
 
     // limit to maxSuggestions
-    if (completionList.length > query.maxSuggestions) completionList = completionList.slice(0, query.maxSuggestions);
+    if (completionList.length > maxSuggestions) completionList = completionList.slice(0, maxSuggestions);
 
     // Potentially use it more aggresively at some point
     function docComment(c: ts.CompletionEntry): { display: string; comment: string; } {
@@ -860,22 +862,22 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
 /**
  * Get AST
  */
+import astToText from "./modules/astToText";
 export interface GetASTQuery extends FilePathQuery { }
 export interface GetASTResponse {
-    ast: {
-
-    }
+    sourceFile?: ts.SourceFile
 }
 export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var service = project.languageService;
 
-    var files = service.getProgram().getSourceFiles().filter(x=>x.fileName == query.filePath);
-    if(!files.length) resolve({ast:{}});
+    var files = service.getProgram().getSourceFiles().filter(x=> x.fileName == query.filePath);
+    if (!files.length) resolve({});
 
     var sourceFile = files[0];
-    console.error(sourceFile);
 
-    return resolve({ast:{}})
+    astToText(sourceFile);
+
+    return resolve({ sourceFile });
 }

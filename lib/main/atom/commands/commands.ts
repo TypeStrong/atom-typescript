@@ -100,9 +100,13 @@ export function registerCommands() {
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
 
-        atom.commands.dispatch(
-            atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:find-references');
+        // atom.commands.dispatch(
+        //     atom.views.getView(atom.workspace.getActiveTextEditor()),
+        //     'typescript:find-references');
+
+        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res)=>{
+            console.log(res.sourceFile);
+        });
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', (e) => {

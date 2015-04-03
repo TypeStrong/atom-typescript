@@ -1,6 +1,5 @@
 /// <reference path='../../globals'/>
 var parent = require('../../worker/parent');
-var atomConfig = require('./atomConfig');
 var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
@@ -74,7 +73,6 @@ exports.provider = {
                 filePath: filePath,
                 position: position,
                 prefix: options.prefix,
-                maxSuggestions: atomConfig.maxSuggestions
             })
                 .then(function (resp) {
                 var completionList = resp.completions;
@@ -92,7 +90,7 @@ exports.provider = {
                             text: c.name,
                             replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                             rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
-                            type: c.kind
+                            type: atomUtils.kindToType(c.kind),
                         };
                     }
                 });

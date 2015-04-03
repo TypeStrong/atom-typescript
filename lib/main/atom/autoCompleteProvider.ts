@@ -162,7 +162,6 @@ export var provider: autocompleteplus.Provider = {
                     filePath: filePath,
                     position: position,
                     prefix: options.prefix,
-                    maxSuggestions: atomConfig.maxSuggestions
                 })
                     .then((resp) => {
 
@@ -183,7 +182,7 @@ export var provider: autocompleteplus.Provider = {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                                 rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
-                                type: c.kind
+                                type: atomUtils.kindToType(c.kind),
                             };
                         }
                     });
