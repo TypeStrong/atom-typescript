@@ -39,6 +39,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Rename refactoring
 * Common Snippets
 * `import` / `/// <reference` relative path resolution
+* AST visualizer
 
 # Feature Details
 ## Auto Complete
@@ -127,6 +128,10 @@ Relative paths have traditionally been a pain, not anymore. Use `import` or `ref
 Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`) for all the files in the project by filename (works for both `ref` and `import`).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/pathChange.gif)
+
+## AST Visualizer
+Command : `Typescript: ast`. Useful when authoring new features.
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/astVisualizer.gif)
 
 ## Contributing
 

@@ -191,9 +191,9 @@ function registerCommands() {
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
-        atom.workspace.open(uri, {});
+        atom.workspace.open(uri, { text: atom.workspace.getActiveEditor().getText() });
     });
-    atom.workspace.addOpener(function (uri) {
+    atom.workspace.addOpener(function (uri, details) {
         var error, host, pathname, protocol, ref;
         try {
             ref = url.parse(uri);
@@ -209,7 +209,7 @@ function registerCommands() {
             return;
         }
         var filePath = atomUtils.getCurrentPath();
-        return new astView_1.AstView(filePath);
+        return new astView_1.AstView(filePath, details.text);
     });
 }
 exports.registerCommands = registerCommands;

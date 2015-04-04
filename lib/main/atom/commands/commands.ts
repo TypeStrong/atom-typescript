@@ -14,7 +14,7 @@ import gotoHistory = require("../gotoHistory");
 import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
 import * as url from "url";
-import {AstView,astURI,astUriForPath} from "../views/astView";
+import {AstView, astURI, astUriForPath} from "../views/astView";
 
 
 export function registerCommands() {
@@ -237,10 +237,10 @@ export function registerCommands() {
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
-        atom.workspace.open(uri, {});
+        atom.workspace.open(uri, { text: atom.workspace.getActiveEditor().getText() });
     });
 
-    atom.workspace.addOpener(function(uri) {
+    atom.workspace.addOpener(function(uri, details: { text: string }) {
         var error, host, pathname, protocol, ref;
         try {
             ref = url.parse(uri);
@@ -259,7 +259,7 @@ export function registerCommands() {
 
         var filePath = atomUtils.getCurrentPath();
 
-        return new AstView(filePath);
+        return new AstView(filePath, details.text);
     });
 
     /// Register autocomplete commands to show documentations
