@@ -7,7 +7,6 @@
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 
 import * as ts from "typescript";
-import syntaxKindToString from "./syntaxKindToString";
 import {SyntaxKind, Node} from "typescript";
 
 export default function astToText(srcFile: ts.SourceFile) {
@@ -57,6 +56,10 @@ function nodeDisplayString(node: Node): string {
         // Last fallback is just kind:
         return 'Kind: ' + syntaxKindToString(node.kind);
     }
+}
+
+function syntaxKindToString(syntaxKind: ts.SyntaxKind): string {
+    return (<any>ts).SyntaxKind[syntaxKind];
 }
 
 

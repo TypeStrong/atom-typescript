@@ -5,7 +5,6 @@
 // Inspired by `ts.forEachChild`:
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 var ts = require("typescript");
-var syntaxKindToString_1 = require("./syntaxKindToString");
 function astToText(srcFile) {
     //// A useful function for debugging
     // aggregate(srcFile, 0);
@@ -14,7 +13,7 @@ function astToText(srcFile) {
     //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
     // }
     function nodeToNodeDisplay(node) {
-        var kind = syntaxKindToString_1.default(node.kind);
+        var kind = syntaxKindToString(node.kind);
         var display = nodeDisplayString(node);
         var children = [];
         ts.forEachChild(node, function (cNode) {
@@ -41,6 +40,9 @@ function nodeDisplayString(node) {
         return (n.name.text);
     }
     else {
-        return 'Kind: ' + syntaxKindToString_1.default(node.kind);
+        return 'Kind: ' + syntaxKindToString(node.kind);
     }
+}
+function syntaxKindToString(syntaxKind) {
+    return ts.SyntaxKind[syntaxKind];
 }

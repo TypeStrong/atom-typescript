@@ -254,7 +254,3 @@ var SyntaxKind;
     SyntaxKind[SyntaxKind["LastBinaryOperator"] = 64] = "LastBinaryOperator";
     SyntaxKind[SyntaxKind["FirstNode"] = 126] = "FirstNode";
 })(SyntaxKind || (SyntaxKind = {}));
-function syntaxKindToString(syntaxKind) {
-    return SyntaxKind[syntaxKind];
-}
-exports.default = syntaxKindToString;
