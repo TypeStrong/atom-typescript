@@ -37,6 +37,9 @@
     },
     "mkdirp/mkdirp.d.ts": {
       "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
+    },
+    "d3/d3.d.ts": {
+      "commit": "2520bce9a8a71b66e67487cbd5b33fec880b0c55"
     }
   }
 }

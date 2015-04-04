@@ -60,6 +60,7 @@
         "./typings/bluebird.d.ts",
         "./typings/brackets.d.ts",
         "./typings/codemirror.d.ts",
+        "./typings/d3/d3.d.ts",
         "./typings/emissary/emissary.d.ts",
         "./typings/glob-expand/glob-expand.d.ts",
         "./typings/jquery/jquery.d.ts",
