@@ -405,7 +405,12 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         // Show the signatures for methods / functions
         var display: string;
         if (c.kind == "method" || c.kind == "function") {
-            display = ts.displayPartsToString(completionDetails.displayParts || []);
+            let parts = completionDetails.displayParts || [];
+            // don't show `(method)` or `(function)` as that is taken care of by `kind`
+            if (parts.length > 3) {
+                parts = parts.splice(3);
+            }
+            display = ts.displayPartsToString(parts);
         }
         else if (c.kind == "property") {
             display = ts.displayPartsToString(completionDetails.displayParts || []);
