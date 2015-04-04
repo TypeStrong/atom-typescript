@@ -474,7 +474,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
     return files;
 }
 
-function prettyJSON(object: any): string {
+export function prettyJSON(object: any): string {
     var cache = [];
     var value = JSON.stringify(object,
         // fixup circular reference

@@ -118,8 +118,10 @@ function kindToType(kind) {
             return 'variable';
         case 'alias':
             return 'import';
+        case 'type parameter':
+            return 'type';
         default:
-            return kind;
+            return kind.split(' ')[0];
     }
 }
 exports.kindToType = kindToType;

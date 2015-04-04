@@ -27,10 +27,7 @@ export class AstView extends sp.ScrollView {
         this.init();
     }
     init() {
-        console.log('HERERERERERER')
-
         parent.getAST({ filePath: this.filePath }).then((res) => {
-            console.log(res.root);
             runCode(res.root,this.mainContent[0]);
         });
     }
@@ -59,15 +56,13 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
 
     var svg = d3.select(mainContent).append("svg")
         .attr("width", width + margin.left + margin.right)
-      .append("g")
+        .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-      flare.x0 = 0;
-      flare.y0 = 0;
-      update(root = flare);
+    update(root = rootNode);
 
-    function update(source) {
+    function update(source: NodeDisplay) {
 
       // Compute the flattened node list. TODO use d3.layout.hierarchy.
       var nodes = tree.nodes(root);
@@ -93,7 +88,7 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
 
       var nodeEnter = node.enter().append("g")
           .attr("class", "node")
-          .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+          .attr("transform", function(d) { return "translate(" + source.depth + "," + source.nodeIndex + ")"; })
           .style("opacity", 1e-6);
 
       // Enter any new nodes at the parent's previous position.
@@ -107,7 +102,9 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
       nodeEnter.append("text")
           .attr("dy", 3.5)
           .attr("dx", 5.5)
-          .text(function(d) { return d.name; });
+          .text(function(d:NodeDisplay) {
+              return 'Kind: ' + d.kind;
+          });
 
       // Transition nodes to their new position.
       nodeEnter.transition()
@@ -125,7 +122,7 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
       // Transition exiting nodes to the parent's new position.
       node.exit().transition()
           .duration(duration)
-          .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+          .attr("transform", function(d) { return "translate(" + source.nodeIndex + "," + source.depth + ")"; })
           .style("opacity", 1e-6)
           .remove();
 
@@ -137,7 +134,7 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
       link.enter().insert("path", "g")
           .attr("class", "link")
           .attr("d", function(d) {
-            var o = {x: source.x0, y: source.y0};
+            var o = {x: source.depth, y: source.nodeIndex};
             return diagonal({source: o, target: o});
           })
         .transition()
@@ -153,28 +150,16 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
       link.exit().transition()
           .duration(duration)
           .attr("d", function(d) {
-            var o = {x: source.x, y: source.y};
+            var o = {x: source.depth, y: source.nodeIndex};
             return diagonal({source: o, target: o});
           })
           .remove();
-
-      // Stash the old positions for transition.
-      nodes.forEach(function(d:any) {
-        d.x0 = d.x;
-        d.y0 = d.y;
-      });
     }
 
-    // Toggle children on click.
-    function click(d) {
-      if (d.children) {
-        d._children = d.children;
-        d.children = null;
-      } else {
-        d.children = d._children;
-        d._children = null;
-      }
-      update(d);
+    /** display details on click */
+    function click(node: NodeDisplay) {
+        console.clear();
+        console.log(node.rawJson);
     }
 
     function color(d) {
@@ -183,7 +168,7 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
 
 }
 
-var flare:any = {
+var flare = {
  "name": "flare",
  "children": [
   {

@@ -8,7 +8,11 @@
 
 import * as ts from "typescript";
 import {SyntaxKind, Node} from "typescript";
+import {prettyJSON} from "../../tsconfig/tsconfig";
 
+/** Important notes:
+  *     I delete `.parent`. As its noisy :)
+  */
 export default function astToText(srcFile: ts.SourceFile) {
 
     //// A useful function for debugging
@@ -18,48 +22,61 @@ export default function astToText(srcFile: ts.SourceFile) {
     //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
     // }
 
-    function nodeToNodeDisplay(node: ts.Node): NodeDisplay {
+    var nodeIndex = 0;
+    function nodeToNodeDisplay(node: ts.Node, depth: number): NodeDisplay {
+        if (node.parent) {
+            delete node.parent;
+        }
 
         var kind = syntaxKindToString(node.kind);
-        var display = nodeDisplayString(node);
+        var details = keyDetails(node, kind);
 
         var children = [];
         ts.forEachChild(node, (cNode) => {
-            var child = nodeToNodeDisplay(cNode);
+            var child = nodeToNodeDisplay(cNode, depth + 1);
             children.push(child);
         });
 
         var ret: NodeDisplay = {
-            display,
             kind,
             children,
+            depth,
+            nodeIndex,
+            details,
+            rawJson: prettyJSON(node)
         };
 
+        // each time we get called index is incremented
+        nodeIndex++;
         return ret;
     }
 
-    var root = nodeToNodeDisplay(srcFile);
+    var root = nodeToNodeDisplay(srcFile, 0);
 
     return root;
 }
 
 
-function nodeDisplayString(node: Node): string {
+function keyDetails(node: Node, kind: string): any {
     let n: any = node;
+    var details = undefined;
+
     if (node.kind == SyntaxKind.SourceFile) {
-        return (<ts.SourceFile>node).fileName;
+        details = { fileName: (<ts.SourceFile>node).fileName };
     }
     else if (n.name && n.name.text) {
-        return (n.name.text);
+        details = { 'name.text: ': (n.name.text) };
     }
-    else {
-        // Last fallback is just kind:
-        return 'Kind: ' + syntaxKindToString(node.kind);
-    }
+
+    return details;
 }
 
 function syntaxKindToString(syntaxKind: ts.SyntaxKind): string {
     return (<any>ts).SyntaxKind[syntaxKind];
+}
+
+function clearParent<T>(obj: T): T {
+    return obj;
 }
 
 

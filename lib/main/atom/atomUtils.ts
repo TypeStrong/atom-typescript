@@ -138,8 +138,10 @@ export function kindToType(kind: string) {
             return 'variable';
         case 'alias':
             return 'import';
+        case 'type parameter':
+                return 'type';
         default:
-            return kind;
+            return kind.split(' ')[0];
     }
 }
 

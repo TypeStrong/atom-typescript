@@ -260,15 +260,12 @@ function getCompletionsAtPosition(query) {
     function docComment(c) {
         var completionDetails = project.languageService.getCompletionEntryDetails(filePath, position, c.name);
         var display;
-        if (c.kind == "method" || c.kind == "function") {
+        if (c.kind == "method" || c.kind == "function" || c.kind == "property") {
             var parts = completionDetails.displayParts || [];
             if (parts.length > 3) {
                 parts = parts.splice(3);
             }
             display = ts.displayPartsToString(parts);
-        }
-        else if (c.kind == "property") {
-            display = ts.displayPartsToString(completionDetails.displayParts || []);
         }
         else {
             display = c.kind;

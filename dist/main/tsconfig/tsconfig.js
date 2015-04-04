@@ -318,6 +318,7 @@ function prettyJSON(object) {
     cache = null;
     return value;
 }
+exports.prettyJSON = prettyJSON;
 function pathIsRelative(str) {
     if (!str.length)
         return false;

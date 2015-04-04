@@ -404,16 +404,13 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
 
         // Show the signatures for methods / functions
         var display: string;
-        if (c.kind == "method" || c.kind == "function") {
+        if (c.kind == "method" || c.kind == "function" || c.kind == "property") {
             let parts = completionDetails.displayParts || [];
             // don't show `(method)` or `(function)` as that is taken care of by `kind`
             if (parts.length > 3) {
                 parts = parts.splice(3);
             }
             display = ts.displayPartsToString(parts);
-        }
-        else if (c.kind == "property") {
-            display = ts.displayPartsToString(completionDetails.displayParts || []);
         }
         else {
             display = c.kind;

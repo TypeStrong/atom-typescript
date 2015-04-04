@@ -133,10 +133,17 @@ interface ReferenceDetails {
 
 /** Used by AST display */
 interface NodeDisplay {
-    display: string;
     kind: string;
     children: NodeDisplay[];
 
-    /** Laterz */
-    original?: any;
+    /** Represents how many parents it has */
+    depth: number;
+    /** If we had a flat structure this is where this item would belong */
+    nodeIndex: number;
+
+    /** Key Details I understand */
+    details?: any;
+
+    /** Best attempt serialization of original node */
+    rawJson: any;
 }

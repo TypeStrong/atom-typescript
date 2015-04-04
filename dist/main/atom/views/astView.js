@@ -31,9 +31,7 @@ var AstView = (function (_super) {
     };
     AstView.prototype.init = function () {
         var _this = this;
-        console.log('HERERERERERER');
         parent.getAST({ filePath: this.filePath }).then(function (res) {
-            console.log(res.root);
             runCode(res.root, _this.mainContent[0]);
         });
     };
@@ -51,9 +49,7 @@ function runCode(rootNode, mainContent) {
         .attr("width", width + margin.left + margin.right)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    flare.x0 = 0;
-    flare.y0 = 0;
-    update(root = flare);
+    update(root = rootNode);
     function update(source) {
         var nodes = tree.nodes(root);
         var height = Math.max(500, nodes.length * barHeight + margin.top + margin.bottom);
@@ -70,7 +66,7 @@ function runCode(rootNode, mainContent) {
             .data(nodes, function (d) { return d.id || (d.id = ++i); });
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+            .attr("transform", function (d) { return "translate(" + source.depth + "," + source.nodeIndex + ")"; })
             .style("opacity", 1e-6);
         nodeEnter.append("rect")
             .attr("y", -barHeight / 2)
@@ -81,7 +77,9 @@ function runCode(rootNode, mainContent) {
         nodeEnter.append("text")
             .attr("dy", 3.5)
             .attr("dx", 5.5)
-            .text(function (d) { return d.name; });
+            .text(function (d) {
+            return 'Kind: ' + d.kind;
+        });
         nodeEnter.transition()
             .duration(duration)
             .attr("transform", function (d) { return "translate(" + d.y + "," + d.x + ")"; })
@@ -94,7 +92,7 @@ function runCode(rootNode, mainContent) {
             .style("fill", color);
         node.exit().transition()
             .duration(duration)
-            .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
+            .attr("transform", function (d) { return "translate(" + source.nodeIndex + "," + source.depth + ")"; })
             .style("opacity", 1e-6)
             .remove();
         var link = svg.selectAll("path.link")
@@ -102,7 +100,7 @@ function runCode(rootNode, mainContent) {
         link.enter().insert("path", "g")
             .attr("class", "link")
             .attr("d", function (d) {
-            var o = { x: source.x0, y: source.y0 };
+            var o = { x: source.depth, y: source.nodeIndex };
             return diagonal({ source: o, target: o });
         })
             .transition()
@@ -114,25 +112,14 @@ function runCode(rootNode, mainContent) {
         link.exit().transition()
             .duration(duration)
             .attr("d", function (d) {
-            var o = { x: source.x, y: source.y };
+            var o = { x: source.depth, y: source.nodeIndex };
             return diagonal({ source: o, target: o });
         })
             .remove();
-        nodes.forEach(function (d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
     }
-    function click(d) {
-        if (d.children) {
-            d._children = d.children;
-            d.children = null;
-        }
-        else {
-            d.children = d._children;
-            d._children = null;
-        }
-        update(d);
+    function click(node) {
+        console.clear();
+        console.log(node.rawJson);
     }
     function color(d) {
         return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
