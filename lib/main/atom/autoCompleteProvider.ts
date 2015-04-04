@@ -174,7 +174,7 @@ export var provider: autocompleteplus.Provider = {
                                 snippet: c.snippet,
                                 replacementPrefix: '',
                                 rightLabel: 'signature',
-                                type: 'function'
+                                type: 'snippet'
                             };
                         }
                         else {
