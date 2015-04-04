@@ -78,7 +78,7 @@ function runCode(rootNode, mainContent) {
             .attr("dy", 3.5)
             .attr("dx", 5.5)
             .text(function (d) {
-            return 'Kind: ' + d.kind;
+            return d.kind;
         });
         nodeEnter.transition()
             .duration(duration)

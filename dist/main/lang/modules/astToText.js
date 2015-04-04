@@ -5,7 +5,6 @@
 // Inspired by `ts.forEachChild`:
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 var ts = require("typescript");
-var tsconfig_1 = require("../../tsconfig/tsconfig");
 function astToText(srcFile) {
     //// A useful function for debugging
     // aggregate(srcFile, 0);
@@ -15,11 +14,7 @@ function astToText(srcFile) {
     // }
     var nodeIndex = 0;
     function nodeToNodeDisplay(node, depth) {
-        if (node.parent) {
-            delete node.parent;
-        }
         var kind = syntaxKindToString(node.kind);
-        var details = keyDetails(node, kind);
         var children = [];
         ts.forEachChild(node, function (cNode) {
             var child = nodeToNodeDisplay(cNode, depth + 1);
@@ -28,10 +23,11 @@ function astToText(srcFile) {
         var ret = {
             kind: kind,
             children: children,
+            pos: node.pos,
+            end: node.end,
             depth: depth,
             nodeIndex: nodeIndex,
-            details: details,
-            rawJson: tsconfig_1.prettyJSON(node)
+            rawJson: prettyJSONNoParent(node)
         };
         nodeIndex++;
         return ret;
@@ -40,20 +36,23 @@ function astToText(srcFile) {
     return root;
 }
 exports.default = astToText;
-function keyDetails(node, kind) {
-    var n = node;
-    var details = undefined;
-    if (node.kind == 227) {
-        details = { fileName: node.fileName };
-    }
-    else if (n.name && n.name.text) {
-        details = { 'name.text: ': (n.name.text) };
-    }
-    return details;
-}
 function syntaxKindToString(syntaxKind) {
     return ts.SyntaxKind[syntaxKind];
 }
-function clearParent(obj) {
-    return obj;
+function prettyJSONNoParent(object) {
+    var cache = [];
+    var value = JSON.stringify(object, function (key, value) {
+        if (key == 'parent') {
+            return;
+        }
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                return;
+            }
+            cache.push(value);
+        }
+        return value;
+    }, 4);
+    cache = null;
+    return value;
 }

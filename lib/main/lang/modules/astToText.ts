@@ -8,10 +8,9 @@
 
 import * as ts from "typescript";
 import {SyntaxKind, Node} from "typescript";
-import {prettyJSON} from "../../tsconfig/tsconfig";
 
-/** Important notes:
-  *     I delete `.parent`. As its noisy :)
+/**
+  * Important notes:
   */
 export default function astToText(srcFile: ts.SourceFile) {
 
@@ -24,12 +23,8 @@ export default function astToText(srcFile: ts.SourceFile) {
 
     var nodeIndex = 0;
     function nodeToNodeDisplay(node: ts.Node, depth: number): NodeDisplay {
-        if (node.parent) {
-            delete node.parent;
-        }
 
         var kind = syntaxKindToString(node.kind);
-        var details = keyDetails(node, kind);
 
         var children = [];
         ts.forEachChild(node, (cNode) => {
@@ -40,10 +35,11 @@ export default function astToText(srcFile: ts.SourceFile) {
         var ret: NodeDisplay = {
             kind,
             children,
+            pos: node.pos,
+            end: node.end,
             depth,
             nodeIndex,
-            details,
-            rawJson: prettyJSON(node)
+            rawJson: prettyJSONNoParent(node)
         };
 
         // each time we get called index is incremented
@@ -56,29 +52,34 @@ export default function astToText(srcFile: ts.SourceFile) {
     return root;
 }
 
-
-function keyDetails(node: Node, kind: string): any {
-    let n: any = node;
-    var details = undefined;
-
-    if (node.kind == SyntaxKind.SourceFile) {
-        details = { fileName: (<ts.SourceFile>node).fileName };
-    }
-    else if (n.name && n.name.text) {
-        details = { 'name.text: ': (n.name.text) };
-    }
-
-    return details;
-}
-
 function syntaxKindToString(syntaxKind: ts.SyntaxKind): string {
     return (<any>ts).SyntaxKind[syntaxKind];
 }
 
-function clearParent<T>(obj: T): T {
-    return obj;
-}
 
+function prettyJSONNoParent(object: any): string {
+    var cache = [];
+    var value = JSON.stringify(object,
+        // fixup circular reference
+        function(key, value) {
+            if (key == 'parent'){
+                return;
+            }
+            if (typeof value === 'object' && value !== null) {
+                if (cache.indexOf(value) !== -1) {
+                    // Circular reference found, discard key
+                    return;
+                }
+                // Store value in our collection
+                cache.push(value);
+            }
+            return value;
+        },
+    // indent 4 spaces
+        4);
+    cache = null;
+    return value;
+}
 
 // import {Node,SyntaxKind,visitNode} from "typescript";
 //

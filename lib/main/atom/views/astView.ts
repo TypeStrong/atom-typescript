@@ -103,7 +103,7 @@ function runCode(rootNode:NodeDisplay, mainContent:HTMLElement){
           .attr("dy", 3.5)
           .attr("dx", 5.5)
           .text(function(d:NodeDisplay) {
-              return 'Kind: ' + d.kind;
+              return d.kind;
           });
 
       // Transition nodes to their new position.

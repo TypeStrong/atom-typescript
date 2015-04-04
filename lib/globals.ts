@@ -136,6 +136,9 @@ interface NodeDisplay {
     kind: string;
     children: NodeDisplay[];
 
+    pos: number;
+    end: number;
+
     /** Represents how many parents it has */
     depth: number;
     /** If we had a flat structure this is where this item would belong */
@@ -144,6 +147,8 @@ interface NodeDisplay {
     /** Key Details I understand */
     details?: any;
 
-    /** Best attempt serialization of original node */
+    /** Best attempt serialization of original node
+    * I also remove `parent`
+    */
     rawJson: any;
 }
