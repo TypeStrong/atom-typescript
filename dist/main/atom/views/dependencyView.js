@@ -65,10 +65,9 @@ function renderGraph(dependencies, mainContent, display) {
     zoom.scale(0.4);
     zoom.on("zoom", onZoomChanged);
     var graph = d3Root.append("svg")
-        .attr("pointer-events", "all")
-        .call(zoom)
         .attr('width', '100%')
         .attr('height', '99%')
+        .call(zoom)
         .append('svg:g');
     var layout = d3.layout.force()
         .nodes(d3.values(d3LinkCache))
@@ -78,6 +77,8 @@ function renderGraph(dependencies, mainContent, display) {
         .charge(-300)
         .on("tick", tick)
         .start();
+    var drag = layout.drag()
+        .on("dragstart", dragstart);
     resize();
     d3.select(window).on("resize", resize);
     centerGraph();
@@ -127,6 +128,8 @@ function renderGraph(dependencies, mainContent, display) {
         .enter().append("circle")
         .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
         .attr("r", 6)
+        .call(drag)
+        .on("dblclick", dblclick)
         .on("mouseover", function (d) { onNodeMouseOver(d); })
         .on("mouseout", function (d) { onNodeMouseOut(d); });
     var text = graph.append("g").selectAll("text")
@@ -223,7 +226,12 @@ function renderGraph(dependencies, mainContent, display) {
     function htmlName(object) {
         return object.name.replace(/(\.|\/)/gi, '-');
     }
-    function onNodeMouseDown(d) {
+    function dragstart(d) {
         d.fixed = true;
+        d3.event.sourceEvent.stopPropagation();
+        d3.select(this).classed("fixed", true);
+    }
+    function dblclick(d) {
+        d3.select(this).classed("fixed", d.fixed = false);
     }
 }

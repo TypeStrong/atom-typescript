@@ -89,10 +89,9 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     zoom.on("zoom", onZoomChanged);
 
     var graph = d3Root.append("svg")
-        .attr("pointer-events", "all")
-        .call(zoom)
         .attr('width', '100%')
         .attr('height', '99%')
+        .call(zoom)
         .append('svg:g');
     var layout = d3.layout.force()
         .nodes(d3.values(d3LinkCache))
@@ -102,6 +101,9 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .charge(-300)
         .on("tick", tick)
         .start();
+
+    var drag = layout.drag()
+        .on("dragstart", dragstart);
 
     /** resize initially and setup for resize */
     resize();
@@ -162,7 +164,9 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
-        .attr("r", 6)
+        .attr("r", 6) // TODO: drive this based on in degree or out degree
+        .call(drag)
+        .on("dblclick", dblclick) // Unstick
         .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
         .on("mouseout", function(d: D3LinkNode) { onNodeMouseOut(d) })
 
@@ -286,8 +290,14 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         return object.name.replace(/(\.|\/)/gi, '-');
     }
 
-    /** TODO: use this */
-    function onNodeMouseDown(d: D3LinkNode) {
+    function dragstart(d) {
         d.fixed = true; // http://bl.ocks.org/mbostock/3750558
+        d3.event.sourceEvent.stopPropagation(); // http://bl.ocks.org/mbostock/6123708
+        d3.select(this).classed("fixed", true);
     }
+
+    function dblclick(d) {
+        d3.select(this).classed("fixed", d.fixed = false);
+    }
+
 }
