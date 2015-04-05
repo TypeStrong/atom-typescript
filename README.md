@@ -41,6 +41,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Common Snippets
 * `import` / `/// <reference` relative path resolution
 * AST visualizer
+* Dependency View
 
 # Feature Details
 ## Auto Complete
@@ -133,6 +134,13 @@ Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`)
 ## AST Visualizer
 Command : `Typescript: ast`. Useful when authoring new features.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/astVisualizer.gif)
+
+## Dependency View
+Command : `Typescript: Dependency View`. A simple viewer for insight into the project.
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView.png)
+You can zoom, pan, drag points around and hover. On hover:
+* Red arrow denote stuff this file depends upon. Implies that this file cannot be extracted without also moving these files.
+* Green arrows denote stuff that depends on this file. Green as this means the code in this file is moveable to another project and these links will play no part in that.
 
 ## Contributing
 
