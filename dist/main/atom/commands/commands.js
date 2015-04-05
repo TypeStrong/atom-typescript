@@ -13,6 +13,7 @@ var utils = require("../../lang/utils");
 var mainPanelView_1 = require("../views/mainPanelView");
 var url = require("url");
 var astView_1 = require("../views/astView");
+var dependencyView_1 = require("../views/dependencyView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -197,21 +198,40 @@ function registerCommands() {
         });
     });
     atom.workspace.addOpener(function (uri, details) {
-        var error, host, pathname, protocol, ref;
         try {
-            ref = url.parse(uri);
-            protocol = ref.protocol;
-            host = ref.host;
-            pathname = ref.pathname;
+            var protocol = (url.parse(uri)).protocol;
         }
-        catch (_error) {
-            error = _error;
+        catch (error) {
             return;
         }
         if (protocol !== astView_1.astURI) {
             return;
         }
         return new astView_1.AstView(details.filePath, details.text);
+    });
+    atom.commands.add('atom-workspace', 'typescript:dependency-view', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        var uri = dependencyView_1.dependencyUriForPath(atomUtils.getCurrentPath());
+        var old_pane = atom.workspace.paneForUri(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, {
+            filePath: atomUtils.getCurrentPath()
+        });
+    });
+    atom.workspace.addOpener(function (uri, details) {
+        try {
+            var protocol = (url.parse(uri)).protocol;
+        }
+        catch (error) {
+            return;
+        }
+        if (protocol !== dependencyView_1.dependencyURI) {
+            return;
+        }
+        return new dependencyView_1.DependencyView(details.filePath);
     });
 }
 exports.registerCommands = registerCommands;

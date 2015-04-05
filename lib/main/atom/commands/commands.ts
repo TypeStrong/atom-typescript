@@ -15,6 +15,7 @@ import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
 import * as url from "url";
 import {AstView, astURI, astUriForPath} from "../views/astView";
+import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/dependencyView";
 
 
 export function registerCommands() {
@@ -244,15 +245,10 @@ export function registerCommands() {
     });
 
     atom.workspace.addOpener(function(uri, details: { text: string, filePath: string }) {
-        var error, host, pathname, protocol, ref;
         try {
-            ref = url.parse(uri);
-            protocol = ref.protocol;
-            host = ref.host;
-            pathname = ref.pathname;
+            var {protocol} = url.parse(uri);
         }
-        catch (_error) {
-            error = _error;
+        catch (error) {
             return;
         }
 
@@ -261,6 +257,34 @@ export function registerCommands() {
         }
 
         return new AstView(details.filePath, details.text);
+    });
+
+    atom.commands.add('atom-workspace', 'typescript:dependency-view', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        var uri = dependencyUriForPath(atomUtils.getCurrentPath());
+        var old_pane = atom.workspace.paneForUri(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, {
+            filePath: atomUtils.getCurrentPath()
+        });
+    });
+
+    atom.workspace.addOpener(function(uri, details: { filePath: string }) {
+        try {
+            var {protocol} = url.parse(uri);
+        }
+        catch (error) {
+            return;
+        }
+
+        if (protocol !== dependencyURI) {
+            return;
+        }
+
+        return new DependencyView(details.filePath);
     });
 
     /// Register autocomplete commands to show documentations

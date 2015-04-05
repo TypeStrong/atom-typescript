@@ -32,6 +32,7 @@
         "./main/atom/views/astView.ts",
         "./main/atom/views/awesomePanelView.ts",
         "./main/atom/views/contextView.ts",
+        "./main/atom/views/dependencyView.ts",
         "./main/atom/views/documentationView.ts",
         "./main/atom/views/fileSymbolsView.ts",
         "./main/atom/views/lineMessageView.ts",
