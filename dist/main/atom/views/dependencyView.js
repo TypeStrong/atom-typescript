@@ -119,6 +119,8 @@ function renderGraph(dependencies, mainContent, display) {
         .data(layout.links())
         .enter().append("path")
         .attr("class", function (d) { return "link"; })
+        .attr("data-target", function (o) { return htmlName(o.target); })
+        .attr("data-source", function (o) { return htmlName(o.source); })
         .attr("marker-end", function (d) { return "url(#regular)"; });
     var nodes = graph.append("g").selectAll("circle")
         .data(layout.nodes())
@@ -185,12 +187,12 @@ function renderGraph(dependencies, mainContent, display) {
         });
         mainContent.find('path.link').removeAttr('data-show');
         links.style("stroke-opacity", function (o) {
-            if (o.source === d) {
+            if (o.source.name === d.name) {
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
-                var elmCurrentLink = mainContent.find('path.link[data-source=' + o.source.index + ']');
+                var elmCurrentLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
                 elmCurrentLink.attr('data-show', 'true');
                 elmCurrentLink.attr('marker-end', 'url(#regular)');
                 return 1;
@@ -208,6 +210,9 @@ function renderGraph(dependencies, mainContent, display) {
         }
     }
     function formatClassName(prefix, object) {
-        return prefix + '-' + object.name.replace(/(\.|\/)/gi, '-');
+        return prefix + '-' + htmlName(object);
+    }
+    function htmlName(object) {
+        return object.name.replace(/(\.|\/)/gi, '-');
     }
 }

@@ -160,6 +160,8 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .data(layout.links())
         .enter().append("path")
         .attr("class", function(d: D3Link) { return "link"; })
+        .attr("data-target", function(o: D3Link) { return htmlName(o.target) })
+        .attr("data-source", function(o: D3Link) { return htmlName(o.source) })
         .attr("marker-end", function(d: D3Link) { return "url(#regular)"; });
 
     var nodes = graph.append("g").selectAll("circle")
@@ -246,14 +248,16 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         mainContent.find('path.link').removeAttr('data-show');
 
         links.style("stroke-opacity", function(o: D3Link) {
-            if (o.source === d) {
+            if (o.source.name === d.name) {
+
                 // Highlight target/sources of the link
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
+
                 // Highlight arrows
-                var elmCurrentLink = mainContent.find('path.link[data-source=' + o.source.index + ']');
+                var elmCurrentLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
                 elmCurrentLink.attr('data-show', 'true');
                 elmCurrentLink.attr('marker-end', 'url(#regular)');
 
@@ -274,7 +278,10 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
 
     // Helpers
     function formatClassName(prefix, object: D3LinkNode) {
-        return prefix + '-' + object.name.replace(/(\.|\/)/gi, '-');
+        return prefix + '-' + htmlName(object);
+    }
+    function htmlName(object: D3LinkNode) {
+        return object.name.replace(/(\.|\/)/gi, '-');
     }
 
 }
