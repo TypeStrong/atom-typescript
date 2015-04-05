@@ -237,10 +237,13 @@ export function registerCommands() {
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
-        atom.workspace.open(uri, { text: atom.workspace.getActiveEditor().getText() });
+        atom.workspace.open(uri, {
+            text: atom.workspace.getActiveEditor().getText(),
+            filePath: atomUtils.getCurrentPath()
+        });
     });
 
-    atom.workspace.addOpener(function(uri, details: { text: string }) {
+    atom.workspace.addOpener(function(uri, details: { text: string, filePath: string }) {
         var error, host, pathname, protocol, ref;
         try {
             ref = url.parse(uri);
@@ -257,9 +260,7 @@ export function registerCommands() {
             return;
         }
 
-        var filePath = atomUtils.getCurrentPath();
-
-        return new AstView(filePath, details.text);
+        return new AstView(details.filePath, details.text);
     });
 
     /// Register autocomplete commands to show documentations
