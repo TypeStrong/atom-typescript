@@ -152,3 +152,9 @@ interface NodeDisplay {
     */
     rawJson: any;
 }
+
+/** Used by Dependency display */
+interface FileDependency {
+    sourcePath: string;
+    targetPath: string;
+}

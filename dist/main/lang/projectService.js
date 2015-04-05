@@ -574,3 +574,12 @@ function getAST(query) {
     return resolve({ root: root });
 }
 exports.getAST = getAST;
+var dependencies_1 = require("./modules/dependencies");
+function getDependencies(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var projectFile = project.projectFile;
+    var links = dependencies_1.default(projectFile, project.languageService.getProgram());
+    return resolve({ links: links });
+}
+exports.getDependencies = getDependencies;

@@ -324,6 +324,7 @@ function pathIsRelative(str) {
         return false;
     return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
 }
+exports.pathIsRelative = pathIsRelative;
 function selectMany(arr) {
     var result = [];
     for (var i = 0; i < arr.length; i++) {

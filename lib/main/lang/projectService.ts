@@ -756,7 +756,7 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
             node.kind === ts.SyntaxKind.StringLiteral ||
             node.kind === ts.SyntaxKind.NumericLiteral) {
 
-            return (<ts.Identifier | ts.LiteralExpression>node).text;
+            return (<ts.Identifier | ts.LiteralExpression > node).text;
         }
 
         return undefined;
@@ -807,7 +807,7 @@ export function getReferences(query: GetReferencesQuery): Promise<GetReferencesR
 /**
  * Get Completions for external modules + references tags
  */
-import {getExternalModuleNames} from "./modules/getExternalModules";
+import {getExternalModuleNames } from "./modules/getExternalModules";
 export interface GetRelativePathsInProjectQuery extends FilePathQuery {
     prefix: string;
     includeExternalModules: boolean;
@@ -882,4 +882,23 @@ export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
     var root = astToText(sourceFile);
 
     return resolve({ root });
+}
+
+
+/**
+ * Get Dependencies
+ */
+import dependecies from "./modules/dependencies";
+export interface GetDependenciesQuery extends FilePathQuery { }
+export interface GetDependenciesResponse {
+    links: FileDependency[]
+}
+export function getDependencies(query: GetDependenciesQuery): Promise<GetDependenciesResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+
+    var projectFile = project.projectFile;
+    var links = dependecies(projectFile, project.languageService.getProgram());
+
+    return resolve({ links });
 }

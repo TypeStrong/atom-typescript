@@ -78,7 +78,7 @@
     'forof':
         'prefix': 'forof'
         'body': """
-            for (let ${1:variable} of ${2:iterable}) {
+            for (let ${2:variable} of ${1:iterable}) {
                 $3
             }
         """

@@ -496,8 +496,8 @@ export function prettyJSON(object: any): string {
     return value;
 }
 
-// Not particularly awesome e.g. '/..foo' will pass
-function pathIsRelative(str: string) {
+// Not particularly awesome e.g. '/..foo' will be not relative
+export function pathIsRelative(str: string) {
     if (!str.length) return false;
     return str[0] == '.' || str.substring(0, 2) == "./" || str.substring(0, 3) == "../";
 }

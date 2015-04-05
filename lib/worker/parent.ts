@@ -85,6 +85,7 @@ export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigation
 export var getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 export var getReferences = parent.sendToIpc(projectService.getReferences);
 export var getAST = parent.sendToIpc(projectService.getAST);
+export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');
