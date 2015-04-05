@@ -7,7 +7,6 @@ var __extends = this.__extends || function (d, b) {
 var sp = require('atom-space-pen-views');
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
-var atom_space_pen_views_1 = require("atom-space-pen-views");
 exports.dependencyURI = "ts-dependency:";
 function dependencyUriForPath(filePath) {
     return exports.dependencyURI + "//" + filePath;
@@ -45,6 +44,9 @@ var DependencyView = (function (_super) {
     return DependencyView;
 })(sp.ScrollView);
 exports.DependencyView = DependencyView;
+var prefixes = {
+    circle: 'circle'
+};
 function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
@@ -121,11 +123,11 @@ function renderGraph(dependencies, mainContent, display) {
     var nodes = graph.append("g").selectAll("circle")
         .data(layout.nodes())
         .enter().append("circle")
-        .attr("class", function (d) { return formatClassName('circle', d); })
+        .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
         .attr("r", 6)
         .call(layout.drag)
-        .on("mouseover", function (d) { onNodeMouseOver(nodes, links, d); })
-        .on("mouseout", function (d) { onNodeMouseOut(nodes, links, d); });
+        .on("mouseover", function (d) { onNodeMouseOver(d); })
+        .on("mouseout", function (d) { onNodeMouseOut(d); });
     var text = graph.append("g").selectAll("text")
         .data(layout.nodes())
         .enter().append("text")
@@ -144,25 +146,26 @@ function renderGraph(dependencies, mainContent, display) {
     function transform(d) {
         return "translate(" + d.x + "," + d.y + ")";
     }
-    function onNodeMouseOver(nodes, links, d) {
-        var elm = findElementByNode('circle', d);
+    function onNodeMouseOver(d) {
+        var elm = findElementByNode(prefixes.circle, d);
         elm.style("fill", '#b94431');
-        fadeRelatedNodes(d, .05, nodes, links);
+        updateNodeTransparencies(d, true);
     }
-    function onNodeMouseOut(nodes, links, d) {
-        var elm = findElementByNode('circle', d);
+    function onNodeMouseOut(d) {
+        var elm = findElementByNode(prefixes.circle, d);
         elm.style("fill", '#ccc');
-        fadeRelatedNodes(d, 1, nodes, links);
+        updateNodeTransparencies(d, false);
     }
     function findElementByNode(prefix, node) {
         var selector = '.' + formatClassName(prefix, node);
         return graph.select(selector);
     }
     function isConnected(a, b) {
-        return linkedByName[a.index + "," + b.index] || linkedByName[b.index + "," + a.index] || a.index == b.index;
+        return linkedByName[a.name + "," + b.name] || linkedByName[b.name + "," + a.name] || a.name == b.name;
     }
-    function fadeRelatedNodes(d, opacity, nodes, links) {
-        atom_space_pen_views_1.$('path.link').removeAttr('data-show');
+    function updateNodeTransparencies(d, fade) {
+        if (fade === void 0) { fade = true; }
+        var opacity = fade ? .05 : 1;
         nodes.style("stroke-opacity", function (o) {
             if (isConnected(d, o)) {
                 var thisOpacity = 1;
@@ -180,28 +183,29 @@ function renderGraph(dependencies, mainContent, display) {
             }
             return thisOpacity;
         });
+        mainContent.find('path.link').removeAttr('data-show');
         links.style("stroke-opacity", function (o) {
             if (o.source === d) {
-                var elmNodes = graph.selectAll('.' + formatClassName('node', o.target));
+                var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
-                var elmCurrentLink = atom_space_pen_views_1.$('path.link[data-source=' + o.source.index + ']');
+                var elmCurrentLink = mainContent.find('path.link[data-source=' + o.source.index + ']');
                 elmCurrentLink.attr('data-show', 'true');
                 elmCurrentLink.attr('marker-end', 'url(#regular)');
                 return 1;
             }
             else {
-                var elmAllLinks = atom_space_pen_views_1.$('path.link:not([data-show])');
-                if (opacity == 1) {
-                    elmAllLinks.attr('marker-end', 'url(#regular)');
-                }
-                else {
-                    elmAllLinks.attr('marker-end', '');
-                }
                 return opacity;
             }
         });
+        var elmAllLinks = mainContent.find('path.link:not([data-show])');
+        if (!fade) {
+            elmAllLinks.attr('marker-end', 'url(#regular)');
+        }
+        else {
+            elmAllLinks.attr('marker-end', '');
+        }
     }
     function formatClassName(prefix, object) {
         return prefix + '-' + object.name.replace(/(\.|\/)/gi, '-');

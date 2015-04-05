@@ -86,9 +86,7 @@ function registerCommands() {
         //     console.log(res.text.length);
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
-        parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then(function (res) {
-            console.log(res.root);
-        });
+        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
         parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {

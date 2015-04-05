@@ -56,6 +56,9 @@ interface D3Link {
     target: D3LinkNode;
 }
 
+var prefixes = {
+    circle: 'circle'
+}
 
 function renderGraph(dependencies: FileDependency[], mainContent: JQuery, display: (content: FileDependency) => any) {
 
@@ -162,11 +165,11 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     var nodes = graph.append("g").selectAll("circle")
         .data(layout.nodes())
         .enter().append("circle")
-        .attr("class", function(d: D3LinkNode) { return formatClassName('circle', d) }) // Store class name for easier later lookup
+        .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
         .attr("r", 6)
         .call(layout.drag)
-        .on("mouseover", function(d) { onNodeMouseOver(nodes, links, d) })
-        .on("mouseout", function(d) { onNodeMouseOut(nodes, links, d) });
+        .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
+        .on("mouseout", function(d: D3LinkNode) { onNodeMouseOut(d) });
 
 
     var text = graph.append("g").selectAll("text")
@@ -183,31 +186,31 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         text.attr("transform", transform);
     }
 
-    function linkArc(d) {
+    function linkArc(d: D3Link) {
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y,
             dr = Math.sqrt(dx * dx + dy * dy);
         return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
     }
 
-    function transform(d) {
+    function transform(d: D3LinkNode) {
         return "translate(" + d.x + "," + d.y + ")";
     }
 
 
-    function onNodeMouseOver(nodes, links, d) {
+    function onNodeMouseOver(d: D3LinkNode) {
         // Highlight circle
-        var elm = findElementByNode('circle', d);
+        var elm = findElementByNode(prefixes.circle, d);
         elm.style("fill", '#b94431');
-        // Highlight related nodes
-        fadeRelatedNodes(d, .05, nodes, links);
+
+        updateNodeTransparencies(d, true);
     }
-    function onNodeMouseOut(nodes, links, d) {
+    function onNodeMouseOut(d: D3LinkNode) {
         // Highlight circle
-        var elm = findElementByNode('circle', d);
+        var elm = findElementByNode(prefixes.circle, d);
         elm.style("fill", '#ccc');
-        // Highlight related nodes
-        fadeRelatedNodes(d, 1, nodes, links);
+
+        updateNodeTransparencies(d, false);
     }
 
     function findElementByNode(prefix, node) {
@@ -215,14 +218,15 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         return graph.select(selector);
     }
 
-    function isConnected(a, b) {
-        return linkedByName[a.index + "," + b.index] || linkedByName[b.index + "," + a.index] || a.index == b.index;
+    function isConnected(a: D3LinkNode, b: D3LinkNode) {
+        return linkedByName[a.name + "," + b.name] || linkedByName[b.name + "," + a.name] || a.name == b.name;
     }
 
-    function fadeRelatedNodes(d, opacity, nodes, links) {
-        // Clean
-        $('path.link').removeAttr('data-show');
-        nodes.style("stroke-opacity", function(o) {
+    function updateNodeTransparencies(d: D3LinkNode, fade = true) {
+        var opacity = fade ? .05 : 1;
+
+        // Poor mans loop of node (`this`) as well as the associated data element `o`
+        nodes.style("stroke-opacity", function(o: D3LinkNode) {
             if (isConnected(d, o)) {
                 var thisOpacity = 1;
             } else {
@@ -237,28 +241,35 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
             }
             return thisOpacity;
         });
-        links.style("stroke-opacity", function(o) {
+
+        // Clean
+        mainContent.find('path.link').removeAttr('data-show');
+
+        links.style("stroke-opacity", function(o: D3Link) {
             if (o.source === d) {
                 // Highlight target/sources of the link
-                var elmNodes = graph.selectAll('.' + formatClassName('node', o.target));
+                var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
                 // Highlight arrows
-                var elmCurrentLink = $('path.link[data-source=' + o.source.index + ']');
+                var elmCurrentLink = mainContent.find('path.link[data-source=' + o.source.index + ']');
                 elmCurrentLink.attr('data-show', 'true');
                 elmCurrentLink.attr('marker-end', 'url(#regular)');
+
                 return 1;
             } else {
-                var elmAllLinks = $('path.link:not([data-show])');
-                if (opacity == 1) {
-                    elmAllLinks.attr('marker-end', 'url(#regular)');
-                } else {
-                    elmAllLinks.attr('marker-end', '');
-                }
                 return opacity;
             }
         });
+
+        // Hide other lines element markers
+        var elmAllLinks = mainContent.find('path.link:not([data-show])');
+        if (!fade) {
+            elmAllLinks.attr('marker-end', 'url(#regular)');
+        } else {
+            elmAllLinks.attr('marker-end', '');
+        }
     }
 
     // Helpers

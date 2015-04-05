@@ -21,8 +21,8 @@ function getDependencies(projectFile, program) {
         });
         for (var _b = 0; _b < targets.length; _b++) {
             var target = targets[_b];
-            var targetPath = path.relative(projectDir, tsconfig_1.consistentPath(target));
-            var sourcePath = path.relative(projectDir, filePath);
+            var targetPath = tsconfig_1.consistentPath(path.relative(projectDir, tsconfig_1.consistentPath(target)));
+            var sourcePath = tsconfig_1.consistentPath(path.relative(projectDir, filePath));
             links.push({
                 sourcePath: sourcePath,
                 targetPath: targetPath

@@ -25,8 +25,8 @@ export default function getDependencies(projectFile: TypeScriptProjectFileDetail
         })
 
         for (let target of targets) {
-            var targetPath = path.relative(projectDir, consistentPath(target));
-            var sourcePath = path.relative(projectDir, filePath);
+            var targetPath = consistentPath(path.relative(projectDir, consistentPath(target)));
+            var sourcePath = consistentPath(path.relative(projectDir, filePath));
             links.push({
                 sourcePath,
                 targetPath
