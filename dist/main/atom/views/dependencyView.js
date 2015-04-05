@@ -74,7 +74,7 @@ function renderGraph(dependencies, mainContent, display) {
         .nodes(d3.values(d3LinkCache))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(200)
+        .linkDistance(300)
         .charge(-300)
         .on("tick", tick)
         .start();
@@ -127,7 +127,6 @@ function renderGraph(dependencies, mainContent, display) {
         .enter().append("circle")
         .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
         .attr("r", 6)
-        .call(layout.drag)
         .on("mouseover", function (d) { onNodeMouseOver(d); })
         .on("mouseout", function (d) { onNodeMouseOut(d); });
     var text = graph.append("g").selectAll("text")
@@ -185,16 +184,25 @@ function renderGraph(dependencies, mainContent, display) {
             }
             return thisOpacity;
         });
-        mainContent.find('path.link').removeAttr('data-show');
+        mainContent.find('path.link').removeAttr('data-show')
+            .attr('class', 'link');
         links.style("stroke-opacity", function (o) {
             if (o.source.name === d.name) {
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
-                var elmCurrentLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
-                elmCurrentLink.attr('data-show', 'true');
-                elmCurrentLink.attr('marker-end', 'url(#regular)');
+                var outgoingLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
+                outgoingLink.attr('data-show', 'true');
+                outgoingLink.attr('marker-end', 'url(#regular)');
+                outgoingLink.attr('class', 'link outgoing');
+                return 1;
+            }
+            else if (o.target.name === d.name) {
+                var incommingLink = mainContent.find('path.link[data-target=' + htmlName(o.target) + ']');
+                incommingLink.attr('data-show', 'true');
+                incommingLink.attr('marker-end', 'url(#regular)');
+                incommingLink.attr('class', 'link incomming');
                 return 1;
             }
             else {
@@ -214,5 +222,8 @@ function renderGraph(dependencies, mainContent, display) {
     }
     function htmlName(object) {
         return object.name.replace(/(\.|\/)/gi, '-');
+    }
+    function onNodeMouseDown(d) {
+        d.fixed = true;
     }
 }

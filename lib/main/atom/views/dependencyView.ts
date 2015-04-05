@@ -42,14 +42,8 @@ export class DependencyView extends sp.ScrollView {
 }
 
 
-interface D3LinkNode {
+interface D3LinkNode extends D3.Layout.GraphNodeForce {
     name: string
-
-    // added by d3 : forcelayout.links(d3links)
-    index: number;
-    weight: number;
-    x: number;
-    y: number;
 }
 interface D3Link {
     source: D3LinkNode;
@@ -104,7 +98,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .nodes(d3.values(d3LinkCache))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(200)
+        .linkDistance(300) // TODO: caculate this based on file path sizes
         .charge(-300)
         .on("tick", tick)
         .start();
@@ -169,10 +163,8 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .enter().append("circle")
         .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
         .attr("r", 6)
-        .call(layout.drag)
         .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
-        .on("mouseout", function(d: D3LinkNode) { onNodeMouseOut(d) });
-
+        .on("mouseout", function(d: D3LinkNode) { onNodeMouseOut(d) })
 
     var text = graph.append("g").selectAll("text")
         .data(layout.nodes())
@@ -245,24 +237,34 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         });
 
         // Clean
-        mainContent.find('path.link').removeAttr('data-show');
+        mainContent.find('path.link').removeAttr('data-show')
+            .attr('class', 'link'); // http://stackoverflow.com/questions/8638621/jquery-svg-why-cant-i-addclass
 
         links.style("stroke-opacity", function(o: D3Link) {
             if (o.source.name === d.name) {
 
-                // Highlight target/sources of the link
+                // Highlight target of the link
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
 
                 // Highlight arrows
-                var elmCurrentLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
-                elmCurrentLink.attr('data-show', 'true');
-                elmCurrentLink.attr('marker-end', 'url(#regular)');
-
+                let outgoingLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
+                outgoingLink.attr('data-show', 'true');
+                outgoingLink.attr('marker-end', 'url(#regular)');
+                outgoingLink.attr('class', 'link outgoing');
                 return 1;
-            } else {
+            }
+            else if (o.target.name === d.name) {
+                // Highlight arrows
+                let incommingLink = mainContent.find('path.link[data-target=' + htmlName(o.target) + ']');
+                incommingLink.attr('data-show', 'true');
+                incommingLink.attr('marker-end', 'url(#regular)');
+                incommingLink.attr('class', 'link incomming');
+                return 1;
+            }
+            else {
                 return opacity;
             }
         });
@@ -284,4 +286,8 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         return object.name.replace(/(\.|\/)/gi, '-');
     }
 
+    /** TODO: use this */
+    function onNodeMouseDown(d: D3LinkNode) {
+        d.fixed = true; // http://bl.ocks.org/mbostock/3750558
+    }
 }
