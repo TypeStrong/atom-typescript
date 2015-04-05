@@ -940,7 +940,7 @@ declare module AtomCore {
 		saveAll():void;
 		activateNextPane():any;
 		activatePreviousPane():any;
-		paneForUri: (uri:string) => IPane;
+		paneForURI: (uri:string) => IPane;
 		saveActivePaneItem():any;
 		saveActivePaneItemAs():any;
 		destroyActivePaneItem():any;

@@ -188,7 +188,7 @@ function registerCommands() {
         if (!atomUtils.commandForTypeScript(e))
             return;
         var uri = astView_1.astUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForUri(uri);
+        var old_pane = atom.workspace.paneForURI(uri);
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
@@ -213,7 +213,7 @@ function registerCommands() {
         if (!atomUtils.commandForTypeScript(e))
             return;
         var uri = dependencyView_1.dependencyUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForUri(uri);
+        var old_pane = atom.workspace.paneForURI(uri);
         if (old_pane) {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
