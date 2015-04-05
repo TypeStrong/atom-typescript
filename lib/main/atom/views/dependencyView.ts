@@ -4,6 +4,7 @@ import ts = require('typescript');
 import atomUtils = require("../atomUtils");
 import * as parent from "../../../worker/parent";
 import * as d3  from "d3";
+import {$} from "atom-space-pen-views";
 
 export var dependencyURI = "ts-dependency:";
 export function dependencyUriForPath(filePath: string) {
@@ -41,7 +42,22 @@ export class DependencyView extends sp.ScrollView {
 }
 
 
-function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display: (content: FileDependency) => any) {
+interface D3LinkNode {
+    name: string
+
+    // added by d3 : forcelayout.links(d3links)
+    index: number;
+    weight: number;
+    x: number;
+    y: number;
+}
+interface D3Link {
+    source: D3LinkNode;
+    target: D3LinkNode;
+}
+
+
+function renderGraph(dependencies: FileDependency[], mainContent: JQuery, display: (content: FileDependency) => any) {
 
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement)
@@ -55,13 +71,19 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
         </div>
     </div>`;
 
-    var nodes = {};
+    var linkedByName = {};
 
     // Compute the distinct nodes from the links.
-    var d3links = depndencies.map(function(link) {
-        var source = nodes[link.sourcePath] || (nodes[link.sourcePath] = { name: link.sourcePath });
-        var target = nodes[link.targetPath] || (nodes[link.targetPath] = { name: link.targetPath });
+    var d3LinkCache = {};
+    var d3links: D3Link[] = dependencies.map(function(link) {
+        var source = d3LinkCache[link.sourcePath] || (d3LinkCache[link.sourcePath] = { name: link.sourcePath });
+        var target = d3LinkCache[link.targetPath] || (d3LinkCache[link.targetPath] = { name: link.targetPath });
         return { source, target };
+    });
+
+    // Build linked index
+    d3links.forEach(function(d) {
+        linkedByName[d.source.name + "," + d.target.name] = 1;
     });
 
     // Setup zoom
@@ -76,7 +98,7 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
         .attr('height', '99%')
         .append('svg:g');
     var layout = d3.layout.force()
-        .nodes(d3.values(nodes))
+        .nodes(d3.values(d3LinkCache))
         .links(d3links)
         .gravity(.05)
         .linkDistance(200)
@@ -119,7 +141,7 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
 
     // Per-type markers, as they don't inherit styles.
     graph.append("defs").selectAll("marker")
-        .data(["suit", "licensing", "resolved"])
+        .data(["regular"])
         .enter().append("marker")
         .attr("id", function(d) { return d; })
         .attr("viewBox", "0 -5 10 10")
@@ -131,17 +153,21 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
         .append("path")
         .attr("d", "M0,-5L10,0L0,5");
 
-    var path = graph.append("g").selectAll("path")
+    var links = graph.append("g").selectAll("path")
         .data(layout.links())
         .enter().append("path")
-        .attr("class", function(d: FileDependency) { return "link resolved" /* + d.type; */ })
-        .attr("marker-end", function(d: FileDependency) { return "url(#" + /* d.type */ "resolved" + ")"; });
+        .attr("class", function(d: D3Link) { return "link"; })
+        .attr("marker-end", function(d: D3Link) { return "url(#regular)"; });
 
-    var circle = graph.append("g").selectAll("circle")
+    var nodes = graph.append("g").selectAll("circle")
         .data(layout.nodes())
         .enter().append("circle")
+        .attr("class", function(d: D3LinkNode) { return formatClassName('circle', d) }) // Store class name for easier later lookup
         .attr("r", 6)
-        .call(layout.drag);
+        .call(layout.drag)
+        .on("mouseover", function(d) { onNodeMouseOver(nodes, links, d) })
+        .on("mouseout", function(d) { onNodeMouseOut(nodes, links, d) });
+
 
     var text = graph.append("g").selectAll("text")
         .data(layout.nodes())
@@ -152,8 +178,8 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
 
     // Use elliptical arc path segments to doubly-encode directionality.
     function tick() {
-        path.attr("d", linkArc);
-        circle.attr("transform", transform);
+        links.attr("d", linkArc);
+        nodes.attr("transform", transform);
         text.attr("transform", transform);
     }
 
@@ -166,6 +192,78 @@ function renderGraph(depndencies: FileDependency[], mainContent: JQuery, display
 
     function transform(d) {
         return "translate(" + d.x + "," + d.y + ")";
+    }
+
+
+    function onNodeMouseOver(nodes, links, d) {
+        // Highlight circle
+        var elm = findElementByNode('circle', d);
+        elm.style("fill", '#b94431');
+        // Highlight related nodes
+        fadeRelatedNodes(d, .05, nodes, links);
+    }
+    function onNodeMouseOut(nodes, links, d) {
+        // Highlight circle
+        var elm = findElementByNode('circle', d);
+        elm.style("fill", '#ccc');
+        // Highlight related nodes
+        fadeRelatedNodes(d, 1, nodes, links);
+    }
+
+    function findElementByNode(prefix, node) {
+        var selector = '.' + formatClassName(prefix, node);
+        return graph.select(selector);
+    }
+
+    function isConnected(a, b) {
+        return linkedByName[a.index + "," + b.index] || linkedByName[b.index + "," + a.index] || a.index == b.index;
+    }
+
+    function fadeRelatedNodes(d, opacity, nodes, links) {
+        // Clean
+        $('path.link').removeAttr('data-show');
+        nodes.style("stroke-opacity", function(o) {
+            if (isConnected(d, o)) {
+                var thisOpacity = 1;
+            } else {
+                thisOpacity = opacity;
+            }
+            this.setAttribute('fill-opacity', thisOpacity);
+            this.setAttribute('stroke-opacity', thisOpacity);
+            if (thisOpacity == 1) {
+                this.classList.remove('dimmed');
+            } else {
+                this.classList.add('dimmed');
+            }
+            return thisOpacity;
+        });
+        links.style("stroke-opacity", function(o) {
+            if (o.source === d) {
+                // Highlight target/sources of the link
+                var elmNodes = graph.selectAll('.' + formatClassName('node', o.target));
+                elmNodes.attr('fill-opacity', 1);
+                elmNodes.attr('stroke-opacity', 1);
+                elmNodes.classed('dimmed', false);
+                // Highlight arrows
+                var elmCurrentLink = $('path.link[data-source=' + o.source.index + ']');
+                elmCurrentLink.attr('data-show', 'true');
+                elmCurrentLink.attr('marker-end', 'url(#regular)');
+                return 1;
+            } else {
+                var elmAllLinks = $('path.link:not([data-show])');
+                if (opacity == 1) {
+                    elmAllLinks.attr('marker-end', 'url(#regular)');
+                } else {
+                    elmAllLinks.attr('marker-end', '');
+                }
+                return opacity;
+            }
+        });
+    }
+
+    // Helpers
+    function formatClassName(prefix, object: D3LinkNode) {
+        return prefix + '-' + object.name.replace(/(\.|\/)/gi, '-');
     }
 
 }
