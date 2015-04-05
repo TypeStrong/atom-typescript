@@ -137,6 +137,7 @@ function renderGraph(dependencies, mainContent, display) {
         .enter().append("text")
         .attr("x", 8)
         .attr("y", ".31em")
+        .attr("data-name", function (o) { return htmlName(o); })
         .text(function (d) { return d.name; });
     function tick() {
         links.attr("d", linkArc);
@@ -211,6 +212,14 @@ function renderGraph(dependencies, mainContent, display) {
             else {
                 return opacity;
             }
+        });
+        text.style("opacity", function (o) {
+            if (!fade)
+                return 1;
+            if (isConnected(d, o)) {
+                return 1;
+            }
+            return 0;
         });
         var elmAllLinks = mainContent.find('path.link:not([data-show])');
         if (!fade) {

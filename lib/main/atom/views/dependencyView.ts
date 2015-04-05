@@ -175,6 +175,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .enter().append("text")
         .attr("x", 8)
         .attr("y", ".31em")
+        .attr("data-name", function(o: D3LinkNode) { return htmlName(o) })
         .text(function(d) { return d.name; });
 
     // Use elliptical arc path segments to doubly-encode directionality.
@@ -258,6 +259,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
                 outgoingLink.attr('class', 'link outgoing');
+
                 return 1;
             }
             else if (o.target.name === d.name) {
@@ -266,11 +268,21 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
                 incommingLink.attr('class', 'link incomming');
+
                 return 1;
             }
             else {
                 return opacity;
             }
+        });
+
+        text.style("opacity", function(o: D3LinkNode) {
+            if (!fade) return 1;
+
+            if (isConnected(d, o)) {
+                return 1;
+            }
+            return 0;
         });
 
         // Hide other lines element markers
