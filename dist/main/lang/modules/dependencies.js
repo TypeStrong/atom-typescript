@@ -4,6 +4,7 @@ var path = require("path");
 var fs = require("fs");
 function getDependencies(projectFile, program) {
     var links = [];
+    var projectDir = projectFile.projectFileDirectory;
     for (var _i = 0, _a = program.getSourceFiles(); _i < _a.length; _i++) {
         var file = _a[_i];
         var content = file.getText();
@@ -20,9 +21,11 @@ function getDependencies(projectFile, program) {
         });
         for (var _b = 0; _b < targets.length; _b++) {
             var target = targets[_b];
+            var targetPath = path.relative(projectDir, tsconfig_1.consistentPath(target));
+            var sourcePath = path.relative(projectDir, filePath);
             links.push({
-                sourcePath: filePath,
-                targetPath: target
+                sourcePath: sourcePath,
+                targetPath: targetPath
             });
         }
     }

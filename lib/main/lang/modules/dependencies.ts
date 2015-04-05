@@ -7,6 +7,7 @@ import * as fs from "fs";
 
 export default function getDependencies(projectFile: TypeScriptProjectFileDetails, program: ts.Program): FileDependency[] {
     var links: FileDependency[] = [];
+    var projectDir = projectFile.projectFileDirectory;
     for (let file of program.getSourceFiles()) {
         var content = file.getText();
         var filePath = file.fileName;
@@ -24,9 +25,11 @@ export default function getDependencies(projectFile: TypeScriptProjectFileDetail
         })
 
         for (let target of targets) {
+            var targetPath = path.relative(projectDir, consistentPath(target));
+            var sourcePath = path.relative(projectDir, filePath);
             links.push({
-                sourcePath: filePath,
-                targetPath: target
+                sourcePath,
+                targetPath
             })
         }
     }

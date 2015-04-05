@@ -46,23 +46,57 @@ var DependencyView = (function (_super) {
 exports.DependencyView = DependencyView;
 function renderGraph(depndencies, mainContent, display) {
     var rootElement = mainContent[0];
+    var d3Root = d3.select(rootElement);
+    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    </div>";
     var nodes = {};
     var d3links = depndencies.map(function (link) {
         var source = nodes[link.sourcePath] || (nodes[link.sourcePath] = { name: link.sourcePath });
         var target = nodes[link.targetPath] || (nodes[link.targetPath] = { name: link.targetPath });
         return { source: source, target: target };
     });
-    var width = 960, height = 500;
-    var force = d3.layout.force()
+    var zoom = d3.behavior.zoom();
+    zoom.scale(0.4);
+    zoom.on("zoom", onZoomChanged);
+    var graph = d3Root.append("svg")
+        .attr("pointer-events", "all")
+        .call(zoom)
+        .attr('width', '100%')
+        .attr('height', '99%')
+        .append('svg:g');
+    var layout = d3.layout.force()
         .nodes(d3.values(nodes))
         .links(d3links)
-        .size([width, height])
-        .linkDistance(60)
+        .gravity(.05)
+        .linkDistance(200)
         .charge(-300)
         .on("tick", tick)
         .start();
-    var svg = d3.select(rootElement).append("svg").attr('width', '100%').attr('height', '98%');
-    svg.append("defs").selectAll("marker")
+    resize();
+    d3.select(window).on("resize", resize);
+    centerGraph();
+    var graphWidth, graphHeight;
+    function resize() {
+        graphWidth = mainContent.width();
+        graphHeight = mainContent.height();
+        graph.attr("width", graphWidth)
+            .attr("height", graphHeight);
+        layout.size([graphWidth, graphHeight])
+            .resume();
+    }
+    function centerGraph() {
+        var centerTranslate = [
+            (graphWidth / 4),
+            (graphHeight / 4),
+        ];
+        zoom.translate(centerTranslate);
+        graph.transition()
+            .duration(500)
+            .attr("transform", "translate(" + zoom.translate() + ")" + " scale(" + zoom.scale() + ")");
+    }
+    function onZoomChanged() {
+        graph.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
+    }
+    graph.append("defs").selectAll("marker")
         .data(["suit", "licensing", "resolved"])
         .enter().append("marker")
         .attr("id", function (d) { return d; })
@@ -74,18 +108,18 @@ function renderGraph(depndencies, mainContent, display) {
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M0,-5L10,0L0,5");
-    var path = svg.append("g").selectAll("path")
-        .data(force.links())
+    var path = graph.append("g").selectAll("path")
+        .data(layout.links())
         .enter().append("path")
         .attr("class", function (d) { return "link resolved"; })
         .attr("marker-end", function (d) { return "url(#" + "resolved" + ")"; });
-    var circle = svg.append("g").selectAll("circle")
-        .data(force.nodes())
+    var circle = graph.append("g").selectAll("circle")
+        .data(layout.nodes())
         .enter().append("circle")
         .attr("r", 6)
-        .call(force.drag);
-    var text = svg.append("g").selectAll("text")
-        .data(force.nodes())
+        .call(layout.drag);
+    var text = graph.append("g").selectAll("text")
+        .data(layout.nodes())
         .enter().append("text")
         .attr("x", 8)
         .attr("y", ".31em")
