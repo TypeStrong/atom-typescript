@@ -6,6 +6,12 @@
         stroke: #666;
         stroke-width: 1.5px;
     }
+    .link.incomming {
+        stroke: green;
+    }
+    .link.outgoing {
+        stroke: red;
+    }
     #licensing {
         fill: green;
     }
@@ -13,28 +19,21 @@
         fill: #ccc;
         stroke: #333;
         stroke-width: 1.5px;
+        &.fixed{
+            fill: yellow;
+        }
+        &.hovering {
+            fill: #b94431;
+        }
     }
     text {
         font: 10px sans-serif;
         pointer-events: none;
         text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
     }
-
     g.dimmed {
         stroke-opacity: 0.05;
     }
-
-    .link.incomming{
-        stroke: green;
-    }
-    .link.outgoing{
-        stroke: red;
-    }
-
-    .fixed{
-        fill: yellow !important;
-    }
-
     .control-zoom {
         position: absolute;
         top: 10px;
@@ -44,8 +43,8 @@
         border-radius: 7px;
         z-index: 100;
         display: inline-block;
-        display: none;
         // Because I don't have time to enable this right now
+        display: none;
     }
     .control-zoom a {
         background: rgba(255, 255, 255, 0.75);

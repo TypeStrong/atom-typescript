@@ -51,15 +51,16 @@ function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
     rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    </div>";
-    var linkedByName = {};
-    var d3LinkCache = {};
+    var d3NodeLookup = {};
     var d3links = dependencies.map(function (link) {
-        var source = d3LinkCache[link.sourcePath] || (d3LinkCache[link.sourcePath] = { name: link.sourcePath });
-        var target = d3LinkCache[link.targetPath] || (d3LinkCache[link.targetPath] = { name: link.targetPath });
+        var source = d3NodeLookup[link.sourcePath] || (d3NodeLookup[link.sourcePath] = { name: link.sourcePath });
+        var target = d3NodeLookup[link.targetPath] || (d3NodeLookup[link.targetPath] = { name: link.targetPath });
         return { source: source, target: target };
     });
-    d3links.forEach(function (d) {
-        linkedByName[d.source.name + "," + d.target.name] = 1;
+    var d3Graph = new D3Graph(d3links);
+    Object.keys(d3NodeLookup).forEach(function (name) {
+        var node = d3NodeLookup[name];
+        node.weight = d3Graph.avgDeg(node);
     });
     var zoom = d3.behavior.zoom();
     zoom.scale(0.4);
@@ -70,11 +71,11 @@ function renderGraph(dependencies, mainContent, display) {
         .call(zoom)
         .append('svg:g');
     var layout = d3.layout.force()
-        .nodes(d3.values(d3LinkCache))
+        .nodes(d3.values(d3NodeLookup))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(300)
-        .charge(-300)
+        .linkDistance(function (link) { return 300; })
+        .charge(-900)
         .on("tick", tick)
         .start();
     var drag = layout.drag()
@@ -127,7 +128,7 @@ function renderGraph(dependencies, mainContent, display) {
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
-        .attr("r", 6)
+        .attr("r", function (d) { return d.weight; })
         .call(drag)
         .on("dblclick", dblclick)
         .on("mouseover", function (d) { onNodeMouseOver(d); })
@@ -153,26 +154,23 @@ function renderGraph(dependencies, mainContent, display) {
     }
     function onNodeMouseOver(d) {
         var elm = findElementByNode(prefixes.circle, d);
-        elm.style("fill", '#b94431');
+        elm.classed("hovering", true);
         updateNodeTransparencies(d, true);
     }
     function onNodeMouseOut(d) {
         var elm = findElementByNode(prefixes.circle, d);
-        elm.style("fill", '#ccc');
+        elm.classed("hovering", false);
         updateNodeTransparencies(d, false);
     }
     function findElementByNode(prefix, node) {
         var selector = '.' + formatClassName(prefix, node);
         return graph.select(selector);
     }
-    function isConnected(a, b) {
-        return linkedByName[a.name + "," + b.name] || linkedByName[b.name + "," + a.name] || a.name == b.name;
-    }
     function updateNodeTransparencies(d, fade) {
         if (fade === void 0) { fade = true; }
         var opacity = fade ? .05 : 1;
         nodes.style("stroke-opacity", function (o) {
-            if (isConnected(d, o)) {
+            if (d3Graph.isConnected(d, o)) {
                 var thisOpacity = 1;
             }
             else {
@@ -216,10 +214,9 @@ function renderGraph(dependencies, mainContent, display) {
         text.style("opacity", function (o) {
             if (!fade)
                 return 1;
-            if (isConnected(d, o)) {
+            if (d3Graph.isConnected(d, o))
                 return 1;
-            }
-            return 0;
+            return opacity;
         });
         var elmAllLinks = mainContent.find('path.link:not([data-show])');
         if (!fade) {
@@ -244,3 +241,36 @@ function renderGraph(dependencies, mainContent, display) {
         d3.select(this).classed("fixed", d.fixed = false);
     }
 }
+var D3Graph = (function () {
+    function D3Graph(links) {
+        var _this = this;
+        this.links = links;
+        this.inDegLookup = {};
+        this.outDegLookup = {};
+        this.linkedByName = {};
+        links.forEach(function (l) {
+            if (!_this.inDegLookup[l.target.name])
+                _this.inDegLookup[l.target.name] = 2;
+            else
+                _this.inDegLookup[l.target.name]++;
+            if (!_this.outDegLookup[l.source.name])
+                _this.outDegLookup[l.source.name] = 2;
+            else
+                _this.outDegLookup[l.source.name]++;
+            _this.linkedByName[l.source.name + "," + l.target.name] = 1;
+        });
+    }
+    D3Graph.prototype.inDeg = function (node) {
+        return this.inDegLookup[node.name] ? this.inDegLookup[node.name] : 1;
+    };
+    D3Graph.prototype.outDeg = function (node) {
+        return this.outDegLookup[node.name] ? this.outDegLookup[node.name] : 1;
+    };
+    D3Graph.prototype.avgDeg = function (node) {
+        return (this.inDeg(node) + this.outDeg(node)) / 2;
+    };
+    D3Graph.prototype.isConnected = function (a, b) {
+        return this.linkedByName[a.name + "," + b.name] || this.linkedByName[b.name + "," + a.name] || a.name == b.name;
+    };
+    return D3Graph;
+})();

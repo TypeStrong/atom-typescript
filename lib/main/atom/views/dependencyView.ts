@@ -68,20 +68,24 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         </div>
     </div>`;
 
-    var linkedByName = {};
+
 
     // Compute the distinct nodes from the links.
-    var d3LinkCache = {};
+    var d3NodeLookup: { [name: string]: D3LinkNode } = {};
     var d3links: D3Link[] = dependencies.map(function(link) {
-        var source = d3LinkCache[link.sourcePath] || (d3LinkCache[link.sourcePath] = { name: link.sourcePath });
-        var target = d3LinkCache[link.targetPath] || (d3LinkCache[link.targetPath] = { name: link.targetPath });
+        var source = d3NodeLookup[link.sourcePath] || (d3NodeLookup[link.sourcePath] = { name: link.sourcePath });
+        var target = d3NodeLookup[link.targetPath] || (d3NodeLookup[link.targetPath] = { name: link.targetPath });
         return { source, target };
     });
 
-    // Build linked index
-    d3links.forEach(function(d) {
-        linkedByName[d.source.name + "," + d.target.name] = 1;
-    });
+    // Calculate degrees
+    var d3Graph = new D3Graph(d3links);
+
+    // setup weights based on degrees
+    Object.keys(d3NodeLookup).forEach(name=> {
+        var node = d3NodeLookup[name];
+        node.weight = d3Graph.avgDeg(node);
+    })
 
     // Setup zoom
     var zoom = d3.behavior.zoom();
@@ -94,11 +98,11 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .call(zoom)
         .append('svg:g');
     var layout = d3.layout.force()
-        .nodes(d3.values(d3LinkCache))
+        .nodes(d3.values(d3NodeLookup))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(300) // TODO: caculate this based on file path sizes
-        .charge(-300)
+        .linkDistance(function(link: D3Link) { return 300; }) // TODO: caculate this based on file path sizes
+        .charge(-900)
         .on("tick", tick)
         .start();
 
@@ -164,7 +168,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
-        .attr("r", 6) // TODO: drive this based on in degree or out degree
+        .attr("r", function(d: D3LinkNode) { return d.weight })
         .call(drag)
         .on("dblclick", dblclick) // Unstick
         .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
@@ -200,14 +204,14 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     function onNodeMouseOver(d: D3LinkNode) {
         // Highlight circle
         var elm = findElementByNode(prefixes.circle, d);
-        elm.style("fill", '#b94431');
+        elm.classed("hovering", true);
 
         updateNodeTransparencies(d, true);
     }
     function onNodeMouseOut(d: D3LinkNode) {
         // Highlight circle
         var elm = findElementByNode(prefixes.circle, d);
-        elm.style("fill", '#ccc');
+        elm.classed("hovering", false);
 
         updateNodeTransparencies(d, false);
     }
@@ -217,16 +221,12 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         return graph.select(selector);
     }
 
-    function isConnected(a: D3LinkNode, b: D3LinkNode) {
-        return linkedByName[a.name + "," + b.name] || linkedByName[b.name + "," + a.name] || a.name == b.name;
-    }
-
     function updateNodeTransparencies(d: D3LinkNode, fade = true) {
         var opacity = fade ? .05 : 1;
 
         // Poor mans loop of node (`this`) as well as the associated data element `o`
         nodes.style("stroke-opacity", function(o: D3LinkNode) {
-            if (isConnected(d, o)) {
+            if (d3Graph.isConnected(d, o)) {
                 var thisOpacity = 1;
             } else {
                 thisOpacity = opacity;
@@ -279,10 +279,9 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         text.style("opacity", function(o: D3LinkNode) {
             if (!fade) return 1;
 
-            if (isConnected(d, o)) {
-                return 1;
-            }
-            return 0;
+            if (d3Graph.isConnected(d, o)) return 1;
+
+            return opacity;
         });
 
         // Hide other lines element markers
@@ -311,5 +310,35 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     function dblclick(d) {
         d3.select(this).classed("fixed", d.fixed = false);
     }
+}
 
+/** Bit of a lie about degrees : 0 is changed to 1 intentionally */
+class D3Graph {
+    private inDegLookup = {};
+    private outDegLookup = {};
+    private linkedByName = {};
+    constructor(private links: D3Link[]) {
+        links.forEach(l=> {
+            if (!this.inDegLookup[l.target.name]) this.inDegLookup[l.target.name] = 2;
+            else this.inDegLookup[l.target.name]++;
+
+            if (!this.outDegLookup[l.source.name]) this.outDegLookup[l.source.name] = 2;
+            else this.outDegLookup[l.source.name]++;
+
+            // Build linked lookup
+            this.linkedByName[l.source.name + "," + l.target.name] = 1;
+        });
+    }
+    public inDeg(node: D3LinkNode) {
+        return this.inDegLookup[node.name] ? this.inDegLookup[node.name] : 1;
+    }
+    public outDeg(node: D3LinkNode) {
+        return this.outDegLookup[node.name] ? this.outDegLookup[node.name] : 1;
+    }
+    public avgDeg(node: D3LinkNode) {
+        return (this.inDeg(node) + this.outDeg(node)) / 2;
+    }
+    public isConnected(a: D3LinkNode, b: D3LinkNode) {
+        return this.linkedByName[a.name + "," + b.name] || this.linkedByName[b.name + "," + a.name] || a.name == b.name;
+    }
 }
