@@ -133,6 +133,7 @@ function renderGraph(dependencies, mainContent, display) {
         .attr("r", function (d) { return Math.max(d.weight, 3); })
         .classed("inonly", function (d) { return d3Graph.inOnly(d); })
         .classed("outonly", function (d) { return d3Graph.outOnly(d); })
+        .classed("circular", function (d) { return d3Graph.isCircular(d); })
         .call(drag)
         .on("dblclick", dblclick)
         .on("mouseover", function (d) { onNodeMouseOver(d); })
@@ -252,6 +253,8 @@ var D3Graph = (function () {
         this.inDegLookup = {};
         this.outDegLookup = {};
         this.linkedByName = {};
+        this.targetsBySourceName = {};
+        this.circularPaths = [];
         links.forEach(function (l) {
             if (!_this.inDegLookup[l.target.name])
                 _this.inDegLookup[l.target.name] = 2;
@@ -262,7 +265,11 @@ var D3Graph = (function () {
             else
                 _this.outDegLookup[l.source.name]++;
             _this.linkedByName[l.source.name + "," + l.target.name] = 1;
+            if (!_this.targetsBySourceName[l.source.name])
+                _this.targetsBySourceName[l.source.name] = [];
+            _this.targetsBySourceName[l.source.name].push(l.target);
         });
+        this.findCircular();
     }
     D3Graph.prototype.inDeg = function (node) {
         return this.inDegLookup[node.name] ? this.inDegLookup[node.name] : 1;
@@ -284,6 +291,51 @@ var D3Graph = (function () {
     };
     D3Graph.prototype.outOnly = function (node) {
         return !this.inDegLookup[node.name] && this.outDegLookup[node.name];
+    };
+    D3Graph.prototype.getPath = function (parent, unresolved) {
+        var parentVisited = false;
+        return Object.keys(unresolved).filter(function (module) {
+            if (module === parent.name) {
+                parentVisited = true;
+            }
+            return parentVisited && unresolved[module];
+        });
+    };
+    D3Graph.prototype.resolver = function (sourceName, resolved, unresolved) {
+        var _this = this;
+        unresolved[sourceName] = true;
+        if (this.targetsBySourceName[sourceName]) {
+            this.targetsBySourceName[sourceName].forEach(function (dependency) {
+                if (!resolved[dependency.name]) {
+                    if (unresolved[dependency.name]) {
+                        _this.circularPaths.push(_this.getPath(dependency, unresolved));
+                        return;
+                    }
+                    _this.resolver(dependency.name, resolved, unresolved);
+                }
+            });
+        }
+        resolved[sourceName] = true;
+        unresolved[sourceName] = false;
+    };
+    D3Graph.prototype.findCircular = function () {
+        var _this = this;
+        var resolved = {}, unresolved = {};
+        Object.keys(this.targetsBySourceName).forEach(function (sourceName) {
+            _this.resolver(sourceName, resolved, unresolved);
+        });
+    };
+    ;
+    D3Graph.prototype.isCircular = function (node) {
+        var cyclic = false;
+        this.circularPaths.some(function (path) {
+            if (path.indexOf(node.name) >= 0) {
+                cyclic = true;
+                return true;
+            }
+            return false;
+        });
+        return cyclic;
     };
     return D3Graph;
 })();

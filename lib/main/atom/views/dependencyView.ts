@@ -173,6 +173,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .attr("r", function(d: D3LinkNode) { return Math.max(d.weight, 3); })
         .classed("inonly", function(d: D3LinkNode) { return d3Graph.inOnly(d); })
         .classed("outonly", function(d: D3LinkNode) { return d3Graph.outOnly(d); })
+        .classed("circular", function(d: D3LinkNode) { return d3Graph.isCircular(d); })
         .call(drag)
         .on("dblclick", dblclick) // Unstick
         .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
@@ -315,11 +316,16 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     }
 }
 
+interface TargetBySourceName
+{ [source: string]: D3LinkNode[] }
+
 /** Bit of a lie about degrees : 0 is changed to 1 intentionally */
 class D3Graph {
     private inDegLookup = {};
     private outDegLookup = {};
     private linkedByName = {};
+    private targetsBySourceName: TargetBySourceName = {};
+    private circularPaths: string[][] = [];
     constructor(private links: D3Link[]) {
         links.forEach(l=> {
             if (!this.inDegLookup[l.target.name]) this.inDegLookup[l.target.name] = 2;
@@ -328,9 +334,16 @@ class D3Graph {
             if (!this.outDegLookup[l.source.name]) this.outDegLookup[l.source.name] = 2;
             else this.outDegLookup[l.source.name]++;
 
-            // Build linked lookup
+            // Build linked lookup for quick connection checks
             this.linkedByName[l.source.name + "," + l.target.name] = 1;
+
+            // Build an adjacency list
+            if (!this.targetsBySourceName[l.source.name]) this.targetsBySourceName[l.source.name] = [];
+            this.targetsBySourceName[l.source.name].push(l.target);
         });
+
+        // Taken from madge
+        this.findCircular();
     }
     public inDeg(node: D3LinkNode) {
         return this.inDegLookup[node.name] ? this.inDegLookup[node.name] : 1;
@@ -354,5 +367,67 @@ class D3Graph {
     }
     public outOnly(node: D3LinkNode) {
         return !this.inDegLookup[node.name] && this.outDegLookup[node.name];
+    }
+
+    /**
+    * Get path to the circular dependency.
+    */
+    private getPath(parent: D3LinkNode, unresolved: { [source: string]: boolean }): string[] {
+        var parentVisited = false;
+
+        return Object.keys(unresolved).filter((module) => {
+            if (module === parent.name) {
+                parentVisited = true;
+            }
+            return parentVisited && unresolved[module];
+        });
+    }
+
+    /**
+     * A circular dependency is occurring when we see a software package
+     * more than once, unless that software package has all its dependencies resolved.
+     */
+    private resolver(sourceName: string, resolved: { [source: string]: boolean }, unresolved: { [source: string]: boolean }) {
+        unresolved[sourceName] = true;
+
+        if (this.targetsBySourceName[sourceName]) {
+            this.targetsBySourceName[sourceName].forEach((dependency) => {
+                if (!resolved[dependency.name]) {
+                    if (unresolved[dependency.name]) {
+                        this.circularPaths.push(this.getPath(dependency, unresolved));
+                        return;
+                    }
+                    this.resolver(dependency.name, resolved, unresolved);
+                }
+            });
+        }
+
+        resolved[sourceName] = true;
+        unresolved[sourceName] = false;
+    }
+
+    /**
+     * Finds all circular dependencies for the given modules.
+     */
+    private findCircular() {
+        var resolved: any = {},
+            unresolved: any = {};
+
+        Object.keys(this.targetsBySourceName).forEach((sourceName) => {
+            this.resolver(sourceName, resolved, unresolved);
+        });
+    };
+
+    /** Check if the given module is part of a circular dependency */
+    public isCircular(node: D3LinkNode) {
+        var cyclic = false;
+        this.circularPaths.some((path) => {
+            if (path.indexOf(node.name) >= 0) {
+                cyclic = true;
+                return true;
+            }
+            return false;
+        });
+        return cyclic;
     }
 }
