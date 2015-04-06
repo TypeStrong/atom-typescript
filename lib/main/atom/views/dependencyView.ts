@@ -68,11 +68,39 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
           <a class="control-zoom-in" href="#" title="Zoom in"></a>
           <a class="control-zoom-out" href="#" title="Zoom out"></a>
         </div>
-      <div class="general-messages"></div>
+    <div class="filter-section">
+        <label>Filter: (enter to commit)</label>
+        <input id="filter" class="native-key-bindings"></input>
+    </div>
+    <div class="general-messages"></div>
     </div>`;
 
     var messagesElement = mainContent.find('.general-messages');
     messagesElement.text("Dependency View")
+    var filterElement = mainContent.find('#filter');
+    filterElement.keyup((event) => {
+        if (event.keyCode !== 13) {
+            return;
+        }
+        var val = filterElement.val().trim();
+        if (!val) {
+            nodes.classed('filtered-out', false);
+            links.classed('filtered-out', false);
+            text.classed('filtered-out', false);
+            return;
+        }
+        else {
+            nodes.classed('filtered-out', true);
+            links.classed('filtered-out', true);
+            text.classed('filtered-out', true);
+            let filteredNodes = graph.selectAll(`circle[data-name*=${htmlName({ name: val }) }]`);
+            filteredNodes.classed('filtered-out', false);
+            var filteredLinks = graph.selectAll(`[data-source*=${htmlName({ name: val }) }][data-target*=${htmlName({ name: val }) }]`);
+            filteredLinks.classed('filtered-out', false);
+            let filteredText = graph.selectAll(`text[data-name*=${htmlName({ name: val }) }]`);
+            filteredText.classed('filtered-out', false);
+        }
+    });
 
     // Compute the distinct nodes from the links.
     var d3NodeLookup: { [name: string]: D3LinkNode } = {};
@@ -183,6 +211,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
+        .attr("data-name", function(o: D3LinkNode) { return htmlName(o) }) // Store for easier later lookup
         .attr("r", function(d: D3LinkNode) { return Math.max(d.weight, 3); })
         .classed("inonly", function(d: D3LinkNode) { return d3Graph.inOnly(d); })
         .classed("outonly", function(d: D3LinkNode) { return d3Graph.outOnly(d); })
@@ -252,8 +281,10 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         });
 
         // Clean
-        mainContent.find('path.link').removeAttr('data-show')
-            .attr('class', 'link'); // http://stackoverflow.com/questions/8638621/jquery-svg-why-cant-i-addclass
+        graph.selectAll('path.link').attr('data-show', '')
+            .classed('outgoing', false)
+            .attr('marker-end', fade ? '' : 'url(#regular)')
+            .classed('incomming', false);
 
         links.style("stroke-opacity", function(o: D3Link) {
             if (o.source.name === d.name) {
@@ -265,19 +296,19 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 elmNodes.classed('dimmed', false);
 
                 // Highlight arrows
-                let outgoingLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
+                let outgoingLink = graph.selectAll('path.link[data-source=' + htmlName(o.source) + ']');
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
-                outgoingLink.attr('class', 'link outgoing');
+                outgoingLink.classed('outgoing', true);
 
                 return 1;
             }
             else if (o.target.name === d.name) {
                 // Highlight arrows
-                let incommingLink = mainContent.find('path.link[data-target=' + htmlName(o.target) + ']');
+                let incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
-                incommingLink.attr('class', 'link incomming');
+                incommingLink.classed('incomming', true);
 
                 return 1;
             }
@@ -286,21 +317,14 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
             }
         });
 
-        text.style("opacity", function(o: D3LinkNode) {
-            if (!fade) return 1;
+        text.classed("dimmed", function(o: D3LinkNode) {
+            if (!fade) return false;
 
-            if (d3Graph.isConnected(d, o)) return 1;
+            if (d3Graph.isConnected(d, o)) return false;
 
-            return opacity;
+            return true;
         });
 
-        // Hide other lines element markers
-        var elmAllLinks = mainContent.find('path.link:not([data-show])');
-        if (!fade) {
-            elmAllLinks.attr('marker-end', 'url(#regular)');
-        } else {
-            elmAllLinks.attr('marker-end', '');
-        }
     }
 
     // Helpers

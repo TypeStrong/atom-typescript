@@ -9,6 +9,11 @@ Circular dependencies are highlighted in red
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/circular.png)
 
+# Filter
+You can filter particular nodes by specifying their name
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/filter.png)
+
 # Hover
 When you hover over a node
 * Red arrow denote stuff this file depends upon. Implies that this file cannot be extracted without also moving these files.

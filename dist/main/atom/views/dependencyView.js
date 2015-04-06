@@ -52,9 +52,33 @@ var prefixes = {
 function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
-    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n      <div class=\"general-messages\"></div>\n    </div>";
+    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    <div class=\"filter-section\">\n        <label>Filter: (enter to commit)</label>\n        <input id=\"filter\" class=\"native-key-bindings\"></input>\n    </div>\n    <div class=\"general-messages\"></div>\n    </div>";
     var messagesElement = mainContent.find('.general-messages');
     messagesElement.text("Dependency View");
+    var filterElement = mainContent.find('#filter');
+    filterElement.keyup(function (event) {
+        if (event.keyCode !== 13) {
+            return;
+        }
+        var val = filterElement.val().trim();
+        if (!val) {
+            nodes.classed('filtered-out', false);
+            links.classed('filtered-out', false);
+            text.classed('filtered-out', false);
+            return;
+        }
+        else {
+            nodes.classed('filtered-out', true);
+            links.classed('filtered-out', true);
+            text.classed('filtered-out', true);
+            var filteredNodes = graph.selectAll("circle[data-name*=" + htmlName({ name: val }) + "]");
+            filteredNodes.classed('filtered-out', false);
+            var filteredLinks = graph.selectAll("[data-source*=" + htmlName({ name: val }) + "][data-target*=" + htmlName({ name: val }) + "]");
+            filteredLinks.classed('filtered-out', false);
+            var filteredText = graph.selectAll("text[data-name*=" + htmlName({ name: val }) + "]");
+            filteredText.classed('filtered-out', false);
+        }
+    });
     var d3NodeLookup = {};
     var d3links = dependencies.map(function (link) {
         var source = d3NodeLookup[link.sourcePath] || (d3NodeLookup[link.sourcePath] = { name: link.sourcePath });
@@ -142,6 +166,7 @@ function renderGraph(dependencies, mainContent, display) {
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
+        .attr("data-name", function (o) { return htmlName(o); })
         .attr("r", function (d) { return Math.max(d.weight, 3); })
         .classed("inonly", function (d) { return d3Graph.inOnly(d); })
         .classed("outonly", function (d) { return d3Graph.outOnly(d); })
@@ -199,45 +224,40 @@ function renderGraph(dependencies, mainContent, display) {
             }
             return thisOpacity;
         });
-        mainContent.find('path.link').removeAttr('data-show')
-            .attr('class', 'link');
+        graph.selectAll('path.link').attr('data-show', '')
+            .classed('outgoing', false)
+            .attr('marker-end', fade ? '' : 'url(#regular)')
+            .classed('incomming', false);
         links.style("stroke-opacity", function (o) {
             if (o.source.name === d.name) {
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
-                var outgoingLink = mainContent.find('path.link[data-source=' + htmlName(o.source) + ']');
+                var outgoingLink = graph.selectAll('path.link[data-source=' + htmlName(o.source) + ']');
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
-                outgoingLink.attr('class', 'link outgoing');
+                outgoingLink.classed('outgoing', true);
                 return 1;
             }
             else if (o.target.name === d.name) {
-                var incommingLink = mainContent.find('path.link[data-target=' + htmlName(o.target) + ']');
+                var incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
-                incommingLink.attr('class', 'link incomming');
+                incommingLink.classed('incomming', true);
                 return 1;
             }
             else {
                 return opacity;
             }
         });
-        text.style("opacity", function (o) {
+        text.classed("dimmed", function (o) {
             if (!fade)
-                return 1;
+                return false;
             if (d3Graph.isConnected(d, o))
-                return 1;
-            return opacity;
+                return false;
+            return true;
         });
-        var elmAllLinks = mainContent.find('path.link:not([data-show])');
-        if (!fade) {
-            elmAllLinks.attr('marker-end', 'url(#regular)');
-        }
-        else {
-            elmAllLinks.attr('marker-end', '');
-        }
     }
     function formatClassName(prefix, object) {
         return prefix + '-' + htmlName(object);
