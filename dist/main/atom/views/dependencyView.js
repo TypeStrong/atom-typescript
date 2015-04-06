@@ -7,6 +7,8 @@ var __extends = this.__extends || function (d, b) {
 var sp = require('atom-space-pen-views');
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
+var path_1 = require("path");
+var tsconfig_1 = require("../../tsconfig/tsconfig");
 exports.dependencyURI = "ts-dependency:";
 function dependencyUriForPath(filePath) {
     return exports.dependencyURI + "//" + filePath;
@@ -74,7 +76,7 @@ function renderGraph(dependencies, mainContent, display) {
         .nodes(d3.values(d3NodeLookup))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(function (link) { return 300; })
+        .linkDistance(function (link) { return (d3Graph.difference(link)) * 200; })
         .charge(-900)
         .on("tick", tick)
         .start();
@@ -271,6 +273,9 @@ var D3Graph = (function () {
     };
     D3Graph.prototype.isConnected = function (a, b) {
         return this.linkedByName[a.name + "," + b.name] || this.linkedByName[b.name + "," + a.name] || a.name == b.name;
+    };
+    D3Graph.prototype.difference = function (link) {
+        return tsconfig_1.consistentPath(path_1.relative(link.source.name, link.target.name)).split('/').length;
     };
     return D3Graph;
 })();

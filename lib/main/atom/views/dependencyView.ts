@@ -5,6 +5,8 @@ import atomUtils = require("../atomUtils");
 import * as parent from "../../../worker/parent";
 import * as d3  from "d3";
 import {$} from "atom-space-pen-views";
+import {relative} from "path";
+import {consistentPath} from "../../tsconfig/tsconfig";
 
 export var dependencyURI = "ts-dependency:";
 export function dependencyUriForPath(filePath: string) {
@@ -101,7 +103,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .nodes(d3.values(d3NodeLookup))
         .links(d3links)
         .gravity(.05)
-        .linkDistance(function(link: D3Link) { return 300; }) // TODO: caculate this based on file path sizes
+        .linkDistance(function(link: D3Link) { return (d3Graph.difference(link)) * 200; })
         .charge(-900)
         .on("tick", tick)
         .start();
@@ -340,5 +342,10 @@ class D3Graph {
     }
     public isConnected(a: D3LinkNode, b: D3LinkNode) {
         return this.linkedByName[a.name + "," + b.name] || this.linkedByName[b.name + "," + a.name] || a.name == b.name;
+    }
+    /** how different are the two nodes in the link */
+    public difference(link: D3Link) {
+        // take file path into account:
+        return consistentPath(relative(link.source.name, link.target.name)).split('/').length;
     }
 }
