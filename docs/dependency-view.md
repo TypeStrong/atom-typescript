@@ -1,3 +1,14 @@
+# In Out
+* Nodes that do not depend on anything are colored green : These are probably utilities.
+* Nodes that only depend on other stuff are colored blue: These are probably application entry points.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/inOut.png)
+
+# Circular
+Circular dependencies are highlighted in red
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/circular.png)
+
 # Hover
 When you hover over a node
 * Red arrow denote stuff this file depends upon. Implies that this file cannot be extracted without also moving these files.
@@ -13,14 +24,3 @@ Size is based on average of in-degree and out-degree:
 # Distance
 Distance is determined by how much of the file path is common between two nodes:
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/distance.png)
-
-# In Out
-Nodes that do not depend on anything are colored green : These are probably utilities.
-Nodes that only depend on other stuff are colored blue: These are probably application entry points.
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/inOut.png)
-
-# Circular
-Circular dependencies are highlighted in red
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/circular.png)
