@@ -194,13 +194,6 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         text.attr("transform", transform);
     }
 
-    function linkArc(d: D3Link) {
-        var dx = d.target.x - d.source.x,
-            dy = d.target.y - d.source.y,
-            dr = Math.sqrt(dx * dx + dy * dy);
-        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-    }
-
     function transform(d: D3LinkNode) {
         return "translate(" + d.x + "," + d.y + ")";
     }
@@ -430,4 +423,51 @@ class D3Graph {
         });
         return cyclic;
     }
+}
+
+
+/** modified version of http://stackoverflow.com/a/26616564/390330 Takes weight into account */
+function linkArc(d: D3Link) {
+    var targetX = d.target.x;
+    var targetY = d.target.y;
+
+    var sourceX = d.source.x;
+    var sourceY = d.source.y;
+
+    var theta = Math.atan((targetX - sourceX) / (targetY - sourceY));
+    var phi = Math.atan((targetY - sourceY) / (targetX - sourceX));
+
+    var sinTheta = d.source.weight / 2 * Math.sin(theta);
+    var cosTheta = d.source.weight / 2 * Math.cos(theta);
+    var sinPhi = (d.target.weight - 6) * Math.sin(phi);
+    var cosPhi = (d.target.weight - 6) * Math.cos(phi);
+
+    // Set the position of the link's end point at the source node
+    // such that it is on the edge closest to the target node
+    if (d.target.y > d.source.y) {
+        sourceX = sourceX + sinTheta;
+        sourceY = sourceY + cosTheta;
+    }
+    else {
+        sourceX = sourceX - sinTheta;
+        sourceY = sourceY - cosTheta;
+    }
+
+    // Set the position of the link's end point at the target node
+    // such that it is on the edge closest to the source node
+    if (d.source.x > d.target.x) {
+        targetX = targetX + cosPhi;
+        targetY = targetY + sinPhi;
+    }
+    else {
+        targetX = targetX - cosPhi;
+        targetY = targetY - sinPhi;
+    }
+
+    // Draw an arc between the two calculated points
+    var dx = targetX - sourceX,
+        dy = targetY - sourceY,
+        dr = Math.sqrt(dx * dx + dy * dy);
+    return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
+
 }

@@ -150,10 +150,6 @@ function renderGraph(dependencies, mainContent, display) {
         nodes.attr("transform", transform);
         text.attr("transform", transform);
     }
-    function linkArc(d) {
-        var dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, dr = Math.sqrt(dx * dx + dy * dy);
-        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-    }
     function transform(d) {
         return "translate(" + d.x + "," + d.y + ")";
     }
@@ -339,3 +335,33 @@ var D3Graph = (function () {
     };
     return D3Graph;
 })();
+function linkArc(d) {
+    var targetX = d.target.x;
+    var targetY = d.target.y;
+    var sourceX = d.source.x;
+    var sourceY = d.source.y;
+    var theta = Math.atan((targetX - sourceX) / (targetY - sourceY));
+    var phi = Math.atan((targetY - sourceY) / (targetX - sourceX));
+    var sinTheta = d.source.weight / 2 * Math.sin(theta);
+    var cosTheta = d.source.weight / 2 * Math.cos(theta);
+    var sinPhi = (d.target.weight - 6) * Math.sin(phi);
+    var cosPhi = (d.target.weight - 6) * Math.cos(phi);
+    if (d.target.y > d.source.y) {
+        sourceX = sourceX + sinTheta;
+        sourceY = sourceY + cosTheta;
+    }
+    else {
+        sourceX = sourceX - sinTheta;
+        sourceY = sourceY - cosTheta;
+    }
+    if (d.source.x > d.target.x) {
+        targetX = targetX + cosPhi;
+        targetY = targetY + sinPhi;
+    }
+    else {
+        targetX = targetX - cosPhi;
+        targetY = targetY - sinPhi;
+    }
+    var dx = targetX - sourceX, dy = targetY - sourceY, dr = Math.sqrt(dx * dx + dy * dy);
+    return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
+}
