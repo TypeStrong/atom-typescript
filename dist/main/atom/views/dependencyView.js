@@ -130,7 +130,9 @@ function renderGraph(dependencies, mainContent, display) {
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function (d) { return formatClassName(prefixes.circle, d); })
-        .attr("r", function (d) { return d.weight; })
+        .attr("r", function (d) { return Math.max(d.weight, 3); })
+        .classed("inonly", function (d) { return d3Graph.inOnly(d); })
+        .classed("outonly", function (d) { return d3Graph.outOnly(d); })
         .call(drag)
         .on("dblclick", dblclick)
         .on("mouseover", function (d) { onNodeMouseOver(d); })
@@ -276,6 +278,12 @@ var D3Graph = (function () {
     };
     D3Graph.prototype.difference = function (link) {
         return tsconfig_1.consistentPath(path_1.relative(link.source.name, link.target.name)).split('/').length;
+    };
+    D3Graph.prototype.inOnly = function (node) {
+        return !this.outDegLookup[node.name] && this.inDegLookup[node.name];
+    };
+    D3Graph.prototype.outOnly = function (node) {
+        return !this.inDegLookup[node.name] && this.outDegLookup[node.name];
     };
     return D3Graph;
 })();

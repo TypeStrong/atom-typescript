@@ -170,7 +170,9 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         .data(layout.nodes())
         .enter().append("circle")
         .attr("class", function(d: D3LinkNode) { return formatClassName(prefixes.circle, d) }) // Store class name for easier later lookup
-        .attr("r", function(d: D3LinkNode) { return d.weight })
+        .attr("r", function(d: D3LinkNode) { return Math.max(d.weight, 3); })
+        .classed("inonly", function(d: D3LinkNode) { return d3Graph.inOnly(d); })
+        .classed("outonly", function(d: D3LinkNode) { return d3Graph.outOnly(d); })
         .call(drag)
         .on("dblclick", dblclick) // Unstick
         .on("mouseover", function(d: D3LinkNode) { onNodeMouseOver(d) })
@@ -201,7 +203,6 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     function transform(d: D3LinkNode) {
         return "translate(" + d.x + "," + d.y + ")";
     }
-
 
     function onNodeMouseOver(d: D3LinkNode) {
         // Highlight circle
@@ -347,5 +348,11 @@ class D3Graph {
     public difference(link: D3Link) {
         // take file path into account:
         return consistentPath(relative(link.source.name, link.target.name)).split('/').length;
+    }
+    public inOnly(node: D3LinkNode) {
+        return !this.outDegLookup[node.name] && this.inDegLookup[node.name];
+    }
+    public outOnly(node: D3LinkNode) {
+        return !this.inDegLookup[node.name] && this.outDegLookup[node.name];
     }
 }
