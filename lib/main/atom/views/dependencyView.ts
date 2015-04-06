@@ -68,9 +68,11 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
           <a class="control-zoom-in" href="#" title="Zoom in"></a>
           <a class="control-zoom-out" href="#" title="Zoom out"></a>
         </div>
+      <div class="general-messages"></div>
     </div>`;
 
-
+    var messagesElement = mainContent.find('.general-messages');
+    messagesElement.text("Dependency View")
 
     // Compute the distinct nodes from the links.
     var d3NodeLookup: { [name: string]: D3LinkNode } = {};
@@ -80,8 +82,19 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         return { source, target };
     });
 
-    // Calculate degrees
+    // Calculate all the good stuff
     var d3Graph = new D3Graph(d3links);
+
+    // If any cycles found log them:
+    if (d3Graph.cycles().length) {
+        let cycles = d3Graph.cycles();
+        let message = '';
+        for (let cycle of cycles) {
+            message += '<h3>Cycle Found: </h3>'
+            message += cycle.join(' <br/> ') + '<br/>'
+        }
+        messagesElement.html(message);
+    }
 
     // setup weights based on degrees
     Object.keys(d3NodeLookup).forEach(name=> {
@@ -422,6 +435,10 @@ class D3Graph {
             return false;
         });
         return cyclic;
+    }
+
+    public cycles(): string[][] {
+        return this.circularPaths;
     }
 }
 

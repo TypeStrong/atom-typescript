@@ -52,7 +52,9 @@ var prefixes = {
 function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
-    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    </div>";
+    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n      <div class=\"general-messages\"></div>\n    </div>";
+    var messagesElement = mainContent.find('.general-messages');
+    messagesElement.text("Dependency View");
     var d3NodeLookup = {};
     var d3links = dependencies.map(function (link) {
         var source = d3NodeLookup[link.sourcePath] || (d3NodeLookup[link.sourcePath] = { name: link.sourcePath });
@@ -60,6 +62,16 @@ function renderGraph(dependencies, mainContent, display) {
         return { source: source, target: target };
     });
     var d3Graph = new D3Graph(d3links);
+    if (d3Graph.cycles().length) {
+        var cycles = d3Graph.cycles();
+        var message = '';
+        for (var _i = 0; _i < cycles.length; _i++) {
+            var cycle = cycles[_i];
+            message += '<h3>Cycle Found: </h3>';
+            message += cycle.join(' <br/> ') + '<br/>';
+        }
+        messagesElement.html(message);
+    }
     Object.keys(d3NodeLookup).forEach(function (name) {
         var node = d3NodeLookup[name];
         node.weight = d3Graph.avgDeg(node);
@@ -332,6 +344,9 @@ var D3Graph = (function () {
             return false;
         });
         return cyclic;
+    };
+    D3Graph.prototype.cycles = function () {
+        return this.circularPaths;
     };
     return D3Graph;
 })();
