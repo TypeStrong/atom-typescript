@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "2.14.2",
+  "version": "2.14.3",
   "main": "./dist/main/atomts",
   "description": "The only TypeScript plugin you will ever need.",
   "engines": {
