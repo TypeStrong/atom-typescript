@@ -191,6 +191,7 @@ declare module ts {
     function getJsDocComments(node: Node, sourceFileOfNode: SourceFile): CommentRange[];
     let fullTripleSlashReferencePathRegEx: RegExp;
     function forEachReturnStatement<T>(body: Block, visitor: (stmt: ReturnStatement) => T): T;
+    function isAccessor(node: Node): boolean;
     function isFunctionLike(node: Node): boolean;
     function isFunctionBlock(node: Node): boolean;
     function isObjectLiteralMethod(node: Node): boolean;

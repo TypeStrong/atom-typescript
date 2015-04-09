@@ -723,7 +723,7 @@ declare module ts {
     interface ExternalModuleReference extends Node {
         expression?: Expression;
     }
-    interface ImportDeclaration extends Statement, ModuleElement {
+    interface ImportDeclaration extends ModuleElement {
         importClause?: ImportClause;
         moduleSpecifier: Expression;
     }
@@ -865,7 +865,7 @@ declare module ts {
         getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): number;
         isValidPropertyAccess(node: PropertyAccessExpression | QualifiedName, propertyName: string): boolean;
         getAliasedSymbol(symbol: Symbol): Symbol;
-        getExportsOfExternalModule(node: ImportDeclaration): Symbol[];
+        getExportsOfModule(moduleSymbol: Symbol): Symbol[];
     }
     interface SymbolDisplayBuilder {
         buildTypeDisplay(type: Type, writer: SymbolWriter, enclosingDeclaration?: Node, flags?: TypeFormatFlags): void;
@@ -941,6 +941,9 @@ declare module ts {
         getConstantValue(node: EnumMember | PropertyAccessExpression | ElementAccessExpression): number;
         resolvesToSomeValue(location: Node, name: string): boolean;
         getBlockScopedVariableId(node: Identifier): number;
+        serializeTypeOfNode(node: Node, getGeneratedNameForNode: (Node: Node) => string): string | string[];
+        serializeParameterTypesOfNode(node: Node, getGeneratedNameForNode: (Node: Node) => string): (string | string[])[];
+        serializeReturnTypeOfNode(node: Node, getGeneratedNameForNode: (Node: Node) => string): string | string[];
     }
     const enum SymbolFlags {
         FunctionScopedVariable = 1,
@@ -1047,6 +1050,7 @@ declare module ts {
         EnumValuesComputed = 128,
         BlockScopedBindingInLoop = 256,
         EmitDecorate = 512,
+        EmitParam = 1024,
     }
     interface NodeLinks {
         resolvedType?: Type;
@@ -1219,6 +1223,7 @@ declare module ts {
         version?: boolean;
         watch?: boolean;
         separateCompilation?: boolean;
+        emitDecoratorMetadata?: boolean;
         [option: string]: string | number | boolean;
     }
     const enum ModuleKind {
@@ -1765,6 +1770,7 @@ declare module ts {
         name: string;
         kind: string;
         kindModifiers: string;
+        sortText: string;
     }
     interface CompletionEntryDetails {
         name: string;
@@ -1907,6 +1913,7 @@ declare module ts {
     }
     class ScriptElementKind {
         static unknown: string;
+        static warning: string;
         static keyword: string;
         static scriptElement: string;
         static moduleElement: string;
