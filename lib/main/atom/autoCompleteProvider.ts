@@ -162,6 +162,7 @@ export var provider: autocompleteplus.Provider = {
                     filePath: filePath,
                     position: position,
                     prefix: options.prefix,
+                    maxSuggestions: atomConfig.maxSuggestions
                 })
                     .then((resp) => {
 

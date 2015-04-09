@@ -1,5 +1,6 @@
 /// <reference path='../../globals'/>
 var parent = require('../../worker/parent');
+var atomConfig = require('./atomConfig');
 var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
@@ -73,6 +74,7 @@ exports.provider = {
                 filePath: filePath,
                 position: position,
                 prefix: options.prefix,
+                maxSuggestions: atomConfig.maxSuggestions
             })
                 .then(function (resp) {
                 var completionList = resp.completions;

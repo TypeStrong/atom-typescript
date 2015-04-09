@@ -19,6 +19,11 @@ var Config = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Config.prototype, "maxSuggestions", {
+        get: function () { return atom.config.get('autocomplete-plus.maxVisibleSuggestions'); },
+        enumerable: true,
+        configurable: true
+    });
     return Config;
 })();
 var config = new Config();

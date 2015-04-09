@@ -248,13 +248,13 @@ function getCompletionsAtPosition(query) {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
-    var maxSuggestions = 100;
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
     var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
     var endsInPunctuation = prefixEndsInPunctuation(prefix);
     if (prefix.length && !endsInPunctuation) {
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
+    var maxSuggestions = query.maxSuggestions;
     if (completionList.length > maxSuggestions)
         completionList = completionList.slice(0, maxSuggestions);
     function docComment(c) {

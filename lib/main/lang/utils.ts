@@ -45,7 +45,9 @@ export function clone<T>(target: T): T {
     return assign(Array.isArray(target) ? [] : {}, target);
 }
 
-
+/**
+ * Create a quick lookup map from list
+ */
 export function createMap(arr: string[]): { [string: string]: boolean } {
     return arr.reduce((result: { [string: string]: boolean }, key: string) => {
         result[key] = true;

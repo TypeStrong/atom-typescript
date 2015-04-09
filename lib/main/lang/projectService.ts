@@ -361,6 +361,7 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promis
 
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
+    maxSuggestions: number;
 }
 export interface Completion {
     name?: string; // stuff like "toString"
@@ -382,9 +383,6 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
 
-    /** Doing too many suggestions is slowing us down in some cases */
-    var maxSuggestions = 100;
-
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
@@ -394,6 +392,9 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         // Didn't work good for punctuation
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
+    
+    /** Doing too many suggestions is slowing us down in some cases */
+    let maxSuggestions = query.maxSuggestions;            
 
     // limit to maxSuggestions
     if (completionList.length > maxSuggestions) completionList = completionList.slice(0, maxSuggestions);
