@@ -361,7 +361,6 @@ export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promis
 
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
-    maxSuggestions: number;
 }
 export interface Completion {
     name?: string; // stuff like "toString"
@@ -394,7 +393,9 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     }
     
     /** Doing too many suggestions is slowing us down in some cases */
-    let maxSuggestions = query.maxSuggestions;            
+    let maxSuggestions = 50;
+    /** Doc comments slow us down tremendously */
+    let maxDocComments = 10;
 
     // limit to maxSuggestions
     if (completionList.length > maxSuggestions) completionList = completionList.slice(0, maxSuggestions);
@@ -421,8 +422,16 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         return { display: display, comment: comment };
     }
 
-    var completionsToReturn: Completion[] = completionList.map(c=> {
-        var details = docComment(c);
+    var completionsToReturn: Completion[] = completionList.map((c, index) => {
+        if (index < maxDocComments) {
+            var details = docComment(c);
+        }
+        else {
+            details = {
+                display: c.kind,
+                comment: ''
+            }
+        }
         return {
             name: c.name,
             kind: c.kind,

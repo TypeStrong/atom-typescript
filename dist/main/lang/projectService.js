@@ -254,7 +254,8 @@ function getCompletionsAtPosition(query) {
     if (prefix.length && !endsInPunctuation) {
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
-    var maxSuggestions = query.maxSuggestions;
+    var maxSuggestions = 50;
+    var maxDocComments = 10;
     if (completionList.length > maxSuggestions)
         completionList = completionList.slice(0, maxSuggestions);
     function docComment(c) {
@@ -273,8 +274,16 @@ function getCompletionsAtPosition(query) {
         var comment = ts.displayPartsToString(completionDetails.documentation || []);
         return { display: display, comment: comment };
     }
-    var completionsToReturn = completionList.map(function (c) {
-        var details = docComment(c);
+    var completionsToReturn = completionList.map(function (c, index) {
+        if (index < maxDocComments) {
+            var details = docComment(c);
+        }
+        else {
+            details = {
+                display: c.kind,
+                comment: ''
+            };
+        }
         return {
             name: c.name,
             kind: c.kind,
