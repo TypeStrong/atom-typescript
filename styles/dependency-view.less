@@ -6,6 +6,8 @@
         stroke: #666;
         stroke-width: 1.5px;
         opacity: 0.5;
+        transition-property: opacity;
+        transition-duration: .2s;
         &.incomming {
             stroke: green;
             opacity: 0.9;
@@ -13,6 +15,9 @@
         &.outgoing {
             stroke: red;
             opacity: 0.9;
+        }
+        &.dimmed{
+            opacity: 0.05;
         }
         &.filtered-out{
             opacity: 0;

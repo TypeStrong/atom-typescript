@@ -143,7 +143,6 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     var layout = d3.layout.force()
         .nodes(d3.values(d3NodeLookup))
         .links(d3links)
-        .gravity(.05)
         .linkDistance(function(link: D3Link) { return (d3Graph.difference(link)) * 200; })
         .charge(-900)
         .on("tick", tick)
@@ -279,11 +278,13 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         graph.selectAll('path.link').attr('data-show', '')
             .classed('outgoing', false)
             .attr('marker-end', fade ? '' : 'url(#regular)')
-            .classed('incomming', false);
+            .classed('incomming', false)
+            .classed('dimmed', fade);
 
-        links.style("stroke-opacity", function(o: D3Link) {
+        links.each(function(o: D3Link) {            
             if (o.source.name === d.name) {
-
+                this.classList.remove('dimmed');
+                
                 // Highlight target of the link
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
@@ -296,20 +297,16 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 outgoingLink.attr('marker-end', 'url(#regular)');
                 outgoingLink.classed('outgoing', true);
 
-                return 1;
             }
             else if (o.target.name === d.name) {
+                this.classList.remove('dimmed');
+                
                 // Highlight arrows
                 let incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
                 incommingLink.classed('incomming', true);
 
-                return 1;
-            }
-            else {
-                let opacity = fade ? .05 : 1;                
-                return opacity;
             }
         });
 

@@ -111,7 +111,6 @@ function renderGraph(dependencies, mainContent, display) {
     var layout = d3.layout.force()
         .nodes(d3.values(d3NodeLookup))
         .links(d3links)
-        .gravity(.05)
         .linkDistance(function (link) { return (d3Graph.difference(link)) * 200; })
         .charge(-900)
         .on("tick", tick)
@@ -219,9 +218,11 @@ function renderGraph(dependencies, mainContent, display) {
         graph.selectAll('path.link').attr('data-show', '')
             .classed('outgoing', false)
             .attr('marker-end', fade ? '' : 'url(#regular)')
-            .classed('incomming', false);
-        links.style("stroke-opacity", function (o) {
+            .classed('incomming', false)
+            .classed('dimmed', fade);
+        links.each(function (o) {
             if (o.source.name === d.name) {
+                this.classList.remove('dimmed');
                 var elmNodes = graph.selectAll('.' + formatClassName(prefixes.circle, o.target));
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
@@ -230,18 +231,13 @@ function renderGraph(dependencies, mainContent, display) {
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
                 outgoingLink.classed('outgoing', true);
-                return 1;
             }
             else if (o.target.name === d.name) {
+                this.classList.remove('dimmed');
                 var incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
                 incommingLink.classed('incomming', true);
-                return 1;
-            }
-            else {
-                var opacity = fade ? .05 : 1;
-                return opacity;
             }
         });
         text.classed("dimmed", function (o) {
