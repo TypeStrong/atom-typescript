@@ -31,7 +31,14 @@ function attach(editorView, editor) {
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip = null;
+    var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, 'mousemove', function (e) {
+        var pixelPt = pixelPositionFromMouseEvent(editorView, e);
+        var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+        var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
+        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt))
+            return;
+        lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(function () { return showExpressionType(e); }, 100);
     });

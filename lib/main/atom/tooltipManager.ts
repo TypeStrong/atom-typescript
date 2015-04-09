@@ -26,7 +26,7 @@ export function getFromShadowDom(element: JQuery, selector: string): JQuery {
 }
 
 export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
-    var rawView:any = editorView[0];
+    var rawView: any = editorView[0];
 
     // Only on ".ts" files
     var filePath = editor.getPath();
@@ -43,7 +43,19 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
+    
+    // to debounce mousemove event's firing for some reason on some machines
+    var lastExprTypeBufferPt: any;
+
     subscriber.subscribe(scroll, 'mousemove', (e) => {
+        var pixelPt = pixelPositionFromMouseEvent(editorView, e)
+        var screenPt = editor.screenPositionForPixelPosition(pixelPt)
+        var bufferPt = editor.bufferPositionForScreenPosition(screenPt)
+        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt))
+            return;
+
+        lastExprTypeBufferPt = bufferPt;
+
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
@@ -52,7 +64,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
 
     // Setup for clearing
     atom.commands.add('atom-text-editor', 'editor:will-be-removed', (e) => {
-        if(e.currentTarget == editorView[0]){
+        if (e.currentTarget == editorView[0]) {
             deactivate();
         }
     });
