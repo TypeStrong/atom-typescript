@@ -15,6 +15,7 @@ interface CompilerOptions {
     declaration?: boolean;
     diagnostics?: boolean;
     emitBOM?: boolean;
+    emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
@@ -44,6 +45,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
     locals: { type: types.string },
     mapRoot: { type: types.string },

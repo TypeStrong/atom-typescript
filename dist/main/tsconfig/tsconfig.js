@@ -9,6 +9,7 @@ var compilerOptionsValidation = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
     locals: { type: types.string },
     mapRoot: { type: types.string },
