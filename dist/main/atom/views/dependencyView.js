@@ -111,6 +111,7 @@ function renderGraph(dependencies, mainContent, display) {
     var layout = d3.layout.force()
         .nodes(d3.values(d3NodeLookup))
         .links(d3links)
+        .gravity(.05)
         .linkDistance(function (link) { return (d3Graph.difference(link)) * 200; })
         .charge(-900)
         .on("tick", tick)
