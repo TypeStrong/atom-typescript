@@ -25,6 +25,9 @@
         fill: #ccc;
         stroke: #333;
         stroke-width: 1.5px;
+        transition-property: opacity,fill;
+        transition-duration: .2s;
+        opacity: 1;
         &.inonly {
             fill: green;
         }
@@ -38,7 +41,11 @@
             // Some other day: fill: yellow;
         }
         &.hovering {
+            opacity: 1;
             fill: #b94431;
+        }
+        &.not-hovering { 
+            opacity: 0.05;
         }
         &.filtered-out {
             opacity: 0;

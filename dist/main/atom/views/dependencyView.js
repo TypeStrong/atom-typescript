@@ -206,24 +206,16 @@ function renderGraph(dependencies, mainContent, display) {
     }
     function updateNodeTransparencies(d, fade) {
         if (fade === void 0) { fade = true; }
-        var opacity = fade ? .05 : 1;
-        nodes.style("stroke-opacity", function (o) {
-            if (d3Graph.isConnected(d, o)) {
-                var thisOpacity = 1;
-            }
-            else {
-                thisOpacity = opacity;
-            }
-            this.setAttribute('fill-opacity', thisOpacity);
-            this.setAttribute('stroke-opacity', thisOpacity);
-            if (thisOpacity == 1) {
-                this.classList.remove('dimmed');
-            }
-            else {
-                this.classList.add('dimmed');
-            }
-            return thisOpacity;
-        });
+        nodes.classed('not-hovering', false);
+        nodes.classed('dimmed', false);
+        if (fade) {
+            nodes.each(function (o) {
+                if (!d3Graph.isConnected(d, o)) {
+                    this.classList.add('not-hovering');
+                    this.classList.add('dimmed');
+                }
+            });
+        }
         graph.selectAll('path.link').attr('data-show', '')
             .classed('outgoing', false)
             .attr('marker-end', fade ? '' : 'url(#regular)')
@@ -248,6 +240,7 @@ function renderGraph(dependencies, mainContent, display) {
                 return 1;
             }
             else {
+                var opacity = fade ? .05 : 1;
                 return opacity;
             }
         });

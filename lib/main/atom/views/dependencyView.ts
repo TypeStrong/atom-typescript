@@ -261,24 +261,19 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     }
 
     function updateNodeTransparencies(d: D3LinkNode, fade = true) {
-        var opacity = fade ? .05 : 1;
+        
+        // clean
+        nodes.classed('not-hovering', false);
+        nodes.classed('dimmed', false);
 
-        // Poor mans loop of node (`this`) as well as the associated data element `o`
-        nodes.style("stroke-opacity", function(o: D3LinkNode) {
-            if (d3Graph.isConnected(d, o)) {
-                var thisOpacity = 1;
-            } else {
-                thisOpacity = opacity;
-            }
-            this.setAttribute('fill-opacity', thisOpacity);
-            this.setAttribute('stroke-opacity', thisOpacity);
-            if (thisOpacity == 1) {
-                this.classList.remove('dimmed');
-            } else {
-                this.classList.add('dimmed');
-            }
-            return thisOpacity;
-        });
+        if (fade) {
+            nodes.each(function(o: D3LinkNode) {
+                if (!d3Graph.isConnected(d, o)) {
+                    this.classList.add('not-hovering');
+                    this.classList.add('dimmed');
+                }
+            });
+        }
 
         // Clean
         graph.selectAll('path.link').attr('data-show', '')
@@ -313,6 +308,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 return 1;
             }
             else {
+                let opacity = fade ? .05 : 1;                
                 return opacity;
             }
         });
