@@ -6,6 +6,7 @@ We do not support `--out` as we think its a bad idea for you to use because of t
 * Global scope
 * Hard to analyze
 * Hard to scale
+* `_references`
 
 ## Runtime Errors
 
@@ -25,6 +26,9 @@ We wish to provide more code analysis tools. These will be easier if you provide
 
 ## Hard to scale
 Really just a result of random runtime errors + slower and slower compile times.
+
+## `_references.ts`
+Isn't supported by `tsconfig.json` : https://github.com/Microsoft/TypeScript/issues/2472#issuecomment-85330803 You'll have to manually sort the  `files` array. 
 
 ## Summary
 `--out` is really the job of some build tool. And even such a build tool can benefit from the dependency mentions provided by external modules. So we recommend you use external modules and then let the build tool create a single `.js` for you if you so desire.
