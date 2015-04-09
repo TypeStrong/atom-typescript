@@ -88,26 +88,25 @@ function registerCommands() {
         // });
         atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
     });
-    atom.commands.add('atom-text-editor', 'typescript:rename-variable', function (e) {
-        parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {
-            if (!res.canRename) {
-                atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
+    atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
+        var editor = atom.workspace.getActiveTextEditor();
+        var matched = atomUtils.editorInKnownScope([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
+        if (matched) {
+            var relativePath = editor.getTextInRange(editor.bufferRangeForScopeAtCursor(matched)).replace(/['"]+/g, '');
+            if (!utils.pathIsRelative(relativePath)) {
+                atom.notifications.addInfo('AtomTS: Can only rename external modules if they are relative files!');
                 return;
             }
-            var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-            var openPathsMap = utils.createMap(paths);
-            var refactorPaths = Object.keys(res.locations);
-            var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
-            var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
+            var completePath = path.resolve(atomUtils.getCurrentPath(), relativePath) + '.ts';
+            console.log(completePath);
             renameView.panelView.renameThis({
-                text: res.displayName,
-                openFiles: openFiles,
-                closedFiles: closedFiles,
+                autoSelect: false,
+                title: 'Rename File',
+                text: completePath,
+                openFiles: [],
+                closedFiles: [],
                 onCancel: function () { },
                 onValidate: function (newText) {
-                    if (newText.replace(/\s/g, '') !== newText.trim()) {
-                        return 'The new variable must not contain a space';
-                    }
                     if (!newText.trim()) {
                         return 'If you want to abort : Press esc to exit';
                     }
@@ -115,21 +114,55 @@ function registerCommands() {
                 },
                 onCommit: function (newText) {
                     newText = newText.trim();
-                    atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
-                        .then(function (editorMap) {
-                        Object.keys(res.locations).forEach(function (filePath) {
-                            var editor = editorMap[filePath];
-                            editor.transact(function () {
-                                res.locations[filePath].forEach(function (textSpan) {
-                                    var range = atomUtils.getRangeForTextSpan(editor, textSpan);
-                                    editor.setTextInBufferRange(range, newText);
+                }
+            });
+            atom.notifications.addInfo('AtomTS: File rename comming soon!');
+        }
+        else {
+            parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {
+                if (!res.canRename) {
+                    atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
+                    return;
+                }
+                var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+                var openPathsMap = utils.createMap(paths);
+                var refactorPaths = Object.keys(res.locations);
+                var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
+                var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
+                renameView.panelView.renameThis({
+                    autoSelect: true,
+                    title: 'Rename Variable',
+                    text: res.displayName,
+                    openFiles: openFiles,
+                    closedFiles: closedFiles,
+                    onCancel: function () { },
+                    onValidate: function (newText) {
+                        if (newText.replace(/\s/g, '') !== newText.trim()) {
+                            return 'The new variable must not contain a space';
+                        }
+                        if (!newText.trim()) {
+                            return 'If you want to abort : Press esc to exit';
+                        }
+                        return '';
+                    },
+                    onCommit: function (newText) {
+                        newText = newText.trim();
+                        atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
+                            .then(function (editorMap) {
+                            Object.keys(res.locations).forEach(function (filePath) {
+                                var editor = editorMap[filePath];
+                                editor.transact(function () {
+                                    res.locations[filePath].forEach(function (textSpan) {
+                                        var range = atomUtils.getRangeForTextSpan(editor, textSpan);
+                                        editor.setTextInBufferRange(range, newText);
+                                    });
                                 });
                             });
                         });
-                    });
-                }
+                    }
+                });
             });
-        });
+        }
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-next', function (e) {
         gotoHistory.gotoNext();

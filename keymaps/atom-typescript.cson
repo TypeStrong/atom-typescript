@@ -3,7 +3,7 @@
   'alt-ctrl-l': 'typescript:format-code'
   'ctrl-;': 'typescript:context-actions'
   'cmd-;': 'typescript:context-actions'
-  'f2': 'typescript:rename-variable'
+  'f2': 'typescript:rename-refactor'
   'shift-f12': 'typescript:find-references'
 
 # Build and goto definition

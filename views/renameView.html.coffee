@@ -5,7 +5,7 @@ module.exports =
         @div tabIndex: -1, class: 'atomts-rename-view', =>
             @div class: 'block', =>
                 @div =>
-                    @span 'Rename Variable'
+                    @span {outlet: 'title'}, => 'Rename Variable'
                     @span class: 'subtle-info-message', =>
                         @span 'Close this panel with '
                         @span class:'highlight', 'esc'

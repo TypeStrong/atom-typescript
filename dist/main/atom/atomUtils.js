@@ -139,3 +139,18 @@ function getCurrentPath() {
     return tsconfig.consistentPath(editor.getPath());
 }
 exports.getCurrentPath = getCurrentPath;
+exports.knownScopes = {
+    reference: 'reference.path.string',
+    require: 'require.path.string',
+    es6import: 'es6import.path.string'
+};
+function editorInKnownScope(matches) {
+    var editor = atom.workspace.getActiveTextEditor();
+    var scopes = editor.getCursorScopes();
+    var lastScope = scopes[scopes.length - 1];
+    if (matches.some(function (p) { return lastScope === p; }))
+        return lastScope;
+    else
+        return '';
+}
+exports.editorInKnownScope = editorInKnownScope;

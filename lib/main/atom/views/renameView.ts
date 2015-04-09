@@ -7,6 +7,8 @@ interface EditorView extends JQuery {
 }
 
 interface RenameViewOptions {
+    autoSelect: boolean;
+    title: string;
     text: string;
     onCommit: (newValue: string) => any;
     onCancel: () => any;
@@ -22,6 +24,7 @@ export class RenameView
     private newNameEditor: EditorView;
     private validationMessage: JQuery;
     private fileCount: JQuery;
+    private title: JQuery;
     static content = html;
 
     public init() {
@@ -76,7 +79,13 @@ export class RenameView
         panel.show();
 
         this.newNameEditor.model.setText(options.text);
-        this.newNameEditor.model.selectAll();
+        if (this.options.autoSelect) {
+            this.newNameEditor.model.selectAll();
+        }
+        else {
+            this.newNameEditor.model.moveCursorToEndOfScreenLine();
+        }
+        this.title.text(this.options.title);
         this.newNameEditor.focus();
 
         this.validationMessage.hide();

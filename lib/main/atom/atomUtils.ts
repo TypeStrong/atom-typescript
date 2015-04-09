@@ -139,7 +139,7 @@ export function kindToType(kind: string) {
         case 'alias':
             return 'import';
         case 'type parameter':
-                return 'type';
+            return 'type';
         default:
             return kind.split(' ')[0];
     }
@@ -155,7 +155,23 @@ export function commandForTypeScript(e) {
 }
 
 /** Gets the consisten path for the current editor */
-export function getCurrentPath(){
+export function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
     return tsconfig.consistentPath(editor.getPath());
+}
+
+export var knownScopes = {
+    reference: 'reference.path.string',
+    require: 'require.path.string',
+    es6import: 'es6import.path.string'
+}
+
+export function editorInKnownScope(matches: string[]) {
+    var editor = atom.workspace.getActiveTextEditor();
+    var scopes = editor.getCursorScopes();
+    var lastScope = scopes[scopes.length - 1];
+    if (matches.some(p=> lastScope === p))
+        return lastScope;
+    else 
+        return '';
 }
