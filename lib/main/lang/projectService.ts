@@ -898,7 +898,7 @@ export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
 /**
  * Get Dependencies
  */
-import dependecies from "./modules/dependencies";
+import programDependencies from "./modules/programDependencies";
 export interface GetDependenciesQuery extends FilePathQuery { }
 export interface GetDependenciesResponse {
     links: FileDependency[]
@@ -908,7 +908,7 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
     var project = getOrCreateProject(query.filePath);
 
     var projectFile = project.projectFile;
-    var links = dependecies(projectFile, project.languageService.getProgram());
+    var links = programDependencies(projectFile, project.languageService.getProgram());
 
     return resolve({ links });
 }

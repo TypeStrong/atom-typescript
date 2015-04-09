@@ -583,12 +583,12 @@ function getAST(query) {
     return resolve({ root: root });
 }
 exports.getAST = getAST;
-var dependencies_1 = require("./modules/dependencies");
+var programDependencies_1 = require("./modules/programDependencies");
 function getDependencies(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var projectFile = project.projectFile;
-    var links = dependencies_1.default(projectFile, project.languageService.getProgram());
+    var links = programDependencies_1.default(projectFile, project.languageService.getProgram());
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
