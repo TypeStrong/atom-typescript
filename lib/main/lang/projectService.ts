@@ -161,7 +161,7 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
 function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
         // If we are asked to look at stuff in lib.d.ts create its own project
-        if (path.dirname(filePath) == path.dirname(languageServiceHost.defaultLibFile)) {
+        if (path.dirname(filePath) == languageServiceHost.typescriptDirectory) {
             return tsconfig.getDefaultProject(filePath);
         }
 
@@ -391,7 +391,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         // Didn't work good for punctuation
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
-    
+
     /** Doing too many suggestions is slowing us down in some cases */
     let maxSuggestions = 50;
     /** Doc comments slow us down tremendously */

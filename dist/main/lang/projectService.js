@@ -98,7 +98,7 @@ function cacheAndCreateProject(projectFile) {
 }
 function getOrCreateProjectFile(filePath) {
     try {
-        if (path.dirname(filePath) == path.dirname(languageServiceHost.defaultLibFile)) {
+        if (path.dirname(filePath) == languageServiceHost.typescriptDirectory) {
             return tsconfig.getDefaultProject(filePath);
         }
         var projectFile = tsconfig.getProjectSync(filePath);

@@ -1,3 +1,4 @@
+var ts = require('typescript');
 var path = require('path');
 var fs = require('fs');
 var textBuffer = require('basarat-text-buffer');
@@ -118,7 +119,11 @@ function getScriptSnapShot(scriptInfo) {
         version: version
     };
 }
-exports.defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');
+exports.defaultLibFile = function (target) {
+    var filename = target === 2 ? "lib.es6.d.ts" : "lib.d.ts";
+    return (path.join(path.dirname(require.resolve('typescript')), filename)).split('\\').join('/');
+};
+exports.typescriptDirectory = path.dirname(require.resolve('typescript')).split('\\').join('/');
 var LanguageServiceHost = (function () {
     function LanguageServiceHost(config) {
         var _this = this;
@@ -226,10 +231,10 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = function () {
-            return 'lib.d.ts';
+            return _this.config.project.compilerOptions.target === 2 ? "lib.es6.d.ts" : "lib.d.ts";
         };
         config.project.files.forEach(function (file) { return _this.addScript(file); });
-        this.addScript(exports.defaultLibFile);
+        this.addScript(exports.defaultLibFile(config.project.compilerOptions.target));
     }
     return LanguageServiceHost;
 })();

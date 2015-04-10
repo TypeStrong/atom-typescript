@@ -21,10 +21,12 @@ export class Project {
         this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
     }
-    
+
     /** all files except lib.d.ts  */
     public getProjectSourceFiles(): ts.SourceFile[] {
-        var files = this.languageService.getProgram().getSourceFiles().filter(x=> x.fileName !== languageServiceHost.defaultLibFile);
+        var libFile = languageServiceHost.defaultLibFile(this.projectFile.project.compilerOptions.target);
+        var files
+            = this.languageService.getProgram().getSourceFiles().filter(x=> x.fileName !== libFile);
         return files;
     }
 }

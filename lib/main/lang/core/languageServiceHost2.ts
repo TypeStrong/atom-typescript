@@ -205,7 +205,12 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
     }
 }
 
-export var defaultLibFile = (path.join(path.dirname(require.resolve('typescript')), 'lib.d.ts')).split('\\').join('/');
+export var defaultLibFile = (target: ts.ScriptTarget) => {
+    var filename = target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
+    return (path.join(path.dirname(require.resolve('typescript')), filename)).split('\\').join('/');
+}
+
+export var typescriptDirectory = path.dirname(require.resolve('typescript')).split('\\').join('/');
 
 
 // NOTES:
@@ -223,7 +228,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         config.project.files.forEach((file) => this.addScript(file));
 
         // Also add the `lib.d.ts`
-        this.addScript(defaultLibFile);
+        this.addScript(defaultLibFile(config.project.compilerOptions.target));
     }
 
     addScript = (fileName: string, content?: string) => {
@@ -350,6 +355,6 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return this.config.projectFileDirectory;
     }
     getDefaultLibFileName = (): string => {
-        return 'lib.d.ts'; // TODO: this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
+        return this.config.project.compilerOptions.target === ts.ScriptTarget.ES6 ? "lib.es6.d.ts" : "lib.d.ts";
     }
 }
