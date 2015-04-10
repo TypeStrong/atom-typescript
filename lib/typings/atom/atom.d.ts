@@ -1057,7 +1057,8 @@ declare module AtomCore {
 	}
 
 	interface IClipboard {
-		// TBD
+		write(text:string, metadata?:any):any;
+		read():string;
 	}
 
 	interface ISyntax {

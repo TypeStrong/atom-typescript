@@ -9,6 +9,7 @@ var parent = require("../../../worker/parent");
 var d3 = require("d3");
 var path_1 = require("path");
 var tsconfig_1 = require("../../tsconfig/tsconfig");
+var os = require("os");
 exports.dependencyURI = "ts-dependency:";
 function dependencyUriForPath(filePath) {
     return exports.dependencyURI + "//" + filePath;
@@ -52,9 +53,9 @@ var prefixes = {
 function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
-    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    <div class=\"filter-section\">\n        <label>Filter: (enter to commit)</label>\n        <input id=\"filter\" class=\"native-key-bindings\"></input>\n    </div>\n    <div class=\"general-messages\"></div>\n    </div>";
+    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    <div class=\"filter-section\">\n        <label>Filter: (enter to commit)</label>\n        <input id=\"filter\" class=\"native-key-bindings\"></input>\n    </div>\n    <div class='copy-message'>\n        <button class='btn btn-xs'>Copy Messages</button>\n    </div>\n    <div class=\"general-messages\"></div>\n    </div>";
     var messagesElement = mainContent.find('.general-messages');
-    messagesElement.text("Dependency View");
+    messagesElement.text("No Issues Found!");
     var filterElement = mainContent.find('#filter');
     filterElement.keyup(function (event) {
         if (event.keyCode !== 13) {
@@ -79,6 +80,7 @@ function renderGraph(dependencies, mainContent, display) {
             filteredText.classed('filtered-out', false);
         }
     });
+    var copyDisplay = mainContent.find('.copy-message>button');
     var d3NodeLookup = {};
     var d3links = dependencies.map(function (link) {
         var source = d3NodeLookup[link.sourcePath] || (d3NodeLookup[link.sourcePath] = { name: link.sourcePath });
@@ -89,12 +91,23 @@ function renderGraph(dependencies, mainContent, display) {
     if (d3Graph.cycles().length) {
         var cycles = d3Graph.cycles();
         var message = '';
+        var textContent = '';
         for (var _i = 0; _i < cycles.length; _i++) {
             var cycle = cycles[_i];
             message += '<h3>Cycle Found: </h3>';
             message += cycle.join(' <br/> ') + '<br/>';
+            textContent += '---Cycle Found---' + os.EOL;
+            textContent += cycle.join(os.EOL) + os.EOL;
         }
         messagesElement.html(message);
+        copyDisplay.show().on('click', function () {
+            atom.clipboard.write(textContent);
+            atom.notifications.addInfo('Copied!');
+        });
+    }
+    else {
+        copyDisplay.hide();
+        messagesElement.hide();
     }
     Object.keys(d3NodeLookup).forEach(function (name) {
         var node = d3NodeLookup[name];

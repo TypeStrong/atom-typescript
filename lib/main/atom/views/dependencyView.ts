@@ -7,6 +7,7 @@ import * as d3  from "d3";
 import {$} from "atom-space-pen-views";
 import {relative} from "path";
 import {consistentPath} from "../../tsconfig/tsconfig";
+import * as os from "os";
 
 export var dependencyURI = "ts-dependency:";
 export function dependencyUriForPath(filePath: string) {
@@ -72,11 +73,14 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         <label>Filter: (enter to commit)</label>
         <input id="filter" class="native-key-bindings"></input>
     </div>
+    <div class='copy-message'>
+        <button class='btn btn-xs'>Copy Messages</button>
+    </div>
     <div class="general-messages"></div>
     </div>`;
 
     var messagesElement = mainContent.find('.general-messages');
-    messagesElement.text("Dependency View")
+    messagesElement.text("No Issues Found!")
     var filterElement = mainContent.find('#filter');
     filterElement.keyup((event) => {
         if (event.keyCode !== 13) {
@@ -101,6 +105,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
             filteredText.classed('filtered-out', false);
         }
     });
+    let copyDisplay = mainContent.find('.copy-message>button');
 
     // Compute the distinct nodes from the links.
     var d3NodeLookup: { [name: string]: D3LinkNode } = {};
@@ -117,11 +122,22 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     if (d3Graph.cycles().length) {
         let cycles = d3Graph.cycles();
         let message = '';
+        let textContent = '';
         for (let cycle of cycles) {
-            message += '<h3>Cycle Found: </h3>'
-            message += cycle.join(' <br/> ') + '<br/>'
+            message += '<h3>Cycle Found: </h3>';
+            message += cycle.join(' <br/> ') + '<br/>';
+            textContent += '---Cycle Found---' + os.EOL;
+            textContent += cycle.join(os.EOL) + os.EOL;
         }
         messagesElement.html(message);
+
+        copyDisplay.show().on('click', () => {
+            atom.clipboard.write(textContent);
+            atom.notifications.addInfo('Copied!');
+        });
+    } else {
+        copyDisplay.hide();
+        messagesElement.hide();
     }
 
     // setup weights based on degrees
@@ -282,7 +298,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
             .classed('incomming', false)
             .classed('dimmed', fade);
 
-        links.each(function(o: D3Link) {            
+        links.each(function(o: D3Link) {
             if (o.source.name === d.name) {
                 this.classList.remove('dimmed');
                 
