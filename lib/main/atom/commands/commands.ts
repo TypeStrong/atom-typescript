@@ -77,7 +77,7 @@ export function registerCommands() {
                     viewForItem: (item) => {
                         return `
                             <span>${item.filePath}</span>
-                            <div class="pull-right">${item.position.line}:${item.position.col}</div>
+                            <div class="pull-right">line: ${item.position.line}</div>
                         `;
                     },
                     filterKey: 'filePath',

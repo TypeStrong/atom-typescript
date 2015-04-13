@@ -64,7 +64,7 @@ function registerCommands() {
                 simpleSelectionView_1.default({
                     items: definitions,
                     viewForItem: function (item) {
-                        return "\n                            <span>" + item.filePath + "</span>\n                            <div class=\"pull-right\">" + item.position.line + ":" + item.position.col + "</div>\n                        ";
+                        return "\n                            <span>" + item.filePath + "</span>\n                            <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        ";
                     },
                     filterKey: 'filePath',
                     confirmed: function (definition) {
