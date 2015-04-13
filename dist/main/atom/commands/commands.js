@@ -14,6 +14,7 @@ var mainPanelView_1 = require("../views/mainPanelView");
 var url = require("url");
 var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
+var simpleSelectionView_1 = require("../views/simpleSelectionView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -59,11 +60,28 @@ function registerCommands() {
                 atom.notifications.addInfo('AtomTS: No definition found.');
                 return;
             }
-            var definition = definitions[0];
-            atom.workspace.open(definition.filePath, {
-                initialLine: definition.position.line,
-                initialColumn: definition.position.col
-            });
+            if (definitions.length > 1) {
+                simpleSelectionView_1.default({
+                    items: definitions,
+                    viewForItem: function (item) {
+                        return "\n                            <span>" + item.filePath + "</span>\n                            <div class=\"pull-right\">" + item.position.line + ":" + item.position.col + "</div>\n                        ";
+                    },
+                    filterKey: 'filePath',
+                    confirmed: function (definition) {
+                        atom.workspace.open(definition.filePath, {
+                            initialLine: definition.position.line,
+                            initialColumn: definition.position.col
+                        });
+                    }
+                });
+            }
+            else {
+                var definition = definitions[0];
+                atom.workspace.open(definition.filePath, {
+                    initialLine: definition.position.line,
+                    initialColumn: definition.position.col
+                });
+            }
         });
     };
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);

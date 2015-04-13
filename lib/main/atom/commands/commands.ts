@@ -16,7 +16,7 @@ import {panelView} from "../views/mainPanelView";
 import * as url from "url";
 import {AstView, astURI, astUriForPath} from "../views/astView";
 import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/dependencyView";
-
+import simpleSelectionView from "../views/simpleSelectionView";
 
 export function registerCommands() {
 
@@ -70,13 +70,33 @@ export function registerCommands() {
             // Potential future ugly hack for something (atom or TS langauge service) path handling
             // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
 
-            // TODO: support multiple implementations. For now we just go to first
-            var definition = definitions[0];
+            // support multiple implementations. Else just go to first
+            if (definitions.length > 1) {
+                simpleSelectionView({
+                    items: definitions,
+                    viewForItem: (item) => {
+                        return `
+                            <span>${item.filePath}</span>
+                            <div class="pull-right">${item.position.line}:${item.position.col}</div>
+                        `;
+                    },
+                    filterKey: 'filePath',
+                    confirmed: (definition) => {
+                        atom.workspace.open(definition.filePath, {
+                            initialLine: definition.position.line,
+                            initialColumn: definition.position.col
+                        });
+                    }
+                })
+            }
+            else {
+                var definition = definitions[0];
 
-            atom.workspace.open(definition.filePath, {
-                initialLine: definition.position.line,
-                initialColumn: definition.position.col
-            });
+                atom.workspace.open(definition.filePath, {
+                    initialLine: definition.position.line,
+                    initialColumn: definition.position.col
+                });
+            }
         });
     };
 
@@ -117,13 +137,13 @@ export function registerCommands() {
         // Rename file
         var editor = atom.workspace.getActiveTextEditor();
         var matched = atomUtils.editorInKnownScope([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
-        if (matched) {            
+        if (matched) {
             let relativePath = editor.getTextInRange(editor.bufferRangeForScopeAtCursor(matched)).replace(/['"]+/g, '');
-            if(!utils.pathIsRelative(relativePath)){
+            if (!utils.pathIsRelative(relativePath)) {
                 atom.notifications.addInfo('AtomTS: Can only rename external modules if they are relative files!');
                 return;
             }
-            
+
             let completePath = path.resolve(atomUtils.getCurrentPath(), relativePath) + '.ts';
             console.log(completePath);
             
