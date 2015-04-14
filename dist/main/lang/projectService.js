@@ -592,3 +592,12 @@ function getDependencies(query) {
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
+function getQuickFixes(query) {
+    return resolve({
+        fixes: [{
+                key: 'addClassMember',
+                display: 'Add member to class'
+            }]
+    });
+}
+exports.getQuickFixes = getQuickFixes;

@@ -56,7 +56,7 @@ export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
             ${this.options.viewForItem(item) }
         </li>`;
     }
-    
+
     /** override */
     confirmed(item: T) {
         this.options.confirmed(item);
@@ -72,9 +72,9 @@ export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
         this.storeFocusedElement();
         this._overlayDecoration = this.editor.decorateMarker(this.editor.getLastCursor().getMarker(),
             { type: "overlay", position: "tail", item: this });
-        
+
         /** I've need to do this timeout otherwise we don't get focus. I suspect its an artifact of creating an overlay decoration */
-        // Comment this out if you want to test styles ;) 
+        // Comment this out if you want to test styles ;)
         setTimeout(() => this.focusFilterEditor(), 100);
     }
 
@@ -89,4 +89,3 @@ export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
         this.hide();
     }
 }
-

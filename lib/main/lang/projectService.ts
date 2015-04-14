@@ -912,3 +912,26 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
 
     return resolve({ links });
 }
+
+/**
+ * Get Quick Fix
+ * WARNING: Experimental stuff. Don't judge me.
+ */
+export interface GetQuickFixesQuery extends FilePathQuery { }
+export interface QuickFixDisplay {
+    /** Uniquely identifies which function will be called to carry out the fix */
+    key: string;
+    /** What will be displayed in the UI */
+    display: string;
+}
+export interface GetQuickFixesResponse {
+    fixes: QuickFixDisplay[];
+}
+export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesResponse> {
+    return resolve({
+        fixes: [{
+            key:'addClassMember',
+            display: 'Add member to class'
+        }]
+    })
+}

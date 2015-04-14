@@ -288,16 +288,18 @@ function registerCommands() {
             return;
         atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
         var editor = atomUtils.getActiveEditor();
-        simpleOverlaySelectionView_1.default({
-            items: [{ key: 'add member to class' }],
-            viewForItem: function (item) {
-                return "<div>\n                    " + item.key + "\n                </div>";
-            },
-            filterKey: 'key',
-            confirmed: function (item) {
-                console.log(item);
-            }
-        }, editor);
+        parent.getQuickFixes(atomUtils.getFilePathPosition()).then(function (result) {
+            simpleOverlaySelectionView_1.default({
+                items: result.fixes,
+                viewForItem: function (item) {
+                    return "<div>\n                        " + item.display + "\n                    </div>";
+                },
+                filterKey: 'display',
+                confirmed: function (item) {
+                    console.log(item);
+                }
+            }, editor);
+        });
     });
 }
 exports.registerCommands = registerCommands;

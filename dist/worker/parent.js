@@ -62,5 +62,6 @@ exports.getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems)
 exports.getReferences = parent.sendToIpc(projectService.getReferences);
 exports.getAST = parent.sendToIpc(projectService.getAST);
 exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
+exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

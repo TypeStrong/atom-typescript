@@ -147,9 +147,9 @@ export function registerCommands() {
 
             let completePath = path.resolve(atomUtils.getCurrentPath(), relativePath) + '.ts';
             console.log(completePath);
-            
+
             // TODO: query the projectService
-            
+
             renameView.panelView.renameThis({
                 autoSelect: false,
                 title: 'Rename File',
@@ -164,14 +164,14 @@ export function registerCommands() {
                     return '';
                 },
                 onCommit: (newText) => {
-                    newText = newText.trim();                    
-                    
+                    newText = newText.trim();
+
                     // TODO: use the query from projectService
                 }
             });
             atom.notifications.addInfo('AtomTS: File rename comming soon!');
         }
-        
+
         // Rename variable
         else {
             parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
@@ -357,18 +357,21 @@ export function registerCommands() {
 
         var editor = atomUtils.getActiveEditor();
 
-        overlaySelectionView({
-            items: [{ key: 'add member to class' }],
-            viewForItem: (item) => {
-                return `<div>
-                    ${item.key}
-                </div>`;
-            },
-            filterKey: 'key',
-            confirmed: (item) => {
-                console.log(item);
-            }
-        }, editor);
+
+        parent.getQuickFixes(atomUtils.getFilePathPosition()).then((result) => {
+            overlaySelectionView({
+                items: result.fixes,
+                viewForItem: (item) => {
+                    return `<div>
+                        ${item.display}
+                    </div>`;
+                },
+                filterKey: 'display',
+                confirmed: (item) => {
+                    console.log(item);
+                }
+            }, editor);
+        });
     });
 
     /// Register autocomplete commands to show documentations
