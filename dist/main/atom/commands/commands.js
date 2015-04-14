@@ -15,6 +15,7 @@ var url = require("url");
 var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
+var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
 function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -281,6 +282,22 @@ function registerCommands() {
             return;
         }
         return new dependencyView_1.DependencyView(details.filePath);
+    });
+    atom.commands.add('atom-text-editor', 'typescript:quick-fix', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
+        var editor = atomUtils.getActiveEditor();
+        simpleOverlaySelectionView_1.default({
+            items: [{ key: 'add member to class' }],
+            viewForItem: function (item) {
+                return "<div>\n                    " + item.key + "\n                </div>";
+            },
+            filterKey: 'key',
+            confirmed: function (item) {
+                console.log(item);
+            }
+        }, editor);
     });
 }
 exports.registerCommands = registerCommands;

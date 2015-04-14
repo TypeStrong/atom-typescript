@@ -154,3 +154,7 @@ function editorInKnownScope(matches) {
         return '';
 }
 exports.editorInKnownScope = editorInKnownScope;
+function getActiveEditor() {
+    return atom.workspace.getActiveTextEditor();
+}
+exports.getActiveEditor = getActiveEditor;

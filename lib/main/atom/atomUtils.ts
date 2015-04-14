@@ -172,6 +172,11 @@ export function editorInKnownScope(matches: string[]) {
     var lastScope = scopes[scopes.length - 1];
     if (matches.some(p=> lastScope === p))
         return lastScope;
-    else 
+    else
         return '';
+}
+
+/** One less level of indirection */
+export function getActiveEditor() {
+    return atom.workspace.getActiveTextEditor();
 }

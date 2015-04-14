@@ -32,7 +32,6 @@ import {$} from "atom-space-pen-views";
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 
-
 // globals
 var statusBar;
 var statusBarMessage;
@@ -187,7 +186,7 @@ function readyToActivate() {
                     filePath = event.path;
                     onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
-
+                
                 // Observe editors closing
                 var destroyObserver = editor.onDidDestroy(() => {
                     // Clear errors in view

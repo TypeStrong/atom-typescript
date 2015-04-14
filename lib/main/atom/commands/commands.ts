@@ -17,6 +17,7 @@ import * as url from "url";
 import {AstView, astURI, astUriForPath} from "../views/astView";
 import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/dependencyView";
 import simpleSelectionView from "../views/simpleSelectionView";
+import overlaySelectionView from "../views/simpleOverlaySelectionView";
 
 export function registerCommands() {
 
@@ -349,6 +350,27 @@ export function registerCommands() {
         return new DependencyView(details.filePath);
     });
 
+    atom.commands.add('atom-text-editor', 'typescript:quick-fix', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
+
+        var editor = atomUtils.getActiveEditor();
+
+        overlaySelectionView({
+            items: [{ key: 'add member to class' }],
+            viewForItem: (item) => {
+                return `<div>
+                    ${item.key}
+                </div>`;
+            },
+            filterKey: 'key',
+            confirmed: (item) => {
+                console.log(item);
+            }
+        }, editor);
+    });
+
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
         var autocompletePlus = apd.require('autocomplete-plus');
@@ -375,7 +397,7 @@ export function registerCommands() {
             var length = autocompletePlus.autocompleteManager.suggestionList.items.length
             if (--currentSuggestionIndex < 0) {
                 currentSuggestionIndex = maxIndex - 1;
-            }
+            };
             documentationView.docView.show();
         });
     }).catch((err) => {

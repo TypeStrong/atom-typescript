@@ -37,6 +37,29 @@ declare module AtomCore {
     interface Disposable {
         dispose();
     }
+	
+	interface Decoration
+	{
+	    destroy(): void;
+	}
+	
+	/**
+	 * Represents a buffer annotation that remains logically stationary even as the buffer changes. This is used
+	 * to represent cursors, folds, snippet targets, misspelled words, any anything else that needs to track a
+	 * logical location in the buffer over time.
+	 */
+    interface Marker {
+        /**
+         * Destroys the marker, causing it to emit the 'destroyed' event. Once destroyed, a marker cannot be
+         * restored by undo/redo operations.
+         */
+        destroy(): void;
+
+        /**
+         * Gets the screen range of the display marker.
+         */
+        getScreenRange(): Range;
+    }
 
     interface IWorkspaceView extends View {
 		// Delegator.includeInto(WorkspaceView);
@@ -426,6 +449,7 @@ declare module AtomCore {
 		isAtEndOfLine():boolean;
 		getScopes():string[];
 		hasPrecedingCharactersOnLine():boolean;
+		getMarker(): Marker;
 	}
 
 	interface ILanguageMode {
@@ -766,6 +790,9 @@ declare module AtomCore {
 		screenPositionForPixelPosition: Function;
         pixelPositionForBufferPosition: Function;
 		getHeight(): number;
+		
+		decorateMarker(marker: Marker, options: any): Decoration;
+		getLastCursor(): ICursor;
 	}
 
 	interface IGrammar {
