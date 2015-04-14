@@ -9,6 +9,7 @@ We do not support `--out` as we think its a bad idea for you to use because of t
 * `_references`
 * Code reuse
 * Multiple Targets
+* Isolated Compile
 
 ## Runtime Errors
 
@@ -75,6 +76,25 @@ If you want to reuse a portion of your code in another project, with all that *i
 
 ## Multiple Targets
 Also if you decide to reuse your browser code in something like nodejs (e.g. for *testing* APIs) you are going to need to port it over to a module system or come up with ugly hacks to make the nodejs `global` your new global scope (i.e. `window`).
+
+## Isolated Compile
+Files cannot be compiled in isolation. E.g. consider `a.ts`: 
+```ts
+module M {
+  var s = t;
+}
+```
+Will have different output depending upon whether there is a `b.ts` of the form: 
+```ts
+module M {
+  export var t = 5;
+}
+```
+or 
+```ts
+var t = 5;
+```
+So `a.ts` [cannot be compiled in isolation](https://github.com/Microsoft/TypeScript/issues/2715).
 
 ## Summary
 `--out` is really the job of some build tool. And even such a build tool can benefit from the dependency mentions provided by external modules. So we recommend you use external modules and then let the build tool create a single `.js` for you if you so desire.
