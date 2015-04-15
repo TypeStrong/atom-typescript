@@ -923,6 +923,7 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
  * WARNING: Experimental stuff. Don't judge me.
  */
 import {QuickFix, QuickFixQueryInformation} from "./fixmyts/quickFix";
+import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember()
@@ -938,13 +939,14 @@ export interface GetQuickFixesResponse {
     fixes: QuickFixDisplay[];
 }
 export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesResponse> {
-    
+
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var program = project.languageService.getProgram();
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
+    var positionNode: ts.Node = ast.deepestNodeAtPosition(srcFile, query.position);
 
     var info: QuickFixQueryInformation = {
         project,
@@ -952,7 +954,8 @@ export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesR
         srcFile,
         fileErrors,
         positionErrors,
-        position: query.position
+        position: query.position,
+        positionNode,
     };
 
     // And then we let the quickFix determine if it wants provide any fixes for this file

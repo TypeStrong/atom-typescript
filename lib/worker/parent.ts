@@ -15,7 +15,7 @@ var parent = new workerLib.Parent();
 import * as mainPanel from "../main/atom/views/mainPanelView";
 parent.pendingRequestsChanged = (pending) => {
     // We only start once the panel view is initialized
-    if(!mainPanel.panelView) return;
+    if (!mainPanel.panelView) return;
 
     mainPanel.panelView.updatePendingRequests(pending);
 };

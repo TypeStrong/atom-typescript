@@ -596,6 +596,7 @@ function getDependencies(query) {
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
+var ast = require("./fixmyts/astUtils");
 var addClassMember_1 = require("./fixmyts/addClassMember");
 var allQuickFixes = [
     new addClassMember_1.default()
@@ -607,13 +608,15 @@ function getQuickFixes(query) {
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
+    var positionNode = ast.deepestNodeAtPosition(srcFile, query.position);
     var info = {
         project: project,
         program: program,
         srcFile: srcFile,
         fileErrors: fileErrors,
         positionErrors: positionErrors,
-        position: query.position
+        position: query.position,
+        positionNode: positionNode,
     };
     var fixes = allQuickFixes.map(function (x) { return { key: x.key, display: x.canProvideFix(info) }; }).filter(function (x) { return !!x.display; });
     return resolve({ fixes: fixes });

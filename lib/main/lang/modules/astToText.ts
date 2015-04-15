@@ -9,10 +9,7 @@
 import * as ts from "typescript";
 import {SyntaxKind, Node} from "typescript";
 
-/**
-  * Important notes:
-  */
-export default function astToText(srcFile: ts.SourceFile) {
+export default function astToText(srcFile: ts.Node) {
 
     //// A useful function for debugging
     // aggregate(srcFile, 0);
