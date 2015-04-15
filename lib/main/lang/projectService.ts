@@ -946,7 +946,7 @@ export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesR
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
-    var positionNode: ts.Node = ast.deepestNodeAtPosition(srcFile, query.position);
+    var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
 
     var info: QuickFixQueryInformation = {
         project,

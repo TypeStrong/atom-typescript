@@ -7,18 +7,6 @@ function forEachChildRecursive(node, cbNode, depth) {
     return res;
 }
 exports.forEachChildRecursive = forEachChildRecursive;
-function deepestNodeAtPosition(node, position) {
-    var deepest = node;
-    function checkDeeperNodes(node) {
-        if (node.pos < position && node.end > position) {
-            deepest = node;
-            exports.forEachChild(node, checkDeeperNodes);
-        }
-    }
-    exports.forEachChild(node, checkDeeperNodes);
-    return deepest;
-}
-exports.deepestNodeAtPosition = deepestNodeAtPosition;
 function getNodeByKindAndName(program, kind, name) {
     var found = undefined;
     function findNode(node) {

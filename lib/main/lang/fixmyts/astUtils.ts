@@ -8,20 +8,6 @@ export function forEachChildRecursive<T>(node: ts.Node, cbNode: (node: ts.Node, 
     return res;
 }
 
-export function deepestNodeAtPosition(node: ts.Node, position: number) {
-    var deepest: ts.Node = node;
-
-    function checkDeeperNodes(node: ts.Node) {
-        if (node.pos < position && node.end > position) {
-            deepest = node;
-            forEachChild(node, checkDeeperNodes);
-        }
-    }
-
-    forEachChild(node, checkDeeperNodes);
-    return deepest;
-}
-
 export function getNodeByKindAndName(program: ts.Program, kind: ts.SyntaxKind, name: string): ts.Node {
     let found: ts.Node = undefined;
 
