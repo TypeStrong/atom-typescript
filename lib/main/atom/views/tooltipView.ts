@@ -10,19 +10,23 @@ interface Rect {
 
 export class TooltipView extends view.View<any> {
 
-    constructor(public rect:Rect) {
+    constructor(public rect: Rect) {
         super();
         $(document.body).append(this.$);
         this.updatePosition()
     }
 
+    private inner: JQuery;
     static content() {
-        return this.div({ class: 'atom-typescript-tooltip' });
+        return this.div({ class: 'atom-typescript-tooltip tooltip' }, () => {
+            this.div({ class: 'tooltip-inner', outlet: 'inner' })
+        });
     }
 
     updateText(text: string) {
-        this.$.html(text);
+        this.inner.html(text);
         this.updatePosition();
+        this.$.fadeTo(300, 1);
     }
 
     updatePosition() {

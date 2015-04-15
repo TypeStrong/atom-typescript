@@ -15,11 +15,15 @@ var TooltipView = (function (_super) {
         this.updatePosition();
     }
     TooltipView.content = function () {
-        return this.div({ class: 'atom-typescript-tooltip' });
+        var _this = this;
+        return this.div({ class: 'atom-typescript-tooltip tooltip' }, function () {
+            _this.div({ class: 'tooltip-inner', outlet: 'inner' });
+        });
     };
     TooltipView.prototype.updateText = function (text) {
-        this.$.html(text);
+        this.inner.html(text);
         this.updatePosition();
+        this.$.fadeTo(300, 1);
     };
     TooltipView.prototype.updatePosition = function () {
         var offset = 10;

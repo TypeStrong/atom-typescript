@@ -8,11 +8,3 @@ declare class AtomView {
     // Methods from base View
     remove();
 }
-
-declare module 'views/tooltip' {
-    class TooltipView extends AtomView {
-        constructor(rect: any);
-        updateText(text: string);
-    }
-	export = TooltipView;
-}

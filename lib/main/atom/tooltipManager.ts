@@ -43,7 +43,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip: TooltipView = null;
-    
+
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt: any;
 
@@ -51,7 +51,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e)
         var screenPt = editor.screenPositionForPixelPosition(pixelPt)
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt)
-        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt))
+        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
             return;
 
         lastExprTypeBufferPt = bufferPt;

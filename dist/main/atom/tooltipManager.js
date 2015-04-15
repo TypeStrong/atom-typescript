@@ -36,7 +36,7 @@ function attach(editorView, editor) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt))
+        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
             return;
         lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
