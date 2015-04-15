@@ -23,12 +23,11 @@ export function deepestNodeAtPosition(node: ts.Node, position: number) {
 }
 
 export function getNodeByKindAndName(program: ts.Program, kind: ts.SyntaxKind, name: string): ts.Node {
-    console.error(name);
     let found: ts.Node = undefined;
 
     function findNode(node: ts.Node) {
         if (node.kind == kind) {
-            // Now lookup name: 
+            // Now lookup name:
             if (node.kind == ts.SyntaxKind.ClassDeclaration) {
                 if ((<ts.ClassDeclaration>node).name.text == name) {
                     found = node;

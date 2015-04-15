@@ -25,6 +25,7 @@ var AddClassMember = (function () {
         var identifierName = identifier.text;
         var typeName = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./)[2];
         var classNode = ast.getNodeByKindAndName(info.program, 201, typeName);
+        var typeChecker = info.program.getTypeChecker();
         return [];
     };
     return AddClassMember;

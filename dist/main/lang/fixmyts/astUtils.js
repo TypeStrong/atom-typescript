@@ -20,7 +20,6 @@ function deepestNodeAtPosition(node, position) {
 }
 exports.deepestNodeAtPosition = deepestNodeAtPosition;
 function getNodeByKindAndName(program, kind, name) {
-    console.error(name);
     var found = undefined;
     function findNode(node) {
         if (node.kind == kind) {
