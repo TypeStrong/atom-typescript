@@ -82,7 +82,7 @@ exports.provider = {
                             snippet: c.snippet,
                             replacementPrefix: '',
                             rightLabel: 'signature',
-                            type: 'snippet'
+                            type: 'snippet',
                         };
                     }
                     else {
@@ -92,6 +92,7 @@ exports.provider = {
                             rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                             leftLabel: c.kind,
                             type: atomUtils.kindToType(c.kind),
+                            description: c.comment,
                         };
                     }
                 });

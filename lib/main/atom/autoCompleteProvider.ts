@@ -36,6 +36,7 @@ declare module autocompleteplus {
         rightLabel?: string;
         rightLabelHTML?: string;
         type: string;
+        description?: string;
 
         atomTS_IsReference?: {
             relativePath: string
@@ -174,7 +175,7 @@ export var provider: autocompleteplus.Provider = {
                                 snippet: c.snippet,
                                 replacementPrefix: '',
                                 rightLabel: 'signature',
-                                type: 'snippet'
+                                type: 'snippet',
                             };
                         }
                         else {
@@ -184,6 +185,7 @@ export var provider: autocompleteplus.Provider = {
                                 rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
                                 leftLabel: c.kind,
                                 type: atomUtils.kindToType(c.kind),
+                                description: c.comment,
                             };
                         }
                     });
