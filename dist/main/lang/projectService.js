@@ -373,14 +373,18 @@ function editText(query) {
     return resolve({});
 }
 exports.editText = editText;
+function getDiagnositcsByFilePath(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var diagnostics = project.languageService.getSyntacticDiagnostics(query.filePath);
+    if (diagnostics.length === 0) {
+        diagnostics = project.languageService.getSemanticDiagnostics(query.filePath);
+    }
+    return diagnostics;
+}
 function errorsForFile(query) {
     consistentPath(query);
-    var program = getOrCreateProject(query.filePath);
-    var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
-    if (diagnostics.length === 0) {
-        diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
-    }
-    return resolve({ errors: diagnostics.map(building.diagnosticToTSError) });
+    return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {
@@ -592,12 +596,26 @@ function getDependencies(query) {
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
+var addClassMember_1 = require("./fixmyts/addClassMember");
+var allQuickFixes = [
+    new addClassMember_1.default()
+];
 function getQuickFixes(query) {
-    return resolve({
-        fixes: [{
-                key: 'addClassMember',
-                display: 'Add member to class'
-            }]
-    });
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var program = project.languageService.getProgram();
+    var srcFile = program.getSourceFile(query.filePath);
+    var fileErrors = getDiagnositcsByFilePath(query);
+    var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
+    var info = {
+        project: project,
+        program: program,
+        srcFile: srcFile,
+        fileErrors: fileErrors,
+        positionErrors: positionErrors,
+        position: query.position
+    };
+    var fixes = allQuickFixes.map(function (x) { return { key: x.key, display: x.canProvideFix(info) }; }).filter(function (x) { return !!x.display; });
+    return resolve({ fixes: fixes });
 }
 exports.getQuickFixes = getQuickFixes;

@@ -359,6 +359,11 @@ export function registerCommands() {
 
 
         parent.getQuickFixes(atomUtils.getFilePathPosition()).then((result) => {
+            if (!result.fixes.length) {
+                atom.notifications.addInfo('AtomTS: No QuickFixes for current cursor position');
+                return;
+            }
+
             overlaySelectionView({
                 items: result.fixes,
                 viewForItem: (item) => {

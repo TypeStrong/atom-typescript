@@ -289,6 +289,10 @@ function registerCommands() {
         atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
         var editor = atomUtils.getActiveEditor();
         parent.getQuickFixes(atomUtils.getFilePathPosition()).then(function (result) {
+            if (!result.fixes.length) {
+                atom.notifications.addInfo('AtomTS: No QuickFixes for current cursor position');
+                return;
+            }
             simpleOverlaySelectionView_1.default({
                 items: result.fixes,
                 viewForItem: function (item) {

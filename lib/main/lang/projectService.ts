@@ -565,17 +565,22 @@ export function editText(query: EditTextQuery): Promise<any> {
     return resolve({});
 }
 
+/** Utility function */
+function getDiagnositcsByFilePath(query: FilePathQuery) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var diagnostics = project.languageService.getSyntacticDiagnostics(query.filePath);
+    if (diagnostics.length === 0) {
+        diagnostics = project.languageService.getSemanticDiagnostics(query.filePath);
+    }
+    return diagnostics;
+}
+
 export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
-    var program = getOrCreateProject(query.filePath);
-    var diagnostics = program.languageService.getSyntacticDiagnostics(query.filePath);
-    if (diagnostics.length === 0) {
-        diagnostics = program.languageService.getSemanticDiagnostics(query.filePath);
-    }
-
-    return resolve({ errors: diagnostics.map(building.diagnosticToTSError) });
+    return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
@@ -917,7 +922,12 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
  * Get Quick Fix
  * WARNING: Experimental stuff. Don't judge me.
  */
-export interface GetQuickFixesQuery extends FilePathQuery { }
+import {QuickFix, QuickFixQueryInformation} from "./fixmyts/quickFix";
+import AddClassMember from "./fixmyts/addClassMember";
+var allQuickFixes: QuickFix[] = [
+    new AddClassMember()
+];
+export interface GetQuickFixesQuery extends FilePathPositionQuery { }
 export interface QuickFixDisplay {
     /** Uniquely identifies which function will be called to carry out the fix */
     key: string;
@@ -928,10 +938,26 @@ export interface GetQuickFixesResponse {
     fixes: QuickFixDisplay[];
 }
 export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesResponse> {
-    return resolve({
-        fixes: [{
-            key:'addClassMember',
-            display: 'Add member to class'
-        }]
-    })
+    
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var program = project.languageService.getProgram();
+    var srcFile = program.getSourceFile(query.filePath);
+    var fileErrors = getDiagnositcsByFilePath(query);
+    var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
+
+    var info: QuickFixQueryInformation = {
+        project,
+        program,
+        srcFile,
+        fileErrors,
+        positionErrors,
+        position: query.position
+    };
+
+    // And then we let the quickFix determine if it wants provide any fixes for this file
+    // And if so we also treat the result as a display string
+    var fixes = allQuickFixes.map(x => { return { key: x.key, display: x.canProvideFix(info) } }).filter(x=> !!x.display);
+
+    return resolve({ fixes });
 }
