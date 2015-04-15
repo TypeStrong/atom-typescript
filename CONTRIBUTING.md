@@ -9,6 +9,11 @@ cd %HOMEPATH%\.atom\packages
 git clone https://github.com/TypeStrong/atom-typescript.git
 ```
 
+An alternative on Windows is to run this command from the root of your cloned atom-typescript folder to update the "installed" atom-typescript plugin.  After the first run, it should take less than a second.  You still have to reload atom with `ctrl+alt+r` to test your changes.
+```bash
+xcopy *.* %homepath%\.atom\packages\atom-typescript\ /D /E /Y
+```
+
 
 
 # Various
@@ -20,7 +25,7 @@ git clone https://github.com/TypeStrong/atom-typescript.git
 **We develop atom-typescript with atom-typescript**
 
 Some shortcuts:
-* `ctrl+shift+i` will open the dev tools. These are the same chrome dev tools you are familiar with. Feel free to inspect elements. This will come handy when doing UI or even seeing why a particular code element is highlighted in some way.
+* `ctrl+alt+i` will open the dev tools. These are the same Chrome dev tools you are familiar with. Feel free to inspect elements. This will come handy when doing UI or even seeing why a particular code element is highlighted in some way.
 * `ctrl+alt+r` will reload the entire atom instance.
 
 ### Debugging
