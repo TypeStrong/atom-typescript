@@ -608,6 +608,7 @@ function getDependencies(query) {
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
+var qf = require("./fixmyts/quickFix");
 var addClassMember_1 = require("./fixmyts/addClassMember");
 var allQuickFixes = [
     new addClassMember_1.default()
@@ -620,6 +621,7 @@ function getInfoForQuickFixAnalysis(query) {
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
     var positionNode = ts.getTokenAtPosition(srcFile, query.position);
+    var service = project.languageService;
     return {
         project: project,
         program: program,
@@ -628,6 +630,7 @@ function getInfoForQuickFixAnalysis(query) {
         positionErrors: positionErrors,
         position: query.position,
         positionNode: positionNode,
+        service: service
     };
 }
 function getQuickFixes(query) {
@@ -641,7 +644,8 @@ function applyQuickFix(query) {
     consistentPath(query);
     var fix = allQuickFixes.filter(function (x) { return x.key == query.key; })[0];
     var info = getInfoForQuickFixAnalysis(query);
-    var refactorings = fix.provideFix(info);
+    var res = fix.provideFix(info);
+    var refactorings = qf.getRefactoringsByFilePath(res);
     return resolve({ refactorings: refactorings });
 }
 exports.applyQuickFix = applyQuickFix;

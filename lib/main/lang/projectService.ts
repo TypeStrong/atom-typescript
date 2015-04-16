@@ -941,6 +941,7 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
  * WARNING: Experimental stuff. Don't judge me.
  */
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFix";
+import * as qf from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
 var allQuickFixes: QuickFix[] = [
@@ -955,6 +956,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
     var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
+    var service = project.languageService;
 
     return {
         project,
@@ -964,6 +966,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
         positionErrors,
         position: query.position,
         positionNode,
+        service
     };
 }
 
@@ -995,13 +998,14 @@ export interface ApplyQuickFixQuery extends FilePathPositionQuery {
     additionalData?: any;
 }
 export interface ApplyQuickFixResponse {
-    refactorings: Refactoring[];
+    refactorings: qf.RefactoringsByFilePath;
 }
 export function applyQuickFix(query: ApplyQuickFixQuery): Promise<ApplyQuickFixResponse> {
     consistentPath(query);
 
     var fix = allQuickFixes.filter(x=> x.key == query.key)[0];
     var info = getInfoForQuickFixAnalysis(query);
-    var refactorings = fix.provideFix(info);
-    return resolve({refactorings});
+    var res = fix.provideFix(info);
+    var refactorings = qf.getRefactoringsByFilePath(res);
+    return resolve({ refactorings });
 }

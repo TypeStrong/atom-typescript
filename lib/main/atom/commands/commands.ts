@@ -183,10 +183,9 @@ export function registerCommands() {
                 var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
                 var openPathsMap = utils.createMap(paths);
 
-                var refactorPaths = Object.keys(res.locations);
-
-                var openFiles = refactorPaths.filter(p=> openPathsMap[p]);
-                var closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
+                let refactorPaths = Object.keys(res.locations);
+                let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
+                let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
 
                 renameView.panelView.renameThis({
                     autoSelect: true,
@@ -402,16 +401,32 @@ export function registerCommands() {
                 },
                 filterKey: 'display',
                 confirmed: (item) => {
-                    // NOTE: we do special case UI's here if we want.
-                    // Then we would send that data through using `additionalData`
-                    var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-                    var openPathsMap = utils.createMap(paths);
-
-                    // TODO: WIP.
-
+                    // NOTE: we can special case UI's here if we want.
 
                     parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then((res) => {
-                        console.log(res.refactorings);
+
+                        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+                        var openPathsMap = utils.createMap(paths);
+
+                        let refactorPaths = Object.keys(res.refactorings);
+                        let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
+                        let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
+
+                        // if file is open change in buffer
+                        // otherwise open the file and change the buffer range
+                        atomUtils.getEditorsForAllPaths(refactorPaths)
+                            .then((editorMap) => {
+                            refactorPaths.forEach((filePath) => {
+                                var editor = editorMap[filePath];
+                                editor.transact(() => {
+                                    res.refactorings[filePath].forEach((refactoring) => {
+                                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
+                                        editor.setTextInBufferRange(range, refactoring.newText);
+                                    });
+                                })
+                            });
+                        });
+
                     });
                 }
             }, editor);

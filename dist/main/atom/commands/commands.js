@@ -326,10 +326,25 @@ function registerCommands() {
                 },
                 filterKey: 'display',
                 confirmed: function (item) {
-                    var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-                    var openPathsMap = utils.createMap(paths);
+                    // NOTE: we can special case UI's here if we want.
                     parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then(function (res) {
-                        console.log(res.refactorings);
+                        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+                        var openPathsMap = utils.createMap(paths);
+                        var refactorPaths = Object.keys(res.refactorings);
+                        var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
+                        var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
+                        atomUtils.getEditorsForAllPaths(refactorPaths)
+                            .then(function (editorMap) {
+                            refactorPaths.forEach(function (filePath) {
+                                var editor = editorMap[filePath];
+                                editor.transact(function () {
+                                    res.refactorings[filePath].forEach(function (refactoring) {
+                                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
+                                        editor.setTextInBufferRange(range, refactoring.newText);
+                                    });
+                                });
+                            });
+                        });
                     });
                 }
             }, editor);

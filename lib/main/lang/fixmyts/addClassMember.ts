@@ -1,6 +1,7 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
 import * as ts from "typescript";
 import * as ast from "./astUtils";
+import {EOL} from "os";
 
 export default class AddClassMember implements QuickFix {
     key = AddClassMember.name;
@@ -9,7 +10,7 @@ export default class AddClassMember implements QuickFix {
         var relevantError = info.positionErrors.filter(x=> x.code == 2339)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
-        
+
         // TODO: use type checker to see if item of `.` before hand is a class
         //  But for now just run with it.
 
@@ -33,9 +34,14 @@ export default class AddClassMember implements QuickFix {
 
         // Find the containing class declaration
         var classNode = <ts.ClassDeclaration>ast.getNodeByKindAndName(info.program, ts.SyntaxKind.ClassDeclaration, typeName);
-        
+
         // Then the first brace
         var firstBrace = classNode.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
+
+        // Perhaps later:
+        var indentLength = info.service.getIndentationAtPosition(
+            info.srcFile.fileName, firstBrace.end + 1, info.project.projectFile.project.formatCodeOptions);
+        var indent = Array(indentLength + 1).join(' ');
 
         // And add stuff after the first brace
         var refactoring: Refactoring = {
@@ -44,7 +50,7 @@ export default class AddClassMember implements QuickFix {
                 length: 0
             },
             /** TODO: ask the type checker for the type if the right hand side is an assignment */
-            newText: `${identifierName}:any;`,
+            newText: `${EOL}${indent}${identifierName}: any;`,
             filePath: classNode.getSourceFile().fileName
         };
 

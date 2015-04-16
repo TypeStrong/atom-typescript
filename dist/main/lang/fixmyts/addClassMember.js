@@ -1,5 +1,6 @@
 var ts = require("typescript");
 var ast = require("./astUtils");
+var os_1 = require("os");
 var AddClassMember = (function () {
     function AddClassMember() {
         this.key = AddClassMember.name;
@@ -25,12 +26,14 @@ var AddClassMember = (function () {
         var typeName = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./)[2];
         var classNode = ast.getNodeByKindAndName(info.program, 201, typeName);
         var firstBrace = classNode.getChildren().filter(function (x) { return x.kind == 14; })[0];
+        var indentLength = info.service.getIndentationAtPosition(info.srcFile.fileName, firstBrace.end + 1, info.project.projectFile.project.formatCodeOptions);
+        var indent = Array(indentLength + 1).join(' ');
         var refactoring = {
             span: {
                 start: firstBrace.end,
                 length: 0
             },
-            newText: identifierName + ":any;",
+            newText: "" + os_1.EOL + indent + identifierName + ": any;",
             filePath: classNode.getSourceFile().fileName
         };
         return [refactoring];
