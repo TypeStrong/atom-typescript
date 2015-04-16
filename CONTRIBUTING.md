@@ -2,24 +2,26 @@
 Before doing any meaningful work or even investigating [please create an issue for discussion](https://github.com/TypeStrong/atom-typescript/issues) so we don't have duplicate work and we don't step on your toes.
 
 # Setup Dev Machine
-Best solution I have found is to simply clone at your packages directory. On Windows:
+Simply clone the repository, and then link the folder into your packages directory:
 
 ```bash
-cd %HOMEPATH%\.atom\packages
 git clone https://github.com/TypeStrong/atom-typescript.git
+cd atom-typescript
+apm link -l
 ```
 
-An alternative on Windows is to run this command from the root of your cloned atom-typescript folder to update the "installed" atom-typescript plugin.  After the first run, it should take less than a second.  You still have to reload atom with `ctrl+alt+r` to test your changes.
-```bash
-xcopy *.* %homepath%\.atom\packages\atom-typescript\ /D /E /Y
-```
+You still have to reload atom with `ctrl+alt+r` to test your changes.
 
-
+(Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
 # Various
 
 ## Publishing
 `apm publish minor`
+
+or `apm publish patch` depending on how you feel about your changes. 
+
+Note: `apm publish major` must be justified with a corresponding change in changelog.md
 
 ## Workflow
 **We develop atom-typescript with atom-typescript**
