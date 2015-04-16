@@ -38,7 +38,7 @@ export default class AddClassMember implements QuickFix {
         // Then the first brace
         var firstBrace = classNode.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
 
-        // Perhaps later:
+        // And the correct indent
         var indentLength = info.service.getIndentationAtPosition(
             info.srcFile.fileName, firstBrace.end + 1, info.project.projectFile.project.formatCodeOptions);
         var indent = Array(indentLength + 1).join(' ');
