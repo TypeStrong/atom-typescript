@@ -64,5 +64,6 @@ exports.getAST = parent.sendToIpc(projectService.getAST);
 exports.getASTFull = parent.sendToIpc(projectService.getASTFull);
 exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
+exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

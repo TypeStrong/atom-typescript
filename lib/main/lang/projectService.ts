@@ -879,7 +879,7 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
 /**
  * Get AST
  */
-import {astToText,astToTextFull} from "./modules/astToText";
+import {astToText, astToTextFull} from "./modules/astToText";
 export interface GetASTQuery extends FilePathQuery { }
 export interface GetASTResponse {
     root?: NodeDisplay
@@ -940,12 +940,33 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
  * Get Quick Fix
  * WARNING: Experimental stuff. Don't judge me.
  */
-import {QuickFix, QuickFixQueryInformation} from "./fixmyts/quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember()
 ];
+
+function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var program = project.languageService.getProgram();
+    var srcFile = program.getSourceFile(query.filePath);
+    var fileErrors = getDiagnositcsByFilePath(query);
+    var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
+    var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
+
+    return {
+        project,
+        program,
+        srcFile,
+        fileErrors,
+        positionErrors,
+        position: query.position,
+        positionNode,
+    };
+}
+
 export interface GetQuickFixesQuery extends FilePathPositionQuery { }
 export interface QuickFixDisplay {
     /** Uniquely identifies which function will be called to carry out the fix */
@@ -957,28 +978,30 @@ export interface GetQuickFixesResponse {
     fixes: QuickFixDisplay[];
 }
 export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesResponse> {
-
     consistentPath(query);
-    var project = getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var srcFile = program.getSourceFile(query.filePath);
-    var fileErrors = getDiagnositcsByFilePath(query);
-    var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
-    var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
-
-    var info: QuickFixQueryInformation = {
-        project,
-        program,
-        srcFile,
-        fileErrors,
-        positionErrors,
-        position: query.position,
-        positionNode,
-    };
+    var info = getInfoForQuickFixAnalysis(query);
 
     // And then we let the quickFix determine if it wants provide any fixes for this file
     // And if so we also treat the result as a display string
     var fixes = allQuickFixes.map(x => { return { key: x.key, display: x.canProvideFix(info) } }).filter(x=> !!x.display);
 
     return resolve({ fixes });
+}
+
+export interface ApplyQuickFixQuery extends FilePathPositionQuery {
+    key: string;
+
+    // This will need to be special cased
+    additionalData?: any;
+}
+export interface ApplyQuickFixResponse {
+    refactorings: Refactoring[];
+}
+export function applyQuickFix(query: ApplyQuickFixQuery): Promise<ApplyQuickFixResponse> {
+    consistentPath(query);
+
+    var fix = allQuickFixes.filter(x=> x.key == query.key)[0];
+    var info = getInfoForQuickFixAnalysis(query);
+    var refactorings = fix.provideFix(info);
+    return resolve({refactorings});
 }

@@ -88,6 +88,7 @@ export var getAST = parent.sendToIpc(projectService.getAST);
 export var getASTFull = parent.sendToIpc(projectService.getASTFull);
 export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 export var getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
+export var applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

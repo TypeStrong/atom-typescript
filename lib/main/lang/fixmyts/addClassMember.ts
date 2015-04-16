@@ -9,21 +9,19 @@ export default class AddClassMember implements QuickFix {
         var relevantError = info.positionErrors.filter(x=> x.code == 2339)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
-
-        // TODO: comment out
-        // I am just testing stuff out :)
-        this.provideFix(info);
+        
+        // TODO: use type checker to see if item of `.` before hand is a class
+        //  But for now just run with it.
 
         return "Add Member to Class";
     }
 
-    /** TODO */
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
 
         var relevantError = info.positionErrors.filter(x=> x.code == 2339)[0];
         var errorText: string = <any>relevantError.messageText;
         if (typeof errorText !== 'string') {
-            console.error('I have no idea:', errorText);
+            console.error('I have no idea what this is:', errorText);
             return []
         };
 
@@ -33,14 +31,23 @@ export default class AddClassMember implements QuickFix {
         // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842
         var typeName = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./)[2];
 
-        // find the containing class declaration
-        // Then add stuff after the first Brace
-
+        // Find the containing class declaration
         var classNode = <ts.ClassDeclaration>ast.getNodeByKindAndName(info.program, ts.SyntaxKind.ClassDeclaration, typeName);
-        var firstBrace = classNode.getChildren().filter(x=>x.kind == ts.SyntaxKind.OpenBraceToken)[0];
-        console.error(firstBrace.getText());
-        console.error(firstBrace.pos,firstBrace.end);
+        
+        // Then the first brace
+        var firstBrace = classNode.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
 
-        return [];
+        // And add stuff after the first brace
+        var refactoring: Refactoring = {
+            span: {
+                start: firstBrace.end,
+                length: 0
+            },
+            /** TODO: ask the type checker for the type if the right hand side is an assignment */
+            newText: `${identifierName}:any;`,
+            filePath: classNode.getSourceFile().fileName
+        };
+
+        return [refactoring];
     }
 }

@@ -385,9 +385,9 @@ export function registerCommands() {
         atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
 
         var editor = atomUtils.getActiveEditor();
+        var query = atomUtils.getFilePathPosition();
 
-
-        parent.getQuickFixes(atomUtils.getFilePathPosition()).then((result) => {
+        parent.getQuickFixes(query).then((result) => {
             if (!result.fixes.length) {
                 atom.notifications.addInfo('AtomTS: No QuickFixes for current cursor position');
                 return;
@@ -402,7 +402,17 @@ export function registerCommands() {
                 },
                 filterKey: 'display',
                 confirmed: (item) => {
-                    console.log(item);
+                    // NOTE: we do special case UI's here if we want.
+                    // Then we would send that data through using `additionalData`
+                    var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+                    var openPathsMap = utils.createMap(paths);
+
+                    // TODO: WIP.
+
+
+                    parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then((res) => {
+                        console.log(res.refactorings);
+                    });
                 }
             }, editor);
         });
