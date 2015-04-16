@@ -27,6 +27,17 @@ function onDiskAndTs(editor) {
     return false;
 }
 exports.onDiskAndTs = onDiskAndTs;
+function isTs(editor) {
+    if (editor instanceof require('atom').TextEditor) {
+        var filePath = editor.getPath();
+        var ext = path.extname(filePath);
+        if (ext == '.ts') {
+            return true;
+        }
+    }
+    return false;
+}
+exports.isTs = isTs;
 function getFilePathPosition() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();

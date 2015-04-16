@@ -300,5 +300,18 @@ function attach() {
         return;
     exports.panelView = new MainPanelView();
     panel = atom.workspace.addBottomPanel({ item: exports.panelView, priority: 1000, visible: true });
+    exports.panelView.setErrorPanelErrorCount(0, 0);
 }
 exports.attach = attach;
+function show() {
+    if (!exports.panelView)
+        return;
+    exports.panelView.$.show();
+}
+exports.show = show;
+function hide() {
+    if (!exports.panelView)
+        return;
+    exports.panelView.$.hide();
+}
+exports.hide = hide;

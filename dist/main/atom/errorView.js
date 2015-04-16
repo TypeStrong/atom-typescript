@@ -5,11 +5,6 @@ var mainPanelView = require('./views/mainPanelView');
 var lineMessageView = require('./views/lineMessageView');
 var atomUtils = require('./atomUtils');
 var gotoHistory = require('./gotoHistory');
-function start() {
-    mainPanelView.attach();
-    mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
-}
-exports.start = start;
 var filePathErrors = new utils.Dict();
 exports.setErrors = function (filePath, errorsForFile) {
     if (!errorsForFile.length)

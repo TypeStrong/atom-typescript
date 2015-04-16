@@ -14,6 +14,7 @@ var typescriptGrammar = require('./atom/typescriptGrammar');
 var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
+var mainPanelView = require("./atom/views/mainPanelView");
 var statusBar;
 var statusBarMessage;
 var editorWatch;
@@ -32,6 +33,12 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
         }
+        if (atomUtils.isTs(editor)) {
+            mainPanelView.show();
+        }
+        else {
+            mainPanelView.hide();
+        }
     });
     editorWatch = atom.workspace.observeTextEditors(function (editor) {
         var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
@@ -44,7 +51,10 @@ function readyToActivate() {
                 if (fs.existsSync(filePath)) {
                     onDisk = true;
                 }
-                errorView.start();
+                mainPanelView.attach();
+                if (editor !== atom.workspace.getActiveEditor()) {
+                    mainPanelView.hide();
+                }
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {
                     parent.updateText({ filePath: filePath, text: editor.getText() })

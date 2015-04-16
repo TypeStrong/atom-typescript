@@ -31,6 +31,7 @@ import {$} from "atom-space-pen-views";
 
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
+import mainPanelView = require("./atom/views/mainPanelView");
 
 // globals
 var statusBar;
@@ -87,6 +88,13 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
         }
+
+        if(atomUtils.isTs(editor)){
+            mainPanelView.show();
+        }
+        else{
+            mainPanelView.hide();
+        }
     });
 
     // Observe editors loading
@@ -107,8 +115,13 @@ function readyToActivate() {
                     onDisk = true;
                 }
 
-                // Setup the error reporter:
-                errorView.start();
+                // Setup the TS reporter:
+                mainPanelView.attach();
+                // Only show if this editor is active:
+                if(editor !== atom.workspace.getActiveEditor()){
+                    mainPanelView.hide();
+                }
+
                 debugAtomTs.runDebugCode({ filePath, editor });
 
                 // Set errors in project per file
@@ -186,7 +199,7 @@ function readyToActivate() {
                     filePath = event.path;
                     onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
-                
+
                 // Observe editors closing
                 var destroyObserver = editor.onDidDestroy(() => {
                     // Clear errors in view

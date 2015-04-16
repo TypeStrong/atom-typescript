@@ -31,6 +31,17 @@ export function onDiskAndTs(editor: AtomCore.IEditor) {
     return false;
 }
 
+export function isTs(editor: AtomCore.IEditor) {
+    if (editor instanceof require('atom').TextEditor) {
+        var filePath = editor.getPath();
+        var ext = path.extname(filePath);
+        if (ext == '.ts') {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function getFilePathPosition(): { filePath: string; position: number } {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();

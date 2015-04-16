@@ -14,11 +14,6 @@ import gotoHistory = require('./gotoHistory');
 
 import os = require('os')
 
-export function start() {
-    mainPanelView.attach();
-    mainPanelView.panelView.setErrorPanelErrorCount(0, 0);
-}
-
 var filePathErrors: utils.Dict<TSError[]> = new utils.Dict<any[]>();
 
 export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
