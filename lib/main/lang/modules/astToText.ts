@@ -9,7 +9,7 @@
 import * as ts from "typescript";
 import {SyntaxKind, Node} from "typescript";
 
-export default function astToText(srcFile: ts.Node) {
+export function astToText(srcFile: ts.Node) {
 
     //// A useful function for debugging
     // aggregate(srcFile, 0);
@@ -25,6 +25,46 @@ export default function astToText(srcFile: ts.Node) {
 
         var children = [];
         ts.forEachChild(node, (cNode) => {
+            var child = nodeToNodeDisplay(cNode, depth + 1);
+            children.push(child);
+        });
+
+        var ret: NodeDisplay = {
+            kind,
+            children,
+            pos: node.pos,
+            end: node.end,
+            depth,
+            nodeIndex,
+            rawJson: prettyJSONNoParent(node)
+        };
+
+        // each time we get called index is incremented
+        nodeIndex++;
+        return ret;
+    }
+
+    var root = nodeToNodeDisplay(srcFile, 0);
+
+    return root;
+}
+
+export function astToTextFull(srcFile: ts.Node) {
+
+    //// A useful function for debugging
+    // aggregate(srcFile, 0);
+    // function aggregate(node: ts.Node, depth: number): void {
+    //     console.error(node.kind, (node.name && node.name.text), (node.parent), depth, node);
+    //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
+    // }
+
+    var nodeIndex = 0;
+    function nodeToNodeDisplay(node: ts.Node, depth: number): NodeDisplay {
+
+        var kind = syntaxKindToString(node.kind);
+
+        var children = [];
+         node.getChildren().forEach((cNode) => {
             var child = nodeToNodeDisplay(cNode, depth + 1);
             children.push(child);
         });

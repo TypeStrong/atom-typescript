@@ -85,6 +85,7 @@ export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigation
 export var getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 export var getReferences = parent.sendToIpc(projectService.getReferences);
 export var getAST = parent.sendToIpc(projectService.getAST);
+export var getASTFull = parent.sendToIpc(projectService.getASTFull);
 export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 export var getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 

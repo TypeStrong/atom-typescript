@@ -247,6 +247,19 @@ function registerCommands() {
             filePath: atomUtils.getCurrentPath()
         });
     });
+    atom.commands.add('atom-text-editor', 'typescript:ast-full', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        var uri = astView_1.astUriFullForPath(atomUtils.getCurrentPath());
+        var old_pane = atom.workspace.paneForURI(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, {
+            text: atom.workspace.getActiveEditor().getText(),
+            filePath: atomUtils.getCurrentPath()
+        });
+    });
     atom.workspace.addOpener(function (uri, details) {
         try {
             var protocol = (url.parse(uri)).protocol;
@@ -258,6 +271,18 @@ function registerCommands() {
             return;
         }
         return new astView_1.AstView(details.filePath, details.text);
+    });
+    atom.workspace.addOpener(function (uri, details) {
+        try {
+            var protocol = (url.parse(uri)).protocol;
+        }
+        catch (error) {
+            return;
+        }
+        if (protocol !== astView_1.astURIFull) {
+            return;
+        }
+        return new astView_1.AstView(details.filePath, details.text, true);
     });
     atom.commands.add('atom-workspace', 'typescript:dependency-view', function (e) {
         if (!atomUtils.commandForTypeScript(e))

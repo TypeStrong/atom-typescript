@@ -583,10 +583,22 @@ function getAST(query) {
     if (!files.length)
         resolve({});
     var sourceFile = files[0];
-    var root = astToText_1.default(sourceFile);
+    var root = astToText_1.astToText(sourceFile);
     return resolve({ root: root });
 }
 exports.getAST = getAST;
+function getASTFull(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var service = project.languageService;
+    var files = service.getProgram().getSourceFiles().filter(function (x) { return x.fileName == query.filePath; });
+    if (!files.length)
+        resolve({});
+    var sourceFile = files[0];
+    var root = astToText_1.astToTextFull(sourceFile);
+    return resolve({ root: root });
+}
+exports.getASTFull = getASTFull;
 var programDependencies_1 = require("./modules/programDependencies");
 function getDependencies(query) {
     consistentPath(query);

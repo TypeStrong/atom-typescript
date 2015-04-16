@@ -61,6 +61,7 @@ exports.getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBar
 exports.getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 exports.getReferences = parent.sendToIpc(projectService.getReferences);
 exports.getAST = parent.sendToIpc(projectService.getAST);
+exports.getASTFull = parent.sendToIpc(projectService.getASTFull);
 exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 var queryParent = require('./queryParent');

@@ -132,8 +132,11 @@ Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`)
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/pathChange.gif)
 
 ## AST Visualizer
-Command : `Typescript: ast`. Useful when authoring new features.
+Command : `Typescript: Ast`. Useful when authoring new features.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/astVisualizer.gif)
+
+Also command : `TypeScript: Ast Full` that includes the `trivia` (punctuation, comments etc. received from `ts.Node.getChildren()`) as well.
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/astFull.png)
 
 ## Dependency View
 Command : `Typescript: Dependency View`. A dependency viewer for insight into the project. You can zoom, pan, drag points around and hover over nodes. ([more details](https://github.com/TypeStrong/atom-typescript/blob/master/docs/dependency-view.md))

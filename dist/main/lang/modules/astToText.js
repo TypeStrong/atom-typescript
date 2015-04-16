@@ -35,7 +35,38 @@ function astToText(srcFile) {
     var root = nodeToNodeDisplay(srcFile, 0);
     return root;
 }
-exports.default = astToText;
+exports.astToText = astToText;
+function astToTextFull(srcFile) {
+    //// A useful function for debugging
+    // aggregate(srcFile, 0);
+    // function aggregate(node: ts.Node, depth: number): void {
+    //     console.error(node.kind, (node.name && node.name.text), (node.parent), depth, node);
+    //     ts.forEachChild(node, (node) => aggregate(node, depth + 1));
+    // }
+    var nodeIndex = 0;
+    function nodeToNodeDisplay(node, depth) {
+        var kind = syntaxKindToString(node.kind);
+        var children = [];
+        node.getChildren().forEach(function (cNode) {
+            var child = nodeToNodeDisplay(cNode, depth + 1);
+            children.push(child);
+        });
+        var ret = {
+            kind: kind,
+            children: children,
+            pos: node.pos,
+            end: node.end,
+            depth: depth,
+            nodeIndex: nodeIndex,
+            rawJson: prettyJSONNoParent(node)
+        };
+        nodeIndex++;
+        return ret;
+    }
+    var root = nodeToNodeDisplay(srcFile, 0);
+    return root;
+}
+exports.astToTextFull = astToTextFull;
 function syntaxKindToString(syntaxKind) {
     return ts.SyntaxKind[syntaxKind];
 }

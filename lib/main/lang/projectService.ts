@@ -879,7 +879,7 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
 /**
  * Get AST
  */
-import astToText from "./modules/astToText";
+import {astToText,astToTextFull} from "./modules/astToText";
 export interface GetASTQuery extends FilePathQuery { }
 export interface GetASTResponse {
     root?: NodeDisplay
@@ -899,6 +899,24 @@ export function getAST(query: GetASTQuery): Promise<GetASTResponse> {
     return resolve({ root });
 }
 
+export interface GetASTFullQuery extends FilePathQuery { }
+export interface GetASTFullResponse {
+    root?: NodeDisplay
+}
+export function getASTFull(query: GetASTQuery): Promise<GetASTResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var service = project.languageService;
+
+    var files = service.getProgram().getSourceFiles().filter(x=> x.fileName == query.filePath);
+    if (!files.length) resolve({});
+
+    var sourceFile = files[0];
+
+    var root = astToTextFull(sourceFile);
+
+    return resolve({ root });
+}
 
 /**
  * Get Dependencies

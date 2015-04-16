@@ -10,6 +10,12 @@ export function astUriForPath(filePath: string) {
     return astURI + "//" + filePath;
 }
 
+export var astURIFull = "ts-ast-full:";
+export function astUriFullForPath(filePath: string) {
+    return astURIFull + "//" + filePath;
+}
+
+
 /**
  * https://github.com/atom/atom-space-pen-views
  */
@@ -26,12 +32,19 @@ export class AstView extends sp.ScrollView {
         });
     }
 
-    constructor(public filePath, public text: string) {
+    constructor(public filePath, public text: string, public full: boolean) {
         super();
         this.init();
     }
     init() {
-        parent.getAST({ filePath: this.filePath }).then((res) => {
+        if (this.full){
+            var query = parent.getASTFull({ filePath: this.filePath });
+        }
+        else{
+            query = parent.getAST({ filePath: this.filePath });
+        }
+        
+        query.then((res) => {
             renderTree(res.root, this.mainContent, (node) => {
                 var display = `
 ${node.kind}

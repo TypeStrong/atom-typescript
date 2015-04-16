@@ -12,13 +12,19 @@ function astUriForPath(filePath) {
     return exports.astURI + "//" + filePath;
 }
 exports.astUriForPath = astUriForPath;
+exports.astURIFull = "ts-ast-full:";
+function astUriFullForPath(filePath) {
+    return exports.astURIFull + "//" + filePath;
+}
+exports.astUriFullForPath = astUriFullForPath;
 var AstView = (function (_super) {
     __extends(AstView, _super);
-    function AstView(filePath, text) {
+    function AstView(filePath, text, full) {
         var _this = this;
         _super.call(this);
         this.filePath = filePath;
         this.text = text;
+        this.full = full;
         this.getURI = function () { return astUriForPath(_this.filePath); };
         this.getTitle = function () { return 'TypeScript AST'; };
         this.getIconName = function () { return 'repo-forked'; };
@@ -35,7 +41,13 @@ var AstView = (function (_super) {
     };
     AstView.prototype.init = function () {
         var _this = this;
-        parent.getAST({ filePath: this.filePath }).then(function (res) {
+        if (this.full) {
+            var query = parent.getASTFull({ filePath: this.filePath });
+        }
+        else {
+            query = parent.getAST({ filePath: this.filePath });
+        }
+        query.then(function (res) {
             renderTree(res.root, _this.mainContent, function (node) {
                 var display = ("\n" + node.kind + "\n-------------------- AST --------------------\n" + node.rawJson + "\n-------------------- TEXT -------------------\n" + _this.text.substring(node.pos, node.end) + "\n                ").trim();
                 _this.rawDisplay.text(display);
