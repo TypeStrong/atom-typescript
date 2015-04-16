@@ -306,7 +306,7 @@ export function registerCommands() {
             filePath: atomUtils.getCurrentPath()
         });
     });
-    
+
     atom.commands.add('atom-text-editor', 'typescript:ast-full', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
@@ -333,9 +333,9 @@ export function registerCommands() {
             return;
         }
 
-        return new AstView(details.filePath, details.text);
+        return new AstView(details.filePath, details.text, false);
     });
-    
+
     atom.workspace.addOpener(function(uri, details: { text: string, filePath: string }) {
         try {
             var {protocol} = url.parse(uri);

@@ -270,7 +270,7 @@ function registerCommands() {
         if (protocol !== astView_1.astURI) {
             return;
         }
-        return new astView_1.AstView(details.filePath, details.text);
+        return new astView_1.AstView(details.filePath, details.text, false);
     });
     atom.workspace.addOpener(function (uri, details) {
         try {
