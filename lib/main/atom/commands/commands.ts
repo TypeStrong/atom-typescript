@@ -381,8 +381,6 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:quick-fix', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
-        atom.notifications.addInfo('AtomTS: Quick Fix refactoring coming soon!');
-
         var editor = atomUtils.getActiveEditor();
         var query = atomUtils.getFilePathPosition();
 

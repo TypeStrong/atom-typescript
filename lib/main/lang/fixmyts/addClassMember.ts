@@ -29,6 +29,9 @@ export default class AddClassMember implements QuickFix {
         var identifier = <ts.Identifier>info.positionNode;
         var identifierName = identifier.text;
 
+        // Get the type of the stuff on the right if its an assignment
+
+
         // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842
         var typeName = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./)[2];
 
@@ -39,9 +42,10 @@ export default class AddClassMember implements QuickFix {
         var firstBrace = classNode.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
 
         // And the correct indent
-        var indentLength = info.service.getIndentationAtPosition(
-            info.srcFile.fileName, firstBrace.end + 1, info.project.projectFile.project.formatCodeOptions);
-        var indent = Array(indentLength + 1).join(' ');
+        // var indentLength = info.service.getIndentationAtPosition(
+        //     classNode.getSourceFile().fileName, firstBrace.end + EOL.length, info.project.projectFile.project.formatCodeOptions);
+        // var indent = Array(indentLength + 1).join(' ');
+        var indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
 
         // And add stuff after the first brace
         var refactoring: Refactoring = {
