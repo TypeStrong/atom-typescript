@@ -47,6 +47,15 @@ import parent = require('../worker/parent');
 // Export config
 import atomConfig = require('./atom/atomConfig');
 export var config = atomConfig.schema;
+import {debounce} from "./lang/utils";
+
+var hideIfNotActiveOnStart = debounce(() => {
+    // Only show if this editor is active:
+    if (atom.workspace.getActiveEditor().getGrammar().name !== 'TypeScript') {
+        mainPanelView.hide();
+    }
+}, 100);
+
 
 /** only called once we have our dependencies */
 function readyToActivate() {
@@ -89,10 +98,10 @@ function readyToActivate() {
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
         }
 
-        if(atomUtils.isTs(editor)){
+        if (atomUtils.isTs(editor)) {
             mainPanelView.show();
         }
-        else{
+        else {
             mainPanelView.hide();
         }
     });
@@ -117,10 +126,7 @@ function readyToActivate() {
 
                 // Setup the TS reporter:
                 mainPanelView.attach();
-                // Only show if this editor is active:
-                if(editor !== atom.workspace.getActiveEditor()){
-                    mainPanelView.hide();
-                }
+                hideIfNotActiveOnStart();
 
                 debugAtomTs.runDebugCode({ filePath, editor });
 

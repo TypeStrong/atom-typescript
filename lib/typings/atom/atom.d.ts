@@ -796,6 +796,7 @@ declare module AtomCore {
 	}
 
 	interface IGrammar {
+    	name: any;
 		scopeName: string;
 		// TBD
 	}

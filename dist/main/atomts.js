@@ -22,6 +22,12 @@ var autoCompleteWatch;
 var parent = require('../worker/parent');
 var atomConfig = require('./atom/atomConfig');
 exports.config = atomConfig.schema;
+var utils_1 = require("./lang/utils");
+var hideIfNotActiveOnStart = utils_1.debounce(function () {
+    if (atom.workspace.getActiveEditor().getGrammar().name !== 'TypeScript') {
+        mainPanelView.hide();
+    }
+}, 100);
 function readyToActivate() {
     documentationView.attach();
     renameView.attach();
@@ -52,9 +58,7 @@ function readyToActivate() {
                     onDisk = true;
                 }
                 mainPanelView.attach();
-                if (editor !== atom.workspace.getActiveEditor()) {
-                    mainPanelView.hide();
-                }
+                hideIfNotActiveOnStart();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
