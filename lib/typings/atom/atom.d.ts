@@ -1674,6 +1674,7 @@ declare module "atom" {
 		cancelling:boolean;
 		items:any[];
 		list:JQuery;
+        filterEditorView: JQuery;
 
 		previouslyFocusedElement:JQuery;
 

@@ -38,6 +38,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Symbols in Project
 * Symbols in File
 * Rename refactoring
+* Quick Fix
 * Common Snippets
 * `import` / `/// <reference` relative path resolution
 * AST visualizer
@@ -114,7 +115,12 @@ Also called Go To Type in other IDEs. Integrates with atom's project level symbo
 `f2` to initiate rename. `enter` to commit and `esc` to cancel.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
+## Quick Fix
+Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. E.g add class members: 
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
+
 ## tsconfig validation
+We will validate it and help you to fix it :)
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/errorcases/invalidProjectOptions/invalidProjectOptions.gif)
 
 ## Snippets

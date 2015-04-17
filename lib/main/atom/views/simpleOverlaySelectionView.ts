@@ -40,6 +40,7 @@ export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
         super();
 
         this.$.addClass('atomts-overlay');
+        (<any>this.filterEditorView).model.placeholderText = 'Filter list';
     }
 
     get $(): JQuery {

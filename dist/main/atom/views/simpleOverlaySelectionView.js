@@ -28,6 +28,7 @@ var SimpleOverlaySelectListView = (function (_super) {
         this.options = options;
         this.editor = editor;
         this.$.addClass('atomts-overlay');
+        this.filterEditorView.model.placeholderText = 'Filter list';
     }
     Object.defineProperty(SimpleOverlaySelectListView.prototype, "$", {
         get: function () {
