@@ -22,6 +22,7 @@ export interface QuickFixQueryInformation {
     positionErrors: ts.Diagnostic[];
     position: number;
     positionNode: ts.Node;
+    filePath: string;
 }
 
 export interface QuickFix {

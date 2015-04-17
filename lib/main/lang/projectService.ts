@@ -944,8 +944,10 @@ import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFi
 import * as qf from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
+import EqualsToEquals from "./fixmyts/equalsToEquals";
 var allQuickFixes: QuickFix[] = [
-    new AddClassMember()
+    new AddClassMember(),
+    new EqualsToEquals()
 ];
 
 function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQueryInformation {
@@ -968,7 +970,8 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         position: query.position,
         positionNode,
         service,
-        typeChecker
+        typeChecker,
+        filePath: srcFile.fileName
     };
 }
 

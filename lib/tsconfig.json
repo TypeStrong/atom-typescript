@@ -51,6 +51,7 @@
         "./main/lang/core/project.ts",
         "./main/lang/fixmyts/addClassMember.ts",
         "./main/lang/fixmyts/astUtils.ts",
+        "./main/lang/fixmyts/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFix.ts",
         "./main/lang/modules/astToText.ts",
         "./main/lang/modules/building.ts",

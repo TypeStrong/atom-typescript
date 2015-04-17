@@ -610,8 +610,10 @@ function getDependencies(query) {
 exports.getDependencies = getDependencies;
 var qf = require("./fixmyts/quickFix");
 var addClassMember_1 = require("./fixmyts/addClassMember");
+var equalsToEquals_1 = require("./fixmyts/equalsToEquals");
 var allQuickFixes = [
-    new addClassMember_1.default()
+    new addClassMember_1.default(),
+    new equalsToEquals_1.default()
 ];
 function getInfoForQuickFixAnalysis(query) {
     consistentPath(query);
@@ -632,7 +634,8 @@ function getInfoForQuickFixAnalysis(query) {
         position: query.position,
         positionNode: positionNode,
         service: service,
-        typeChecker: typeChecker
+        typeChecker: typeChecker,
+        filePath: srcFile.fileName
     };
 }
 function getQuickFixes(query) {

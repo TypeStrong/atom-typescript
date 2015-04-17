@@ -116,8 +116,14 @@ Also called Go To Type in other IDEs. Integrates with atom's project level symbo
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. E.g add class members: 
+Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. e.g 
+
+Add class members
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
+
+`==` and `!=`
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)
 
 ## tsconfig validation
 We will validate it and help you to fix it :)

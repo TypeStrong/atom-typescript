@@ -70,7 +70,6 @@ export default class AddClassMember implements QuickFix {
                 start: firstBrace.end,
                 length: 0
             },
-            /** TODO: ask the type checker for the type if the right hand side is an assignment */
             newText: `${EOL}${indent}${identifierName}: ${typeString};`,
             filePath: targetDeclaration.getSourceFile().fileName
         };
