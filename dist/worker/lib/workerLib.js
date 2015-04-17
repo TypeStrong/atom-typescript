@@ -74,6 +74,7 @@ var RequesterResponder = (function () {
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
                 console.log(parsed.error);
+                console.log(parsed.error.stack);
             }
             else {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
