@@ -121,7 +121,11 @@ Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to t
 Add class members
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
 
-`==` and `!=`
+Toggle quote characters
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToQuotes.gif)
+
+`==` and `!=` (because typing another `=` is hard)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)
 

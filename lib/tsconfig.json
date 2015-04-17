@@ -53,6 +53,7 @@
         "./main/lang/fixmyts/astUtils.ts",
         "./main/lang/fixmyts/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFix.ts",
+        "./main/lang/fixmyts/quotesToQuotes.ts",
         "./main/lang/modules/astToText.ts",
         "./main/lang/modules/building.ts",
         "./main/lang/modules/formatting.ts",

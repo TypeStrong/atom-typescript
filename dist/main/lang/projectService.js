@@ -611,9 +611,11 @@ exports.getDependencies = getDependencies;
 var qf = require("./fixmyts/quickFix");
 var addClassMember_1 = require("./fixmyts/addClassMember");
 var equalsToEquals_1 = require("./fixmyts/equalsToEquals");
+var quotesToQuotes_1 = require("./fixmyts/quotesToQuotes");
 var allQuickFixes = [
     new addClassMember_1.default(),
-    new equalsToEquals_1.default()
+    new equalsToEquals_1.default(),
+    new quotesToQuotes_1.default(),
 ];
 function getInfoForQuickFixAnalysis(query) {
     consistentPath(query);
