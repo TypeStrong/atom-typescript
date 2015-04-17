@@ -948,7 +948,7 @@ var allQuickFixes: QuickFix[] = [
     new AddClassMember()
 ];
 
-function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
+function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQueryInformation {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var program = project.languageService.getProgram();
@@ -957,6 +957,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
     var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
     var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;
+    var typeChecker = program.getTypeChecker();
 
     return {
         project,
@@ -966,7 +967,8 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery) {
         positionErrors,
         position: query.position,
         positionNode,
-        service
+        service,
+        typeChecker
     };
 }
 

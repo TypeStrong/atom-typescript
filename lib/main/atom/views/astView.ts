@@ -37,13 +37,13 @@ export class AstView extends sp.ScrollView {
         this.init();
     }
     init() {
-        if (this.full){
+        if (this.full) {
             var query = parent.getASTFull({ filePath: this.filePath });
         }
-        else{
+        else {
             query = parent.getAST({ filePath: this.filePath });
         }
-        
+
         query.then((res) => {
             renderTree(res.root, this.mainContent, (node) => {
                 var display = `
@@ -64,10 +64,14 @@ ${this.text.substring(node.pos, node.end) }
 }
 
 
-function renderTree(rootNode: NodeDisplay, mainContent: JQuery, display: (content: NodeDisplay) => any) {
-    var rootElement = mainContent[0];
+function renderTree(rootNode: NodeDisplay, _mainContent: JQuery, display: (content: NodeDisplay) => any) {
+    var root ={
+        dom: _mainContent[0],
+        jq: _mainContent
+    };
+    
     var margin = { top: 30, right: 20, bottom: 30, left: 20 };
-    var width = mainContent.width() - margin.left - margin.right;
+    var width = root.jq.width() - margin.left - margin.right;
     var barHeight = 30;
     var barWidth = width * .8;
 
@@ -80,9 +84,9 @@ function renderTree(rootNode: NodeDisplay, mainContent: JQuery, display: (conten
     var diagonal = d3.svg.diagonal()
         .projection(function(d) { return [d.y, d.x]; });
 
-    var svg = d3.select(rootElement).append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .append("g")
+    var graphRoot = d3.select(root.dom).append("svg")
+        .attr("width", width + margin.left + margin.right);
+    var graph = graphRoot.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var selected: NodeDisplay;
@@ -109,7 +113,7 @@ function renderTree(rootNode: NodeDisplay, mainContent: JQuery, display: (conten
         });
 
         // Update the nodes…
-        var node = svg.selectAll("g.node")
+        var node = graph.selectAll("g.node")
             .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
         var nodeEnter = node.enter().append("g")
@@ -153,7 +157,7 @@ function renderTree(rootNode: NodeDisplay, mainContent: JQuery, display: (conten
             .remove();
 
         // Update the links…
-        var link = svg.selectAll("path.link")
+        var link = graph.selectAll("path.link")
             .data(tree.links(nodes), function(d) { return d.target.id; });
 
         // Enter any new links at the parent's previous position.
@@ -181,6 +185,15 @@ function renderTree(rootNode: NodeDisplay, mainContent: JQuery, display: (conten
         })
             .remove();
     }
+
+    function resize() {
+        width = root.jq.width() - margin.left - margin.right;
+        d3.select("svg").attr("width", width);
+        update();
+    }
+
+    d3.select(root.dom).on("resize", resize);
+    resize();
 
     /** display details on click */
     function select(node: NodeDisplay) {

@@ -622,6 +622,7 @@ function getInfoForQuickFixAnalysis(query) {
     var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
     var positionNode = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;
+    var typeChecker = program.getTypeChecker();
     return {
         project: project,
         program: program,
@@ -630,7 +631,8 @@ function getInfoForQuickFixAnalysis(query) {
         positionErrors: positionErrors,
         position: query.position,
         positionNode: positionNode,
-        service: service
+        service: service,
+        typeChecker: typeChecker
     };
 }
 function getQuickFixes(query) {

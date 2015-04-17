@@ -57,10 +57,13 @@ var AstView = (function (_super) {
     return AstView;
 })(sp.ScrollView);
 exports.AstView = AstView;
-function renderTree(rootNode, mainContent, display) {
-    var rootElement = mainContent[0];
+function renderTree(rootNode, _mainContent, display) {
+    var root = {
+        dom: _mainContent[0],
+        jq: _mainContent
+    };
     var margin = { top: 30, right: 20, bottom: 30, left: 20 };
-    var width = mainContent.width() - margin.left - margin.right;
+    var width = root.jq.width() - margin.left - margin.right;
     var barHeight = 30;
     var barWidth = width * .8;
     var i = 0, duration = 400;
@@ -68,9 +71,9 @@ function renderTree(rootNode, mainContent, display) {
         .nodeSize([0, 20]);
     var diagonal = d3.svg.diagonal()
         .projection(function (d) { return [d.y, d.x]; });
-    var svg = d3.select(rootElement).append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .append("g")
+    var graphRoot = d3.select(root.dom).append("svg")
+        .attr("width", width + margin.left + margin.right);
+    var graph = graphRoot.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     var selected;
     select(rootNode);
@@ -86,7 +89,7 @@ function renderTree(rootNode, mainContent, display) {
         nodes.forEach(function (n, i) {
             n.x = i * barHeight;
         });
-        var node = svg.selectAll("g.node")
+        var node = graph.selectAll("g.node")
             .data(nodes, function (d) { return d.id || (d.id = ++i); });
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
@@ -119,7 +122,7 @@ function renderTree(rootNode, mainContent, display) {
             .attr("transform", function (d) { return "translate(" + rootNode.nodeIndex + "," + rootNode.depth + ")"; })
             .style("opacity", 1e-6)
             .remove();
-        var link = svg.selectAll("path.link")
+        var link = graph.selectAll("path.link")
             .data(tree.links(nodes), function (d) { return d.target.id; });
         link.enter().insert("path", "g")
             .attr("class", "link")
@@ -141,6 +144,13 @@ function renderTree(rootNode, mainContent, display) {
         })
             .remove();
     }
+    function resize() {
+        width = root.jq.width() - margin.left - margin.right;
+        d3.select("svg").attr("width", width);
+        update();
+    }
+    d3.select(root.dom).on("resize", resize);
+    resize();
     function select(node) {
         display(node);
         selected = node;

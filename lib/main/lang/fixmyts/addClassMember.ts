@@ -30,6 +30,8 @@ export default class AddClassMember implements QuickFix {
         var identifierName = identifier.text;
 
         // Get the type of the stuff on the right if its an assignment
+        // info.typeChecker.getTypeAtLocation();
+        
 
 
         // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842
