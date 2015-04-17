@@ -12,7 +12,12 @@ function getIdentifierAndClassNames(error: ts.Diagnostic) {
     };
 
     // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842
-    var [, identifierName, className] = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./);
+    var match = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./);
+    
+    // Happens when the type name is an alias. We can't refactor in this case anyways
+    if (!match) return;
+
+    var [, identifierName, className] = match;
     return { identifierName, className };
 }
 
@@ -27,7 +32,11 @@ class AddClassMember implements QuickFix {
         // TODO: use type checker to see if item of `.` before hand is a class
         //  But for now just run with it.
         
-        var {identifierName, className} = getIdentifierAndClassNames(relevantError);
+        var match = getIdentifierAndClassNames(relevantError);
+        
+        if(!match) return;
+        
+        var {identifierName, className} = match;
         return `Add ${identifierName} to ${className}`;
     }
 
@@ -53,19 +62,29 @@ class AddClassMember implements QuickFix {
         }
 
         // Find the containing class declaration
-        var targetDeclaration = <ts.ClassDeclaration>ast.getNodeByKindAndName(info.program, ts.SyntaxKind.ClassDeclaration, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, ts.SyntaxKind.ClassDeclaration, className);
+        if (!memberTarget) {
+            // Find the containing interface declaration
+            memberTarget = ast.getNodeByKindAndName(info.program, ts.SyntaxKind.InterfaceDeclaration, className);
+        }
+        if (!memberTarget) {
+            return [];
+        }
+
+        // The following code will be same (and typesafe) for either class or interface
+        let targetDeclaration = <ts.ClassDeclaration|ts.InterfaceDeclaration>memberTarget;
 
         // Then the first brace
-        var firstBrace = targetDeclaration.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
+        let firstBrace = targetDeclaration.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
 
         // And the correct indent
         // var indentLength = info.service.getIndentationAtPosition(
         //     classNode.getSourceFile().fileName, firstBrace.end + EOL.length, info.project.projectFile.project.formatCodeOptions);
         // var indent = Array(indentLength + 1).join(' ');
-        var indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
+        let indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
 
         // And add stuff after the first brace
-        var refactoring: Refactoring = {
+        let refactoring: Refactoring = {
             span: {
                 start: firstBrace.end,
                 length: 0

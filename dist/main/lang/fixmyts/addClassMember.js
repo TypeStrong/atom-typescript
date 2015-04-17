@@ -9,7 +9,10 @@ function getIdentifierAndClassNames(error) {
         return undefined;
     }
     ;
-    var _a = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./), identifierName = _a[1], className = _a[2];
+    var match = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./);
+    if (!match)
+        return;
+    var identifierName = match[1], className = match[2];
     return { identifierName: identifierName, className: className };
 }
 var AddClassMember = (function () {
@@ -22,7 +25,10 @@ var AddClassMember = (function () {
             return;
         if (info.positionNode.kind !== 65)
             return;
-        var _a = getIdentifierAndClassNames(relevantError), identifierName = _a.identifierName, className = _a.className;
+        var match = getIdentifierAndClassNames(relevantError);
+        if (!match)
+            return;
+        var identifierName = match.identifierName, className = match.className;
         return "Add " + identifierName + " to " + className;
     };
     AddClassMember.prototype.provideFix = function (info) {
@@ -38,7 +44,14 @@ var AddClassMember = (function () {
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
             typeString = typescript_1.displayPartsToString(typescript_1.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
-        var targetDeclaration = ast.getNodeByKindAndName(info.program, 201, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, 201, className);
+        if (!memberTarget) {
+            memberTarget = ast.getNodeByKindAndName(info.program, 202, className);
+        }
+        if (!memberTarget) {
+            return [];
+        }
+        var targetDeclaration = memberTarget;
         var firstBrace = targetDeclaration.getChildren().filter(function (x) { return x.kind == 14; })[0];
         var indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
         var refactoring = {
