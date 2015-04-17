@@ -13,7 +13,7 @@ function getIdentifierAndClassNames(error: ts.Diagnostic) {
 
     // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842
     var match = errorText.match(/Property \'(\w+)\' does not exist on type \'(\w+)\'./);
-    
+
     // Happens when the type name is an alias. We can't refactor in this case anyways
     if (!match) return;
 
@@ -31,11 +31,11 @@ class AddClassMember implements QuickFix {
 
         // TODO: use type checker to see if item of `.` before hand is a class
         //  But for now just run with it.
-        
+
         var match = getIdentifierAndClassNames(relevantError);
-        
+
         if(!match) return;
-        
+
         var {identifierName, className} = match;
         return `Add ${identifierName} to ${className}`;
     }
@@ -56,7 +56,7 @@ class AddClassMember implements QuickFix {
 
             let binaryExpression = <ts.BinaryExpression>parentOfParent;
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
-            
+
             /** Discoverd from review of `services.getQuickInfoAtPosition` */
             typeString = displayPartsToString(typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
@@ -78,10 +78,9 @@ class AddClassMember implements QuickFix {
         let firstBrace = targetDeclaration.getChildren().filter(x=> x.kind == ts.SyntaxKind.OpenBraceToken)[0];
 
         // And the correct indent
-        // var indentLength = info.service.getIndentationAtPosition(
-        //     classNode.getSourceFile().fileName, firstBrace.end + EOL.length, info.project.projectFile.project.formatCodeOptions);
-        // var indent = Array(indentLength + 1).join(' ');
-        let indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
+        var indentLength = info.service.getIndentationAtPosition(
+            memberTarget.getSourceFile().fileName, firstBrace.end, info.project.projectFile.project.formatCodeOptions);
+        var indent = Array(indentLength + info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
 
         // And add stuff after the first brace
         let refactoring: Refactoring = {

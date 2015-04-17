@@ -53,7 +53,8 @@ var AddClassMember = (function () {
         }
         var targetDeclaration = memberTarget;
         var firstBrace = targetDeclaration.getChildren().filter(function (x) { return x.kind == 14; })[0];
-        var indent = Array(info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
+        var indentLength = info.service.getIndentationAtPosition(memberTarget.getSourceFile().fileName, firstBrace.end, info.project.projectFile.project.formatCodeOptions);
+        var indent = Array(indentLength + info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
         var refactoring = {
             span: {
                 start: firstBrace.end,
