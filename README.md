@@ -125,6 +125,10 @@ Toggle quote characters
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToQuotes.gif)
 
+Convert strings to template strings to get rid of those `\`
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToTemplate.gif)
+
 `==` and `!=` (because typing another `=` is hard)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)

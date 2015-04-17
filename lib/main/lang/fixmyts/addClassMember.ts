@@ -16,7 +16,7 @@ function getIdentifierAndClassNames(error: ts.Diagnostic) {
     return { identifierName, className };
 }
 
-export default class AddClassMember implements QuickFix {
+class AddClassMember implements QuickFix {
     key = AddClassMember.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
@@ -77,3 +77,5 @@ export default class AddClassMember implements QuickFix {
         return [refactoring];
     }
 }
+
+export default AddClassMember;

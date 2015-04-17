@@ -946,10 +946,12 @@ import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
 import EqualsToEquals from "./fixmyts/equalsToEquals";
 import QuotesToQuotes from "./fixmyts/quotesToQuotes";
+import QuotesToTemplate from "./fixmyts/quoteToTemplate";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new EqualsToEquals(),
     new QuotesToQuotes(),
+    new QuotesToTemplate(),
 ];
 
 function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQueryInformation {

@@ -5,7 +5,7 @@ import {EOL} from "os";
 import {displayPartsToString, typeToDisplayParts, SyntaxKind} from "typescript";
 
 
-export default class EqualsToEquals implements QuickFix {
+class EqualsToEquals implements QuickFix {
     key = EqualsToEquals.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
@@ -39,3 +39,5 @@ export default class EqualsToEquals implements QuickFix {
         return [refactoring];
     }
 }
+
+export default EqualsToEquals;
