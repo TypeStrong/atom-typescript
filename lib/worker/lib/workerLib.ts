@@ -71,6 +71,7 @@ class RequesterResponder {
         else { // Alright nothing *weird* happened
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
+                console.log(parsed.error);
             }
             else {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
