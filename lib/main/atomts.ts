@@ -51,7 +51,8 @@ import {debounce} from "./lang/utils";
 
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
-    if (atom.workspace.getActiveEditor().getGrammar().name !== 'TypeScript') {
+    var editor = atom.workspace.getActiveEditor();
+    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
         mainPanelView.hide();
     }
 }, 100);

@@ -24,7 +24,8 @@ var atomConfig = require('./atom/atomConfig');
 exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
-    if (atom.workspace.getActiveEditor().getGrammar().name !== 'TypeScript') {
+    var editor = atom.workspace.getActiveEditor();
+    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
         mainPanelView.hide();
     }
 }, 100);
