@@ -315,7 +315,7 @@ function prettyJSON(object) {
         }
         return value;
     }, 4);
-    value = value.split('\n').join(os.EOL);
+    value = value.split('\n').join(os.EOL) + os.EOL;
     cache = null;
     return value;
 }
