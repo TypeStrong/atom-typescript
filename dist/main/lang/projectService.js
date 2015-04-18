@@ -658,3 +658,10 @@ function applyQuickFix(query) {
     return resolve({ refactorings: refactorings });
 }
 exports.applyQuickFix = applyQuickFix;
+var building_1 = require("./modules/building");
+function getOutput(query) {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve({ output: building_1.getRawOutput(project, query.filePath) });
+}
+exports.getOutput = getOutput;

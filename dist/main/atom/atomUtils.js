@@ -45,6 +45,12 @@ function getFilePathPosition() {
     return { filePath: filePath, position: position };
 }
 exports.getFilePathPosition = getFilePathPosition;
+function getFilePath() {
+    var editor = atom.workspace.getActiveTextEditor();
+    var filePath = editor.getPath();
+    return { filePath: filePath };
+}
+exports.getFilePath = getFilePath;
 function getEditorsForAllPaths(filePaths) {
     var map = {};
     var activeEditors = atom.workspace.getTextEditors().filter(function (editor) { return !!editor.getPath(); });

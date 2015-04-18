@@ -54,3 +54,8 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
         emitError: !emitDone
     };
 }
+export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOutput {
+    var services = proj.languageService;
+    var output = services.getEmitOutput(filePath);
+    return output;
+}

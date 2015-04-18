@@ -938,7 +938,6 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
 
 /**
  * Get Quick Fix
- * WARNING: Experimental stuff. Don't judge me.
  */
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFix";
 import * as qf from "./fixmyts/quickFix";
@@ -1017,4 +1016,18 @@ export function applyQuickFix(query: ApplyQuickFixQuery): Promise<ApplyQuickFixR
     var res = fix.provideFix(info);
     var refactorings = qf.getRefactoringsByFilePath(res);
     return resolve({ refactorings });
+}
+
+
+/**
+ * Get Output for possible use elsewhere
+ */
+interface GetOutputResponse {
+    output: ts.EmitOutput;
+}
+import {getRawOutput} from "./modules/building";
+export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    return resolve({ output: getRawOutput(project, query.filePath) });
 }

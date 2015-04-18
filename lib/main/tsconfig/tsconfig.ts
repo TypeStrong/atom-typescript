@@ -397,7 +397,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     return getProjectSync(srcFile);
 }
 
-// we work with "/" for all paths
+/** we work with "/" for all paths */
 export function consistentPath(filePath: string): string {
     return filePath.split('\\').join('/');
 }

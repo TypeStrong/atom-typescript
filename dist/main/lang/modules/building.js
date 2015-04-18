@@ -45,3 +45,9 @@ function emitFile(proj, filePath) {
     };
 }
 exports.emitFile = emitFile;
+function getRawOutput(proj, filePath) {
+    var services = proj.languageService;
+    var output = services.getEmitOutput(filePath);
+    return output;
+}
+exports.getRawOutput = getRawOutput;

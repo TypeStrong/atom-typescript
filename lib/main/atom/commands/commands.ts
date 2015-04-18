@@ -18,8 +18,12 @@ import {AstView, astURI, astUriForPath, astURIFull, astUriFullForPath} from "../
 import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/dependencyView";
 import simpleSelectionView from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
+import * as outputFileCommands from "./outputFileCommands";
 
 export function registerCommands() {
+
+    // Stuff I've split out as we have a *lot* of commands
+    outputFileCommands.register();
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {

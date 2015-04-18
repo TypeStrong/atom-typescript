@@ -49,6 +49,12 @@ export function getFilePathPosition(): { filePath: string; position: number } {
     return { filePath, position };
 }
 
+export function getFilePath(): { filePath: string; } {
+    var editor = atom.workspace.getActiveTextEditor();
+    var filePath = editor.getPath();
+    return { filePath };
+}
+
 export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath: string]: AtomCore.IEditor }> {
     var map = <any>{};
     var activeEditors = atom.workspace.getTextEditors().filter(editor=> !!editor.getPath());

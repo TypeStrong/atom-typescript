@@ -16,7 +16,9 @@ var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
 var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
+var outputFileCommands = require("./outputFileCommands");
 function registerCommands() {
+    outputFileCommands.register();
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
