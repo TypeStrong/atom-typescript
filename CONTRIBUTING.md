@@ -14,6 +14,14 @@ You still have to reload atom with `ctrl+alt+r` to test your changes.
 
 (Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
+## Git
+You need to have git. Note on windows long file paths can be an issue so run: 
+
+```
+git config --system core.longpaths true
+```
+And use `Shift+Delete` to delete files if simple `delete` doesn't work.
+
 # Various
 
 ## Publishing
