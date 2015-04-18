@@ -37,12 +37,12 @@ declare module AtomCore {
     interface Disposable {
         dispose();
     }
-	
+
 	interface Decoration
 	{
 	    destroy(): void;
 	}
-	
+
 	/**
 	 * Represents a buffer annotation that remains logically stationary even as the buffer changes. This is used
 	 * to represent cursors, folds, snippet targets, misspelled words, any anything else that needs to track a
@@ -790,7 +790,7 @@ declare module AtomCore {
 		screenPositionForPixelPosition: Function;
         pixelPositionForBufferPosition: Function;
 		getHeight(): number;
-		
+
 		decorateMarker(marker: Marker, options: any): Decoration;
 		getLastCursor(): ICursor;
 	}
@@ -802,6 +802,7 @@ declare module AtomCore {
 	}
 
 	interface IPane /* extends Theorist.Model */ {
+        itemForURI: (uri:string)=>IEditor;
 		items:any[];
 		activeItem:any;
 

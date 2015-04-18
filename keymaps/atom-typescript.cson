@@ -6,8 +6,9 @@
   'f2': 'typescript:rename-refactor'
   'shift-f12': 'typescript:find-references'
   'alt-enter': 'typescript:quick-fix'
+  'ctrl-M': 'typescript:output-toggle'
 
-# Build and goto definition
+# Stronger bindings
 'atom-workspace':
   'f6': 'typescript:build'
   'f12': 'typescript:go-to-declaration'

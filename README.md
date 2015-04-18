@@ -41,6 +41,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Quick Fix
 * Common Snippets
 * `import` / `/// <reference` relative path resolution
+* Output Toggle
 * AST visualizer
 * Dependency View
 
@@ -116,7 +117,7 @@ Also called Go To Type in other IDEs. Integrates with atom's project level symbo
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. e.g 
+Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. e.g
 
 Add class members
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
@@ -142,14 +143,21 @@ We will validate it and help you to fix it :)
 Relative paths have traditionally been a pain, not anymore. Use `import` or `ref` and press `tab` to trigger snippet.
 
 `ref`
+
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/ref%20snippet.gif)
 
 `import`
+
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/import%20snippet.gif)
 
 Note that within the path string you get autocomplete (`ctrl+space`/`cmd+space`) for all the files in the project by filename (works for both `ref` and `import`).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/pathChange.gif)
+
+## Output Toggle
+`ctrl+shift+m` to toggle the output co**m**piled JS file for a give TypeScript file. The keyboard shortcut is consistent with atom's markdown preview.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/outputToggle.gif)
 
 ## AST Visualizer
 Command : `Typescript: Ast`. Useful when authoring new features.
