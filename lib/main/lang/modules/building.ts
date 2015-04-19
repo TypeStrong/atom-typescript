@@ -3,7 +3,8 @@ import project = require('../core/project');
 import mkdirp = require('mkdirp');
 import path = require('path');
 import fs = require('fs');
-import {pathIsRelative, consistentPath} from "../../tsconfig/tsconfig";
+import {pathIsRelative, consistentPath, makeRelativePath} from "../../tsconfig/tsconfig";
+import {createMap} from "../utils";
 
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
@@ -81,20 +82,31 @@ export function emitDts(proj: project.Project) {
 
     // The main file
     var main: string = proj.projectFile.project.package.main;
+
     // We need to find a ts file for this `main` and we also need to get its
     if (main) {
         // if path is relative we need to replace that section with 'name'
         // ./foo => 'something/foo'
-        main = name + '/' + consistentPath(main.replace('./',''));
+        main = name + '/' + consistentPath(main.replace('./', ''));
 
         // Replace trailing `.js` with nothing
         main = main.replace(/\.*.js$/g, '');
     }
 
+    // Typings become externs
+    // And these are relative to the output .d.ts we are generating
+    var externs = proj.projectFile.project.files.filter(x=> path.basename(path.dirname(x)) == 'typings' // e.g tsd.d.ts
+        || path.basename(path.dirname(path.dirname(x))) == 'typings');
+    var externsMap = createMap(externs);
+    // externs = externs.map(x => makeRelativePath(path.dirname(outFile), x));
+
+    // For files we exclude and thing from typings
+    var files = proj.projectFile.project.files.filter(x=> !externsMap[x]);
 
     dts.generate({
         baseDir,
-        files: proj.projectFile.project.files,
+        files,
+        externs,
         name: name,
 
         target: proj.projectFile.project.compilerOptions.target,

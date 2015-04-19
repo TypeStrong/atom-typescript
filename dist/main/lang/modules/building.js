@@ -3,6 +3,7 @@ var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
 var tsconfig_1 = require("../../tsconfig/tsconfig");
+var utils_1 = require("../utils");
 function diagnosticToTSError(diagnostic) {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -70,9 +71,14 @@ function emitDts(proj) {
         main = name + '/' + tsconfig_1.consistentPath(main.replace('./', ''));
         main = main.replace(/\.*.js$/g, '');
     }
+    var externs = proj.projectFile.project.files.filter(function (x) { return path.basename(path.dirname(x)) == 'typings'
+        || path.basename(path.dirname(path.dirname(x))) == 'typings'; });
+    var externsMap = utils_1.createMap(externs);
+    var files = proj.projectFile.project.files.filter(function (x) { return !externsMap[x]; });
     dts.generate({
         baseDir: baseDir,
-        files: proj.projectFile.project.files,
+        files: files,
+        externs: externs,
         name: name,
         target: proj.projectFile.project.compilerOptions.target,
         out: outFile,

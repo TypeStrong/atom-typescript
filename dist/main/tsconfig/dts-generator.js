@@ -32,6 +32,13 @@ function getError(diagnostics) {
     error.name = 'EmitterError';
     return error;
 }
+function makeRelativePath(relativeFolder, filePath) {
+    var relativePath = pathUtil.relative(relativeFolder, filePath).split('\\').join('/');
+    if (relativePath[0] !== '.') {
+        relativePath = './' + relativePath;
+    }
+    return relativePath;
+}
 function getFilenames(baseDir, files) {
     return files.map(function (filename) {
         var resolvedFilename = pathUtil.resolve(filename);
@@ -101,9 +108,10 @@ function generate(options, sendMessage) {
         output.on('close', function () { resolve(undefined); });
         output.on('error', reject);
         if (options.externs) {
+            var relativeRoot = pathUtil.dirname(options.out);
             options.externs.forEach(function (path) {
                 sendMessage("Writing external dependency " + path);
-                output.write(("/// <reference path=\"" + path + "\" />") + eol);
+                output.write(("/// <reference path=\"" + makeRelativePath(relativeRoot, path) + "\" />") + eol);
             });
         }
         program.getSourceFiles().some(function (sourceFile) {

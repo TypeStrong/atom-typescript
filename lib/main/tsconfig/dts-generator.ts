@@ -54,6 +54,15 @@ function getError(diagnostics: ts.Diagnostic[]) {
     return error;
 }
 
+// Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
+function makeRelativePath(relativeFolder: string, filePath: string) {
+    var relativePath = pathUtil.relative(relativeFolder, filePath).split('\\').join('/');
+    if (relativePath[0] !== '.') {
+        relativePath = './' + relativePath;
+    }
+    return relativePath;
+}
+
 function getFilenames(baseDir: string, files: string[]): string[] {
     return files.map(function(filename) {
         var resolvedFilename = pathUtil.resolve(filename);
@@ -141,9 +150,10 @@ export function generate(options: Options, sendMessage: (message: string) => voi
         output.on('error', reject);
 
         if (options.externs) {
+            let relativeRoot = pathUtil.dirname(options.out);
             options.externs.forEach(function(path: string) {
                 sendMessage(`Writing external dependency ${path}`);
-                output.write(`/// <reference path="${path}" />` + eol);
+                output.write(`/// <reference path="${makeRelativePath(relativeRoot, path)}" />` + eol);
             });
         }
 
