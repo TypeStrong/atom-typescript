@@ -3,7 +3,7 @@ exports.buildOutput = { members: [] };
 exports.referencesOutput = { members: [] };
 exports.activeList = exports.errorsInOpenFiles;
 function gotoLine(filePath, line, col, list) {
-    var activeFile, activeEditor = atom.workspace.getActiveEditor();
+    var activeFile, activeEditor = atom.workspace.getActiveTextEditor();
     if (activeEditor !== undefined && activeEditor !== null) {
         activeFile = activeEditor.getPath();
     }
@@ -14,7 +14,7 @@ function gotoLine(filePath, line, col, list) {
         });
     }
     else {
-        atom.workspace.getActiveEditor().cursors[0].setBufferPosition([line - 1, col]);
+        atom.workspace.getActiveTextEditor().cursors[0].setBufferPosition([line - 1, col]);
     }
     list.lastPosition = { filePath: filePath, line: line, col: col };
 }

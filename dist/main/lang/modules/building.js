@@ -51,3 +51,26 @@ function getRawOutput(proj, filePath) {
     return output;
 }
 exports.getRawOutput = getRawOutput;
+var dts = require("../../tsconfig/dts-generator");
+function emitDts(proj) {
+    if (!proj.projectFile.project)
+        return;
+    if (!proj.projectFile.project.package)
+        return;
+    if (!proj.projectFile.project.package.directory)
+        return;
+    if (!proj.projectFile.project.package.definition)
+        return;
+    var outFile = path.resolve(proj.projectFile.project.package.directory, './', proj.projectFile.project.package.definition);
+    var baseDir = proj.projectFile.project.package.directory;
+    var name = proj.projectFile.project.package.name;
+    var name = proj.projectFile.project.package.name;
+    dts.generate({
+        baseDir: baseDir,
+        files: proj.projectFile.project.files,
+        name: name,
+        target: proj.projectFile.project.compilerOptions.target,
+        out: outFile,
+    });
+}
+exports.emitDts = emitDts;

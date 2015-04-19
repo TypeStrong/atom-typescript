@@ -28,7 +28,7 @@ export class DocumentationView extends view.View<any> {
     }
 
     autoPosition() {
-        var editor = atom.workspace.getActiveEditor();
+        var editor = atom.workspace.getActiveTextEditor();
         var cursor = editor.getCursor();
         var cursorTop = cursor.getPixelRect().top - editor.getScrollTop();
         var editorHeight = editor.getHeight();

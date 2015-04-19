@@ -10,6 +10,9 @@
         "outDir": "../dist",
         "sourceMap": false
     },
+    "dts": {
+        "name": "atom-typescript"
+    },
     "filesGlob": [
         "./**/*.ts",
         "!node_modules/**/*.ts"
@@ -63,6 +66,7 @@
         "./main/lang/modules/programDependencies.ts",
         "./main/lang/projectService.ts",
         "./main/lang/utils.ts",
+        "./main/tsconfig/dts-generator.ts",
         "./main/tsconfig/formatting.ts",
         "./main/tsconfig/simpleValidator.ts",
         "./main/tsconfig/tsconfig.ts",
@@ -87,6 +91,7 @@
         "./typings/text-buffer/text-buffer.d.ts",
         "./typings/tsd.d.ts",
         "./worker/child.ts",
+        "./worker/debug.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
         "./worker/queryParent.ts"

@@ -43,6 +43,8 @@ export function register() {
                 return;
             }
             else {
+                // spawn('cmd', ['/C', 'start ' + "node " + res.output.outputFiles[0].name]);
+
                 exec("node " + res.output.outputFiles[0].name, (err, stdout, stderr) => {
                     console.log(stdout);
                     if (stderr.toString().trim().length) {

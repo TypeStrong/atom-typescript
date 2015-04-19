@@ -3,6 +3,7 @@ import project = require('../core/project');
 import mkdirp = require('mkdirp');
 import path = require('path');
 import fs = require('fs');
+import {pathIsRelative} from "../../tsconfig/tsconfig";
 
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
@@ -58,4 +59,35 @@ export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOu
     var services = proj.languageService;
     var output = services.getEmitOutput(filePath);
     return output;
+}
+
+import dts = require("../../tsconfig/dts-generator");
+
+export function emitDts(proj: project.Project) {
+
+    if (!proj.projectFile.project) return;
+    if (!proj.projectFile.project.package) return;
+    if (!proj.projectFile.project.package.directory) return;
+    if (!proj.projectFile.project.package.definition) return;
+
+    // Determined from package.json typescript.definition property
+    var outFile = path.resolve(proj.projectFile.project.package.directory, './', proj.projectFile.project.package.definition)
+
+    // This is package.json directory
+    var baseDir = proj.projectFile.project.package.directory;
+
+    // The name of the package (of course!)
+    var name = proj.projectFile.project.package.name;
+
+    // The main file
+    var name = proj.projectFile.project.package.name;
+
+    dts.generate({
+        baseDir,
+        files: proj.projectFile.project.files,
+        name: name,
+        
+        target: proj.projectFile.project.compilerOptions.target,
+        out: outFile,
+    })
 }

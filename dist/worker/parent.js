@@ -1,6 +1,6 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
-var debug = false;
+var debug_1 = require("./debug");
 var childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
@@ -12,7 +12,7 @@ parent.pendingRequestsChanged = function (pending) {
         return;
     mainPanel.panelView.updatePendingRequests(pending);
 };
-if (debug) {
+if (debug_1.debug) {
     parent.sendToIpc = function (x) { return x; };
 }
 function startWorker() {

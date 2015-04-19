@@ -245,7 +245,7 @@ function registerCommands() {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
         atom.workspace.open(uri, {
-            text: atom.workspace.getActiveEditor().getText(),
+            text: atom.workspace.getActiveTextEditor().getText(),
             filePath: atomUtils.getCurrentPath()
         });
     });
@@ -258,7 +258,7 @@ function registerCommands() {
             old_pane.destroyItem(old_pane.itemForUri(uri));
         }
         atom.workspace.open(uri, {
-            text: atom.workspace.getActiveEditor().getText(),
+            text: atom.workspace.getActiveTextEditor().getText(),
             filePath: atomUtils.getCurrentPath()
         });
     });

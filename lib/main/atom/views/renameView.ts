@@ -75,7 +75,7 @@ export class RenameView
 
     public renameThis(options: RenameViewOptions) {
         this.options = options;
-        this.editorAtRenameStart = atom.workspace.getActiveEditor();
+        this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
         panel.show();
 
         this.newNameEditor.model.setText(options.text);

@@ -152,7 +152,7 @@ function getDefaultProject(srcFile) {
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
-        project: project
+        project: project,
     };
 }
 exports.getDefaultProject = getDefaultProject;
@@ -204,12 +204,24 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
+    var packagePath = projectSpec.package;
+    var package = null;
+    if (packagePath) {
+        var packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
+        var parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
+        package = {
+            name: parsedPackage.name,
+            directory: path.dirname(packageJSONPath),
+            definition: parsedPackage.typescript && parsedPackage.typescript.definition
+        };
+    }
     var project = {
         compilerOptions: {},
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
-        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave
+        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
+        package: package
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
@@ -378,3 +390,10 @@ function travelUpTheDirectoryTreeTillYouFindFile(dir, fileName) {
     }
 }
 exports.travelUpTheDirectoryTreeTillYouFindFile = travelUpTheDirectoryTreeTillYouFindFile;
+function getPotentiallyRelativeFile(basePath, filePath) {
+    if (pathIsRelative(filePath)) {
+        return consistentPath(path.resolve(basePath, filePath));
+    }
+    return consistentPath(filePath);
+}
+exports.getPotentiallyRelativeFile = getPotentiallyRelativeFile;

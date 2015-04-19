@@ -332,6 +332,9 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         return output;
     });
 
+    // Also emit dts:
+    building.emitDts(proj);
+
     return resolve({
         buildOutput: {
             outputs: outputs,

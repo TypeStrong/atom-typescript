@@ -76,6 +76,16 @@ interface TypeScriptProjectRawSpecification {
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
+    package?: string;                                   // optional: Path to your package.json. If you specify this we can do some cool stuff like generate a .d.ts for you.
+}
+
+interface UsefulFromPackageJson {
+    /** We need this as this is the name the user is going to import **/
+    name: string;
+    /** we need this to figure out the basePath (will depend on how `outDir` is relative to this directory) */
+    directory: string;
+    /** This is going to be typescript.definition */
+    definition: string;
 }
 
 // Main configuration
@@ -85,6 +95,7 @@ export interface TypeScriptProjectSpecification {
     filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
+    package?: UsefulFromPackageJson;
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -258,7 +269,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
-        project: project
+        project: project,
     };
 }
 
@@ -330,12 +341,25 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
+    var packagePath = projectSpec.package;
+    var package: UsefulFromPackageJson = null;
+    if (packagePath) {
+        let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
+        let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
+        package = {
+            name: parsedPackage.name,
+            directory: path.dirname(packageJSONPath),
+            definition: parsedPackage.typescript && parsedPackage.typescript.definition
+        };
+    }
+
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
         files: projectSpec.files,
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
-        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave
+        compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
+        package
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
@@ -558,4 +582,11 @@ export function travelUpTheDirectoryTreeTillYouFindFile(dir: string, fileName: s
             if (dir == before) throw new Error("not found");
         }
     }
+}
+
+export function getPotentiallyRelativeFile(basePath: string, filePath: string) {
+    if (pathIsRelative(filePath)) {
+        return consistentPath(path.resolve(basePath, filePath));
+    }
+    return consistentPath(filePath);
 }

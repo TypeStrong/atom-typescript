@@ -1,8 +1,7 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
-/** Set this to true to run the child code in the UI thread and just debug using the dev tools */
-var debug = false;
+import {debug} from "./debug";
 
 import childprocess = require('child_process');
 var exec = childprocess.exec;

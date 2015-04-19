@@ -8,7 +8,7 @@ export var activeList: TabWithGotoPositions = errorsInOpenFiles;
 
 export function gotoLine(filePath: string, line: number, col: number, list: TabWithGotoPositions) {
     var activeFile,
-        activeEditor = atom.workspace.getActiveEditor();
+        activeEditor = atom.workspace.getActiveTextEditor();
     if (activeEditor !== undefined && activeEditor !== null) {
         activeFile = activeEditor.getPath();
     }
@@ -19,7 +19,7 @@ export function gotoLine(filePath: string, line: number, col: number, list: TabW
             initialColumn: col
         });
     } else {
-        atom.workspace.getActiveEditor().cursors[0].setBufferPosition([line - 1, col]);
+        atom.workspace.getActiveTextEditor().cursors[0].setBufferPosition([line - 1, col]);
     }
 
     list.lastPosition = { filePath, line, col };

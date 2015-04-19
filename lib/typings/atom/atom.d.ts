@@ -974,7 +974,6 @@ declare module AtomCore {
 		saveActivePaneItemAs():any;
 		destroyActivePaneItem():any;
 		destroyActivePane():any;
-		getActiveEditor():IEditor;
 		increaseFontSize():void;
 		decreaseFontSize():void;
 		resetFontSize():void;
