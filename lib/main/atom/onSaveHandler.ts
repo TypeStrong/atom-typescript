@@ -17,6 +17,12 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
     // As a fall back to make sure we sync up in case of anything bad happening elsewhere.
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
 
+    // Refresh errors for file
+    textUpdated.then(() => {
+        parent.errorsForFile({ filePath: event.filePath })
+            .then((resp) => errorView.setErrors(event.filePath, resp.errors));
+    })
+
     // Compile on save
     parent.getProjectFileDetails({ filePath: event.filePath }).then(fileDetails => {
         if (!fileDetails.project.compileOnSave) return;
