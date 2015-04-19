@@ -9,6 +9,11 @@
         'body': """
             import ${2} from "${1:path}";$3
         """
+    'importr':
+        'prefix': 'importr'
+        'body': """
+            import ${1} = require("${2}");$3
+        """
     'JSDoc single line':
         'prefix': '//'
         'body': """
