@@ -17,9 +17,15 @@ class Config {
             title: 'Debug: Atom-TypeScript. Please do not use.',
             type: 'boolean',
             default: false
+        },
+        preferredQuoteCharacter: {
+            title: 'Preferred Quote Character',
+            type: 'string',
+            default: '"'
         }
     }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
+    get preferredQuoteCharacter() { return getConfig<string>('preferredQuoteCharacter') }
 }
 var config = new Config();
 export = config;

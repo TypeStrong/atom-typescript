@@ -215,6 +215,7 @@ export var provider: autocompleteplus.Provider = {
         if (options.suggestion.atomTS_IsReference
             || options.suggestion.atomTS_IsImport
             || options.suggestion.atomTS_IsES6Import) {
+            var quote = atomConfig.preferredQuoteCharacter;
 
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
@@ -225,13 +226,13 @@ export var provider: autocompleteplus.Provider = {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
                 let alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function() { return "import " + alias + ' = require("' + options.suggestion.atomTS_IsImport.relativePath + '");'; });
+                options.editor.replaceSelectedText(null, function() { return `import ${alias} = require(${quote}${options.suggestion.atomTS_IsImport.relativePath}${quote});`; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
                 var {row} = options.editor.getCursorBufferPosition();
                 var originalText = (<any>options.editor).lineTextForBufferRow(row);
                 var beforeFrom = originalText.match(/(.*)from/)[1];
-                var newTextAfterFrom = 'from "' + options.suggestion.atomTS_IsES6Import.relativePath + '";';
+                var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
                 options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom)
 
             }
