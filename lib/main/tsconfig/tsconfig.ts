@@ -265,6 +265,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
     };
 
     project.files = increaseProjectForReferenceAndImports(project.files);
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
     project.files = uniq(project.files.map(consistentPath));
 
     return {
@@ -289,7 +290,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Keep going up till we find the project file
     var projectFile = '';
     try {
-        projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
+        projectFile = travelUpTheDirectoryTreeTillYouFind(dir, projectFileName);
     }
     catch (e) {
         let err: Error = e;
@@ -386,6 +387,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Expand files to include references
     project.files = increaseProjectForReferenceAndImports(project.files);
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
 
     // Normalize to "/" for all files
     // And take the uniq values
@@ -502,6 +504,36 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
     return files;
 }
 
+/**
+ * TODO: exclude `tsd` definitions that we also have
+ */
+export function getDefinitionsForNodeModules(projectDir: string): string[] {
+    // Keep going up till we find node_modules
+    // at that point read the `package.json` for each file in node_modules
+    // And then if that package.json has `typescript.definition` we import that file
+    var definitions = [];
+
+    try {
+        var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
+
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`
+        var moduleDirs = getDirs(node_modules);
+        for (let moduleDir of moduleDirs) {
+            var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
+            if (package_json.typescript) {
+                if (package_json.typescript.definition) {
+                    definitions.push(path.resolve(moduleDir, './', package_json.typescript.definition));
+                }
+            }
+        }
+    }
+    catch (ex) {
+        // this is best effort only at the moment
+    }
+
+    return definitions;
+}
+
 export function prettyJSON(object: any): string {
     var cache = [];
     var value = JSON.stringify(object,
@@ -570,10 +602,20 @@ export function removeTrailingSlash(filePath: string) {
 }
 
 /** returns the path if found or throws an error "not found" if not found */
-export function travelUpTheDirectoryTreeTillYouFindFile(dir: string, fileName: string): string {
+export function travelUpTheDirectoryTreeTillYouFind(dir: string, fileOrDirectory: string,
+    /** This is useful if we don't want to file `node_modules from inside node_modules` */
+    abortIfInside = false): string {
     while (fs.existsSync(dir)) { // while directory exists
 
-        var potentialFile = dir + '/' + fileName;
+        var potentialFile = dir + '/' + fileOrDirectory;
+
+        /** This means that we were *just* in this directory */
+        if (before == potentialFile) {
+            if (abortIfInside) {
+                throw new Error("not found")
+            }
+        }
+
         if (fs.existsSync(potentialFile)) { // found it
             return potentialFile;
         }
@@ -591,4 +633,21 @@ export function getPotentiallyRelativeFile(basePath: string, filePath: string) {
         return consistentPath(path.resolve(basePath, filePath));
     }
     return consistentPath(filePath);
+}
+
+function getDirs(rootDir: string): string[] {
+    var files = fs.readdirSync(rootDir)
+    var dirs = []
+
+    for (var file of files) {
+        if (file[0] != '.') {
+            var filePath = `${rootDir}/${file}`
+        }
+        var stat = fs.statSync(filePath)
+
+        if (stat.isDirectory()) {
+            dirs.push(filePath)
+        }
+    }
+    return dirs
 }
