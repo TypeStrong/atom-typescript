@@ -20,6 +20,9 @@ var filenameToMid = (function () {
         };
     }
 })();
+function consistentPath(filePath) {
+    return filePath.split('\\').join('/');
+}
 function getError(diagnostics) {
     var message = 'Declaration generation failed';
     diagnostics.forEach(function (diagnostic) {
@@ -88,10 +91,14 @@ function generate(options, sendMessage) {
     if (options.outDir) {
         compilerOptions.outDir = options.outDir;
     }
-    var filenames = getFilenames(baseDir, options.files);
+    var filenames = getFilenames(baseDir, options.files.concat(options.externs || []));
     var excludesMap = {};
     options.excludes && options.excludes.forEach(function (filename) {
         excludesMap[pathUtil.resolve(baseDir, filename)] = true;
+    });
+    var externsMap = {};
+    options.externs && options.externs.forEach(function (filename) {
+        externsMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
     mkdirp.sync(pathUtil.dirname(options.out));
     var output = fs.createWriteStream(options.out, { mode: parseInt('644', 8) });
@@ -119,6 +126,9 @@ function generate(options, sendMessage) {
                 return;
             }
             if (excludesMap[sourceFile.fileName]) {
+                return;
+            }
+            if (externsMap[sourceFile.fileName]) {
                 return;
             }
             sendMessage("Processing " + sourceFile.fileName);

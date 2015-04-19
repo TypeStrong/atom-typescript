@@ -38,6 +38,10 @@ var filenameToMid: (filename: string) => string = (function() {
     }
 })();
 
+function consistentPath(filePath: string): string {
+    return filePath.split('\\').join('/');
+}
+
 function getError(diagnostics: ts.Diagnostic[]) {
     var message = 'Declaration generation failed';
 
@@ -123,10 +127,14 @@ export function generate(options: Options, sendMessage: (message: string) => voi
         compilerOptions.outDir = options.outDir
     }
 
-    var filenames = getFilenames(baseDir, options.files);
+    var filenames = getFilenames(baseDir, options.files.concat(options.externs || []));
     var excludesMap: { [filename: string]: boolean; } = {};
     options.excludes && options.excludes.forEach(function(filename) {
         excludesMap[pathUtil.resolve(baseDir, filename)] = true;
+    });
+    var externsMap: { [filename: string]: boolean; } = {};
+    options.externs && options.externs.forEach(function(filename) {
+        externsMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
 
     mkdirp.sync(pathUtil.dirname(options.out));
@@ -165,6 +173,10 @@ export function generate(options: Options, sendMessage: (message: string) => voi
             }
 
             if (excludesMap[sourceFile.fileName]) {
+                return;
+            }
+
+            if (externsMap[sourceFile.fileName]) {
                 return;
             }
 
