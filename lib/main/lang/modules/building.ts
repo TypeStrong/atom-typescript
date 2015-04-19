@@ -3,7 +3,7 @@ import project = require('../core/project');
 import mkdirp = require('mkdirp');
 import path = require('path');
 import fs = require('fs');
-import {pathIsRelative} from "../../tsconfig/tsconfig";
+import {pathIsRelative, consistentPath} from "../../tsconfig/tsconfig";
 
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
@@ -80,14 +80,28 @@ export function emitDts(proj: project.Project) {
     var name = proj.projectFile.project.package.name;
 
     // The main file
-    var name = proj.projectFile.project.package.name;
+    var main: string = proj.projectFile.project.package.main;
+    // We need to find a ts file for this `main` and we also need to get its
+    if (main) {
+        // if path is relative we need to replace that section with 'name'
+        // ./foo => 'something/foo'
+        main = name + '/' + consistentPath(main.replace('./',''));
+
+        // Replace trailing `.js` with nothing
+        main = main.replace(/\.*.js$/g, '');
+    }
+
 
     dts.generate({
         baseDir,
         files: proj.projectFile.project.files,
         name: name,
-        
+
         target: proj.projectFile.project.compilerOptions.target,
         out: outFile,
+
+        main: main,
+
+        outDir: proj.projectFile.project.compilerOptions.outDir
     })
 }

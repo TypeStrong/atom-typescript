@@ -78,6 +78,9 @@ function generate(options, sendMessage) {
         module: 1,
         target: target
     };
+    if (options.outDir) {
+        compilerOptions.outDir = options.outDir;
+    }
     var filenames = getFilenames(baseDir, options.files);
     var excludesMap = {};
     options.excludes && options.excludes.forEach(function (filename) {

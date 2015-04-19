@@ -2,6 +2,7 @@ var ts = require('typescript');
 var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
+var tsconfig_1 = require("../../tsconfig/tsconfig");
 function diagnosticToTSError(diagnostic) {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -64,13 +65,19 @@ function emitDts(proj) {
     var outFile = path.resolve(proj.projectFile.project.package.directory, './', proj.projectFile.project.package.definition);
     var baseDir = proj.projectFile.project.package.directory;
     var name = proj.projectFile.project.package.name;
-    var name = proj.projectFile.project.package.name;
+    var main = proj.projectFile.project.package.main;
+    if (main) {
+        main = name + '/' + tsconfig_1.consistentPath(main.replace('./', ''));
+        main = main.replace(/\.*.js$/g, '');
+    }
     dts.generate({
         baseDir: baseDir,
         files: proj.projectFile.project.files,
         name: name,
         target: proj.projectFile.project.compilerOptions.target,
         out: outFile,
+        main: main,
+        outDir: proj.projectFile.project.compilerOptions.outDir
     });
 }
 exports.emitDts = emitDts;

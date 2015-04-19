@@ -210,6 +210,7 @@ function getProjectSync(pathOrSrcFile) {
         var packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
         var parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
         package = {
+            main: parsedPackage.main,
             name: parsedPackage.name,
             directory: path.dirname(packageJSONPath),
             definition: parsedPackage.typescript && parsedPackage.typescript.definition

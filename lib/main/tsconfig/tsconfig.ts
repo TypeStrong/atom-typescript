@@ -86,6 +86,7 @@ interface UsefulFromPackageJson {
     directory: string;
     /** This is going to be typescript.definition */
     definition: string;
+    main: string;
 }
 
 // Main configuration
@@ -347,6 +348,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
         let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
         package = {
+            main: parsedPackage.main,
             name: parsedPackage.name,
             directory: path.dirname(packageJSONPath),
             definition: parsedPackage.typescript && parsedPackage.typescript.definition
