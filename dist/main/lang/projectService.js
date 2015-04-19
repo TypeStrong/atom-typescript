@@ -549,21 +549,22 @@ function getRelativePathsInProject(query) {
     var project = getOrCreateProject(query.filePath);
     var sourceDir = path.dirname(query.filePath);
     var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
-    var files = filePaths.map(function (p) {
-        return {
-            name: path.basename(p, '.ts'),
-            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
-            fullPath: p
-        };
-    });
+    var files = [];
     if (query.includeExternalModules) {
         var externalModules = getExternalModules_1.getExternalModuleNames(project.languageService.getProgram());
         externalModules.forEach(function (e) { return files.push({
-            name: "module \"" + e + "\"",
+            name: "" + e,
             relativePath: e,
             fullPath: e
         }); });
     }
+    filePaths.forEach(function (p) {
+        files.push({
+            name: path.basename(p, '.ts'),
+            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
+            fullPath: p
+        });
+    });
     var endsInPunctuation = prefixEndsInPunctuation(query.prefix);
     if (!endsInPunctuation)
         files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
