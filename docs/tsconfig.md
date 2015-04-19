@@ -71,6 +71,8 @@ Where a sample package.json looks like:
 
 We would generate a `definition/awesome.d.ts` file for you so that other TypeScript projects can do a simple `require('awesome')`.
 
+Also note that any node modules that ship with `typescript.definition` that you import will automatically get type inference / completion.
+
 ### formatCodeOptions
 These are used when you request the IDE to format TypeScript code.
 
