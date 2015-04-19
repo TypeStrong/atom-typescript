@@ -91,10 +91,10 @@ function generate(options, sendMessage) {
     if (options.outDir) {
         compilerOptions.outDir = options.outDir;
     }
-    var filenames = getFilenames(baseDir, options.files.concat(options.externs || []));
+    var filenames = getFilenames(baseDir, options.files);
     var excludesMap = {};
     options.excludes && options.excludes.forEach(function (filename) {
-        excludesMap[pathUtil.resolve(baseDir, filename)] = true;
+        excludesMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
     var externsMap = {};
     options.externs && options.externs.forEach(function (filename) {

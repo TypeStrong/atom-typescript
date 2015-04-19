@@ -3,7 +3,6 @@ var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
 var tsconfig_1 = require("../../tsconfig/tsconfig");
-var utils_1 = require("../utils");
 function diagnosticToTSError(diagnostic) {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -73,8 +72,7 @@ function emitDts(proj) {
     }
     var externs = proj.projectFile.project.files.filter(function (x) { return path.basename(path.dirname(x)) == 'typings'
         || path.basename(path.dirname(path.dirname(x))) == 'typings'; });
-    var externsMap = utils_1.createMap(externs);
-    var files = proj.projectFile.project.files.filter(function (x) { return !externsMap[x]; });
+    var files = proj.projectFile.project.files;
     dts.generate({
         baseDir: baseDir,
         files: files,

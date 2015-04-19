@@ -127,10 +127,10 @@ export function generate(options: Options, sendMessage: (message: string) => voi
         compilerOptions.outDir = options.outDir
     }
 
-    var filenames = getFilenames(baseDir, options.files.concat(options.externs || []));
+    var filenames = getFilenames(baseDir, options.files);
     var excludesMap: { [filename: string]: boolean; } = {};
     options.excludes && options.excludes.forEach(function(filename) {
-        excludesMap[pathUtil.resolve(baseDir, filename)] = true;
+        excludesMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
     var externsMap: { [filename: string]: boolean; } = {};
     options.externs && options.externs.forEach(function(filename) {

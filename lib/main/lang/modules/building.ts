@@ -97,11 +97,9 @@ export function emitDts(proj: project.Project) {
     // And these are relative to the output .d.ts we are generating
     var externs = proj.projectFile.project.files.filter(x=> path.basename(path.dirname(x)) == 'typings' // e.g tsd.d.ts
         || path.basename(path.dirname(path.dirname(x))) == 'typings');
-    var externsMap = createMap(externs);
-    // externs = externs.map(x => makeRelativePath(path.dirname(outFile), x));
 
-    // For files we exclude and thing from typings
-    var files = proj.projectFile.project.files.filter(x=> !externsMap[x]);
+    // The files
+    var files = proj.projectFile.project.files;
 
     dts.generate({
         baseDir,
