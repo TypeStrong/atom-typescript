@@ -86,19 +86,6 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     });
 }
 
-var watchingTheFilesInTheProject: { [projectFilePath: string]: boolean } = {}
-function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    var projectFilePath = projectFile.projectFilePath;
-    // Don't watch lib.d.ts and other
-    // projects that are "in memory" only
-    if (!fs.existsSync(projectFilePath)) {
-        return;
-    }
-
-    if (watchingTheFilesInTheProject[projectFilePath]) return; // Only watch once
-    watchingTheFilesInTheProject[projectFilePath] = true;
-}
-
 /** We are loading the project from file system.
     This might not match what we have in the editor memory, so query those as well
 */
@@ -117,7 +104,6 @@ function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetail
     });
 
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
-    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
 
     return project;
 }
