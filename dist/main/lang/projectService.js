@@ -51,7 +51,6 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
         }
     });
 }
-var chokidar = require('chokidar');
 var watchingTheFilesInTheProject = {};
 function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
     var projectFilePath = projectFile.projectFilePath;
@@ -61,26 +60,6 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
     if (watchingTheFilesInTheProject[projectFilePath])
         return;
     watchingTheFilesInTheProject[projectFilePath] = true;
-    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
-    watcher.on('add', function () {
-    });
-    watcher.on('unlink', function (filePath) {
-    });
-    watcher.on('change', function (filePath) {
-        filePath = tsconfig.consistentPath(filePath);
-        queryParent.getOpenEditorPaths({}).then(function (res) {
-            var openPaths = res.filePaths;
-            if (openPaths.some(function (x) { return x == filePath; })) {
-                return;
-            }
-            var project = projectByFilePath[filePath];
-            if (!project) {
-                return;
-            }
-            var contents = fs.readFileSync(filePath).toString();
-            project.languageServiceHost.updateScript(filePath, contents);
-        });
-    });
 }
 function cacheAndCreateProject(projectFile) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);

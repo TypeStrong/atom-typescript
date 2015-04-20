@@ -35,7 +35,6 @@
     "escape-html": "^1.0.1",
     "atom-space-pen-views": "^2.0.4",
     "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb1.tar.gz",
-    "chokidar": "^1.0.0-rc4",
     "basarat-text-buffer": "^4.1.5",
     "d3": "^3.5.5"
   },

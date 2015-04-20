@@ -86,8 +86,6 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     });
 }
 
-
-import chokidar = require('chokidar');
 var watchingTheFilesInTheProject: { [projectFilePath: string]: boolean } = {}
 function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
     var projectFilePath = projectFile.projectFilePath;
@@ -99,36 +97,6 @@ function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.Type
 
     if (watchingTheFilesInTheProject[projectFilePath]) return; // Only watch once
     watchingTheFilesInTheProject[projectFilePath] = true;
-
-    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
-    watcher.on('add', () => {
-        // TODO: add file to project:
-        // files + language service, and then the language service will automatically call LSHost
-    });
-    watcher.on('unlink', (filePath: string) => {
-        // TODO: remove from language service + files
-    });
-    watcher.on('change', (filePath: string) => {
-        filePath = tsconfig.consistentPath(filePath);
-        queryParent.getOpenEditorPaths({}).then((res) => {
-            var openPaths = res.filePaths;
-
-            // If we have it open, we will get this change from ATOM.
-            if (openPaths.some(x => x == filePath)) {
-                return;
-            }
-
-            // If we don't have it cached. Then we ain't gonna do anything with this as it can get hairy
-            var project = projectByFilePath[filePath];
-            if (!project) {
-                // console.error('file change ignored. No Project!:', filePath);
-                return;
-            }
-
-            var contents = fs.readFileSync(filePath).toString();
-            project.languageServiceHost.updateScript(filePath, contents);
-        });
-    })
 }
 
 /** We are loading the project from file system.
