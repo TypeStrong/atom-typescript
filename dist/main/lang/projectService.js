@@ -51,16 +51,6 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
         }
     });
 }
-var watchingTheFilesInTheProject = {};
-function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile) {
-    var projectFilePath = projectFile.projectFilePath;
-    if (!fs.existsSync(projectFilePath)) {
-        return;
-    }
-    if (watchingTheFilesInTheProject[projectFilePath])
-        return;
-    watchingTheFilesInTheProject[projectFilePath] = true;
-}
 function cacheAndCreateProject(projectFile) {
     var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
     projectFile.project.files.forEach(function (file) { return projectByFilePath[file] = project; });
@@ -72,7 +62,6 @@ function cacheAndCreateProject(projectFile) {
         });
     });
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
-    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
     return project;
 }
 function getOrCreateProjectFile(filePath) {
@@ -646,3 +635,22 @@ function getOutput(query) {
     return resolve({ output: building_1.getRawOutput(project, query.filePath) });
 }
 exports.getOutput = getOutput;
+function softReset(query) {
+    projectByProjectFilePath = {};
+    projectByFilePath = {};
+    if (query.filePath) {
+        consistentPath(query);
+        var project = getOrCreateProject(query.filePath);
+        project.languageServiceHost.updateScript(query.filePath, query.text);
+    }
+    queryParent.getUpdatedTextForUnsavedEditors({})
+        .then(function (resp) {
+        resp.editors.forEach(function (e) {
+            consistentPath(e);
+            var proj = getOrCreateProject(e.filePath);
+            proj.languageServiceHost.updateScript(e.filePath, e.text);
+        });
+    });
+    return resolve({});
+}
+exports.softReset = softReset;

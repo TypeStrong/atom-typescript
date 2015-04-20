@@ -10,8 +10,6 @@ import project = require('../main/lang/core/project');
 // UI Imports
 import _atomUtils = require('../main/atom/atomUtils');
 var atomUtils: typeof _atomUtils;
-import _errorView = require('../main/atom/errorView');
-var errorView: typeof _errorView;
 import _mainPanelView = require('../main/atom/views/mainPanelView');
 var mainPanelView: typeof _mainPanelView;
 
@@ -19,7 +17,6 @@ try {
     require('atom');
     // We are in a safe context:
     atomUtils = require('../main/atom/atomUtils');
-    errorView = require('../main/atom/errorView');
     mainPanelView = require('../main/atom/views/mainPanelView');
 }
 catch (ex) {
@@ -99,7 +96,7 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
             ]
         }
     }
-    errorView.setErrors(query.projectFilePath, errors);
+    mainPanelView.errorView.setErrors(query.projectFilePath, errors);
     return resolve({});
 }
 

@@ -66,5 +66,6 @@ exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 exports.getOutput = parent.sendToIpc(projectService.getOutput);
+exports.softReset = parent.sendToIpc(projectService.softReset);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

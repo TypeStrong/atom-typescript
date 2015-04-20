@@ -351,5 +351,10 @@ function registerCommands() {
             }, editor);
         });
     });
+    atom.commands.add('atom-workspace', 'typescript:sync', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        mainPanelView_1.panelView.softReset();
+    });
 }
 exports.registerCommands = registerCommands;

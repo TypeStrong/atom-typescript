@@ -12,6 +12,8 @@
 'atom-workspace':
   'f6': 'typescript:build'
   'f12': 'typescript:go-to-declaration'
+  'ctrl-\'': 'typescript:sync'
+  'cmd-\'': 'typescript:sync'
 
 # Quick navigations
 '.platform-win32, .platform-linux, .platform-darwin':

@@ -8,8 +8,8 @@ import os = require('os');
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
 
-///ts:import=errorView
-import errorView = require('./atom/errorView'); ///ts:import:generated
+import {errorView} from "./atom/views/mainPanelView";
+
 ///ts:import=autoCompleteProvider
 import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
 ///ts:import=tooltipManager

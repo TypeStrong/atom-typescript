@@ -435,6 +435,12 @@ export function registerCommands() {
         });
     });
 
+    atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        panelView.softReset();
+    });
+
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
         var autocompletePlus = apd.require('autocomplete-plus');

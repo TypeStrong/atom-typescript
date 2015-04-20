@@ -7,6 +7,9 @@ var __extends = this.__extends || function (d, b) {
 var view = require('./view');
 var $ = view.$;
 var lineMessageView = require('./lineMessageView');
+var atomUtils = require("../atomUtils");
+var parent = require("../../../worker/parent");
+var utils = require("../../lang/utils");
 var panelHeaders = {
     error: 'Errors In Open Files',
     build: 'Last Build Output',
@@ -59,18 +62,24 @@ var MainPanelView = (function (_super) {
                 });
                 _this.div({
                     class: 'heading-summary',
-                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 700px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 800px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                     outlet: 'summary'
                 });
                 _this.div({
                     class: 'heading-buttons pull-right',
-                    style: 'width:15px; display:inline-block'
+                    style: 'width:50px; display:inline-block'
                 }, function () {
                     _this.span({
                         class: 'heading-fold icon-unfold',
-                        style: 'cursor: pointer',
+                        style: 'cursor: pointer; margin-right:10px',
                         outlet: 'btnFold',
                         click: 'toggle'
+                    });
+                    _this.span({
+                        class: 'heading-fold icon-sync',
+                        style: 'cursor: pointer',
+                        outlet: 'btnSoftReset',
+                        click: 'softReset'
                     });
                 });
                 _this.progress({
@@ -111,6 +120,19 @@ var MainPanelView = (function (_super) {
         this.buildBody.html('<span class="text-success"> No Build. Press ( F12 ) to start a build for an active TypeScript file\'s project. </span>');
         this.referencesPanelBtn.html(panelHeaders.references + " ( <span class=\"text-success\">No Search</span> )");
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>');
+    };
+    MainPanelView.prototype.softReset = function () {
+        var editor = atom.workspace.getActiveTextEditor();
+        var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
+            .then(function () {
+        });
+        if (atomUtils.onDiskAndTs(editor)) {
+            prom.then(function () {
+                atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
+                return parent.errorsForFile({ filePath: editor.getPath() });
+            })
+                .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });
+        }
     };
     MainPanelView.prototype.showPending = function () {
         atom.notifications.addInfo('Pending Requests: <br/> - ' + this.pendingRequests.join('<br/> - '));
@@ -315,3 +337,54 @@ function hide() {
     exports.panelView.$.hide();
 }
 exports.hide = hide;
+var errorView;
+(function (errorView) {
+    var filePathErrors = new utils.Dict();
+    errorView.setErrors = function (filePath, errorsForFile) {
+        if (!errorsForFile.length)
+            filePathErrors.clearValue(filePath);
+        else {
+            if (errorsForFile.length > 50)
+                errorsForFile = errorsForFile.slice(0, 50);
+            filePathErrors.setValue(filePath, errorsForFile);
+        }
+        ;
+        exports.panelView.clearError();
+        var fileErrorCount = filePathErrors.keys().length;
+        gotoHistory.errorsInOpenFiles.members = [];
+        if (!fileErrorCount) {
+            exports.panelView.setErrorPanelErrorCount(0, 0);
+        }
+        else {
+            var totalErrorCount = 0;
+            for (var path in filePathErrors.table) {
+                filePathErrors.getValue(path).forEach(function (error) {
+                    totalErrorCount++;
+                    exports.panelView.addError(new lineMessageView.LineMessageView({
+                        goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles); },
+                        message: error.message,
+                        line: error.startPos.line + 1,
+                        col: error.startPos.col,
+                        file: error.filePath,
+                        preview: error.preview
+                    }));
+                    gotoHistory.errorsInOpenFiles.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
+                });
+            }
+            exports.panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);
+        }
+    };
+    function showEmittedMessage(output) {
+        if (output.success) {
+            var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
+            atomUtils.quickNotifySuccess(message);
+        }
+        else if (output.emitError) {
+            atom.notifications.addError('TS Emit Failed');
+        }
+        else {
+            atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
+        }
+    }
+    errorView.showEmittedMessage = showEmittedMessage;
+})(errorView = exports.errorView || (exports.errorView = {}));

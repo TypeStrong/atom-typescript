@@ -993,3 +993,37 @@ export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
     var project = getOrCreateProject(query.filePath);
     return resolve({ output: getRawOutput(project, query.filePath) });
 }
+
+
+/**
+ * Reset all that we know about the file system
+ */
+export interface SoftResetQuery {
+    filePath: string;
+    text: string;
+}
+export function softReset(query: SoftResetQuery): Promise<{}> {
+    // clear the cache
+    projectByProjectFilePath = {}
+    projectByFilePath = {}
+
+    if (query.filePath) {
+        consistentPath(query);
+
+        // Create cache for this file
+        var project = getOrCreateProject(query.filePath);
+        project.languageServiceHost.updateScript(query.filePath, query.text);
+    }
+
+    // Also update the cache for any other unsaved editors
+    queryParent.getUpdatedTextForUnsavedEditors({})
+        .then(resp=> {
+        resp.editors.forEach(e=> {
+            consistentPath(e);
+            var proj = getOrCreateProject(e.filePath);
+            proj.languageServiceHost.updateScript(e.filePath, e.text);
+        });
+    });
+
+    return resolve({});
+}

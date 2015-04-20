@@ -3,7 +3,7 @@
 var path = require('path');
 var fs = require('fs');
 var apd = require('atom-package-dependencies');
-var errorView = require('./atom/errorView');
+var mainPanelView_1 = require("./atom/views/mainPanelView");
 var autoCompleteProvider = require('./atom/autoCompleteProvider');
 var tooltipManager = require('./atom/tooltipManager');
 var atomUtils = require('./atom/atomUtils');
@@ -38,7 +38,7 @@ function readyToActivate() {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
-                .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
         }
         if (atomUtils.isTs(editor)) {
             mainPanelView.show();
@@ -64,16 +64,16 @@ function readyToActivate() {
                 if (onDisk) {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
-                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
                 }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
                         var root = { line: 0, col: 0 };
-                        errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
+                        mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
                     parent.errorsForFile({ filePath: filePath })
-                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
@@ -96,7 +96,7 @@ function readyToActivate() {
                     onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
                 var destroyObserver = editor.onDidDestroy(function () {
-                    errorView.setErrors(filePath, []);
+                    mainPanelView_1.errorView.setErrors(filePath, []);
                     changeObserver.dispose();
                     fasterChangeObserver.dispose();
                     saveObserver.dispose();
