@@ -76,7 +76,6 @@ interface TypeScriptProjectRawSpecification {
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
-    package?: string;                                   // optional: Path to your package.json. If you specify this we can do some cool stuff like generate a .d.ts for you.
 }
 
 interface UsefulFromPackageJson {
@@ -345,17 +344,22 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
-    var packagePath = projectSpec.package;
     var package: UsefulFromPackageJson = null;
-    if (packagePath) {
-        let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
-        let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
-        package = {
-            main: parsedPackage.main,
-            name: parsedPackage.name,
-            directory: path.dirname(packageJSONPath),
-            definition: parsedPackage.typescript && parsedPackage.typescript.definition
-        };
+    try {
+        var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
+        if (packagePath) {
+            let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
+            let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
+            package = {
+                main: parsedPackage.main,
+                name: parsedPackage.name,
+                directory: path.dirname(packageJSONPath),
+                definition: parsedPackage.typescript && parsedPackage.typescript.definition
+            };
+        }
+    }
+    catch (ex) {
+        // Don't care :)
     }
 
     var project: TypeScriptProjectSpecification = {
@@ -604,7 +608,9 @@ export function removeTrailingSlash(filePath: string) {
     return filePath;
 }
 
-/** returns the path if found or throws an error "not found" if not found */
+/**
+  * returns the path if found
+  * @throws an error "not found" if not found */
 export function travelUpTheDirectoryTreeTillYouFind(dir: string, fileOrDirectory: string,
     /** This is useful if we don't want to file `node_modules from inside node_modules` */
     abortIfInside = false): string {

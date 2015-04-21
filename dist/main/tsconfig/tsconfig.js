@@ -206,17 +206,21 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
-    var packagePath = projectSpec.package;
     var package = null;
-    if (packagePath) {
-        var packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
-        var parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
-        package = {
-            main: parsedPackage.main,
-            name: parsedPackage.name,
-            directory: path.dirname(packageJSONPath),
-            definition: parsedPackage.typescript && parsedPackage.typescript.definition
-        };
+    try {
+        var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
+        if (packagePath) {
+            var packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
+            var parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
+            package = {
+                main: parsedPackage.main,
+                name: parsedPackage.name,
+                directory: path.dirname(packageJSONPath),
+                definition: parsedPackage.typescript && parsedPackage.typescript.definition
+            };
+        }
+    }
+    catch (ex) {
     }
     var project = {
         compilerOptions: {},
