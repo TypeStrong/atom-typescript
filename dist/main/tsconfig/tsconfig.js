@@ -154,6 +154,7 @@ function getDefaultProject(srcFile) {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
         project: project,
+        inMemory: true
     };
 }
 exports.getDefaultProject = getDefaultProject;
@@ -240,7 +241,8 @@ function getProjectSync(pathOrSrcFile) {
     return {
         projectFileDirectory: projectFileDirectory,
         projectFilePath: projectFileDirectory + '/' + projectFileName,
-        project: project
+        project: project,
+        inMemory: false
     };
 }
 exports.getProjectSync = getProjectSync;

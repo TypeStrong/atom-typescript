@@ -107,6 +107,7 @@ export interface TypeScriptProjectFileDetails {
     /** The actual path of the project file (including tsconfig.json) */
     projectFilePath: string;
     project: TypeScriptProjectSpecification;
+    inMemory: boolean;
 }
 
 
@@ -272,6 +273,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
         project: project,
+        inMemory: true
     };
 }
 
@@ -397,7 +399,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     return {
         projectFileDirectory: projectFileDirectory,
         projectFilePath: projectFileDirectory + '/' + projectFileName,
-        project: project
+        project: project,
+        inMemory: false
     };
 
 }
