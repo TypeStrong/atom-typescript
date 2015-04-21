@@ -95,8 +95,7 @@ export function emitDts(proj: project.Project) {
 
     // Typings become externs
     // And these are relative to the output .d.ts we are generating
-    var externs = proj.projectFile.project.files.filter(x=> path.basename(path.dirname(x)) == 'typings' // e.g tsd.d.ts
-        || path.basename(path.dirname(path.dirname(x))) == 'typings');
+    var externs = proj.projectFile.project.typings;
 
     // The files
     var files = proj.projectFile.project.files;

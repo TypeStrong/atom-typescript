@@ -92,6 +92,7 @@ interface UsefulFromPackageJson {
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
+    typings: string[]; // These are considered externs for .d.ts. Note : duplicated in files
     filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
@@ -257,16 +258,19 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
 export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
 
+    var files = [srcFile];
+    var typings = getDefinitionsForNodeModules(dir, files);
+    files = increaseProjectForReferenceAndImports(project.files);
+    files = project.files.concat();
+    files = uniq(project.files.map(consistentPath));
+
     var project = {
         compilerOptions: defaults,
-        files: [srcFile],
+        files,
+        typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true
     };
-
-    project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
-    project.files = uniq(project.files.map(consistentPath));
 
     return {
         projectFileDirectory: dir,
@@ -359,7 +363,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         }
     }
     catch (ex) {
-        // Don't care :)
+        console.error('no package.json found', projectFileDirectory, ex.message);
     }
 
     var project: TypeScriptProjectSpecification = {
@@ -368,7 +372,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
-        package
+        package,
+        typings: []
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
@@ -395,7 +400,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     project.files = increaseProjectForReferenceAndImports(project.files);
 
     // Expand files to include node_modules / package.json / typescript.definition
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
+    var typings = getDefinitionsForNodeModules(dir, project.files);
+    project.files = project.files.concat(typings.implicit);
+    project.typings = typings.ours.concat(typings.implicit);
 
     // Normalize to "/" for all files
     // And take the uniq values
@@ -527,7 +534,7 @@ interface Typings {
  *  We will expand on files making sure that we don't have a `typing` with the same name
  *  Also if two node_modules reference a similar sub project (and also recursively) then the one with latest `version` field wins
  */
-function getDefinitionsForNodeModules(projectDir: string, files: string[]): string[] {
+function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ours: string[]; implicit: string[] } {
 
     /** TODO use later when we care about versions */
     function versionStringToNumber(version: string): number {
@@ -606,10 +613,14 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): stri
         // this is best effort only at the moment
     }
 
-    return Object.keys(typings)
+    var all = Object.keys(typings)
         .map(typing => typings[typing].filePath)
-        .map(x=> consistentPath(x))
+        .map(x=> consistentPath(x));
+    var implicit = all
         .filter(x=> !existing[x]);
+    var ours = all
+        .filter(x=> existing[x]);
+    return { implicit, ours };
 }
 
 export function prettyJSON(object: any): string {

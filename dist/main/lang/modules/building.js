@@ -70,8 +70,7 @@ function emitDts(proj) {
         main = name + '/' + tsconfig_1.consistentPath(main.replace('./', ''));
         main = main.replace(/\.*.js$/g, '');
     }
-    var externs = proj.projectFile.project.files.filter(function (x) { return path.basename(path.dirname(x)) == 'typings'
-        || path.basename(path.dirname(path.dirname(x))) == 'typings'; });
+    var externs = proj.projectFile.project.typings;
     var files = proj.projectFile.project.files;
     dts.generate({
         baseDir: baseDir,

@@ -141,15 +141,18 @@ function tsToRawCompilerOptions(compilerOptions) {
 }
 function getDefaultProject(srcFile) {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
+    var files = [srcFile];
+    var typings = getDefinitionsForNodeModules(dir, files);
+    files = increaseProjectForReferenceAndImports(project.files);
+    files = project.files.concat();
+    files = uniq(project.files.map(consistentPath));
     var project = {
         compilerOptions: exports.defaults,
-        files: [srcFile],
+        files: files,
+        typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true
     };
-    project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
-    project.files = uniq(project.files.map(consistentPath));
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
@@ -221,6 +224,7 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     catch (ex) {
+        console.error('no package.json found', projectFileDirectory, ex.message);
     }
     var project = {
         compilerOptions: {},
@@ -228,7 +232,8 @@ function getProjectSync(pathOrSrcFile) {
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
-        package: package
+        package: package,
+        typings: []
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
@@ -239,7 +244,9 @@ function getProjectSync(pathOrSrcFile) {
     }
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
     project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
+    var typings = getDefinitionsForNodeModules(dir, project.files);
+    project.files = project.files.concat(typings.implicit);
+    project.typings = typings.ours.concat(typings.implicit);
     project.files = uniq(project.files.map(consistentPath));
     projectFileDirectory = removeTrailingSlash(consistentPath(projectFileDirectory));
     return {
@@ -379,10 +386,14 @@ function getDefinitionsForNodeModules(projectDir, files) {
     }
     catch (ex) {
     }
-    return Object.keys(typings)
+    var all = Object.keys(typings)
         .map(function (typing) { return typings[typing].filePath; })
-        .map(function (x) { return consistentPath(x); })
+        .map(function (x) { return consistentPath(x); });
+    var implicit = all
         .filter(function (x) { return !existing[x]; });
+    var ours = all
+        .filter(function (x) { return existing[x]; });
+    return { implicit: implicit, ours: ours };
 }
 function prettyJSON(object) {
     var cache = [];
