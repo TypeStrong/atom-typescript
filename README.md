@@ -83,7 +83,7 @@ Shortcut: `F6`. If there are any errors they are shown as well.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20errors.png)
 
 ## `package.json` Support
-Where a sample package.json looks like:
+Where a sample `package.json` (anywhere next to or above a `tsconfig.json`) looks like:
 ```json
 {
     "name": "awesome",
