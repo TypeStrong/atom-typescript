@@ -174,7 +174,7 @@ Command : `Typescript: Dependency View`. A dependency viewer for insight into th
 ## Sync
 We try to keep as much of the stuff in sync while you edit code. However *in dire circumstances*:
 
-* a soft sync is done when you save a file `ctrl+s` and we will completely reprocess the active file.
+* a soft sync is done when you save a file `ctrl+s` and we will completely reprocess the *active* file. This might not fix stuff if the error is because of *some other file on the file system*.
 * `ctrl+'` or `cmd+'` : If you deleted files in the background or renamed them or jumped git branches or *something weird just happened* then sync. No need to restart your IDE :).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/sync.gif)
