@@ -265,7 +265,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
     };
 
     project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
     project.files = uniq(project.files.map(consistentPath));
 
     return {
@@ -393,7 +393,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Expand files to include references
     project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
+
+    // Expand files to include node_modules / package.json / typescript.definition
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
 
     // Normalize to "/" for all files
     // And take the uniq values
@@ -511,15 +513,73 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
     return files;
 }
 
+/** There can be only one typing by name */
+interface Typings {
+    [name: string]: {
+        filePath: string;
+        /** Right now its just INF as we don't do version checks. First one wins! */
+        version: number; // (Simple : maj * 1000000 + min). Don't care about patch
+    };
+}
+
 /**
- * TODO: exclude `tsd` definitions that we also have
+ *  Spec
+ *  We will expand on files making sure that we don't have a `typing` with the same name
+ *  Also if two node_modules reference a similar sub project (and also recursively) then the one with latest `version` field wins
  */
-export function getDefinitionsForNodeModules(projectDir: string): string[] {
+function getDefinitionsForNodeModules(projectDir: string, files: string[]): string[] {
+
+    /** TODO use later when we care about versions */
+    function versionStringToNumber(version: string): number {
+        var [maj, min, patch] = version.split('.');
+        return parseInt(maj) * 1000000 + parseInt(min);
+    }
+
+    var typings: Typings = {};
+
+    // Find our `typings` (anything in a typings folder with extension `.d.ts` is considered a typing)
+    // These are INF powerful
+    var ourTypings = files
+        .filter(f=> path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
+        || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
+    ourTypings.forEach(f=> typings[path.basename(f)] = { filePath: f, version: Infinity });
+    var existing = createMap(files.map(consistentPath));
+
+    function addAllReferencedFilesWithMaxVersion(file: string) {
+        var dir = path.dirname(file);
+        try {
+            var content = fs.readFileSync(file).toString();
+        }
+        catch (ex) {
+            // if we cannot read a file for whatever reason just quit
+            return;
+        }
+        var preProcessedFileInfo = ts.preProcessFile(content, true);
+        var files = preProcessedFileInfo.referencedFiles.map(fileReference => {
+            // We assume reference paths are always relative
+            var file = path.resolve(dir, fileReference.fileName);
+            // Try by itself, .d.ts
+            if (fs.existsSync(file)) {
+                return file;
+            }
+            if (fs.existsSync(file + '.d.ts')) {
+                return file + '.d.ts';
+            }
+        });
+
+        // Only ones we don't have by name yet
+        // TODO: replace INF with an actual version
+        files = files
+            .filter(f => !typings[path.basename(f)] || typings[path.basename(f)].version > Infinity);
+        // Add these
+        files.forEach(f => typings[path.basename(f)] = { filePath: f, version: Infinity });
+        // Keep expanding
+        files.forEach(f=> addAllReferencedFilesWithMaxVersion(f));
+    }
+
     // Keep going up till we find node_modules
     // at that point read the `package.json` for each file in node_modules
     // And then if that package.json has `typescript.definition` we import that file
-    var definitions = [];
-
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
 
@@ -529,16 +589,27 @@ export function getDefinitionsForNodeModules(projectDir: string): string[] {
             var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
             if (package_json.typescript) {
                 if (package_json.typescript.definition) {
-                    definitions.push(path.resolve(moduleDir, './', package_json.typescript.definition));
+                    let file = path.resolve(moduleDir, './', package_json.typescript.definition);
+
+                    typings[path.basename(file)] = {
+                        filePath: file,
+                        version: Infinity
+                    };
+                    // Also add any files that this `.d.ts` references as long as they don't conflict with what we have
+                    addAllReferencedFilesWithMaxVersion(file);
                 }
             }
         }
+
     }
     catch (ex) {
         // this is best effort only at the moment
     }
 
-    return definitions;
+    return Object.keys(typings)
+        .map(typing => typings[typing].filePath)
+        .map(x=> consistentPath(x))
+        .filter(x=> !existing[x]);
 }
 
 export function prettyJSON(object: any): string {
@@ -659,4 +730,14 @@ function getDirs(rootDir: string): string[] {
         }
     }
     return dirs
+}
+
+/**
+ * Create a quick lookup map from list
+ */
+export function createMap(arr: string[]): { [string: string]: boolean } {
+    return arr.reduce((result: { [string: string]: boolean }, key: string) => {
+        result[key] = true;
+        return result;
+    }, <{ [string: string]: boolean }>{});
 }

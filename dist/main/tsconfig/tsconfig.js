@@ -148,7 +148,7 @@ function getDefaultProject(srcFile) {
         compileOnSave: true
     };
     project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
     project.files = uniq(project.files.map(consistentPath));
     return {
         projectFileDirectory: dir,
@@ -239,7 +239,7 @@ function getProjectSync(pathOrSrcFile) {
     }
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
     project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = project.files.concat(getDefinitionsForNodeModules(dir));
+    project.files = project.files.concat(getDefinitionsForNodeModules(dir, project.files));
     project.files = uniq(project.files.map(consistentPath));
     projectFileDirectory = removeTrailingSlash(consistentPath(projectFileDirectory));
     return {
@@ -325,8 +325,40 @@ function increaseProjectForReferenceAndImports(files) {
     }
     return files;
 }
-function getDefinitionsForNodeModules(projectDir) {
-    var definitions = [];
+function getDefinitionsForNodeModules(projectDir, files) {
+    function versionStringToNumber(version) {
+        var _a = version.split('.'), maj = _a[0], min = _a[1], patch = _a[2];
+        return parseInt(maj) * 1000000 + parseInt(min);
+    }
+    var typings = {};
+    var ourTypings = files
+        .filter(function (f) { return path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
+        || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'); });
+    ourTypings.forEach(function (f) { return typings[path.basename(f)] = { filePath: f, version: Infinity }; });
+    var existing = createMap(files.map(consistentPath));
+    function addAllReferencedFilesWithMaxVersion(file) {
+        var dir = path.dirname(file);
+        try {
+            var content = fs.readFileSync(file).toString();
+        }
+        catch (ex) {
+            return;
+        }
+        var preProcessedFileInfo = ts.preProcessFile(content, true);
+        var files = preProcessedFileInfo.referencedFiles.map(function (fileReference) {
+            var file = path.resolve(dir, fileReference.fileName);
+            if (fs.existsSync(file)) {
+                return file;
+            }
+            if (fs.existsSync(file + '.d.ts')) {
+                return file + '.d.ts';
+            }
+        });
+        files = files
+            .filter(function (f) { return !typings[path.basename(f)] || typings[path.basename(f)].version > Infinity; });
+        files.forEach(function (f) { return typings[path.basename(f)] = { filePath: f, version: Infinity }; });
+        files.forEach(function (f) { return addAllReferencedFilesWithMaxVersion(f); });
+    }
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
         var moduleDirs = getDirs(node_modules);
@@ -335,16 +367,23 @@ function getDefinitionsForNodeModules(projectDir) {
             var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
             if (package_json.typescript) {
                 if (package_json.typescript.definition) {
-                    definitions.push(path.resolve(moduleDir, './', package_json.typescript.definition));
+                    var file = path.resolve(moduleDir, './', package_json.typescript.definition);
+                    typings[path.basename(file)] = {
+                        filePath: file,
+                        version: Infinity
+                    };
+                    addAllReferencedFilesWithMaxVersion(file);
                 }
             }
         }
     }
     catch (ex) {
     }
-    return definitions;
+    return Object.keys(typings)
+        .map(function (typing) { return typings[typing].filePath; })
+        .map(function (x) { return consistentPath(x); })
+        .filter(function (x) { return !existing[x]; });
 }
-exports.getDefinitionsForNodeModules = getDefinitionsForNodeModules;
 function prettyJSON(object) {
     var cache = [];
     var value = JSON.stringify(object, function (key, value) {
@@ -447,3 +486,10 @@ function getDirs(rootDir) {
     }
     return dirs;
 }
+function createMap(arr) {
+    return arr.reduce(function (result, key) {
+        result[key] = true;
+        return result;
+    }, {});
+}
+exports.createMap = createMap;
