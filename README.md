@@ -94,9 +94,9 @@ Where a sample package.json looks like:
 }
 ```
 
-We would generate a `definition/awesome.d.ts` file for you so that other TypeScript projects can do a simple `require('awesome')`.
+We would generate a `definition/awesome.d.ts` file for you *on build* so that other TypeScript projects can do a simple `require('awesome')`.
 
-Also note that any node modules that ship with `typescript.definition` that you import will automatically get type inference / completion.
+Note: Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
