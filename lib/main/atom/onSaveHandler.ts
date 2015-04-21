@@ -7,7 +7,7 @@ import atomConfig = require('./atomConfig'); ///ts:import:generated
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 
-import {errorView} from "./views/mainPanelView";
+import {errorView, show} from "./views/mainPanelView";
 
 ///ts:import=debugAtomTs
 import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated
@@ -26,6 +26,8 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
         parent.errorsForFile({ filePath: event.filePath })
             .then((resp) => errorView.setErrors(event.filePath, resp.errors));
     })
+
+    show();
 
     // Compile on save
     parent.getProjectFileDetails({ filePath: event.filePath }).then(fileDetails => {

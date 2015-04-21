@@ -52,7 +52,7 @@ import {debounce} from "./lang/utils";
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
     var editor = atom.workspace.getActiveTextEditor();
-    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
+    if (atomUtils.onDiskAndTs(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -97,9 +97,7 @@ function readyToActivate() {
             // or the other file might have made this file have an error
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
-        }
 
-        if (atomUtils.isTs(editor)) {
             mainPanelView.show();
         }
         else {

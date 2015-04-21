@@ -9,6 +9,7 @@ function handle(event) {
         parent.errorsForFile({ filePath: event.filePath })
             .then(function (resp) { return mainPanelView_1.errorView.setErrors(event.filePath, resp.errors); });
     });
+    mainPanelView_1.show();
     parent.getProjectFileDetails({ filePath: event.filePath }).then(function (fileDetails) {
         if (!fileDetails.project.compileOnSave)
             return;

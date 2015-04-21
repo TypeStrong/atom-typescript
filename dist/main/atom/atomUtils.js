@@ -17,6 +17,9 @@ exports.getEditorPositionForBufferPosition = getEditorPositionForBufferPosition;
 function onDiskAndTs(editor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
+        if (!filePath) {
+            return false;
+        }
         var ext = path.extname(filePath);
         if (ext == '.ts') {
             if (fs.existsSync(filePath)) {
@@ -27,17 +30,6 @@ function onDiskAndTs(editor) {
     return false;
 }
 exports.onDiskAndTs = onDiskAndTs;
-function isTs(editor) {
-    if (editor instanceof require('atom').TextEditor) {
-        var filePath = editor.getPath();
-        var ext = path.extname(filePath);
-        if (ext == '.ts') {
-            return true;
-        }
-    }
-    return false;
-}
-exports.isTs = isTs;
 function getFilePathPosition() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();

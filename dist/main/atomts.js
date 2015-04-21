@@ -25,7 +25,7 @@ exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
     var editor = atom.workspace.getActiveTextEditor();
-    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
+    if (atomUtils.onDiskAndTs(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -39,8 +39,6 @@ function readyToActivate() {
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
-        }
-        if (atomUtils.isTs(editor)) {
             mainPanelView.show();
         }
         else {

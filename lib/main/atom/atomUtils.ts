@@ -21,22 +21,14 @@ export function getEditorPositionForBufferPosition(editor: AtomCore.IEditor, buf
 export function onDiskAndTs(editor: AtomCore.IEditor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
+        if (!filePath) {
+            return false;
+        }
         var ext = path.extname(filePath);
         if (ext == '.ts') {
             if (fs.existsSync(filePath)) {
                 return true;
             }
-        }
-    }
-    return false;
-}
-
-export function isTs(editor: AtomCore.IEditor) {
-    if (editor instanceof require('atom').TextEditor) {
-        var filePath = editor.getPath();
-        var ext = path.extname(filePath);
-        if (ext == '.ts') {
-            return true;
         }
     }
     return false;
