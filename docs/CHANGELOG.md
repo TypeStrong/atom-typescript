@@ -13,4 +13,5 @@ We only plan strictly document the breaking changes. The rest is optional.
 * We will now resolve a parent `package.json` for you *automatically* so that its *one less thing you need to configure*. :rose:
 
 # Planned
-* No breaking changes yet.
+[](* No breaking changes yet.)
+* Remove `dts-generator` support as TypeScript will have a better module sharing story out of the box.

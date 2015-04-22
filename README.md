@@ -28,7 +28,6 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Compile on save
 * Project Context Support (`tsconfig.json`)
 * Project Build Support
-* `package.json` Support
 * Format code
 * Goto Declaration
 * Find References
@@ -81,22 +80,6 @@ Shortcut: `F6`. If there are any errors they are shown as well.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20success.png)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20errors.png)
-
-## `package.json` Support
-Where a sample `package.json` (anywhere next to or above a `tsconfig.json`) looks like:
-```json
-{
-    "name": "awesome",
-    "main": "./dist/foo.js",
-    "typescript": {
-        "definition": "./definition/awesome.d.ts"
-    }
-}
-```
-
-We would generate a `definition/awesome.d.ts` file for you *on build* so that other TypeScript projects can do a simple `require('awesome')`.
-
-Note: Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
