@@ -385,14 +385,6 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             );
     }
 
-    // Don't support `--out`
-    if (projectSpec.compilerOptions && projectSpec.compilerOptions.out) {
-        throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
-            new Error(errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS),
-            { projectFilePath: consistentPath(projectFile), errorMessage: "We don't support --out because it will hurt you in the long run." }
-            );
-    }
-
     // Convert the raw options to TS options
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
