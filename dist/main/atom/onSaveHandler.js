@@ -13,6 +13,8 @@ function handle(event) {
     parent.getProjectFileDetails({ filePath: event.filePath }).then(function (fileDetails) {
         if (!fileDetails.project.compileOnSave)
             return;
+        if (!fileDetails.project.compilerOptions.out)
+            return;
         textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
             .then(function (res) { return mainPanelView_1.errorView.showEmittedMessage(res); });
     });
