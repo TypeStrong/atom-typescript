@@ -14,13 +14,14 @@ function register() {
                 return;
             }
             else {
-                var uri = res.output.outputFiles[0].name.split("/").join(path.sep);
+                var jsOutput = res.output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0].name;
+                var uri = jsOutput.split("/").join(path.sep);
                 var previewPane = atom.workspace.paneForURI(uri);
                 if (previewPane) {
                     previewPane.destroyItem(previewPane.itemForURI(uri));
                 }
                 else {
-                    atom.workspace.open(res.output.outputFiles[0].name, { split: "right" }).then(function () {
+                    atom.workspace.open(jsOutput, { split: "right" }).then(function () {
                         previousActivePane.activate();
                     });
                 }

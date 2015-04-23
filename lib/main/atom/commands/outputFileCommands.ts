@@ -19,13 +19,14 @@ export function register() {
             }
             else {
                 // pane for uri needs file system path so:
-                var uri = res.output.outputFiles[0].name.split("/").join(path.sep);
+                var jsOutput = res.output.outputFiles.filter(x=>path.extname(x.name) == ".js")[0].name;
+                var uri = jsOutput.split("/").join(path.sep);
                 let previewPane = atom.workspace.paneForURI(uri);
                 if (previewPane) {
                     previewPane.destroyItem(previewPane.itemForURI(uri))
                 }
                 else {
-                    atom.workspace.open(res.output.outputFiles[0].name, { split: "right" }).then(() => {
+                    atom.workspace.open(jsOutput, { split: "right" }).then(() => {
                         previousActivePane.activate();
                     });
                 }
