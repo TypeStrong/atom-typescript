@@ -363,7 +363,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         }
     }
     catch (ex) {
-        console.error('no package.json found', projectFileDirectory, ex.message);
+        // console.error('no package.json found', projectFileDirectory, ex.message);
     }
 
     var project: TypeScriptProjectSpecification = {

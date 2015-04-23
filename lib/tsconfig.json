@@ -48,6 +48,7 @@
         "./main/atom/views/tooltipView.ts",
         "./main/atom/views/view.ts",
         "./main/atomts.ts",
+        "./main/bin/build.ts",
         "./main/lang/core/languageServiceHost.ts",
         "./main/lang/core/languageServiceHost2.ts",
         "./main/lang/core/languageServiceHostOld.ts",

@@ -19,7 +19,7 @@ export function register() {
             }
             else {
                 // pane for uri needs file system path so:
-                var jsOutput = res.output.outputFiles.filter(x=>path.extname(x.name) == ".js")[0].name;
+                var jsOutput = res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
                 var uri = jsOutput.split("/").join(path.sep);
                 let previewPane = atom.workspace.paneForURI(uri);
                 if (previewPane) {
@@ -34,7 +34,7 @@ export function register() {
         });
     });
 
-    atom.commands.add('atom-workspace', 'typescript:output-file-execute-in-node', (e) => {
+    atom.commands.add('atom-workspace', 'typescript:output-file-execute-in-iojs', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
         var query = atomUtils.getFilePath();
@@ -45,8 +45,10 @@ export function register() {
             }
             else {
                 // spawn('cmd', ['/C', 'start ' + "node " + res.output.outputFiles[0].name]);
+                var command = "iojs " + res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
+                console.log(command)
 
-                exec("node " + res.output.outputFiles[0].name, (err, stdout, stderr) => {
+                exec(command, (err, stdout, stderr) => {
                     console.log(stdout);
                     if (stderr.toString().trim().length) {
                         console.error(stderr);

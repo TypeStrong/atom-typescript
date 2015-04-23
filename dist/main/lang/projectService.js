@@ -168,40 +168,6 @@ function quickInfo(query) {
 }
 exports.quickInfo = quickInfo;
 var building = require('./modules/building');
-function build(query) {
-    consistentPath(query);
-    var proj = getOrCreateProject(query.filePath);
-    var totalCount = proj.projectFile.project.files.length;
-    var builtCount = 0;
-    var errorCount = 0;
-    var outputs = proj.projectFile.project.files.map(function (filePath) {
-        var output = building.emitFile(proj, filePath);
-        builtCount++;
-        errorCount = errorCount + output.errors.length;
-        queryParent.buildUpdate({
-            totalCount: totalCount,
-            builtCount: builtCount,
-            errorCount: errorCount,
-            firstError: errorCount && !(errorCount - output.errors.length),
-            filePath: filePath,
-            errorsInFile: output.errors
-        });
-        return output;
-    });
-    building.emitDts(proj);
-    return resolve({
-        buildOutput: {
-            outputs: outputs,
-            counts: {
-                inputFiles: proj.projectFile.project.files.length,
-                outputFiles: utils.selectMany(outputs.map(function (out) { return out.outputFiles; })).length,
-                errors: errorCount,
-                emitErrors: outputs.filter(function (out) { return out.emitError; }).length
-            }
-        }
-    });
-}
-exports.build = build;
 function errorsForFileFiltered(query) {
     consistentPath(query);
     var fileName = path.basename(query.filePath);

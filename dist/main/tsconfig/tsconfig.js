@@ -224,7 +224,6 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     catch (ex) {
-        console.error('no package.json found', projectFileDirectory, ex.message);
     }
     var project = {
         compilerOptions: {},
