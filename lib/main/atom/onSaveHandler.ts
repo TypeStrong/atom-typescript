@@ -32,7 +32,7 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
     // Compile on save
     parent.getProjectFileDetails({ filePath: event.filePath }).then(fileDetails => {
         if (!fileDetails.project.compileOnSave) return;
-        if (!fileDetails.project.compilerOptions.out) return;
+        if (fileDetails.project.compilerOptions.out) return;
 
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
             .then((res) => errorView.showEmittedMessage(res));
