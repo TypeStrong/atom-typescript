@@ -87,7 +87,7 @@ var MainPanelView = (function (_super) {
                     style: 'display: none; color:red',
                     outlet: 'buildProgress'
                 });
-                _this.span({ class: 'pull-right', outlet: 'sectionPending', style: 'display: none; width: 50px' }, function () {
+                _this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'display: none; width: 50px' }, function () {
                     _this.span({
                         outlet: 'txtPendingCount'
                     });

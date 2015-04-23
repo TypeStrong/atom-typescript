@@ -101,7 +101,7 @@ export class MainPanelView extends view.View<any> {
                             style: 'display: none; color:red',
                             outlet: 'buildProgress'
                         });
-                        this.span({ class: 'pull-right', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
+                        this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
                             this.span({
                                 outlet: 'txtPendingCount'
                             });
