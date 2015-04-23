@@ -59,13 +59,13 @@ var TypeScriptSemanticGrammar = (function (_super) {
         var matches = line.match(this.fullTripleSlashReferencePathRegEx);
         if (matches[3]) {
             var path = matches[3];
-            if (line.search('"' + path + '"') != -1) {
+            if (line.indexOf('"' + path + '"') != -1) {
                 path = '"' + path + '"';
             }
             else {
                 path = "'" + path + "'";
             }
-            var startPosition = line.search(path);
+            var startPosition = line.indexOf(path);
             var endPosition = startPosition + path.length;
             var atomTokens = [];
             atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));
