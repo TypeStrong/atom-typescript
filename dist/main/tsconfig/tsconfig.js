@@ -54,7 +54,7 @@ var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
-var typeScriptVersion = '1.4.1';
+var typeScriptVersion = '1.5.0-alpha';
 exports.defaults = {
     target: 1,
     module: 1,

@@ -150,7 +150,7 @@ import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
-var typeScriptVersion = '1.4.1';
+var typeScriptVersion = '1.5.0-alpha';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
