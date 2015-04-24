@@ -39,7 +39,7 @@ var AddImportStatement = (function () {
                     start: 0,
                     length: 0
                 },
-                newText: "import " + fileNameforFix.basename + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
+                newText: "import " + identifierName + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
                 filePath: info.srcFile.fileName
             }];
         return refactorings;

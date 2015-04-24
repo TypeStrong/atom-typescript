@@ -55,7 +55,7 @@ class AddImportStatement implements QuickFix {
                 start: 0,
                 length: 0
             },
-            newText: `import ${fileNameforFix.basename} = require(\"${fileNameforFix.file}\");${EOL}`,
+            newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
             filePath: info.srcFile.fileName
         }];
 
