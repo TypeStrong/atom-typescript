@@ -126,27 +126,32 @@ export var provider: autocompleteplus.Provider = {
             return parent.getRelativePathsInProject({ filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.string' })
                 .then((resp) => {
                 return resp.files.map(file => {
+                    var relativePath = file.relativePath;
+                    var suggestionText = !atomConfig.modulePathToProjectRoot || /^.\//.test(relativePath) ?
+                        relativePath : '~/' + atom.project.relativize(file.fullPath).replace(/\\/g, '/');
+
                     var suggestion: autocompleteplus.Suggestion = {
-                        text: file.relativePath,
+                        text: suggestionText,
                         replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
                         rightLabelHTML: '<span>' + file.name + '</span>',
                         type: 'path'
                     };
+
                     if (lastScope == 'reference.path.string') {
                         suggestion.atomTS_IsReference = {
-                            relativePath: file.relativePath
+                            relativePath: relativePath
                         };
                     }
 
                     if (lastScope == 'require.path.string') {
                         suggestion.atomTS_IsImport = {
-                            relativePath: file.relativePath
+                            relativePath: relativePath
                         };
                     }
 
                     if (lastScope == 'es6import.path.string') {
                         suggestion.atomTS_IsES6Import = {
-                            relativePath: file.relativePath
+                            relativePath: relativePath
                         };
                     }
 
@@ -215,7 +220,7 @@ export var provider: autocompleteplus.Provider = {
         if (options.suggestion.atomTS_IsReference
             || options.suggestion.atomTS_IsImport
             || options.suggestion.atomTS_IsES6Import) {
-            var quote = atomConfig.preferredQuoteCharacter;
+            var quote = (/["']/.exec(atomConfig.preferredQuoteCharacter) || [''])[0];
 
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
@@ -225,13 +230,17 @@ export var provider: autocompleteplus.Provider = {
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                let alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
+                var groups = /^\s*import\s*(\w*)\s*=\s*require\(\s*(["'])/.exec(options.editor.getSelectedText());
+                var alias = groups[1];
+                quote = quote || groups[2];
                 options.editor.replaceSelectedText(null, function() { return `import ${alias} = require(${quote}${options.suggestion.atomTS_IsImport.relativePath}${quote});`; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
                 var {row} = options.editor.getCursorBufferPosition();
                 var originalText = (<any>options.editor).lineTextForBufferRow(row);
-                var beforeFrom = originalText.match(/(.*)from/)[1];
+                var groups = /([^"'`]*)from\s*(["'])/.exec(originalText);
+                var beforeFrom = groups[1];
+                quote = quote || groups[2];
                 var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
                 options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom)
 
