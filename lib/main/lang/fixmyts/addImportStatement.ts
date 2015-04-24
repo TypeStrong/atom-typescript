@@ -60,16 +60,19 @@ class AddImportStatement implements QuickFix {
         }];
 
         // Also refactor the variable name to match the file name
-        if (identifierName !== fileNameforFix.basename) {
-            refactorings.push({
-                span: {
-                    start: identifier.getStart(),
-                    length: identifier.end - identifier.getStart()
-                },
-                newText: fileNameforFix.basename,
-                filePath: info.srcFile.fileName
-            })
-        }
+        // TODO: the following code only takes into account location
+        // There may be other locations where this is used.
+        // Better that they trigger a *rename* explicitly later if they want to rename the variable
+        // if (identifierName !== fileNameforFix.basename) {
+        //     refactorings.push({
+        //         span: {
+        //             start: identifier.getStart(),
+        //             length: identifier.end - identifier.getStart()
+        //         },
+        //         newText: fileNameforFix.basename,
+        //         filePath: info.srcFile.fileName
+        //     })
+        // }
 
         return refactorings;
     }

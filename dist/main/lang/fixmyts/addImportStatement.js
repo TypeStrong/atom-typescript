@@ -10,7 +10,7 @@ function getIdentifierAndFileNames(error, getRelativePathsInProject) {
     if (!match)
         return;
     var identifierName = match[1];
-    var files = (getRelativePathsInProject({ filePath: error.file.fileName, prefix: identifierName, includeExternalModules: false })).files;
+    var files = getRelativePathsInProject({ filePath: error.file.fileName, prefix: identifierName, includeExternalModules: false }).files;
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
     return { identifierName: identifierName, file: file, basename: basename };
@@ -42,16 +42,6 @@ var AddImportStatement = (function () {
                 newText: "import " + fileNameforFix.basename + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
                 filePath: info.srcFile.fileName
             }];
-        if (identifierName !== fileNameforFix.basename) {
-            refactorings.push({
-                span: {
-                    start: identifier.getStart(),
-                    length: identifier.end - identifier.getStart()
-                },
-                newText: fileNameforFix.basename,
-                filePath: info.srcFile.fileName
-            });
-        }
         return refactorings;
     };
     return AddImportStatement;
