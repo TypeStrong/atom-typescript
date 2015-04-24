@@ -296,7 +296,7 @@ function increaseProjectForReferenceAndImports(files) {
             }
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
             referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) {
-                var file = path.resolve(dir, fileReference.fileName);
+                var file = path.resolve(dir, consistentPath(fileReference.fileName));
                 if (fs.existsSync(file)) {
                     return file;
                 }

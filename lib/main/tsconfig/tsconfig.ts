@@ -472,7 +472,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
             referenced.push(
                 preProcessedFileInfo.referencedFiles.map(fileReference => {
                     // We assume reference paths are always relative
-                    var file = path.resolve(dir, fileReference.fileName);
+                    var file = path.resolve(dir, consistentPath(fileReference.fileName));
                     // Try all three, by itself, .ts, .d.ts
                     if (fs.existsSync(file)) {
                         return file;
