@@ -229,7 +229,7 @@ export var provider: autocompleteplus.Provider = {
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                var groups = /^\s*import\s*(\w*)\s*=\s*require\(\s*(["'])/.exec(options.editor.getSelectedText());
+                var groups = /^\s*import\s*(\w*)\s*=\s*require\s*\(\s*(["'])/.exec(options.editor.getSelectedText());
                 var alias = groups[1];
                 quote = quote || groups[2];
                 options.editor.replaceSelectedText(null, function() { return `import ${alias} = require(${quote}${options.suggestion.atomTS_IsImport.relativePath}${quote});`; });
@@ -237,7 +237,7 @@ export var provider: autocompleteplus.Provider = {
             if (options.suggestion.atomTS_IsES6Import) {
                 var {row} = options.editor.getCursorBufferPosition();
                 var originalText = (<any>options.editor).lineTextForBufferRow(row);
-                var groups = /([^"'`]*)from\s*(["'])/.exec(originalText);
+                var groups = /(.*)from\s*(["'])/.exec(originalText);
                 var beforeFrom = groups[1];
                 quote = quote || groups[2];
                 var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
