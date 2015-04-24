@@ -52,6 +52,7 @@
         "./main/lang/core/languageServiceHost2.ts",
         "./main/lang/core/project.ts",
         "./main/lang/fixmyts/addClassMember.ts",
+        "./main/lang/fixmyts/addImportStatement.ts",
         "./main/lang/fixmyts/astUtils.ts",
         "./main/lang/fixmyts/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFix.ts",

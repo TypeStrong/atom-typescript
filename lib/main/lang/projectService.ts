@@ -794,6 +794,9 @@ function filePathWithoutExtension(query: string) {
     return path.dirname(query) + '/' + base;
 }
 export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
+    return resolve(getRelativePathsInProjectSync(query));
+}
+function getRelativePathsInProjectSync(query: GetRelativePathsInProjectQuery): GetRelativePathsInProjectResponse {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var sourceDir = path.dirname(query.filePath);
@@ -831,9 +834,8 @@ export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery)
         endsInPunctuation: endsInPunctuation
     };
 
-    return resolve(response);
+    return response;
 }
-
 
 /**
  * Get AST
@@ -902,11 +904,13 @@ import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFi
 import * as qf from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
+import AddImportStatement from "./fixmyts/addImportStatement";
 import EqualsToEquals from "./fixmyts/equalsToEquals";
 import QuotesToQuotes from "./fixmyts/quotesToQuotes";
 import QuotesToTemplate from "./fixmyts/quoteToTemplate";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
+    new AddImportStatement(getRelativePathsInProjectSync),
     new EqualsToEquals(),
     new QuotesToQuotes(),
     new QuotesToTemplate(),

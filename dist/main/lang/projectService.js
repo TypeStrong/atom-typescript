@@ -512,6 +512,10 @@ function filePathWithoutExtension(query) {
     return path.dirname(query) + '/' + base;
 }
 function getRelativePathsInProject(query) {
+    return resolve(getRelativePathsInProjectSync(query));
+}
+exports.getRelativePathsInProject = getRelativePathsInProject;
+function getRelativePathsInProjectSync(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var sourceDir = path.dirname(query.filePath);
@@ -539,9 +543,8 @@ function getRelativePathsInProject(query) {
         files: files,
         endsInPunctuation: endsInPunctuation
     };
-    return resolve(response);
+    return response;
 }
-exports.getRelativePathsInProject = getRelativePathsInProject;
 var astToText_1 = require("./modules/astToText");
 function getAST(query) {
     consistentPath(query);
@@ -578,11 +581,13 @@ function getDependencies(query) {
 exports.getDependencies = getDependencies;
 var qf = require("./fixmyts/quickFix");
 var addClassMember_1 = require("./fixmyts/addClassMember");
+var addImportStatement_1 = require("./fixmyts/addImportStatement");
 var equalsToEquals_1 = require("./fixmyts/equalsToEquals");
 var quotesToQuotes_1 = require("./fixmyts/quotesToQuotes");
 var quoteToTemplate_1 = require("./fixmyts/quoteToTemplate");
 var allQuickFixes = [
     new addClassMember_1.default(),
+    new addImportStatement_1.default(getRelativePathsInProjectSync),
     new equalsToEquals_1.default(),
     new quotesToQuotes_1.default(),
     new quoteToTemplate_1.default(),
