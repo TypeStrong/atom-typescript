@@ -1,8 +1,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated

@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
 var debug_1 = require("./debug");
 var childprocess = require('child_process');
 var exec = childprocess.exec;

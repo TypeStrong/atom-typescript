@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../../globals.ts"/> ///ts:ref:generated
+
 
 import sp = require("atom-space-pen-views");
 

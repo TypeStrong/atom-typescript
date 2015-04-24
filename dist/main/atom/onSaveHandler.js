@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var parent = require('../../worker/parent');
 var mainPanelView_1 = require("./views/mainPanelView");
 function handle(event) {

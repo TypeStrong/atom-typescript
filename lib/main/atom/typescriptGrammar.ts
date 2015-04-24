@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 // Help:
 // https://github.com/atom/first-mate/

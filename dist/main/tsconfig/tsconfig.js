@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {

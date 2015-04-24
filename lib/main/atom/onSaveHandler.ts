@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 ///ts:import=atomConfig
 import atomConfig = require('./atomConfig'); ///ts:import:generated

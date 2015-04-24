@@ -1,5 +1,7 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+// Help:
+// https://github.com/atom/first-mate/
+// https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
+// https://github.com/p-e-w/language-javascript-semantic/blob/master/lib/javascript-semantic-grammar.coffee
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

@@ -1,6 +1,3 @@
-// This code is designed to be used by both the parent and the child
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

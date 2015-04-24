@@ -1,7 +1,4 @@
 // This code is designed to be used by both the parent and the child
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
-
 import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;

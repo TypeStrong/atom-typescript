@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../../globals.ts"/> ///ts:ref:generated
 exports.languageServiceHost = require('./languageServiceHost2');
 var Project = (function () {
     function Project(projectFile) {

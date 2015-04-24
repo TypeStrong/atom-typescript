@@ -1,6 +1,3 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
-
 import {debug} from "./debug";
 
 import childprocess = require('child_process');

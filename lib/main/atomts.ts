@@ -1,6 +1,3 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
-
 import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
 makeTsGlobal();
 

@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var fs = require('fs');
 var path = require('path');
 var fuzzaldrin = require('fuzzaldrin');

@@ -128,7 +128,7 @@ exports.provider = {
                 options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require(" + quote + options.suggestion.atomTS_IsImport.relativePath + quote + ");"; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
-                var row = (options.editor.getCursorBufferPosition()).row;
+                var row = options.editor.getCursorBufferPosition().row;
                 var originalText = options.editor.lineTextForBufferRow(row);
                 var beforeFrom = originalText.match(/(.*)from/)[1];
                 var newTextAfterFrom = "from " + quote + options.suggestion.atomTS_IsES6Import.relativePath + quote + ";";

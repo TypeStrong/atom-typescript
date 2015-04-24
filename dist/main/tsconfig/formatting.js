@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var os = require('os');
 function defaultFormatCodeOptions() {
     return {

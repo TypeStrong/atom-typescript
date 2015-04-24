@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 import simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;

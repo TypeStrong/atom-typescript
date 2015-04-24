@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 var mainPanelView = require('./views/mainPanelView');
 var lineMessageView = require('./views/lineMessageView');
 var gotoHistory = require('./gotoHistory');
