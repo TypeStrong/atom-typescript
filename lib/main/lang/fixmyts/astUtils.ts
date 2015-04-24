@@ -1,4 +1,3 @@
-import * as ts from "typescript";
 
 export var forEachChild = ts.forEachChild;
 

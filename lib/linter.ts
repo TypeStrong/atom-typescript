@@ -4,6 +4,9 @@
 ///ts:ref=globals
 /// <reference path="./globals.ts"/> ///ts:ref:generated
 
+import {makeTsGlobal} from "./typescript/makeTypeScriptGlobal";
+makeTsGlobal();
+
 ///ts:import=utils
 import utils = require('./main/lang/utils'); ///ts:import:generated
 ///ts:import=parent

@@ -9,7 +9,7 @@ module.exports = function (grunt) {
                 target: 'es5',
                 module: 'commonjs',
                 sourceMap: false,
-                preserveConstEnums: false,
+                preserveConstEnums: true,
                 compiler: './node_modules/typescript/bin/tsc'
             },
             dev: {

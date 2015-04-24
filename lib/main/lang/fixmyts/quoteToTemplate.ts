@@ -1,14 +1,12 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ts from "typescript";
 import * as ast from "./astUtils";
 import {EOL} from "os";
-import {displayPartsToString, typeToDisplayParts, SyntaxKind} from "typescript";
 
 class QuoteToTemplate implements QuickFix {
     key = QuoteToTemplate.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
-        if (info.positionNode.kind === SyntaxKind.StringLiteral) {
+        if (info.positionNode.kind === ts.SyntaxKind.StringLiteral) {
             return `Convert to Template String`;
         }
     }

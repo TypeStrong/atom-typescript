@@ -1,8 +1,6 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ts from "typescript";
 import * as ast from "./astUtils";
 import {EOL} from "os";
-import {displayPartsToString, typeToDisplayParts} from "typescript";
 
 function getIdentifierAndClassNames(error: ts.Diagnostic) {
     var errorText: string = <any>error.messageText;
@@ -58,7 +56,7 @@ class AddClassMember implements QuickFix {
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
 
             /** Discoverd from review of `services.getQuickInfoAtPosition` */
-            typeString = displayPartsToString(typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
 
         // Find the containing class declaration

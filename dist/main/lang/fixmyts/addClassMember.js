@@ -1,7 +1,5 @@
-var ts = require("typescript");
 var ast = require("./astUtils");
 var os_1 = require("os");
-var typescript_1 = require("typescript");
 function getIdentifierAndClassNames(error) {
     var errorText = error.messageText;
     if (typeof errorText !== 'string') {
@@ -42,7 +40,7 @@ var AddClassMember = (function () {
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
-            typeString = typescript_1.displayPartsToString(typescript_1.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
         var memberTarget = ast.getNodeByKindAndName(info.program, 201, className);
         if (!memberTarget) {

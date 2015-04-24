@@ -1,6 +1,10 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
+// setup typescript 
+import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
+makeTsGlobal();
+
 import workerLib = require('./lib/workerLib');
 
 

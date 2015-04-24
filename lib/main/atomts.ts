@@ -1,6 +1,9 @@
 ///ts:ref=globals
 /// <reference path="../globals.ts"/> ///ts:ref:generated
 
+import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
+makeTsGlobal();
+
 import path = require('path');
 import fs = require('fs');
 import os = require('os');
@@ -27,7 +30,6 @@ import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 import _atom = require('atom');
 import {$} from "atom-space-pen-views";
-
 
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
@@ -60,6 +62,7 @@ var hideIfNotActiveOnStart = debounce(() => {
 
 /** only called once we have our dependencies */
 function readyToActivate() {
+    
     // Add the documentation view
     documentationView.attach();
 

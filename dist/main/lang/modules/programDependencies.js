@@ -1,5 +1,4 @@
 var tsconfig_1 = require("../../tsconfig/tsconfig");
-var ts = require("typescript");
 var path = require("path");
 var fs = require("fs");
 function getDependencies(projectFile, program) {

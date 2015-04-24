@@ -1,4 +1,3 @@
-import ts = require('typescript');
 import project = require('../core/project');
 import mkdirp = require('mkdirp');
 import path = require('path');

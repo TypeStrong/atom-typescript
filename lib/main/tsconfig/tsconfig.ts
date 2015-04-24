@@ -144,7 +144,6 @@ function errorWithDetails<T>(error: Error, details: T): Error {
 import fs = require('fs');
 import path = require('path');
 import expand = require('glob-expand');
-import ts = require('typescript');
 import os = require('os');
 import formatting = require('./formatting');
 

@@ -4,7 +4,6 @@
 import fs = require('fs');
 import path = require('path');
 import os = require('os');
-import ts = require('typescript');
 import mkdirp = require('mkdirp');
 var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string }) => any } = require('fuzzaldrin');
 
@@ -733,7 +732,7 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
 
     var items: NavigateToItem[] = [];
     for (let file of project.getProjectSourceFiles()) {
-        for (let declaration of file.getNamedDeclarations()) {
+        for (let declaration of <any>file.getNamedDeclarations()) {
             let item: NavigateToItem = {
                 name: getDeclarationName(declaration),
                 kind: getNodeKind(declaration),
