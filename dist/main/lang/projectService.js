@@ -188,7 +188,6 @@ function build(query) {
         });
         return output;
     });
-    building.emitDts(proj);
     return resolve({
         buildOutput: {
             outputs: outputs,
