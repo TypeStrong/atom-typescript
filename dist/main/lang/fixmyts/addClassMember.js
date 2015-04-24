@@ -35,7 +35,7 @@ var AddClassMember = (function () {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2339; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
-        var className = (getIdentifierAndClassNames(relevantError)).className;
+        var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
         if (parentOfParent.kind == 169
