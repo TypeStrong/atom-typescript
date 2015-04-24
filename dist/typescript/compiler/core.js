@@ -66,9 +66,9 @@ var ts;
         if (array) {
             result = [];
             for (var _i = 0; _i < array.length; _i++) {
-                var item_1 = array[_i];
-                if (f(item_1)) {
-                    result.push(item_1);
+                var item = array[_i];
+                if (f(item)) {
+                    result.push(item);
                 }
             }
         }
@@ -100,9 +100,9 @@ var ts;
         if (array) {
             result = [];
             for (var _i = 0; _i < array.length; _i++) {
-                var item_2 = array[_i];
-                if (!contains(result, item_2)) {
-                    result.push(item_2);
+                var item = array[_i];
+                if (!contains(result, item)) {
+                    result.push(item);
                 }
             }
         }

@@ -405,9 +405,9 @@ exports.getProjectFileDetails = getProjectFileDetails;
 function sortNavbarItemsBySpan(items) {
     items.sort(function (a, b) { return a.spans[0].start - b.spans[0].start; });
     for (var _i = 0; _i < items.length; _i++) {
-        var item_1 = items[_i];
-        if (item_1.childItems) {
-            sortNavbarItemsBySpan(item_1.childItems);
+        var item = items[_i];
+        if (item.childItems) {
+            sortNavbarItemsBySpan(item.childItems);
         }
     }
 }
@@ -477,14 +477,14 @@ function getNavigateToItems(query) {
         for (var index in declarations) {
             for (var _b = 0, _c = declarations[index]; _b < _c.length; _b++) {
                 var declaration = _c[_b];
-                var item_2 = {
+                var item = {
                     name: getDeclarationName(declaration),
                     kind: getNodeKind(declaration),
                     filePath: file.fileName,
                     fileName: path.basename(file.fileName),
                     position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
                 };
-                items.push(item_2);
+                items.push(item);
             }
         }
     }
