@@ -126,7 +126,7 @@ export var provider: autocompleteplus.Provider = {
                 .then((resp) => {
                 return resp.files.map(file => {
                     var relativePath = file.relativePath;
-                    var suggestionText = !atomConfig.modulePathToProjectRoot || /^.\//.test(relativePath) ?
+                    var suggestionText = !atomConfig.modulePathToProjectRoot || /^(?!\.\.\/)/.test(relativePath) ?
                         relativePath : '~/' + atom.project.relativize(file.fullPath).replace(/\\/g, '/');
 
                     var suggestion: autocompleteplus.Suggestion = {
