@@ -18,7 +18,7 @@ var AddClassMember = (function () {
         this.key = AddClassMember.name;
     }
     AddClassMember.prototype.canProvideFix = function (info) {
-        var relevantError = info.positionErrors.filter(function (x) { return x.code == 2339; })[0];
+        var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         if (!relevantError)
             return;
         if (info.positionNode.kind !== 65)
@@ -30,10 +30,10 @@ var AddClassMember = (function () {
         return "Add " + identifierName + " to " + className;
     };
     AddClassMember.prototype.provideFix = function (info) {
-        var relevantError = info.positionErrors.filter(function (x) { return x.code == 2339; })[0];
+        var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
-        var className = getIdentifierAndClassNames(relevantError).className;
+        var className = (getIdentifierAndClassNames(relevantError)).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
         if (parentOfParent.kind == 169

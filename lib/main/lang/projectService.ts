@@ -699,9 +699,7 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
     var project = getOrCreateProject(query.filePath);
     var languageService = project.languageService;
 
-    // forgive me, for I have sinned, i.e. used copy paste and non public API.
-    let ts2: any = ts;
-    let getNodeKind = ts2.getNodeKind;
+    let getNodeKind = ts.getNodeKind;
     function getDeclarationName(declaration: ts.Declaration): string {
         let result = getTextOfIdentifierOrLiteral(declaration.name);
         if (result !== undefined) {
@@ -713,7 +711,8 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
             if (expr.kind === ts.SyntaxKind.PropertyAccessExpression) {
                 return (<ts.PropertyAccessExpression>expr).name.text;
             }
-            return ts2.getTextOfIdentifierOrLiteral(expr);
+            
+            return getTextOfIdentifierOrLiteral(expr);
         }
 
         return undefined;
@@ -731,18 +730,21 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
 
     var items: NavigateToItem[] = [];
     for (let file of project.getProjectSourceFiles()) {
-        for (let declaration of <any>file.getNamedDeclarations()) {
-            let item: NavigateToItem = {
-                name: getDeclarationName(declaration),
-                kind: getNodeKind(declaration),
-                filePath: file.fileName,
-                fileName: path.basename(file.fileName),
-                position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+        let declarations = file.getNamedDeclarations();
+        for (let index in declarations) {
+            for (let declaration of declarations[index]) {
+                let item: NavigateToItem = {
+                    name: getDeclarationName(declaration),
+                    kind: getNodeKind(declaration),
+                    filePath: file.fileName,
+                    fileName: path.basename(file.fileName),
+                    position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+                }
+                items.push(item);
             }
-            items.push(item);
         }
     }
-
+    
     return resolve({ items });
 }
 

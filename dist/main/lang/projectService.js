@@ -447,8 +447,7 @@ function getNavigateToItems(query) {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var languageService = project.languageService;
-    var ts2 = ts;
-    var getNodeKind = ts2.getNodeKind;
+    var getNodeKind = ts.getNodeKind;
     function getDeclarationName(declaration) {
         var result = getTextOfIdentifierOrLiteral(declaration.name);
         if (result !== undefined) {
@@ -459,7 +458,7 @@ function getNavigateToItems(query) {
             if (expr.kind === 155) {
                 return expr.name.text;
             }
-            return ts2.getTextOfIdentifierOrLiteral(expr);
+            return getTextOfIdentifierOrLiteral(expr);
         }
         return undefined;
     }
@@ -474,16 +473,19 @@ function getNavigateToItems(query) {
     var items = [];
     for (var _i = 0, _a = project.getProjectSourceFiles(); _i < _a.length; _i++) {
         var file = _a[_i];
-        for (var _b = 0, _c = file.getNamedDeclarations(); _b < _c.length; _b++) {
-            var declaration = _c[_b];
-            var item_2 = {
-                name: getDeclarationName(declaration),
-                kind: getNodeKind(declaration),
-                filePath: file.fileName,
-                fileName: path.basename(file.fileName),
-                position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
-            };
-            items.push(item_2);
+        var declarations = file.getNamedDeclarations();
+        for (var index in declarations) {
+            for (var _b = 0, _c = declarations[index]; _b < _c.length; _b++) {
+                var declaration = _c[_b];
+                var item_2 = {
+                    name: getDeclarationName(declaration),
+                    kind: getNodeKind(declaration),
+                    filePath: file.fileName,
+                    fileName: path.basename(file.fileName),
+                    position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+                };
+                items.push(item_2);
+            }
         }
     }
     return resolve({ items: items });
