@@ -1,7 +1,6 @@
 /**
  * Interfaces for quick fixes
  */
-import ts = require("typescript");
 import project = require("../core/project");
 
 

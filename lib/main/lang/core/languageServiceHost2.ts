@@ -1,4 +1,3 @@
-import ts = require('typescript');
 import path = require('path');
 import utils = require('../utils');
 import fs = require('fs');

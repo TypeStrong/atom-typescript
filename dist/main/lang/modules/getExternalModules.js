@@ -1,8 +1,8 @@
-var typescript_1 = require("typescript");
+// From https://github.com/Microsoft/TypeScript/pull/2173/files
 function getExternalModuleNames(program) {
     var entries = [];
     program.getSourceFiles().forEach(function (sourceFile) {
-        typescript_1.forEachChild(sourceFile, function (child) {
+        ts.forEachChild(sourceFile, function (child) {
             if (child.kind === 205 && child.name.kind === 8) {
                 entries.push(child.name.text);
             }

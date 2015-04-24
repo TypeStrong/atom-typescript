@@ -1,5 +1,8 @@
 // This file is only called from linter
 // See : https://github.com/AtomLinter/Linter/issues/337
+/// <reference path="./globals.ts"/> ///ts:ref:generated
+var makeTypeScriptGlobal_1 = require("./typescript/makeTypeScriptGlobal");
+makeTypeScriptGlobal_1.makeTsGlobal();
 var parent = require('./worker/parent');
 var fs = require('fs');
 var linterPath = atom.packages.getLoadedPackage("linter").path;

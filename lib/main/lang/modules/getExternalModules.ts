@@ -1,18 +1,14 @@
 // From https://github.com/Microsoft/TypeScript/pull/2173/files
-import {
-SyntaxKind, ModuleDeclaration, forEachChild, Program
-} from "typescript";
 
-
-export function getExternalModuleNames(program: Program): string[] {
+export function getExternalModuleNames(program: ts.Program): string[] {
     var entries: string[] = [];
 
     program.getSourceFiles().forEach(sourceFile => {
 
         // Look for ambient external module declarations
-        forEachChild(sourceFile, child => {
-            if (child.kind === SyntaxKind.ModuleDeclaration && (<ModuleDeclaration>child).name.kind === SyntaxKind.StringLiteral) {
-                entries.push((<ModuleDeclaration>child).name.text);
+        ts.forEachChild(sourceFile, child => {
+            if (child.kind === ts.SyntaxKind.ModuleDeclaration && (<ts.ModuleDeclaration>child).name.kind === ts.SyntaxKind.StringLiteral) {
+                entries.push((<ts.ModuleDeclaration>child).name.text);
             }
         });
     });

@@ -3,7 +3,6 @@ import buildView = require("../buildView");
 import atomUtils = require("../atomUtils");
 import autoCompleteProvider = require("../autoCompleteProvider");
 import path = require('path');
-import ts = require('typescript');
 import documentationView = require("../views/documentationView");
 import renameView = require("../views/renameView");
 var apd = require('atom-package-dependencies');

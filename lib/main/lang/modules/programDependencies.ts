@@ -1,7 +1,6 @@
 
 import {TypeScriptProjectFileDetails, pathIsRelative, consistentPath} from "../../tsconfig/tsconfig";
 import tsconfig = require("../../tsconfig/tsconfig");
-import * as ts from "typescript";
 import * as path from "path";
 import * as fs from "fs";
 

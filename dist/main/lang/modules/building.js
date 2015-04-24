@@ -1,4 +1,3 @@
-var ts = require('typescript');
 var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');

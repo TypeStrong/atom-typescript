@@ -2,7 +2,6 @@
 /// <reference path="../../globals.ts"/> ///ts:ref:generated
 var fs = require('fs');
 var path = require('path');
-var ts = require('typescript');
 var fuzzaldrin = require('fuzzaldrin');
 var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');

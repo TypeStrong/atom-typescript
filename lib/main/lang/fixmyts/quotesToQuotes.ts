@@ -1,14 +1,12 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ts from "typescript";
 import * as ast from "./astUtils";
 import {EOL} from "os";
-import {displayPartsToString, typeToDisplayParts, SyntaxKind} from "typescript";
 
 class QuotesToQuotes implements QuickFix {
     key = QuotesToQuotes.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
-        if (info.positionNode.kind === SyntaxKind.StringLiteral) {
+        if (info.positionNode.kind === ts.SyntaxKind.StringLiteral) {
             if (info.positionNode.getText().trim()[0] === `'`) {
                 return `Convert ' to "`;
             }

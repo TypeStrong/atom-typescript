@@ -11,7 +11,6 @@ import parent = require('../../worker/parent'); ///ts:import:generated
 
 import path = require('path');
 import fs = require('fs');
-import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 import tooltipView = require('./views/tooltipView');
