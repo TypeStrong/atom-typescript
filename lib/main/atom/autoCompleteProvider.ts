@@ -50,6 +50,8 @@ declare module autocompleteplus {
 
     /** What the provider needs to implement */
     export interface Provider {
+        inclusionPriority?: number;
+        excludeLowerPriority?: boolean;
         selector: string;
         getSuggestions: (options: RequestOptions) => Promise<Suggestion[]>;
         onDidInsertSuggestion?: (args: { editor: AtomCore.IEditor; triggerPosition: TextBuffer.IPoint; suggestion: Suggestion }) => any;
@@ -109,6 +111,7 @@ loadSnippets();
 
 export var provider: autocompleteplus.Provider = {
     selector: '.source.ts',
+    inclusionPriority: 1,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
         var filePath = options.editor.getPath();
 
