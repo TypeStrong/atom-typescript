@@ -13,8 +13,7 @@ function getExternalModuleNames(program) {
     });
     return entries;
 }
-exports.getExternalModuleNames = getExternalModuleNames;
-function getRelativePathsInProject(query) {
+function getPathCompletions(query) {
     var project = query.project;
     var sourceDir = path.dirname(query.filePath);
     var filePaths = project.projectFile.project.files.filter(function (p) { return p !== query.filePath; });
@@ -43,4 +42,4 @@ function getRelativePathsInProject(query) {
     };
     return response;
 }
-exports.getRelativePathsInProject = getRelativePathsInProject;
+exports.getPathCompletions = getPathCompletions;

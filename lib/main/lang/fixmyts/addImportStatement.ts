@@ -3,10 +3,11 @@ import * as ast from "./astUtils";
 import {EOL } from "os";
 var { displayPartsToString, typeToDisplayParts } = ts;
 import path = require('path');
+import {Project} from "../core/project";
 
-import {getExternalModuleNames } from "../modules/getExternalModules";
+import {getPathCompletions} from "../modules/getPathCompletions";
 
-function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProject: Function) {
+function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
 
     var errorText: string = <any>error.messageText;
 
@@ -21,7 +22,11 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProje
     if (!match) return;
 
     var [, identifierName] = match;
-    var {files} = getRelativePathsInProject({ filePath: error.file.fileName, prefix: identifierName, includeExternalModules: false });
+    var {files} = getPathCompletions({
+        project,
+        filePath: error.file.fileName,
+        prefix: identifierName,
+        includeExternalModules: false });
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
     return { identifierName, file, basename };
@@ -30,7 +35,7 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProje
 class AddImportStatement implements QuickFix {
     key = AddImportStatement.name;
 
-    constructor(private getRelativePathsInProject: Function) {
+    constructor() {
     }
 
     canProvideFix(info: QuickFixQueryInformation): string {
@@ -38,7 +43,7 @@ class AddImportStatement implements QuickFix {
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
 
-        var { identifierName, file} = getIdentifierAndFileNames(relevantError, this.getRelativePathsInProject);
+        var { identifierName, file} = getIdentifierAndFileNames(relevantError, info.project);
         return file ? `import ${identifierName}= require(\"${file}\")` : undefined;
     }
 
@@ -47,7 +52,7 @@ class AddImportStatement implements QuickFix {
         var identifier = <ts.Identifier>info.positionNode;
 
         var identifierName = identifier.text;
-        var fileNameforFix = getIdentifierAndFileNames(relevantError, this.getRelativePathsInProject);
+        var fileNameforFix = getIdentifierAndFileNames(relevantError, info.project);
 
         // Add stuff at the top of the file
         let refactorings: Refactoring[] = [{

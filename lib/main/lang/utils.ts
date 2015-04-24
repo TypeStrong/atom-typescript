@@ -293,3 +293,6 @@ export function debounce<T extends Function>(func: T, milliseconds: number, imme
         return result;
     };
 };
+
+var punctuations = createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
+export var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
