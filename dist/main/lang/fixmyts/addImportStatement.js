@@ -34,19 +34,25 @@ var AddImportStatement = (function () {
         var identifier = info.positionNode;
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, this.getRelativePathsInProject);
-        if (fileNameforFix.basename !== identifierName) {
-            atom.notifications.addError('AtomTS: QuickFix failed, text under cursor does not match filename');
-            return [];
+        var refactorings = [{
+                span: {
+                    start: 0,
+                    length: 0
+                },
+                newText: "import " + fileNameforFix.basename + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
+                filePath: info.srcFile.fileName
+            }];
+        if (identifierName !== fileNameforFix.basename) {
+            refactorings.push({
+                span: {
+                    start: identifier.getStart(),
+                    length: identifier.end - identifier.getStart()
+                },
+                newText: fileNameforFix.basename,
+                filePath: info.srcFile.fileName
+            });
         }
-        var refactoring = {
-            span: {
-                start: 0,
-                length: 0
-            },
-            newText: "import " + identifierName + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
-            filePath: info.srcFile.fileName
-        };
-        return [refactoring];
+        return refactorings;
     };
     return AddImportStatement;
 })();

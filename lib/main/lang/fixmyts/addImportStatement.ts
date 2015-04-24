@@ -2,15 +2,16 @@ import { QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
 import * as ast from "./astUtils";
 import {EOL } from "os";
 var { displayPartsToString, typeToDisplayParts } = ts;
+import path = require('path');
 
 import {getExternalModuleNames } from "../modules/getExternalModules";
 
 function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProject: Function) {
 
     var errorText: string = <any>error.messageText;
-    
+
     // We don't support error chains yet
-    if (typeof errorText !== 'string') {        
+    if (typeof errorText !== 'string') {
         return undefined;
     };
 
@@ -18,7 +19,7 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProje
 
     // If for whatever reason the error message doesn't match
     if (!match) return;
-    
+
     var [, identifierName] = match;
     var {files} = getRelativePathsInProject({ filePath: error.file.fileName, prefix: identifierName, includeExternalModules: false });
     var file = files.length > 0 ? files[0].relativePath : undefined;
@@ -28,10 +29,10 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, getRelativePathsInProje
 
 class AddImportStatement implements QuickFix {
     key = AddImportStatement.name;
-    
+
     constructor(private getRelativePathsInProject: Function) {
     }
-    
+
     canProvideFix(info: QuickFixQueryInformation): string {
         var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
         if (!relevantError) return;
@@ -48,22 +49,29 @@ class AddImportStatement implements QuickFix {
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, this.getRelativePathsInProject);
 
-        if (fileNameforFix.basename !== identifierName) {
-            atom.notifications.addError('AtomTS: QuickFix failed, text under cursor does not match filename');
-            return [];
-        }
-
-        // And add stuff after the first brace
-        let refactoring: Refactoring = {
+        // Add stuff at the top of the file
+        let refactorings: Refactoring[] = [{
             span: {
                 start: 0,
                 length: 0
             },
-            newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
+            newText: `import ${fileNameforFix.basename} = require(\"${fileNameforFix.file}\");${EOL}`,
             filePath: info.srcFile.fileName
-        };
+        }];
 
-        return [refactoring];
+        // Also refactor the variable name to match the file name
+        if (identifierName !== fileNameforFix.basename) {
+            refactorings.push({
+                span: {
+                    start: identifier.getStart(),
+                    length: identifier.end - identifier.getStart()
+                },
+                newText: fileNameforFix.basename,
+                filePath: info.srcFile.fileName
+            })
+        }
+
+        return refactorings;
     }
 }
 
