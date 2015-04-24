@@ -1,5 +1,5 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
+import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
+makeTsGlobal();
 
 import path = require('path');
 import fs = require('fs');
@@ -8,8 +8,8 @@ import os = require('os');
 // Make sure we have the packages we depend upon
 var apd = require('atom-package-dependencies');
 
-///ts:import=errorView
-import errorView = require('./atom/errorView'); ///ts:import:generated
+import {errorView} from "./atom/views/mainPanelView";
+
 ///ts:import=autoCompleteProvider
 import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
 ///ts:import=tooltipManager
@@ -27,7 +27,6 @@ import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
 import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
 import _atom = require('atom');
 import {$} from "atom-space-pen-views";
-
 
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
@@ -52,7 +51,7 @@ import {debounce} from "./lang/utils";
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
     var editor = atom.workspace.getActiveTextEditor();
-    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
+    if (!atomUtils.onDiskAndTs(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -60,6 +59,7 @@ var hideIfNotActiveOnStart = debounce(() => {
 
 /** only called once we have our dependencies */
 function readyToActivate() {
+    
     // Add the documentation view
     documentationView.attach();
 
@@ -97,9 +97,7 @@ function readyToActivate() {
             // or the other file might have made this file have an error
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
-        }
 
-        if (atomUtils.isTs(editor)) {
             mainPanelView.show();
         }
         else {

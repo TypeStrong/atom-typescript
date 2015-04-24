@@ -1,10 +1,9 @@
 import sp = require('atom-space-pen-views');
 import mainPanelView = require('./mainPanelView');
-import ts = require('typescript');
 import atomUtils = require("../atomUtils");
 
 
-/** 
+/**
  * https://github.com/atom/atom-space-pen-views
  */
 export class ProjectSymbolsView extends sp.SelectListView {
@@ -13,8 +12,18 @@ export class ProjectSymbolsView extends sp.SelectListView {
         return <any>this;
     }
 
+    get filterView(): {
+        $: JQuery,
+        model: AtomCore.IEditor
+    } {
+        return {
+            $: this.filterEditorView,
+            model: (<any>this.filterEditorView).model
+        };
+    }
+
     public setNavBarItems(tsItems: NavigateToItem[]) {
-        super.setMaxItems(15);
+        super.setMaxItems(40);
 
         var items: NavigateToItem[] = tsItems;
         super.setItems(items)
@@ -30,7 +39,7 @@ export class ProjectSymbolsView extends sp.SelectListView {
             </li>
         `;
     }
-    
+
     /** override */
     confirmed(item: NavigateToItem) {
         atom.workspace.open(item.filePath, {

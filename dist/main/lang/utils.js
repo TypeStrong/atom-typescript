@@ -205,3 +205,5 @@ function debounce(func, milliseconds, immediate) {
 }
 exports.debounce = debounce;
 ;
+var punctuations = createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
+exports.prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };

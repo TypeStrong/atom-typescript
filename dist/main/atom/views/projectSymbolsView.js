@@ -19,8 +19,18 @@ var ProjectSymbolsView = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(ProjectSymbolsView.prototype, "filterView", {
+        get: function () {
+            return {
+                $: this.filterEditorView,
+                model: this.filterEditorView.model
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     ProjectSymbolsView.prototype.setNavBarItems = function (tsItems) {
-        _super.prototype.setMaxItems.call(this, 15);
+        _super.prototype.setMaxItems.call(this, 40);
         var items = tsItems;
         _super.prototype.setItems.call(this, items);
     };

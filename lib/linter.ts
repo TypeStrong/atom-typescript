@@ -1,9 +1,6 @@
 // This file is only called from linter
 // See : https://github.com/AtomLinter/Linter/issues/337
 
-///ts:ref=globals
-/// <reference path="./globals.ts"/> ///ts:ref:generated
-
 ///ts:import=utils
 import utils = require('./main/lang/utils'); ///ts:import:generated
 ///ts:import=parent

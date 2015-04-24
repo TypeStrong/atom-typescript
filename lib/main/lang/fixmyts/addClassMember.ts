@@ -1,8 +1,6 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ts from "typescript";
 import * as ast from "./astUtils";
 import {EOL} from "os";
-import {displayPartsToString, typeToDisplayParts} from "typescript";
 
 function getIdentifierAndClassNames(error: ts.Diagnostic) {
     var errorText: string = <any>error.messageText;
@@ -25,7 +23,7 @@ class AddClassMember implements QuickFix {
     key = AddClassMember.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
-        var relevantError = info.positionErrors.filter(x=> x.code == 2339)[0];
+        var relevantError = info.positionErrors.filter(x=> x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
 
@@ -34,15 +32,14 @@ class AddClassMember implements QuickFix {
 
         var match = getIdentifierAndClassNames(relevantError);
 
-        if(!match) return;
+        if (!match) return;
 
         var {identifierName, className} = match;
         return `Add ${identifierName} to ${className}`;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
-
-        var relevantError = info.positionErrors.filter(x=> x.code == 2339)[0];
+        var relevantError = info.positionErrors.filter(x=> x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code)[0];
         var identifier = <ts.Identifier>info.positionNode;
 
         var identifierName = identifier.text;
@@ -58,7 +55,7 @@ class AddClassMember implements QuickFix {
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
 
             /** Discoverd from review of `services.getQuickInfoAtPosition` */
-            typeString = displayPartsToString(typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
 
         // Find the containing class declaration

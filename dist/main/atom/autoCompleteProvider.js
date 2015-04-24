@@ -1,5 +1,6 @@
 /// <reference path='../../globals'/>
 var parent = require('../../worker/parent');
+var atomConfig = require('./atomConfig');
 var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
@@ -114,6 +115,7 @@ exports.provider = {
         if (options.suggestion.atomTS_IsReference
             || options.suggestion.atomTS_IsImport
             || options.suggestion.atomTS_IsES6Import) {
+            var quote = atomConfig.preferredQuoteCharacter;
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
@@ -123,13 +125,13 @@ exports.provider = {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
                 var alias = options.editor.getSelectedText().match(/^import\s*(\w*)\s*=/)[1];
-                options.editor.replaceSelectedText(null, function () { return "import " + alias + ' = require("' + options.suggestion.atomTS_IsImport.relativePath + '");'; });
+                options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require(" + quote + options.suggestion.atomTS_IsImport.relativePath + quote + ");"; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
-                var row = (options.editor.getCursorBufferPosition()).row;
+                var row = options.editor.getCursorBufferPosition().row;
                 var originalText = options.editor.lineTextForBufferRow(row);
                 var beforeFrom = originalText.match(/(.*)from/)[1];
-                var newTextAfterFrom = 'from "' + options.suggestion.atomTS_IsES6Import.relativePath + '";';
+                var newTextAfterFrom = "from " + quote + options.suggestion.atomTS_IsES6Import.relativePath + quote + ";";
                 options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom);
             }
             options.editor.moveToEndOfLine();

@@ -1,7 +1,5 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
 
-import ts = require('typescript');
+
 import os = require('os');
 
 /// The following two interfaces come from typescript.d.ts but camelCased for JSON parsing

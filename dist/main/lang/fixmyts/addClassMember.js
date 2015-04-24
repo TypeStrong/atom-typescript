@@ -1,7 +1,5 @@
-var ts = require("typescript");
 var ast = require("./astUtils");
 var os_1 = require("os");
-var typescript_1 = require("typescript");
 function getIdentifierAndClassNames(error) {
     var errorText = error.messageText;
     if (typeof errorText !== 'string') {
@@ -20,7 +18,7 @@ var AddClassMember = (function () {
         this.key = AddClassMember.name;
     }
     AddClassMember.prototype.canProvideFix = function (info) {
-        var relevantError = info.positionErrors.filter(function (x) { return x.code == 2339; })[0];
+        var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         if (!relevantError)
             return;
         if (info.positionNode.kind !== 65)
@@ -32,17 +30,17 @@ var AddClassMember = (function () {
         return "Add " + identifierName + " to " + className;
     };
     AddClassMember.prototype.provideFix = function (info) {
-        var relevantError = info.positionErrors.filter(function (x) { return x.code == 2339; })[0];
+        var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
-        var className = (getIdentifierAndClassNames(relevantError)).className;
+        var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
         if (parentOfParent.kind == 169
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
-            typeString = typescript_1.displayPartsToString(typescript_1.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
         var memberTarget = ast.getNodeByKindAndName(info.program, 201, className);
         if (!memberTarget) {

@@ -1,10 +1,8 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 import fs = require('fs');
 import path = require('path');
 import os = require('os');
-import ts = require('typescript');
 import mkdirp = require('mkdirp');
 var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string }) => any } = require('fuzzaldrin');
 
@@ -17,237 +15,21 @@ import languageServiceHost = project.languageServiceHost;
 
 var resolve: typeof Promise.resolve = Promise.resolve.bind(Promise);
 
+import {consistentPath,
+FilePathQuery,
+queryParent,
+getOrCreateProject,
+SoftResetQuery,
+resetCache}
+from "./projectCache";
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //////////////// MECHANISM FOR THE CHILD TO QUERY THE PARENT ///////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-import workerLib = require('../../worker/lib/workerLib');
-import queryParent = require('../../worker/queryParent');
-
-// pushed in by child.ts
-// If we are in a child context we patch the functions to execute via IPC.
-// Otherwise we would call them directly.
-var child: workerLib.Child;
-export function fixChild(childInjected: typeof child) {
-    child = childInjected;
-    queryParent.echoNumWithModification = child.sendToIpc(queryParent.echoNumWithModification);
-    queryParent.getUpdatedTextForUnsavedEditors = child.sendToIpc(queryParent.getUpdatedTextForUnsavedEditors);
-    queryParent.getOpenEditorPaths = child.sendToIpc(queryParent.getOpenEditorPaths);
-    queryParent.setConfigurationError = child.sendToIpc(queryParent.setConfigurationError);
-    queryParent.notifySuccess = child.sendToIpc(queryParent.notifySuccess);
-    queryParent.buildUpdate = child.sendToIpc(queryParent.buildUpdate);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-//////////////// MAINTAIN A HOT CACHE TO DECREASE FILE LOOKUPS /////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-
-var projectByProjectFilePath: { [projectFilePath: string]: Project } = {}
-/** the project file path or any source ts file path */
-var projectByFilePath: { [filePath: string]: Project } = {}
-
-
-var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
-function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
-
-    // Don't watch lib.d.ts and other
-    // projects that are "in memory" only
-    if (!fs.existsSync(projectFilePath)) {
-        return;
-    }
-
-    if (watchingProjectFile[projectFilePath]) return; // Only watch once
-    watchingProjectFile[projectFilePath] = true;
-
-    fs.watch(projectFilePath, { persistent: false, recursive: false }, () => {
-        // if file no longer exists
-        if (!fs.existsSync(projectFilePath)) {
-            // if we have a cache for it then clear it
-            var project = projectByProjectFilePath[projectFilePath];
-            if (project) {
-                var files = project.projectFile.project.files;
-
-                delete projectByProjectFilePath[projectFilePath];
-                files.forEach((file) => delete projectByFilePath[file]);
-            }
-            return;
-        }
-
-        // Reload the project file from the file system and re cache it
-        try {
-            var projectFile = getOrCreateProjectFile(projectFilePath);
-            cacheAndCreateProject(projectFile);
-            queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-        }
-        catch (ex) {
-            // Keep failing silently
-            // TODO: reuse reporting logic
-        }
-    });
-}
-
-
-import chokidar = require('chokidar');
-var watchingTheFilesInTheProject: { [projectFilePath: string]: boolean } = {}
-function watchTheFilesInTheProjectIfNotDoingItAlready(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    var projectFilePath = projectFile.projectFilePath;
-    // Don't watch lib.d.ts and other
-    // projects that are "in memory" only
-    if (!fs.existsSync(projectFilePath)) {
-        return;
-    }
-
-    if (watchingTheFilesInTheProject[projectFilePath]) return; // Only watch once
-    watchingTheFilesInTheProject[projectFilePath] = true;
-
-    var watcher = chokidar.watch(projectFile.project.files || projectFile.project.filesGlob);
-    watcher.on('add', () => {
-        // TODO: add file to project:
-        // files + language service, and then the language service will automatically call LSHost
-    });
-    watcher.on('unlink', (filePath: string) => {
-        // TODO: remove from language service + files
-    });
-    watcher.on('change', (filePath: string) => {
-        filePath = tsconfig.consistentPath(filePath);
-        queryParent.getOpenEditorPaths({}).then((res) => {
-            var openPaths = res.filePaths;
-
-            // If we have it open, we will get this change from ATOM.
-            if (openPaths.some(x => x == filePath)) {
-                return;
-            }
-
-            // If we don't have it cached. Then we ain't gonna do anything with this as it can get hairy
-            var project = projectByFilePath[filePath];
-            if (!project) {
-                // console.error('file change ignored. No Project!:', filePath);
-                return;
-            }
-
-            var contents = fs.readFileSync(filePath).toString();
-            project.languageServiceHost.updateScript(filePath, contents);
-        });
-    })
-}
-
-/** We are loading the project from file system.
-    This might not match what we have in the editor memory, so query those as well
-*/
-function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFileDetails) {
-    var project = projectByProjectFilePath[projectFile.projectFilePath] = new Project(projectFile);
-    projectFile.project.files.forEach((file) => projectByFilePath[file] = project);
-
-    // query the parent for unsaved changes
-    // We do this lazily
-    queryParent.getUpdatedTextForUnsavedEditors({})
-        .then(resp=> {
-        resp.editors.forEach(e=> {
-            consistentPath(e);
-            project.languageServiceHost.updateScript(e.filePath, e.text);
-        });
-    });
-
-    watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
-    watchTheFilesInTheProjectIfNotDoingItAlready(projectFile);
-
-    return project;
-}
-
-/**
- * This explicilty loads the project from the filesystem or creates one
- * creation is done in memory (for .d.ts) OR filesytem
- */
-function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
-    try {
-        // If we are asked to look at stuff in lib.d.ts create its own project
-        if (path.dirname(filePath) == languageServiceHost.typescriptDirectory) {
-            return tsconfig.getDefaultProject(filePath);
-        }
-
-        var projectFile = tsconfig.getProjectSync(filePath);
-        queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-        return projectFile;
-    } catch (ex) {
-        var err: Error = ex;
-        if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
-            // If we have a .d.ts file then it is its own project and return
-            if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
-                return tsconfig.getDefaultProject(filePath);
-            }
-            // Otherwise create one on disk
-            else {
-                var projectFile = tsconfig.createProjectRootSync(filePath);
-                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-                return projectFile;
-            }
-        }
-        else {
-            if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var details0: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details0.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var details1: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details1.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
-                var details2: tsconfig.GET_PROJECT_GLOB_EXPAND_FAILED_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details2.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
-            }
-            throw ex;
-        }
-    }
-}
-
-function getOrCreateProject(filePath: string) {
-    filePath = tsconfig.consistentPath(filePath);
-    if (projectByFilePath[filePath]) {
-        // we are in good shape
-        return projectByFilePath[filePath];
-    }
-    else {
-        // We are in a bad shape. Why didn't we know of this file before?
-        // Even if we find the projectFile we should invalidate it.
-        var projectFile = getOrCreateProjectFile(filePath);
-        var project = cacheAndCreateProject(projectFile);
-        return project;
-    }
-}
-
 //--------------------------------------------------------------------------
 //  Utility Interfaces
 //--------------------------------------------------------------------------
-
-/** utility interface **/
-interface FilePathQuery {
-    filePath: string;
-}
 
 /** utility interface **/
 interface FilePathPositionQuery {
@@ -264,12 +46,6 @@ function textSpan(span: ts.TextSpan): TextSpan {
         start: span.start,
         length: span.length
     }
-}
-
-/** mutate and fix the filePath silently */
-function consistentPath(query: FilePathQuery) {
-    if (!query.filePath) return;
-    query.filePath = tsconfig.consistentPath(query.filePath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -332,9 +108,6 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         return output;
     });
 
-    // Also emit dts:
-    building.emitDts(proj);
-
     return resolve({
         buildOutput: {
             outputs: outputs,
@@ -378,8 +151,7 @@ export interface GetCompletionsAtPositionResponse {
     completions: Completion[];
     endsInPunctuation: boolean;
 }
-var punctuations = utils.createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
-var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
+
 export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): Promise<GetCompletionsAtPositionResponse> {
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
@@ -388,7 +160,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
     var completionList = completions ? completions.entries.filter(x=> !!x) : [];
-    var endsInPunctuation = prefixEndsInPunctuation(prefix);
+    var endsInPunctuation = utils.prefixEndsInPunctuation(prefix);
 
     if (prefix.length && !endsInPunctuation) {
         // Didn't work good for punctuation
@@ -750,9 +522,7 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
     var project = getOrCreateProject(query.filePath);
     var languageService = project.languageService;
 
-    // forgive me, for I have sinned, i.e. used copy paste and non public API.
-    let ts2: any = ts;
-    let getNodeKind = ts2.getNodeKind;
+    let getNodeKind = ts.getNodeKind;
     function getDeclarationName(declaration: ts.Declaration): string {
         let result = getTextOfIdentifierOrLiteral(declaration.name);
         if (result !== undefined) {
@@ -764,7 +534,8 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
             if (expr.kind === ts.SyntaxKind.PropertyAccessExpression) {
                 return (<ts.PropertyAccessExpression>expr).name.text;
             }
-            return ts2.getTextOfIdentifierOrLiteral(expr);
+
+            return getTextOfIdentifierOrLiteral(expr);
         }
 
         return undefined;
@@ -782,15 +553,18 @@ export function getNavigateToItems(query: FilePathQuery): Promise<GetNavigateToI
 
     var items: NavigateToItem[] = [];
     for (let file of project.getProjectSourceFiles()) {
-        for (let declaration of file.getNamedDeclarations()) {
-            let item: NavigateToItem = {
-                name: getDeclarationName(declaration),
-                kind: getNodeKind(declaration),
-                filePath: file.fileName,
-                fileName: path.basename(file.fileName),
-                position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+        let declarations = file.getNamedDeclarations();
+        for (let index in declarations) {
+            for (let declaration of declarations[index]) {
+                let item: NavigateToItem = {
+                    name: getDeclarationName(declaration),
+                    kind: getNodeKind(declaration),
+                    filePath: file.fileName,
+                    fileName: path.basename(file.fileName),
+                    position: project.languageServiceHost.getPositionFromIndex(file.fileName, declaration.getStart())
+                }
+                items.push(item);
             }
-            items.push(item);
         }
     }
 
@@ -825,64 +599,29 @@ export function getReferences(query: GetReferencesQuery): Promise<GetReferencesR
 /**
  * Get Completions for external modules + references tags
  */
-import {getExternalModuleNames } from "./modules/getExternalModules";
-export interface GetRelativePathsInProjectQuery extends FilePathQuery {
-    prefix: string;
-    includeExternalModules: boolean;
-}
-export interface GetRelativePathsInProjectResponse {
-    files: {
-        name: string;
-        relativePath: string;
-        fullPath: string;
-    }[];
-    endsInPunctuation: boolean;
-}
+import {getPathCompletions, GetRelativePathsInProjectResponse }
+from "./modules/getPathCompletions";
+
 function filePathWithoutExtension(query: string) {
     var base = path.basename(query, '.ts');
     return path.dirname(query) + '/' + base;
 }
+interface GetRelativePathsInProjectQuery {
+    filePath: string;
+    prefix: string;
+    includeExternalModules: boolean;
+}
+
 export function getRelativePathsInProject(query: GetRelativePathsInProjectQuery): Promise<GetRelativePathsInProjectResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    var sourceDir = path.dirname(query.filePath);
-    var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
-    var files: {
-        name: string;
-        relativePath: string;
-        fullPath: string;
-    }[] = [];
-
-    if (query.includeExternalModules) {
-        var externalModules = getExternalModuleNames(project.languageService.getProgram());
-        externalModules.forEach(e=> files.push({
-            name: `${e}`,
-            relativePath: e,
-            fullPath: e
-        }));
-    }
-
-    filePaths.forEach(p=> {
-        files.push({
-            name: path.basename(p, '.ts'),
-            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
-            fullPath: p
-        });
-    });
-
-    var endsInPunctuation: boolean = prefixEndsInPunctuation(query.prefix);
-
-    if (!endsInPunctuation)
-        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
-
-    var response: GetRelativePathsInProjectResponse = {
-        files: files,
-        endsInPunctuation: endsInPunctuation
-    };
-
-    return resolve(response);
+    return resolve(getPathCompletions({
+        project,
+        filePath: query.filePath,
+        prefix: query.prefix,
+        includeExternalModules: query.includeExternalModules
+    }));
 }
-
 
 /**
  * Get AST
@@ -951,11 +690,13 @@ import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFi
 import * as qf from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
 import AddClassMember from "./fixmyts/addClassMember";
+import AddImportStatement from "./fixmyts/addImportStatement";
 import EqualsToEquals from "./fixmyts/equalsToEquals";
 import QuotesToQuotes from "./fixmyts/quotesToQuotes";
 import QuotesToTemplate from "./fixmyts/quoteToTemplate";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
+    new AddImportStatement(),
     new EqualsToEquals(),
     new QuotesToQuotes(),
     new QuotesToTemplate(),
@@ -1038,4 +779,13 @@ export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     return resolve({ output: getRawOutput(project, query.filePath) });
+}
+
+
+/**
+ * Reset all that we know about the file system
+ */
+export function softReset(query: SoftResetQuery): Promise<{}> {
+    resetCache(query);
+    return resolve({});
 }

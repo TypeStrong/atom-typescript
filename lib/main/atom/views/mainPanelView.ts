@@ -3,7 +3,8 @@ var $ = view.$;
 
 import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
-
+import parent = require("../../../worker/parent");
+import * as utils from "../../lang/utils";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -16,6 +17,7 @@ import gotoHistory = require('../gotoHistory');
 export class MainPanelView extends view.View<any> {
 
     private btnFold: JQuery;
+    private btnSoftReset: JQuery;
     private summary: JQuery;
     private heading: JQuery;
 
@@ -72,19 +74,25 @@ export class MainPanelView extends view.View<any> {
 
                         this.div({
                             class: 'heading-summary',
-                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 700px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 800px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
 
                         this.div({
                             class: 'heading-buttons pull-right',
-                            style: 'width:15px; display:inline-block'
+                            style: 'width:50px; display:inline-block'
                         }, () => {
                                 this.span({
                                     class: 'heading-fold icon-unfold',
-                                    style: 'cursor: pointer',
+                                    style: 'cursor: pointer; margin-right:10px',
                                     outlet: 'btnFold',
                                     click: 'toggle'
+                                });
+                                this.span({
+                                    class: 'heading-fold icon-sync',
+                                    style: 'cursor: pointer',
+                                    outlet: 'btnSoftReset',
+                                    click: 'softReset'
                                 });
                             });
 
@@ -93,7 +101,7 @@ export class MainPanelView extends view.View<any> {
                             style: 'display: none; color:red',
                             outlet: 'buildProgress'
                         });
-                        this.span({ class: 'pull-right', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
+                        this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
                             this.span({
                                 outlet: 'txtPendingCount'
                             });
@@ -129,6 +137,25 @@ export class MainPanelView extends view.View<any> {
 
         this.referencesPanelBtn.html(`${panelHeaders.references} ( <span class="text-success">No Search</span> )`)
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>')
+    }
+
+    softReset() {
+        var editor = atom.workspace.getActiveTextEditor();
+        var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
+            .then(() => {
+                
+        });
+        if (atomUtils.onDiskAndTs(editor)) {
+            prom.then(() => {
+                // also invalidate linter
+                atom.commands.dispatch(
+                    atom.views.getView(atom.workspace.getActiveTextEditor()),
+                    'linter:lint');
+
+                return parent.errorsForFile({ filePath: editor.getPath() })
+            })
+                .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        }
     }
 
     ///////////// Pending Requests
@@ -385,4 +412,63 @@ export function show() {
 export function hide() {
     if (!panelView) return;
     panelView.$.hide();
+}
+
+
+export module errorView {
+    var filePathErrors: utils.Dict<TSError[]> = new utils.Dict<any[]>();
+
+    export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
+        if (!errorsForFile.length) filePathErrors.clearValue(filePath);
+        else {
+            // Currently we are limiting errors
+            // To many errors crashes our display
+            if (errorsForFile.length > 50) errorsForFile = errorsForFile.slice(0, 50);
+
+            filePathErrors.setValue(filePath, errorsForFile)
+        };
+
+        // TODO: this needs to be optimized at some point
+        panelView.clearError();
+
+        var fileErrorCount = filePathErrors.keys().length;
+
+        // Update the errors list for goto history
+        gotoHistory.errorsInOpenFiles.members = [];
+
+        if (!fileErrorCount) {
+            panelView.setErrorPanelErrorCount(0, 0);
+        }
+        else {
+            var totalErrorCount = 0;
+            for (var path in filePathErrors.table) {
+                filePathErrors.getValue(path).forEach((error: TSError) => {
+                    totalErrorCount++;
+                    panelView.addError(new lineMessageView.LineMessageView({
+                        goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles),
+                        message: error.message,
+                        line: error.startPos.line + 1,
+                        col: error.startPos.col,
+                        file: error.filePath,
+                        preview: error.preview
+                    }));
+                    // Update the errors list for goto history
+                    gotoHistory.errorsInOpenFiles.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
+                });
+            }
+            panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);
+        }
+    };
+
+    export function showEmittedMessage(output: EmitOutput) {
+        if (output.success) {
+            var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
+            atomUtils.quickNotifySuccess(message);
+        } else if (output.emitError) {
+            atom.notifications.addError('TS Emit Failed');
+        } else {
+            atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
+        }
+    }
+
 }

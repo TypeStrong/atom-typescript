@@ -6,7 +6,6 @@
 import parent = require('../../worker/parent'); ///ts:import:generated
 ///ts:import=atomConfig
 import atomConfig = require('./atomConfig'); ///ts:import:generated
-import ts = require('typescript');
 import fs = require('fs');
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated

@@ -1,8 +1,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
@@ -11,7 +10,6 @@ import parent = require('../../worker/parent'); ///ts:import:generated
 
 import path = require('path');
 import fs = require('fs');
-import ts = require('typescript');
 import emissary = require('emissary');
 var Subscriber = emissary.Subscriber;
 import tooltipView = require('./views/tooltipView');

@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 ///ts:import=atomConfig
 import atomConfig = require('./atomConfig'); ///ts:import:generated
@@ -7,8 +6,7 @@ import atomConfig = require('./atomConfig'); ///ts:import:generated
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 
-///ts:import=errorView
-import errorView = require('./errorView'); ///ts:import:generated
+import {errorView, show} from "./views/mainPanelView";
 
 ///ts:import=debugAtomTs
 import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated
@@ -19,13 +17,21 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
 
     // Refresh errors for file
     textUpdated.then(() => {
+        // also invalidate linter
+        atom.commands.dispatch(
+            atom.views.getView(atom.workspace.getActiveTextEditor()),
+            'linter:lint');
+
         parent.errorsForFile({ filePath: event.filePath })
             .then((resp) => errorView.setErrors(event.filePath, resp.errors));
     })
 
+    show();
+
     // Compile on save
     parent.getProjectFileDetails({ filePath: event.filePath }).then(fileDetails => {
         if (!fileDetails.project.compileOnSave) return;
+        if (fileDetails.project.compilerOptions.out) return;
 
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
             .then((res) => errorView.showEmittedMessage(res));

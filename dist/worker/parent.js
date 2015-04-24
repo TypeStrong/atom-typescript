@@ -1,5 +1,3 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
 var debug_1 = require("./debug");
 var childprocess = require('child_process');
 var exec = childprocess.exec;
@@ -66,5 +64,6 @@ exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 exports.getOutput = parent.sendToIpc(projectService.getOutput);
+exports.softReset = parent.sendToIpc(projectService.softReset);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

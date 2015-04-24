@@ -1,6 +1,3 @@
-///ts:ref=globals
-/// <reference path="../../../globals.ts"/> ///ts:ref:generated
-var ts = require('typescript');
 exports.languageServiceHost = require('./languageServiceHost2');
 var Project = (function () {
     function Project(projectFile) {

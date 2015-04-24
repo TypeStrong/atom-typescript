@@ -87,3 +87,10 @@
                 $3
             }
         """
+    'forin':
+        'prefix': 'forin'
+        'body': """
+            for (let ${2:key} in ${1:iterable}) {
+                $3
+            }
+        """

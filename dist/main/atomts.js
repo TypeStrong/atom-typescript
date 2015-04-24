@@ -1,9 +1,9 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
+var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
+makeTypeScriptGlobal_1.makeTsGlobal();
 var path = require('path');
 var fs = require('fs');
 var apd = require('atom-package-dependencies');
-var errorView = require('./atom/errorView');
+var mainPanelView_1 = require("./atom/views/mainPanelView");
 var autoCompleteProvider = require('./atom/autoCompleteProvider');
 var tooltipManager = require('./atom/tooltipManager');
 var atomUtils = require('./atom/atomUtils');
@@ -25,7 +25,7 @@ exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
     var editor = atom.workspace.getActiveTextEditor();
-    if (editor && editor.getGrammar() && editor.getGrammar().name !== 'TypeScript') {
+    if (!atomUtils.onDiskAndTs(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -38,9 +38,7 @@ function readyToActivate() {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
-                .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
-        }
-        if (atomUtils.isTs(editor)) {
+                .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
             mainPanelView.show();
         }
         else {
@@ -64,16 +62,16 @@ function readyToActivate() {
                 if (onDisk) {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
-                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
                 }
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
                         var root = { line: 0, col: 0 };
-                        errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
+                        mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
                     parent.errorsForFile({ filePath: filePath })
-                        .then(function (resp) { return errorView.setErrors(filePath, resp.errors); });
+                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
@@ -96,7 +94,7 @@ function readyToActivate() {
                     onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
                 var destroyObserver = editor.onDidDestroy(function () {
-                    errorView.setErrors(filePath, []);
+                    mainPanelView_1.errorView.setErrors(filePath, []);
                     changeObserver.dispose();
                     fasterChangeObserver.dispose();
                     saveObserver.dispose();

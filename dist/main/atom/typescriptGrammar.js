@@ -1,12 +1,13 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+// Help:
+// https://github.com/atom/first-mate/
+// https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
+// https://github.com/p-e-w/language-javascript-semantic/blob/master/lib/javascript-semantic-grammar.coffee
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var ts = require('typescript');
 var TokenClass = ts.TokenClass;
 global.AtomTSBaseGrammar = require(atom.config.resourcePath + "/node_modules/first-mate/lib/grammar.js");
 var TypeScriptSemanticGrammar = (function (_super) {
@@ -59,13 +60,13 @@ var TypeScriptSemanticGrammar = (function (_super) {
         var matches = line.match(this.fullTripleSlashReferencePathRegEx);
         if (matches[3]) {
             var path = matches[3];
-            if (line.search('"' + path + '"') != -1) {
+            if (line.indexOf('"' + path + '"') != -1) {
                 path = '"' + path + '"';
             }
             else {
                 path = "'" + path + "'";
             }
-            var startPosition = line.search(path);
+            var startPosition = line.indexOf(path);
             var endPosition = startPosition + path.length;
             var atomTokens = [];
             atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));

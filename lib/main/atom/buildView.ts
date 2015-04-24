@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 ///ts:import=utils
 import utils = require('../lang/utils'); ///ts:import:generated

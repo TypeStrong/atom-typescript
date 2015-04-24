@@ -13,7 +13,6 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`compilerOptions`](https://github.com/TypeStrong/atom-typescript/blob/e2fa67c4715189b71430f766ed9a92d9fb3255f9/lib/main/tsconfig/tsconfig.ts#L8-L35): similar to what you would pass on the commandline to `tsc`.
   * One exception : [We don't support `--out` because it will hurt you in the long run, and we will warn you if you use it](https://github.com/TypeStrong/atom-typescript/blob/master/docs/out.md).
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
-* [`package`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#package): The path to a package.json. We can use this to generate a *.d.ts* file for your project using `name`, `main` and `typescript.definition`.
 * [`formatCodeOptions`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatcodeoptions) : Code formatting options
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
 * [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version): The TypeScript version
@@ -49,27 +48,6 @@ Note: `files` is kept up to date by expansion of `filesGlob`.
     ]
 }
 ```
-
-### package
-
-```json
-{
-    "package": "./package.json"
-}
-```
-
-Where a sample package.json looks like:
-```json
-{
-    "name": "awesome",
-    "main": "./dist/foo.js",
-    "typescript": {
-        "definition": "./definition/awesome.d.ts"
-    }
-}
-```
-
-We would generate a `definition/awesome.d.ts` file for you so that other TypeScript projects can do a simple `require('awesome')`.
 
 ### formatCodeOptions
 These are used when you request the IDE to format TypeScript code.

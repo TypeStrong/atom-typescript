@@ -9,5 +9,12 @@ We only plan strictly document the breaking changes. The rest is optional.
 # v2
 * New default shortcuts for `build` : `F6` an `goto definition`: `F12`. Because I don't want to mess with your atom defaults and a major use base is VS users. [Link #145](https://github.com/TypeStrong/atom-typescript/issues/145)
 
+# v3
+* We will now resolve a parent `package.json` for you *automatically* so that its *one less thing you need to configure*. :rose:
+
+# v4
+* Removed `dts-generator` support. Reason is that it pollutes the global namespace and is no longer the recommended way for sharing TypeScript code. See https://github.com/Microsoft/TypeScript/issues/2338 for the way forward.
+
 # Planned
-* No breaking changes yet.
+[](* No breaking changes yet.)
+* Remove `dts-generator` support as TypeScript will have a better module sharing story out of the box.

@@ -6,9 +6,6 @@
 // Inspired by `ts.forEachChild`:
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 
-import * as ts from "typescript";
-import {SyntaxKind, Node} from "typescript";
-
 export function astToText(srcFile: ts.Node) {
 
     //// A useful function for debugging

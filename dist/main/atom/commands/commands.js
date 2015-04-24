@@ -264,7 +264,7 @@ function registerCommands() {
     });
     atom.workspace.addOpener(function (uri, details) {
         try {
-            var protocol = (url.parse(uri)).protocol;
+            var protocol = url.parse(uri).protocol;
         }
         catch (error) {
             return;
@@ -276,7 +276,7 @@ function registerCommands() {
     });
     atom.workspace.addOpener(function (uri, details) {
         try {
-            var protocol = (url.parse(uri)).protocol;
+            var protocol = url.parse(uri).protocol;
         }
         catch (error) {
             return;
@@ -300,7 +300,7 @@ function registerCommands() {
     });
     atom.workspace.addOpener(function (uri, details) {
         try {
-            var protocol = (url.parse(uri)).protocol;
+            var protocol = url.parse(uri).protocol;
         }
         catch (error) {
             return;
@@ -350,6 +350,11 @@ function registerCommands() {
                 }
             }, editor);
         });
+    });
+    atom.commands.add('atom-workspace', 'typescript:sync', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        mainPanelView_1.panelView.softReset();
     });
 }
 exports.registerCommands = registerCommands;

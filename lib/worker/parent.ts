@@ -1,6 +1,3 @@
-///ts:ref=globals
-/// <reference path="../globals.ts"/> ///ts:ref:generated
-
 import {debug} from "./debug";
 
 import childprocess = require('child_process');
@@ -89,6 +86,7 @@ export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 export var getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 export var applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 export var getOutput = parent.sendToIpc(projectService.getOutput);
+export var softReset = parent.sendToIpc(projectService.softReset);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

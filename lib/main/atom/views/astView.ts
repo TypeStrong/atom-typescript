@@ -1,6 +1,5 @@
 import sp = require('atom-space-pen-views');
 import mainPanelView = require('./mainPanelView');
-import ts = require('typescript');
 import atomUtils = require("../atomUtils");
 import * as parent from "../../../worker/parent";
 import * as d3  from "d3";

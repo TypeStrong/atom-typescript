@@ -2,12 +2,10 @@
 var resolve = Promise.resolve.bind(Promise);
 var tsconfig = require('../main/tsconfig/tsconfig');
 var atomUtils;
-var errorView;
 var mainPanelView;
 try {
     require('atom');
     atomUtils = require('../main/atom/atomUtils');
-    errorView = require('../main/atom/errorView');
     mainPanelView = require('../main/atom/views/mainPanelView');
 }
 catch (ex) {
@@ -72,7 +70,7 @@ function setConfigurationError(query) {
             ];
         }
     }
-    errorView.setErrors(query.projectFilePath, errors);
+    mainPanelView.errorView.setErrors(query.projectFilePath, errors);
     return resolve({});
 }
 exports.setConfigurationError = setConfigurationError;

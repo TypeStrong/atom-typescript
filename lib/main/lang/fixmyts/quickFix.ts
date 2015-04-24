@@ -1,7 +1,6 @@
 /**
  * Interfaces for quick fixes
  */
-import ts = require("typescript");
 import project = require("../core/project");
 
 
@@ -53,6 +52,13 @@ export function getRefactoringsByFilePath(refactorings: Refactoring[]) {
         loc[refac.filePath].push(refac);
     }
 
-    // TODO: sort each of these in descending by start location
+    // sort each of these in descending by start location
+    for (let filePath in loc) {
+        let refactorings = loc[filePath];
+        refactorings.sort((a: Refactoring, b: Refactoring) => {
+            return (b.span.start - a.span.start);
+        });
+    }
+
     return loc;
 }

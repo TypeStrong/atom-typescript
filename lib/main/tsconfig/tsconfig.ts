@@ -1,5 +1,4 @@
-///ts:ref=globals
-/// <reference path="../../globals.ts"/> ///ts:ref:generated
+
 
 import simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
@@ -76,7 +75,6 @@ interface TypeScriptProjectRawSpecification {
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
-    package?: string;                                   // optional: Path to your package.json. If you specify this we can do some cool stuff like generate a .d.ts for you.
 }
 
 interface UsefulFromPackageJson {
@@ -93,6 +91,7 @@ interface UsefulFromPackageJson {
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
+    typings: string[]; // These are considered externs for .d.ts. Note : duplicated in files
     filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
@@ -107,6 +106,7 @@ export interface TypeScriptProjectFileDetails {
     /** The actual path of the project file (including tsconfig.json) */
     projectFilePath: string;
     project: TypeScriptProjectSpecification;
+    inMemory: boolean;
 }
 
 
@@ -143,13 +143,12 @@ function errorWithDetails<T>(error: Error, details: T): Error {
 import fs = require('fs');
 import path = require('path');
 import expand = require('glob-expand');
-import ts = require('typescript');
 import os = require('os');
 import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
-var typeScriptVersion = '1.4.1';
+var typeScriptVersion = '1.5.0-alpha';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -257,20 +256,25 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
 export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
 
+    var files = [srcFile];
+    var typings = getDefinitionsForNodeModules(dir, files);
+    files = increaseProjectForReferenceAndImports(project.files);
+    files = project.files.concat();
+    files = uniq(project.files.map(consistentPath));
+
     var project = {
         compilerOptions: defaults,
-        files: [srcFile],
+        files,
+        typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true
     };
-
-    project.files = increaseProjectForReferenceAndImports(project.files);
-    project.files = uniq(project.files.map(consistentPath));
 
     return {
         projectFileDirectory: dir,
         projectFilePath: dir + '/' + projectFileName,
         project: project,
+        inMemory: true
     };
 }
 
@@ -289,7 +293,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Keep going up till we find the project file
     var projectFile = '';
     try {
-        projectFile = travelUpTheDirectoryTreeTillYouFindFile(dir, projectFileName);
+        projectFile = travelUpTheDirectoryTreeTillYouFind(dir, projectFileName);
     }
     catch (e) {
         let err: Error = e;
@@ -342,17 +346,22 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
-    var packagePath = projectSpec.package;
     var package: UsefulFromPackageJson = null;
-    if (packagePath) {
-        let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
-        let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
-        package = {
-            main: parsedPackage.main,
-            name: parsedPackage.name,
-            directory: path.dirname(packageJSONPath),
-            definition: parsedPackage.typescript && parsedPackage.typescript.definition
-        };
+    try {
+        var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
+        if (packagePath) {
+            let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
+            let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
+            package = {
+                main: parsedPackage.main,
+                name: parsedPackage.name,
+                directory: path.dirname(packageJSONPath),
+                definition: parsedPackage.typescript && parsedPackage.typescript.definition
+            };
+        }
+    }
+    catch (ex) {
+        // console.error('no package.json found', projectFileDirectory, ex.message);
     }
 
     var project: TypeScriptProjectSpecification = {
@@ -361,7 +370,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
-        package
+        package,
+        typings: []
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
@@ -373,19 +383,16 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             );
     }
 
-    // Don't support `--out`
-    if (projectSpec.compilerOptions && projectSpec.compilerOptions.out) {
-        throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
-            new Error(errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS),
-            { projectFilePath: consistentPath(projectFile), errorMessage: "We don't support --out because it will hurt you in the long run." }
-            );
-    }
-
     // Convert the raw options to TS options
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
 
     // Expand files to include references
     project.files = increaseProjectForReferenceAndImports(project.files);
+
+    // Expand files to include node_modules / package.json / typescript.definition
+    var typings = getDefinitionsForNodeModules(dir, project.files);
+    project.files = project.files.concat(typings.implicit);
+    project.typings = typings.ours.concat(typings.implicit);
 
     // Normalize to "/" for all files
     // And take the uniq values
@@ -395,7 +402,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     return {
         projectFileDirectory: projectFileDirectory,
         projectFilePath: projectFileDirectory + '/' + projectFileName,
-        project: project
+        project: project,
+        inMemory: false
     };
 
 }
@@ -462,7 +470,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
             referenced.push(
                 preProcessedFileInfo.referencedFiles.map(fileReference => {
                     // We assume reference paths are always relative
-                    var file = path.resolve(dir, fileReference.fileName);
+                    var file = path.resolve(dir, consistentPath(fileReference.fileName));
                     // Try all three, by itself, .ts, .d.ts
                     if (fs.existsSync(file)) {
                         return file;
@@ -500,6 +508,109 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
     }
 
     return files;
+}
+
+/** There can be only one typing by name */
+interface Typings {
+    [name: string]: {
+        filePath: string;
+        /** Right now its just INF as we don't do version checks. First one wins! */
+        version: number; // (Simple : maj * 1000000 + min). Don't care about patch
+    };
+}
+
+/**
+ *  Spec
+ *  We will expand on files making sure that we don't have a `typing` with the same name
+ *  Also if two node_modules reference a similar sub project (and also recursively) then the one with latest `version` field wins
+ */
+function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ours: string[]; implicit: string[] } {
+
+    /** TODO use later when we care about versions */
+    function versionStringToNumber(version: string): number {
+        var [maj, min, patch] = version.split('.');
+        return parseInt(maj) * 1000000 + parseInt(min);
+    }
+
+    var typings: Typings = {};
+
+    // Find our `typings` (anything in a typings folder with extension `.d.ts` is considered a typing)
+    // These are INF powerful
+    var ourTypings = files
+        .filter(f=> path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
+        || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
+    ourTypings.forEach(f=> typings[path.basename(f)] = { filePath: f, version: Infinity });
+    var existing = createMap(files.map(consistentPath));
+
+    function addAllReferencedFilesWithMaxVersion(file: string) {
+        var dir = path.dirname(file);
+        try {
+            var content = fs.readFileSync(file).toString();
+        }
+        catch (ex) {
+            // if we cannot read a file for whatever reason just quit
+            return;
+        }
+        var preProcessedFileInfo = ts.preProcessFile(content, true);
+        var files = preProcessedFileInfo.referencedFiles.map(fileReference => {
+            // We assume reference paths are always relative
+            var file = path.resolve(dir, fileReference.fileName);
+            // Try by itself, .d.ts
+            if (fs.existsSync(file)) {
+                return file;
+            }
+            if (fs.existsSync(file + '.d.ts')) {
+                return file + '.d.ts';
+            }
+        });
+
+        // Only ones we don't have by name yet
+        // TODO: replace INF with an actual version
+        files = files
+            .filter(f => !typings[path.basename(f)] || typings[path.basename(f)].version > Infinity);
+        // Add these
+        files.forEach(f => typings[path.basename(f)] = { filePath: f, version: Infinity });
+        // Keep expanding
+        files.forEach(f=> addAllReferencedFilesWithMaxVersion(f));
+    }
+
+    // Keep going up till we find node_modules
+    // at that point read the `package.json` for each file in node_modules
+    // And then if that package.json has `typescript.definition` we import that file
+    try {
+        var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
+
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`
+        var moduleDirs = getDirs(node_modules);
+        for (let moduleDir of moduleDirs) {
+            var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
+            if (package_json.typescript) {
+                if (package_json.typescript.definition) {
+                    let file = path.resolve(moduleDir, './', package_json.typescript.definition);
+
+                    typings[path.basename(file)] = {
+                        filePath: file,
+                        version: Infinity
+                    };
+                    // Also add any files that this `.d.ts` references as long as they don't conflict with what we have
+                    addAllReferencedFilesWithMaxVersion(file);
+                }
+            }
+        }
+
+    }
+    catch (ex) {
+        // this is best effort only at the moment
+    }
+
+    var all = Object.keys(typings)
+        .map(typing => typings[typing].filePath)
+        .map(x=> consistentPath(x));
+    var implicit = all
+        .filter(x=> !existing[x]);
+    var ours = all
+        .filter(x=> existing[x]);
+    return { implicit, ours };
 }
 
 export function prettyJSON(object: any): string {
@@ -569,11 +680,23 @@ export function removeTrailingSlash(filePath: string) {
     return filePath;
 }
 
-/** returns the path if found or throws an error "not found" if not found */
-export function travelUpTheDirectoryTreeTillYouFindFile(dir: string, fileName: string): string {
+/**
+  * returns the path if found
+  * @throws an error "not found" if not found */
+export function travelUpTheDirectoryTreeTillYouFind(dir: string, fileOrDirectory: string,
+    /** This is useful if we don't want to file `node_modules from inside node_modules` */
+    abortIfInside = false): string {
     while (fs.existsSync(dir)) { // while directory exists
 
-        var potentialFile = dir + '/' + fileName;
+        var potentialFile = dir + '/' + fileOrDirectory;
+
+        /** This means that we were *just* in this directory */
+        if (before == potentialFile) {
+            if (abortIfInside) {
+                throw new Error("not found")
+            }
+        }
+
         if (fs.existsSync(potentialFile)) { // found it
             return potentialFile;
         }
@@ -591,4 +714,31 @@ export function getPotentiallyRelativeFile(basePath: string, filePath: string) {
         return consistentPath(path.resolve(basePath, filePath));
     }
     return consistentPath(filePath);
+}
+
+function getDirs(rootDir: string): string[] {
+    var files = fs.readdirSync(rootDir)
+    var dirs = []
+
+    for (var file of files) {
+        if (file[0] != '.') {
+            var filePath = `${rootDir}/${file}`
+        }
+        var stat = fs.statSync(filePath)
+
+        if (stat.isDirectory()) {
+            dirs.push(filePath)
+        }
+    }
+    return dirs
+}
+
+/**
+ * Create a quick lookup map from list
+ */
+export function createMap(arr: string[]): { [string: string]: boolean } {
+    return arr.reduce((result: { [string: string]: boolean }, key: string) => {
+        result[key] = true;
+        return result;
+    }, <{ [string: string]: boolean }>{});
 }

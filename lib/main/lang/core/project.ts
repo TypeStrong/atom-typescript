@@ -1,7 +1,5 @@
-///ts:ref=globals
-/// <reference path="../../../globals.ts"/> ///ts:ref:generated
 
-import ts = require('typescript');
+
 import path = require('path');
 import fs = require('fs');
 import os = require('os');

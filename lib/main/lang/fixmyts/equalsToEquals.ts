@@ -1,28 +1,25 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ts from "typescript";
 import * as ast from "./astUtils";
 import {EOL} from "os";
-import {displayPartsToString, typeToDisplayParts, SyntaxKind} from "typescript";
-
 
 class EqualsToEquals implements QuickFix {
     key = EqualsToEquals.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
-        if (info.positionNode.kind === SyntaxKind.EqualsEqualsToken) {
+        if (info.positionNode.kind === ts.SyntaxKind.EqualsEqualsToken) {
             return "Convert == to ===";
         }
-        if (info.positionNode.kind === SyntaxKind.ExclamationEqualsToken) {
+        if (info.positionNode.kind === ts.SyntaxKind.ExclamationEqualsToken) {
             return "Convert != to !==";
         }
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
 
-        if (info.positionNode.kind === SyntaxKind.EqualsEqualsToken) {
+        if (info.positionNode.kind === ts.SyntaxKind.EqualsEqualsToken) {
             var newText = '===';
         }
-        if (info.positionNode.kind === SyntaxKind.ExclamationEqualsToken) {
+        if (info.positionNode.kind === ts.SyntaxKind.ExclamationEqualsToken) {
             var newText = '!==';
         }
 
