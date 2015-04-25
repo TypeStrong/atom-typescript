@@ -101,7 +101,8 @@ export class MainPanelView extends view.View<any> {
                             style: 'display: none; color:red',
                             outlet: 'buildProgress'
                         });
-                        this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'display: none; width: 50px' }, () => {
+
+                        this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'width: 50px' }, () => {
                             this.span({
                                 outlet: 'txtPendingCount'
                             });
@@ -143,7 +144,7 @@ export class MainPanelView extends view.View<any> {
         var editor = atom.workspace.getActiveTextEditor();
         var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
             .then(() => {
-                
+
         });
         if (atomUtils.onDiskAndTs(editor)) {
             prom.then(() => {
@@ -166,8 +167,13 @@ export class MainPanelView extends view.View<any> {
         this.pendingRequests = pending;
         this.txtPendingCount.html(`<span class="text-highlight">${this.pendingRequests.length}</span>`);
 
-        if (pending.length) this.sectionPending.show();
-        else this.sectionPending.hide();
+        this.sectionPending.stop();
+        if (pending.length) {
+            this.sectionPending.fadeIn(500);
+        }
+        else {
+            this.sectionPending.fadeOut(200);
+        }
     }
 
     ///// Panel selection

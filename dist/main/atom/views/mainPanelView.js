@@ -87,7 +87,7 @@ var MainPanelView = (function (_super) {
                     style: 'display: none; color:red',
                     outlet: 'buildProgress'
                 });
-                _this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'display: none; width: 50px' }, function () {
+                _this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'width: 50px' }, function () {
                     _this.span({
                         outlet: 'txtPendingCount'
                     });
@@ -140,10 +140,13 @@ var MainPanelView = (function (_super) {
     MainPanelView.prototype.updatePendingRequests = function (pending) {
         this.pendingRequests = pending;
         this.txtPendingCount.html("<span class=\"text-highlight\">" + this.pendingRequests.length + "</span>");
-        if (pending.length)
-            this.sectionPending.show();
-        else
-            this.sectionPending.hide();
+        this.sectionPending.stop();
+        if (pending.length) {
+            this.sectionPending.fadeIn(500);
+        }
+        else {
+            this.sectionPending.fadeOut(200);
+        }
     };
     MainPanelView.prototype.errorPanelSelected = function (forceExpand) {
         if (forceExpand === void 0) { forceExpand = true; }
