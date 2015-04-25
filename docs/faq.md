@@ -17,7 +17,7 @@ This can happen particularly on windows as it is not possible to delete a file i
 
 ```
 apm uninstall atom-typescript
-apm install typescript
+apm install atom-typescript
 ```
 
 ## Failed to install
