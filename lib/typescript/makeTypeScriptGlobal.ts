@@ -1,5 +1,6 @@
 // Put the whole of `ts` namespace into the global `ts` variable
 // IMPORTANT!!!!!!!!!!!! `diagnosticInformationMap` needs to be before `commandLineParser`
+// Also a few files were missing that I added manually below
 var servicesFiles = [
     "../compiler/core.ts",
     "../compiler/sys.ts",
@@ -11,11 +12,14 @@ var servicesFiles = [
     "../compiler/checker.ts",
     "../compiler/emitter.ts",
     "../compiler/program.ts",
+    "../compiler/declarationEmitter.ts",
     "../compiler/diagnosticInformationMap.generated.ts",
     "../compiler/commandLineParser.ts",
     "breakpoints.ts",
+    "navigateTo.ts",
     "navigationBar.ts",
     "outliningElementsCollector.ts",
+    "patternMatcher.ts",
     "services.ts",
     "shims.ts",
     "signatureHelp.ts",
