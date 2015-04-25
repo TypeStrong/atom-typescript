@@ -46,6 +46,11 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Dependency View
 * Sync
 
+# FAQ
+Located online : https://github.com/TypeStrong/atom-typescript/blob/master/docs/faq.md
+
+----
+
 # Feature Details
 ## Auto Complete
 Internally using AutoComplete+. Just start typing and hints will show up. Or you can explicitly trigger it using `ctrl+space` or `cmd+space`. Press `tab` to make a selection.
