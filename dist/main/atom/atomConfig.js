@@ -17,7 +17,7 @@ var Config = (function () {
                 default: 'none'
             },
             typescriptServices: {
-                title: 'Full path to a custom `typescriptServices.js`',
+                title: 'Full path (including file name) to a custom `typescriptServices.js`',
                 type: 'string',
                 default: ''
             },
