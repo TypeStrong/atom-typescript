@@ -48,6 +48,7 @@ var files = servicesFiles.map(f=> `./services/${f.replace('.ts', '.js') }`);
 ////////////////////////////////// MAGIC
 import vm = require('vm');
 import fs = require('fs');
+import os = require('os');
 import path = require('path');
 
 global.stack = function() {
@@ -68,8 +69,11 @@ export function makeTsGlobal(typescriptServices?: string) {
         vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
     }
     else {
+        let fileContents = [];
+        files.forEach(f=> fileContents.push(fs.readFileSync(path.resolve(__dirname, f)).toString()));
+        let fileContent = fileContents.join(os.EOL);
         files.forEach(f=> {
-            vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);
+            vm.runInContext(fileContent, sandbox);
         });
     }
 

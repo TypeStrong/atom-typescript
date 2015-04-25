@@ -41,6 +41,7 @@ var servicesFiles = [
 var files = servicesFiles.map(function (f) { return ("./services/" + f.replace('.ts', '.js')); });
 var vm = require('vm');
 var fs = require('fs');
+var os = require('os');
 var path = require('path');
 global.stack = function () {
     console.error((new Error()).stack);
@@ -56,8 +57,11 @@ function makeTsGlobal(typescriptServices) {
         vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
     }
     else {
+        var fileContents = [];
+        files.forEach(function (f) { return fileContents.push(fs.readFileSync(path.resolve(__dirname, f)).toString()); });
+        var fileContent = fileContents.join(os.EOL);
         files.forEach(function (f) {
-            vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);
+            vm.runInContext(fileContent, sandbox);
         });
     }
     global.ts = sandbox.ts;
