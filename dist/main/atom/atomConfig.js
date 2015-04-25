@@ -15,10 +15,10 @@ var Config = (function () {
                 default: false
             },
             preferredQuoteCharacter: {
-                title: 'Preferred Quote Character',
+                title: 'Preferred quote character',
                 type: 'string',
                 default: '"'
-            }
+            },
         };
     }
     Object.defineProperty(Config.prototype, "debugAtomTs", {

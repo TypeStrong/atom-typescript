@@ -17,19 +17,13 @@ class Config {
             type: 'boolean',
             default: false
         },
-        modulePathToProjectRoot: {
-            title: 'Show module path suggestion relative to project root.',
-            type: 'boolean',
-            default: true
-        },
         preferredQuoteCharacter: {
             title: 'Preferred quote character',
             type: 'string',
-            default: 'none'
-        }
+            default: '"'
+        },
     }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
-    get modulePathToProjectRoot() { return getConfig<string>('modulePathToProjectRoot') }
     get preferredQuoteCharacter() { return getConfig<string>('preferredQuoteCharacter') }
 }
 var config = new Config();
