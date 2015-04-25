@@ -16,5 +16,4 @@ We only plan strictly document the breaking changes. The rest is optional.
 * Removed `dts-generator` support. Reason is that it pollutes the global namespace and is no longer the recommended way for sharing TypeScript code. See https://github.com/Microsoft/TypeScript/issues/2338 for the way forward.
 
 # Planned
-[](* No breaking changes yet.)
-* Remove `dts-generator` support as TypeScript will have a better module sharing story out of the box.
+(No breaking changes staged)
