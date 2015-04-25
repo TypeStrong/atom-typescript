@@ -17,7 +17,7 @@ var Config = (function () {
             preferredQuoteCharacter: {
                 title: 'Preferred quote character',
                 type: 'string',
-                default: '"'
+                default: 'none'
             },
         };
     }

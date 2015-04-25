@@ -222,7 +222,9 @@ export var provider: autocompleteplus.Provider = {
         if (options.suggestion.atomTS_IsReference
             || options.suggestion.atomTS_IsImport
             || options.suggestion.atomTS_IsES6Import) {
-            var quote = (/["']/.exec(atomConfig.preferredQuoteCharacter) || ['"'])[0];
+
+            // '' implies we will preserve their quote character
+            var quote = (/["']/.exec(atomConfig.preferredQuoteCharacter) || [''])[0];
 
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
@@ -234,6 +236,10 @@ export var provider: autocompleteplus.Provider = {
                 options.editor.selectToEndOfLine();
                 var groups = /^\s*import\s*(\w*)\s*=\s*require\s*\(\s*(["'])/.exec(options.editor.getSelectedText());
                 var alias = groups[1];
+
+                // Use the option if they have a preferred. Otherwise preserve
+                quote = quote || groups[2];
+
                 options.editor.replaceSelectedText(null, function() { return `import ${alias} = require(${quote}${options.suggestion.atomTS_IsImport.relativePath}${quote});`; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
@@ -241,6 +247,10 @@ export var provider: autocompleteplus.Provider = {
                 var originalText = (<any>options.editor).lineTextForBufferRow(row);
                 var groups = /(.*)from\s*(["'])/.exec(originalText);
                 var beforeFrom = groups[1];
+
+                // Use the option if they have a preferred. Otherwise preserve
+                quote = quote || groups[2];
+                
                 var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
                 options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom)
 

@@ -20,7 +20,7 @@ class Config {
         preferredQuoteCharacter: {
             title: 'Preferred quote character',
             type: 'string',
-            default: '"'
+            default: 'none'
         },
     }
     get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
