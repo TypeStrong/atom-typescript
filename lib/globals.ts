@@ -10,6 +10,9 @@
 /// <reference path="../views/views.d.ts"/>
 /// <reference path="./typings/atompromise.d.ts"/>
 
+/** Utility function to print stack trace from whereever */
+declare function stack();
+
 interface Function {
     name?: string; // exists for named function on node / atom / "good" browsers ;)
 }

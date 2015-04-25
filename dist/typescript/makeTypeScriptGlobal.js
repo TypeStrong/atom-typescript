@@ -39,8 +39,15 @@ var files = servicesFiles.map(function (f) { return ("./services/" + f.replace('
 var vm = require('vm');
 var fs = require('fs');
 var path = require('path');
+global.stack = function () {
+    console.error((new Error()).stack);
+};
 function makeTsGlobal() {
-    var sandbox = { ts: {} };
+    var sandbox = {
+        ts: {},
+        console: console,
+        stack: global.stack
+    };
     vm.createContext(sandbox);
     files.forEach(function (f) {
         vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);

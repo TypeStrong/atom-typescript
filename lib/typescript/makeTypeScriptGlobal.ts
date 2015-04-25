@@ -12,7 +12,7 @@ var servicesFiles = [
     "../compiler/emitter.ts",
     "../compiler/program.ts",
     "../compiler/diagnosticInformationMap.generated.ts",
-    "../compiler/commandLineParser.ts",    
+    "../compiler/commandLineParser.ts",
     "breakpoints.ts",
     "navigationBar.ts",
     "outliningElementsCollector.ts",
@@ -46,16 +46,23 @@ import vm = require('vm');
 import fs = require('fs');
 import path = require('path');
 
+global.stack = function(){
+    console.error((<any>new Error()).stack);
+}
 
 export function makeTsGlobal() {
-    // This is going to gather the ts module exports
-    var sandbox = { ts: {} };
+    var sandbox = {
+        // This is going to gather the ts module exports
+        ts: {},
+        console: console,
+        stack: global.stack
+    };
     vm.createContext(sandbox);
 
     files.forEach(f=> {
         vm.runInContext(fs.readFileSync(path.resolve(__dirname,f)).toString(), sandbox);
     });
-    
-    // Finally export ts to the global namespace
+
+    // Finally export ts to the local global namespace
     global.ts = sandbox.ts;
 }
