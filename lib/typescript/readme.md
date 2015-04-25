@@ -19,7 +19,9 @@ We list the files in `makeTypeScriptGlobal.ts`, these are basically the `tsconfi
 "../compiler/commandLineParser.ts",
 ```
 
-as `commandLineParser` depends on stuff from `compiler/diagnosticInformationMap.generated.ts`. We should report this to the TS team.
+as `commandLineParser` depends on stuff from `compiler/diagnosticInformationMap.generated.ts`. Also some files were not listed in the tsconfig.json so you will need to add those manually.
+
+Reported to TypeScript team : https://github.com/Microsoft/TypeScript/pull/2917
 
 
 # package.json TypeScript vs this
