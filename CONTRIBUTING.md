@@ -15,7 +15,7 @@ You still have to reload atom with `ctrl+alt+r` to test your changes.
 (Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
 ## Git
-You need to have git. Note on windows long file paths can be an issue so run: 
+You need to have git. Note on windows long file paths can be an issue so run:
 
 ```
 git config --system core.longpaths true
@@ -27,7 +27,7 @@ And use `Shift+Delete` to delete files if simple `delete` doesn't work.
 ## Publishing
 `apm publish minor`
 
-or `apm publish patch` depending on how you feel about your changes. 
+or `apm publish patch` depending on how you feel about your changes.
 
 Note: `apm publish major` must be justified with a corresponding change in changelog.md
 
@@ -72,8 +72,8 @@ We make this code `async`(and promise based) by:
 
 Advantage: you only need to define the query/response interface once (in `projectService.ts`) and write it in a testable `sync` manner. The parent code is never out of sync from the function definition (thanks to `childQuery`). Adding new functions is done is a typesafe way as you would write any other sync function + additionally using only one additional line of code in `parent.ts` (`childQuery`).
 
-## Getting the language service
-The TypeScript Language service : https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
+## Language Service Documentation
+The TypeScript Language service docs: https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
 
 ## Depending upon other atom packages
 There isn't a documented way : https://discuss.atom.io/t/depending-on-other-packages/2360/16
