@@ -46,11 +46,12 @@ import vm = require('vm');
 import fs = require('fs');
 import path = require('path');
 
-global.stack = function(){
+global.stack = function() {
     console.error((<any>new Error()).stack);
 }
 
-export function makeTsGlobal() {
+/** Makes the bundled typescript services global or (if passed in) a custom typescriptServices file */
+export function makeTsGlobal(typescriptServices?: string) {
     var sandbox = {
         // This is going to gather the ts module exports
         ts: {},
@@ -59,9 +60,14 @@ export function makeTsGlobal() {
     };
     vm.createContext(sandbox);
 
-    files.forEach(f=> {
-        vm.runInContext(fs.readFileSync(path.resolve(__dirname,f)).toString(), sandbox);
-    });
+    if (typescriptServices) {
+        vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
+    }
+    else {
+        files.forEach(f=> {
+            vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);
+        });
+    }
 
     // Finally export ts to the local global namespace
     global.ts = sandbox.ts;

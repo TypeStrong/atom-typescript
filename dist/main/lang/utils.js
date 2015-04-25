@@ -207,3 +207,12 @@ exports.debounce = debounce;
 ;
 var punctuations = createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
 exports.prefixEndsInPunctuation = function (prefix) { return prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]]; };
+var nameExtractor = new RegExp("return (.*);");
+function getName(nameLambda) {
+    var m = nameExtractor.exec(nameLambda + "");
+    if (m == null)
+        throw new Error("The function does not contain a statement matching 'return variableName;'");
+    var access = m[1].split('.');
+    return access[access.length - 1];
+}
+exports.getName = getName;

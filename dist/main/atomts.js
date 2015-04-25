@@ -1,5 +1,6 @@
+var atomConfig = require('./atom/atomConfig');
 var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
-makeTypeScriptGlobal_1.makeTsGlobal();
+makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
 var path = require('path');
 var fs = require('fs');
 var apd = require('atom-package-dependencies');
@@ -20,7 +21,6 @@ var statusBarMessage;
 var editorWatch;
 var autoCompleteWatch;
 var parent = require('../worker/parent');
-var atomConfig = require('./atom/atomConfig');
 exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {

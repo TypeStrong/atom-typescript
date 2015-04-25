@@ -1,4 +1,4 @@
-
+import {getName} from "../lang/utils";
 
 // Documentation https://atom.io/docs/api/v0.177.0/Config and http://json-schema.org/examples.html
 // To add a new setting you need to add to
@@ -6,8 +6,8 @@
 //    getter/setter
 
 var packageName = 'atom-typescript';
-function getConfig<T>(name: string): T {
-    return atom.config.get(packageName + '.' + name);
+function getConfig<T>(nameLambda: () => any): T {
+    return atom.config.get(packageName + '.' + getName(nameLambda));
 }
 
 class Config {
@@ -22,9 +22,15 @@ class Config {
             type: 'string',
             default: 'none'
         },
+        typescriptServices: {
+            title: 'Full path to a custom `typescriptServices.js`',
+            type: 'string',
+            default: ''
+        },
     }
-    get debugAtomTs() { return getConfig<boolean>('debugAtomTs') }
-    get preferredQuoteCharacter() { return getConfig<string>('preferredQuoteCharacter') }
+    get debugAtomTs() { return getConfig<boolean>(() => this.schema.debugAtomTs) }
+    get preferredQuoteCharacter() { return getConfig<string>(() => this.schema.preferredQuoteCharacter) }
+    get typescriptServices() { return getConfig<string>(() => this.schema.typescriptServices) }
 }
 var config = new Config();
 export = config;

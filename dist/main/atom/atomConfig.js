@@ -1,10 +1,7 @@
-// Documentation https://atom.io/docs/api/v0.177.0/Config and http://json-schema.org/examples.html
-// To add a new setting you need to add to
-//    schema
-//    getter/setter
+var utils_1 = require("../lang/utils");
 var packageName = 'atom-typescript';
-function getConfig(name) {
-    return atom.config.get(packageName + '.' + name);
+function getConfig(nameLambda) {
+    return atom.config.get(packageName + '.' + utils_1.getName(nameLambda));
 }
 var Config = (function () {
     function Config() {
@@ -19,15 +16,34 @@ var Config = (function () {
                 type: 'string',
                 default: 'none'
             },
+            typescriptServices: {
+                title: 'Full path to a custom `typescriptServices.js`',
+                type: 'string',
+                default: ''
+            },
         };
     }
     Object.defineProperty(Config.prototype, "debugAtomTs", {
-        get: function () { return getConfig('debugAtomTs'); },
+        get: function () {
+            var _this = this;
+            return getConfig(function () { return _this.schema.debugAtomTs; });
+        },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Config.prototype, "preferredQuoteCharacter", {
-        get: function () { return getConfig('preferredQuoteCharacter'); },
+        get: function () {
+            var _this = this;
+            return getConfig(function () { return _this.schema.preferredQuoteCharacter; });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Config.prototype, "typescriptServices", {
+        get: function () {
+            var _this = this;
+            return getConfig(function () { return _this.schema.typescriptServices; });
+        },
         enumerable: true,
         configurable: true
     });

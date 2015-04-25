@@ -6,6 +6,7 @@ var spawn = childprocess.spawn;
 
 import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
+import * as atomConfig from "../main/atom/atomConfig";
 
 var parent = new workerLib.Parent();
 import * as mainPanel from "../main/atom/views/mainPanelView";
@@ -22,7 +23,7 @@ if (debug) {
 }
 
 export function startWorker() {
-    parent.startWorker(__dirname + '/child.js', showError);
+    parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
     console.log('AtomTS worker started')
 }
 

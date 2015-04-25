@@ -42,16 +42,21 @@ var path = require('path');
 global.stack = function () {
     console.error((new Error()).stack);
 };
-function makeTsGlobal() {
+function makeTsGlobal(typescriptServices) {
     var sandbox = {
         ts: {},
         console: console,
         stack: global.stack
     };
     vm.createContext(sandbox);
-    files.forEach(function (f) {
-        vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);
-    });
+    if (typescriptServices) {
+        vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
+    }
+    else {
+        files.forEach(function (f) {
+            vm.runInContext(fs.readFileSync(path.resolve(__dirname, f)).toString(), sandbox);
+        });
+    }
     global.ts = sandbox.ts;
 }
 exports.makeTsGlobal = makeTsGlobal;

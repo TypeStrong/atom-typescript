@@ -120,12 +120,12 @@ var Parent = (function (_super) {
         this.getProcess = function () { return _this.child; };
         this.stopped = false;
     }
-    Parent.prototype.startWorker = function (childJsPath, terminalError) {
+    Parent.prototype.startWorker = function (childJsPath, terminalError, customArguments) {
         var _this = this;
         try {
             this.child = spawn(this.node, [
                 childJsPath
-            ], { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
+            ].concat(customArguments), { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
             this.child.on('error', function (err) {
                 if (err.code === "ENOENT" && err.path === _this.node) {
                     _this.gotENOENTonSpawnNode = true;
@@ -152,14 +152,14 @@ var Parent = (function (_super) {
                 console.log('ts worker exited with code:', code);
                 if (code === orphanExitCode) {
                     console.log('ts worker restarting');
-                    _this.startWorker(childJsPath, terminalError);
+                    _this.startWorker(childJsPath, terminalError, customArguments);
                 }
                 else if (_this.gotENOENTonSpawnNode) {
                     terminalError(new Error('gotENOENTonSpawnNode'));
                 }
                 else {
                     console.log('ts worker restarting');
-                    _this.startWorker(childJsPath, terminalError);
+                    _this.startWorker(childJsPath, terminalError, customArguments);
                 }
             });
         }

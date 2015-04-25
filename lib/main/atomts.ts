@@ -1,5 +1,6 @@
+import atomConfig = require('./atom/atomConfig');
 import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
-makeTsGlobal();
+makeTsGlobal(atomConfig.typescriptServices);
 
 import path = require('path');
 import fs = require('fs');
@@ -44,7 +45,6 @@ export interface PackageState {
 import parent = require('../worker/parent');
 
 // Export config
-import atomConfig = require('./atom/atomConfig');
 export var config = atomConfig.schema;
 import {debounce} from "./lang/utils";
 
@@ -59,7 +59,7 @@ var hideIfNotActiveOnStart = debounce(() => {
 
 /** only called once we have our dependencies */
 function readyToActivate() {
-    
+
     // Add the documentation view
     documentationView.attach();
 

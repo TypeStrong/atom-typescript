@@ -50,7 +50,7 @@ class RequesterResponder {
     private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
     /** TODO: Display this in the UI  */
     private pendingRequests: string[] = [];
-    public pendingRequestsChanged = (pending:string[]) => null;
+    public pendingRequestsChanged = (pending: string[]) => null;
 
     /** process a message from the child */
     protected processResponse(m: any) {
@@ -69,7 +69,7 @@ class RequesterResponder {
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
                 console.log(parsed.error);
-                console.log(parsed.error.stack);                
+                console.log(parsed.error.stack);
             }
             else {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
@@ -174,12 +174,12 @@ export class Parent extends RequesterResponder {
     private stopped = false;
 
     /** start worker */
-    startWorker(childJsPath: string, terminalError: (e: Error) => any) {
+    startWorker(childJsPath: string, terminalError: (e: Error) => any, customArguments: string[]) {
         try {
             this.child = spawn(this.node, [
             // '--debug', // Uncomment if you want to debug the child process
                 childJsPath
-            ], { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
+            ].concat(customArguments), { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
 
             this.child.on('error', (err) => {
                 if (err.code === "ENOENT" && err.path === this.node) {
@@ -213,7 +213,7 @@ export class Parent extends RequesterResponder {
                 // If orphaned then Definitely restart
                 if (code === orphanExitCode) {
                     console.log('ts worker restarting');
-                    this.startWorker(childJsPath, terminalError);
+                    this.startWorker(childJsPath, terminalError, customArguments);
                 }
                 // If we got ENOENT. Restarting will not help.
                 else if (this.gotENOENTonSpawnNode) {
@@ -222,7 +222,7 @@ export class Parent extends RequesterResponder {
                 // We haven't found a reson to not start worker yet
                 else {
                     console.log('ts worker restarting');
-                    this.startWorker(childJsPath, terminalError);
+                    this.startWorker(childJsPath, terminalError, customArguments);
                 }
             });
         } catch (err) {

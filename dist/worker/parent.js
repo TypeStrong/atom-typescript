@@ -3,6 +3,7 @@ var childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 var workerLib = require('./lib/workerLib');
+var atomConfig = require("../main/atom/atomConfig");
 var parent = new workerLib.Parent();
 var mainPanel = require("../main/atom/views/mainPanelView");
 parent.pendingRequestsChanged = function (pending) {
@@ -14,7 +15,7 @@ if (debug_1.debug) {
     parent.sendToIpc = function (x) { return x; };
 }
 function startWorker() {
-    parent.startWorker(__dirname + '/child.js', showError);
+    parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
     console.log('AtomTS worker started');
 }
 exports.startWorker = startWorker;
