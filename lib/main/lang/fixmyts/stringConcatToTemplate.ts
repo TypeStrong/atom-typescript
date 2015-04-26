@@ -13,6 +13,9 @@ function isBinaryAddition(node: ts.Node): boolean {
  */
 function isStringExpression(node: ts.Node, typeChecker: ts.TypeChecker): boolean {
     var type = typeChecker.getTypeAtLocation(node);
+    // Note:
+    // type.instrinsicName = 'string'
+    // But I can't get that to typecheck
     return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)) == 'string';
 }
 
