@@ -694,10 +694,12 @@ import AddImportStatement from "./fixmyts/addImportStatement";
 import EqualsToEquals from "./fixmyts/equalsToEquals";
 import QuotesToQuotes from "./fixmyts/quotesToQuotes";
 import QuotesToTemplate from "./fixmyts/quoteToTemplate";
+import StringConcatToTemplate from "./fixmyts/stringConcatToTemplate";
 var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new AddImportStatement(),
     new EqualsToEquals(),
+    new StringConcatToTemplate(),
     new QuotesToQuotes(),
     new QuotesToTemplate(),
 ];

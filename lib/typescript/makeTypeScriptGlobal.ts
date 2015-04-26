@@ -1,6 +1,7 @@
 // Put the whole of `ts` namespace into the global `ts` variable
 // IMPORTANT!!!!!!!!!!!! `diagnosticInformationMap` needs to be before `commandLineParser`
 // Also a few files were missing that I added manually below
+// TODO: replace with a glob that only takes into account the few file order we care about
 var servicesFiles = [
     "../compiler/core.ts",
     "../compiler/sys.ts",
