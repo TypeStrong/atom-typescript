@@ -4,7 +4,8 @@ function isBinaryAddition(node) {
 }
 function isStringExpression(node, typeChecker) {
     var type = typeChecker.getTypeAtLocation(node);
-    return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)) == 'string';
+    var flags = type.getFlags();
+    return !!(flags & 2);
 }
 function isAPartOfAChainOfStringAdditions(node, typeChecker) {
     var largestSumNode = undefined;
@@ -33,8 +34,42 @@ var StringConcatToTemplate = (function () {
         }
     };
     StringConcatToTemplate.prototype.provideFix = function (info) {
-        // Each expression that isn't a string literal will just be escaped
-        // Each string literal needs to be checked that it doesn't contain (`) and those need to be escaped
+        var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
+        var finalOutput = [];
+        var current = strRoot;
+        while (true) {
+            function appendToFinal(node) {
+                if (node.kind == 8) {
+                    var text = node.getText();
+                    var quoteCharacter = text.trim()[0];
+                    var nextQuoteCharacter = '`';
+                    var quoteRegex = new RegExp(quoteCharacter, 'g');
+                    var escapedQuoteRegex = new RegExp("\\\\" + quoteCharacter, 'g');
+                    var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g');
+                    var $regex = /$/g;
+                    var newText = text
+                        .replace(nextQuoteRegex, "\\" + nextQuoteCharacter)
+                        .replace(escapedQuoteRegex, quoteCharacter)
+                        .replace($regex, '\\$');
+                    newText = nextQuoteCharacter + newText.substr(1, newText.length - 2) + nextQuoteCharacter;
+                    finalOutput.unshift(newText);
+                }
+                else {
+                    finalOutput.unshift('${' + node.getText() + '}');
+                }
+            }
+            if (current.kind == 169) {
+                var binary = current;
+                appendToFinal(binary.right);
+                current = binary.left;
+            }
+            else {
+                appendToFinal(current);
+                break;
+            }
+        }
+        var finalString = finalOutput.join('');
+        console.error(finalString);
         return [];
     };
     return StringConcatToTemplate;

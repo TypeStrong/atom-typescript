@@ -8,25 +8,20 @@ function isBinaryAddition(node: ts.Node): boolean {
         (<ts.BinaryExpression>node).operatorToken.kind == ts.SyntaxKind.PlusToken);
 }
 
-/** TODO: Get the TypeScript team to review this
- * Lookup the docs on `symbol` as well
- */
 function isStringExpression(node: ts.Node, typeChecker: ts.TypeChecker): boolean {
     var type = typeChecker.getTypeAtLocation(node);
-    // Note:
-    // type.instrinsicName = 'string'
-    // But I can't get that to typecheck
-    return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)) == 'string';
+    var flags = type.getFlags();
+    return !!(flags & ts.TypeFlags.String);
 }
 
 /** Returns the root (binary +) node if there is some otherwise returns undefined */
-function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChecker): ts.Node {
+function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChecker): ts.BinaryExpression {
     // We are looking for the `largestSumNode`. Its set once we find one up our tree
-    var largestSumNode: ts.Node = undefined;
+    var largestSumNode: ts.BinaryExpression = undefined;
     while (true) {
         // Whenever we find a binary expression of type sum that evaluates to a string
         if (isBinaryAddition(node) && isStringExpression(node, typeChecker)) {
-            largestSumNode = node;
+            largestSumNode = <ts.BinaryExpression>node;
         }
 
         // We've gone too far up
@@ -38,7 +33,6 @@ function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChe
         node = node.parent;
     }
 }
-
 
 class StringConcatToTemplate implements QuickFix {
     key = StringConcatToTemplate.name;
@@ -57,10 +51,62 @@ class StringConcatToTemplate implements QuickFix {
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
+        var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
 
-        // Each expression that isn't a string literal will just be escaped
-        // Each string literal needs to be checked that it doesn't contain (`) and those need to be escaped
+        let finalOutput: string[] = [];
 
+        let current: ts.Node = strRoot;
+
+        // We pop of each left node one by one
+        while (true) {
+
+            function appendToFinal(node: ts.Node) {
+                // Each string literal needs :
+                // to be checked that it doesn't contain (`) and those need to be escaped.
+                // Also `$` needs escaping
+                // Also the quote characters at the limits need to be removed
+                if (node.kind == ts.SyntaxKind.StringLiteral) {
+                    let text = node.getText();
+                    let quoteCharacter = text.trim()[0];
+                    var nextQuoteCharacter = '`';
+
+                    var quoteRegex = new RegExp(quoteCharacter, 'g')
+                    var escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
+                    var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g');
+                    var $regex = /$/g;
+
+                    var newText = text
+                        .replace(nextQuoteRegex, `\\${nextQuoteCharacter}`)
+                        .replace(escapedQuoteRegex, quoteCharacter)
+                        .replace($regex, '\\$');
+
+                    newText = nextQuoteCharacter + newText.substr(1, newText.length - 2) + nextQuoteCharacter
+
+
+                    finalOutput.unshift(newText);
+                }
+                // Each expression that isn't a string literal will just be escaped `${}`
+                else {
+                    finalOutput.unshift('${' + node.getText() + '}');
+                }
+            }
+
+            // if we are still in some sequence of additions
+            if (current.kind == ts.SyntaxKind.BinaryExpression) {
+                let binary = <ts.BinaryExpression>current;
+                appendToFinal(binary.right);
+
+                // Continue with left
+                current = binary.left;
+            }
+            else {
+                appendToFinal(current);
+                break;
+            }
+        }
+
+        let finalString = finalOutput.join('');
+        console.error(finalString);
         return [];
 
         // var text = info.positionNode.getText();
