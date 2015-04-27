@@ -57,6 +57,10 @@ class StringConcatToTemplate implements QuickFix {
 
         let current: ts.Node = strRoot;
 
+        var backTickCharacter = '`';
+        var backTick = new RegExp(backTickCharacter, 'g');
+        var $regex = /\$/g;
+
         // We pop of each left node one by one
         while (true) {
 
@@ -68,21 +72,16 @@ class StringConcatToTemplate implements QuickFix {
                 if (node.kind == ts.SyntaxKind.StringLiteral) {
                     let text = node.getText();
                     let quoteCharacter = text.trim()[0];
-                    var nextQuoteCharacter = '`';
 
                     var quoteRegex = new RegExp(quoteCharacter, 'g')
                     var escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
-                    var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g');
-                    var $regex = /$/g;
 
                     var newText = text
-                        .replace(nextQuoteRegex, `\\${nextQuoteCharacter}`)
+                        .replace(backTick, `\\${backTickCharacter}`)
                         .replace(escapedQuoteRegex, quoteCharacter)
                         .replace($regex, '\\$');
 
-                    newText = nextQuoteCharacter + newText.substr(1, newText.length - 2) + nextQuoteCharacter
-
-
+                    newText = newText.substr(1, newText.length - 2);
                     finalOutput.unshift(newText);
                 }
                 // Each expression that isn't a string literal will just be escaped `${}`
@@ -105,36 +104,18 @@ class StringConcatToTemplate implements QuickFix {
             }
         }
 
-        let finalString = finalOutput.join('');
-        console.error(finalString);
-        return [];
+        let newText = backTickCharacter + finalOutput.join('') + backTickCharacter;
 
-        // var text = info.positionNode.getText();
-        // var quoteCharacter = text.trim()[0];
-        // var nextQuoteCharacter = '`';
-        //
-        // // The following code is same as `quotesToQuotes. Refactor!`
-        //
-        // var quoteRegex = new RegExp(quoteCharacter, 'g')
-        // var escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
-        // var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g')
-        //
-        // var newText = text
-        //     .replace(nextQuoteRegex, `\\${nextQuoteCharacter}`)
-        //     .replace(escapedQuoteRegex, quoteCharacter);
-        //
-        // newText = nextQuoteCharacter + newText.substr(1, newText.length - 2) + nextQuoteCharacter
-        //
-        // var refactoring: Refactoring = {
-        //     span: {
-        //         start: info.positionNode.getStart(),
-        //         length: info.positionNode.end - info.positionNode.getStart()
-        //     },
-        //     newText,
-        //     filePath: info.filePath
-        // };
-        //
-        // return [refactoring];
+        var refactoring: Refactoring = {
+            span: {
+                start: strRoot.getStart(),
+                length: strRoot.end - strRoot.getStart()
+            },
+            newText,
+            filePath: info.filePath
+        };
+
+        return [refactoring];
     }
 }
 

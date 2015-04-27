@@ -37,21 +37,21 @@ var StringConcatToTemplate = (function () {
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         var finalOutput = [];
         var current = strRoot;
+        var backTickCharacter = '`';
+        var backTick = new RegExp(backTickCharacter, 'g');
+        var $regex = /\$/g;
         while (true) {
             function appendToFinal(node) {
                 if (node.kind == 8) {
                     var text = node.getText();
                     var quoteCharacter = text.trim()[0];
-                    var nextQuoteCharacter = '`';
                     var quoteRegex = new RegExp(quoteCharacter, 'g');
                     var escapedQuoteRegex = new RegExp("\\\\" + quoteCharacter, 'g');
-                    var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g');
-                    var $regex = /$/g;
                     var newText = text
-                        .replace(nextQuoteRegex, "\\" + nextQuoteCharacter)
+                        .replace(backTick, "\\" + backTickCharacter)
                         .replace(escapedQuoteRegex, quoteCharacter)
                         .replace($regex, '\\$');
-                    newText = nextQuoteCharacter + newText.substr(1, newText.length - 2) + nextQuoteCharacter;
+                    newText = newText.substr(1, newText.length - 2);
                     finalOutput.unshift(newText);
                 }
                 else {
@@ -68,9 +68,16 @@ var StringConcatToTemplate = (function () {
                 break;
             }
         }
-        var finalString = finalOutput.join('');
-        console.error(finalString);
-        return [];
+        var newText = backTickCharacter + finalOutput.join('') + backTickCharacter;
+        var refactoring = {
+            span: {
+                start: strRoot.getStart(),
+                length: strRoot.end - strRoot.getStart()
+            },
+            newText: newText,
+            filePath: info.filePath
+        };
+        return [refactoring];
     };
     return StringConcatToTemplate;
 })();
