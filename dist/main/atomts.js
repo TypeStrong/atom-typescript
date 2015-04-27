@@ -16,6 +16,7 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var mainPanelView = require("./atom/views/mainPanelView");
+var editorSetup = require("./atom/editorSetup");
 var statusBar;
 var statusBarMessage;
 var editorWatch;
@@ -64,6 +65,7 @@ function readyToActivate() {
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
                         .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
                 }
+                editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (!onDisk) {
                         var root = { line: 0, col: 0 };

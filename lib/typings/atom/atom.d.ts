@@ -785,6 +785,7 @@ declare module AtomCore {
 		onDidChange(callback: Function): Disposable;
         onDidDestroy(callback: Function): Disposable;
         onDidStopChanging(callback: Function): Disposable;
+		onDidChangeCursorPosition(callback: Function): Disposable;
         onDidSave(callback: (event: { path: string }) => void): Disposable;
 
 		screenPositionForPixelPosition: Function;

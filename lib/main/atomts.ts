@@ -33,6 +33,8 @@ import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 import mainPanelView = require("./atom/views/mainPanelView");
 
+import editorSetup = require("./atom/editorSetup");
+
 // globals
 var statusBar;
 var statusBarMessage;
@@ -135,6 +137,9 @@ function readyToActivate() {
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
                 }
+
+                // Setup additional observers on the editor
+                editorSetup.setupEditor(editor);
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {

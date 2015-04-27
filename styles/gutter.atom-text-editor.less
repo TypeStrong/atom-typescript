@@ -4,10 +4,20 @@
 @import 'ui-variables';
 @import 'octicon-utf-codes';
 .gutter .line-number {
-    &.quickfix .icon-right {
-        visibility: visible;
-        &:before {
-            content: @tools;
-        }
+    background-size: 0px;
+    transition: background-size .5s;
+    &.quickfix
+    {
+        background-image: url(atom://atom-typescript/images/light-bulb.png);
+        background-size: @component-line-height / 1.5;
+        background-repeat: no-repeat;
+        background-position: right center;
     }
+    //// If the bright light ends up annoying people;
+    // .icon-right {
+    //     visibility: visible;
+    //     &:before {
+    //         content: @tools !important;
+    //     }
+    // }
 }

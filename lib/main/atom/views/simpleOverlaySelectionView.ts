@@ -74,9 +74,6 @@ export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
         this._overlayDecoration = this.editor.decorateMarker(this.editor.getLastCursor().getMarker(),
             { type: "overlay", position: "tail", item: this });
 
-        // this.editor.decorateMarker(this.editor.getLastCursor().getMarker(),
-        //     { type: "gutter", class: "quickfix" })
-
         /** I've need to do this timeout otherwise we don't get focus. I suspect its an artifact of creating an overlay decoration */
         // Comment this out if you want to test styles ;)
         setTimeout(() => this.focusFilterEditor(), 100);

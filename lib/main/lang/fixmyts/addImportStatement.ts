@@ -44,7 +44,7 @@ class AddImportStatement implements QuickFix {
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
 
         var { identifierName, file} = getIdentifierAndFileNames(relevantError, info.project);
-        return file ? `import ${identifierName}= require(\"${file}\")` : undefined;
+        return file ? `import ${identifierName} = require(\"${file}\")` : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
