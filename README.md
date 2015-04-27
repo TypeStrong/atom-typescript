@@ -136,6 +136,10 @@ Convert strings to template strings to get rid of those `\`
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToTemplate.gif)
 
+Convert string concatenations to a template string
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/stringConcatToTemplate.gif)
+
 `==` and `!=` (because typing another `=` is hard)
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)
