@@ -1,0 +1,13 @@
+// Based on lessons from :
+// https://github.com/AtomLinter/Linter/blob/master/styles/gutter.atom-text-editor.less
+// And the git package
+@import 'ui-variables';
+@import 'octicon-utf-codes';
+.gutter .line-number {
+    &.quickfix .icon-right {
+        visibility: visible;
+        &:before {
+            content: @tools;
+        }
+    }
+}
