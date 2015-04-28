@@ -50,3 +50,6 @@ https://atom.io/packages/find-selection who has time to bring up the find and re
 
 ### Pain Split
 https://atom.io/packages/pain-split a better pane splitting mechanism.
+
+### Styles
+[Here's my styles.less](https://gist.github.com/basarat/87d0a17a850b74a1cc07)
