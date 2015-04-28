@@ -71,6 +71,9 @@ exports.provider = {
             });
         }
         else {
+            if (options.prefix && options.prefix.trim() == ';') {
+                return Promise.resolve([]);
+            }
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
             var promisedSuggestions = parent.getCompletionsAtPosition({
                 filePath: filePath,
