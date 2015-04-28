@@ -140,7 +140,7 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
         // Rename file
         var editor = atom.workspace.getActiveTextEditor();
-        var matched = atomUtils.editorInKnownScope([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
+        var matched = atomUtils.editorInTheseScopes([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
         if (matched) {
             let relativePath = editor.getTextInRange(editor.bufferRangeForScopeAtCursor(matched)).replace(/['"]+/g, '');
             if (!utils.pathIsRelative(relativePath)) {

@@ -174,7 +174,7 @@ export var knownScopes = {
     es6import: 'es6import.path.string'
 }
 
-export function editorInKnownScope(matches: string[]) {
+export function editorInTheseScopes(matches: string[]) {
     var editor = atom.workspace.getActiveTextEditor();
     var scopes = editor.getCursorScopes();
     var lastScope = scopes[scopes.length - 1];

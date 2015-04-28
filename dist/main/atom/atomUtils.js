@@ -151,7 +151,7 @@ exports.knownScopes = {
     require: 'require.path.string',
     es6import: 'es6import.path.string'
 };
-function editorInKnownScope(matches) {
+function editorInTheseScopes(matches) {
     var editor = atom.workspace.getActiveTextEditor();
     var scopes = editor.getCursorScopes();
     var lastScope = scopes[scopes.length - 1];
@@ -160,7 +160,7 @@ function editorInKnownScope(matches) {
     else
         return '';
 }
-exports.editorInKnownScope = editorInKnownScope;
+exports.editorInTheseScopes = editorInTheseScopes;
 function getActiveEditor() {
     return atom.workspace.getActiveTextEditor();
 }
