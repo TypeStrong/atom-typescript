@@ -5,8 +5,10 @@ var fs = require('fs');
 var atomUtils = require('./atomUtils');
 var fuzzaldrin = require('fuzzaldrin');
 var CSON = require("season");
+var explicitlyTriggered = false;
 function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
+    explicitlyTriggered = true;
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
 var tsSnipPrefixLookup = Object.create(null);
@@ -71,8 +73,13 @@ exports.provider = {
             });
         }
         else {
-            if (options.prefix && options.prefix.trim() == ';') {
-                return Promise.resolve([]);
+            if (explicitlyTriggered) {
+                explicitlyTriggered = false;
+            }
+            else {
+                if (options.prefix && options.prefix.trim() == ';') {
+                    return Promise.resolve([]);
+                }
             }
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
             var promisedSuggestions = parent.getCompletionsAtPosition({

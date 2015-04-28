@@ -59,10 +59,12 @@ declare module autocompleteplus {
     }
 }
 
+var explicitlyTriggered = false;
 export function triggerAutocompletePlus() {
     atom.commands.dispatch(
         atom.views.getView(atom.workspace.getActiveTextEditor()),
         'autocomplete-plus:activate');
+    explicitlyTriggered = true;
 }
 
 // the structure stored in the CSON snippet file
@@ -164,8 +166,14 @@ export var provider: autocompleteplus.Provider = {
         }
         else {
 
-            if (options.prefix && options.prefix.trim() == ';') {
-                return Promise.resolve([]);
+            // if explicitly triggered reset the explicit nature
+            if (explicitlyTriggered) {
+                explicitlyTriggered = false;
+            }
+            else { // else in special cases for automatic triggering refuse to provide completions
+                if (options.prefix && options.prefix.trim() == ';') {
+                    return Promise.resolve([]);
+                }
             }
 
             var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
