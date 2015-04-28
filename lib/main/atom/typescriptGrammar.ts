@@ -195,7 +195,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string {
     switch (token.classification) {
         case TokenClass.Punctuation:
-            switch(str){
+            switch (str) {
                 case '{':
                     return "punctuation.section.scope.begin.ts";
                 case '}':
@@ -204,8 +204,10 @@ function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string
                     return "meta.brace.round.ts";
                 case '(':
                     return "meta.brace.round.ts";
+                case ';':
+                    return "punctuation.terminator.statement.ts";
                 default:
-                    return 'punctuation.terminator.statement.ts';
+                    return "punctuation";
             }
         case TokenClass.Keyword:
             switch (str) {

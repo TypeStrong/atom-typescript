@@ -146,8 +146,10 @@ function getAtomStyleForToken(token, str) {
                     return "meta.brace.round.ts";
                 case '(':
                     return "meta.brace.round.ts";
+                case ';':
+                    return "punctuation.terminator.statement.ts";
                 default:
-                    return 'punctuation.terminator.statement.ts';
+                    return "punctuation";
             }
         case TokenClass.Keyword:
             switch (str) {
