@@ -689,21 +689,7 @@ export function getDependencies(query: GetDependenciesQuery): Promise<GetDepende
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./fixmyts/quickFix";
 import * as qf from "./fixmyts/quickFix";
 import * as ast from "./fixmyts/astUtils";
-import AddClassMember from "./fixmyts/addClassMember";
-import AddImportStatement from "./fixmyts/addImportStatement";
-import EqualsToEquals from "./fixmyts/equalsToEquals";
-import QuotesToQuotes from "./fixmyts/quotesToQuotes";
-import QuotesToTemplate from "./fixmyts/quoteToTemplate";
-import StringConcatToTemplate from "./fixmyts/stringConcatToTemplate";
-var allQuickFixes: QuickFix[] = [
-    new AddClassMember(),
-    new AddImportStatement(),
-    new EqualsToEquals(),
-    new StringConcatToTemplate(),
-    new QuotesToQuotes(),
-    new QuotesToTemplate(),
-];
-
+import {allQuickFixes} from "./fixmyts/quickFixRegistry";
 function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQueryInformation {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);

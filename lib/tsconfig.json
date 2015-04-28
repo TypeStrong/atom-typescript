@@ -57,6 +57,7 @@
         "./main/lang/fixmyts/astUtils.ts",
         "./main/lang/fixmyts/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFix.ts",
+        "./main/lang/fixmyts/quickFixRegistry.ts",
         "./main/lang/fixmyts/quoteToTemplate.ts",
         "./main/lang/fixmyts/quotesToQuotes.ts",
         "./main/lang/fixmyts/stringConcatToTemplate.ts",
