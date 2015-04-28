@@ -43,7 +43,10 @@ exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
 exports.errorsForFileFiltered = catchCommonErrors(parent.sendToIpc(projectService.errorsForFileFiltered));
-exports.getCompletionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getCompletionsAtPosition));
+exports.getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
+    completions: [],
+    endsInPunctuation: false
+});
 exports.emitFile = catchCommonErrors(parent.sendToIpc(projectService.emitFile));
 exports.formatDocument = catchCommonErrors(parent.sendToIpc(projectService.formatDocument));
 exports.formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));

@@ -20,8 +20,24 @@ var RequesterResponder = (function () {
         var _this = this;
         this.getProcess = function () { throw new Error('getProcess is abstract'); return null; };
         this.currentListeners = {};
+        this.currentLastOfType = {};
         this.pendingRequests = [];
         this.pendingRequestsChanged = function (pending) { return null; };
+        this.sendToIpcHeart = function (data, message) {
+            if (!_this.getProcess()) {
+                console.log('PARENT ERR: no child when you tried to send :', message);
+                return Promise.reject(new Error("No worker active to recieve message: " + message));
+            }
+            if (!_this.currentListeners[message])
+                _this.currentListeners[message] = {};
+            var id = createId();
+            var defer = Promise.defer();
+            _this.currentListeners[message][id] = defer;
+            _this.pendingRequests.push(message);
+            _this.pendingRequestsChanged(_this.pendingRequests);
+            _this.getProcess().send({ message: message, id: id, data: data, request: true });
+            return defer.promise;
+        };
         this.responders = {};
         this.processRequest = function (m) {
             var parsed = m;
@@ -77,26 +93,41 @@ var RequesterResponder = (function () {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
             }
             delete this.currentListeners[parsed.message][parsed.id];
+            if (this.currentLastOfType[parsed.message]) {
+                var last = this.currentLastOfType[parsed.message];
+                delete this.currentLastOfType[parsed.message];
+                var lastPromise = this.sendToIpcHeart(last.data, parsed.message);
+                lastPromise.then(function (res) { return last.defer.resolve(res); }, function (rej) { return last.defer.reject(rej); });
+            }
         }
     };
     RequesterResponder.prototype.sendToIpc = function (func) {
         var _this = this;
-        var that = this;
+        var message = func.name;
+        return function (data) { return _this.sendToIpcHeart(data, message); };
+    };
+    RequesterResponder.prototype.sendToIpcOnlyLast = function (func, defaultResponse) {
+        var _this = this;
         return function (data) {
             var message = func.name;
-            if (!that.getProcess()) {
+            if (!_this.getProcess()) {
                 console.log('PARENT ERR: no child when you tried to send :', message);
                 return Promise.reject(new Error("No worker active to recieve message: " + message));
             }
-            if (!that.currentListeners[message])
-                _this.currentListeners[message] = {};
-            var id = createId();
-            var defer = Promise.defer();
-            that.currentListeners[message][id] = defer;
-            _this.pendingRequests.push(message);
-            _this.pendingRequestsChanged(_this.pendingRequests);
-            that.getProcess().send({ message: message, id: id, data: data, request: true });
-            return defer.promise;
+            if (!Object.keys(_this.currentListeners[message] || {}).length) {
+                return _this.sendToIpcHeart(data, message);
+            }
+            else {
+                if (_this.currentLastOfType[message]) {
+                    _this.currentLastOfType[message].defer.resolve(defaultResponse);
+                }
+                var defer = Promise.defer();
+                _this.currentLastOfType[message] = {
+                    data: data,
+                    defer: defer
+                };
+                return defer.promise;
+            }
         };
     };
     RequesterResponder.prototype.addToResponders = function (func) {

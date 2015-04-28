@@ -47,8 +47,13 @@ class RequesterResponder {
 
     ///////////////////////////////// REQUESTOR /////////////////////////
 
-    private currentListeners: { [messages: string]: { [id: string]: PromiseDeferred<any> } } = {};
-    /** TODO: Display this in the UI  */
+    private currentListeners: { [message: string]: { [id: string]: PromiseDeferred<any> } } = {};
+    
+    /** Only relevant when we only want the last of this type */    
+    private currentLastOfType: {
+        [message: string]: { data: any; defer: PromiseDeferred<any>; }
+    } = {};
+
     private pendingRequests: string[] = [];
     public pendingRequestsChanged = (pending: string[]) => null;
 
@@ -75,7 +80,38 @@ class RequesterResponder {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
             }
             delete this.currentListeners[parsed.message][parsed.id];
+            
+            // If there is current last one queued then that needs to be resurrected
+            if (this.currentLastOfType[parsed.message]) {
+                let last = this.currentLastOfType[parsed.message];
+                delete this.currentLastOfType[parsed.message];
+                let lastPromise = this.sendToIpcHeart(last.data, parsed.message);
+                lastPromise.then((res) => last.defer.resolve(res), (rej) => last.defer.reject(rej));
+            }
         }
+    }
+    
+    private sendToIpcHeart = (data, message) => {        
+
+        // If we don't have a child exit
+        if (!this.getProcess()) {
+            console.log('PARENT ERR: no child when you tried to send :', message);
+            return <any>Promise.reject(new Error("No worker active to recieve message: " + message));
+        }
+
+        // Initialize if this is the first call of this type
+        if (!this.currentListeners[message]) this.currentListeners[message] = {};
+
+        // Create an id unique to this call and store the defered against it
+        var id = createId();
+        var defer = Promise.defer<any>();
+        this.currentListeners[message][id] = defer;
+
+        // Send data to worker
+        this.pendingRequests.push(message);
+        this.pendingRequestsChanged(this.pendingRequests);
+        this.getProcess().send({ message: message, id: id, data: data, request: true });
+        return defer.promise;
     }
 
     /**
@@ -84,29 +120,48 @@ class RequesterResponder {
      * (will only work if the process on the other side has this function as a registered responder)
      */
     sendToIpc<Query, Response>(func: QRFunction<Query, Response>): QRFunction<Query, Response> {
-        var that = this; // Needed because of a bug in the TS compiler (Don't change the previous line to labmda ^ otherwise this becomes _this but _this=this isn't emitted)
+        var message = func.name;
+        return (data) => this.sendToIpcHeart(data, message);
+    }
+    
+    /** 
+     * If there are more than one pending then we only want the last one as they come in. 
+     * All others will get the default value
+     */
+    sendToIpcOnlyLast<Query, Response>(func: QRFunction<Query, Response>, defaultResponse: Response): QRFunction<Query, Response> {
         return (data) => {
             var message = func.name;
 
             // If we don't have a child exit
-            if (!that.getProcess()) {
+            if (!this.getProcess()) {
                 console.log('PARENT ERR: no child when you tried to send :', message);
                 return <any>Promise.reject(new Error("No worker active to recieve message: " + message));
             }
 
-            // Initialize if this is the first call of this type
-            if (!that.currentListeners[message]) this.currentListeners[message] = {};
-
-            // Create an id unique to this call and store the defered against it
-            var id = createId();
-            var defer = Promise.defer<Response>();
-            that.currentListeners[message][id] = defer;
-
-            // Send data to worker
-            this.pendingRequests.push(message);
-            this.pendingRequestsChanged(this.pendingRequests);
-            that.getProcess().send({ message: message, id: id, data: data, request: true });
-            return defer.promise;
+            // Allow if this is the only call of this type
+            if (!Object.keys(this.currentListeners[message] || {}).length) {
+                return this.sendToIpcHeart(data, message);
+            }
+            else {
+                // Note:
+                // The last needs to continue once the current one finishes
+                // That is done in our response handler
+                
+                
+                // If there is already something queued as last.
+                // Then it is no longer last and needs to be fed a default value
+                if (this.currentLastOfType[message]) {
+                    this.currentLastOfType[message].defer.resolve(defaultResponse);
+                }
+                
+                // this needs to be the new last
+                var defer = Promise.defer<Response>();
+                this.currentLastOfType[message] = {
+                    data: data,
+                    defer: defer
+                }
+                return defer.promise;
+            }
         };
     }
 
