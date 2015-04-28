@@ -20,8 +20,8 @@ export function setupEditor(editor: AtomCore.IEditor) {
             quickFixMarker = null;
         }
     }
-    var queryForQuickFix = debounce(() => {
-        parent.getQuickFixes(atomUtils.getFilePathPosition()).then(res=> {
+    var queryForQuickFix = debounce((filePathPosition) => {
+        parent.getQuickFixes(filePathPosition).then(res=> {
             clearExistingQuickfixDecoration();
             if (res.fixes.length) {
                 quickFixMarker = editor.markBufferRange(editor.getSelectedBufferRange());
@@ -31,7 +31,7 @@ export function setupEditor(editor: AtomCore.IEditor) {
         })
     }, 500);
     var cursorObserver = editor.onDidChangeCursorPosition(() => {
-        queryForQuickFix();
+        queryForQuickFix(atomUtils.getFilePathPosition());
     });
 
 

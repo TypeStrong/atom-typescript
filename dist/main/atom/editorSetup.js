@@ -14,8 +14,8 @@ function setupEditor(editor) {
             quickFixMarker = null;
         }
     }
-    var queryForQuickFix = utils_1.debounce(function () {
-        parent.getQuickFixes(atomUtils.getFilePathPosition()).then(function (res) {
+    var queryForQuickFix = utils_1.debounce(function (filePathPosition) {
+        parent.getQuickFixes(filePathPosition).then(function (res) {
             clearExistingQuickfixDecoration();
             if (res.fixes.length) {
                 quickFixMarker = editor.markBufferRange(editor.getSelectedBufferRange());
@@ -24,7 +24,7 @@ function setupEditor(editor) {
         });
     }, 500);
     var cursorObserver = editor.onDidChangeCursorPosition(function () {
-        queryForQuickFix();
+        queryForQuickFix(atomUtils.getFilePathPosition());
     });
     var destroyObserver = editor.onDidDestroy(function () {
         cursorObserver.dispose();
