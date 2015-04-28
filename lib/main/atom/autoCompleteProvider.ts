@@ -53,6 +53,7 @@ declare module autocompleteplus {
         inclusionPriority?: number;
         excludeLowerPriority?: boolean;
         selector: string;
+        disableForSelector?: string;
         getSuggestions: (options: RequestOptions) => Promise<Suggestion[]>;
         onDidInsertSuggestion?: (args: { editor: AtomCore.IEditor; triggerPosition: TextBuffer.IPoint; suggestion: Suggestion }) => any;
     }
@@ -250,7 +251,7 @@ export var provider: autocompleteplus.Provider = {
 
                 // Use the option if they have a preferred. Otherwise preserve
                 quote = quote || groups[2];
-                
+
                 var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
                 options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom)
 
