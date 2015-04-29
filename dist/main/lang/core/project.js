@@ -6,7 +6,7 @@ var Project = (function () {
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
     }
     Project.prototype.getProjectSourceFiles = function () {
-        var libFile = exports.languageServiceHost.defaultLibFile(this.projectFile.project.compilerOptions.target);
+        var libFile = exports.languageServiceHost.getDefaultLibFilePath(this.projectFile.project.compilerOptions);
         var files = this.languageService.getProgram().getSourceFiles().filter(function (x) { return x.fileName !== libFile; });
         return files;
     };

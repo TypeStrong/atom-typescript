@@ -118,8 +118,8 @@ function getScriptSnapShot(scriptInfo) {
         version: version
     };
 }
-exports.defaultLibFile = function (target) {
-    var filename = target === 2 ? "lib.es6.d.ts" : "lib.d.ts";
+exports.getDefaultLibFilePath = function (options) {
+    var filename = ts.getDefaultLibFileName(options);
     return (path.join(path.dirname(require.resolve('typescript')), filename)).split('\\').join('/');
 };
 exports.typescriptDirectory = path.dirname(require.resolve('typescript')).split('\\').join('/');
@@ -229,11 +229,11 @@ var LanguageServiceHost = (function () {
         this.getCurrentDirectory = function () {
             return _this.config.projectFileDirectory;
         };
-        this.getDefaultLibFileName = function () {
-            return _this.config.project.compilerOptions.target === 2 ? "lib.es6.d.ts" : "lib.d.ts";
-        };
+        this.getDefaultLibFileName = ts.getDefaultLibFileName;
         config.project.files.forEach(function (file) { return _this.addScript(file); });
-        this.addScript(exports.defaultLibFile(config.project.compilerOptions.target));
+        if (!config.project.compilerOptions.noLib) {
+            this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
+        }
     }
     return LanguageServiceHost;
 })();
