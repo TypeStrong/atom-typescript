@@ -25,6 +25,7 @@
         "./main/atom/autoCompleteProvider.ts",
         "./main/atom/buildView.ts",
         "./main/atom/commands/commands.ts",
+        "./main/atom/commands/moveFilesHandling.ts",
         "./main/atom/commands/outputFileCommands.ts",
         "./main/atom/debugAtomTs.ts",
         "./main/atom/editorSetup.ts",

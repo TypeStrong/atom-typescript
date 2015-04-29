@@ -17,8 +17,10 @@ var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
 var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
 var outputFileCommands = require("./outputFileCommands");
+var moveFilesHandling_1 = require("./moveFilesHandling");
 function registerCommands() {
     outputFileCommands.register();
+    moveFilesHandling_1.registerRenameHandling();
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;

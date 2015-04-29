@@ -922,6 +922,8 @@ declare module AtomCore {
 		replace(regex:any, replacementText:any, filePaths:any, iterator:any):Q.Promise<any>;
 		buildEditorForBuffer(buffer:any, editorOptions:any):IEditor;
 		eachBuffer(...args:any[]):any;
+
+        onDidChangePaths(callback: Function): Disposable;
 	}
 
 	interface IWorkspaceStatic {

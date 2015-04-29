@@ -18,11 +18,14 @@ import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/depe
 import simpleSelectionView from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
 import * as outputFileCommands from "./outputFileCommands";
+import {registerRenameHandling} from "./moveFilesHandling";
 
 export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
     outputFileCommands.register();
+
+    registerRenameHandling();
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
