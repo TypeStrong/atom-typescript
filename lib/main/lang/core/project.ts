@@ -22,7 +22,7 @@ export class Project {
 
     /** all files except lib.d.ts  */
     public getProjectSourceFiles(): ts.SourceFile[] {
-        var libFile = languageServiceHost.defaultLibFile(this.projectFile.project.compilerOptions.target);
+        var libFile = languageServiceHost.getDefaultLibFilePath(this.projectFile.project.compilerOptions);
         var files
             = this.languageService.getProgram().getSourceFiles().filter(x=> x.fileName !== libFile);
         return files;
