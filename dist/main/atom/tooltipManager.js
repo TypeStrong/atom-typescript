@@ -73,10 +73,12 @@ function attach(editorView, editor) {
             }
             else {
                 var message = "<b>" + escape(resp.name) + "</b>";
-                if (resp.comment)
-                    message = message + ("<br/><i>" + escape(resp.comment) + "</i>");
-                if (exprTypeTooltip)
+                if (resp.comment) {
+                    message = message + ("<br/><i>" + escape(resp.comment).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
+                }
+                if (exprTypeTooltip) {
                     exprTypeTooltip.updateText(message);
+                }
             }
         });
     }

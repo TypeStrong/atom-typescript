@@ -100,9 +100,13 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
             }
             else {
                 var message = `<b>${escape(resp.name) }</b>`;
-                if (resp.comment) message = message + `<br/><i>${escape(resp.comment) }</i>`;
+                if (resp.comment) {
+                    message = message + `<br/><i>${escape(resp.comment).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
+                }
                 // Sorry about this "if". It's in the code I copied so I guess its there for a reason
-                if (exprTypeTooltip) exprTypeTooltip.updateText(message);
+                if (exprTypeTooltip) {
+                    exprTypeTooltip.updateText(message);
+                }
             }
         });
     }
