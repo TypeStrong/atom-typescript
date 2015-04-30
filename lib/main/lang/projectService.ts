@@ -697,6 +697,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
+    var positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
     var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;
     var typeChecker = program.getTypeChecker();
@@ -707,6 +708,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         srcFile,
         fileErrors,
         positionErrors,
+        positionErrorMessages,
         position: query.position,
         positionNode,
         service,

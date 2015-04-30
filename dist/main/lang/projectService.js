@@ -1,4 +1,5 @@
 var path = require('path');
+var os = require('os');
 var fuzzaldrin = require('fuzzaldrin');
 var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
@@ -430,6 +431,7 @@ function getInfoForQuickFixAnalysis(query) {
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
+    var positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
     var positionNode = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;
     var typeChecker = program.getTypeChecker();
@@ -439,6 +441,7 @@ function getInfoForQuickFixAnalysis(query) {
         srcFile: srcFile,
         fileErrors: fileErrors,
         positionErrors: positionErrors,
+        positionErrorMessages: positionErrorMessages,
         position: query.position,
         positionNode: positionNode,
         service: service,

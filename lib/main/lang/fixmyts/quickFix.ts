@@ -19,6 +19,7 @@ export interface QuickFixQueryInformation {
     srcFile: ts.SourceFile;
     fileErrors: ts.Diagnostic[];
     positionErrors: ts.Diagnostic[];
+    positionErrorMessages: string[];
     position: number;
     positionNode: ts.Node;
     filePath: string;
