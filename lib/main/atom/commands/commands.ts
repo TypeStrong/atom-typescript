@@ -151,7 +151,7 @@ export function registerCommands() {
                 return;
             }
 
-            let completePath = path.resolve(atomUtils.getCurrentPath(), relativePath) + '.ts';
+            let completePath = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
             console.log(completePath);
 
             // TODO: query the projectService
@@ -172,7 +172,11 @@ export function registerCommands() {
                 onCommit: (newText) => {
                     newText = newText.trim();
 
-                    // TODO: use the query from projectService
+                    parent.getRenameFilesRefactorings({ oldPath: completePath, newPath: newText })
+                        .then((res)=>{
+                            // TODO: apply the refactorings
+
+                        });
                 }
             });
             atom.notifications.addInfo('AtomTS: File rename comming soon!');

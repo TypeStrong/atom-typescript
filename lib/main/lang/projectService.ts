@@ -777,3 +777,20 @@ export function softReset(query: SoftResetQuery): Promise<{}> {
     resetCache(query);
     return resolve({});
 }
+
+/**
+ * Get rename files refactorings
+ */
+import * as moveFiles from "./modules/moveFiles";
+export interface GetRenameFilesRefactoringsQuery {
+    oldPath: string;
+    newPath: string;
+}
+export function getRenameFilesRefactorings(query: GetRenameFilesRefactoringsQuery): Promise<ApplyQuickFixResponse> {
+    query.oldPath = tsconfig.consistentPath(query.oldPath);
+    query.newPath = tsconfig.consistentPath(query.newPath);
+    var project = getOrCreateProject(query.oldPath);
+    var res = moveFiles.getRenameFilesRefactorings(project.languageService.getProgram(), query.oldPath, query.newPath);
+    var refactorings = qf.getRefactoringsByFilePath(res);
+    return resolve({ refactorings });
+}

@@ -32,3 +32,36 @@ function getNodeByKindAndName(program, kind, name) {
     return found;
 }
 exports.getNodeByKindAndName = getNodeByKindAndName;
+function getSourceFileImports(srcFile) {
+    var modules = [];
+    getImports(srcFile, modules);
+    return modules;
+}
+exports.getSourceFileImports = getSourceFileImports;
+function getImports(searchNode, importedModules) {
+    ts.forEachChild(searchNode, function (node) {
+        if (node.kind === 209 || node.kind === 208 || node.kind === 215) {
+            var moduleNameExpr = getExternalModuleName(node);
+            if (moduleNameExpr && moduleNameExpr.kind === 8) {
+                importedModules.push(moduleNameExpr.text);
+            }
+        }
+        else if (node.kind === 205 && node.name.kind === 8) {
+            getImports(node.body, importedModules);
+        }
+    });
+}
+function getExternalModuleName(node) {
+    if (node.kind === 209) {
+        return node.moduleSpecifier;
+    }
+    if (node.kind === 208) {
+        var reference = node.moduleReference;
+        if (reference.kind === 219) {
+            return reference.expression;
+        }
+    }
+    if (node.kind === 215) {
+        return node.moduleSpecifier;
+    }
+}

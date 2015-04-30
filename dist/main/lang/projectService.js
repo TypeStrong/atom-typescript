@@ -1,5 +1,6 @@
 var path = require('path');
 var fuzzaldrin = require('fuzzaldrin');
+var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
 var resolve = Promise.resolve.bind(Promise);
 var projectCache_1 = require("./projectCache");
@@ -473,3 +474,13 @@ function softReset(query) {
     return resolve({});
 }
 exports.softReset = softReset;
+var moveFiles = require("./modules/moveFiles");
+function getRenameFilesRefactorings(query) {
+    query.oldPath = tsconfig.consistentPath(query.oldPath);
+    query.newPath = tsconfig.consistentPath(query.newPath);
+    var project = projectCache_1.getOrCreateProject(query.oldPath);
+    var res = moveFiles.getRenameFilesRefactorings(project.languageService.getProgram(), query.oldPath, query.newPath);
+    var refactorings = qf.getRefactoringsByFilePath(res);
+    return resolve({ refactorings: refactorings });
+}
+exports.getRenameFilesRefactorings = getRenameFilesRefactorings;

@@ -66,6 +66,7 @@
         "./main/lang/modules/building.ts",
         "./main/lang/modules/formatting.ts",
         "./main/lang/modules/getPathCompletions.ts",
+        "./main/lang/modules/moveFiles.ts",
         "./main/lang/modules/programDependencies.ts",
         "./main/lang/projectCache.ts",
         "./main/lang/projectService.ts",

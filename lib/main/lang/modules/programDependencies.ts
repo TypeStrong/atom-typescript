@@ -3,6 +3,7 @@ import {TypeScriptProjectFileDetails, pathIsRelative, consistentPath} from "../.
 import tsconfig = require("../../tsconfig/tsconfig");
 import * as path from "path";
 import * as fs from "fs";
+import {getSourceFileImports} from "../fixmyts/astUtils";
 
 export default function getDependencies(projectFile: TypeScriptProjectFileDetails, program: ts.Program): FileDependency[] {
     var links: FileDependency[] = [];
@@ -31,42 +32,4 @@ export default function getDependencies(projectFile: TypeScriptProjectFileDetail
         }
     }
     return links;
-}
-
-function getSourceFileImports(srcFile: ts.SourceFile) {
-    var modules: string[] = [];
-    getImports(srcFile, modules);
-    return modules;
-}
-
-// https://github.com/Microsoft/TypeScript/issues/2621#issuecomment-90986004
-function getImports(searchNode: ts.Node, importedModules: string[]) {
-    ts.forEachChild(searchNode, node => {
-        // Vist top-level import nodes
-        if (node.kind === ts.SyntaxKind.ImportDeclaration || node.kind === ts.SyntaxKind.ImportEqualsDeclaration || node.kind === ts.SyntaxKind.ExportDeclaration) {
-            let moduleNameExpr = getExternalModuleName(node);
-            // if they have a name, that is a string, i.e. not alias defition `import x = y`
-            if (moduleNameExpr && moduleNameExpr.kind === ts.SyntaxKind.StringLiteral) {
-                importedModules.push((<ts.LiteralExpression>moduleNameExpr).text);
-            }
-        }
-        else if (node.kind === ts.SyntaxKind.ModuleDeclaration && (<ts.ModuleDeclaration>node).name.kind === ts.SyntaxKind.StringLiteral) {
-            // Ambient module declaration
-            getImports((<ts.ModuleDeclaration>node).body, importedModules);
-        }
-    });
-}
-function getExternalModuleName(node: ts.Node): ts.Expression {
-    if (node.kind === ts.SyntaxKind.ImportDeclaration) {
-        return (<ts.ImportDeclaration>node).moduleSpecifier;
-    }
-    if (node.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
-        let reference = (<ts.ImportEqualsDeclaration>node).moduleReference;
-        if (reference.kind === ts.SyntaxKind.ExternalModuleReference) {
-            return (<ts.ExternalModuleReference>reference).expression;
-        }
-    }
-    if (node.kind === ts.SyntaxKind.ExportDeclaration) {
-        return (<ts.ExportDeclaration>node).moduleSpecifier;
-    }
 }

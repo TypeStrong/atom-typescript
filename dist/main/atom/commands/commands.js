@@ -120,7 +120,7 @@ function registerCommands() {
                 atom.notifications.addInfo('AtomTS: Can only rename external modules if they are relative files!');
                 return;
             }
-            var completePath = path.resolve(atomUtils.getCurrentPath(), relativePath) + '.ts';
+            var completePath = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
             console.log(completePath);
             renameView.panelView.renameThis({
                 autoSelect: false,
@@ -137,6 +137,10 @@ function registerCommands() {
                 },
                 onCommit: function (newText) {
                     newText = newText.trim();
+                    parent.getRenameFilesRefactorings({ oldPath: completePath, newPath: newText })
+                        .then(function (res) {
+                        // TODO: apply the refactorings
+                    });
                 }
             });
             atom.notifications.addInfo('AtomTS: File rename comming soon!');
