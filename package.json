@@ -34,7 +34,7 @@
     "glob-expand": "0.0.2",
     "mkdirp": "^0.5.0",
     "season": "^5.1.4",
-    "typescript": "https://github.com/Arnavion/typescript-github/tarball/2015-04-20-7f8e21b9b8656cd0345323f2ed05f97ac418584e",
+    "typescript": "1.5.0-beta",
     "escape-html": "^1.0.1",
     "atom-space-pen-views": "^2.0.4",
     "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb1.tar.gz",
