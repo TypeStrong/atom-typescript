@@ -87,6 +87,13 @@
                 $3
             }
         """
+    'forea':
+        'prefix': 'forea'
+        'body': """
+            ${1:iterable}.forEach(${2:variable} => {
+                $3
+            });
+        """
     'forin':
         'prefix': 'forin'
         'body': """
