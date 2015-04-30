@@ -8,16 +8,30 @@ function getRenameFilesRefactorings(program, oldDirectoryOrFile, newDirectoryOrF
     oldDirectoryOrFile = tsconfig_1.consistentPath(oldDirectoryOrFile);
     newDirectoryOrFile = tsconfig_1.consistentPath(newDirectoryOrFile);
     var oldFileNoExt = tsconfig_1.removeExt(oldDirectoryOrFile);
+    var newFileNoExt = tsconfig_1.removeExt(newDirectoryOrFile);
     var refactorings = [];
     var sourceFiles = program.getSourceFiles();
     sourceFiles.forEach(function (sourceFile) {
-        var imports = astUtils_1.getSourceFileImports(sourceFile)
-            .filter(function (fileReference) { return tsconfig_1.pathIsRelative(fileReference); })
-            .map(function (ref) { return tsconfig_1.consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref)); });
-        var matches = imports.filter(function (f) { return f == oldFileNoExt; });
+        var imports = astUtils_1.getSourceFileImportsWithTextRange(sourceFile)
+            .filter(function (fileReference) { return tsconfig_1.pathIsRelative(fileReference.text); })
+            .map(function (ref) {
+            return {
+                path: tsconfig_1.consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref.text)),
+                range: ref.range
+            };
+        });
+        var matches = imports.filter(function (f) { return f.path == oldFileNoExt; });
         if (matches.length) {
             for (var _i = 0; _i < matches.length; _i++) {
                 var match = matches[_i];
+                refactorings.push({
+                    filePath: sourceFile.fileName,
+                    span: {
+                        start: match.range.pos,
+                        length: match.range.end - match.range.pos
+                    },
+                    newText: tsconfig_1.makeRelativePath(path.dirname(sourceFile.fileName), newFileNoExt)
+                });
             }
         }
     });

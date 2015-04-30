@@ -3,7 +3,7 @@
  */
 
 import {Refactoring} from "../fixmyts/quickFix";
-import {getSourceFileImports} from "../fixmyts/astUtils";
+import {getSourceFileImportsWithTextRange} from "../fixmyts/astUtils";
 import * as path from "path";
 import {
 removeExt,
@@ -20,6 +20,7 @@ export function getRenameFilesRefactorings(program: ts.Program, oldDirectoryOrFi
     newDirectoryOrFile = consistentPath(newDirectoryOrFile);
 
     var oldFileNoExt = removeExt(oldDirectoryOrFile);
+    var newFileNoExt = removeExt(newDirectoryOrFile);
 
     /**
      * Go through all the files in the program and find the ones that referece the "oldDirectoryOrFile"
@@ -31,13 +32,25 @@ export function getRenameFilesRefactorings(program: ts.Program, oldDirectoryOrFi
     var sourceFiles = program.getSourceFiles();
 
     sourceFiles.forEach(sourceFile => {
-        let imports = getSourceFileImports(sourceFile)
-            .filter((fileReference) => pathIsRelative(fileReference))
-            .map(ref=> consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref)))
-        var matches = imports.filter(f=> f == oldFileNoExt);
+        let imports = getSourceFileImportsWithTextRange(sourceFile)
+            .filter((fileReference) => pathIsRelative(fileReference.text))
+            .map(ref=> {
+            return {
+                path: consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref.text)),
+                range: ref.range
+            };
+        })
+        var matches = imports.filter(f=> f.path == oldFileNoExt);
         if (matches.length) {
             for (let match of matches) {
-
+                refactorings.push({
+                    filePath: sourceFile.fileName,
+                    span: {
+                        start: match.range.pos,
+                        length: match.range.end - match.range.pos
+                    },
+                    newText: makeRelativePath(path.dirname(sourceFile.fileName), newFileNoExt)
+                });
             }
         }
     });

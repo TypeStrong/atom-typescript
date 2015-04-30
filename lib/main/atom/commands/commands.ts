@@ -19,6 +19,7 @@ import simpleSelectionView from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
 import * as outputFileCommands from "./outputFileCommands";
 import {registerRenameHandling} from "./moveFilesHandling";
+import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
 
 export function registerCommands() {
 
@@ -26,6 +27,31 @@ export function registerCommands() {
     outputFileCommands.register();
 
     registerRenameHandling();
+
+
+    function applyRefactorings(refactorings: RefactoringsByFilePath) {
+        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+        var openPathsMap = utils.createMap(paths);
+
+        let refactorPaths = Object.keys(refactorings);
+        let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
+        let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
+
+        // if file is open change in buffer
+        // otherwise open the file and change the buffer range
+        atomUtils.getEditorsForAllPaths(refactorPaths)
+            .then((editorMap) => {
+            refactorPaths.forEach((filePath) => {
+                var editor = editorMap[filePath];
+                editor.transact(() => {
+                    refactorings[filePath].forEach((refactoring) => {
+                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
+                        editor.setTextInBufferRange(range, refactoring.newText);
+                    });
+                })
+            });
+        });
+    }
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
@@ -152,9 +178,8 @@ export function registerCommands() {
             }
 
             let completePath = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
-            console.log(completePath);
 
-            // TODO: query the projectService
+            // TODO: Actually rename the file
 
             renameView.panelView.renameThis({
                 autoSelect: false,
@@ -173,10 +198,9 @@ export function registerCommands() {
                     newText = newText.trim();
 
                     parent.getRenameFilesRefactorings({ oldPath: completePath, newPath: newText })
-                        .then((res)=>{
-                            // TODO: apply the refactorings
-
-                        });
+                        .then((res) => {
+                        applyRefactorings(res.refactorings);
+                    });
                 }
             });
             atom.notifications.addInfo('AtomTS: File rename comming soon!');
@@ -412,29 +436,7 @@ export function registerCommands() {
                     // NOTE: we can special case UI's here if we want.
 
                     parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then((res) => {
-
-                        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-                        var openPathsMap = utils.createMap(paths);
-
-                        let refactorPaths = Object.keys(res.refactorings);
-                        let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
-                        let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
-
-                        // if file is open change in buffer
-                        // otherwise open the file and change the buffer range
-                        atomUtils.getEditorsForAllPaths(refactorPaths)
-                            .then((editorMap) => {
-                            refactorPaths.forEach((filePath) => {
-                                var editor = editorMap[filePath];
-                                editor.transact(() => {
-                                    res.refactorings[filePath].forEach((refactoring) => {
-                                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                                        editor.setTextInBufferRange(range, refactoring.newText);
-                                    });
-                                })
-                            });
-                        });
-
+                        applyRefactorings(res.refactorings);
                     });
                 }
             }, editor);

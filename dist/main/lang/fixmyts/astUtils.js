@@ -38,6 +38,12 @@ function getSourceFileImports(srcFile) {
     return modules;
 }
 exports.getSourceFileImports = getSourceFileImports;
+function getSourceFileImportsWithTextRange(srcFile) {
+    var modules = [];
+    getImportsWithTextRange(srcFile, modules);
+    return modules;
+}
+exports.getSourceFileImportsWithTextRange = getSourceFileImportsWithTextRange;
 function getImports(searchNode, importedModules) {
     ts.forEachChild(searchNode, function (node) {
         if (node.kind === 209 || node.kind === 208 || node.kind === 215) {
@@ -64,4 +70,21 @@ function getExternalModuleName(node) {
     if (node.kind === 215) {
         return node.moduleSpecifier;
     }
+}
+function getImportsWithTextRange(searchNode, importedModules) {
+    ts.forEachChild(searchNode, function (node) {
+        if (node.kind === 209 || node.kind === 208 || node.kind === 215) {
+            var moduleNameExpr = getExternalModuleName(node);
+            if (moduleNameExpr && moduleNameExpr.kind === 8) {
+                var moduleExpr = moduleNameExpr;
+                importedModules.push({
+                    text: moduleExpr.text,
+                    range: { pos: moduleExpr.getStart() + 1, end: moduleExpr.getEnd() - 1 }
+                });
+            }
+        }
+        else if (node.kind === 205 && node.name.kind === 8) {
+            getImportsWithTextRange(node.body, importedModules);
+        }
+    });
 }

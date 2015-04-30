@@ -21,6 +21,25 @@ var moveFilesHandling_1 = require("./moveFilesHandling");
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
+    function applyRefactorings(refactorings) {
+        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+        var openPathsMap = utils.createMap(paths);
+        var refactorPaths = Object.keys(refactorings);
+        var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
+        var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
+        atomUtils.getEditorsForAllPaths(refactorPaths)
+            .then(function (editorMap) {
+            refactorPaths.forEach(function (filePath) {
+                var editor = editorMap[filePath];
+                editor.transact(function () {
+                    refactorings[filePath].forEach(function (refactoring) {
+                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
+                        editor.setTextInBufferRange(range, refactoring.newText);
+                    });
+                });
+            });
+        });
+    }
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
@@ -121,7 +140,6 @@ function registerCommands() {
                 return;
             }
             var completePath = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
-            console.log(completePath);
             renameView.panelView.renameThis({
                 autoSelect: false,
                 title: 'Rename File',
@@ -139,7 +157,7 @@ function registerCommands() {
                     newText = newText.trim();
                     parent.getRenameFilesRefactorings({ oldPath: completePath, newPath: newText })
                         .then(function (res) {
-                        // TODO: apply the refactorings
+                        applyRefactorings(res.refactorings);
                     });
                 }
             });
@@ -335,23 +353,7 @@ function registerCommands() {
                 confirmed: function (item) {
                     // NOTE: we can special case UI's here if we want.
                     parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then(function (res) {
-                        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-                        var openPathsMap = utils.createMap(paths);
-                        var refactorPaths = Object.keys(res.refactorings);
-                        var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
-                        var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
-                        atomUtils.getEditorsForAllPaths(refactorPaths)
-                            .then(function (editorMap) {
-                            refactorPaths.forEach(function (filePath) {
-                                var editor = editorMap[filePath];
-                                editor.transact(function () {
-                                    res.refactorings[filePath].forEach(function (refactoring) {
-                                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                                        editor.setTextInBufferRange(range, refactoring.newText);
-                                    });
-                                });
-                            });
-                        });
+                        applyRefactorings(res.refactorings);
                     });
                 }
             }, editor);
