@@ -270,8 +270,8 @@ var ts;
                     if (forStatement.condition) {
                         return textSpan(forStatement.condition);
                     }
-                    if (forStatement.incrementor) {
-                        return textSpan(forStatement.incrementor);
+                    if (forStatement.iterator) {
+                        return textSpan(forStatement.iterator);
                     }
                 }
                 function spanInOpenBraceToken(node) {

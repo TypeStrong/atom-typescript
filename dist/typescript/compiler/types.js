@@ -456,7 +456,6 @@ var ts;
         ModuleKind[ModuleKind["None"] = 0] = "None";
         ModuleKind[ModuleKind["CommonJS"] = 1] = "CommonJS";
         ModuleKind[ModuleKind["AMD"] = 2] = "AMD";
-        ModuleKind[ModuleKind["UMD"] = 3] = "UMD";
     })(ts.ModuleKind || (ts.ModuleKind = {}));
     var ModuleKind = ts.ModuleKind;
     (function (ScriptTarget) {

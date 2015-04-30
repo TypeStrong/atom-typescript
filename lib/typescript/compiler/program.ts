@@ -8,7 +8,7 @@ module ts {
     /* @internal */ export let ioWriteTime = 0;
 
     /** The version of the TypeScript compiler release */
-    export const version = "1.5.0";
+    export const version = "1.5.0-beta";
 
     export function findConfigFile(searchPath: string): string {
         var fileName = "tsconfig.json";
@@ -567,7 +567,7 @@ module ts {
 
             // Cannot specify module gen target when in es6 or above
             if (options.module && languageVersion >= ScriptTarget.ES6) {
-                diagnostics.add(createCompilerDiagnostic(Diagnostics.Cannot_compile_external_modules_into_amd_commonjs_or_umd_when_targeting_ES6_or_higher));
+                diagnostics.add(createCompilerDiagnostic(Diagnostics.Cannot_compile_external_modules_into_amd_or_commonjs_when_targeting_es6_or_higher));
             }
 
             // there has to be common source directory if user specified --outdir || --sourceRoot

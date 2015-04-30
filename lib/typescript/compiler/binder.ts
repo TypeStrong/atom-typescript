@@ -239,7 +239,11 @@ module ts {
             if (symbolKind & SymbolFlags.IsContainer) {
                 container = node;
 
-                addToContainerChain(container);
+                if (lastContainer) {
+                    lastContainer.nextContainer = container;
+                }
+
+                lastContainer = container;
             }
 
             if (isBlockScopeContainer) {
@@ -256,14 +260,6 @@ module ts {
             container = saveContainer;
             parent = saveParent;
             blockScopeContainer = savedBlockScopeContainer;
-        }
-
-        function addToContainerChain(node: Node) {
-            if (lastContainer) {
-                lastContainer.nextContainer = node;
-            }
-
-            lastContainer = node;
         }
 
         function bindDeclaration(node: Declaration, symbolKind: SymbolFlags, symbolExcludes: SymbolFlags, isBlockScopeContainer: boolean) {
@@ -407,7 +403,6 @@ module ts {
                 default:
                     if (!blockScopeContainer.locals) {
                         blockScopeContainer.locals = {};
-                        addToContainerChain(blockScopeContainer);
                     }
                     declareSymbol(blockScopeContainer.locals, undefined, node, symbolKind, symbolExcludes);
             }

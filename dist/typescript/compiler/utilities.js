@@ -610,7 +610,7 @@ var ts;
                         var forStatement = parent_1;
                         return (forStatement.initializer === node && forStatement.initializer.kind !== 199) ||
                             forStatement.condition === node ||
-                            forStatement.incrementor === node;
+                            forStatement.iterator === node;
                     case 187:
                     case 188:
                         var forInStatement = parent_1;

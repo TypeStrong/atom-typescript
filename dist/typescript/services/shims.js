@@ -112,17 +112,6 @@ var ts;
         return LanguageServiceShimHostAdapter;
     })();
     ts.LanguageServiceShimHostAdapter = LanguageServiceShimHostAdapter;
-    var CoreServicesShimHostAdapter = (function () {
-        function CoreServicesShimHostAdapter(shimHost) {
-            this.shimHost = shimHost;
-        }
-        CoreServicesShimHostAdapter.prototype.readDirectory = function (rootDir, extension) {
-            var encoded = this.shimHost.readDirectory(rootDir, extension);
-            return JSON.parse(encoded);
-        };
-        return CoreServicesShimHostAdapter;
-    })();
-    ts.CoreServicesShimHostAdapter = CoreServicesShimHostAdapter;
     function simpleForwardCall(logger, actionDescription, action) {
         logger.log(actionDescription);
         var start = Date.now();
@@ -432,10 +421,9 @@ var ts;
     })(ShimBase);
     var CoreServicesShimObject = (function (_super) {
         __extends(CoreServicesShimObject, _super);
-        function CoreServicesShimObject(factory, logger, host) {
+        function CoreServicesShimObject(factory, logger) {
             _super.call(this, factory);
             this.logger = logger;
-            this.host = host;
         }
         CoreServicesShimObject.prototype.forwardJSONCall = function (actionDescription, action) {
             return forwardJSONCall(this.logger, actionDescription, action);
@@ -463,26 +451,6 @@ var ts;
                     });
                 });
                 return convertResult;
-            });
-        };
-        CoreServicesShimObject.prototype.getTSConfigFileInfo = function (fileName, sourceTextSnapshot) {
-            var _this = this;
-            return this.forwardJSONCall("getTSConfigFileInfo('" + fileName + "')", function () {
-                var text = sourceTextSnapshot.getText(0, sourceTextSnapshot.getLength());
-                var result = ts.parseConfigFileText(fileName, text);
-                if (result.error) {
-                    return {
-                        options: {},
-                        files: [],
-                        errors: [realizeDiagnostic(result.error, '\r\n')]
-                    };
-                }
-                var configFile = ts.parseConfigFile(result.config, _this.host, ts.getDirectoryPath(ts.normalizeSlashes(fileName)));
-                return {
-                    options: configFile.options,
-                    files: configFile.fileNames,
-                    errors: realizeDiagnostics(configFile.errors, '\r\n')
-                };
             });
         };
         CoreServicesShimObject.prototype.getDefaultCompilationSettings = function () {
@@ -520,13 +488,12 @@ var ts;
                 throw err;
             }
         };
-        TypeScriptServicesFactory.prototype.createCoreServicesShim = function (host) {
+        TypeScriptServicesFactory.prototype.createCoreServicesShim = function (logger) {
             try {
-                var adapter = new CoreServicesShimHostAdapter(host);
-                return new CoreServicesShimObject(this, host, adapter);
+                return new CoreServicesShimObject(this, logger);
             }
             catch (err) {
-                logInternalError(host, err);
+                logInternalError(logger, err);
                 throw err;
             }
         };
@@ -560,4 +527,4 @@ var TypeScript;
         Services.TypeScriptServicesFactory = ts.TypeScriptServicesFactory;
     })(Services = TypeScript.Services || (TypeScript.Services = {}));
 })(TypeScript || (TypeScript = {}));
-var toolsVersion = "1.4";
+var toolsVersion = "1.5";

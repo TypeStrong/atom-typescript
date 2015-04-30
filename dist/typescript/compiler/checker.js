@@ -2022,11 +2022,10 @@ var ts;
                 }
             }
         }
-        function getDeclaredTypeOfClassOrInterface(symbol) {
+        function getDeclaredTypeOfClass(symbol) {
             var links = getSymbolLinks(symbol);
             if (!links.declaredType) {
-                var kind = symbol.flags & 32 ? 1024 : 2048;
-                var type = links.declaredType = createObjectType(kind, symbol);
+                var type = links.declaredType = createObjectType(1024, symbol);
                 var typeParameters = getTypeParametersOfClassOrInterface(symbol);
                 if (typeParameters) {
                     type.flags |= 4096;
@@ -2036,6 +2035,32 @@ var ts;
                     type.target = type;
                     type.typeArguments = type.typeParameters;
                 }
+                type.declaredProperties = getNamedMembers(symbol.members);
+                type.declaredCallSignatures = emptyArray;
+                type.declaredConstructSignatures = emptyArray;
+                type.declaredStringIndexType = getIndexTypeOfSymbol(symbol, 0);
+                type.declaredNumberIndexType = getIndexTypeOfSymbol(symbol, 1);
+            }
+            return links.declaredType;
+        }
+        function getDeclaredTypeOfInterface(symbol) {
+            var links = getSymbolLinks(symbol);
+            if (!links.declaredType) {
+                var type = links.declaredType = createObjectType(2048, symbol);
+                var typeParameters = getTypeParametersOfClassOrInterface(symbol);
+                if (typeParameters) {
+                    type.flags |= 4096;
+                    type.typeParameters = typeParameters;
+                    type.instantiations = {};
+                    type.instantiations[getTypeListId(type.typeParameters)] = type;
+                    type.target = type;
+                    type.typeArguments = type.typeParameters;
+                }
+                type.declaredProperties = getNamedMembers(symbol.members);
+                type.declaredCallSignatures = getSignaturesOfSymbol(symbol.members["__call"]);
+                type.declaredConstructSignatures = getSignaturesOfSymbol(symbol.members["__new"]);
+                type.declaredStringIndexType = getIndexTypeOfSymbol(symbol, 0);
+                type.declaredNumberIndexType = getIndexTypeOfSymbol(symbol, 1);
             }
             return links.declaredType;
         }
@@ -2086,8 +2111,11 @@ var ts;
         }
         function getDeclaredTypeOfSymbol(symbol) {
             ts.Debug.assert((symbol.flags & 16777216) === 0);
-            if (symbol.flags & (32 | 64)) {
-                return getDeclaredTypeOfClassOrInterface(symbol);
+            if (symbol.flags & 32) {
+                return getDeclaredTypeOfClass(symbol);
+            }
+            if (symbol.flags & 64) {
+                return getDeclaredTypeOfInterface(symbol);
             }
             if (symbol.flags & 524288) {
                 return getDeclaredTypeOfTypeAlias(symbol);
@@ -2135,27 +2163,15 @@ var ts;
                 }
             }
         }
-        function resolveDeclaredMembers(type) {
-            if (!type.declaredProperties) {
-                var symbol = type.symbol;
-                type.declaredProperties = getNamedMembers(symbol.members);
-                type.declaredCallSignatures = getSignaturesOfSymbol(symbol.members["__call"]);
-                type.declaredConstructSignatures = getSignaturesOfSymbol(symbol.members["__new"]);
-                type.declaredStringIndexType = getIndexTypeOfSymbol(symbol, 0);
-                type.declaredNumberIndexType = getIndexTypeOfSymbol(symbol, 1);
-            }
-            return type;
-        }
         function resolveClassOrInterfaceMembers(type) {
-            var target = resolveDeclaredMembers(type);
-            var members = target.symbol.members;
-            var callSignatures = target.declaredCallSignatures;
-            var constructSignatures = target.declaredConstructSignatures;
-            var stringIndexType = target.declaredStringIndexType;
-            var numberIndexType = target.declaredNumberIndexType;
-            var baseTypes = getBaseTypes(target);
+            var members = type.symbol.members;
+            var callSignatures = type.declaredCallSignatures;
+            var constructSignatures = type.declaredConstructSignatures;
+            var stringIndexType = type.declaredStringIndexType;
+            var numberIndexType = type.declaredNumberIndexType;
+            var baseTypes = getBaseTypes(type);
             if (baseTypes.length) {
-                members = createSymbolTable(target.declaredProperties);
+                members = createSymbolTable(type.declaredProperties);
                 for (var _i = 0; _i < baseTypes.length; _i++) {
                     var baseType = baseTypes[_i];
                     addInheritedMembers(members, getPropertiesOfObjectType(baseType));
@@ -2168,7 +2184,7 @@ var ts;
             setObjectTypeMembers(type, members, callSignatures, constructSignatures, stringIndexType, numberIndexType);
         }
         function resolveTypeReferenceMembers(type) {
-            var target = resolveDeclaredMembers(type.target);
+            var target = type.target;
             var mapper = createTypeMapper(target.typeParameters, type.typeArguments);
             var members = createInstantiatedSymbolTable(target.declaredProperties, mapper);
             var callSignatures = instantiateList(target.declaredCallSignatures, mapper, instantiateSignature);
@@ -2306,7 +2322,7 @@ var ts;
                     callSignatures = getSignaturesOfSymbol(symbol);
                 }
                 if (symbol.flags & 32) {
-                    var classType = getDeclaredTypeOfClassOrInterface(symbol);
+                    var classType = getDeclaredTypeOfClass(symbol);
                     constructSignatures = getSignaturesOfSymbol(symbol.members["__constructor"]);
                     if (!constructSignatures.length) {
                         constructSignatures = getDefaultConstructSignatures(classType);
@@ -2407,7 +2423,7 @@ var ts;
                 var type = getApparentType(current);
                 if (type !== unknownType) {
                     var prop = getPropertyOfType(type, name);
-                    if (!prop || getDeclarationFlagsFromSymbol(prop) & (32 | 64)) {
+                    if (!prop) {
                         return undefined;
                     }
                     if (!props) {
@@ -2517,7 +2533,7 @@ var ts;
         function getSignatureFromDeclaration(declaration) {
             var links = getNodeLinks(declaration);
             if (!links.resolvedSignature) {
-                var classType = declaration.kind === 135 ? getDeclaredTypeOfClassOrInterface(declaration.parent.symbol) : undefined;
+                var classType = declaration.kind === 135 ? getDeclaredTypeOfClass(declaration.parent.symbol) : undefined;
                 var typeParameters = classType ? classType.typeParameters :
                     declaration.typeParameters ? getTypeParametersFromDeclaration(declaration.typeParameters) : undefined;
                 var parameters = [];
@@ -7370,8 +7386,8 @@ var ts;
             }
             if (node.condition)
                 checkExpression(node.condition);
-            if (node.incrementor)
-                checkExpression(node.incrementor);
+            if (node.iterator)
+                checkExpression(node.iterator);
             checkSourceElement(node.statement);
         }
         function checkForOfStatement(node) {
@@ -7951,7 +7967,7 @@ var ts;
                 return true;
             }
             var seen = {};
-            ts.forEach(resolveDeclaredMembers(type).declaredProperties, function (p) { seen[p.name] = { prop: p, containingType: type }; });
+            ts.forEach(type.declaredProperties, function (p) { seen[p.name] = { prop: p, containingType: type }; });
             var ok = true;
             for (var _i = 0; _i < baseTypes.length; _i++) {
                 var base = baseTypes[_i];

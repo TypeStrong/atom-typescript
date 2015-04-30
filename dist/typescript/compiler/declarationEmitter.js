@@ -8,6 +8,10 @@ var ts;
         return diagnostics;
     }
     ts.getDeclarationDiagnostics = getDeclarationDiagnostics;
+    function isExternalModuleOrDeclarationFile(sourceFile) {
+        return ts.isExternalModule(sourceFile) || ts.isDeclarationFile(sourceFile);
+    }
+    ts.isExternalModuleOrDeclarationFile = isExternalModuleOrDeclarationFile;
     function emitDeclarations(host, resolver, diagnostics, jsFilePath, root) {
         var newLine = host.getNewLine();
         var compilerOptions = host.getCompilerOptions();
@@ -35,7 +39,7 @@ var ts;
                         ts.shouldEmitToOwnFile(referencedFile, compilerOptions) ||
                         !addedGlobalFileReference)) {
                         writeReferencePath(referencedFile);
-                        if (!ts.isExternalModuleOrDeclarationFile(referencedFile)) {
+                        if (!isExternalModuleOrDeclarationFile(referencedFile)) {
                             addedGlobalFileReference = true;
                         }
                     }
@@ -59,11 +63,11 @@ var ts;
         else {
             var emittedReferencedFiles = [];
             ts.forEach(host.getSourceFiles(), function (sourceFile) {
-                if (!ts.isExternalModuleOrDeclarationFile(sourceFile)) {
+                if (!isExternalModuleOrDeclarationFile(sourceFile)) {
                     if (!compilerOptions.noResolve) {
                         ts.forEach(sourceFile.referencedFiles, function (fileReference) {
                             var referencedFile = ts.tryResolveScriptReference(host, sourceFile, fileReference);
-                            if (referencedFile && (ts.isExternalModuleOrDeclarationFile(referencedFile) &&
+                            if (referencedFile && (isExternalModuleOrDeclarationFile(referencedFile) &&
                                 !ts.contains(emittedReferencedFiles, referencedFile))) {
                                 writeReferencePath(referencedFile);
                                 emittedReferencedFiles.push(referencedFile);

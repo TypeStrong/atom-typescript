@@ -170,8 +170,6 @@ var ts;
                     case 169:
                     case 170:
                         return true;
-                    case 152:
-                    case 203:
                     case 208:
                     case 198:
                     case 129:
@@ -183,6 +181,8 @@ var ts;
                         return context.currentTokenSpan.kind === 86 || context.nextTokenSpan.kind === 86;
                     case 188:
                         return context.currentTokenSpan.kind === 125 || context.nextTokenSpan.kind === 125;
+                    case 152:
+                        return context.currentTokenSpan.kind === 53 || context.nextTokenSpan.kind === 53;
                 }
                 return false;
             };

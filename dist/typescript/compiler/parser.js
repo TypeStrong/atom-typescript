@@ -184,7 +184,7 @@ var ts;
             case 186:
                 return visitNode(cbNode, node.initializer) ||
                     visitNode(cbNode, node.condition) ||
-                    visitNode(cbNode, node.incrementor) ||
+                    visitNode(cbNode, node.iterator) ||
                     visitNode(cbNode, node.statement);
             case 187:
                 return visitNode(cbNode, node.initializer) ||
@@ -2393,7 +2393,7 @@ var ts;
                 }
                 parseExpected(22);
                 if (token !== 17) {
-                    forStatement.incrementor = allowInAnd(parseExpression);
+                    forStatement.iterator = allowInAnd(parseExpression);
                 }
                 parseExpected(17);
                 forOrForInOrForOfStatement = forStatement;

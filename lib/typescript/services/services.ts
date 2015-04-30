@@ -753,7 +753,7 @@ module ts {
         private namedDeclarations: Map<Declaration[]>;
 
         public update(newText: string, textChangeRange: TextChangeRange): SourceFile {
-            return updateSourceFile(<any>this, newText, textChangeRange);
+            return updateSourceFile(this, newText, textChangeRange);
         }
 
         public getLineAndCharacterOfPosition(position: number): LineAndCharacter {

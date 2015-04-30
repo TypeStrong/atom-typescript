@@ -192,7 +192,10 @@ var ts;
             parent = node;
             if (symbolKind & 262128) {
                 container = node;
-                addToContainerChain(container);
+                if (lastContainer) {
+                    lastContainer.nextContainer = container;
+                }
+                lastContainer = container;
             }
             if (isBlockScopeContainer) {
                 setBlockScopeContainer(node, (symbolKind & 255504) === 0 && node.kind !== 227);
@@ -201,12 +204,6 @@ var ts;
             container = saveContainer;
             parent = saveParent;
             blockScopeContainer = savedBlockScopeContainer;
-        }
-        function addToContainerChain(node) {
-            if (lastContainer) {
-                lastContainer.nextContainer = node;
-            }
-            lastContainer = node;
         }
         function bindDeclaration(node, symbolKind, symbolExcludes, isBlockScopeContainer) {
             switch (container.kind) {
@@ -336,7 +333,6 @@ var ts;
                 default:
                     if (!blockScopeContainer.locals) {
                         blockScopeContainer.locals = {};
-                        addToContainerChain(blockScopeContainer);
                     }
                     declareSymbol(blockScopeContainer.locals, undefined, node, symbolKind, symbolExcludes);
             }

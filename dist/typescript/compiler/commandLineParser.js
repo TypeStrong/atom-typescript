@@ -49,12 +49,11 @@ var ts;
             shortName: "m",
             type: {
                 "commonjs": 1,
-                "amd": 2,
-                "umd": 3
+                "amd": 2
             },
-            description: ts.Diagnostics.Specify_module_code_generation_Colon_commonjs_amd_or_umd,
+            description: ts.Diagnostics.Specify_module_code_generation_Colon_commonjs_or_amd,
             paramType: ts.Diagnostics.KIND,
-            error: ts.Diagnostics.Argument_for_module_option_must_be_commonjs_amd_or_umd
+            error: ts.Diagnostics.Argument_for_module_option_must_be_commonjs_or_amd
         },
         {
             name: "noEmit",
@@ -150,7 +149,7 @@ var ts;
             type: { "es3": 0, "es5": 1, "es6": 2 },
             description: ts.Diagnostics.Specify_ECMAScript_target_version_Colon_ES3_default_ES5_or_ES6_experimental,
             paramType: ts.Diagnostics.VERSION,
-            error: ts.Diagnostics.Argument_for_target_option_must_be_ES3_ES5_or_ES6
+            error: ts.Diagnostics.Argument_for_target_option_must_be_es3_es5_or_es6
         },
         {
             name: "version",
@@ -274,23 +273,13 @@ var ts;
     function readConfigFile(fileName) {
         try {
             var text = ts.sys.readFile(fileName);
+            return /\S/.test(text) ? JSON.parse(text) : {};
         }
         catch (e) {
-            return { error: ts.createCompilerDiagnostic(ts.Diagnostics.Cannot_read_file_0_Colon_1, fileName, e.message) };
         }
-        return parseConfigFileText(fileName, text);
     }
     ts.readConfigFile = readConfigFile;
-    function parseConfigFileText(fileName, jsonText) {
-        try {
-            return { config: /\S/.test(jsonText) ? JSON.parse(jsonText) : {} };
-        }
-        catch (e) {
-            return { error: ts.createCompilerDiagnostic(ts.Diagnostics.Failed_to_parse_file_0_Colon_1, fileName, e.message) };
-        }
-    }
-    ts.parseConfigFileText = parseConfigFileText;
-    function parseConfigFile(json, host, basePath) {
+    function parseConfigFile(json, basePath) {
         var errors = [];
         return {
             options: getCompilerOptions(),
@@ -346,7 +335,7 @@ var ts;
                 }
             }
             else {
-                var sysFiles = host.readDirectory(basePath, ".ts");
+                var sysFiles = ts.sys.readDirectory(basePath, ".ts");
                 for (var i = 0; i < sysFiles.length; i++) {
                     var name = sysFiles[i];
                     if (!ts.fileExtensionIs(name, ".d.ts") || !ts.contains(sysFiles, name.substr(0, name.length - 5) + ".ts")) {

@@ -57,12 +57,6 @@ module ts {
         getNewLine?(): string;
     }
 
-    /** Public interface of the the of a config service shim instance.*/
-    export interface CoreServicesShimHost extends Logger {
-        /** Returns a JSON-encoded value of the type: string[] */
-        readDirectory(rootDir: string, extension: string): string;
-    }
-
     ///
     /// Pre-processing
     ///
@@ -83,7 +77,7 @@ module ts {
     export interface Shim {
         dispose(dummy: any): void;
     }
-    
+
     export interface LanguageServiceShim extends Shim {
         languageService: LanguageService;
 
@@ -194,7 +188,6 @@ module ts {
 
     export interface CoreServicesShim extends Shim {
         getPreProcessedFileInfo(fileName: string, sourceText: IScriptSnapshot): string;
-        getTSConfigFileInfo(fileName: string, sourceText: IScriptSnapshot): string;
         getDefaultCompilationSettings(): string;
     }
 
@@ -307,17 +300,6 @@ module ts {
             catch (e) {
                 return "";
             }
-        }
-    }
-    
-    export class CoreServicesShimHostAdapter implements ParseConfigHost {
-
-        constructor(private shimHost: CoreServicesShimHost) {
-        }
-
-        public readDirectory(rootDir: string, extension: string): string[] {
-            var encoded = this.shimHost.readDirectory(rootDir, extension);
-            return JSON.parse(encoded);
         }
     }
 
@@ -759,8 +741,7 @@ module ts {
     }
 
     class CoreServicesShimObject extends ShimBase implements CoreServicesShim {
-
-        constructor(factory: ShimFactory, public logger: Logger, private host: CoreServicesShimHostAdapter) {
+        constructor(factory: ShimFactory, public logger: Logger) {
             super(factory);
         }
 
@@ -795,32 +776,6 @@ module ts {
                         });
                     });
                     return convertResult;
-                });
-        }
-
-        public getTSConfigFileInfo(fileName: string, sourceTextSnapshot: IScriptSnapshot): string {
-            return this.forwardJSONCall(
-                "getTSConfigFileInfo('" + fileName + "')",
-                () => {
-                    let text = sourceTextSnapshot.getText(0, sourceTextSnapshot.getLength());
-
-                    let result = parseConfigFileText(fileName, text);
-
-                    if (result.error) {
-                        return {
-                            options: {},
-                            files: [],
-                            errors: [realizeDiagnostic(result.error, '\r\n')]
-                        };
-                    }
-
-                    var configFile = parseConfigFile(result.config, this.host, getDirectoryPath(normalizeSlashes(fileName)));
-
-                    return {
-                        options: configFile.options,
-                        files: configFile.fileNames,
-                        errors: realizeDiagnostics(configFile.errors, '\r\n')
-                    };
                 });
         }
 
@@ -866,13 +821,12 @@ module ts {
             }
         }
 
-        public createCoreServicesShim(host: CoreServicesShimHost): CoreServicesShim {
+        public createCoreServicesShim(logger: Logger): CoreServicesShim {
             try {
-                var adapter = new CoreServicesShimHostAdapter(host);
-                return new CoreServicesShimObject(this, <Logger>host, adapter);
+                return new CoreServicesShimObject(this, logger);
             }
             catch (err) {
-                logInternalError(<Logger>host, err);
+                logInternalError(logger, err);
                 throw err;
             }
         }
@@ -915,4 +869,4 @@ module TypeScript.Services {
 }
 
 /* @internal */
-let toolsVersion = "1.4";
+const toolsVersion = "1.5";
