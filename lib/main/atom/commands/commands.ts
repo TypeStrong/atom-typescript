@@ -271,6 +271,24 @@ export function registerCommands() {
 
         parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
             panelView.setReferences(res.references);
+
+            simpleSelectionView({
+                items: res.references,
+                viewForItem: (item) => {
+                    return `
+                        <span>${item.filePath}</span>
+                        <div class="pull-right">line: ${item.position.line}</div>
+                        <pre style="clear:both">${item.preview}</pre>
+                    `;
+                },
+                filterKey: 'filePath',
+                confirmed: (definition) => {
+                    atom.workspace.open(definition.filePath, {
+                        initialLine: definition.position.line,
+                        initialColumn: definition.position.col
+                    });
+                }
+            })
         });
     });
 

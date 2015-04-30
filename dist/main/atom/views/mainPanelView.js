@@ -29,7 +29,7 @@ var MainPanelView = (function (_super) {
             if (className === void 0) { className = ''; }
             return _this.button({
                 'class': "btn " + className,
-                'click': view + "PanelSelected",
+                'click': view + "PanelSelectedClick",
                 'outlet': view + "PanelBtn",
                 'style': 'top:-2px!important'
             }, text);
@@ -148,20 +148,32 @@ var MainPanelView = (function (_super) {
             this.sectionPending.fadeOut(200);
         }
     };
-    MainPanelView.prototype.errorPanelSelected = function (forceExpand) {
-        if (forceExpand === void 0) { forceExpand = true; }
-        this.expanded = forceExpand;
+    MainPanelView.prototype.errorPanelSelectedClick = function () {
+        this.toggleIfThisIsntSelected(this.errorPanelBtn);
+        this.errorPanelSelected();
+    };
+    MainPanelView.prototype.errorPanelSelected = function () {
         this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);
     };
-    MainPanelView.prototype.buildPanelSelected = function (forceExpand) {
-        if (forceExpand === void 0) { forceExpand = true; }
-        this.expanded = forceExpand;
+    MainPanelView.prototype.buildPanelSelectedClick = function () {
+        this.toggleIfThisIsntSelected(this.buildPanelBtn);
+        this.buildPanelSelected();
+    };
+    MainPanelView.prototype.buildPanelSelected = function () {
         this.selectPanel(this.buildPanelBtn, this.buildBody, gotoHistory.buildOutput);
     };
+    MainPanelView.prototype.referencesPanelSelectedClick = function () {
+        this.toggleIfThisIsntSelected(this.referencesPanelBtn);
+        this.referencesPanelSelected();
+    };
     MainPanelView.prototype.referencesPanelSelected = function (forceExpand) {
-        if (forceExpand === void 0) { forceExpand = true; }
-        this.expanded = forceExpand;
+        if (forceExpand === void 0) { forceExpand = false; }
         this.selectPanel(this.referencesPanelBtn, this.referencesBody, gotoHistory.referencesOutput);
+    };
+    MainPanelView.prototype.toggleIfThisIsntSelected = function (btn) {
+        if (btn.hasClass('selected')) {
+            this.expanded = !this.expanded;
+        }
     };
     MainPanelView.prototype.selectPanel = function (btn, body, activeList) {
         var _this = this;
@@ -190,13 +202,13 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.setActivePanel = function () {
         if (this.errorPanelBtn.hasClass('selected')) {
-            this.errorPanelSelected(this.expanded);
+            this.errorPanelSelected();
         }
         if (this.buildPanelBtn.hasClass('selected')) {
-            this.buildPanelSelected(this.expanded);
+            this.buildPanelSelected();
         }
         if (this.referencesPanelBtn.hasClass('selected')) {
-            this.referencesPanelSelected(this.expanded);
+            this.referencesPanelSelected();
         }
     };
     MainPanelView.prototype.toggle = function () {

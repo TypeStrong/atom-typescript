@@ -220,6 +220,19 @@ function registerCommands() {
             return;
         parent.getReferences(atomUtils.getFilePathPosition()).then(function (res) {
             mainPanelView_1.panelView.setReferences(res.references);
+            simpleSelectionView_1.default({
+                items: res.references,
+                viewForItem: function (item) {
+                    return "\n                        <span>" + item.filePath + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <pre style=\"clear:both\">" + item.preview + "</pre>\n                    ";
+                },
+                filterKey: 'filePath',
+                confirmed: function (definition) {
+                    atom.workspace.open(definition.filePath, {
+                        initialLine: definition.position.line,
+                        initialColumn: definition.position.col
+                    });
+                }
+            });
         });
     });
     var theFileSymbolsView;

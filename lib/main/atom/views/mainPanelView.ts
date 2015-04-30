@@ -38,7 +38,7 @@ export class MainPanelView extends view.View<any> {
         var btn = (view, text, className: string = '') =>
             this.button({
                 'class': "btn " + className,
-                'click': `${view}PanelSelected`,
+                'click': `${view}PanelSelectedClick`,
                 'outlet': `${view}PanelBtn`,
                 'style': 'top:-2px!important'
             }, text);
@@ -177,19 +177,34 @@ export class MainPanelView extends view.View<any> {
     }
 
     ///// Panel selection
-    errorPanelSelected(forceExpand = true) {
-        this.expanded = forceExpand;
+    errorPanelSelectedClick() {
+        this.toggleIfThisIsntSelected(this.errorPanelBtn);
+        this.errorPanelSelected();
+    }
+    errorPanelSelected() {
         this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);
     }
 
-    buildPanelSelected(forceExpand = true) {
-        this.expanded = forceExpand;
+    buildPanelSelectedClick() {
+        this.toggleIfThisIsntSelected(this.buildPanelBtn);
+        this.buildPanelSelected();
+    }
+    buildPanelSelected() {
         this.selectPanel(this.buildPanelBtn, this.buildBody, gotoHistory.buildOutput);
     }
 
-    referencesPanelSelected(forceExpand = true) {
-        this.expanded = forceExpand;
+    referencesPanelSelectedClick() {
+        this.toggleIfThisIsntSelected(this.referencesPanelBtn);
+        this.referencesPanelSelected();
+    }
+    referencesPanelSelected(forceExpand = false) {
         this.selectPanel(this.referencesPanelBtn, this.referencesBody, gotoHistory.referencesOutput);
+    }
+
+    private toggleIfThisIsntSelected(btn:JQuery){
+        if(btn.hasClass('selected')){
+            this.expanded = !this.expanded;
+        }
     }
 
     private selectPanel(btn: JQuery, body: JQuery, activeList: TabWithGotoPositions) {
@@ -221,13 +236,13 @@ export class MainPanelView extends view.View<any> {
 
     private setActivePanel() {
         if (this.errorPanelBtn.hasClass('selected')) {
-            this.errorPanelSelected(this.expanded);
+            this.errorPanelSelected();
         }
         if (this.buildPanelBtn.hasClass('selected')) {
-            this.buildPanelSelected(this.expanded);
+            this.buildPanelSelected();
         }
         if (this.referencesPanelBtn.hasClass('selected')) {
-            this.referencesPanelSelected(this.expanded);
+            this.referencesPanelSelected();
         }
     }
 
