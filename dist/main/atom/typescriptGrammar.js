@@ -177,7 +177,7 @@ function getAtomStyleForToken(token, str) {
         case TokenClass.Operator:
             return 'keyword.operator.js';
         case TokenClass.Comment:
-            return 'comment';
+            return 'comment.block';
         case TokenClass.Whitespace:
             return 'whitespace';
         case TokenClass.Identifier:

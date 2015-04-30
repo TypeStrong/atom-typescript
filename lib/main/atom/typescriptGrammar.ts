@@ -235,7 +235,7 @@ function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string
         case TokenClass.Operator:
             return 'keyword.operator.js';
         case TokenClass.Comment:
-            return 'comment';
+            return 'comment.block';
         case TokenClass.Whitespace:
             return 'whitespace';
         case TokenClass.Identifier:
