@@ -59,14 +59,21 @@ var hideIfNotActiveOnStart = debounce(() => {
 }, 100);
 
 
-/** only called once we have our dependencies */
-function readyToActivate() {
-
+var __onlyOnce = false;
+function onlyOnceStuff() {
+    if (__onlyOnce) return;
+    else __onlyOnce = true;
+    
     // Add the documentation view
     documentationView.attach();
 
     // Add the rename view
     renameView.attach();
+}
+
+
+/** only called once we have our dependencies */
+function readyToActivate() {
 
     // Start a ts worker
     parent.startWorker();
@@ -119,6 +126,9 @@ function readyToActivate() {
         var ext = path.extname(filePath);
         if (ext == '.ts') {
             try {
+                // Only once stuff
+                onlyOnceStuff();
+                
                 // We only do analysis once the file is persisted to disk
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {

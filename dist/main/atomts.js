@@ -30,9 +30,16 @@ var hideIfNotActiveOnStart = utils_1.debounce(function () {
         mainPanelView.hide();
     }
 }, 100);
-function readyToActivate() {
+var __onlyOnce = false;
+function onlyOnceStuff() {
+    if (__onlyOnce)
+        return;
+    else
+        __onlyOnce = true;
     documentationView.attach();
     renameView.attach();
+}
+function readyToActivate() {
     parent.startWorker();
     atom.grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar(atom.grammars));
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
@@ -53,6 +60,7 @@ function readyToActivate() {
         var ext = path.extname(filePath);
         if (ext == '.ts') {
             try {
+                onlyOnceStuff();
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {
                     onDisk = true;
