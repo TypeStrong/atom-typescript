@@ -13,8 +13,8 @@ import gotoHistory = require("../gotoHistory");
 import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
 import * as url from "url";
-import {AstView, astURI, astUriForPath, astURIFull, astUriFullForPath} from "../views/astView";
-import {DependencyView, dependencyURI, dependencyUriForPath} from "../views/dependencyView";
+import {AstView, astURI, astURIFull} from "../views/astView";
+import {DependencyView, dependencyURI} from "../views/dependencyView";
 import simpleSelectionView from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
 import * as outputFileCommands from "./outputFileCommands";
@@ -276,12 +276,12 @@ export function registerCommands() {
                 items: res.references,
                 viewForItem: (item) => {
                     return `
-                        <span>${atom.project.relativize(item.filePath)}</span>
+                        <span>${atom.project.relativize(item.filePath) }</span>
                         <div class="pull-right">line: ${item.position.line}</div>
                         <pre style="clear:both">${item.preview}</pre>
                     `;
                 },
-                filterKey: utils.getName(()=>res.references[0].filePath),
+                filterKey: utils.getName(() => res.references[0].filePath),
                 confirmed: (definition) => {
                     atom.workspace.open(definition.filePath, {
                         initialLine: definition.position.line,
@@ -344,90 +344,49 @@ export function registerCommands() {
             showProjectSymbols(filePath);
         });
 
-    atom.commands.add('atom-text-editor', 'typescript:ast', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
 
-        var uri = astUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+    atomUtils.registerOpener({
+        commandSelector: 'atom-text-editor',
+        commandName: 'typescript:ast',
+        uriProtocol: astURI,
+        getData: () => {
+            return {
+                text: atom.workspace.getActiveTextEditor().getText(),
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: (data) => {
+            return new AstView(data.filePath, data.text, false);
         }
-        atom.workspace.open(uri, {
-            text: atom.workspace.getActiveTextEditor().getText(),
-            filePath: atomUtils.getCurrentPath()
-        });
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:ast-full', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        var uri = astUriFullForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+    atomUtils.registerOpener({
+        commandSelector: 'atom-text-editor',
+        commandName: 'typescript:ast-full',
+        uriProtocol: astURIFull,
+        getData: () => {
+            return {
+                text: atom.workspace.getActiveTextEditor().getText(),
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: (data) => {
+            return new AstView(data.filePath, data.text, true);
         }
-        atom.workspace.open(uri, {
-            text: atom.workspace.getActiveTextEditor().getText(),
-            filePath: atomUtils.getCurrentPath()
-        });
     });
 
-    atom.workspace.addOpener(function(uri, details: { text: string, filePath: string }) {
-        try {
-            var {protocol} = url.parse(uri);
+    atomUtils.registerOpener({
+        commandSelector: 'atom-workspace',
+        commandName: 'typescript:dependency-view',        
+        uriProtocol: dependencyURI,
+        getData: () => {
+            return {
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: (data) => {
+            return new DependencyView(data.filePath);
         }
-        catch (error) {
-            return;
-        }
-
-        if (protocol !== astURI) {
-            return;
-        }
-
-        return new AstView(details.filePath, details.text, false);
-    });
-
-    atom.workspace.addOpener(function(uri, details: { text: string, filePath: string }) {
-        try {
-            var {protocol} = url.parse(uri);
-        }
-        catch (error) {
-            return;
-        }
-
-        if (protocol !== astURIFull) {
-            return;
-        }
-
-        return new AstView(details.filePath, details.text, true);
-    });
-
-    atom.commands.add('atom-workspace', 'typescript:dependency-view', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        var uri = dependencyUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
-        }
-        atom.workspace.open(uri, {
-            filePath: atomUtils.getCurrentPath()
-        });
-    });
-
-    atom.workspace.addOpener(function(uri, details: { filePath: string }) {
-        try {
-            var {protocol} = url.parse(uri);
-        }
-        catch (error) {
-            return;
-        }
-
-        if (protocol !== dependencyURI) {
-            return;
-        }
-
-        return new DependencyView(details.filePath);
     });
 
     atom.commands.add('atom-text-editor', 'typescript:quick-fix', (e) => {

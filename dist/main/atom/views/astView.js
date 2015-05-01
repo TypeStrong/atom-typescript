@@ -5,18 +5,11 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var sp = require('atom-space-pen-views');
+var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
 exports.astURI = "ts-ast:";
-function astUriForPath(filePath) {
-    return exports.astURI + "//" + filePath;
-}
-exports.astUriForPath = astUriForPath;
 exports.astURIFull = "ts-ast-full:";
-function astUriFullForPath(filePath) {
-    return exports.astURIFull + "//" + filePath;
-}
-exports.astUriFullForPath = astUriFullForPath;
 var AstView = (function (_super) {
     __extends(AstView, _super);
     function AstView(filePath, text, full) {
@@ -25,7 +18,7 @@ var AstView = (function (_super) {
         this.filePath = filePath;
         this.text = text;
         this.full = full;
-        this.getURI = function () { return astUriForPath(_this.filePath); };
+        this.getURI = function () { return atomUtils.uriForPath(_this.full ? exports.astURIFull : exports.astURI, _this.filePath); };
         this.getTitle = function () { return 'TypeScript AST'; };
         this.getIconName = function () { return 'repo-forked'; };
         this.init();

@@ -5,23 +5,20 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var sp = require('atom-space-pen-views');
+var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
 var path_1 = require("path");
 var tsconfig_1 = require("../../tsconfig/tsconfig");
 var os = require("os");
 exports.dependencyURI = "ts-dependency:";
-function dependencyUriForPath(filePath) {
-    return exports.dependencyURI + "//" + filePath;
-}
-exports.dependencyUriForPath = dependencyUriForPath;
 var DependencyView = (function (_super) {
     __extends(DependencyView, _super);
     function DependencyView(filePath) {
         var _this = this;
         _super.call(this);
         this.filePath = filePath;
-        this.getURI = function () { return dependencyUriForPath(_this.filePath); };
+        this.getURI = function () { return atomUtils.uriForPath(exports.dependencyURI, _this.filePath); };
         this.getTitle = function () { return 'TypeScript Dependencies'; };
         this.getIconName = function () { return 'git-compare'; };
         this.init();

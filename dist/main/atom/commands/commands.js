@@ -11,7 +11,6 @@ var projectSymbolsView = require("../views/projectSymbolsView");
 var gotoHistory = require("../gotoHistory");
 var utils = require("../../lang/utils");
 var mainPanelView_1 = require("../views/mainPanelView");
-var url = require("url");
 var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
@@ -273,79 +272,46 @@ function registerCommands() {
         var filePath = editor.getPath();
         showProjectSymbols(filePath);
     });
-    atom.commands.add('atom-text-editor', 'typescript:ast', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        var uri = astView_1.astUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+    atomUtils.registerOpener({
+        commandSelector: 'atom-text-editor',
+        commandName: 'typescript:ast',
+        uriProtocol: astView_1.astURI,
+        getData: function () {
+            return {
+                text: atom.workspace.getActiveTextEditor().getText(),
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: function (data) {
+            return new astView_1.AstView(data.filePath, data.text, false);
         }
-        atom.workspace.open(uri, {
-            text: atom.workspace.getActiveTextEditor().getText(),
-            filePath: atomUtils.getCurrentPath()
-        });
     });
-    atom.commands.add('atom-text-editor', 'typescript:ast-full', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        var uri = astView_1.astUriFullForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+    atomUtils.registerOpener({
+        commandSelector: 'atom-text-editor',
+        commandName: 'typescript:ast-full',
+        uriProtocol: astView_1.astURIFull,
+        getData: function () {
+            return {
+                text: atom.workspace.getActiveTextEditor().getText(),
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: function (data) {
+            return new astView_1.AstView(data.filePath, data.text, true);
         }
-        atom.workspace.open(uri, {
-            text: atom.workspace.getActiveTextEditor().getText(),
-            filePath: atomUtils.getCurrentPath()
-        });
     });
-    atom.workspace.addOpener(function (uri, details) {
-        try {
-            var protocol = url.parse(uri).protocol;
+    atomUtils.registerOpener({
+        commandSelector: 'atom-workspace',
+        commandName: 'typescript:dependency-view',
+        uriProtocol: dependencyView_1.dependencyURI,
+        getData: function () {
+            return {
+                filePath: atomUtils.getCurrentPath()
+            };
+        },
+        onOpen: function (data) {
+            return new dependencyView_1.DependencyView(data.filePath);
         }
-        catch (error) {
-            return;
-        }
-        if (protocol !== astView_1.astURI) {
-            return;
-        }
-        return new astView_1.AstView(details.filePath, details.text, false);
-    });
-    atom.workspace.addOpener(function (uri, details) {
-        try {
-            var protocol = url.parse(uri).protocol;
-        }
-        catch (error) {
-            return;
-        }
-        if (protocol !== astView_1.astURIFull) {
-            return;
-        }
-        return new astView_1.AstView(details.filePath, details.text, true);
-    });
-    atom.commands.add('atom-workspace', 'typescript:dependency-view', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        var uri = dependencyView_1.dependencyUriForPath(atomUtils.getCurrentPath());
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
-        }
-        atom.workspace.open(uri, {
-            filePath: atomUtils.getCurrentPath()
-        });
-    });
-    atom.workspace.addOpener(function (uri, details) {
-        try {
-            var protocol = url.parse(uri).protocol;
-        }
-        catch (error) {
-            return;
-        }
-        if (protocol !== dependencyView_1.dependencyURI) {
-            return;
-        }
-        return new dependencyView_1.DependencyView(details.filePath);
     });
     atom.commands.add('atom-text-editor', 'typescript:quick-fix', function (e) {
         if (!atomUtils.commandForTypeScript(e))

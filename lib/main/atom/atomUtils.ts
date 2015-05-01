@@ -4,6 +4,7 @@ import path = require('path');
 import fs = require('fs');
 import _atom = require('atom');
 import tsconfig = require('../tsconfig/tsconfig');
+import url = require('url');
 
 // Optimized version where we do not ask this of the languageServiceHost
 export function getEditorPosition(editor: AtomCore.IEditor): number {
@@ -187,4 +188,52 @@ export function editorInTheseScopes(matches: string[]) {
 /** One less level of indirection */
 export function getActiveEditor() {
     return atom.workspace.getActiveTextEditor();
+}
+
+
+export interface OpenerConfig<T> {
+    commandSelector: string;
+    commandName: string;
+    uriProtocol: string;
+    getData: () => T;
+    onOpen: (data: T) => any;
+}
+
+/**
+ * Uri for filepath based on protocol
+ */
+export function uriForPath(uriProtocol:string, filePath: string) {
+    return uriProtocol + "//" + filePath;
+}
+
+/**
+ * Registers an opener with atom
+ */
+export function registerOpener<T>(config: OpenerConfig<T>) {    
+    atom.commands.add(config.commandSelector, config.commandName, (e) => {
+        if (!commandForTypeScript(e)) return;
+
+        var uri = uriForPath(config.uriProtocol, getCurrentPath());
+        var old_pane = atom.workspace.paneForURI(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+
+        atom.workspace.open(uri, config.getData());
+    });
+
+    atom.workspace.addOpener(function(uri, data: T) {
+        try {
+            var {protocol} = url.parse(uri);
+        }
+        catch (error) {
+            return;
+        }
+
+        if (protocol !== config.uriProtocol) {
+            return;
+        }
+
+        return config.onOpen(data);
+    });
 }

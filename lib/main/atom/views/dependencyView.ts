@@ -9,9 +9,6 @@ import {consistentPath} from "../../tsconfig/tsconfig";
 import * as os from "os";
 
 export var dependencyURI = "ts-dependency:";
-export function dependencyUriForPath(filePath: string) {
-    return dependencyURI + "//" + filePath;
-}
 
 /**
  * https://github.com/atom/atom-space-pen-views
@@ -38,7 +35,7 @@ export class DependencyView extends sp.ScrollView {
         });
     }
 
-    getURI = () => dependencyUriForPath(this.filePath);
+    getURI = () => atomUtils.uriForPath(dependencyURI, this.filePath);
     getTitle = () => 'TypeScript Dependencies'
     getIconName = () => 'git-compare'
 }

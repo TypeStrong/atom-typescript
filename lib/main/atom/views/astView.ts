@@ -5,15 +5,7 @@ import * as parent from "../../../worker/parent";
 import * as d3  from "d3";
 
 export var astURI = "ts-ast:";
-export function astUriForPath(filePath: string) {
-    return astURI + "//" + filePath;
-}
-
 export var astURIFull = "ts-ast-full:";
-export function astUriFullForPath(filePath: string) {
-    return astURIFull + "//" + filePath;
-}
-
 
 /**
  * https://github.com/atom/atom-space-pen-views
@@ -57,7 +49,7 @@ ${this.text.substring(node.pos, node.end) }
         });
     }
 
-    getURI = () => astUriForPath(this.filePath);
+    getURI = () => atomUtils.uriForPath(this.full ? astURIFull : astURI, this.filePath);
     getTitle = () => 'TypeScript AST'
     getIconName = () => 'repo-forked'
 }

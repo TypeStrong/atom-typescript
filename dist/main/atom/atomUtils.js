@@ -2,6 +2,7 @@ var path = require('path');
 var fs = require('fs');
 var _atom = require('atom');
 var tsconfig = require('../tsconfig/tsconfig');
+var url = require('url');
 function getEditorPosition(editor) {
     var bufferPos = editor.getCursorBufferPosition();
     return getEditorPositionForBufferPosition(editor, bufferPos);
@@ -165,3 +166,32 @@ function getActiveEditor() {
     return atom.workspace.getActiveTextEditor();
 }
 exports.getActiveEditor = getActiveEditor;
+function uriForPath(uriProtocol, filePath) {
+    return uriProtocol + "//" + filePath;
+}
+exports.uriForPath = uriForPath;
+function registerOpener(config) {
+    atom.commands.add(config.commandSelector, config.commandName, function (e) {
+        if (!commandForTypeScript(e))
+            return;
+        var uri = uriForPath(config.uriProtocol, getCurrentPath());
+        var old_pane = atom.workspace.paneForURI(uri);
+        if (old_pane) {
+            old_pane.destroyItem(old_pane.itemForUri(uri));
+        }
+        atom.workspace.open(uri, config.getData());
+    });
+    atom.workspace.addOpener(function (uri, data) {
+        try {
+            var protocol = url.parse(uri).protocol;
+        }
+        catch (error) {
+            return;
+        }
+        if (protocol !== config.uriProtocol) {
+            return;
+        }
+        return config.onOpen(data);
+    });
+}
+exports.registerOpener = registerOpener;
