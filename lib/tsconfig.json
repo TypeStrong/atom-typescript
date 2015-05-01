@@ -42,6 +42,8 @@
         "./main/atom/views/fileSymbolsView.ts",
         "./main/atom/views/lineMessageView.ts",
         "./main/atom/views/mainPanelView.ts",
+        "./main/atom/views/ngView/angularContext.ts",
+        "./main/atom/views/ngView/ngView.ts",
         "./main/atom/views/plainMessageView.ts",
         "./main/atom/views/projectSymbolsView.ts",
         "./main/atom/views/renameView.ts",

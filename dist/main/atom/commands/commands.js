@@ -17,6 +17,7 @@ var simpleSelectionView_1 = require("../views/simpleSelectionView");
 var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
 var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
+var ngView_1 = require("../views/ngView/ngView");
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -128,6 +129,20 @@ function registerCommands() {
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
         atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
+    });
+    atomUtils.registerOpener({
+        commandSelector: 'atom-workspace',
+        commandName: 'typescript:testing-ng-view',
+        uriProtocol: 'ng-view:',
+        getData: function () { return atomUtils.getFilePath(); },
+        onOpen: function (data) { return new ngView_1.NgView({
+            icon: 'repo-forked',
+            title: 'NG View',
+            protocol: 'ng-view:',
+            filePath: data.filePath,
+            html: ngView_1.NGViewDemoHtml,
+            controller: ngView_1.NGViewDemoClass,
+        }); },
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
         var editor = atom.workspace.getActiveTextEditor();

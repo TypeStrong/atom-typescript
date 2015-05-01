@@ -21,6 +21,9 @@ import * as outputFileCommands from "./outputFileCommands";
 import {registerRenameHandling} from "./moveFilesHandling";
 import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
 
+
+import {NgView, NGViewDemoClass, NGViewDemoHtml} from "../views/ngView/ngView";
+
 export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
@@ -165,6 +168,21 @@ export function registerCommands() {
         //     console.log(res.root);
         // });
     });
+
+    atomUtils.registerOpener({
+        commandSelector: 'atom-workspace',
+        commandName: 'typescript:testing-ng-view',
+        uriProtocol: 'ng-view:',
+        getData: () => { return atomUtils.getFilePath() },
+        onOpen: (data) => new NgView({
+            icon: 'repo-forked',
+            title: 'NG View',
+            protocol: 'ng-view:',
+            filePath: data.filePath,
+            html: NGViewDemoHtml,
+            controller: NGViewDemoClass,
+        }),
+    })
 
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
         // Rename file
@@ -377,7 +395,7 @@ export function registerCommands() {
 
     atomUtils.registerOpener({
         commandSelector: 'atom-workspace',
-        commandName: 'typescript:dependency-view',        
+        commandName: 'typescript:dependency-view',
         uriProtocol: dependencyURI,
         getData: () => {
             return {

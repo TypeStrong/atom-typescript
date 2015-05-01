@@ -67,7 +67,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
         </div>
     <div class="filter-section">
         <label>Filter: (enter to commit)</label>
-        <input id="filter" class="native-key-bindings"></input>
+        <input id="filter"></input>
     </div>
     <div class='copy-message'>
         <button class='btn btn-xs'>Copy Messages</button>

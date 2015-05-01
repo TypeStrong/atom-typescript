@@ -50,7 +50,7 @@ var prefixes = {
 function renderGraph(dependencies, mainContent, display) {
     var rootElement = mainContent[0];
     var d3Root = d3.select(rootElement);
-    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    <div class=\"filter-section\">\n        <label>Filter: (enter to commit)</label>\n        <input id=\"filter\" class=\"native-key-bindings\"></input>\n    </div>\n    <div class='copy-message'>\n        <button class='btn btn-xs'>Copy Messages</button>\n    </div>\n    <div class=\"general-messages\"></div>\n    </div>";
+    rootElement.innerHTML = "\n    <div class=\"graph\">\n      <div class=\"control-zoom\">\n          <a class=\"control-zoom-in\" href=\"#\" title=\"Zoom in\"></a>\n          <a class=\"control-zoom-out\" href=\"#\" title=\"Zoom out\"></a>\n        </div>\n    <div class=\"filter-section\">\n        <label>Filter: (enter to commit)</label>\n        <input id=\"filter\"></input>\n    </div>\n    <div class='copy-message'>\n        <button class='btn btn-xs'>Copy Messages</button>\n    </div>\n    <div class=\"general-messages\"></div>\n    </div>";
     var messagesElement = mainContent.find('.general-messages');
     messagesElement.text("No Issues Found!");
     var filterElement = mainContent.find('#filter');
