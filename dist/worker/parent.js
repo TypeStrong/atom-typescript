@@ -11,8 +11,9 @@ parent.pendingRequestsChanged = function (pending) {
         return;
     mainPanel.panelView.updatePendingRequests(pending);
 };
-if (debug_1.debug) {
+if (debug_1.debugSync) {
     parent.sendToIpc = function (x) { return x; };
+    parent.sendToIpcOnlyLast = function (x) { return x; };
 }
 function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);

@@ -1,4 +1,4 @@
-import {debug} from "./debug";
+import {debugSync} from "./debug";
 
 import childprocess = require('child_process');
 var exec = childprocess.exec;
@@ -18,8 +18,9 @@ parent.pendingRequestsChanged = (pending) => {
 };
 
 /** The only effect of debug is to really not route stuff to the child */
-if (debug) {
+if (debugSync) {
     parent.sendToIpc = x => x;
+    parent.sendToIpcOnlyLast = x => x;
 }
 
 export function startWorker() {
