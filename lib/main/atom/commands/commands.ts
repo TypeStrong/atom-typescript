@@ -276,12 +276,12 @@ export function registerCommands() {
                 items: res.references,
                 viewForItem: (item) => {
                     return `
-                        <span>${item.filePath}</span>
+                        <span>${atom.project.relativize(item.filePath)}</span>
                         <div class="pull-right">line: ${item.position.line}</div>
                         <pre style="clear:both">${item.preview}</pre>
                     `;
                 },
-                filterKey: 'filePath',
+                filterKey: utils.getName(()=>res.references[0].filePath),
                 confirmed: (definition) => {
                     atom.workspace.open(definition.filePath, {
                         initialLine: definition.position.line,
