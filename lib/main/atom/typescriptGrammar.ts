@@ -214,6 +214,7 @@ function getAtomStyleForToken(token: ts.ClassificationInfo, str: string): string
                 case 'static':
                 case 'public':
                 case 'private':
+                case 'protected':
                 case 'export':
                 case 'get':
                 case 'set':
