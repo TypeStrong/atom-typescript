@@ -1,5 +1,7 @@
 # `tsconfig.json`
-A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.5` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval to extend the file as long as we don't conflict](https://github.com/Microsoft/TypeScript/issues/1955). `tsconfig.json` is great for building the [compilation context](http://blog.icanmakethiswork.io/2015/02/hey-tsconfigjson-where-have-you-been.html).
+A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.5` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval to extend the file as long as we don't conflict](https://github.com/Microsoft/TypeScript/issues/1955).
+
+`tsconfig.json` is great for building the ["compilation context" so you **don't need to use** `/// <reference` comments](http://blog.icanmakethiswork.io/2015/02/hey-tsconfigjson-where-have-you-been.html).
 
 # Basic
 The minimal `tsconfig.json` file you need is:
