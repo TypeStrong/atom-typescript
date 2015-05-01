@@ -39,7 +39,8 @@
     "atom-space-pen-views": "^2.0.4",
     "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb1.tar.gz",
     "basarat-text-buffer": "^4.1.5",
-    "d3": "^3.5.5"
+    "d3": "^3.5.5",
+    "angular": "^1.3.15"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

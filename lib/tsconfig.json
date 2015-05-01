@@ -113,6 +113,7 @@
         "./typescript/services/shims.ts",
         "./typescript/services/signatureHelp.ts",
         "./typescript/services/utilities.ts",
+        "./typings/angularjs/angular.d.ts",
         "./typings/atom/atom.d.ts",
         "./typings/atompromise.d.ts",
         "./typings/bluebird.d.ts",

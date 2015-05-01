@@ -40,6 +40,9 @@
     },
     "d3/d3.d.ts": {
       "commit": "2520bce9a8a71b66e67487cbd5b33fec880b0c55"
+    },
+    "angularjs/angular.d.ts": {
+      "commit": "4311017110a3acf1fc3a9871a7a0509b9a6a3540"
     }
   }
 }
