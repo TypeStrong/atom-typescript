@@ -62,6 +62,7 @@
         "./main/lang/fixmyts/quoteToTemplate.ts",
         "./main/lang/fixmyts/quotesToQuotes.ts",
         "./main/lang/fixmyts/stringConcatToTemplate.ts",
+        "./main/lang/fixmyts/typeAssertPropertyAccess.ts",
         "./main/lang/modules/astToText.ts",
         "./main/lang/modules/building.ts",
         "./main/lang/modules/formatting.ts",

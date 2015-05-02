@@ -18,7 +18,7 @@ export class AstView extends sp.ScrollView {
         return this.div({ class: 'ast-view' }, () => {
             this.div({ style: 'display: flex' }, () => {
                 this.div({ outlet: 'mainContent', style: 'width: 50%' })
-                this.pre({ outlet: 'rawDisplay', style: 'width: 50%' })
+                this.pre({ class: 'raw-display', outlet: 'rawDisplay', style: 'width: 50%' })
             })
         });
     }
@@ -60,7 +60,7 @@ function renderTree(rootNode: NodeDisplay, _mainContent: JQuery, display: (conte
         dom: _mainContent[0],
         jq: _mainContent
     };
-    
+
     var margin = { top: 30, right: 20, bottom: 30, left: 20 };
     var width = root.jq.width() - margin.left - margin.right;
     var barHeight = 30;

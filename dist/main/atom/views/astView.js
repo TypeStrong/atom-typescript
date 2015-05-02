@@ -28,7 +28,7 @@ var AstView = (function (_super) {
         return this.div({ class: 'ast-view' }, function () {
             _this.div({ style: 'display: flex' }, function () {
                 _this.div({ outlet: 'mainContent', style: 'width: 50%' });
-                _this.pre({ outlet: 'rawDisplay', style: 'width: 50%' });
+                _this.pre({ class: 'raw-display', outlet: 'rawDisplay', style: 'width: 50%' });
             });
         });
     };

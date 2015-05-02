@@ -20,6 +20,7 @@ import overlaySelectionView from "../views/simpleOverlaySelectionView";
 import * as outputFileCommands from "./outputFileCommands";
 import {registerRenameHandling} from "./moveFilesHandling";
 import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
+import escapeHtml = require('escape-html');
 
 export function registerCommands() {
 
@@ -377,7 +378,7 @@ export function registerCommands() {
 
     atomUtils.registerOpener({
         commandSelector: 'atom-workspace',
-        commandName: 'typescript:dependency-view',        
+        commandName: 'typescript:dependency-view',
         uriProtocol: dependencyURI,
         getData: () => {
             return {
@@ -405,7 +406,7 @@ export function registerCommands() {
                 items: result.fixes,
                 viewForItem: (item) => {
                     return `<div>
-                        ${item.display}
+                        ${escapeHtml(item.display)}
                     </div>`;
                 },
                 filterKey: 'display',

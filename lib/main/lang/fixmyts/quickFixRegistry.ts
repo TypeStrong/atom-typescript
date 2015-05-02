@@ -8,6 +8,7 @@ import EqualsToEquals from "./equalsToEquals";
 import QuotesToQuotes from "./quotesToQuotes";
 import QuotesToTemplate from "./quoteToTemplate";
 import StringConcatToTemplate from "./stringConcatToTemplate";
+import TypeAssertPropertyAccess from "./typeAssertPropertyAccess";
 export var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new AddImportStatement(),
@@ -15,4 +16,5 @@ export var allQuickFixes: QuickFix[] = [
     new StringConcatToTemplate(),
     new QuotesToQuotes(),
     new QuotesToTemplate(),
+    new TypeAssertPropertyAccess(),
 ];

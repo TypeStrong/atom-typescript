@@ -17,6 +17,7 @@ var simpleSelectionView_1 = require("../views/simpleSelectionView");
 var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
 var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
+var escapeHtml = require('escape-html');
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -326,7 +327,7 @@ function registerCommands() {
             simpleOverlaySelectionView_1.default({
                 items: result.fixes,
                 viewForItem: function (item) {
-                    return "<div>\n                        " + item.display + "\n                    </div>";
+                    return "<div>\n                        " + escapeHtml(item.display) + "\n                    </div>";
                 },
                 filterKey: 'display',
                 confirmed: function (item) {
