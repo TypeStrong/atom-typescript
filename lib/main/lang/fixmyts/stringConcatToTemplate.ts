@@ -1,7 +1,5 @@
 import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
 import * as ast from "./astUtils";
-import {EOL} from "os";
-
 
 function isBinaryAddition(node: ts.Node): boolean {
     return (node.kind == ts.SyntaxKind.BinaryExpression &&
