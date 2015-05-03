@@ -63,7 +63,7 @@ var __onlyOnce = false;
 function onlyOnceStuff() {
     if (__onlyOnce) return;
     else __onlyOnce = true;
-    
+
     // Add the documentation view
     documentationView.attach();
 
@@ -128,7 +128,7 @@ function readyToActivate() {
             try {
                 // Only once stuff
                 onlyOnceStuff();
-                
+
                 // We only do analysis once the file is persisted to disk
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {
@@ -288,4 +288,8 @@ export function deserialize() {
 // Registering an autocomplete provider
 export function provide() {
     return [autoCompleteProvider.provider];
+}
+
+export function consumeSnippets(snippetsManager) {
+    atomUtils._setSnippetsManager(snippetsManager);
 }

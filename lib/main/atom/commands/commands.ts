@@ -47,7 +47,13 @@ export function registerCommands() {
                 editor.transact(() => {
                     refactorings[filePath].forEach((refactoring) => {
                         var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                        editor.setTextInBufferRange(range, refactoring.newText);
+                        if (!refactoring.isNewTextSnippet) {
+                            editor.setTextInBufferRange(range, refactoring.newText);
+                        } else {
+                            let cursor = editor.getCursor();
+                            cursor.selection.setBufferRange(range);
+                            atomUtils.insertSnippet(refactoring.newText, editor, cursor);
+                        }
                     });
                 })
             });
@@ -406,7 +412,7 @@ export function registerCommands() {
                 items: result.fixes,
                 viewForItem: (item) => {
                     return `<div>
-                        ${escapeHtml(item.display)}
+                        ${escapeHtml(item.display) }
                     </div>`;
                 },
                 filterKey: 'display',

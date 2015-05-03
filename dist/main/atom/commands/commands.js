@@ -34,7 +34,14 @@ function registerCommands() {
                 editor.transact(function () {
                     refactorings[filePath].forEach(function (refactoring) {
                         var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                        editor.setTextInBufferRange(range, refactoring.newText);
+                        if (!refactoring.isNewTextSnippet) {
+                            editor.setTextInBufferRange(range, refactoring.newText);
+                        }
+                        else {
+                            var cursor = editor.getCursor();
+                            cursor.selection.setBufferRange(range);
+                            atomUtils.insertSnippet(refactoring.newText, editor, cursor);
+                        }
                     });
                 });
             });

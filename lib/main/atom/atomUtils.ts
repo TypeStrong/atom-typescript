@@ -202,14 +202,14 @@ export interface OpenerConfig<T> {
 /**
  * Uri for filepath based on protocol
  */
-export function uriForPath(uriProtocol:string, filePath: string) {
+export function uriForPath(uriProtocol: string, filePath: string) {
     return uriProtocol + "//" + filePath;
 }
 
 /**
  * Registers an opener with atom
  */
-export function registerOpener<T>(config: OpenerConfig<T>) {    
+export function registerOpener<T>(config: OpenerConfig<T>) {
     atom.commands.add(config.commandSelector, config.commandName, (e) => {
         if (!commandForTypeScript(e)) return;
 
@@ -236,4 +236,20 @@ export function registerOpener<T>(config: OpenerConfig<T>) {
 
         return config.onOpen(data);
     });
+}
+
+
+/************
+ * Snippets *
+ ************/
+var _snippetsManager;
+export function _setSnippetsManager(snippetsManager) {
+    _snippetsManager = snippetsManager;
+}
+export function insertSnippet(snippet: string, editor: AtomCore.IEditor, cursor: AtomCore.ICursor) {
+    if (_snippetsManager) {
+        _snippetsManager.insertSnippet(snippet, editor, cursor);
+    } else {
+        console.error('Why no snippet manager?');
+    }
 }

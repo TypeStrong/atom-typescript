@@ -19,6 +19,13 @@
       }
     }
   },
+  "consumedServices": {
+      "snippets": {
+        "versions": {
+          "0.1.0": "consumeSnippets"
+        }
+      }
+  },
   "homepage": "http://atom.io/packages/atom-typescript",
   "repository": {
     "type": "git",

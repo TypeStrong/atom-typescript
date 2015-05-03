@@ -159,3 +159,7 @@ function provide() {
     return [autoCompleteProvider.provider];
 }
 exports.provide = provide;
+function consumeSnippets(snippetsManager) {
+    atomUtils._setSnippetsManager(snippetsManager);
+}
+exports.consumeSnippets = consumeSnippets;

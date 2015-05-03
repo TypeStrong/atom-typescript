@@ -4,7 +4,8 @@ var equalsToEquals_1 = require("./equalsToEquals");
 var quotesToQuotes_1 = require("./quotesToQuotes");
 var quoteToTemplate_1 = require("./quoteToTemplate");
 var stringConcatToTemplate_1 = require("./stringConcatToTemplate");
-var typeAssertPropertyAccess_1 = require("./typeAssertPropertyAccess");
+var typeAssertPropertyAccessToAny_1 = require("./typeAssertPropertyAccessToAny");
+var typeAssertPropertyAccessToType_1 = require("./typeAssertPropertyAccessToType");
 exports.allQuickFixes = [
     new addClassMember_1.default(),
     new addImportStatement_1.default(),
@@ -12,5 +13,6 @@ exports.allQuickFixes = [
     new stringConcatToTemplate_1.default(),
     new quotesToQuotes_1.default(),
     new quoteToTemplate_1.default(),
-    new typeAssertPropertyAccess_1.default(),
+    new typeAssertPropertyAccessToAny_1.default(),
+    new typeAssertPropertyAccessToType_1.default(),
 ];
