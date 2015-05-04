@@ -124,26 +124,13 @@ Also called Go To Type in other IDEs. Integrates with atom's project level symbo
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. e.g
+Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to trigger quick fixes. Select the quick fix you want and press `enter` to commit e.g
 
-Add class members
+### Add class members
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
 
-Toggle quote characters
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToQuotes.gif)
-
-Convert strings to template strings to get rid of those `\`
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quotesToTemplate.gif)
-
-Convert string concatenations to a template string
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/stringConcatToTemplate.gif)
-
-`==` and `!=` (because typing another `=` is hard)
-
-![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)
+### More Quick fixes 
+We are actively adding quick fixes so **go here for an up to date list**.
 
 ## tsconfig validation
 We will validate it and help you to fix it :)

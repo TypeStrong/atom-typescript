@@ -25,9 +25,9 @@ var TypeAssert = (function () {
                 filePath: info.filePath,
                 span: {
                     start: start,
-                    length: propertyAccess.dotToken.end - start,
+                    length: propertyAccess.name.end - start,
                 },
-                newText: "(<${1:any}>" + oldText + ")${2:.}",
+                newText: "(<${1:any}>" + oldText + ")${2:." + propertyAccess.name.getText() + "}${3}",
                 isNewTextSnippet: true,
             };
             return [refactoring];
