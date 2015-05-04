@@ -24,7 +24,13 @@ function setupEditor(editor) {
         });
     }, 500);
     var cursorObserver = editor.onDidChangeCursorPosition(function () {
-        queryForQuickFix(atomUtils.getFilePathPosition());
+        try {
+            var pathPos = atomUtils.getFilePathPosition();
+            queryForQuickFix(pathPos);
+        }
+        catch (ex) {
+            clearExistingQuickfixDecoration();
+        }
     });
     var destroyObserver = editor.onDidDestroy(function () {
         cursorObserver.dispose();

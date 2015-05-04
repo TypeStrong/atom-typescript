@@ -51,7 +51,7 @@ export function registerCommands() {
                             editor.setTextInBufferRange(range, refactoring.newText);
                         } else {
                             let cursor = editor.getCursor();
-                            cursor.selection.setBufferRange(range);
+                            (<any>cursor).selection.setBufferRange(range);
                             atomUtils.insertSnippet(refactoring.newText, editor, cursor);
                         }
                     });

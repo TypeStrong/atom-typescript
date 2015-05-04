@@ -15,7 +15,7 @@ export function setupEditor(editor: AtomCore.IEditor) {
             quickFixDecoration.destroy();
             quickFixDecoration = null;
         }
-        if(quickFixMarker){
+        if (quickFixMarker) {
             quickFixMarker.destroy();
             quickFixMarker = null;
         }
@@ -31,16 +31,26 @@ export function setupEditor(editor: AtomCore.IEditor) {
         })
     }, 500);
     var cursorObserver = editor.onDidChangeCursorPosition(() => {
-        queryForQuickFix(atomUtils.getFilePathPosition());
+        try {
+            // This line seems to throw an exception sometimes.             
+            // https://github.com/TypeStrong/atom-typescript/issues/325
+            // https://github.com/TypeStrong/atom-typescript/issues/310
+            let pathPos = atomUtils.getFilePathPosition();
+
+            queryForQuickFix(pathPos);
+        }
+        catch (ex) {
+            clearExistingQuickfixDecoration();
+        }
     });
 
 
     /**
      * On final dispose
      */
-     var destroyObserver = editor.onDidDestroy(() => {
-         // Clear editor observers
-         cursorObserver.dispose();
-         destroyObserver.dispose();
-     });
+    var destroyObserver = editor.onDidDestroy(() => {
+        // Clear editor observers
+        cursorObserver.dispose();
+        destroyObserver.dispose();
+    });
 }
