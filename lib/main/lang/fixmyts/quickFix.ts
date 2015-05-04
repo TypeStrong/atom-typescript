@@ -26,9 +26,15 @@ export interface QuickFixQueryInformation {
     position: number;
     positionNode: ts.Node;
     filePath: string;
+
+    /**
+     * Either the previous or the current.
+     * This needs more thinking e.g. 'rename' already does the right thing. See how it is implemented
+     */
+    oneOfPositionNodesOfType?(kind: ts.SyntaxKind): boolean;
 }
 
-export interface CanProvideFixResponse{
+export interface CanProvideFixResponse {
     /**
       * Return '' if you can't provide a fix
       * return 'Some string to display' if you can provide a string
