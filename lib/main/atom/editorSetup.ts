@@ -26,7 +26,7 @@ export function setupEditor(editor: AtomCore.IEditor) {
             if (res.fixes.length) {
                 quickFixMarker = editor.markBufferRange(editor.getSelectedBufferRange());
                 quickFixDecoration = editor.decorateMarker(quickFixMarker,
-                    { type: "gutter", class: "quickfix" });
+                    { type: "line-number", class: "quickfix" });
             }
         })
     }, 500);

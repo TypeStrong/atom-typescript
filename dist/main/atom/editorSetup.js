@@ -19,7 +19,7 @@ function setupEditor(editor) {
             clearExistingQuickfixDecoration();
             if (res.fixes.length) {
                 quickFixMarker = editor.markBufferRange(editor.getSelectedBufferRange());
-                quickFixDecoration = editor.decorateMarker(quickFixMarker, { type: "gutter", class: "quickfix" });
+                quickFixDecoration = editor.decorateMarker(quickFixMarker, { type: "line-number", class: "quickfix" });
             }
         });
     }, 500);
