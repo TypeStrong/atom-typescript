@@ -1,4 +1,4 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 
 function isBinaryAddition(node: ts.Node): boolean {
@@ -35,7 +35,7 @@ function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChe
 class StringConcatToTemplate implements QuickFix {
     key = StringConcatToTemplate.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         // Algo
         // Can provide a quick fix if we are part of an expression that
         // is a part of a binary + expression
@@ -44,7 +44,7 @@ class StringConcatToTemplate implements QuickFix {
         // Based on algo we do not care about what the current thing is as long as its a part of a sum of additions
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         if (strRoot) {
-            return 'String concatenations to a template string';
+            return { display: 'String concatenations to a template string' };
         }
     }
 

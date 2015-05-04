@@ -4,10 +4,10 @@ var EqualsToEquals = (function () {
     }
     EqualsToEquals.prototype.canProvideFix = function (info) {
         if (info.positionNode.kind === 28) {
-            return "Convert == to ===";
+            return { display: "Convert == to ===" };
         }
         if (info.positionNode.kind === 29) {
-            return "Convert != to !==";
+            return { display: "Convert != to !==" };
         }
     };
     EqualsToEquals.prototype.provideFix = function (info) {

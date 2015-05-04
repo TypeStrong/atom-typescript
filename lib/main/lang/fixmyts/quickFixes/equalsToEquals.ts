@@ -1,16 +1,16 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
 class EqualsToEquals implements QuickFix {
     key = EqualsToEquals.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         if (info.positionNode.kind === ts.SyntaxKind.EqualsEqualsToken) {
-            return "Convert == to ===";
+            return { display: "Convert == to ===" };
         }
         if (info.positionNode.kind === ts.SyntaxKind.ExclamationEqualsToken) {
-            return "Convert != to !==";
+            return { display: "Convert != to !==" };
         }
     }
 

@@ -334,7 +334,7 @@ function registerCommands() {
             simpleOverlaySelectionView_1.default({
                 items: result.fixes,
                 viewForItem: function (item) {
-                    return "<div>\n                        " + escapeHtml(item.display) + "\n                    </div>";
+                    return "<div>\n                        " + (item.isNewTextSnippet ? '<span class="icon-move-right"></span>' : '') + "\n                        " + escapeHtml(item.display) + "\n                    </div>";
                 },
                 filterKey: 'display',
                 confirmed: function (item) {

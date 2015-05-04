@@ -28,16 +28,20 @@ export interface QuickFixQueryInformation {
     filePath: string;
 }
 
-export interface QuickFix {
-    /** Some unique key. Classname works best ;) */
-    key: string;
-
+export interface CanProvideFixResponse{
     /**
       * Return '' if you can't provide a fix
       * return 'Some string to display' if you can provide a string
       */
-    canProvideFix(info: QuickFixQueryInformation): string;
+    display: string;
+    isNewTextSnippet?: boolean;
+}
 
+export interface QuickFix {
+    /** Some unique key. Classname works best ;) */
+    key: string;
+
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse;
 
     provideFix(info: QuickFixQueryInformation): Refactoring[];
 }

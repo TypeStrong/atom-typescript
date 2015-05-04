@@ -412,6 +412,7 @@ export function registerCommands() {
                 items: result.fixes,
                 viewForItem: (item) => {
                     return `<div>
+                        ${item.isNewTextSnippet ? '<span class="icon-move-right"></span>' : ''}
                         ${escapeHtml(item.display) }
                     </div>`;
                 },

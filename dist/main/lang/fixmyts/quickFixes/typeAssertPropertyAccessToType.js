@@ -12,7 +12,7 @@ var TypeAssert = (function () {
         if (!match)
             return;
         var identifierName = match.identifierName;
-        return "Assert <Type> for property access \"" + identifierName + "\"";
+        return { display: "Assert <Type> for property access \"" + identifierName + "\"", isNewTextSnippet: true };
     };
     TypeAssert.prototype.provideFix = function (info) {
         var parent = info.positionNode.parent;

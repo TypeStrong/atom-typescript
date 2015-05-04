@@ -5,10 +5,10 @@ var QuotesToQuotes = (function () {
     QuotesToQuotes.prototype.canProvideFix = function (info) {
         if (info.positionNode.kind === 8) {
             if (info.positionNode.getText().trim()[0] === "'") {
-                return "Convert ' to \"";
+                return { display: "Convert ' to \"" };
             }
             if (info.positionNode.getText().trim()[0] === "\"") {
-                return "Convert \" to '";
+                return { display: "Convert \" to '" };
             }
         }
     };

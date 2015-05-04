@@ -12,7 +12,7 @@ var TypeAssertPropertyAccessToAny = (function () {
         if (!match)
             return;
         var identifierName = match.identifierName;
-        return "Assert \"any\" for property access \"" + identifierName + "\"";
+        return { display: "Assert \"any\" for property access \"" + identifierName + "\"" };
     };
     TypeAssertPropertyAccessToAny.prototype.provideFix = function (info) {
         var parent = info.positionNode.parent;

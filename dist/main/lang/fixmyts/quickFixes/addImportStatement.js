@@ -15,7 +15,8 @@ function getIdentifierAndFileNames(error, project) {
         project: project,
         filePath: error.file.fileName,
         prefix: identifierName,
-        includeExternalModules: false }).files;
+        includeExternalModules: false
+    }).files;
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
     return { identifierName: identifierName, file: file, basename: basename };
@@ -31,7 +32,7 @@ var AddImportStatement = (function () {
         if (info.positionNode.kind !== 65)
             return;
         var _a = getIdentifierAndFileNames(relevantError, info.project), identifierName = _a.identifierName, file = _a.file;
-        return file ? "import " + identifierName + " = require(\"" + file + "\")" : undefined;
+        return file ? { display: "import " + identifierName + " = require(\"" + file + "\")" } : undefined;
     };
     AddImportStatement.prototype.provideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];

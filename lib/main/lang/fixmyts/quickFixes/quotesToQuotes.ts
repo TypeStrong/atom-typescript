@@ -1,17 +1,17 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
 class QuotesToQuotes implements QuickFix {
     key = QuotesToQuotes.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         if (info.positionNode.kind === ts.SyntaxKind.StringLiteral) {
             if (info.positionNode.getText().trim()[0] === `'`) {
-                return `Convert ' to "`;
+                return { display: `Convert ' to "` };
             }
             if (info.positionNode.getText().trim()[0] === `"`) {
-                return `Convert " to '`;
+                return { display: `Convert " to '` };
             }
         }
     }

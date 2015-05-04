@@ -4,7 +4,7 @@ var QuoteToTemplate = (function () {
     }
     QuoteToTemplate.prototype.canProvideFix = function (info) {
         if (info.positionNode.kind === 8) {
-            return "Convert to Template String";
+            return { display: "Convert to Template String" };
         }
     };
     QuoteToTemplate.prototype.provideFix = function (info) {

@@ -1,4 +1,4 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 import {EOL } from "os";
 var { displayPartsToString, typeToDisplayParts } = ts;
@@ -26,7 +26,8 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
         project,
         filePath: error.file.fileName,
         prefix: identifierName,
-        includeExternalModules: false });
+        includeExternalModules: false
+    });
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
     return { identifierName, file, basename };
@@ -35,16 +36,13 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
 class AddImportStatement implements QuickFix {
     key = AddImportStatement.name;
 
-    constructor() {
-    }
-
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
 
         var { identifierName, file} = getIdentifierAndFileNames(relevantError, info.project);
-        return file ? `import ${identifierName} = require(\"${file}\")` : undefined;
+        return file ? { display: `import ${identifierName} = require(\"${file}\")` } : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {

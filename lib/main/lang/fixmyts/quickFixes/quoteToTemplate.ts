@@ -1,13 +1,13 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
 class QuoteToTemplate implements QuickFix {
     key = QuoteToTemplate.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         if (info.positionNode.kind === ts.SyntaxKind.StringLiteral) {
-            return `Convert to Template String`;
+            return { display: `Convert to Template String` };
         }
     }
 

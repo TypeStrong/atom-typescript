@@ -1,11 +1,11 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 
 
 class TypeAssert implements QuickFix {
     key = TypeAssert.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x=> x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
@@ -15,7 +15,7 @@ class TypeAssert implements QuickFix {
         if (!match) return;
 
         var {identifierName} = match;
-        return `Assert <Type> for property access "${identifierName}"`;
+        return {display: `Assert <Type> for property access "${identifierName}"`, isNewTextSnippet: true};
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {

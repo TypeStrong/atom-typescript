@@ -723,6 +723,8 @@ export interface QuickFixDisplay {
     key: string;
     /** What will be displayed in the UI */
     display: string;
+    /** Does this quickfix provide a snippet */
+    isNewTextSnippet: boolean;
 }
 export interface GetQuickFixesResponse {
     fixes: QuickFixDisplay[];
@@ -733,7 +735,15 @@ export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesR
 
     // And then we let the quickFix determine if it wants provide any fixes for this file
     // And if so we also treat the result as a display string
-    var fixes = allQuickFixes.map(x => { return { key: x.key, display: x.canProvideFix(info) } }).filter(x=> !!x.display);
+    var fixes = allQuickFixes
+        .map(x => {
+        var canProvide = x.canProvideFix(info);
+        if (!canProvide)
+            return;
+        else
+            return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
+    })
+        .filter(x=> !!x);
 
     return resolve({ fixes });
 }

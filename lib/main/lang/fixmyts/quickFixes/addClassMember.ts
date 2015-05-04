@@ -1,4 +1,4 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} from "../quickFix";
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
@@ -22,7 +22,7 @@ function getIdentifierAndClassNames(error: ts.Diagnostic) {
 class AddClassMember implements QuickFix {
     key = AddClassMember.name;
 
-    canProvideFix(info: QuickFixQueryInformation): string {
+    canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x=> x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
@@ -35,7 +35,7 @@ class AddClassMember implements QuickFix {
         if (!match) return;
 
         var {identifierName, className} = match;
-        return `Add ${identifierName} to ${className}`;
+        return { display: `Add ${identifierName} to ${className}` };
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {

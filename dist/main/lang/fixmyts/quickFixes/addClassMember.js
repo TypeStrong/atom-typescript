@@ -27,7 +27,7 @@ var AddClassMember = (function () {
         if (!match)
             return;
         var identifierName = match.identifierName, className = match.className;
-        return "Add " + identifierName + " to " + className;
+        return { display: "Add " + identifierName + " to " + className };
     };
     AddClassMember.prototype.provideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];

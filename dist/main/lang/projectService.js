@@ -452,7 +452,15 @@ function getInfoForQuickFixAnalysis(query) {
 function getQuickFixes(query) {
     projectCache_1.consistentPath(query);
     var info = getInfoForQuickFixAnalysis(query);
-    var fixes = quickFixRegistry_1.allQuickFixes.map(function (x) { return { key: x.key, display: x.canProvideFix(info) }; }).filter(function (x) { return !!x.display; });
+    var fixes = quickFixRegistry_1.allQuickFixes
+        .map(function (x) {
+        var canProvide = x.canProvideFix(info);
+        if (!canProvide)
+            return;
+        else
+            return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
+    })
+        .filter(function (x) { return !!x; });
     return resolve({ fixes: fixes });
 }
 exports.getQuickFixes = getQuickFixes;

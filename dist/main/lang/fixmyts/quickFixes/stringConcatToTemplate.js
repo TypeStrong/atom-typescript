@@ -30,7 +30,7 @@ var StringConcatToTemplate = (function () {
         // and when these binary +es end we come to an expression which is of type `string`
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         if (strRoot) {
-            return 'String concatenations to a template string';
+            return { display: 'String concatenations to a template string' };
         }
     };
     StringConcatToTemplate.prototype.provideFix = function (info) {
