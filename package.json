@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "main": "./dist/main/atomts",
   "bin": {
     "atbuild": "./dist/main/bin/build.js"
@@ -20,11 +20,11 @@
     }
   },
   "consumedServices": {
-      "snippets": {
-        "versions": {
-          "0.1.0": "consumeSnippets"
-        }
+    "snippets": {
+      "versions": {
+        "0.1.0": "consumeSnippets"
       }
+    }
   },
   "homepage": "http://atom.io/packages/atom-typescript",
   "repository": {
