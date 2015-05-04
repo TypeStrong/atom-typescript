@@ -6,7 +6,7 @@ var types = simpleValidator.types;
 // Most compiler options come from require('typescript').CompilerOptions, but
 // 'module' and 'target' cannot use the same enum as that interface since we
 // do not want to force users to put magic numbers in their tsconfig files
-// TODO: Use require('typescript').parseConfigFile when TS1.5 is released
+// Possible: Use require('typescript').parseConfigFile in TS1.5
 interface CompilerOptions {
     allowNonTsExtensions?: boolean;
     charset?: string;
@@ -29,6 +29,7 @@ interface CompilerOptions {
     outDir?: string;                                  // Redirect output structure to this directory
     preserveConstEnums?: boolean;
     removeComments?: boolean;                         // Do not emit comments in output
+    rootDir?: string;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     suppressImplicitAnyIndexErrors?: boolean;
@@ -59,6 +60,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     outDir: { type: types.string },
     preserveConstEnums: { type: types.boolean },
     removeComments: { type: types.boolean },
+    rootDir: { type: types.string },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
@@ -229,6 +231,10 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
 
     if (compilerOptions.outDir !== undefined) {
         compilerOptions.outDir = path.resolve(projectDir, compilerOptions.outDir);
+    }
+
+    if (compilerOptions.rootDir !== undefined) {
+        compilerOptions.rootDir = path.resolve(projectDir, compilerOptions.rootDir);
     }
 
     if (compilerOptions.out !== undefined) {

@@ -22,6 +22,7 @@ var compilerOptionsValidation = {
     outDir: { type: types.string },
     preserveConstEnums: { type: types.boolean },
     removeComments: { type: types.boolean },
+    rootDir: { type: types.string },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
@@ -120,6 +121,9 @@ function rawToTsCompilerOptions(jsonOptions, projectDir) {
     }
     if (compilerOptions.outDir !== undefined) {
         compilerOptions.outDir = path.resolve(projectDir, compilerOptions.outDir);
+    }
+    if (compilerOptions.rootDir !== undefined) {
+        compilerOptions.rootDir = path.resolve(projectDir, compilerOptions.rootDir);
     }
     if (compilerOptions.out !== undefined) {
         compilerOptions.out = path.resolve(projectDir, compilerOptions.out);
