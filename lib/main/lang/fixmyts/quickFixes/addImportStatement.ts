@@ -1,11 +1,11 @@
-import { QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ast from "./astUtils";
+import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import * as ast from "../astUtils";
 import {EOL } from "os";
 var { displayPartsToString, typeToDisplayParts } = ts;
 import path = require('path');
-import {Project} from "../core/project";
+import {Project} from "../../core/project";
 
-import {getPathCompletions} from "../modules/getPathCompletions";
+import {getPathCompletions} from "../../modules/getPathCompletions";
 
 function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
 

@@ -1,5 +1,5 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ast from "./astUtils";
+import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import * as ast from "../astUtils";
 
 
 class TypeAssert implements QuickFix {

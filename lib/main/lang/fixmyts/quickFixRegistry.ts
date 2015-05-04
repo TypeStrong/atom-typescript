@@ -2,14 +2,14 @@ import {QuickFix} from "./quickFix";
 /**
  * This exists to register the quick fixes
  */
-import AddClassMember from "./addClassMember";
-import AddImportStatement from "./addImportStatement";
-import EqualsToEquals from "./equalsToEquals";
-import QuotesToQuotes from "./quotesToQuotes";
-import QuotesToTemplate from "./quoteToTemplate";
-import StringConcatToTemplate from "./stringConcatToTemplate";
-import TypeAssertPropertyAccessToAny from "./typeAssertPropertyAccessToAny";
-import TypeAssertPropertyAccessToType from "./typeAssertPropertyAccessToType";
+import AddClassMember from "./quickFixes/addClassMember";
+import AddImportStatement from "./quickFixes/addImportStatement";
+import EqualsToEquals from "./quickFixes/equalsToEquals";
+import QuotesToQuotes from "./quickFixes/quotesToQuotes";
+import QuotesToTemplate from "./quickFixes/quoteToTemplate";
+import StringConcatToTemplate from "./quickFixes/stringConcatToTemplate";
+import TypeAssertPropertyAccessToAny from "./quickFixes/typeAssertPropertyAccessToAny";
+import TypeAssertPropertyAccessToType from "./quickFixes/typeAssertPropertyAccessToType";
 export var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new AddImportStatement(),

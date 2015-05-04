@@ -1,6 +1,6 @@
 var os_1 = require("os");
 var displayPartsToString = ts.displayPartsToString, typeToDisplayParts = ts.typeToDisplayParts;
-var getPathCompletions_1 = require("../modules/getPathCompletions");
+var getPathCompletions_1 = require("../../modules/getPathCompletions");
 function getIdentifierAndFileNames(error, project) {
     var errorText = error.messageText;
     if (typeof errorText !== 'string') {

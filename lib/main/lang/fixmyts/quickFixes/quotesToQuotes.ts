@@ -1,13 +1,18 @@
-import {QuickFix, QuickFixQueryInformation, Refactoring} from "./quickFix";
-import * as ast from "./astUtils";
+import {QuickFix, QuickFixQueryInformation, Refactoring} from "../quickFix";
+import * as ast from "../astUtils";
 import {EOL} from "os";
 
-class QuoteToTemplate implements QuickFix {
-    key = QuoteToTemplate.name;
+class QuotesToQuotes implements QuickFix {
+    key = QuotesToQuotes.name;
 
     canProvideFix(info: QuickFixQueryInformation): string {
         if (info.positionNode.kind === ts.SyntaxKind.StringLiteral) {
-            return `Convert to Template String`;
+            if (info.positionNode.getText().trim()[0] === `'`) {
+                return `Convert ' to "`;
+            }
+            if (info.positionNode.getText().trim()[0] === `"`) {
+                return `Convert " to '`;
+            }
         }
     }
 
@@ -15,10 +20,9 @@ class QuoteToTemplate implements QuickFix {
 
         var text = info.positionNode.getText();
         var quoteCharacter = text.trim()[0];
-        var nextQuoteCharacter = '`';
+        var nextQuoteCharacter = quoteCharacter === "'" ? '"' : "'";
 
-        // The following code is same as `quotesToQuotes. Refactor!`
-
+        // STOLEN : https://github.com/atom/toggle-quotes/blob/master/lib/toggle-quotes.coffee
         var quoteRegex = new RegExp(quoteCharacter, 'g')
         var escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
         var nextQuoteRegex = new RegExp(nextQuoteCharacter, 'g')
@@ -42,4 +46,4 @@ class QuoteToTemplate implements QuickFix {
     }
 }
 
-export default QuoteToTemplate;
+export default QuotesToQuotes;

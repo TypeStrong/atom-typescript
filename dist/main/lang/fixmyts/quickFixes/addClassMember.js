@@ -1,4 +1,4 @@
-var ast = require("./astUtils");
+var ast = require("../astUtils");
 var os_1 = require("os");
 function getIdentifierAndClassNames(error) {
     var errorText = error.messageText;
