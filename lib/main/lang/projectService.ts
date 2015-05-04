@@ -696,7 +696,8 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
     var program = project.languageService.getProgram();
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
-    var positionErrors = fileErrors.filter(e=> (e.start < query.position) && (e.start + e.length) > query.position);
+    /** We want errors that are *touching* and thefore expand the query position by one */
+    var positionErrors = fileErrors.filter(e=> ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position);
     var positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
     var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;

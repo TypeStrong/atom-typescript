@@ -430,7 +430,7 @@ function getInfoForQuickFixAnalysis(query) {
     var program = project.languageService.getProgram();
     var srcFile = program.getSourceFile(query.filePath);
     var fileErrors = getDiagnositcsByFilePath(query);
-    var positionErrors = fileErrors.filter(function (e) { return (e.start < query.position) && (e.start + e.length) > query.position; });
+    var positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
     var positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
     var positionNode = ts.getTokenAtPosition(srcFile, query.position);
     var service = project.languageService;
