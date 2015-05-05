@@ -158,7 +158,8 @@ export var defaults: ts.CompilerOptions = {
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
-    noLib: false
+    noLib: false,
+    preserveConstEnums: true,
 };
 
 // TODO: add validation and add all options

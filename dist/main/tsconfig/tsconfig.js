@@ -59,7 +59,8 @@ exports.defaults = {
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
-    noLib: false
+    noLib: false,
+    preserveConstEnums: true,
 };
 var deprecatedKeys = {
     outdir: 'outDir',
