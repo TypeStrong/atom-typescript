@@ -162,17 +162,6 @@ export var defaults: ts.CompilerOptions = {
     preserveConstEnums: true,
 };
 
-// TODO: add validation and add all options
-var deprecatedKeys = {
-    outdir: 'outDir',
-    noimplicitany: 'noImplicitAny',
-    removecomments: 'removeComments',
-    sourcemap: 'sourceMap',
-    sourceroot: 'sourceRoot',
-    maproot: 'mapRoot',
-    nolib: 'noLib'
-};
-
 var typescriptEnumMap = {
     target: {
         'es3': ts.ScriptTarget.ES3,
@@ -216,12 +205,6 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
     // Cannot use Object.create because the compiler checks hasOwnProperty
     var compilerOptions = <ts.CompilerOptions> mixin({}, defaults);
     for (var key in jsonOptions) {
-        if (deprecatedKeys[key]) {
-            // Warn using : https://github.com/TypeStrong/atom-typescript/issues/51
-            // atom.notifications.addWarning('Compiler option "' + key + '" is deprecated; use "' + deprecatedKeys[key] + '" instead');
-            key = deprecatedKeys[key];
-        }
-
         if (typescriptEnumMap[key]) {
             compilerOptions[key] = typescriptEnumMap[key][jsonOptions[key].toLowerCase()];
         }

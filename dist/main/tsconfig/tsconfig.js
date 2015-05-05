@@ -62,15 +62,6 @@ exports.defaults = {
     noLib: false,
     preserveConstEnums: true,
 };
-var deprecatedKeys = {
-    outdir: 'outDir',
-    noimplicitany: 'noImplicitAny',
-    removecomments: 'removeComments',
-    sourcemap: 'sourceMap',
-    sourceroot: 'sourceRoot',
-    maproot: 'mapRoot',
-    nolib: 'noLib'
-};
 var typescriptEnumMap = {
     target: {
         'es3': 0,
@@ -110,9 +101,6 @@ function mixin(target, source) {
 function rawToTsCompilerOptions(jsonOptions, projectDir) {
     var compilerOptions = mixin({}, exports.defaults);
     for (var key in jsonOptions) {
-        if (deprecatedKeys[key]) {
-            key = deprecatedKeys[key];
-        }
         if (typescriptEnumMap[key]) {
             compilerOptions[key] = typescriptEnumMap[key][jsonOptions[key].toLowerCase()];
         }
