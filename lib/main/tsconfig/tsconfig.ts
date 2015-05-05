@@ -160,6 +160,7 @@ export var defaults: ts.CompilerOptions = {
     removeComments: true,
     noLib: false,
     preserveConstEnums: true,
+    suppressImplicitAnyIndexErrors: true
 };
 
 var typescriptEnumMap = {

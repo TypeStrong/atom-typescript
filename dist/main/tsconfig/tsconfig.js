@@ -61,6 +61,7 @@ exports.defaults = {
     removeComments: true,
     noLib: false,
     preserveConstEnums: true,
+    suppressImplicitAnyIndexErrors: true
 };
 var typescriptEnumMap = {
     target: {
