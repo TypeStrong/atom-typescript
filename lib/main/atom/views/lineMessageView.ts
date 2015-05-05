@@ -74,7 +74,7 @@ export class LineMessageView extends view.View<ViewOptions> {
             pos += ', ' + this.options.file;
         }
         return {
-            summary: pos + this.options.message,
+            summary: pos + ' ' + this.options.message,
             rawSummary: true,
             handler: function(element) {
                 $(element)

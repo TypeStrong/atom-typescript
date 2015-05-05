@@ -57,7 +57,7 @@ var LineMessageView = (function (_super) {
             pos += ', ' + this.options.file;
         }
         return {
-            summary: pos + this.options.message,
+            summary: pos + ' ' + this.options.message,
             rawSummary: true,
             handler: function (element) {
                 $(element)
