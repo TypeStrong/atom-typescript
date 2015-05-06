@@ -6,6 +6,9 @@ This is probably because of us keeping `files` updated with the `filesGlob` opti
 ## I don't want atom-typescript compiling my js
 Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave)
 
+## I prefer single (or double) quotes
+You can set that in the package settings https://atom.io/docs/latest/using-atom-atom-packages#package-settings
+
 ## Atom Typescript is complaining about not finding files or other weird errors
 You probably deleted them or added them or moved them around. We don't watch the file system as it is memory intensive and unreliable across operating systems. You can ask atom-typescript to do a rescan of your file system using the `sync` command (https://github.com/TypeStrong/atom-typescript#sync)
 
