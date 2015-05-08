@@ -130,7 +130,7 @@ Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to t
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
 
 ### More Quick fixes 
-We are actively adding quick fixes so **go here for an up to date list**.
+We are actively adding quick fixes so [**go here for an up to date list**](https://github.com/TypeStrong/atom-typescript/blob/master/docs/quickfix.md).
 
 ## tsconfig validation
 We will validate it and help you to fix it :)
