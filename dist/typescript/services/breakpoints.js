@@ -39,98 +39,98 @@ var ts;
             function spanInNode(node) {
                 if (node) {
                     if (ts.isExpression(node)) {
-                        if (node.parent.kind === 184) {
+                        if (node.parent.kind === 185) {
                             return spanInPreviousNode(node);
                         }
-                        if (node.parent.kind === 186) {
+                        if (node.parent.kind === 187) {
                             return textSpan(node);
                         }
-                        if (node.parent.kind === 169 && node.parent.operatorToken.kind === 23) {
+                        if (node.parent.kind === 170 && node.parent.operatorToken.kind === 23) {
                             return textSpan(node);
                         }
-                        if (node.parent.kind == 163 && node.parent.body == node) {
+                        if (node.parent.kind == 164 && node.parent.body == node) {
                             return textSpan(node);
                         }
                     }
                     switch (node.kind) {
-                        case 180:
+                        case 181:
                             return spanInVariableDeclaration(node.declarationList.declarations[0]);
-                        case 198:
-                        case 132:
-                        case 131:
-                            return spanInVariableDeclaration(node);
-                        case 129:
-                            return spanInParameterDeclaration(node);
-                        case 200:
-                        case 134:
+                        case 199:
                         case 133:
-                        case 136:
-                        case 137:
+                        case 132:
+                            return spanInVariableDeclaration(node);
+                        case 130:
+                            return spanInParameterDeclaration(node);
+                        case 201:
                         case 135:
-                        case 162:
+                        case 134:
+                        case 137:
+                        case 138:
+                        case 136:
                         case 163:
+                        case 164:
                             return spanInFunctionDeclaration(node);
-                        case 179:
+                        case 180:
                             if (ts.isFunctionBlock(node)) {
                                 return spanInFunctionBlock(node);
                             }
-                        case 206:
+                        case 207:
                             return spanInBlock(node);
-                        case 223:
+                        case 224:
                             return spanInBlock(node.block);
-                        case 182:
-                            return textSpan(node.expression);
-                        case 191:
-                            return textSpan(node.getChildAt(0), node.expression);
-                        case 185:
-                            return textSpan(node, ts.findNextToken(node.expression, node));
-                        case 184:
-                            return spanInNode(node.statement);
-                        case 197:
-                            return textSpan(node.getChildAt(0));
                         case 183:
+                            return textSpan(node.expression);
+                        case 192:
+                            return textSpan(node.getChildAt(0), node.expression);
+                        case 186:
+                            return textSpan(node, ts.findNextToken(node.expression, node));
+                        case 185:
+                            return spanInNode(node.statement);
+                        case 198:
+                            return textSpan(node.getChildAt(0));
+                        case 184:
+                            return textSpan(node, ts.findNextToken(node.expression, node));
+                        case 195:
+                            return spanInNode(node.statement);
+                        case 191:
+                        case 190:
+                            return textSpan(node.getChildAt(0), node.label);
+                        case 187:
+                            return spanInForStatement(node);
+                        case 188:
+                        case 189:
                             return textSpan(node, ts.findNextToken(node.expression, node));
                         case 194:
-                            return spanInNode(node.statement);
-                        case 190:
-                        case 189:
-                            return textSpan(node.getChildAt(0), node.label);
-                        case 186:
-                            return spanInForStatement(node);
-                        case 187:
-                        case 188:
                             return textSpan(node, ts.findNextToken(node.expression, node));
-                        case 193:
-                            return textSpan(node, ts.findNextToken(node.expression, node));
-                        case 220:
                         case 221:
+                        case 222:
                             return spanInNode(node.statements[0]);
-                        case 196:
+                        case 197:
                             return spanInBlock(node.tryBlock);
-                        case 195:
+                        case 196:
                             return textSpan(node, node.expression);
-                        case 214:
-                            return textSpan(node, node.expression);
-                        case 208:
-                            return textSpan(node, node.moduleReference);
-                        case 209:
-                            return textSpan(node, node.moduleSpecifier);
                         case 215:
+                            return textSpan(node, node.expression);
+                        case 209:
+                            return textSpan(node, node.moduleReference);
+                        case 210:
                             return textSpan(node, node.moduleSpecifier);
-                        case 205:
+                        case 216:
+                            return textSpan(node, node.moduleSpecifier);
+                        case 206:
                             if (ts.getModuleInstanceState(node) !== 1) {
                                 return undefined;
                             }
-                        case 201:
-                        case 204:
-                        case 226:
-                        case 157:
-                        case 158:
-                            return textSpan(node);
-                        case 192:
-                            return spanInNode(node.statement);
                         case 202:
+                        case 205:
+                        case 227:
+                        case 158:
+                        case 159:
+                            return textSpan(node);
+                        case 193:
+                            return spanInNode(node.statement);
                         case 203:
+                        case 204:
                             return undefined;
                         case 22:
                         case 1:
@@ -157,10 +157,10 @@ var ts;
                         case 81:
                             return spanInNextNode(node);
                         default:
-                            if (node.parent.kind === 224 && node.parent.name === node) {
+                            if (node.parent.kind === 225 && node.parent.name === node) {
                                 return spanInNode(node.parent.initializer);
                             }
-                            if (node.parent.kind === 160 && node.parent.type === node) {
+                            if (node.parent.kind === 161 && node.parent.type === node) {
                                 return spanInNode(node.parent.expression);
                             }
                             if (ts.isFunctionLike(node.parent) && node.parent.type === node) {
@@ -170,12 +170,12 @@ var ts;
                     }
                 }
                 function spanInVariableDeclaration(variableDeclaration) {
-                    if (variableDeclaration.parent.parent.kind === 187 ||
-                        variableDeclaration.parent.parent.kind === 188) {
+                    if (variableDeclaration.parent.parent.kind === 188 ||
+                        variableDeclaration.parent.parent.kind === 189) {
                         return spanInNode(variableDeclaration.parent.parent);
                     }
-                    var isParentVariableStatement = variableDeclaration.parent.parent.kind === 180;
-                    var isDeclarationOfForStatement = variableDeclaration.parent.parent.kind === 186 && ts.contains(variableDeclaration.parent.parent.initializer.declarations, variableDeclaration);
+                    var isParentVariableStatement = variableDeclaration.parent.parent.kind === 181;
+                    var isDeclarationOfForStatement = variableDeclaration.parent.parent.kind === 187 && ts.contains(variableDeclaration.parent.parent.initializer.declarations, variableDeclaration);
                     var declarations = isParentVariableStatement
                         ? variableDeclaration.parent.parent.declarationList.declarations
                         : isDeclarationOfForStatement
@@ -221,7 +221,7 @@ var ts;
                 }
                 function canFunctionHaveSpanInWholeDeclaration(functionDeclaration) {
                     return !!(functionDeclaration.flags & 1) ||
-                        (functionDeclaration.parent.kind === 201 && functionDeclaration.kind !== 135);
+                        (functionDeclaration.parent.kind === 202 && functionDeclaration.kind !== 136);
                 }
                 function spanInFunctionDeclaration(functionDeclaration) {
                     if (!functionDeclaration.body) {
@@ -241,23 +241,23 @@ var ts;
                 }
                 function spanInBlock(block) {
                     switch (block.parent.kind) {
-                        case 205:
+                        case 206:
                             if (ts.getModuleInstanceState(block.parent) !== 1) {
                                 return undefined;
                             }
-                        case 185:
-                        case 183:
-                        case 187:
-                        case 188:
-                            return spanInNodeIfStartsOnSameLine(block.parent, block.statements[0]);
                         case 186:
+                        case 184:
+                        case 188:
+                        case 189:
+                            return spanInNodeIfStartsOnSameLine(block.parent, block.statements[0]);
+                        case 187:
                             return spanInNodeIfStartsOnSameLine(ts.findPrecedingToken(block.pos, sourceFile, block.parent), block.statements[0]);
                     }
                     return spanInNode(block.statements[0]);
                 }
                 function spanInForStatement(forStatement) {
                     if (forStatement.initializer) {
-                        if (forStatement.initializer.kind === 199) {
+                        if (forStatement.initializer.kind === 200) {
                             var variableDeclarationList = forStatement.initializer;
                             if (variableDeclarationList.declarations.length > 0) {
                                 return spanInNode(variableDeclarationList.declarations[0]);
@@ -270,44 +270,44 @@ var ts;
                     if (forStatement.condition) {
                         return textSpan(forStatement.condition);
                     }
-                    if (forStatement.iterator) {
-                        return textSpan(forStatement.iterator);
+                    if (forStatement.incrementor) {
+                        return textSpan(forStatement.incrementor);
                     }
                 }
                 function spanInOpenBraceToken(node) {
                     switch (node.parent.kind) {
-                        case 204:
+                        case 205:
                             var enumDeclaration = node.parent;
                             return spanInNodeIfStartsOnSameLine(ts.findPrecedingToken(node.pos, sourceFile, node.parent), enumDeclaration.members.length ? enumDeclaration.members[0] : enumDeclaration.getLastToken(sourceFile));
-                        case 201:
+                        case 202:
                             var classDeclaration = node.parent;
                             return spanInNodeIfStartsOnSameLine(ts.findPrecedingToken(node.pos, sourceFile, node.parent), classDeclaration.members.length ? classDeclaration.members[0] : classDeclaration.getLastToken(sourceFile));
-                        case 207:
+                        case 208:
                             return spanInNodeIfStartsOnSameLine(node.parent.parent, node.parent.clauses[0]);
                     }
                     return spanInNode(node.parent);
                 }
                 function spanInCloseBraceToken(node) {
                     switch (node.parent.kind) {
-                        case 206:
+                        case 207:
                             if (ts.getModuleInstanceState(node.parent.parent) !== 1) {
                                 return undefined;
                             }
-                        case 204:
-                        case 201:
+                        case 205:
+                        case 202:
                             return textSpan(node);
-                        case 179:
+                        case 180:
                             if (ts.isFunctionBlock(node.parent)) {
                                 return textSpan(node);
                             }
-                        case 223:
-                            return spanInNode(node.parent.statements[node.parent.statements.length - 1]);
+                        case 224:
+                            return spanInNode(ts.lastOrUndefined(node.parent.statements));
                             ;
-                        case 207:
+                        case 208:
                             var caseBlock = node.parent;
-                            var lastClause = caseBlock.clauses[caseBlock.clauses.length - 1];
+                            var lastClause = ts.lastOrUndefined(caseBlock.clauses);
                             if (lastClause) {
-                                return spanInNode(lastClause.statements[lastClause.statements.length - 1]);
+                                return spanInNode(ts.lastOrUndefined(lastClause.statements));
                             }
                             return undefined;
                         default:
@@ -315,24 +315,24 @@ var ts;
                     }
                 }
                 function spanInOpenParenToken(node) {
-                    if (node.parent.kind === 184) {
+                    if (node.parent.kind === 185) {
                         return spanInPreviousNode(node);
                     }
                     return spanInNode(node.parent);
                 }
                 function spanInCloseParenToken(node) {
                     switch (node.parent.kind) {
-                        case 162:
-                        case 200:
                         case 163:
-                        case 134:
-                        case 133:
-                        case 136:
-                        case 137:
+                        case 201:
+                        case 164:
                         case 135:
-                        case 185:
-                        case 184:
+                        case 134:
+                        case 137:
+                        case 138:
+                        case 136:
                         case 186:
+                        case 185:
+                        case 187:
                             return spanInPreviousNode(node);
                         default:
                             return spanInNode(node.parent);
@@ -340,19 +340,19 @@ var ts;
                     return spanInNode(node.parent);
                 }
                 function spanInColonToken(node) {
-                    if (ts.isFunctionLike(node.parent) || node.parent.kind === 224) {
+                    if (ts.isFunctionLike(node.parent) || node.parent.kind === 225) {
                         return spanInPreviousNode(node);
                     }
                     return spanInNode(node.parent);
                 }
                 function spanInGreaterThanOrLessThanToken(node) {
-                    if (node.parent.kind === 160) {
+                    if (node.parent.kind === 161) {
                         return spanInNode(node.parent.expression);
                     }
                     return spanInNode(node.parent);
                 }
                 function spanInWhileKeyword(node) {
-                    if (node.parent.kind === 184) {
+                    if (node.parent.kind === 185) {
                         return textSpan(node, ts.findNextToken(node.parent.expression, node.parent));
                     }
                     return spanInNode(node.parent);

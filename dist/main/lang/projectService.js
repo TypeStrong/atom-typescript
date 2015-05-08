@@ -319,9 +319,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 127) {
+        if (declaration.name.kind === 128) {
             var expr = declaration.name.expression;
-            if (expr.kind === 155) {
+            if (expr.kind === 156) {
                 return expr.name.text;
             }
             return getTextOfIdentifierOrLiteral(expr);

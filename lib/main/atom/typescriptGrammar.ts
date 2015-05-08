@@ -53,14 +53,14 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // Note: the Atom Tokenizer supports multiple nesting of ruleStacks
         // The TypeScript tokenizer has a single final state it cares about
         // So we only need to pass it the final lex state
-        var finalLexState = firstLine ? ts.EndOfLineState.Start
+        var finalLexState = firstLine ? ts.EndOfLineState.None
             : ruleStack.length ? ruleStack[0]
-                : ts.EndOfLineState.Start;
+                : ts.EndOfLineState.None;
 
         // If we are in some TS tokenizing process use TS tokenizer
         // Otherwise use the specific ones we match
         // Otherwise fall back to TS tokenizer
-        if (finalLexState !== ts.EndOfLineState.Start) {
+        if (finalLexState !== ts.EndOfLineState.None) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
         if (line.match(this.fullTripleSlashReferencePathRegEx)) {
@@ -148,7 +148,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
     }
 
-    getTsTokensForLine(line: string, finalLexState: ts.EndOfLineState = ts.EndOfLineState.Start)
+    getTsTokensForLine(line: string, finalLexState: ts.EndOfLineState = ts.EndOfLineState.None)
         : TSTokens {
 
         var output = this.classifier.getClassificationsForLine(line, finalLexState, true);

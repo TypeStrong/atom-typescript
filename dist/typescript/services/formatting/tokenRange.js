@@ -54,7 +54,7 @@ var ts;
                 }
                 TokenAllAccess.prototype.GetTokens = function () {
                     var result = [];
-                    for (var token = 0; token <= 125; token++) {
+                    for (var token = 0; token <= 126; token++) {
                         result.push(token);
                     }
                     return result;
@@ -96,9 +96,9 @@ var ts;
                 };
                 TokenRange.Any = TokenRange.AllTokens();
                 TokenRange.AnyIncludingMultilineComments = TokenRange.FromTokens(TokenRange.Any.GetTokens().concat([3]));
-                TokenRange.Keywords = TokenRange.FromRange(66, 125);
+                TokenRange.Keywords = TokenRange.FromRange(66, 126);
                 TokenRange.BinaryOperators = TokenRange.FromRange(24, 64);
-                TokenRange.BinaryKeywordOperators = TokenRange.FromTokens([86, 87, 125]);
+                TokenRange.BinaryKeywordOperators = TokenRange.FromTokens([86, 87, 126]);
                 TokenRange.UnaryPrefixOperators = TokenRange.FromTokens([38, 39, 47, 46]);
                 TokenRange.UnaryPrefixExpressions = TokenRange.FromTokens([7, 65, 16, 18, 14, 93, 88]);
                 TokenRange.UnaryPreincrementExpressions = TokenRange.FromTokens([65, 16, 93, 88]);
@@ -106,7 +106,7 @@ var ts;
                 TokenRange.UnaryPredecrementExpressions = TokenRange.FromTokens([65, 16, 93, 88]);
                 TokenRange.UnaryPostdecrementExpressions = TokenRange.FromTokens([65, 17, 19, 88]);
                 TokenRange.Comments = TokenRange.FromTokens([2, 3]);
-                TokenRange.TypeNames = TokenRange.FromTokens([65, 119, 121, 113, 122, 99, 112]);
+                TokenRange.TypeNames = TokenRange.FromTokens([65, 120, 122, 113, 123, 99, 112]);
                 return TokenRange;
             })();
             Shared.TokenRange = TokenRange;

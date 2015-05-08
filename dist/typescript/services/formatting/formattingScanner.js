@@ -37,7 +37,7 @@ var ts;
                 if (isStarted) {
                     if (trailingTrivia) {
                         ts.Debug.assert(trailingTrivia.length !== 0);
-                        wasNewLine = trailingTrivia[trailingTrivia.length - 1].kind === 4;
+                        wasNewLine = ts.lastOrUndefined(trailingTrivia).kind === 4;
                     }
                     else {
                         wasNewLine = false;

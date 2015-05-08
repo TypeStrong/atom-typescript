@@ -30,6 +30,14 @@ var ts;
             description: ts.Diagnostics.Print_this_message,
         },
         {
+            name: "inlineSourceMap",
+            type: "boolean",
+        },
+        {
+            name: "inlineSources",
+            type: "boolean",
+        },
+        {
             name: "listFiles",
             type: "boolean",
         },
@@ -49,16 +57,32 @@ var ts;
             shortName: "m",
             type: {
                 "commonjs": 1,
-                "amd": 2
+                "amd": 2,
+                "system": 4,
+                "umd": 3,
             },
-            description: ts.Diagnostics.Specify_module_code_generation_Colon_commonjs_or_amd,
+            description: ts.Diagnostics.Specify_module_code_generation_Colon_commonjs_amd_system_or_umd,
             paramType: ts.Diagnostics.KIND,
-            error: ts.Diagnostics.Argument_for_module_option_must_be_commonjs_or_amd
+            error: ts.Diagnostics.Argument_for_module_option_must_be_commonjs_amd_system_or_umd
+        },
+        {
+            name: "newLine",
+            type: {
+                "crlf": 0,
+                "lf": 1
+            },
+            description: ts.Diagnostics.Specifies_the_end_of_line_sequence_to_be_used_when_emitting_files_Colon_CRLF_dos_or_LF_unix,
+            paramType: ts.Diagnostics.NEWLINE,
+            error: ts.Diagnostics.Argument_for_newLine_option_must_be_CRLF_or_LF
         },
         {
             name: "noEmit",
             type: "boolean",
             description: ts.Diagnostics.Do_not_emit_outputs,
+        },
+        {
+            name: "noEmitHelpers",
+            type: "boolean"
         },
         {
             name: "noEmitOnError",
@@ -149,7 +173,7 @@ var ts;
             type: { "es3": 0, "es5": 1, "es6": 2 },
             description: ts.Diagnostics.Specify_ECMAScript_target_version_Colon_ES3_default_ES5_or_ES6_experimental,
             paramType: ts.Diagnostics.VERSION,
-            error: ts.Diagnostics.Argument_for_target_option_must_be_es3_es5_or_es6
+            error: ts.Diagnostics.Argument_for_target_option_must_be_ES3_ES5_or_ES6
         },
         {
             name: "version",
@@ -273,13 +297,23 @@ var ts;
     function readConfigFile(fileName) {
         try {
             var text = ts.sys.readFile(fileName);
-            return /\S/.test(text) ? JSON.parse(text) : {};
         }
         catch (e) {
+            return { error: ts.createCompilerDiagnostic(ts.Diagnostics.Cannot_read_file_0_Colon_1, fileName, e.message) };
         }
+        return parseConfigFileText(fileName, text);
     }
     ts.readConfigFile = readConfigFile;
-    function parseConfigFile(json, basePath) {
+    function parseConfigFileText(fileName, jsonText) {
+        try {
+            return { config: /\S/.test(jsonText) ? JSON.parse(jsonText) : {} };
+        }
+        catch (e) {
+            return { error: ts.createCompilerDiagnostic(ts.Diagnostics.Failed_to_parse_file_0_Colon_1, fileName, e.message) };
+        }
+    }
+    ts.parseConfigFileText = parseConfigFileText;
+    function parseConfigFile(json, host, basePath) {
         var errors = [];
         return {
             options: getCompilerOptions(),
@@ -335,7 +369,7 @@ var ts;
                 }
             }
             else {
-                var sysFiles = ts.sys.readDirectory(basePath, ".ts");
+                var sysFiles = host.readDirectory(basePath, ".ts");
                 for (var i = 0; i < sysFiles.length; i++) {
                     var name = sysFiles[i];
                     if (!ts.fileExtensionIs(name, ".d.ts") || !ts.contains(sysFiles, name.substr(0, name.length - 5) + ".ts")) {

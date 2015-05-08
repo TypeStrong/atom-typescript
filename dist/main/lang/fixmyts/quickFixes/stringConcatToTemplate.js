@@ -1,5 +1,5 @@
 function isBinaryAddition(node) {
-    return (node.kind == 169 &&
+    return (node.kind == 170 &&
         node.operatorToken.kind == 33);
 }
 function isStringExpression(node, typeChecker) {
@@ -13,7 +13,7 @@ function isAPartOfAChainOfStringAdditions(node, typeChecker) {
         if (isBinaryAddition(node) && isStringExpression(node, typeChecker)) {
             largestSumNode = node;
         }
-        if (node.kind == 227) {
+        if (node.kind == 228) {
             return largestSumNode;
         }
         node = node.parent;
@@ -58,7 +58,7 @@ var StringConcatToTemplate = (function () {
                     finalOutput.unshift('${' + node.getText() + '}');
                 }
             }
-            if (current.kind == 169) {
+            if (current.kind == 170) {
                 var binary = current;
                 appendToFinal(binary.right);
                 current = binary.left;

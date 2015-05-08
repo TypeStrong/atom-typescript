@@ -33,14 +33,14 @@ var ts;
             }
             return createSignatureHelpItems(candidates, resolvedSignature, argumentInfo);
             function createJavaScriptSignatureHelpItems(argumentInfo) {
-                if (argumentInfo.invocation.kind !== 157) {
+                if (argumentInfo.invocation.kind !== 158) {
                     return undefined;
                 }
                 var callExpression = argumentInfo.invocation;
                 var expression = callExpression.expression;
                 var name = expression.kind === 65
                     ? expression
-                    : expression.kind === 155
+                    : expression.kind === 156
                         ? expression.name
                         : undefined;
                 if (!name || !name.text) {
@@ -69,7 +69,7 @@ var ts;
                 }
             }
             function getImmediatelyContainingArgumentInfo(node) {
-                if (node.parent.kind === 157 || node.parent.kind === 158) {
+                if (node.parent.kind === 158 || node.parent.kind === 159) {
                     var callExpression = node.parent;
                     if (node.kind === 24 ||
                         node.kind === 16) {
@@ -100,23 +100,23 @@ var ts;
                         };
                     }
                 }
-                else if (node.kind === 10 && node.parent.kind === 159) {
+                else if (node.kind === 10 && node.parent.kind === 160) {
                     if (ts.isInsideTemplateLiteral(node, position)) {
                         return getArgumentListInfoForTemplate(node.parent, 0);
                     }
                 }
-                else if (node.kind === 11 && node.parent.parent.kind === 159) {
+                else if (node.kind === 11 && node.parent.parent.kind === 160) {
                     var templateExpression = node.parent;
                     var tagExpression = templateExpression.parent;
-                    ts.Debug.assert(templateExpression.kind === 171);
+                    ts.Debug.assert(templateExpression.kind === 172);
                     var argumentIndex = ts.isInsideTemplateLiteral(node, position) ? 0 : 1;
                     return getArgumentListInfoForTemplate(tagExpression, argumentIndex);
                 }
-                else if (node.parent.kind === 176 && node.parent.parent.parent.kind === 159) {
+                else if (node.parent.kind === 178 && node.parent.parent.parent.kind === 160) {
                     var templateSpan = node.parent;
                     var templateExpression = templateSpan.parent;
                     var tagExpression = templateExpression.parent;
-                    ts.Debug.assert(templateExpression.kind === 171);
+                    ts.Debug.assert(templateExpression.kind === 172);
                     if (node.kind === 13 && !ts.isInsideTemplateLiteral(node, position)) {
                         return undefined;
                     }
@@ -180,7 +180,7 @@ var ts;
                 var template = taggedTemplate.template;
                 var applicableSpanStart = template.getStart();
                 var applicableSpanEnd = template.getEnd();
-                if (template.kind === 171) {
+                if (template.kind === 172) {
                     var lastSpan = ts.lastOrUndefined(template.templateSpans);
                     if (lastSpan.literal.getFullWidth() === 0) {
                         applicableSpanEnd = ts.skipTrivia(sourceFile.text, applicableSpanEnd, false);
@@ -189,7 +189,7 @@ var ts;
                 return ts.createTextSpan(applicableSpanStart, applicableSpanEnd - applicableSpanStart);
             }
             function getContainingArgumentInfo(node) {
-                for (var n = node; n.kind !== 227; n = n.parent) {
+                for (var n = node; n.kind !== 228; n = n.parent) {
                     if (ts.isFunctionBlock(n)) {
                         return undefined;
                     }

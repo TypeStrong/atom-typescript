@@ -9,16 +9,16 @@ var ts;
     })(ts.ModuleInstanceState || (ts.ModuleInstanceState = {}));
     var ModuleInstanceState = ts.ModuleInstanceState;
     function getModuleInstanceState(node) {
-        if (node.kind === 202 || node.kind === 203) {
+        if (node.kind === 203 || node.kind === 204) {
             return 0;
         }
         else if (ts.isConstEnumDeclaration(node)) {
             return 2;
         }
-        else if ((node.kind === 209 || node.kind === 208) && !(node.flags & 1)) {
+        else if ((node.kind === 210 || node.kind === 209) && !(node.flags & 1)) {
             return 0;
         }
-        else if (node.kind === 206) {
+        else if (node.kind === 207) {
             var state = 0;
             ts.forEachChild(node, function (n) {
                 switch (getModuleInstanceState(n)) {
@@ -34,7 +34,7 @@ var ts;
             });
             return state;
         }
-        else if (node.kind === 205) {
+        else if (node.kind === 206) {
             return getModuleInstanceState(node.body);
         }
         else {
@@ -87,10 +87,10 @@ var ts;
         }
         function getDeclarationName(node) {
             if (node.name) {
-                if (node.kind === 205 && node.name.kind === 8) {
+                if (node.kind === 206 && node.name.kind === 8) {
                     return '"' + node.name.text + '"';
                 }
-                if (node.name.kind === 127) {
+                if (node.name.kind === 128) {
                     var nameExpression = node.name.expression;
                     ts.Debug.assert(ts.isWellKnownSymbolSyntactically(nameExpression));
                     return ts.getPropertyNameForKnownSymbolName(nameExpression.name.text);
@@ -98,22 +98,22 @@ var ts;
                 return node.name.text;
             }
             switch (node.kind) {
-                case 143:
-                case 135:
+                case 144:
+                case 136:
                     return "__constructor";
-                case 142:
-                case 138:
-                    return "__call";
+                case 143:
                 case 139:
-                    return "__new";
+                    return "__call";
                 case 140:
+                    return "__new";
+                case 141:
                     return "__index";
-                case 215:
+                case 216:
                     return "__export";
-                case 214:
+                case 215:
                     return node.isExportEquals ? "export=" : "default";
-                case 200:
                 case 201:
+                case 202:
                     return node.flags & 256 ? "default" : undefined;
             }
         }
@@ -145,7 +145,7 @@ var ts;
             }
             addDeclarationToSymbol(symbol, node, includes);
             symbol.parent = parent;
-            if ((node.kind === 201 || node.kind === 174) && symbol.exports) {
+            if ((node.kind === 202 || node.kind === 175) && symbol.exports) {
                 var prototypeSymbol = createSymbol(4 | 134217728, "prototype");
                 if (ts.hasProperty(symbol.exports, prototypeSymbol.name)) {
                     if (node.name) {
@@ -161,7 +161,7 @@ var ts;
         function declareModuleMember(node, symbolKind, symbolExcludes) {
             var hasExportModifier = ts.getCombinedNodeFlags(node) & 1;
             if (symbolKind & 8388608) {
-                if (node.kind === 217 || (node.kind === 208 && hasExportModifier)) {
+                if (node.kind === 218 || (node.kind === 209 && hasExportModifier)) {
                     declareSymbol(container.symbol.exports, container.symbol, node, symbolKind, symbolExcludes);
                 }
                 else {
@@ -169,7 +169,7 @@ var ts;
                 }
             }
             else {
-                if (hasExportModifier || container.flags & 32768) {
+                if (hasExportModifier || container.flags & 65536) {
                     var exportKind = (symbolKind & 107455 ? 1048576 : 0) |
                         (symbolKind & 793056 ? 2097152 : 0) |
                         (symbolKind & 1536 ? 4194304 : 0);
@@ -192,56 +192,59 @@ var ts;
             parent = node;
             if (symbolKind & 262128) {
                 container = node;
-                if (lastContainer) {
-                    lastContainer.nextContainer = container;
-                }
-                lastContainer = container;
+                addToContainerChain(container);
             }
             if (isBlockScopeContainer) {
-                setBlockScopeContainer(node, (symbolKind & 255504) === 0 && node.kind !== 227);
+                setBlockScopeContainer(node, (symbolKind & 255504) === 0 && node.kind !== 228);
             }
             ts.forEachChild(node, bind);
             container = saveContainer;
             parent = saveParent;
             blockScopeContainer = savedBlockScopeContainer;
         }
+        function addToContainerChain(node) {
+            if (lastContainer) {
+                lastContainer.nextContainer = node;
+            }
+            lastContainer = node;
+        }
         function bindDeclaration(node, symbolKind, symbolExcludes, isBlockScopeContainer) {
             switch (container.kind) {
-                case 205:
+                case 206:
                     declareModuleMember(node, symbolKind, symbolExcludes);
                     break;
-                case 227:
+                case 228:
                     if (ts.isExternalModule(container)) {
                         declareModuleMember(node, symbolKind, symbolExcludes);
                         break;
                     }
-                case 142:
                 case 143:
-                case 138:
+                case 144:
                 case 139:
                 case 140:
-                case 134:
-                case 133:
+                case 141:
                 case 135:
+                case 134:
                 case 136:
                 case 137:
-                case 200:
-                case 162:
+                case 138:
+                case 201:
                 case 163:
+                case 164:
                     declareSymbol(container.locals, undefined, node, symbolKind, symbolExcludes);
                     break;
-                case 174:
-                case 201:
+                case 175:
+                case 202:
                     if (node.flags & 128) {
                         declareSymbol(container.symbol.exports, container.symbol, node, symbolKind, symbolExcludes);
                         break;
                     }
-                case 145:
-                case 154:
-                case 202:
+                case 146:
+                case 155:
+                case 203:
                     declareSymbol(container.symbol.members, container.symbol, node, symbolKind, symbolExcludes);
                     break;
-                case 204:
+                case 205:
                     declareSymbol(container.symbol.exports, container.symbol, node, symbolKind, symbolExcludes);
                     break;
             }
@@ -256,11 +259,11 @@ var ts;
             return false;
         }
         function hasExportDeclarations(node) {
-            var body = node.kind === 227 ? node : node.body;
-            if (body.kind === 227 || body.kind === 206) {
+            var body = node.kind === 228 ? node : node.body;
+            if (body.kind === 228 || body.kind === 207) {
                 for (var _i = 0, _a = body.statements; _i < _a.length; _i++) {
                     var stat = _a[_i];
-                    if (stat.kind === 215 || stat.kind === 214) {
+                    if (stat.kind === 216 || stat.kind === 215) {
                         return true;
                     }
                 }
@@ -269,10 +272,10 @@ var ts;
         }
         function setExportContextFlag(node) {
             if (isAmbientContext(node) && !hasExportDeclarations(node)) {
-                node.flags |= 32768;
+                node.flags |= 65536;
             }
             else {
-                node.flags &= ~32768;
+                node.flags &= ~65536;
             }
         }
         function bindModuleDeclaration(node) {
@@ -310,7 +313,7 @@ var ts;
             var typeLiteralSymbol = createSymbol(2048, "__type");
             addDeclarationToSymbol(typeLiteralSymbol, node, 2048);
             typeLiteralSymbol.members = {};
-            typeLiteralSymbol.members[node.kind === 142 ? "__call" : "__new"] = symbol;
+            typeLiteralSymbol.members[node.kind === 143 ? "__call" : "__new"] = symbol;
         }
         function bindAnonymousDeclaration(node, symbolKind, name, isBlockScopeContainer) {
             var symbol = createSymbol(symbolKind, name);
@@ -322,10 +325,10 @@ var ts;
         }
         function bindBlockScopedDeclaration(node, symbolKind, symbolExcludes) {
             switch (blockScopeContainer.kind) {
-                case 205:
+                case 206:
                     declareModuleMember(node, symbolKind, symbolExcludes);
                     break;
-                case 227:
+                case 228:
                     if (ts.isExternalModule(container)) {
                         declareModuleMember(node, symbolKind, symbolExcludes);
                         break;
@@ -333,6 +336,7 @@ var ts;
                 default:
                     if (!blockScopeContainer.locals) {
                         blockScopeContainer.locals = {};
+                        addToContainerChain(blockScopeContainer);
                     }
                     declareSymbol(blockScopeContainer.locals, undefined, node, symbolKind, symbolExcludes);
             }
@@ -347,14 +351,14 @@ var ts;
         function bind(node) {
             node.parent = parent;
             switch (node.kind) {
-                case 128:
+                case 129:
                     bindDeclaration(node, 262144, 530912, false);
                     break;
-                case 129:
+                case 130:
                     bindParameter(node);
                     break;
-                case 198:
-                case 152:
+                case 199:
+                case 153:
                     if (ts.isBindingPattern(node.name)) {
                         bindChildren(node, 0, false);
                     }
@@ -365,68 +369,68 @@ var ts;
                         bindDeclaration(node, 1, 107454, false);
                     }
                     break;
+                case 133:
                 case 132:
-                case 131:
                     bindPropertyOrMethodOrAccessor(node, 4 | (node.questionToken ? 536870912 : 0), 107455, false);
                     break;
-                case 224:
                 case 225:
+                case 226:
                     bindPropertyOrMethodOrAccessor(node, 4, 107455, false);
                     break;
-                case 226:
+                case 227:
                     bindPropertyOrMethodOrAccessor(node, 8, 107455, false);
                     break;
-                case 138:
                 case 139:
                 case 140:
+                case 141:
                     bindDeclaration(node, 131072, 0, false);
                     break;
+                case 135:
                 case 134:
-                case 133:
                     bindPropertyOrMethodOrAccessor(node, 8192 | (node.questionToken ? 536870912 : 0), ts.isObjectLiteralMethod(node) ? 107455 : 99263, true);
                     break;
-                case 200:
+                case 201:
                     bindDeclaration(node, 16, 106927, true);
                     break;
-                case 135:
+                case 136:
                     bindDeclaration(node, 16384, 0, true);
                     break;
-                case 136:
+                case 137:
                     bindPropertyOrMethodOrAccessor(node, 32768, 41919, true);
                     break;
-                case 137:
+                case 138:
                     bindPropertyOrMethodOrAccessor(node, 65536, 74687, true);
                     break;
-                case 142:
                 case 143:
+                case 144:
                     bindFunctionOrConstructorType(node);
                     break;
-                case 145:
+                case 146:
                     bindAnonymousDeclaration(node, 2048, "__type", false);
                     break;
-                case 154:
+                case 155:
                     bindAnonymousDeclaration(node, 4096, "__object", false);
                     break;
-                case 162:
                 case 163:
+                case 164:
                     bindAnonymousDeclaration(node, 16, "__function", true);
                     break;
-                case 174:
+                case 175:
                     bindAnonymousDeclaration(node, 32, "__class", false);
                     break;
-                case 223:
+                case 224:
                     bindCatchVariableDeclaration(node);
                     break;
-                case 201:
+                case 202:
                     bindBlockScopedDeclaration(node, 32, 899583);
                     break;
-                case 202:
+                case 203:
                     bindDeclaration(node, 64, 792992, false);
                     break;
-                case 203:
+                case 204:
                     bindDeclaration(node, 524288, 793056, false);
                     break;
-                case 204:
+                case 205:
                     if (ts.isConst(node)) {
                         bindDeclaration(node, 128, 899967, false);
                     }
@@ -434,16 +438,16 @@ var ts;
                         bindDeclaration(node, 256, 899327, false);
                     }
                     break;
-                case 205:
+                case 206:
                     bindModuleDeclaration(node);
                     break;
-                case 208:
-                case 211:
-                case 213:
-                case 217:
+                case 209:
+                case 212:
+                case 214:
+                case 218:
                     bindDeclaration(node, 8388608, 8388608, false);
                     break;
-                case 210:
+                case 211:
                     if (node.name) {
                         bindDeclaration(node, 8388608, 8388608, false);
                     }
@@ -451,13 +455,13 @@ var ts;
                         bindChildren(node, 0, false);
                     }
                     break;
-                case 215:
+                case 216:
                     if (!node.exportClause) {
                         declareSymbol(container.symbol.exports, container.symbol, node, 1073741824, 0);
                     }
                     bindChildren(node, 0, false);
                     break;
-                case 214:
+                case 215:
                     if (node.expression.kind === 65) {
                         declareSymbol(container.symbol.exports, container.symbol, node, 8388608, 107455 | 8388608);
                     }
@@ -466,20 +470,20 @@ var ts;
                     }
                     bindChildren(node, 0, false);
                     break;
-                case 227:
+                case 228:
                     setExportContextFlag(node);
                     if (ts.isExternalModule(node)) {
                         bindAnonymousDeclaration(node, 512, '"' + ts.removeFileExtension(node.fileName) + '"', true);
                         break;
                     }
-                case 179:
+                case 180:
                     bindChildren(node, 0, !ts.isFunctionLike(node.parent));
                     break;
-                case 223:
-                case 186:
+                case 224:
                 case 187:
                 case 188:
-                case 207:
+                case 189:
+                case 208:
                     bindChildren(node, 0, true);
                     break;
                 default:
@@ -497,8 +501,8 @@ var ts;
                 bindDeclaration(node, 1, 107455, false);
             }
             if (node.flags & 112 &&
-                node.parent.kind === 135 &&
-                (node.parent.parent.kind === 201 || node.parent.parent.kind === 174)) {
+                node.parent.kind === 136 &&
+                (node.parent.parent.kind === 202 || node.parent.parent.kind === 175)) {
                 var classDeclaration = node.parent.parent;
                 declareSymbol(classDeclaration.symbol.members, classDeclaration.symbol, node, 4, 107455);
             }

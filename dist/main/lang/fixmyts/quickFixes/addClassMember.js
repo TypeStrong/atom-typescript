@@ -36,15 +36,15 @@ var AddClassMember = (function () {
         var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
-        if (parentOfParent.kind == 169
+        if (parentOfParent.kind == 170
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
             typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
         }
-        var memberTarget = ast.getNodeByKindAndName(info.program, 201, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, 202, className);
         if (!memberTarget) {
-            memberTarget = ast.getNodeByKindAndName(info.program, 202, className);
+            memberTarget = ast.getNodeByKindAndName(info.program, 203, className);
         }
         if (!memberTarget) {
             return [];

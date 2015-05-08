@@ -55,39 +55,39 @@ var ts;
             return false;
         }
         switch (n.kind) {
-            case 201:
             case 202:
-            case 204:
-            case 154:
-            case 150:
-            case 145:
-            case 179:
-            case 206:
+            case 203:
+            case 205:
+            case 155:
+            case 151:
+            case 146:
+            case 180:
             case 207:
+            case 208:
                 return nodeEndsWith(n, 15, sourceFile);
-            case 223:
+            case 224:
                 return isCompletedNode(n.block, sourceFile);
-            case 158:
+            case 159:
                 if (!n.arguments) {
                     return true;
                 }
-            case 157:
-            case 161:
-            case 149:
+            case 158:
+            case 162:
+            case 150:
                 return nodeEndsWith(n, 17, sourceFile);
-            case 142:
             case 143:
+            case 144:
                 return isCompletedNode(n.type, sourceFile);
-            case 135:
             case 136:
             case 137:
-            case 200:
-            case 162:
-            case 134:
-            case 133:
-            case 139:
             case 138:
+            case 201:
             case 163:
+            case 135:
+            case 134:
+            case 140:
+            case 139:
+            case 164:
                 if (n.body) {
                     return isCompletedNode(n.body, sourceFile);
                 }
@@ -95,61 +95,61 @@ var ts;
                     return isCompletedNode(n.type, sourceFile);
                 }
                 return hasChildOfKind(n, 17, sourceFile);
-            case 205:
+            case 206:
                 return n.body && isCompletedNode(n.body, sourceFile);
-            case 183:
+            case 184:
                 if (n.elseStatement) {
                     return isCompletedNode(n.elseStatement, sourceFile);
                 }
                 return isCompletedNode(n.thenStatement, sourceFile);
-            case 182:
+            case 183:
                 return isCompletedNode(n.expression, sourceFile);
-            case 153:
-            case 151:
-            case 156:
-            case 127:
-            case 147:
+            case 154:
+            case 152:
+            case 157:
+            case 128:
+            case 148:
                 return nodeEndsWith(n, 19, sourceFile);
-            case 140:
+            case 141:
                 if (n.type) {
                     return isCompletedNode(n.type, sourceFile);
                 }
                 return hasChildOfKind(n, 19, sourceFile);
-            case 220:
             case 221:
+            case 222:
                 return false;
-            case 186:
             case 187:
             case 188:
-            case 185:
+            case 189:
+            case 186:
                 return isCompletedNode(n.statement, sourceFile);
-            case 184:
+            case 185:
                 var hasWhileKeyword = findChildOfKind(n, 100, sourceFile);
                 if (hasWhileKeyword) {
                     return nodeEndsWith(n, 17, sourceFile);
                 }
                 return isCompletedNode(n.statement, sourceFile);
-            case 144:
+            case 145:
                 return isCompletedNode(n.exprName, sourceFile);
-            case 165:
-            case 164:
             case 166:
-            case 172:
+            case 165:
+            case 167:
             case 173:
+            case 174:
                 var unaryWordExpression = n;
                 return isCompletedNode(unaryWordExpression.expression, sourceFile);
-            case 159:
+            case 160:
                 return isCompletedNode(n.template, sourceFile);
-            case 171:
+            case 172:
                 var lastSpan = ts.lastOrUndefined(n.templateSpans);
                 return isCompletedNode(lastSpan, sourceFile);
-            case 176:
+            case 178:
                 return ts.nodeIsPresent(n.literal);
-            case 167:
+            case 168:
                 return isCompletedNode(n.operand, sourceFile);
-            case 169:
-                return isCompletedNode(n.right, sourceFile);
             case 170:
+                return isCompletedNode(n.right, sourceFile);
+            case 171:
                 return isCompletedNode(n.whenFalse, sourceFile);
             default:
                 return true;
@@ -159,7 +159,7 @@ var ts;
     function nodeEndsWith(n, expectedLastToken, sourceFile) {
         var children = n.getChildren(sourceFile);
         if (children.length) {
-            var last = children[children.length - 1];
+            var last = ts.lastOrUndefined(children);
             if (last.kind === expectedLastToken) {
                 return true;
             }
@@ -192,7 +192,7 @@ var ts;
     ts.findChildOfKind = findChildOfKind;
     function findContainingList(node) {
         var syntaxList = ts.forEach(node.parent.getChildren(), function (c) {
-            if (c.kind === 228 && c.pos <= node.pos && c.end >= node.end) {
+            if (c.kind === 229 && c.pos <= node.pos && c.end >= node.end) {
                 return c;
             }
         });
@@ -298,7 +298,7 @@ var ts;
                     }
                 }
             }
-            ts.Debug.assert(startNode !== undefined || n.kind === 227);
+            ts.Debug.assert(startNode !== undefined || n.kind === 228);
             if (children.length) {
                 var candidate = findRightmostChildNodeWithTokens(children, children.length);
                 return candidate && findRightmostToken(candidate);
@@ -335,17 +335,17 @@ var ts;
     }
     ts.getNodeModifiers = getNodeModifiers;
     function getTypeArgumentOrTypeParameterList(node) {
-        if (node.kind === 141 || node.kind === 157) {
+        if (node.kind === 142 || node.kind === 158) {
             return node.typeArguments;
         }
-        if (ts.isFunctionLike(node) || node.kind === 201 || node.kind === 202) {
+        if (ts.isFunctionLike(node) || node.kind === 202 || node.kind === 203) {
             return node.typeParameters;
         }
         return undefined;
     }
     ts.getTypeArgumentOrTypeParameterList = getTypeArgumentOrTypeParameterList;
     function isToken(n) {
-        return n.kind >= 0 && n.kind <= 125;
+        return n.kind >= 0 && n.kind <= 126;
     }
     ts.isToken = isToken;
     function isWord(kind) {
@@ -398,7 +398,7 @@ var ts;
 var ts;
 (function (ts) {
     function isFirstDeclarationOfSymbolParameter(symbol) {
-        return symbol.declarations && symbol.declarations.length > 0 && symbol.declarations[0].kind === 129;
+        return symbol.declarations && symbol.declarations.length > 0 && symbol.declarations[0].kind === 130;
     }
     ts.isFirstDeclarationOfSymbolParameter = isFirstDeclarationOfSymbolParameter;
     var displayPartWriter = getDisplayPartWriter();

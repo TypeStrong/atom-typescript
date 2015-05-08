@@ -75,17 +75,17 @@ var ts;
         }
         function isListElement(parent, node) {
             switch (parent.kind) {
-                case 201:
                 case 202:
+                case 203:
                     return ts.rangeContainsRange(parent.members, node);
-                case 205:
-                    var body = parent.body;
-                    return body && body.kind === 179 && ts.rangeContainsRange(body.statements, node);
-                case 227:
-                case 179:
                 case 206:
+                    var body = parent.body;
+                    return body && body.kind === 180 && ts.rangeContainsRange(body.statements, node);
+                case 228:
+                case 180:
+                case 207:
                     return ts.rangeContainsRange(parent.statements, node);
-                case 223:
+                case 224:
                     return ts.rangeContainsRange(parent.block.statements, node);
             }
             return false;
@@ -174,6 +174,8 @@ var ts;
             var previousRange;
             var previousParent;
             var previousRangeStartLine;
+            var lastIndentedLine;
+            var indentationOnLastIndentedLine;
             var edits = [];
             formattingScanner.advance();
             if (formattingScanner.isOnToken()) {
@@ -208,9 +210,9 @@ var ts;
                 if (indentation === -1) {
                     if (isSomeBlock(node.kind)) {
                         if (isSomeBlock(parent.kind) ||
-                            parent.kind === 227 ||
-                            parent.kind === 220 ||
-                            parent.kind === 221) {
+                            parent.kind === 228 ||
+                            parent.kind === 221 ||
+                            parent.kind === 222) {
                             indentation = parentDynamicIndentation.getIndentation() + parentDynamicIndentation.getDelta();
                         }
                         else {
@@ -228,7 +230,9 @@ var ts;
                 }
                 var delta = formatting.SmartIndenter.shouldIndentChildNode(node.kind, 0) ? options.IndentSize : 0;
                 if (effectiveParentStartLine === startLine) {
-                    indentation = parentDynamicIndentation.getIndentation();
+                    indentation = startLine === lastIndentedLine
+                        ? indentationOnLastIndentedLine
+                        : parentDynamicIndentation.getIndentation();
                     delta = Math.min(options.IndentSize, parentDynamicIndentation.getDelta() + delta);
                 }
                 return {
@@ -241,18 +245,18 @@ var ts;
                     return node.modifiers[0].kind;
                 }
                 switch (node.kind) {
-                    case 201: return 69;
-                    case 202: return 103;
-                    case 200: return 83;
-                    case 204: return 204;
-                    case 136: return 116;
-                    case 137: return 120;
-                    case 134:
+                    case 202: return 69;
+                    case 203: return 103;
+                    case 201: return 83;
+                    case 205: return 205;
+                    case 137: return 116;
+                    case 138: return 121;
+                    case 135:
                         if (node.asteriskToken) {
                             return 35;
                         }
-                    case 132:
-                    case 129:
+                    case 133:
+                    case 130:
                         return node.name.kind;
                 }
             }
@@ -359,7 +363,7 @@ var ts;
                         consumeTokenAndAdvanceScanner(tokenInfo, node, parentDynamicIndentation);
                         return inheritedIndentation;
                     }
-                    var effectiveParentStartLine = child.kind === 130 ? childStartLine : undecoratedParentStartLine;
+                    var effectiveParentStartLine = child.kind === 131 ? childStartLine : undecoratedParentStartLine;
                     var childIndentation = computeIndentation(child, childStartLine, childIndentationAmount, node, parentDynamicIndentation, effectiveParentStartLine);
                     processNode(child, childContextNode, childStartLine, undecoratedChildStartLine, childIndentation.indentation, childIndentation.delta);
                     childContextNode = node;
@@ -438,7 +442,6 @@ var ts;
                                 if (!ts.rangeContainsRange(originalRange, triviaItem)) {
                                     continue;
                                 }
-                                var triviaStartLine = sourceFile.getLineAndCharacterOfPosition(triviaItem.pos).line;
                                 switch (triviaItem.kind) {
                                     case 3:
                                         var commentIndentation = dynamicIndentation.getIndentationForComment(currentTokenInfo.token.kind);
@@ -461,6 +464,8 @@ var ts;
                         if (isTokenInRange && !rangeContainsError(currentTokenInfo.token)) {
                             var tokenIndentation = dynamicIndentation.getIndentationForToken(tokenStart.line, currentTokenInfo.token.kind);
                             insertIndentation(currentTokenInfo.token.pos, tokenIndentation, lineAdded);
+                            lastIndentedLine = tokenStart.line;
+                            indentationOnLastIndentedLine = tokenIndentation;
                         }
                     }
                     formattingScanner.advance();
@@ -648,20 +653,20 @@ var ts;
         }
         function isSomeBlock(kind) {
             switch (kind) {
-                case 179:
-                case 206:
+                case 180:
+                case 207:
                     return true;
             }
             return false;
         }
         function getOpenTokenForList(node, list) {
             switch (node.kind) {
-                case 135:
-                case 200:
-                case 162:
-                case 134:
-                case 133:
+                case 136:
+                case 201:
                 case 163:
+                case 135:
+                case 134:
+                case 164:
                     if (node.typeParameters === list) {
                         return 24;
                     }
@@ -669,8 +674,8 @@ var ts;
                         return 16;
                     }
                     break;
-                case 157:
                 case 158:
+                case 159:
                     if (node.typeArguments === list) {
                         return 24;
                     }
@@ -678,7 +683,7 @@ var ts;
                         return 16;
                     }
                     break;
-                case 141:
+                case 142:
                     if (node.typeArguments === list) {
                         return 24;
                     }

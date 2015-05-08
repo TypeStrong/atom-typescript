@@ -2,7 +2,7 @@
 /// <reference path="utilities.ts"/>
 var ts;
 (function (ts) {
-    var nodeConstructors = new Array(229);
+    var nodeConstructors = new Array(230);
     ts.parseTime = 0;
     function getNodeConstructor(kind) {
         return nodeConstructors[kind] || (nodeConstructors[kind] = ts.objectAllocator.getNodeConstructor(kind));
@@ -40,20 +40,20 @@ var ts;
         var visitNodes = cbNodeArray ? visitNodeArray : visitEachNode;
         var cbNodes = cbNodeArray || cbNode;
         switch (node.kind) {
-            case 126:
+            case 127:
                 return visitNode(cbNode, node.left) ||
                     visitNode(cbNode, node.right);
-            case 128:
+            case 129:
                 return visitNode(cbNode, node.name) ||
                     visitNode(cbNode, node.constraint) ||
                     visitNode(cbNode, node.expression);
-            case 129:
+            case 130:
+            case 133:
             case 132:
-            case 131:
-            case 224:
             case 225:
-            case 198:
-            case 152:
+            case 226:
+            case 199:
+            case 153:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.propertyName) ||
@@ -62,24 +62,24 @@ var ts;
                     visitNode(cbNode, node.questionToken) ||
                     visitNode(cbNode, node.type) ||
                     visitNode(cbNode, node.initializer);
-            case 142:
             case 143:
-            case 138:
+            case 144:
             case 139:
             case 140:
+            case 141:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNodes(cbNodes, node.typeParameters) ||
                     visitNodes(cbNodes, node.parameters) ||
                     visitNode(cbNode, node.type);
-            case 134:
-            case 133:
             case 135:
+            case 134:
             case 136:
             case 137:
-            case 162:
-            case 200:
+            case 138:
             case 163:
+            case 201:
+            case 164:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.asteriskToken) ||
@@ -90,151 +90,144 @@ var ts;
                     visitNode(cbNode, node.type) ||
                     visitNode(cbNode, node.equalsGreaterThanToken) ||
                     visitNode(cbNode, node.body);
-            case 141:
+            case 142:
                 return visitNode(cbNode, node.typeName) ||
                     visitNodes(cbNodes, node.typeArguments);
-            case 144:
-                return visitNode(cbNode, node.exprName);
             case 145:
-                return visitNodes(cbNodes, node.members);
+                return visitNode(cbNode, node.exprName);
             case 146:
-                return visitNode(cbNode, node.elementType);
+                return visitNodes(cbNodes, node.members);
             case 147:
-                return visitNodes(cbNodes, node.elementTypes);
+                return visitNode(cbNode, node.elementType);
             case 148:
-                return visitNodes(cbNodes, node.types);
+                return visitNodes(cbNodes, node.elementTypes);
             case 149:
-                return visitNode(cbNode, node.type);
+                return visitNodes(cbNodes, node.types);
             case 150:
+                return visitNode(cbNode, node.type);
             case 151:
-                return visitNodes(cbNodes, node.elements);
-            case 153:
+            case 152:
                 return visitNodes(cbNodes, node.elements);
             case 154:
-                return visitNodes(cbNodes, node.properties);
+                return visitNodes(cbNodes, node.elements);
             case 155:
+                return visitNodes(cbNodes, node.properties);
+            case 156:
                 return visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.dotToken) ||
                     visitNode(cbNode, node.name);
-            case 156:
+            case 157:
                 return visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.argumentExpression);
-            case 157:
             case 158:
+            case 159:
                 return visitNode(cbNode, node.expression) ||
                     visitNodes(cbNodes, node.typeArguments) ||
                     visitNodes(cbNodes, node.arguments);
-            case 159:
+            case 160:
                 return visitNode(cbNode, node.tag) ||
                     visitNode(cbNode, node.template);
-            case 160:
+            case 161:
                 return visitNode(cbNode, node.type) ||
                     visitNode(cbNode, node.expression);
-            case 161:
-                return visitNode(cbNode, node.expression);
-            case 164:
+            case 162:
                 return visitNode(cbNode, node.expression);
             case 165:
                 return visitNode(cbNode, node.expression);
             case 166:
                 return visitNode(cbNode, node.expression);
             case 167:
-                return visitNode(cbNode, node.operand);
-            case 172:
-                return visitNode(cbNode, node.asteriskToken) ||
-                    visitNode(cbNode, node.expression);
+                return visitNode(cbNode, node.expression);
             case 168:
                 return visitNode(cbNode, node.operand);
+            case 173:
+                return visitNode(cbNode, node.asteriskToken) ||
+                    visitNode(cbNode, node.expression);
             case 169:
+                return visitNode(cbNode, node.operand);
+            case 170:
                 return visitNode(cbNode, node.left) ||
                     visitNode(cbNode, node.operatorToken) ||
                     visitNode(cbNode, node.right);
-            case 170:
+            case 171:
                 return visitNode(cbNode, node.condition) ||
                     visitNode(cbNode, node.questionToken) ||
                     visitNode(cbNode, node.whenTrue) ||
                     visitNode(cbNode, node.colonToken) ||
                     visitNode(cbNode, node.whenFalse);
-            case 173:
+            case 174:
                 return visitNode(cbNode, node.expression);
-            case 179:
-            case 206:
+            case 180:
+            case 207:
                 return visitNodes(cbNodes, node.statements);
-            case 227:
+            case 228:
                 return visitNodes(cbNodes, node.statements) ||
                     visitNode(cbNode, node.endOfFileToken);
-            case 180:
+            case 181:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.declarationList);
-            case 199:
+            case 200:
                 return visitNodes(cbNodes, node.declarations);
-            case 182:
-                return visitNode(cbNode, node.expression);
             case 183:
+                return visitNode(cbNode, node.expression);
+            case 184:
                 return visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.thenStatement) ||
                     visitNode(cbNode, node.elseStatement);
-            case 184:
+            case 185:
                 return visitNode(cbNode, node.statement) ||
                     visitNode(cbNode, node.expression);
-            case 185:
-                return visitNode(cbNode, node.expression) ||
-                    visitNode(cbNode, node.statement);
             case 186:
-                return visitNode(cbNode, node.initializer) ||
-                    visitNode(cbNode, node.condition) ||
-                    visitNode(cbNode, node.iterator) ||
+                return visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.statement);
             case 187:
                 return visitNode(cbNode, node.initializer) ||
-                    visitNode(cbNode, node.expression) ||
+                    visitNode(cbNode, node.condition) ||
+                    visitNode(cbNode, node.incrementor) ||
                     visitNode(cbNode, node.statement);
             case 188:
                 return visitNode(cbNode, node.initializer) ||
                     visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.statement);
             case 189:
-            case 190:
-                return visitNode(cbNode, node.label);
-            case 191:
-                return visitNode(cbNode, node.expression);
-            case 192:
-                return visitNode(cbNode, node.expression) ||
+                return visitNode(cbNode, node.initializer) ||
+                    visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.statement);
+            case 190:
+            case 191:
+                return visitNode(cbNode, node.label);
+            case 192:
+                return visitNode(cbNode, node.expression);
             case 193:
                 return visitNode(cbNode, node.expression) ||
+                    visitNode(cbNode, node.statement);
+            case 194:
+                return visitNode(cbNode, node.expression) ||
                     visitNode(cbNode, node.caseBlock);
-            case 207:
+            case 208:
                 return visitNodes(cbNodes, node.clauses);
-            case 220:
+            case 221:
                 return visitNode(cbNode, node.expression) ||
                     visitNodes(cbNodes, node.statements);
-            case 221:
+            case 222:
                 return visitNodes(cbNodes, node.statements);
-            case 194:
+            case 195:
                 return visitNode(cbNode, node.label) ||
                     visitNode(cbNode, node.statement);
-            case 195:
-                return visitNode(cbNode, node.expression);
             case 196:
+                return visitNode(cbNode, node.expression);
+            case 197:
                 return visitNode(cbNode, node.tryBlock) ||
                     visitNode(cbNode, node.catchClause) ||
                     visitNode(cbNode, node.finallyBlock);
-            case 223:
+            case 224:
                 return visitNode(cbNode, node.variableDeclaration) ||
                     visitNode(cbNode, node.block);
-            case 130:
+            case 131:
                 return visitNode(cbNode, node.expression);
-            case 201:
-            case 174:
-                return visitNodes(cbNodes, node.decorators) ||
-                    visitNodes(cbNodes, node.modifiers) ||
-                    visitNode(cbNode, node.name) ||
-                    visitNodes(cbNodes, node.typeParameters) ||
-                    visitNodes(cbNodes, node.heritageClauses) ||
-                    visitNodes(cbNodes, node.members);
             case 202:
+            case 175:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.name) ||
@@ -245,65 +238,72 @@ var ts;
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.name) ||
-                    visitNode(cbNode, node.type);
+                    visitNodes(cbNodes, node.typeParameters) ||
+                    visitNodes(cbNodes, node.heritageClauses) ||
+                    visitNodes(cbNodes, node.members);
             case 204:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.name) ||
-                    visitNodes(cbNodes, node.members);
-            case 226:
-                return visitNode(cbNode, node.name) ||
-                    visitNode(cbNode, node.initializer);
+                    visitNode(cbNode, node.type);
             case 205:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.name) ||
+                    visitNodes(cbNodes, node.members);
+            case 227:
+                return visitNode(cbNode, node.name) ||
+                    visitNode(cbNode, node.initializer);
+            case 206:
+                return visitNodes(cbNodes, node.decorators) ||
+                    visitNodes(cbNodes, node.modifiers) ||
+                    visitNode(cbNode, node.name) ||
                     visitNode(cbNode, node.body);
-            case 208:
+            case 209:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.name) ||
                     visitNode(cbNode, node.moduleReference);
-            case 209:
+            case 210:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.importClause) ||
                     visitNode(cbNode, node.moduleSpecifier);
-            case 210:
+            case 211:
                 return visitNode(cbNode, node.name) ||
                     visitNode(cbNode, node.namedBindings);
-            case 211:
-                return visitNode(cbNode, node.name);
             case 212:
-            case 216:
+                return visitNode(cbNode, node.name);
+            case 213:
+            case 217:
                 return visitNodes(cbNodes, node.elements);
-            case 215:
+            case 216:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.exportClause) ||
                     visitNode(cbNode, node.moduleSpecifier);
-            case 213:
-            case 217:
+            case 214:
+            case 218:
                 return visitNode(cbNode, node.propertyName) ||
                     visitNode(cbNode, node.name);
-            case 214:
+            case 215:
                 return visitNodes(cbNodes, node.decorators) ||
                     visitNodes(cbNodes, node.modifiers) ||
                     visitNode(cbNode, node.expression);
-            case 171:
+            case 172:
                 return visitNode(cbNode, node.head) || visitNodes(cbNodes, node.templateSpans);
-            case 176:
+            case 178:
                 return visitNode(cbNode, node.expression) || visitNode(cbNode, node.literal);
-            case 127:
+            case 128:
                 return visitNode(cbNode, node.expression);
-            case 222:
+            case 223:
                 return visitNodes(cbNodes, node.types);
             case 177:
                 return visitNode(cbNode, node.expression) ||
                     visitNodes(cbNodes, node.typeArguments);
-            case 219:
+            case 220:
                 return visitNode(cbNode, node.expression);
-            case 218:
+            case 219:
                 return visitNodes(cbNodes, node.decorators);
         }
     }
@@ -389,7 +389,7 @@ var ts;
             }
         }
         function createSourceFile(fileName, languageVersion) {
-            sourceFile = createNode(227, 0);
+            sourceFile = createNode(228, 0);
             sourceFile.pos = 0;
             sourceFile.end = sourceText.length;
             sourceFile.text = sourceText;
@@ -682,7 +682,7 @@ var ts;
             return parseIdentifierName();
         }
         function parseComputedPropertyName() {
-            var node = createNode(127);
+            var node = createNode(128);
             parseExpected(18);
             var yieldContext = inYieldContext();
             if (inGeneratorParameterContext()) {
@@ -976,14 +976,14 @@ var ts;
         function isReusableModuleElement(node) {
             if (node) {
                 switch (node.kind) {
+                    case 210:
                     case 209:
-                    case 208:
+                    case 216:
                     case 215:
-                    case 214:
-                    case 201:
                     case 202:
+                    case 203:
+                    case 206:
                     case 205:
-                    case 204:
                         return true;
                 }
                 return isReusableStatement(node);
@@ -993,13 +993,13 @@ var ts;
         function isReusableClassMember(node) {
             if (node) {
                 switch (node.kind) {
-                    case 135:
-                    case 140:
-                    case 134:
                     case 136:
+                    case 141:
+                    case 135:
                     case 137:
-                    case 132:
-                    case 178:
+                    case 138:
+                    case 133:
+                    case 179:
                         return true;
                 }
             }
@@ -1008,8 +1008,8 @@ var ts;
         function isReusableSwitchClause(node) {
             if (node) {
                 switch (node.kind) {
-                    case 220:
                     case 221:
+                    case 222:
                         return true;
                 }
             }
@@ -1018,56 +1018,56 @@ var ts;
         function isReusableStatement(node) {
             if (node) {
                 switch (node.kind) {
-                    case 200:
+                    case 201:
+                    case 181:
                     case 180:
-                    case 179:
+                    case 184:
                     case 183:
-                    case 182:
-                    case 195:
+                    case 196:
+                    case 192:
+                    case 194:
                     case 191:
-                    case 193:
                     case 190:
+                    case 188:
                     case 189:
                     case 187:
-                    case 188:
                     case 186:
-                    case 185:
-                    case 192:
-                    case 181:
-                    case 196:
-                    case 194:
-                    case 184:
+                    case 193:
+                    case 182:
                     case 197:
+                    case 195:
+                    case 185:
+                    case 198:
                         return true;
                 }
             }
             return false;
         }
         function isReusableEnumMember(node) {
-            return node.kind === 226;
+            return node.kind === 227;
         }
         function isReusableTypeMember(node) {
             if (node) {
                 switch (node.kind) {
-                    case 139:
-                    case 133:
                     case 140:
-                    case 131:
-                    case 138:
+                    case 134:
+                    case 141:
+                    case 132:
+                    case 139:
                         return true;
                 }
             }
             return false;
         }
         function isReusableVariableDeclaration(node) {
-            if (node.kind !== 198) {
+            if (node.kind !== 199) {
                 return false;
             }
             var variableDeclarator = node;
             return variableDeclarator.initializer === undefined;
         }
         function isReusableParameter(node) {
-            if (node.kind !== 129) {
+            if (node.kind !== 130) {
                 return false;
             }
             var parameter = node;
@@ -1162,7 +1162,7 @@ var ts;
         function parseEntityName(allowReservedWords, diagnosticMessage) {
             var entity = parseIdentifier(diagnosticMessage);
             while (parseOptional(20)) {
-                var node = createNode(126, entity.pos);
+                var node = createNode(127, entity.pos);
                 node.left = entity;
                 node.right = parseRightSideOfDot(allowReservedWords);
                 entity = finishNode(node);
@@ -1179,20 +1179,20 @@ var ts;
             return allowIdentifierNames ? parseIdentifierName() : parseIdentifier();
         }
         function parseTemplateExpression() {
-            var template = createNode(171);
+            var template = createNode(172);
             template.head = parseLiteralNode();
             ts.Debug.assert(template.head.kind === 11, "Template head has wrong token kind");
             var templateSpans = [];
             templateSpans.pos = getNodePos();
             do {
                 templateSpans.push(parseTemplateSpan());
-            } while (templateSpans[templateSpans.length - 1].literal.kind === 12);
+            } while (ts.lastOrUndefined(templateSpans).literal.kind === 12);
             templateSpans.end = getNodeEnd();
             template.templateSpans = templateSpans;
             return finishNode(template);
         }
         function parseTemplateSpan() {
-            var span = createNode(176);
+            var span = createNode(178);
             span.expression = allowInAnd(parseExpression);
             var literal;
             if (token === 15) {
@@ -1226,7 +1226,7 @@ var ts;
             return node;
         }
         function parseTypeReference() {
-            var node = createNode(141);
+            var node = createNode(142);
             node.typeName = parseEntityName(false, ts.Diagnostics.Type_expected);
             if (!scanner.hasPrecedingLineBreak() && token === 24) {
                 node.typeArguments = parseBracketedList(17, parseType, 24, 25);
@@ -1234,13 +1234,13 @@ var ts;
             return finishNode(node);
         }
         function parseTypeQuery() {
-            var node = createNode(144);
+            var node = createNode(145);
             parseExpected(97);
             node.exprName = parseEntityName(true);
             return finishNode(node);
         }
         function parseTypeParameter() {
-            var node = createNode(128);
+            var node = createNode(129);
             node.name = parseIdentifier();
             if (parseOptional(79)) {
                 if (isStartOfType() || !isStartOfExpression()) {
@@ -1275,7 +1275,7 @@ var ts;
             }
         }
         function parseParameter() {
-            var node = createNode(129);
+            var node = createNode(130);
             node.decorators = parseDecorators();
             setModifiers(node, parseModifiers());
             node.dotDotDotToken = parseOptionalToken(21);
@@ -1327,7 +1327,7 @@ var ts;
         }
         function parseSignatureMember(kind) {
             var node = createNode(kind);
-            if (kind === 139) {
+            if (kind === 140) {
                 parseExpected(88);
             }
             fillSignature(51, false, false, node);
@@ -1367,7 +1367,7 @@ var ts;
             return token === 51 || token === 23 || token === 19;
         }
         function parseIndexSignatureDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(140, fullStart);
+            var node = createNode(141, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             node.parameters = parseBracketedList(15, parseParameter, 18, 19);
@@ -1380,7 +1380,7 @@ var ts;
             var name = parsePropertyName();
             var questionToken = parseOptionalToken(50);
             if (token === 16 || token === 24) {
-                var method = createNode(133, fullStart);
+                var method = createNode(134, fullStart);
                 method.name = name;
                 method.questionToken = questionToken;
                 fillSignature(51, false, false, method);
@@ -1388,7 +1388,7 @@ var ts;
                 return finishNode(method);
             }
             else {
-                var property = createNode(131, fullStart);
+                var property = createNode(132, fullStart);
                 property.name = name;
                 property.questionToken = questionToken;
                 property.type = parseTypeAnnotation();
@@ -1430,14 +1430,14 @@ var ts;
             switch (token) {
                 case 16:
                 case 24:
-                    return parseSignatureMember(138);
+                    return parseSignatureMember(139);
                 case 18:
                     return isIndexSignature()
                         ? parseIndexSignatureDeclaration(scanner.getStartPos(), undefined, undefined)
                         : parsePropertyOrMethodSignature();
                 case 88:
                     if (lookAhead(isStartOfConstructSignature)) {
-                        return parseSignatureMember(139);
+                        return parseSignatureMember(140);
                     }
                 case 8:
                 case 7:
@@ -1467,7 +1467,7 @@ var ts;
             return token === 16 || token === 24;
         }
         function parseTypeLiteral() {
-            var node = createNode(145);
+            var node = createNode(146);
             node.members = parseObjectTypeMembers();
             return finishNode(node);
         }
@@ -1483,12 +1483,12 @@ var ts;
             return members;
         }
         function parseTupleType() {
-            var node = createNode(147);
+            var node = createNode(148);
             node.elementTypes = parseBracketedList(18, parseType, 18, 19);
             return finishNode(node);
         }
         function parseParenthesizedType() {
-            var node = createNode(149);
+            var node = createNode(150);
             parseExpected(16);
             node.type = parseType();
             parseExpected(17);
@@ -1496,7 +1496,7 @@ var ts;
         }
         function parseFunctionOrConstructorType(kind) {
             var node = createNode(kind);
-            if (kind === 143) {
+            if (kind === 144) {
                 parseExpected(88);
             }
             fillSignature(32, false, false, node);
@@ -1509,10 +1509,10 @@ var ts;
         function parseNonArrayType() {
             switch (token) {
                 case 112:
-                case 121:
-                case 119:
-                case 113:
                 case 122:
+                case 120:
+                case 113:
+                case 123:
                     var node = tryParse(parseKeywordAndNoDot);
                     return node || parseTypeReference();
                 case 99:
@@ -1532,10 +1532,10 @@ var ts;
         function isStartOfType() {
             switch (token) {
                 case 112:
-                case 121:
-                case 119:
-                case 113:
                 case 122:
+                case 120:
+                case 113:
+                case 123:
                 case 99:
                 case 97:
                 case 14:
@@ -1557,7 +1557,7 @@ var ts;
             var type = parseNonArrayType();
             while (!scanner.hasPrecedingLineBreak() && parseOptional(18)) {
                 parseExpected(19);
-                var node = createNode(146, type.pos);
+                var node = createNode(147, type.pos);
                 node.elementType = type;
                 type = finishNode(node);
             }
@@ -1572,7 +1572,7 @@ var ts;
                     types.push(parseArrayTypeOrHigher());
                 }
                 types.end = getNodeEnd();
-                var node = createNode(148, type.pos);
+                var node = createNode(149, type.pos);
                 node.types = types;
                 type = finishNode(node);
             }
@@ -1617,10 +1617,10 @@ var ts;
         }
         function parseTypeWorker() {
             if (isStartOfFunctionType()) {
-                return parseFunctionOrConstructorType(142);
+                return parseFunctionOrConstructorType(143);
             }
             if (token === 88) {
-                return parseFunctionOrConstructorType(143);
+                return parseFunctionOrConstructorType(144);
             }
             return parseUnionTypeOrHigher();
         }
@@ -1758,7 +1758,7 @@ var ts;
                 (isIdentifier() || token === 14 || token === 18);
         }
         function parseYieldExpression() {
-            var node = createNode(172);
+            var node = createNode(173);
             nextToken();
             if (!scanner.hasPrecedingLineBreak() &&
                 (token === 35 || isStartOfExpression())) {
@@ -1772,8 +1772,8 @@ var ts;
         }
         function parseSimpleArrowFunctionExpression(identifier) {
             ts.Debug.assert(token === 32, "parseSimpleArrowFunctionExpression should only have been called if we had a =>");
-            var node = createNode(163, identifier.pos);
-            var parameter = createNode(129, identifier.pos);
+            var node = createNode(164, identifier.pos);
+            var parameter = createNode(130, identifier.pos);
             parameter.name = identifier;
             finishNode(parameter);
             node.parameters = [parameter];
@@ -1851,7 +1851,7 @@ var ts;
             return parseParenthesizedArrowFunctionExpressionHead(false);
         }
         function parseParenthesizedArrowFunctionExpressionHead(allowAmbiguity) {
-            var node = createNode(163);
+            var node = createNode(164);
             fillSignature(51, false, !allowAmbiguity, node);
             if (!node.parameters) {
                 return undefined;
@@ -1878,7 +1878,7 @@ var ts;
             if (!questionToken) {
                 return leftOperand;
             }
-            var node = createNode(170, leftOperand.pos);
+            var node = createNode(171, leftOperand.pos);
             node.condition = leftOperand;
             node.questionToken = questionToken;
             node.whenTrue = doOutsideOfContext(disallowInAndDecoratorContext, parseAssignmentExpressionOrHigher);
@@ -1891,7 +1891,7 @@ var ts;
             return parseBinaryExpressionRest(precedence, leftOperand);
         }
         function isInOrOfKeyword(t) {
-            return t === 86 || t === 125;
+            return t === 86 || t === 126;
         }
         function parseBinaryExpressionRest(precedence, leftOperand) {
             while (true) {
@@ -1952,33 +1952,33 @@ var ts;
             return -1;
         }
         function makeBinaryExpression(left, operatorToken, right) {
-            var node = createNode(169, left.pos);
+            var node = createNode(170, left.pos);
             node.left = left;
             node.operatorToken = operatorToken;
             node.right = right;
             return finishNode(node);
         }
         function parsePrefixUnaryExpression() {
-            var node = createNode(167);
+            var node = createNode(168);
             node.operator = token;
             nextToken();
             node.operand = parseUnaryExpressionOrHigher();
             return finishNode(node);
         }
         function parseDeleteExpression() {
-            var node = createNode(164);
-            nextToken();
-            node.expression = parseUnaryExpressionOrHigher();
-            return finishNode(node);
-        }
-        function parseTypeOfExpression() {
             var node = createNode(165);
             nextToken();
             node.expression = parseUnaryExpressionOrHigher();
             return finishNode(node);
         }
-        function parseVoidExpression() {
+        function parseTypeOfExpression() {
             var node = createNode(166);
+            nextToken();
+            node.expression = parseUnaryExpressionOrHigher();
+            return finishNode(node);
+        }
+        function parseVoidExpression() {
+            var node = createNode(167);
             nextToken();
             node.expression = parseUnaryExpressionOrHigher();
             return finishNode(node);
@@ -2008,7 +2008,7 @@ var ts;
             var expression = parseLeftHandSideExpressionOrHigher();
             ts.Debug.assert(ts.isLeftHandSideExpression(expression));
             if ((token === 38 || token === 39) && !scanner.hasPrecedingLineBreak()) {
-                var node = createNode(168, expression.pos);
+                var node = createNode(169, expression.pos);
                 node.operand = expression;
                 node.operator = token;
                 nextToken();
@@ -2031,14 +2031,14 @@ var ts;
             if (token === 16 || token === 20) {
                 return expression;
             }
-            var node = createNode(155, expression.pos);
+            var node = createNode(156, expression.pos);
             node.expression = expression;
             node.dotToken = parseExpectedToken(20, false, ts.Diagnostics.super_must_be_followed_by_an_argument_list_or_member_access);
             node.name = parseRightSideOfDot(true);
             return finishNode(node);
         }
         function parseTypeAssertion() {
-            var node = createNode(160);
+            var node = createNode(161);
             parseExpected(24);
             node.type = parseType();
             parseExpected(25);
@@ -2049,7 +2049,7 @@ var ts;
             while (true) {
                 var dotToken = parseOptionalToken(20);
                 if (dotToken) {
-                    var propertyAccess = createNode(155, expression.pos);
+                    var propertyAccess = createNode(156, expression.pos);
                     propertyAccess.expression = expression;
                     propertyAccess.dotToken = dotToken;
                     propertyAccess.name = parseRightSideOfDot(true);
@@ -2057,7 +2057,7 @@ var ts;
                     continue;
                 }
                 if (!inDecoratorContext() && parseOptional(18)) {
-                    var indexedAccess = createNode(156, expression.pos);
+                    var indexedAccess = createNode(157, expression.pos);
                     indexedAccess.expression = expression;
                     if (token !== 19) {
                         indexedAccess.argumentExpression = allowInAnd(parseExpression);
@@ -2071,7 +2071,7 @@ var ts;
                     continue;
                 }
                 if (token === 10 || token === 11) {
-                    var tagExpression = createNode(159, expression.pos);
+                    var tagExpression = createNode(160, expression.pos);
                     tagExpression.tag = expression;
                     tagExpression.template = token === 10
                         ? parseLiteralNode()
@@ -2090,7 +2090,7 @@ var ts;
                     if (!typeArguments) {
                         return expression;
                     }
-                    var callExpr = createNode(157, expression.pos);
+                    var callExpr = createNode(158, expression.pos);
                     callExpr.expression = expression;
                     callExpr.typeArguments = typeArguments;
                     callExpr.arguments = parseArgumentList();
@@ -2098,7 +2098,7 @@ var ts;
                     continue;
                 }
                 else if (token === 16) {
-                    var callExpr = createNode(157, expression.pos);
+                    var callExpr = createNode(158, expression.pos);
                     callExpr.expression = expression;
                     callExpr.arguments = parseArgumentList();
                     expression = finishNode(callExpr);
@@ -2188,28 +2188,28 @@ var ts;
             return parseIdentifier(ts.Diagnostics.Expression_expected);
         }
         function parseParenthesizedExpression() {
-            var node = createNode(161);
+            var node = createNode(162);
             parseExpected(16);
             node.expression = allowInAnd(parseExpression);
             parseExpected(17);
             return finishNode(node);
         }
         function parseSpreadElement() {
-            var node = createNode(173);
+            var node = createNode(174);
             parseExpected(21);
             node.expression = parseAssignmentExpressionOrHigher();
             return finishNode(node);
         }
         function parseArgumentOrArrayLiteralElement() {
             return token === 21 ? parseSpreadElement() :
-                token === 23 ? createNode(175) :
+                token === 23 ? createNode(176) :
                     parseAssignmentExpressionOrHigher();
         }
         function parseArgumentExpression() {
             return doOutsideOfContext(disallowInAndDecoratorContext, parseArgumentOrArrayLiteralElement);
         }
         function parseArrayLiteralExpression() {
-            var node = createNode(153);
+            var node = createNode(154);
             parseExpected(18);
             if (scanner.hasPrecedingLineBreak())
                 node.flags |= 512;
@@ -2219,10 +2219,10 @@ var ts;
         }
         function tryParseAccessorDeclaration(fullStart, decorators, modifiers) {
             if (parseContextualModifier(116)) {
-                return parseAccessorDeclaration(136, fullStart, decorators, modifiers);
-            }
-            else if (parseContextualModifier(120)) {
                 return parseAccessorDeclaration(137, fullStart, decorators, modifiers);
+            }
+            else if (parseContextualModifier(121)) {
+                return parseAccessorDeclaration(138, fullStart, decorators, modifiers);
             }
             return undefined;
         }
@@ -2243,13 +2243,13 @@ var ts;
                 return parseMethodDeclaration(fullStart, decorators, modifiers, asteriskToken, propertyName, questionToken);
             }
             if ((token === 23 || token === 15) && tokenIsIdentifier) {
-                var shorthandDeclaration = createNode(225, fullStart);
+                var shorthandDeclaration = createNode(226, fullStart);
                 shorthandDeclaration.name = propertyName;
                 shorthandDeclaration.questionToken = questionToken;
                 return finishNode(shorthandDeclaration);
             }
             else {
-                var propertyAssignment = createNode(224, fullStart);
+                var propertyAssignment = createNode(225, fullStart);
                 propertyAssignment.name = propertyName;
                 propertyAssignment.questionToken = questionToken;
                 parseExpected(51);
@@ -2258,7 +2258,7 @@ var ts;
             }
         }
         function parseObjectLiteralExpression() {
-            var node = createNode(154);
+            var node = createNode(155);
             parseExpected(14);
             if (scanner.hasPrecedingLineBreak()) {
                 node.flags |= 512;
@@ -2272,7 +2272,7 @@ var ts;
             if (saveDecoratorContext) {
                 setDecoratorContext(false);
             }
-            var node = createNode(162);
+            var node = createNode(163);
             parseExpected(83);
             node.asteriskToken = parseOptionalToken(35);
             node.name = node.asteriskToken ? doInYieldContext(parseOptionalIdentifier) : parseOptionalIdentifier();
@@ -2287,7 +2287,7 @@ var ts;
             return isIdentifier() ? parseIdentifier() : undefined;
         }
         function parseNewExpression() {
-            var node = createNode(158);
+            var node = createNode(159);
             parseExpected(88);
             node.expression = parseMemberExpressionOrHigher();
             node.typeArguments = tryParse(parseTypeArgumentsInExpression);
@@ -2297,7 +2297,7 @@ var ts;
             return finishNode(node);
         }
         function parseBlock(ignoreMissingOpenBrace, checkForStrictMode, diagnosticMessage) {
-            var node = createNode(179);
+            var node = createNode(180);
             if (parseExpected(14, diagnosticMessage) || ignoreMissingOpenBrace) {
                 node.statements = parseList(2, checkForStrictMode, parseStatement);
                 parseExpected(15);
@@ -2322,12 +2322,12 @@ var ts;
             return block;
         }
         function parseEmptyStatement() {
-            var node = createNode(181);
+            var node = createNode(182);
             parseExpected(22);
             return finishNode(node);
         }
         function parseIfStatement() {
-            var node = createNode(183);
+            var node = createNode(184);
             parseExpected(84);
             parseExpected(16);
             node.expression = allowInAnd(parseExpression);
@@ -2337,7 +2337,7 @@ var ts;
             return finishNode(node);
         }
         function parseDoStatement() {
-            var node = createNode(184);
+            var node = createNode(185);
             parseExpected(75);
             node.statement = parseStatement();
             parseExpected(100);
@@ -2348,7 +2348,7 @@ var ts;
             return finishNode(node);
         }
         function parseWhileStatement() {
-            var node = createNode(185);
+            var node = createNode(186);
             parseExpected(100);
             parseExpected(16);
             node.expression = allowInAnd(parseExpression);
@@ -2371,21 +2371,21 @@ var ts;
             }
             var forOrForInOrForOfStatement;
             if (parseOptional(86)) {
-                var forInStatement = createNode(187, pos);
+                var forInStatement = createNode(188, pos);
                 forInStatement.initializer = initializer;
                 forInStatement.expression = allowInAnd(parseExpression);
                 parseExpected(17);
                 forOrForInOrForOfStatement = forInStatement;
             }
-            else if (parseOptional(125)) {
-                var forOfStatement = createNode(188, pos);
+            else if (parseOptional(126)) {
+                var forOfStatement = createNode(189, pos);
                 forOfStatement.initializer = initializer;
                 forOfStatement.expression = allowInAnd(parseAssignmentExpressionOrHigher);
                 parseExpected(17);
                 forOrForInOrForOfStatement = forOfStatement;
             }
             else {
-                var forStatement = createNode(186, pos);
+                var forStatement = createNode(187, pos);
                 forStatement.initializer = initializer;
                 parseExpected(22);
                 if (token !== 22 && token !== 17) {
@@ -2393,7 +2393,7 @@ var ts;
                 }
                 parseExpected(22);
                 if (token !== 17) {
-                    forStatement.iterator = allowInAnd(parseExpression);
+                    forStatement.incrementor = allowInAnd(parseExpression);
                 }
                 parseExpected(17);
                 forOrForInOrForOfStatement = forStatement;
@@ -2403,7 +2403,7 @@ var ts;
         }
         function parseBreakOrContinueStatement(kind) {
             var node = createNode(kind);
-            parseExpected(kind === 190 ? 66 : 71);
+            parseExpected(kind === 191 ? 66 : 71);
             if (!canParseSemicolon()) {
                 node.label = parseIdentifier();
             }
@@ -2411,7 +2411,7 @@ var ts;
             return finishNode(node);
         }
         function parseReturnStatement() {
-            var node = createNode(191);
+            var node = createNode(192);
             parseExpected(90);
             if (!canParseSemicolon()) {
                 node.expression = allowInAnd(parseExpression);
@@ -2420,7 +2420,7 @@ var ts;
             return finishNode(node);
         }
         function parseWithStatement() {
-            var node = createNode(192);
+            var node = createNode(193);
             parseExpected(101);
             parseExpected(16);
             node.expression = allowInAnd(parseExpression);
@@ -2429,7 +2429,7 @@ var ts;
             return finishNode(node);
         }
         function parseCaseClause() {
-            var node = createNode(220);
+            var node = createNode(221);
             parseExpected(67);
             node.expression = allowInAnd(parseExpression);
             parseExpected(51);
@@ -2437,7 +2437,7 @@ var ts;
             return finishNode(node);
         }
         function parseDefaultClause() {
-            var node = createNode(221);
+            var node = createNode(222);
             parseExpected(73);
             parseExpected(51);
             node.statements = parseList(4, false, parseStatement);
@@ -2447,12 +2447,12 @@ var ts;
             return token === 67 ? parseCaseClause() : parseDefaultClause();
         }
         function parseSwitchStatement() {
-            var node = createNode(193);
+            var node = createNode(194);
             parseExpected(92);
             parseExpected(16);
             node.expression = allowInAnd(parseExpression);
             parseExpected(17);
-            var caseBlock = createNode(207, scanner.getStartPos());
+            var caseBlock = createNode(208, scanner.getStartPos());
             parseExpected(14);
             caseBlock.clauses = parseList(3, false, parseCaseOrDefaultClause);
             parseExpected(15);
@@ -2462,14 +2462,14 @@ var ts;
         function parseThrowStatement() {
             // ThrowStatement[Yield] :
             //      throw [no LineTerminator here]Expression[In, ?Yield];
-            var node = createNode(195);
+            var node = createNode(196);
             parseExpected(94);
             node.expression = scanner.hasPrecedingLineBreak() ? undefined : allowInAnd(parseExpression);
             parseSemicolon();
             return finishNode(node);
         }
         function parseTryStatement() {
-            var node = createNode(196);
+            var node = createNode(197);
             parseExpected(96);
             node.tryBlock = parseBlock(false, false);
             node.catchClause = token === 68 ? parseCatchClause() : undefined;
@@ -2480,7 +2480,7 @@ var ts;
             return finishNode(node);
         }
         function parseCatchClause() {
-            var result = createNode(223);
+            var result = createNode(224);
             parseExpected(68);
             if (parseExpected(16)) {
                 result.variableDeclaration = parseVariableDeclaration();
@@ -2490,7 +2490,7 @@ var ts;
             return finishNode(result);
         }
         function parseDebuggerStatement() {
-            var node = createNode(197);
+            var node = createNode(198);
             parseExpected(72);
             parseSemicolon();
             return finishNode(node);
@@ -2499,13 +2499,13 @@ var ts;
             var fullStart = scanner.getStartPos();
             var expression = allowInAnd(parseExpression);
             if (expression.kind === 65 && parseOptional(51)) {
-                var labeledStatement = createNode(194, fullStart);
+                var labeledStatement = createNode(195, fullStart);
                 labeledStatement.label = expression;
                 labeledStatement.statement = parseStatement();
                 return finishNode(labeledStatement);
             }
             else {
-                var expressionStatement = createNode(182, fullStart);
+                var expressionStatement = createNode(183, fullStart);
                 expressionStatement.expression = expression;
                 parseSemicolon();
                 return finishNode(expressionStatement);
@@ -2546,8 +2546,9 @@ var ts;
                     return !isConstEnum;
                 case 103:
                 case 117:
+                case 118:
                 case 77:
-                case 123:
+                case 124:
                     if (isDeclarationStart()) {
                         return false;
                     }
@@ -2592,9 +2593,9 @@ var ts;
                 case 82:
                     return parseForOrForInOrForOfStatement();
                 case 71:
-                    return parseBreakOrContinueStatement(189);
-                case 66:
                     return parseBreakOrContinueStatement(190);
+                case 66:
+                    return parseBreakOrContinueStatement(191);
                 case 90:
                     return parseReturnStatement();
                 case 101:
@@ -2657,16 +2658,16 @@ var ts;
         }
         function parseArrayBindingElement() {
             if (token === 23) {
-                return createNode(175);
+                return createNode(176);
             }
-            var node = createNode(152);
+            var node = createNode(153);
             node.dotDotDotToken = parseOptionalToken(21);
             node.name = parseIdentifierOrPattern();
             node.initializer = parseInitializer(false);
             return finishNode(node);
         }
         function parseObjectBindingElement() {
-            var node = createNode(152);
+            var node = createNode(153);
             var tokenIsIdentifier = isIdentifier();
             var propertyName = parsePropertyName();
             if (tokenIsIdentifier && token !== 51) {
@@ -2681,14 +2682,14 @@ var ts;
             return finishNode(node);
         }
         function parseObjectBindingPattern() {
-            var node = createNode(150);
+            var node = createNode(151);
             parseExpected(14);
             node.elements = parseDelimitedList(10, parseObjectBindingElement);
             parseExpected(15);
             return finishNode(node);
         }
         function parseArrayBindingPattern() {
-            var node = createNode(151);
+            var node = createNode(152);
             parseExpected(18);
             node.elements = parseDelimitedList(11, parseArrayBindingElement);
             parseExpected(19);
@@ -2707,7 +2708,7 @@ var ts;
             return parseIdentifier();
         }
         function parseVariableDeclaration() {
-            var node = createNode(198);
+            var node = createNode(199);
             node.name = parseIdentifierOrPattern();
             node.type = parseTypeAnnotation();
             if (!isInOrOfKeyword(token)) {
@@ -2716,7 +2717,7 @@ var ts;
             return finishNode(node);
         }
         function parseVariableDeclarationList(inForStatementInitializer) {
-            var node = createNode(199);
+            var node = createNode(200);
             switch (token) {
                 case 98:
                     break;
@@ -2730,7 +2731,7 @@ var ts;
                     ts.Debug.fail();
             }
             nextToken();
-            if (token === 125 && lookAhead(canFollowContextualOfKeyword)) {
+            if (token === 126 && lookAhead(canFollowContextualOfKeyword)) {
                 node.declarations = createMissingList();
             }
             else {
@@ -2745,7 +2746,7 @@ var ts;
             return nextTokenIsIdentifier() && nextToken() === 17;
         }
         function parseVariableStatement(fullStart, decorators, modifiers) {
-            var node = createNode(180, fullStart);
+            var node = createNode(181, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             node.declarationList = parseVariableDeclarationList(false);
@@ -2753,7 +2754,7 @@ var ts;
             return finishNode(node);
         }
         function parseFunctionDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(200, fullStart);
+            var node = createNode(201, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             parseExpected(83);
@@ -2764,7 +2765,7 @@ var ts;
             return finishNode(node);
         }
         function parseConstructorDeclaration(pos, decorators, modifiers) {
-            var node = createNode(135, pos);
+            var node = createNode(136, pos);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             parseExpected(114);
@@ -2773,7 +2774,7 @@ var ts;
             return finishNode(node);
         }
         function parseMethodDeclaration(fullStart, decorators, modifiers, asteriskToken, name, questionToken, diagnosticMessage) {
-            var method = createNode(134, fullStart);
+            var method = createNode(135, fullStart);
             method.decorators = decorators;
             setModifiers(method, modifiers);
             method.asteriskToken = asteriskToken;
@@ -2784,7 +2785,7 @@ var ts;
             return finishNode(method);
         }
         function parsePropertyDeclaration(fullStart, decorators, modifiers, name, questionToken) {
-            var property = createNode(132, fullStart);
+            var property = createNode(133, fullStart);
             property.decorators = decorators;
             setModifiers(property, modifiers);
             property.name = name;
@@ -2851,7 +2852,7 @@ var ts;
                 return true;
             }
             if (idToken !== undefined) {
-                if (!ts.isKeyword(idToken) || idToken === 120 || idToken === 116) {
+                if (!ts.isKeyword(idToken) || idToken === 121 || idToken === 116) {
                     return true;
                 }
                 switch (token) {
@@ -2878,7 +2879,7 @@ var ts;
                     decorators = [];
                     decorators.pos = scanner.getStartPos();
                 }
-                var decorator = createNode(130, decoratorStart);
+                var decorator = createNode(131, decoratorStart);
                 decorator.expression = doInDecoratorContext(parseLeftHandSideExpressionOrHigher);
                 decorators.push(finishNode(decorator));
             }
@@ -2911,7 +2912,7 @@ var ts;
         }
         function parseClassElement() {
             if (token === 22) {
-                var result = createNode(178);
+                var result = createNode(179);
                 nextToken();
                 return finishNode(result);
             }
@@ -2942,10 +2943,10 @@ var ts;
             ts.Debug.fail("Should not have attempted to parse class member declaration.");
         }
         function parseClassExpression() {
-            return parseClassDeclarationOrExpression(scanner.getStartPos(), undefined, undefined, 174);
+            return parseClassDeclarationOrExpression(scanner.getStartPos(), undefined, undefined, 175);
         }
         function parseClassDeclaration(fullStart, decorators, modifiers) {
-            return parseClassDeclarationOrExpression(fullStart, decorators, modifiers, 201);
+            return parseClassDeclarationOrExpression(fullStart, decorators, modifiers, 202);
         }
         function parseClassDeclarationOrExpression(fullStart, decorators, modifiers, kind) {
             var savedStrictModeContext = inStrictModeContext();
@@ -2986,15 +2987,15 @@ var ts;
         }
         function parseHeritageClause() {
             if (token === 79 || token === 102) {
-                var node = createNode(222);
+                var node = createNode(223);
                 node.token = token;
                 nextToken();
-                node.types = parseDelimitedList(8, parseHeritageClauseElement);
+                node.types = parseDelimitedList(8, parseExpressionWithTypeArguments);
                 return finishNode(node);
             }
             return undefined;
         }
-        function parseHeritageClauseElement() {
+        function parseExpressionWithTypeArguments() {
             var node = createNode(177);
             node.expression = parseLeftHandSideExpressionOrHigher();
             if (token === 24) {
@@ -3009,7 +3010,7 @@ var ts;
             return parseList(6, false, parseClassElement);
         }
         function parseInterfaceDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(202, fullStart);
+            var node = createNode(203, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             parseExpected(103);
@@ -3020,10 +3021,10 @@ var ts;
             return finishNode(node);
         }
         function parseTypeAliasDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(203, fullStart);
+            var node = createNode(204, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
-            parseExpected(123);
+            parseExpected(124);
             node.name = parseIdentifier();
             parseExpected(53);
             node.type = parseType();
@@ -3031,13 +3032,13 @@ var ts;
             return finishNode(node);
         }
         function parseEnumMember() {
-            var node = createNode(226, scanner.getStartPos());
+            var node = createNode(227, scanner.getStartPos());
             node.name = parsePropertyName();
             node.initializer = allowInAnd(parseNonParameterInitializer);
             return finishNode(node);
         }
         function parseEnumDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(204, fullStart);
+            var node = createNode(205, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             parseExpected(77);
@@ -3052,7 +3053,7 @@ var ts;
             return finishNode(node);
         }
         function parseModuleBlock() {
-            var node = createNode(206, scanner.getStartPos());
+            var node = createNode(207, scanner.getStartPos());
             if (parseExpected(14)) {
                 node.statements = parseList(1, false, parseModuleElement);
                 parseExpected(15);
@@ -3062,19 +3063,19 @@ var ts;
             }
             return finishNode(node);
         }
-        function parseInternalModuleTail(fullStart, decorators, modifiers, flags) {
-            var node = createNode(205, fullStart);
+        function parseModuleOrNamespaceDeclaration(fullStart, decorators, modifiers, flags) {
+            var node = createNode(206, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             node.flags |= flags;
             node.name = parseIdentifier();
             node.body = parseOptional(20)
-                ? parseInternalModuleTail(getNodePos(), undefined, undefined, 1)
+                ? parseModuleOrNamespaceDeclaration(getNodePos(), undefined, undefined, 1)
                 : parseModuleBlock();
             return finishNode(node);
         }
         function parseAmbientExternalModuleDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(205, fullStart);
+            var node = createNode(206, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             node.name = parseLiteralNode(true);
@@ -3082,13 +3083,20 @@ var ts;
             return finishNode(node);
         }
         function parseModuleDeclaration(fullStart, decorators, modifiers) {
-            parseExpected(117);
-            return token === 8
-                ? parseAmbientExternalModuleDeclaration(fullStart, decorators, modifiers)
-                : parseInternalModuleTail(fullStart, decorators, modifiers, modifiers ? modifiers.flags : 0);
+            var flags = modifiers ? modifiers.flags : 0;
+            if (parseOptional(118)) {
+                flags |= 32768;
+            }
+            else {
+                parseExpected(117);
+                if (token === 8) {
+                    return parseAmbientExternalModuleDeclaration(fullStart, decorators, modifiers);
+                }
+            }
+            return parseModuleOrNamespaceDeclaration(fullStart, decorators, modifiers, flags);
         }
         function isExternalModuleReference() {
-            return token === 118 &&
+            return token === 119 &&
                 lookAhead(nextTokenIsOpenParen);
         }
         function nextTokenIsOpenParen() {
@@ -3097,7 +3105,7 @@ var ts;
         function nextTokenIsCommaOrFromKeyword() {
             nextToken();
             return token === 23 ||
-                token === 124;
+                token === 125;
         }
         function parseImportDeclarationOrImportEqualsDeclaration(fullStart, decorators, modifiers) {
             parseExpected(85);
@@ -3105,8 +3113,8 @@ var ts;
             var identifier;
             if (isIdentifier()) {
                 identifier = parseIdentifier();
-                if (token !== 23 && token !== 124) {
-                    var importEqualsDeclaration = createNode(208, fullStart);
+                if (token !== 23 && token !== 125) {
+                    var importEqualsDeclaration = createNode(209, fullStart);
                     importEqualsDeclaration.decorators = decorators;
                     setModifiers(importEqualsDeclaration, modifiers);
                     importEqualsDeclaration.name = identifier;
@@ -3116,14 +3124,14 @@ var ts;
                     return finishNode(importEqualsDeclaration);
                 }
             }
-            var importDeclaration = createNode(209, fullStart);
+            var importDeclaration = createNode(210, fullStart);
             importDeclaration.decorators = decorators;
             setModifiers(importDeclaration, modifiers);
             if (identifier ||
                 token === 35 ||
                 token === 14) {
                 importDeclaration.importClause = parseImportClause(identifier, afterImportPos);
-                parseExpected(124);
+                parseExpected(125);
             }
             importDeclaration.moduleSpecifier = parseModuleSpecifier();
             parseSemicolon();
@@ -3136,13 +3144,13 @@ var ts;
             //  NamedImports
             //  ImportedDefaultBinding, NameSpaceImport
             //  ImportedDefaultBinding, NamedImports
-            var importClause = createNode(210, fullStart);
+            var importClause = createNode(211, fullStart);
             if (identifier) {
                 importClause.name = identifier;
             }
             if (!importClause.name ||
                 parseOptional(23)) {
-                importClause.namedBindings = token === 35 ? parseNamespaceImport() : parseNamedImportsOrExports(212);
+                importClause.namedBindings = token === 35 ? parseNamespaceImport() : parseNamedImportsOrExports(213);
             }
             return finishNode(importClause);
         }
@@ -3152,8 +3160,8 @@ var ts;
                 : parseEntityName(false);
         }
         function parseExternalModuleReference() {
-            var node = createNode(219);
-            parseExpected(118);
+            var node = createNode(220);
+            parseExpected(119);
             parseExpected(16);
             node.expression = parseModuleSpecifier();
             parseExpected(17);
@@ -3167,7 +3175,7 @@ var ts;
             return result;
         }
         function parseNamespaceImport() {
-            var namespaceImport = createNode(211);
+            var namespaceImport = createNode(212);
             parseExpected(35);
             parseExpected(111);
             namespaceImport.name = parseIdentifier();
@@ -3175,14 +3183,14 @@ var ts;
         }
         function parseNamedImportsOrExports(kind) {
             var node = createNode(kind);
-            node.elements = parseBracketedList(20, kind === 212 ? parseImportSpecifier : parseExportSpecifier, 14, 15);
+            node.elements = parseBracketedList(20, kind === 213 ? parseImportSpecifier : parseExportSpecifier, 14, 15);
             return finishNode(node);
         }
         function parseExportSpecifier() {
-            return parseImportOrExportSpecifier(217);
+            return parseImportOrExportSpecifier(218);
         }
         function parseImportSpecifier() {
-            return parseImportOrExportSpecifier(213);
+            return parseImportOrExportSpecifier(214);
         }
         function parseImportOrExportSpecifier(kind) {
             var node = createNode(kind);
@@ -3201,22 +3209,22 @@ var ts;
             else {
                 node.name = identifierName;
             }
-            if (kind === 213 && checkIdentifierIsKeyword) {
+            if (kind === 214 && checkIdentifierIsKeyword) {
                 parseErrorAtPosition(checkIdentifierStart, checkIdentifierEnd - checkIdentifierStart, ts.Diagnostics.Identifier_expected);
             }
             return finishNode(node);
         }
         function parseExportDeclaration(fullStart, decorators, modifiers) {
-            var node = createNode(215, fullStart);
+            var node = createNode(216, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             if (parseOptional(35)) {
-                parseExpected(124);
+                parseExpected(125);
                 node.moduleSpecifier = parseModuleSpecifier();
             }
             else {
-                node.exportClause = parseNamedImportsOrExports(216);
-                if (parseOptional(124)) {
+                node.exportClause = parseNamedImportsOrExports(217);
+                if (parseOptional(125)) {
                     node.moduleSpecifier = parseModuleSpecifier();
                 }
             }
@@ -3224,7 +3232,7 @@ var ts;
             return finishNode(node);
         }
         function parseExportAssignment(fullStart, decorators, modifiers) {
-            var node = createNode(214, fullStart);
+            var node = createNode(215, fullStart);
             node.decorators = decorators;
             setModifiers(node, modifiers);
             if (parseOptional(53)) {
@@ -3251,11 +3259,12 @@ var ts;
                 case 69:
                 case 103:
                 case 77:
-                case 123:
+                case 124:
                     return lookAhead(nextTokenIsIdentifierOrKeyword);
                 case 85:
                     return lookAhead(nextTokenCanFollowImportKeyword);
                 case 117:
+                case 118:
                     return lookAhead(nextTokenIsIdentifierOrKeywordOrStringLiteral);
                 case 78:
                     return lookAhead(nextTokenCanFollowExportKeyword);
@@ -3321,17 +3330,18 @@ var ts;
                     return parseClassDeclaration(fullStart, decorators, modifiers);
                 case 103:
                     return parseInterfaceDeclaration(fullStart, decorators, modifiers);
-                case 123:
+                case 124:
                     return parseTypeAliasDeclaration(fullStart, decorators, modifiers);
                 case 77:
                     return parseEnumDeclaration(fullStart, decorators, modifiers);
                 case 117:
+                case 118:
                     return parseModuleDeclaration(fullStart, decorators, modifiers);
                 case 85:
                     return parseImportDeclarationOrImportEqualsDeclaration(fullStart, decorators, modifiers);
                 default:
                     if (decorators) {
-                        var node = createMissingNode(218, true, ts.Diagnostics.Declaration_expected);
+                        var node = createMissingNode(219, true, ts.Diagnostics.Declaration_expected);
                         node.pos = fullStart;
                         node.decorators = decorators;
                         setModifiers(node, modifiers);
@@ -3411,10 +3421,10 @@ var ts;
         function setExternalModuleIndicator(sourceFile) {
             sourceFile.externalModuleIndicator = ts.forEach(sourceFile.statements, function (node) {
                 return node.flags & 1
-                    || node.kind === 208 && node.moduleReference.kind === 219
-                    || node.kind === 209
-                    || node.kind === 214
+                    || node.kind === 209 && node.moduleReference.kind === 220
+                    || node.kind === 210
                     || node.kind === 215
+                    || node.kind === 216
                     ? node
                     : undefined;
             });

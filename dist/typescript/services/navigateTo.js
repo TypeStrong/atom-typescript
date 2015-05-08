@@ -66,7 +66,7 @@ var ts;
                     if (text !== undefined) {
                         containers.unshift(text);
                     }
-                    else if (declaration.name.kind === 127) {
+                    else if (declaration.name.kind === 128) {
                         return tryAddComputedPropertyName(declaration.name.expression, containers, true);
                     }
                     else {
@@ -83,7 +83,7 @@ var ts;
                     }
                     return true;
                 }
-                if (expression.kind === 155) {
+                if (expression.kind === 156) {
                     var propertyAccess = expression;
                     if (includeLastPortion) {
                         containers.unshift(propertyAccess.name.text);
@@ -94,7 +94,7 @@ var ts;
             }
             function getContainers(declaration) {
                 var containers = [];
-                if (declaration.name.kind === 127) {
+                if (declaration.name.kind === 128) {
                     if (!tryAddComputedPropertyName(declaration.name.expression, containers, false)) {
                         return undefined;
                     }

@@ -10,12 +10,12 @@ function getNodeByKindAndName(program, kind, name) {
     var found = undefined;
     function findNode(node) {
         if (node.kind == kind) {
-            if (node.kind == 201) {
+            if (node.kind == 202) {
                 if (node.name.text == name) {
                     found = node;
                 }
             }
-            if (node.kind == 202) {
+            if (node.kind == 203) {
                 if (node.name.text == name) {
                     found = node;
                 }
@@ -46,34 +46,34 @@ function getSourceFileImportsWithTextRange(srcFile) {
 exports.getSourceFileImportsWithTextRange = getSourceFileImportsWithTextRange;
 function getImports(searchNode, importedModules) {
     ts.forEachChild(searchNode, function (node) {
-        if (node.kind === 209 || node.kind === 208 || node.kind === 215) {
+        if (node.kind === 210 || node.kind === 209 || node.kind === 216) {
             var moduleNameExpr = getExternalModuleName(node);
             if (moduleNameExpr && moduleNameExpr.kind === 8) {
                 importedModules.push(moduleNameExpr.text);
             }
         }
-        else if (node.kind === 205 && node.name.kind === 8) {
+        else if (node.kind === 206 && node.name.kind === 8) {
             getImports(node.body, importedModules);
         }
     });
 }
 function getExternalModuleName(node) {
-    if (node.kind === 209) {
+    if (node.kind === 210) {
         return node.moduleSpecifier;
     }
-    if (node.kind === 208) {
+    if (node.kind === 209) {
         var reference = node.moduleReference;
-        if (reference.kind === 219) {
+        if (reference.kind === 220) {
             return reference.expression;
         }
     }
-    if (node.kind === 215) {
+    if (node.kind === 216) {
         return node.moduleSpecifier;
     }
 }
 function getImportsWithTextRange(searchNode, importedModules) {
     ts.forEachChild(searchNode, function (node) {
-        if (node.kind === 209 || node.kind === 208 || node.kind === 215) {
+        if (node.kind === 210 || node.kind === 209 || node.kind === 216) {
             var moduleNameExpr = getExternalModuleName(node);
             if (moduleNameExpr && moduleNameExpr.kind === 8) {
                 var moduleExpr = moduleNameExpr;
@@ -83,7 +83,7 @@ function getImportsWithTextRange(searchNode, importedModules) {
                 });
             }
         }
-        else if (node.kind === 205 && node.name.kind === 8) {
+        else if (node.kind === 206 && node.name.kind === 8) {
             getImportsWithTextRange(node.body, importedModules);
         }
     });

@@ -61,7 +61,7 @@ var ts;
         }
     }
     function getSourceFileOfNode(node) {
-        while (node && node.kind !== 227) {
+        while (node && node.kind !== 228) {
             node = node.parent;
         }
         return node;
@@ -150,15 +150,15 @@ var ts;
                 return current;
             }
             switch (current.kind) {
-                case 227:
-                case 207:
-                case 223:
-                case 205:
-                case 186:
+                case 228:
+                case 208:
+                case 224:
+                case 206:
                 case 187:
                 case 188:
+                case 189:
                     return current;
-                case 179:
+                case 180:
                     if (!isFunctionLike(current.parent)) {
                         return current;
                     }
@@ -169,9 +169,9 @@ var ts;
     ts.getEnclosingBlockScopeContainer = getEnclosingBlockScopeContainer;
     function isCatchClauseVariableDeclaration(declaration) {
         return declaration &&
-            declaration.kind === 198 &&
+            declaration.kind === 199 &&
             declaration.parent &&
-            declaration.parent.kind === 223;
+            declaration.parent.kind === 224;
     }
     ts.isCatchClauseVariableDeclaration = isCatchClauseVariableDeclaration;
     function declarationNameToString(name) {
@@ -207,22 +207,22 @@ var ts;
     function getErrorSpanForNode(sourceFile, node) {
         var errorNode = node;
         switch (node.kind) {
-            case 227:
+            case 228:
                 var pos_1 = ts.skipTrivia(sourceFile.text, 0, false);
                 if (pos_1 === sourceFile.text.length) {
                     return ts.createTextSpan(0, 0);
                 }
                 return getSpanOfTokenAtPosition(sourceFile, pos_1);
-            case 198:
-            case 152:
-            case 201:
-            case 174:
+            case 199:
+            case 153:
             case 202:
+            case 175:
+            case 203:
+            case 206:
             case 205:
-            case 204:
-            case 226:
-            case 200:
-            case 162:
+            case 227:
+            case 201:
+            case 163:
                 errorNode = node.name;
                 break;
         }
@@ -244,11 +244,11 @@ var ts;
     }
     ts.isDeclarationFile = isDeclarationFile;
     function isConstEnumDeclaration(node) {
-        return node.kind === 204 && isConst(node);
+        return node.kind === 205 && isConst(node);
     }
     ts.isConstEnumDeclaration = isConstEnumDeclaration;
     function walkUpBindingElementsAndPatterns(node) {
-        while (node && (node.kind === 152 || isBindingPattern(node))) {
+        while (node && (node.kind === 153 || isBindingPattern(node))) {
             node = node.parent;
         }
         return node;
@@ -256,14 +256,14 @@ var ts;
     function getCombinedNodeFlags(node) {
         node = walkUpBindingElementsAndPatterns(node);
         var flags = node.flags;
-        if (node.kind === 198) {
+        if (node.kind === 199) {
             node = node.parent;
         }
-        if (node && node.kind === 199) {
+        if (node && node.kind === 200) {
             flags |= node.flags;
             node = node.parent;
         }
-        if (node && node.kind === 180) {
+        if (node && node.kind === 181) {
             flags |= node.flags;
         }
         return flags;
@@ -278,11 +278,11 @@ var ts;
     }
     ts.isLet = isLet;
     function isPrologueDirective(node) {
-        return node.kind === 182 && node.expression.kind === 8;
+        return node.kind === 183 && node.expression.kind === 8;
     }
     ts.isPrologueDirective = isPrologueDirective;
     function getLeadingCommentRangesOfNode(node, sourceFileOfNode) {
-        if (node.kind === 129 || node.kind === 128) {
+        if (node.kind === 130 || node.kind === 129) {
             return ts.concatenate(ts.getTrailingCommentRanges(sourceFileOfNode.text, node.pos), ts.getLeadingCommentRanges(sourceFileOfNode.text, node.pos));
         }
         else {
@@ -304,23 +304,23 @@ var ts;
         return traverse(body);
         function traverse(node) {
             switch (node.kind) {
-                case 191:
+                case 192:
                     return visitor(node);
-                case 207:
-                case 179:
-                case 183:
+                case 208:
+                case 180:
                 case 184:
                 case 185:
                 case 186:
                 case 187:
                 case 188:
-                case 192:
+                case 189:
                 case 193:
-                case 220:
-                case 221:
                 case 194:
-                case 196:
-                case 223:
+                case 221:
+                case 222:
+                case 195:
+                case 197:
+                case 224:
                     return ts.forEachChild(node, traverse);
             }
         }
@@ -329,14 +329,14 @@ var ts;
     function isVariableLike(node) {
         if (node) {
             switch (node.kind) {
-                case 152:
-                case 226:
-                case 129:
-                case 224:
-                case 132:
-                case 131:
+                case 153:
+                case 227:
+                case 130:
                 case 225:
-                case 198:
+                case 133:
+                case 132:
+                case 226:
+                case 199:
                     return true;
             }
         }
@@ -346,8 +346,8 @@ var ts;
     function isAccessor(node) {
         if (node) {
             switch (node.kind) {
-                case 136:
                 case 137:
+                case 138:
                     return true;
             }
         }
@@ -357,22 +357,19 @@ var ts;
     function isFunctionLike(node) {
         if (node) {
             switch (node.kind) {
-                case 135:
-                case 162:
-                case 200:
-                case 163:
-                case 134:
-                case 133:
                 case 136:
+                case 163:
+                case 201:
+                case 164:
+                case 135:
+                case 134:
                 case 137:
                 case 138:
                 case 139:
                 case 140:
-                case 142:
+                case 141:
                 case 143:
-                case 162:
-                case 163:
-                case 200:
+                case 144:
                     return true;
             }
         }
@@ -380,11 +377,11 @@ var ts;
     }
     ts.isFunctionLike = isFunctionLike;
     function isFunctionBlock(node) {
-        return node && node.kind === 179 && isFunctionLike(node.parent);
+        return node && node.kind === 180 && isFunctionLike(node.parent);
     }
     ts.isFunctionBlock = isFunctionBlock;
     function isObjectLiteralMethod(node) {
-        return node && node.kind === 134 && node.parent.kind === 154;
+        return node && node.kind === 135 && node.parent.kind === 155;
     }
     ts.isObjectLiteralMethod = isObjectLiteralMethod;
     function getContainingFunction(node) {
@@ -403,36 +400,36 @@ var ts;
                 return undefined;
             }
             switch (node.kind) {
-                case 127:
-                    if (node.parent.parent.kind === 201) {
+                case 128:
+                    if (node.parent.parent.kind === 202) {
                         return node;
                     }
                     node = node.parent;
                     break;
-                case 130:
-                    if (node.parent.kind === 129 && isClassElement(node.parent.parent)) {
+                case 131:
+                    if (node.parent.kind === 130 && isClassElement(node.parent.parent)) {
                         node = node.parent.parent;
                     }
                     else if (isClassElement(node.parent)) {
                         node = node.parent;
                     }
                     break;
-                case 163:
+                case 164:
                     if (!includeArrowFunctions) {
                         continue;
                     }
-                case 200:
-                case 162:
-                case 205:
-                case 132:
-                case 131:
-                case 134:
+                case 201:
+                case 163:
+                case 206:
                 case 133:
+                case 132:
                 case 135:
+                case 134:
                 case 136:
                 case 137:
-                case 204:
-                case 227:
+                case 138:
+                case 205:
+                case 228:
                     return node;
             }
         }
@@ -444,40 +441,40 @@ var ts;
             if (!node)
                 return node;
             switch (node.kind) {
-                case 127:
-                    if (node.parent.parent.kind === 201) {
+                case 128:
+                    if (node.parent.parent.kind === 202) {
                         return node;
                     }
                     node = node.parent;
                     break;
-                case 130:
-                    if (node.parent.kind === 129 && isClassElement(node.parent.parent)) {
+                case 131:
+                    if (node.parent.kind === 130 && isClassElement(node.parent.parent)) {
                         node = node.parent.parent;
                     }
                     else if (isClassElement(node.parent)) {
                         node = node.parent;
                     }
                     break;
-                case 200:
-                case 162:
+                case 201:
                 case 163:
+                case 164:
                     if (!includeFunctions) {
                         continue;
                     }
-                case 132:
-                case 131:
-                case 134:
                 case 133:
+                case 132:
                 case 135:
+                case 134:
                 case 136:
                 case 137:
+                case 138:
                     return node;
             }
         }
     }
     ts.getSuperContainer = getSuperContainer;
     function getInvokedExpression(node) {
-        if (node.kind === 159) {
+        if (node.kind === 160) {
             return node.tag;
         }
         return node.expression;
@@ -485,40 +482,40 @@ var ts;
     ts.getInvokedExpression = getInvokedExpression;
     function nodeCanBeDecorated(node) {
         switch (node.kind) {
-            case 201:
+            case 202:
                 return true;
-            case 132:
-                return node.parent.kind === 201;
-            case 129:
-                return node.parent.body && node.parent.parent.kind === 201;
-            case 136:
+            case 133:
+                return node.parent.kind === 202;
+            case 130:
+                return node.parent.body && node.parent.parent.kind === 202;
             case 137:
-            case 134:
-                return node.body && node.parent.kind === 201;
+            case 138:
+            case 135:
+                return node.body && node.parent.kind === 202;
         }
         return false;
     }
     ts.nodeCanBeDecorated = nodeCanBeDecorated;
     function nodeIsDecorated(node) {
         switch (node.kind) {
-            case 201:
+            case 202:
                 if (node.decorators) {
                     return true;
                 }
                 return false;
-            case 132:
-            case 129:
+            case 133:
+            case 130:
                 if (node.decorators) {
                     return true;
                 }
                 return false;
-            case 136:
+            case 137:
                 if (node.body && node.decorators) {
                     return true;
                 }
                 return false;
-            case 134:
-            case 137:
+            case 135:
+            case 138:
                 if (node.body && node.decorators) {
                     return true;
                 }
@@ -529,10 +526,10 @@ var ts;
     ts.nodeIsDecorated = nodeIsDecorated;
     function childIsDecorated(node) {
         switch (node.kind) {
-            case 201:
+            case 202:
                 return ts.forEach(node.members, nodeOrChildIsDecorated);
-            case 134:
-            case 137:
+            case 135:
+            case 138:
                 return ts.forEach(node.parameters, nodeIsDecorated);
         }
         return false;
@@ -550,7 +547,6 @@ var ts;
             case 95:
             case 80:
             case 9:
-            case 153:
             case 154:
             case 155:
             case 156:
@@ -560,69 +556,70 @@ var ts;
             case 160:
             case 161:
             case 162:
-            case 174:
             case 163:
-            case 166:
+            case 175:
             case 164:
-            case 165:
             case 167:
+            case 165:
+            case 166:
             case 168:
             case 169:
             case 170:
-            case 173:
             case 171:
+            case 174:
+            case 172:
             case 10:
-            case 175:
+            case 176:
                 return true;
-            case 126:
-                while (node.parent.kind === 126) {
+            case 127:
+                while (node.parent.kind === 127) {
                     node = node.parent;
                 }
-                return node.parent.kind === 144;
+                return node.parent.kind === 145;
             case 65:
-                if (node.parent.kind === 144) {
+                if (node.parent.kind === 145) {
                     return true;
                 }
             case 7:
             case 8:
                 var parent_1 = node.parent;
                 switch (parent_1.kind) {
-                    case 198:
-                    case 129:
+                    case 199:
+                    case 130:
+                    case 133:
                     case 132:
-                    case 131:
-                    case 226:
-                    case 224:
-                    case 152:
+                    case 227:
+                    case 225:
+                    case 153:
                         return parent_1.initializer === node;
-                    case 182:
                     case 183:
                     case 184:
                     case 185:
-                    case 191:
+                    case 186:
                     case 192:
                     case 193:
-                    case 220:
-                    case 195:
-                    case 193:
+                    case 194:
+                    case 221:
+                    case 196:
+                    case 194:
                         return parent_1.expression === node;
-                    case 186:
-                        var forStatement = parent_1;
-                        return (forStatement.initializer === node && forStatement.initializer.kind !== 199) ||
-                            forStatement.condition === node ||
-                            forStatement.iterator === node;
                     case 187:
+                        var forStatement = parent_1;
+                        return (forStatement.initializer === node && forStatement.initializer.kind !== 200) ||
+                            forStatement.condition === node ||
+                            forStatement.incrementor === node;
                     case 188:
+                    case 189:
                         var forInStatement = parent_1;
-                        return (forInStatement.initializer === node && forInStatement.initializer.kind !== 199) ||
+                        return (forInStatement.initializer === node && forInStatement.initializer.kind !== 200) ||
                             forInStatement.expression === node;
-                    case 160:
+                    case 161:
                         return node === parent_1.expression;
-                    case 176:
+                    case 178:
                         return node === parent_1.expression;
-                    case 127:
+                    case 128:
                         return node === parent_1.expression;
-                    case 130:
+                    case 131:
                         return true;
                     default:
                         if (isExpression(parent_1)) {
@@ -640,7 +637,7 @@ var ts;
     }
     ts.isInstantiatedModule = isInstantiatedModule;
     function isExternalModuleImportEqualsDeclaration(node) {
-        return node.kind === 208 && node.moduleReference.kind === 219;
+        return node.kind === 209 && node.moduleReference.kind === 220;
     }
     ts.isExternalModuleImportEqualsDeclaration = isExternalModuleImportEqualsDeclaration;
     function getExternalModuleImportEqualsDeclarationExpression(node) {
@@ -649,40 +646,40 @@ var ts;
     }
     ts.getExternalModuleImportEqualsDeclarationExpression = getExternalModuleImportEqualsDeclarationExpression;
     function isInternalModuleImportEqualsDeclaration(node) {
-        return node.kind === 208 && node.moduleReference.kind !== 219;
+        return node.kind === 209 && node.moduleReference.kind !== 220;
     }
     ts.isInternalModuleImportEqualsDeclaration = isInternalModuleImportEqualsDeclaration;
     function getExternalModuleName(node) {
-        if (node.kind === 209) {
+        if (node.kind === 210) {
             return node.moduleSpecifier;
         }
-        if (node.kind === 208) {
+        if (node.kind === 209) {
             var reference = node.moduleReference;
-            if (reference.kind === 219) {
+            if (reference.kind === 220) {
                 return reference.expression;
             }
         }
-        if (node.kind === 215) {
+        if (node.kind === 216) {
             return node.moduleSpecifier;
         }
     }
     ts.getExternalModuleName = getExternalModuleName;
     function hasDotDotDotToken(node) {
-        return node && node.kind === 129 && node.dotDotDotToken !== undefined;
+        return node && node.kind === 130 && node.dotDotDotToken !== undefined;
     }
     ts.hasDotDotDotToken = hasDotDotDotToken;
     function hasQuestionToken(node) {
         if (node) {
             switch (node.kind) {
-                case 129:
+                case 130:
                     return node.questionToken !== undefined;
+                case 135:
                 case 134:
-                case 133:
                     return node.questionToken !== undefined;
+                case 226:
                 case 225:
-                case 224:
+                case 133:
                 case 132:
-                case 131:
                     return node.questionToken !== undefined;
             }
         }
@@ -690,7 +687,7 @@ var ts;
     }
     ts.hasQuestionToken = hasQuestionToken;
     function hasRestParameters(s) {
-        return s.parameters.length > 0 && s.parameters[s.parameters.length - 1].dotDotDotToken !== undefined;
+        return s.parameters.length > 0 && ts.lastOrUndefined(s.parameters).dotDotDotToken !== undefined;
     }
     ts.hasRestParameters = hasRestParameters;
     function isLiteralKind(kind) {
@@ -706,7 +703,7 @@ var ts;
     }
     ts.isTemplateLiteralKind = isTemplateLiteralKind;
     function isBindingPattern(node) {
-        return !!node && (node.kind === 151 || node.kind === 150);
+        return !!node && (node.kind === 152 || node.kind === 151);
     }
     ts.isBindingPattern = isBindingPattern;
     function isInAmbientContext(node) {
@@ -721,33 +718,33 @@ var ts;
     ts.isInAmbientContext = isInAmbientContext;
     function isDeclaration(node) {
         switch (node.kind) {
-            case 163:
-            case 152:
-            case 201:
-            case 135:
-            case 204:
-            case 226:
-            case 217:
-            case 200:
-            case 162:
-            case 136:
-            case 210:
-            case 208:
-            case 213:
+            case 164:
+            case 153:
             case 202:
-            case 134:
-            case 133:
+            case 136:
             case 205:
-            case 211:
-            case 129:
-            case 224:
-            case 132:
-            case 131:
+            case 227:
+            case 218:
+            case 201:
+            case 163:
             case 137:
-            case 225:
+            case 211:
+            case 209:
+            case 214:
             case 203:
-            case 128:
-            case 198:
+            case 135:
+            case 134:
+            case 206:
+            case 212:
+            case 130:
+            case 225:
+            case 133:
+            case 132:
+            case 138:
+            case 226:
+            case 204:
+            case 129:
+            case 199:
                 return true;
         }
         return false;
@@ -755,25 +752,25 @@ var ts;
     ts.isDeclaration = isDeclaration;
     function isStatement(n) {
         switch (n.kind) {
-            case 190:
-            case 189:
-            case 197:
-            case 184:
-            case 182:
-            case 181:
-            case 187:
-            case 188:
-            case 186:
-            case 183:
-            case 194:
             case 191:
-            case 193:
-            case 94:
-            case 196:
-            case 180:
+            case 190:
+            case 198:
             case 185:
+            case 183:
+            case 182:
+            case 188:
+            case 189:
+            case 187:
+            case 184:
+            case 195:
             case 192:
-            case 214:
+            case 194:
+            case 94:
+            case 197:
+            case 181:
+            case 186:
+            case 193:
+            case 215:
                 return true;
             default:
                 return false;
@@ -782,13 +779,13 @@ var ts;
     ts.isStatement = isStatement;
     function isClassElement(n) {
         switch (n.kind) {
-            case 135:
-            case 132:
-            case 134:
             case 136:
-            case 137:
             case 133:
-            case 140:
+            case 135:
+            case 137:
+            case 138:
+            case 134:
+            case 141:
                 return true;
             default:
                 return false;
@@ -800,7 +797,7 @@ var ts;
             return false;
         }
         var parent = name.parent;
-        if (parent.kind === 213 || parent.kind === 217) {
+        if (parent.kind === 214 || parent.kind === 218) {
             if (parent.propertyName) {
                 return true;
             }
@@ -812,12 +809,12 @@ var ts;
     }
     ts.isDeclarationName = isDeclarationName;
     function isAliasSymbolDeclaration(node) {
-        return node.kind === 208 ||
-            node.kind === 210 && !!node.name ||
-            node.kind === 211 ||
-            node.kind === 213 ||
-            node.kind === 217 ||
-            node.kind === 214 && node.expression.kind === 65;
+        return node.kind === 209 ||
+            node.kind === 211 && !!node.name ||
+            node.kind === 212 ||
+            node.kind === 214 ||
+            node.kind === 218 ||
+            node.kind === 215 && node.expression.kind === 65;
     }
     ts.isAliasSymbolDeclaration = isAliasSymbolDeclaration;
     function getClassExtendsHeritageClauseElement(node) {
@@ -900,7 +897,7 @@ var ts;
     }
     ts.getFileReferenceFromReferencePath = getFileReferenceFromReferencePath;
     function isKeyword(token) {
-        return 66 <= token && token <= 125;
+        return 66 <= token && token <= 126;
     }
     ts.isKeyword = isKeyword;
     function isTrivia(token) {
@@ -909,19 +906,19 @@ var ts;
     ts.isTrivia = isTrivia;
     function hasDynamicName(declaration) {
         return declaration.name &&
-            declaration.name.kind === 127 &&
+            declaration.name.kind === 128 &&
             !isWellKnownSymbolSyntactically(declaration.name.expression);
     }
     ts.hasDynamicName = hasDynamicName;
     function isWellKnownSymbolSyntactically(node) {
-        return node.kind === 155 && isESSymbolIdentifier(node.expression);
+        return node.kind === 156 && isESSymbolIdentifier(node.expression);
     }
     ts.isWellKnownSymbolSyntactically = isWellKnownSymbolSyntactically;
     function getPropertyNameForPropertyNameNode(name) {
         if (name.kind === 65 || name.kind === 8 || name.kind === 7) {
             return name.text;
         }
-        if (name.kind === 127) {
+        if (name.kind === 128) {
             var nameExpression = name.expression;
             if (isWellKnownSymbolSyntactically(nameExpression)) {
                 var rightHandSideName = nameExpression.name.text;
@@ -955,7 +952,7 @@ var ts;
     }
     ts.isModifier = isModifier;
     function nodeStartsNewLexicalEnvironment(n) {
-        return isFunctionLike(n) || n.kind === 205 || n.kind === 227;
+        return isFunctionLike(n) || n.kind === 206 || n.kind === 228;
     }
     ts.nodeStartsNewLexicalEnvironment = nodeStartsNewLexicalEnvironment;
     function nodeIsSynthesized(node) {
@@ -1118,7 +1115,7 @@ var ts;
                 var lineStartsOfS = ts.computeLineStarts(s);
                 if (lineStartsOfS.length > 1) {
                     lineCount = lineCount + lineStartsOfS.length - 1;
-                    linePos = output.length - s.length + lineStartsOfS[lineStartsOfS.length - 1];
+                    linePos = output.length - s.length + ts.lastOrUndefined(lineStartsOfS);
                 }
             }
         }
@@ -1179,7 +1176,7 @@ var ts;
     ts.getLineOfLocalPosition = getLineOfLocalPosition;
     function getFirstConstructorWithBody(node) {
         return ts.forEach(node.members, function (member) {
-            if (member.kind === 135 && nodeIsPresent(member.body)) {
+            if (member.kind === 136 && nodeIsPresent(member.body)) {
                 return member;
             }
         });
@@ -1187,8 +1184,8 @@ var ts;
     ts.getFirstConstructorWithBody = getFirstConstructorWithBody;
     function shouldEmitToOwnFile(sourceFile, compilerOptions) {
         if (!isDeclarationFile(sourceFile)) {
-            if ((isExternalModule(sourceFile) || !compilerOptions.out) && !ts.fileExtensionIs(sourceFile.fileName, ".js")) {
-                return true;
+            if ((isExternalModule(sourceFile) || !compilerOptions.out)) {
+                return compilerOptions.separateCompilation || !ts.fileExtensionIs(sourceFile.fileName, ".js");
             }
             return false;
         }
@@ -1202,10 +1199,10 @@ var ts;
         var setAccessor;
         if (hasDynamicName(accessor)) {
             firstAccessor = accessor;
-            if (accessor.kind === 136) {
+            if (accessor.kind === 137) {
                 getAccessor = accessor;
             }
-            else if (accessor.kind === 137) {
+            else if (accessor.kind === 138) {
                 setAccessor = accessor;
             }
             else {
@@ -1214,7 +1211,7 @@ var ts;
         }
         else {
             ts.forEach(declarations, function (member) {
-                if ((member.kind === 136 || member.kind === 137)
+                if ((member.kind === 137 || member.kind === 138)
                     && (member.flags & 128) === (accessor.flags & 128)) {
                     var memberName = getPropertyNameForPropertyNameNode(member.name);
                     var accessorName = getPropertyNameForPropertyNameNode(accessor.name);
@@ -1225,10 +1222,10 @@ var ts;
                         else if (!secondAccessor) {
                             secondAccessor = member;
                         }
-                        if (member.kind === 136 && !getAccessor) {
+                        if (member.kind === 137 && !getAccessor) {
                             getAccessor = member;
                         }
-                        if (member.kind === 137 && !setAccessor) {
+                        if (member.kind === 138 && !setAccessor) {
                             setAccessor = member;
                         }
                     }
@@ -1349,22 +1346,22 @@ var ts;
     function isLeftHandSideExpression(expr) {
         if (expr) {
             switch (expr.kind) {
-                case 155:
                 case 156:
-                case 158:
                 case 157:
                 case 159:
-                case 153:
-                case 161:
+                case 158:
+                case 160:
                 case 154:
-                case 174:
                 case 162:
+                case 155:
+                case 175:
+                case 163:
                 case 65:
                 case 9:
                 case 7:
                 case 8:
                 case 10:
-                case 171:
+                case 172:
                 case 80:
                 case 89:
                 case 93:
@@ -1380,30 +1377,84 @@ var ts;
         return token >= 53 && token <= 64;
     }
     ts.isAssignmentOperator = isAssignmentOperator;
-    function isSupportedHeritageClauseElement(node) {
-        return isSupportedHeritageClauseElementExpression(node.expression);
+    function isSupportedExpressionWithTypeArguments(node) {
+        return isSupportedExpressionWithTypeArgumentsRest(node.expression);
     }
-    ts.isSupportedHeritageClauseElement = isSupportedHeritageClauseElement;
-    function isSupportedHeritageClauseElementExpression(node) {
+    ts.isSupportedExpressionWithTypeArguments = isSupportedExpressionWithTypeArguments;
+    function isSupportedExpressionWithTypeArgumentsRest(node) {
         if (node.kind === 65) {
             return true;
         }
-        else if (node.kind === 155) {
-            return isSupportedHeritageClauseElementExpression(node.expression);
+        else if (node.kind === 156) {
+            return isSupportedExpressionWithTypeArgumentsRest(node.expression);
         }
         else {
             return false;
         }
     }
     function isRightSideOfQualifiedNameOrPropertyAccess(node) {
-        return (node.parent.kind === 126 && node.parent.right === node) ||
-            (node.parent.kind === 155 && node.parent.name === node);
+        return (node.parent.kind === 127 && node.parent.right === node) ||
+            (node.parent.kind === 156 && node.parent.name === node);
     }
     ts.isRightSideOfQualifiedNameOrPropertyAccess = isRightSideOfQualifiedNameOrPropertyAccess;
     function getLocalSymbolForExportDefault(symbol) {
         return symbol && symbol.valueDeclaration && (symbol.valueDeclaration.flags & 256) ? symbol.valueDeclaration.localSymbol : undefined;
     }
     ts.getLocalSymbolForExportDefault = getLocalSymbolForExportDefault;
+    function getExpandedCharCodes(input) {
+        var output = [];
+        var length = input.length;
+        var leadSurrogate = undefined;
+        for (var i = 0; i < length; i++) {
+            var charCode = input.charCodeAt(i);
+            if (charCode < 0x80) {
+                output.push(charCode);
+            }
+            else if (charCode < 0x800) {
+                output.push((charCode >> 6) | 192);
+                output.push((charCode & 63) | 128);
+            }
+            else if (charCode < 0x10000) {
+                output.push((charCode >> 12) | 224);
+                output.push(((charCode >> 6) & 63) | 128);
+                output.push((charCode & 63) | 128);
+            }
+            else if (charCode < 0x20000) {
+                output.push((charCode >> 18) | 240);
+                output.push(((charCode >> 12) & 63) | 128);
+                output.push(((charCode >> 6) & 63) | 128);
+                output.push((charCode & 63) | 128);
+            }
+            else {
+                ts.Debug.assert(false, "Unexpected code point");
+            }
+        }
+        return output;
+    }
+    var base64Digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    function convertToBase64(input) {
+        var result = "";
+        var charCodes = getExpandedCharCodes(input);
+        var i = 0;
+        var length = charCodes.length;
+        var byte1, byte2, byte3, byte4;
+        while (i < length) {
+            byte1 = charCodes[i] >> 2;
+            byte2 = (charCodes[i] & 3) << 4 | charCodes[i + 1] >> 4;
+            byte3 = (charCodes[i + 1] & 15) << 2 | charCodes[i + 2] >> 6;
+            byte4 = charCodes[i + 2] & 63;
+            if (i + 1 >= length) {
+                byte3 = byte4 = 64;
+            }
+            else if (i + 2 >= length) {
+                byte4 = 64;
+            }
+            result += base64Digits.charAt(byte1) + base64Digits.charAt(byte2) + base64Digits.charAt(byte3) + base64Digits.charAt(byte4);
+            i += 3;
+        }
+        return result;
+    }
+    ts.convertToBase64 = convertToBase64;
 })(ts || (ts = {}));
 var ts;
 (function (ts) {

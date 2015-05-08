@@ -66,7 +66,7 @@ var ts;
                 }
             }
             function autoCollapse(node) {
-                return ts.isFunctionBlock(node) && node.parent.kind !== 163;
+                return ts.isFunctionBlock(node) && node.parent.kind !== 164;
             }
             var depth = 0;
             var maxDepth = 20;
@@ -78,23 +78,23 @@ var ts;
                     addOutliningForLeadingCommentsForNode(n);
                 }
                 switch (n.kind) {
-                    case 179:
+                    case 180:
                         if (!ts.isFunctionBlock(n)) {
                             var parent_1 = n.parent;
                             var openBrace = ts.findChildOfKind(n, 14, sourceFile);
                             var closeBrace = ts.findChildOfKind(n, 15, sourceFile);
-                            if (parent_1.kind === 184 ||
-                                parent_1.kind === 187 ||
+                            if (parent_1.kind === 185 ||
                                 parent_1.kind === 188 ||
+                                parent_1.kind === 189 ||
+                                parent_1.kind === 187 ||
+                                parent_1.kind === 184 ||
                                 parent_1.kind === 186 ||
-                                parent_1.kind === 183 ||
-                                parent_1.kind === 185 ||
-                                parent_1.kind === 192 ||
-                                parent_1.kind === 223) {
+                                parent_1.kind === 193 ||
+                                parent_1.kind === 224) {
                                 addOutliningSpan(parent_1, openBrace, closeBrace, autoCollapse(n));
                                 break;
                             }
-                            if (parent_1.kind === 196) {
+                            if (parent_1.kind === 197) {
                                 var tryStatement = parent_1;
                                 if (tryStatement.tryBlock === n) {
                                     addOutliningSpan(parent_1, openBrace, closeBrace, autoCollapse(n));
@@ -117,23 +117,23 @@ var ts;
                             });
                             break;
                         }
-                    case 206: {
+                    case 207: {
                         var openBrace = ts.findChildOfKind(n, 14, sourceFile);
                         var closeBrace = ts.findChildOfKind(n, 15, sourceFile);
                         addOutliningSpan(n.parent, openBrace, closeBrace, autoCollapse(n));
                         break;
                     }
-                    case 201:
                     case 202:
-                    case 204:
-                    case 154:
-                    case 207: {
+                    case 203:
+                    case 205:
+                    case 155:
+                    case 208: {
                         var openBrace = ts.findChildOfKind(n, 14, sourceFile);
                         var closeBrace = ts.findChildOfKind(n, 15, sourceFile);
                         addOutliningSpan(n, openBrace, closeBrace, autoCollapse(n));
                         break;
                     }
-                    case 153:
+                    case 154:
                         var openBracket = ts.findChildOfKind(n, 18, sourceFile);
                         var closeBracket = ts.findChildOfKind(n, 19, sourceFile);
                         addOutliningSpan(n, openBracket, closeBracket, autoCollapse(n));

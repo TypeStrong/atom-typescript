@@ -11,14 +11,14 @@ var ts;
                 var current = node.parent;
                 while (current) {
                     switch (current.kind) {
-                        case 205:
+                        case 206:
                             do {
                                 current = current.parent;
-                            } while (current.kind === 205);
-                        case 201:
-                        case 204:
+                            } while (current.kind === 206);
                         case 202:
-                        case 200:
+                        case 205:
+                        case 203:
+                        case 201:
                             indent++;
                     }
                     current = current.parent;
@@ -29,26 +29,26 @@ var ts;
                 var childNodes = [];
                 function visit(node) {
                     switch (node.kind) {
-                        case 180:
+                        case 181:
                             ts.forEach(node.declarationList.declarations, visit);
                             break;
-                        case 150:
                         case 151:
+                        case 152:
                             ts.forEach(node.elements, visit);
                             break;
-                        case 215:
+                        case 216:
                             if (node.exportClause) {
                                 ts.forEach(node.exportClause.elements, visit);
                             }
                             break;
-                        case 209:
+                        case 210:
                             var importClause = node.importClause;
                             if (importClause) {
                                 if (importClause.name) {
                                     childNodes.push(importClause);
                                 }
                                 if (importClause.namedBindings) {
-                                    if (importClause.namedBindings.kind === 211) {
+                                    if (importClause.namedBindings.kind === 212) {
                                         childNodes.push(importClause.namedBindings);
                                     }
                                     else {
@@ -57,20 +57,20 @@ var ts;
                                 }
                             }
                             break;
-                        case 152:
-                        case 198:
+                        case 153:
+                        case 199:
                             if (ts.isBindingPattern(node.name)) {
                                 visit(node.name);
                                 break;
                             }
-                        case 201:
-                        case 204:
                         case 202:
                         case 205:
-                        case 200:
-                        case 208:
-                        case 213:
-                        case 217:
+                        case 203:
+                        case 206:
+                        case 201:
+                        case 209:
+                        case 214:
+                        case 218:
                             childNodes.push(node);
                             break;
                     }
@@ -105,17 +105,17 @@ var ts;
                 for (var _i = 0; _i < nodes.length; _i++) {
                     var node = nodes[_i];
                     switch (node.kind) {
-                        case 201:
-                        case 204:
                         case 202:
+                        case 205:
+                        case 203:
                             topLevelNodes.push(node);
                             break;
-                        case 205:
+                        case 206:
                             var moduleDeclaration = node;
                             topLevelNodes.push(node);
                             addTopLevelNodes(getInnermostModule(moduleDeclaration).body.statements, topLevelNodes);
                             break;
-                        case 200:
+                        case 201:
                             var functionDeclaration = node;
                             if (isTopLevelFunctionDeclaration(functionDeclaration)) {
                                 topLevelNodes.push(node);
@@ -126,9 +126,9 @@ var ts;
                 }
             }
             function isTopLevelFunctionDeclaration(functionDeclaration) {
-                if (functionDeclaration.kind === 200) {
-                    if (functionDeclaration.body && functionDeclaration.body.kind === 179) {
-                        if (ts.forEach(functionDeclaration.body.statements, function (s) { return s.kind === 200 && !isEmpty(s.name.text); })) {
+                if (functionDeclaration.kind === 201) {
+                    if (functionDeclaration.body && functionDeclaration.body.kind === 180) {
+                        if (ts.forEach(functionDeclaration.body.statements, function (s) { return s.kind === 201 && !isEmpty(s.name.text); })) {
                             return true;
                         }
                         if (!ts.isFunctionBlock(functionDeclaration.parent)) {
@@ -181,7 +181,7 @@ var ts;
             }
             function createChildItem(node) {
                 switch (node.kind) {
-                    case 129:
+                    case 130:
                         if (ts.isBindingPattern(node.name)) {
                             break;
                         }
@@ -189,34 +189,34 @@ var ts;
                             return undefined;
                         }
                         return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberVariableElement);
+                    case 135:
                     case 134:
-                    case 133:
                         return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberFunctionElement);
-                    case 136:
-                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberGetAccessorElement);
                     case 137:
-                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberSetAccessorElement);
-                    case 140:
-                        return createItem(node, "[]", ts.ScriptElementKind.indexSignatureElement);
-                    case 226:
-                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberVariableElement);
+                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberGetAccessorElement);
                     case 138:
-                        return createItem(node, "()", ts.ScriptElementKind.callSignatureElement);
-                    case 139:
-                        return createItem(node, "new()", ts.ScriptElementKind.constructSignatureElement);
-                    case 132:
-                    case 131:
+                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberSetAccessorElement);
+                    case 141:
+                        return createItem(node, "[]", ts.ScriptElementKind.indexSignatureElement);
+                    case 227:
                         return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberVariableElement);
-                    case 200:
+                    case 139:
+                        return createItem(node, "()", ts.ScriptElementKind.callSignatureElement);
+                    case 140:
+                        return createItem(node, "new()", ts.ScriptElementKind.constructSignatureElement);
+                    case 133:
+                    case 132:
+                        return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.memberVariableElement);
+                    case 201:
                         return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.functionElement);
-                    case 198:
-                    case 152:
+                    case 199:
+                    case 153:
                         var variableDeclarationNode;
                         var name_1;
-                        if (node.kind === 152) {
+                        if (node.kind === 153) {
                             name_1 = node.name;
                             variableDeclarationNode = node;
-                            while (variableDeclarationNode && variableDeclarationNode.kind !== 198) {
+                            while (variableDeclarationNode && variableDeclarationNode.kind !== 199) {
                                 variableDeclarationNode = variableDeclarationNode.parent;
                             }
                             ts.Debug.assert(variableDeclarationNode !== undefined);
@@ -235,13 +235,13 @@ var ts;
                         else {
                             return createItem(node, getTextOfNode(name_1), ts.ScriptElementKind.variableElement);
                         }
-                    case 135:
+                    case 136:
                         return createItem(node, "constructor", ts.ScriptElementKind.constructorImplementationElement);
-                    case 217:
-                    case 213:
-                    case 208:
-                    case 210:
+                    case 218:
+                    case 214:
+                    case 209:
                     case 211:
+                    case 212:
                         return createItem(node, getTextOfNode(node.name), ts.ScriptElementKind.alias);
                 }
                 return undefined;
@@ -271,17 +271,17 @@ var ts;
             }
             function createTopLevelItem(node) {
                 switch (node.kind) {
-                    case 227:
+                    case 228:
                         return createSourceFileItem(node);
-                    case 201:
-                        return createClassItem(node);
-                    case 204:
-                        return createEnumItem(node);
                     case 202:
-                        return createIterfaceItem(node);
+                        return createClassItem(node);
                     case 205:
+                        return createEnumItem(node);
+                    case 203:
+                        return createIterfaceItem(node);
+                    case 206:
                         return createModuleItem(node);
-                    case 200:
+                    case 201:
                         return createFunctionItem(node);
                 }
                 return undefined;
@@ -291,7 +291,7 @@ var ts;
                     }
                     var result = [];
                     result.push(moduleDeclaration.name.text);
-                    while (moduleDeclaration.body && moduleDeclaration.body.kind === 205) {
+                    while (moduleDeclaration.body && moduleDeclaration.body.kind === 206) {
                         moduleDeclaration = moduleDeclaration.body;
                         result.push(moduleDeclaration.name.text);
                     }
@@ -303,7 +303,7 @@ var ts;
                     return getNavigationBarItem(moduleName, ts.ScriptElementKind.moduleElement, ts.getNodeModifiers(node), [getNodeSpan(node)], childItems, getIndent(node));
                 }
                 function createFunctionItem(node) {
-                    if (node.body && node.body.kind === 179) {
+                    if (node.body && node.body.kind === 180) {
                         var childItems = getItemsWorker(sortNodes(node.body.statements), createChildItem);
                         return getNavigationBarItem(!node.name ? "default" : node.name.text, ts.ScriptElementKind.functionElement, ts.getNodeModifiers(node), [getNodeSpan(node)], childItems, getIndent(node));
                     }
@@ -324,7 +324,7 @@ var ts;
                     var childItems;
                     if (node.members) {
                         var constructor = ts.forEach(node.members, function (member) {
-                            return member.kind === 135 && member;
+                            return member.kind === 136 && member;
                         });
                         var nodes = removeDynamicallyNamedProperties(node);
                         if (constructor) {
@@ -345,19 +345,19 @@ var ts;
                 }
             }
             function removeComputedProperties(node) {
-                return ts.filter(node.members, function (member) { return member.name === undefined || member.name.kind !== 127; });
+                return ts.filter(node.members, function (member) { return member.name === undefined || member.name.kind !== 128; });
             }
             function removeDynamicallyNamedProperties(node) {
                 return ts.filter(node.members, function (member) { return !ts.hasDynamicName(member); });
             }
             function getInnermostModule(node) {
-                while (node.body.kind === 205) {
+                while (node.body.kind === 206) {
                     node = node.body;
                 }
                 return node;
             }
             function getNodeSpan(node) {
-                return node.kind === 227
+                return node.kind === 228
                     ? ts.createTextSpanFromBounds(node.getFullStart(), node.getEnd())
                     : ts.createTextSpanFromBounds(node.getStart(), node.getEnd());
             }

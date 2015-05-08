@@ -1,6 +1,6 @@
 //
 // Copyright (c) Microsoft Corporation.  All rights reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -23,7 +23,9 @@ var debugObjectHost = this;
 var ts;
 (function (ts) {
     function logInternalError(logger, err) {
-        logger.log("*INTERNAL ERROR* - Exception in typescript services: " + err.message);
+        if (logger) {
+            logger.log("*INTERNAL ERROR* - Exception in typescript services: " + err.message);
+        }
     }
     var ScriptSnapshotShimAdapter = (function () {
         function ScriptSnapshotShimAdapter(scriptSnapshotShim) {
@@ -112,24 +114,39 @@ var ts;
         return LanguageServiceShimHostAdapter;
     })();
     ts.LanguageServiceShimHostAdapter = LanguageServiceShimHostAdapter;
-    function simpleForwardCall(logger, actionDescription, action) {
-        logger.log(actionDescription);
-        var start = Date.now();
+    var CoreServicesShimHostAdapter = (function () {
+        function CoreServicesShimHostAdapter(shimHost) {
+            this.shimHost = shimHost;
+        }
+        CoreServicesShimHostAdapter.prototype.readDirectory = function (rootDir, extension) {
+            var encoded = this.shimHost.readDirectory(rootDir, extension);
+            return JSON.parse(encoded);
+        };
+        return CoreServicesShimHostAdapter;
+    })();
+    ts.CoreServicesShimHostAdapter = CoreServicesShimHostAdapter;
+    function simpleForwardCall(logger, actionDescription, action, noPerfLogging) {
+        if (!noPerfLogging) {
+            logger.log(actionDescription);
+            var start = Date.now();
+        }
         var result = action();
-        var end = Date.now();
-        logger.log(actionDescription + " completed in " + (end - start) + " msec");
-        if (typeof (result) === "string") {
-            var str = result;
-            if (str.length > 128) {
-                str = str.substring(0, 128) + "...";
+        if (!noPerfLogging) {
+            var end = Date.now();
+            logger.log(actionDescription + " completed in " + (end - start) + " msec");
+            if (typeof (result) === "string") {
+                var str = result;
+                if (str.length > 128) {
+                    str = str.substring(0, 128) + "...";
+                }
+                logger.log("  result.length=" + str.length + ", result='" + JSON.stringify(str) + "'");
             }
-            logger.log("  result.length=" + str.length + ", result='" + JSON.stringify(str) + "'");
         }
         return result;
     }
-    function forwardJSONCall(logger, actionDescription, action) {
+    function forwardJSONCall(logger, actionDescription, action, noPerfLogging) {
         try {
-            var result = simpleForwardCall(logger, actionDescription, action);
+            var result = simpleForwardCall(logger, actionDescription, action, noPerfLogging);
             return JSON.stringify({ result: result });
         }
         catch (err) {
@@ -173,7 +190,7 @@ var ts;
             this.logger = this.host;
         }
         LanguageServiceShimObject.prototype.forwardJSONCall = function (actionDescription, action) {
-            return forwardJSONCall(this.logger, actionDescription, action);
+            return forwardJSONCall(this.logger, actionDescription, action, false);
         };
         LanguageServiceShimObject.prototype.dispose = function (dummy) {
             this.logger.log("dispose()");
@@ -214,6 +231,18 @@ var ts;
             return this.forwardJSONCall("getSemanticClassifications('" + fileName + "', " + start + ", " + length + ")", function () {
                 var classifications = _this.languageService.getSemanticClassifications(fileName, ts.createTextSpan(start, length));
                 return classifications;
+            });
+        };
+        LanguageServiceShimObject.prototype.getEncodedSyntacticClassifications = function (fileName, start, length) {
+            var _this = this;
+            return this.forwardJSONCall("getEncodedSyntacticClassifications('" + fileName + "', " + start + ", " + length + ")", function () {
+                return convertClassifications(_this.languageService.getEncodedSyntacticClassifications(fileName, ts.createTextSpan(start, length)));
+            });
+        };
+        LanguageServiceShimObject.prototype.getEncodedSemanticClassifications = function (fileName, start, length) {
+            var _this = this;
+            return this.forwardJSONCall("getEncodedSemanticClassifications('" + fileName + "', " + start + ", " + length + ")", function () {
+                return convertClassifications(_this.languageService.getEncodedSemanticClassifications(fileName, ts.createTextSpan(start, length)));
             });
         };
         LanguageServiceShimObject.prototype.getNewLine = function () {
@@ -272,6 +301,12 @@ var ts;
             var _this = this;
             return this.forwardJSONCall("getDefinitionAtPosition('" + fileName + "', " + position + ")", function () {
                 return _this.languageService.getDefinitionAtPosition(fileName, position);
+            });
+        };
+        LanguageServiceShimObject.prototype.getTypeDefinitionAtPosition = function (fileName, position) {
+            var _this = this;
+            return this.forwardJSONCall("getTypeDefinitionAtPosition('" + fileName + "', " + position + ")", function () {
+                return _this.languageService.getTypeDefinitionAtPosition(fileName, position);
             });
         };
         LanguageServiceShimObject.prototype.getRenameInfo = function (fileName, position) {
@@ -400,12 +435,20 @@ var ts;
         };
         return LanguageServiceShimObject;
     })(ShimBase);
+    function convertClassifications(classifications) {
+        return { spans: classifications.spans.join(","), endOfLineState: classifications.endOfLineState };
+    }
     var ClassifierShimObject = (function (_super) {
         __extends(ClassifierShimObject, _super);
-        function ClassifierShimObject(factory) {
+        function ClassifierShimObject(factory, logger) {
             _super.call(this, factory);
+            this.logger = logger;
             this.classifier = ts.createClassifier();
         }
+        ClassifierShimObject.prototype.getEncodedLexicalClassifications = function (text, lexState, syntacticClassifierAbsent) {
+            var _this = this;
+            return forwardJSONCall(this.logger, "getEncodedLexicalClassifications", function () { return convertClassifications(_this.classifier.getEncodedLexicalClassifications(text, lexState, syntacticClassifierAbsent)); }, true);
+        };
         ClassifierShimObject.prototype.getClassificationsForLine = function (text, lexState, classifyKeywordsInGenerics) {
             var classification = this.classifier.getClassificationsForLine(text, lexState, classifyKeywordsInGenerics);
             var items = classification.entries;
@@ -421,12 +464,13 @@ var ts;
     })(ShimBase);
     var CoreServicesShimObject = (function (_super) {
         __extends(CoreServicesShimObject, _super);
-        function CoreServicesShimObject(factory, logger) {
+        function CoreServicesShimObject(factory, logger, host) {
             _super.call(this, factory);
             this.logger = logger;
+            this.host = host;
         }
         CoreServicesShimObject.prototype.forwardJSONCall = function (actionDescription, action) {
-            return forwardJSONCall(this.logger, actionDescription, action);
+            return forwardJSONCall(this.logger, actionDescription, action, false);
         };
         CoreServicesShimObject.prototype.getPreProcessedFileInfo = function (fileName, sourceTextSnapshot) {
             return this.forwardJSONCall("getPreProcessedFileInfo('" + fileName + "')", function () {
@@ -451,6 +495,26 @@ var ts;
                     });
                 });
                 return convertResult;
+            });
+        };
+        CoreServicesShimObject.prototype.getTSConfigFileInfo = function (fileName, sourceTextSnapshot) {
+            var _this = this;
+            return this.forwardJSONCall("getTSConfigFileInfo('" + fileName + "')", function () {
+                var text = sourceTextSnapshot.getText(0, sourceTextSnapshot.getLength());
+                var result = ts.parseConfigFileText(fileName, text);
+                if (result.error) {
+                    return {
+                        options: {},
+                        files: [],
+                        errors: [realizeDiagnostic(result.error, '\r\n')]
+                    };
+                }
+                var configFile = ts.parseConfigFile(result.config, _this.host, ts.getDirectoryPath(ts.normalizeSlashes(fileName)));
+                return {
+                    options: configFile.options,
+                    files: configFile.fileNames,
+                    errors: [realizeDiagnostics(configFile.errors, '\r\n')]
+                };
             });
         };
         CoreServicesShimObject.prototype.getDefaultCompilationSettings = function () {
@@ -481,19 +545,20 @@ var ts;
         };
         TypeScriptServicesFactory.prototype.createClassifierShim = function (logger) {
             try {
-                return new ClassifierShimObject(this);
+                return new ClassifierShimObject(this, logger);
             }
             catch (err) {
                 logInternalError(logger, err);
                 throw err;
             }
         };
-        TypeScriptServicesFactory.prototype.createCoreServicesShim = function (logger) {
+        TypeScriptServicesFactory.prototype.createCoreServicesShim = function (host) {
             try {
-                return new CoreServicesShimObject(this, logger);
+                var adapter = new CoreServicesShimHostAdapter(host);
+                return new CoreServicesShimObject(this, host, adapter);
             }
             catch (err) {
-                logInternalError(logger, err);
+                logInternalError(host, err);
                 throw err;
             }
         };
@@ -527,4 +592,4 @@ var TypeScript;
         Services.TypeScriptServicesFactory = ts.TypeScriptServicesFactory;
     })(Services = TypeScript.Services || (TypeScript.Services = {}));
 })(TypeScript || (TypeScript = {}));
-var toolsVersion = "1.5";
+var toolsVersion = "1.4";

@@ -27,7 +27,7 @@ var ts;
                     return 0;
                 }
                 var lineAtPosition = sourceFile.getLineAndCharacterOfPosition(position).line;
-                if (precedingToken.kind === 23 && precedingToken.parent.kind !== 169) {
+                if (precedingToken.kind === 23 && precedingToken.parent.kind !== 170) {
                     var actualIndentation = getActualIndentationForListItemBeforeComma(precedingToken, sourceFile, options);
                     if (actualIndentation !== -1) {
                         return actualIndentation;
@@ -117,7 +117,7 @@ var ts;
             }
             function getActualIndentationForNode(current, parent, currentLineAndChar, parentAndChildShareLine, sourceFile, options) {
                 var useActualIndentation = (ts.isDeclaration(current) || ts.isStatement(current)) &&
-                    (parent.kind === 227 || !parentAndChildShareLine);
+                    (parent.kind === 228 || !parentAndChildShareLine);
                 if (!useActualIndentation) {
                     return -1;
                 }
@@ -141,7 +141,7 @@ var ts;
                 return sourceFile.getLineAndCharacterOfPosition(n.getStart(sourceFile));
             }
             function childStartsOnTheSameLineWithElseInIfStatement(parent, child, childStartLine, sourceFile) {
-                if (parent.kind === 183 && parent.elseStatement === child) {
+                if (parent.kind === 184 && parent.elseStatement === child) {
                     var elseKeyword = ts.findChildOfKind(parent, 76, sourceFile);
                     ts.Debug.assert(elseKeyword !== undefined);
                     var elseKeywordStartLine = getStartLineAndCharacterForNode(elseKeyword, sourceFile).line;
@@ -153,23 +153,23 @@ var ts;
             function getContainingList(node, sourceFile) {
                 if (node.parent) {
                     switch (node.parent.kind) {
-                        case 141:
+                        case 142:
                             if (node.parent.typeArguments &&
                                 ts.rangeContainsStartEnd(node.parent.typeArguments, node.getStart(sourceFile), node.getEnd())) {
                                 return node.parent.typeArguments;
                             }
                             break;
-                        case 154:
+                        case 155:
                             return node.parent.properties;
-                        case 153:
+                        case 154:
                             return node.parent.elements;
-                        case 200:
-                        case 162:
+                        case 201:
                         case 163:
+                        case 164:
+                        case 135:
                         case 134:
-                        case 133:
-                        case 138:
-                        case 139: {
+                        case 139:
+                        case 140: {
                             var start = node.getStart(sourceFile);
                             if (node.parent.typeParameters &&
                                 ts.rangeContainsStartEnd(node.parent.typeParameters, start, node.getEnd())) {
@@ -180,8 +180,8 @@ var ts;
                             }
                             break;
                         }
-                        case 158:
-                        case 157: {
+                        case 159:
+                        case 158: {
                             var start = node.getStart(sourceFile);
                             if (node.parent.typeArguments &&
                                 ts.rangeContainsStartEnd(node.parent.typeArguments, start, node.getEnd())) {
@@ -250,28 +250,28 @@ var ts;
             SmartIndenter.findFirstNonWhitespaceColumn = findFirstNonWhitespaceColumn;
             function nodeContentIsAlwaysIndented(kind) {
                 switch (kind) {
-                    case 201:
                     case 202:
-                    case 204:
-                    case 153:
-                    case 179:
-                    case 206:
+                    case 203:
+                    case 205:
                     case 154:
-                    case 145:
-                    case 147:
-                    case 207:
-                    case 221:
-                    case 220:
-                    case 161:
-                    case 157:
-                    case 158:
                     case 180:
-                    case 198:
-                    case 214:
-                    case 191:
-                    case 170:
+                    case 207:
+                    case 155:
+                    case 146:
+                    case 148:
+                    case 208:
+                    case 222:
+                    case 221:
+                    case 162:
+                    case 158:
+                    case 159:
+                    case 181:
+                    case 199:
+                    case 215:
+                    case 192:
+                    case 171:
+                    case 152:
                     case 151:
-                    case 150:
                         return true;
                 }
                 return false;
@@ -281,22 +281,22 @@ var ts;
                     return true;
                 }
                 switch (parent) {
-                    case 184:
                     case 185:
-                    case 187:
-                    case 188:
                     case 186:
-                    case 183:
-                    case 200:
-                    case 162:
-                    case 134:
-                    case 133:
-                    case 138:
+                    case 188:
+                    case 189:
+                    case 187:
+                    case 184:
+                    case 201:
                     case 163:
                     case 135:
+                    case 134:
+                    case 139:
+                    case 164:
                     case 136:
                     case 137:
-                        return child !== 179;
+                    case 138:
+                        return child !== 180;
                     default:
                         return false;
                 }

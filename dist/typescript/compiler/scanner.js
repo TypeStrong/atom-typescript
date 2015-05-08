@@ -25,7 +25,7 @@ var ts;
         "false": 80,
         "finally": 81,
         "for": 82,
-        "from": 124,
+        "from": 125,
         "function": 83,
         "get": 116,
         "if": 84,
@@ -36,33 +36,34 @@ var ts;
         "interface": 103,
         "let": 104,
         "module": 117,
+        "namespace": 118,
         "new": 88,
         "null": 89,
-        "number": 119,
+        "number": 120,
         "package": 105,
         "private": 106,
         "protected": 107,
         "public": 108,
-        "require": 118,
+        "require": 119,
         "return": 90,
-        "set": 120,
+        "set": 121,
         "static": 109,
-        "string": 121,
+        "string": 122,
         "super": 91,
         "switch": 92,
-        "symbol": 122,
+        "symbol": 123,
         "this": 93,
         "throw": 94,
         "true": 95,
         "try": 96,
-        "type": 123,
+        "type": 124,
         "typeof": 97,
         "var": 98,
         "void": 99,
         "while": 100,
         "with": 101,
         "yield": 110,
-        "of": 125,
+        "of": 126,
         "{": 14,
         "}": 15,
         "(": 16,
@@ -244,7 +245,7 @@ var ts;
     function isLineBreak(ch) {
         // ES5 7.3:
         // The ECMAScript line terminator characters are listed in Table 3.
-        //     Table 3 � Line Terminator Characters
+        //     Table 3: Line Terminator Characters
         //     Code Unit Value     Name                    Formal Name
         //     \u000A              Line Feed               <LF>
         //     \u000D              Carriage Return         <CR>
@@ -384,7 +385,7 @@ var ts;
                     }
                     collecting = true;
                     if (result && result.length) {
-                        result[result.length - 1].hasTrailingNewLine = true;
+                        ts.lastOrUndefined(result).hasTrailingNewLine = true;
                     }
                     continue;
                 case 9:
@@ -430,7 +431,7 @@ var ts;
                 default:
                     if (ch > 127 && (isWhiteSpace(ch) || isLineBreak(ch))) {
                         if (result && result.length && isLineBreak(ch)) {
-                            result[result.length - 1].hasTrailingNewLine = true;
+                            ts.lastOrUndefined(result).hasTrailingNewLine = true;
                         }
                         pos++;
                         continue;
