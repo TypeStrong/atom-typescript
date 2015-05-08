@@ -7,6 +7,13 @@ var types = simpleValidator.types;
 // 'module' and 'target' cannot use the same enum as that interface since we
 // do not want to force users to put magic numbers in their tsconfig files
 // Possible: Use require('typescript').parseConfigFile in TS1.5
+// NOTE: see the changes in `commandLineParser.ts` in the TypeScript sources to see what needs updating
+// When adding you need to :
+/**
+ * 	Update the validation 
+ * 	If its an enum : Update the enum map
+ * 	If its a path : Update the `make relative` code
+ */
 interface CompilerOptions {
     allowNonTsExtensions?: boolean;
     charset?: string;
@@ -16,9 +23,11 @@ interface CompilerOptions {
     emitBOM?: boolean;
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
+    inlineSourceMap?: boolean;
+    inlineSources?: boolean;
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
-    module?: string;                                  //'amd'|'commonjs' (default)
+    module?: string;                                  
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
@@ -47,9 +56,11 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     emitBOM: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
+    inlineSourceMap: { type: types.boolean },
+    inlineSources: { type: types.boolean },
     locals: { type: types.string },
     mapRoot: { type: types.string },
-    module: { type: types.string, validValues: ['commonjs', 'amd'] },
+    module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
@@ -173,7 +184,9 @@ var typescriptEnumMap = {
     module: {
         'none': ts.ModuleKind.None,
         'commonjs': ts.ModuleKind.CommonJS,
-        'amd': ts.ModuleKind.AMD
+        'amd': ts.ModuleKind.AMD,
+        'system': ts.ModuleKind.System,
+        'umd': ts.ModuleKind.UMD,
     }
 };
 
