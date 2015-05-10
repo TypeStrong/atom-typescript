@@ -54,6 +54,7 @@ var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-alpha';
 exports.defaults = {
     target: 1,
@@ -189,15 +190,20 @@ function getProjectSync(pathOrSrcFile) {
         projectSpec.compilerOptions = {};
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files && !projectSpec.filesGlob) {
-        projectSpec.filesGlob = defaultFilesGlob;
+        var toExpand = invisibleFilesGlob;
     }
     if (projectSpec.filesGlob) {
+        var toExpand = projectSpec.filesGlob;
+    }
+    if (toExpand) {
         try {
-            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
+            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, toExpand);
         }
         catch (ex) {
             throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
         }
+    }
+    if (projectSpec.filesGlob) {
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));

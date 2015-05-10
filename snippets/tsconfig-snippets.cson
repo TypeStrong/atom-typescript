@@ -1,0 +1,9 @@
+'.source.json':
+    'filesGlob':
+        'prefix': 'fg'
+        'body': """
+            "filesGlob": [
+                "./**/*.ts",
+                "!./node_modules/**/*.ts"
+            ],
+        """

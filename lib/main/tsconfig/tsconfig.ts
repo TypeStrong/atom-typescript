@@ -160,7 +160,14 @@ import os = require('os');
 import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
+/**
+ * This is what we write to new files
+ */
 var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+/**
+ * This is what we use when the user doens't specify a files / filesGlob
+ */
+var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-alpha';
 
 export var defaults: ts.CompilerOptions = {
@@ -328,19 +335,23 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Our customizations for "tsconfig.json"
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    // If there is no files or no filesGlob, we create one.
-    if (!projectSpec.files && !projectSpec.filesGlob) {
-        projectSpec.filesGlob = defaultFilesGlob;
+    if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
+        var toExpand = invisibleFilesGlob;
     }
-    if (projectSpec.filesGlob) {
+    if (projectSpec.filesGlob) { // If there is a files glob we will use that
+        var toExpand = projectSpec.filesGlob
+    }
+    if (toExpand) { // Expand whatever needs expanding
         try {
-            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.filesGlob);
+            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, toExpand);
         }
         catch (ex) {
             throw errorWithDetails<GET_PROJECT_GLOB_EXPAND_FAILED_Details>(
                 new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED),
                 { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
         }
+    }
+    if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
         var prettyJSONProjectSpec = prettyJSON(projectSpec);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
