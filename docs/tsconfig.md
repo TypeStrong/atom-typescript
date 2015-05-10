@@ -26,6 +26,8 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 
 Note: `files` is kept up to date by expansion of `filesGlob`.  
 
+A default `filesGlob` is available for you as a snippet : `fg`
+
 ```json
 {
     "compilerOptions": {
