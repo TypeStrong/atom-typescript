@@ -54,7 +54,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // The TypeScript tokenizer has a single final state it cares about
         // So we only need to pass it the final lex state
         var finalLexState = firstLine ? ts.EndOfLineState.None
-            : ruleStack.length ? ruleStack[0]
+            : ruleStack && ruleStack.length ? ruleStack[0]
                 : ts.EndOfLineState.None;
 
         // If we are in some TS tokenizing process use TS tokenizer

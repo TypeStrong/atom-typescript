@@ -37,7 +37,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
             this.trailingWhiteSpaceLength = 0;
         }
         var finalLexState = firstLine ? 0
-            : ruleStack.length ? ruleStack[0]
+            : ruleStack && ruleStack.length ? ruleStack[0]
                 : 0;
         if (finalLexState !== 0) {
             return this.getAtomTokensForLine(line, finalLexState);
