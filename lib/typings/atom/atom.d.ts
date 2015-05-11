@@ -383,8 +383,13 @@ declare module AtomCore {
 	interface ICursorStatic {
 		new (arg:{editor:IEditor; marker:IDisplayBufferMarker; id: number;}):ICursor;
 	}
+	
+    interface ScopeDescriptor {
+		scopes: string[];
+    }
 
 	interface ICursor /* extends Theorist.Model */ {
+        getScopeDescriptor(): ScopeDescriptor;
 		screenPosition:any;
 		bufferPosition:any;
 		goalColumn:any;
@@ -625,7 +630,6 @@ declare module AtomCore {
 		scopesForBufferPosition(bufferPosition:any):string[];
 		bufferRangeForScopeAtCursor(selector:string):any;
 		tokenForBufferPosition(bufferPosition:any):IToken;
-		getCursorScopes():string[];
 		insertText(text:string, options?:any):TextBuffer.IRange[];
 		insertNewline():TextBuffer.IRange[];
 		insertNewlineBelow():TextBuffer.IRange[];

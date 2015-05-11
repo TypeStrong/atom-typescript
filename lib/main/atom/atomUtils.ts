@@ -177,7 +177,7 @@ export var knownScopes = {
 
 export function editorInTheseScopes(matches: string[]) {
     var editor = atom.workspace.getActiveTextEditor();
-    var scopes = editor.getCursorScopes();
+    var scopes = editor.getLastCursor().getScopeDescriptor().scopes;
     var lastScope = scopes[scopes.length - 1];
     if (matches.some(p=> lastScope === p))
         return lastScope;

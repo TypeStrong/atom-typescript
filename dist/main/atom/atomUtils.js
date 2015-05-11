@@ -154,7 +154,7 @@ exports.knownScopes = {
 };
 function editorInTheseScopes(matches) {
     var editor = atom.workspace.getActiveTextEditor();
-    var scopes = editor.getCursorScopes();
+    var scopes = editor.getLastCursor().getScopeDescriptor().scopes;
     var lastScope = scopes[scopes.length - 1];
     if (matches.some(function (p) { return lastScope === p; }))
         return lastScope;
