@@ -98,6 +98,33 @@ module ts {
             options.newLine === NewLineKind.CarriageReturnLineFeed ? carriageReturnLineFeed :
             options.newLine === NewLineKind.LineFeed ? lineFeed :
             sys.newLine;
+        
+        let resolvedExternalModuleCache: Map<string> = {};
+        function resolveExternalModule(moduleName: string, searchPath: string): string {
+            let cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                // Look at files by all extensions
+                let searchNames = map(supportedExtensions, extension => normalizePath(combinePaths(searchPath, moduleName)) + extension);
+                // Also look at all files by node_modules
+                searchNames = searchNames.concat(map(supportedExtensions, extension => normalizePath(combinePaths(combinePaths(searchPath, "node_modules"), moduleName)) + extension));
+                let found = forEach(searchNames, name => sys.fileExists(name) && name);
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                let parentPath = getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
+        }
 
         return {
             getSourceFile,
@@ -106,7 +133,8 @@ module ts {
             getCurrentDirectory: () => currentDirectory || (currentDirectory = sys.getCurrentDirectory()),
             useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
             getCanonicalFileName,
-            getNewLine: () => newLine
+            getNewLine: () => newLine,
+            resolveExternalModule
         };
     }
 

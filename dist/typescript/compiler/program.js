@@ -82,6 +82,30 @@ var ts;
         var newLine = options.newLine === 0 ? carriageReturnLineFeed :
             options.newLine === 1 ? lineFeed :
                 ts.sys.newLine;
+        var resolvedExternalModuleCache = {};
+        function resolveExternalModule(moduleName, searchPath) {
+            var cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
+                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
+                var found = ts.forEach(searchNames, function (name) { return ts.sys.fileExists(name) && name; });
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
+        }
         return {
             getSourceFile: getSourceFile,
             getDefaultLibFileName: function (options) { return ts.combinePaths(ts.getDirectoryPath(ts.normalizePath(ts.sys.getExecutingFilePath())), ts.getDefaultLibFileName(options)); },
@@ -89,7 +113,8 @@ var ts;
             getCurrentDirectory: function () { return currentDirectory || (currentDirectory = ts.sys.getCurrentDirectory()); },
             useCaseSensitiveFileNames: function () { return ts.sys.useCaseSensitiveFileNames; },
             getCanonicalFileName: getCanonicalFileName,
-            getNewLine: function () { return newLine; }
+            getNewLine: function () { return newLine; },
+            resolveExternalModule: resolveExternalModule
         };
     }
     ts.createCompilerHost = createCompilerHost;
