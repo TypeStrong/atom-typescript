@@ -4,7 +4,7 @@
 // https://github.com/atom/first-mate/
 // https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
 // https://github.com/p-e-w/language-javascript-semantic/blob/master/lib/javascript-semantic-grammar.coffee
-
+import utils = require('../lang/utils');
 import TokenClass = ts.TokenClass;
 
 declare class AtomTSBaseGrammar {
@@ -12,7 +12,8 @@ declare class AtomTSBaseGrammar {
 }
 
 interface AtomTSTokens { tokens: any /* Atom's Token */[]; ruleStack: any[] }
-interface TSTokens { tokens: { style: string; str: string }[]; ruleStack: any[] }
+interface TSToken { style: string[]; str: string }
+interface TSTokens { tokens: TSToken[]; ruleStack: any[] }
 
 // This should be
 //  {Grammar} = require "first-mate"
@@ -89,6 +90,8 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
     // es6
     es6importRegex = /^import.*from.*/;
+    // For todo support
+    todoRegex = new RegExp('(BUG|TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE)');
 
     getfullTripleSlashReferencePathTokensForLine(line: string): AtomTSTokens {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
@@ -120,11 +123,11 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // Based on ts tokenizer we should have a single "identifier" and a single "string"
         // Update these tokens to be more specific
         tsTokensWithRuleStack.tokens.forEach(t=> {
-            if (t.style == "identifier") {
-                t.style = "require.identifier";
+            if (t.style[0] == "identifier") {
+                t.style = ["require.identifier"];
             }
-            if (t.style == "string") {
-                t.style = "require.path.string";
+            if (t.style[0] == "string") {
+                t.style = ["require.path.string"];
             }
         });
 
@@ -137,11 +140,11 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
         // Based on ts tokenizer we should have a few "identifiers" and a single "string"
         // Update these tokens to be more specific
         tsTokensWithRuleStack.tokens.forEach(t=> {
-            if (t.style == "identifier") {
-                t.style = "es6import.identifier";
+            if (t.style[0] == "identifier") {
+                t.style = ["es6import.identifier"];
             }
-            if (t.style == "string") {
-                t.style = "es6import.path.string";
+            if (t.style[0] == "string") {
+                t.style = ["es6import.path.string"];
             }
         });
 
@@ -156,20 +159,42 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
         var classificationResults = output.entries;
         // TypeScript classifier returns empty for "". But Atom wants to have some Token and it needs to be "whitespace" for autoindent to work
-        if (!classificationResults.length) return { tokens: [{ style: 'whitespace', str: '' }], ruleStack: ruleStack };
+        if (!classificationResults.length) return { tokens: [{ style: ['whitespace'], str: '' }], ruleStack: ruleStack };
 
         // Start with trailing whitespace taken into account.
         // This is needed because classification for that is already done by ATOM internally (somehow)
         var totalLength = this.trailingWhiteSpaceLength;
-        var tokens = classificationResults.map((info) => {
+        var tokens = utils.selectMany(classificationResults.map((info) => {
             var tokenStartPosition = totalLength;
             var str = line.substr(tokenStartPosition, info.length);
             totalLength = totalLength + info.length;
 
             var style = getAtomStyleForToken(info, str);
 
-            return { style: style, str: str };
-        });
+            if (style == 'comment.block') {
+                let toret: TSToken[] = [];
+                // TODO: add todo logic
+                // TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE|BUG
+                // REF : https://github.com/atom/language-todo/blob/master/grammars/todo.cson
+                let match;
+                while (match = this.todoRegex.exec(str)) {
+                    var start = match.index;
+                    var length = match[1].length;
+                    var before = str.substr(0, start);
+                    var actual = match[1];
+
+                    toret.push({ style: ['comment.block'], str: before });
+                    toret.push({ style: ['comment.block', 'storage.type.class'], str: actual });
+                    
+                    // continue with rest 
+                    str = str.substr(start + length);
+                }
+                toret.push({ style: ['comment.block'], str: str });
+                return toret;
+            }
+
+            return [{ style: [style], str: str }];
+        }));
 
         return { tokens, ruleStack };
     }
@@ -181,7 +206,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
     convertTsTokensToAtomTokens(tsTokensWithRuleStack: TSTokens): AtomTSTokens {
         var tokens = tsTokensWithRuleStack.tokens.map((info) => {
-            var atomToken = this.registry.createToken(info.str, ["source.ts", info.style]);
+            var atomToken = this.registry.createToken(info.str, ["source.ts"].concat(info.style));
             return atomToken;
         });
 
