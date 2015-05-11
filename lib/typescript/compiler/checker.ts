@@ -857,12 +857,11 @@ module ts {
                     return symbol;
                 }
             }
+            let fileName: string;
             let sourceFile: SourceFile;
             while (true) {
-                let searchNames = map(supportedExtensions, extension => normalizePath(combinePaths(searchPath, moduleName)) + extension);
-                searchNames = searchNames.concat(map(supportedExtensions, extension => normalizePath(combinePaths(combinePaths(searchPath, "node_modules"), moduleName)) + extension));
-
-                sourceFile = forEach(searchNames, searchName => host.getSourceFile(searchName));
+                fileName = normalizePath(combinePaths(searchPath, moduleName));
+                sourceFile = forEach(supportedExtensions, extension => host.getSourceFile(fileName + extension));
                 if (sourceFile || isRelative) {
                     break;
                 }

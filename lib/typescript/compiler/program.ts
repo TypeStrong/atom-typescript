@@ -454,11 +454,8 @@ module ts {
                             let searchPath = basePath;
                             let searchName: string; 
                             while (true) {
-                                // Look at files by all extensions
-                                let searchNames = map(supportedExtensions, extension => normalizePath(combinePaths(searchPath, moduleNameText)) + extension);
-                                // Also look at all files by node_modules
-                                searchNames = searchNames.concat(map(supportedExtensions, extension => normalizePath(combinePaths(combinePaths(searchPath, "node_modules"), moduleNameText)) + extension));
-                                if (forEach(searchNames, name => findModuleSourceFile(name, moduleNameExpr))) {
+                                searchName = normalizePath(combinePaths(searchPath, moduleNameText));
+                                if (forEach(supportedExtensions, extension => findModuleSourceFile(searchName + extension, moduleNameExpr))) {
                                     break;
                                 }
                                 let parentPath = getDirectoryPath(searchPath);

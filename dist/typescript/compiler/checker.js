@@ -702,11 +702,11 @@ var ts;
                     return symbol;
                 }
             }
+            var fileName;
             var sourceFile;
             while (true) {
-                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
-                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
-                sourceFile = ts.forEach(searchNames, function (searchName) { return host.getSourceFile(searchName); });
+                fileName = ts.normalizePath(ts.combinePaths(searchPath, moduleName));
+                sourceFile = ts.forEach(ts.supportedExtensions, function (extension) { return host.getSourceFile(fileName + extension); });
                 if (sourceFile || isRelative) {
                     break;
                 }

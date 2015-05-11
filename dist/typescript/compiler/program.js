@@ -374,9 +374,8 @@ var ts;
                             var searchPath = basePath;
                             var searchName;
                             while (true) {
-                                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleNameText)) + extension; });
-                                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleNameText)) + extension; }));
-                                if (ts.forEach(searchNames, function (name) { return findModuleSourceFile(name, moduleNameExpr); })) {
+                                searchName = ts.normalizePath(ts.combinePaths(searchPath, moduleNameText));
+                                if (ts.forEach(ts.supportedExtensions, function (extension) { return findModuleSourceFile(searchName + extension, moduleNameExpr); })) {
                                     break;
                                 }
                                 var parentPath = ts.getDirectoryPath(searchPath);
