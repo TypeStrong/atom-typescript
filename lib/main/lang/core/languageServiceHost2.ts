@@ -356,4 +356,31 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return this.config.projectFileDirectory;
     }
     getDefaultLibFileName = ts.getDefaultLibFileName;
+    
+    resolvedExternalModuleCache: ts.Map<string> = {};
+    resolveExternalModule = (moduleName: string, searchPath: string): string => {
+        let cacheLookupName = moduleName + searchPath;
+        if (this.resolvedExternalModuleCache[cacheLookupName]) {
+            return this.resolvedExternalModuleCache[cacheLookupName];
+        }
+        if (this.resolvedExternalModuleCache[cacheLookupName] === '') {
+            return undefined;
+        }
+        while (true) {
+            // Look at files by all extensions
+            let searchNames = ts.map(ts.supportedExtensions, extension => ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension);
+            // Also look at all files by node_modules
+            searchNames = searchNames.concat(ts.map(ts.supportedExtensions, extension => ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension));
+            let found = ts.forEach(searchNames, name => fs.existsSync(name) && name);
+            if (found) {
+                return this.resolvedExternalModuleCache[cacheLookupName] = found;
+            }
+            let parentPath = ts.getDirectoryPath(searchPath);
+            if (parentPath === searchPath) {
+                this.resolvedExternalModuleCache[cacheLookupName] = '';
+                return undefined;
+            }
+            searchPath = parentPath;
+        }
+    }
 }

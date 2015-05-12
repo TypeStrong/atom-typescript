@@ -1064,6 +1064,7 @@ module ts {
         getGlobalDiagnostics(): Diagnostic[];
         getSemanticDiagnostics(sourceFile?: SourceFile): Diagnostic[];
         getDeclarationDiagnostics(sourceFile?: SourceFile): Diagnostic[];
+        resolveExternalModule(moduleName: string, basePath: string): string;
 
         /** 
          * Gets a type checker that can be used to semantically analyze source fils in the program.
@@ -1135,6 +1136,7 @@ module ts {
 
         getSourceFiles(): SourceFile[];
         getSourceFile(fileName: string): SourceFile;
+        resolveExternalModule(moduleName: string, basePath: string): string;
     }
 
     export interface TypeChecker {

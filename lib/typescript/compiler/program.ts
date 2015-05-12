@@ -206,6 +206,7 @@ module ts {
             getTypeChecker,
             getDiagnosticsProducingTypeChecker,
             getCommonSourceDirectory: () => commonSourceDirectory,
+            resolveExternalModule: host.resolveExternalModule,
             emit,
             getCurrentDirectory: () => host.getCurrentDirectory(),
             getNodeCount: () => getDiagnosticsProducingTypeChecker().getNodeCount(),
@@ -452,18 +453,8 @@ module ts {
                         let moduleNameText = (<LiteralExpression>moduleNameExpr).text;
                         if (moduleNameText) {
                             let searchPath = basePath;
-                            let searchName: string; 
-                            while (true) {
-                                searchName = normalizePath(combinePaths(searchPath, moduleNameText));
-                                if (forEach(supportedExtensions, extension => findModuleSourceFile(searchName + extension, moduleNameExpr))) {
-                                    break;
-                                }
-                                let parentPath = getDirectoryPath(searchPath);
-                                if (parentPath === searchPath) {
-                                    break;
-                                }
-                                searchPath = parentPath;
-                            }
+                            let searchName: string = host.resolveExternalModule(moduleNameText, basePath); 
+                            findModuleSourceFile(searchName, moduleNameExpr);
                         }
                     }
                 }

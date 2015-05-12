@@ -321,6 +321,10 @@ module ts {
                 return "";
             }
         }
+        
+        public resolveExternalModule(moduleName: string, searchPath: string): string {
+            return moduleName;
+        }
     }
 
     export class CoreServicesShimHostAdapter implements ParseConfigHost {

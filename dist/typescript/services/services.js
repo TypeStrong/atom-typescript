@@ -949,6 +949,30 @@ var ts;
             diagnostics.push.apply(diagnostics, sourceFile.parseDiagnostics);
         }
         var outputText;
+        var resolvedExternalModuleCache = {};
+        function resolveExternalModule(moduleName, searchPath) {
+            var cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
+                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
+                var found = ts.forEach(searchNames, function (name) { return ts.sys.fileExists(name) && name; });
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
+        }
         var compilerHost = {
             getSourceFile: function (fileName, target) { return fileName === inputFileName ? sourceFile : undefined; },
             writeFile: function (name, text, writeByteOrderMark) {
@@ -959,7 +983,8 @@ var ts;
             useCaseSensitiveFileNames: function () { return false; },
             getCanonicalFileName: function (fileName) { return fileName; },
             getCurrentDirectory: function () { return ""; },
-            getNewLine: function () { return (ts.sys && ts.sys.newLine) || "\r\n"; }
+            getNewLine: function () { return (ts.sys && ts.sys.newLine) || "\r\n"; },
+            resolveExternalModule: resolveExternalModule
         };
         var program = ts.createProgram([inputFileName], options, compilerHost);
         if (diagnostics) {
@@ -1453,7 +1478,8 @@ var ts;
                 getNewLine: function () { return host.getNewLine ? host.getNewLine() : "\r\n"; },
                 getDefaultLibFileName: function (options) { return host.getDefaultLibFileName(options); },
                 writeFile: function (fileName, data, writeByteOrderMark) { },
-                getCurrentDirectory: function () { return host.getCurrentDirectory(); }
+                getCurrentDirectory: function () { return host.getCurrentDirectory(); },
+                resolveExternalModule: host.resolveExternalModule
             });
             if (program) {
                 var oldSourceFiles = program.getSourceFiles();

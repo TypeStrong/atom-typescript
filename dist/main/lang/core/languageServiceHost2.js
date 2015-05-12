@@ -230,6 +230,30 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = ts.getDefaultLibFileName;
+        this.resolvedExternalModuleCache = {};
+        this.resolveExternalModule = function (moduleName, searchPath) {
+            var cacheLookupName = moduleName + searchPath;
+            if (_this.resolvedExternalModuleCache[cacheLookupName]) {
+                return _this.resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (_this.resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
+                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
+                var found = ts.forEach(searchNames, function (name) { return fs.existsSync(name) && name; });
+                if (found) {
+                    return _this.resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    _this.resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
+        };
         config.project.files.forEach(function (file) { return _this.addScript(file); });
         if (!config.project.compilerOptions.noLib) {
             this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
