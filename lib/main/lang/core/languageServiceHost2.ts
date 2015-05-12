@@ -350,6 +350,12 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         if (script) {
             return getScriptSnapShot(script);
         }
+        // This script should be a part of the project if it exists
+        else if(fs.existsSync(fileName)){
+            this.config.project.files.push(fileName);
+            this.addScript(fileName);
+            return this.getScriptSnapshot(fileName);
+        }
         return null;
     }
     getCurrentDirectory = (): string  => {

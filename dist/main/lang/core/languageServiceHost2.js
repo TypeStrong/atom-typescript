@@ -224,6 +224,11 @@ var LanguageServiceHost = (function () {
             if (script) {
                 return getScriptSnapShot(script);
             }
+            else if (fs.existsSync(fileName)) {
+                _this.config.project.files.push(fileName);
+                _this.addScript(fileName);
+                return _this.getScriptSnapshot(fileName);
+            }
             return null;
         };
         this.getCurrentDirectory = function () {
