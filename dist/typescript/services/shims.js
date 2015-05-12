@@ -111,9 +111,6 @@ var ts;
                 return "";
             }
         };
-        LanguageServiceShimHostAdapter.prototype.resolveExternalModule = function (moduleName, searchPath) {
-            return moduleName;
-        };
         return LanguageServiceShimHostAdapter;
     })();
     ts.LanguageServiceShimHostAdapter = LanguageServiceShimHostAdapter;

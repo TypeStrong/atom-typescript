@@ -177,7 +177,6 @@ var ts;
             getTypeChecker: getTypeChecker,
             getDiagnosticsProducingTypeChecker: getDiagnosticsProducingTypeChecker,
             getCommonSourceDirectory: function () { return commonSourceDirectory; },
-            resolveExternalModule: host.resolveExternalModule,
             emit: emit,
             getCurrentDirectory: function () { return host.getCurrentDirectory(); },
             getNodeCount: function () { return getDiagnosticsProducingTypeChecker().getNodeCount(); },
@@ -373,8 +372,18 @@ var ts;
                         var moduleNameText = moduleNameExpr.text;
                         if (moduleNameText) {
                             var searchPath = basePath;
-                            var searchName = host.resolveExternalModule(moduleNameText, basePath);
-                            findModuleSourceFile(searchName, moduleNameExpr);
+                            var searchName;
+                            while (true) {
+                                searchName = ts.normalizePath(ts.combinePaths(searchPath, moduleNameText));
+                                if (ts.forEach(ts.supportedExtensions, function (extension) { return findModuleSourceFile(searchName + extension, moduleNameExpr); })) {
+                                    break;
+                                }
+                                var parentPath = ts.getDirectoryPath(searchPath);
+                                if (parentPath === searchPath) {
+                                    break;
+                                }
+                                searchPath = parentPath;
+                            }
                         }
                     }
                 }

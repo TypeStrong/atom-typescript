@@ -704,10 +704,17 @@ var ts;
             }
             var fileName;
             var sourceFile;
-            console.error(moduleName);
-            var searchName = host.resolveExternalModule(moduleName, searchPath);
-            if (searchName) {
-                sourceFile = host.getSourceFile(searchName);
+            while (true) {
+                fileName = ts.normalizePath(ts.combinePaths(searchPath, moduleName));
+                sourceFile = ts.forEach(ts.supportedExtensions, function (extension) { return host.getSourceFile(fileName + extension); });
+                if (sourceFile || isRelative) {
+                    break;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    break;
+                }
+                searchPath = parentPath;
             }
             if (sourceFile) {
                 if (sourceFile.symbol) {
