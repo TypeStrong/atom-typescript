@@ -133,6 +133,7 @@ var ts;
         var commonSourceDirectory;
         var diagnosticsProducingTypeChecker;
         var noDiagnosticsTypeChecker;
+        var resolvedExternalModuleCache = {};
         var start = new Date().getTime();
         host = host || createCompilerHost(options);
         ts.forEach(rootNames, function (name) { return processRootFile(name, false); });
@@ -158,6 +159,7 @@ var ts;
             getIdentifierCount: function () { return getDiagnosticsProducingTypeChecker().getIdentifierCount(); },
             getSymbolCount: function () { return getDiagnosticsProducingTypeChecker().getSymbolCount(); },
             getTypeCount: function () { return getDiagnosticsProducingTypeChecker().getTypeCount(); },
+            resolveExternalModule: resolveExternalModule
         };
         return program;
         function getEmitHost(writeFileCallback) {
@@ -346,19 +348,8 @@ var ts;
                     if (moduleNameExpr && moduleNameExpr.kind === 8) {
                         var moduleNameText = moduleNameExpr.text;
                         if (moduleNameText) {
-                            var searchPath = basePath;
-                            var searchName;
-                            while (true) {
-                                searchName = ts.normalizePath(ts.combinePaths(searchPath, moduleNameText));
-                                if (ts.forEach(ts.supportedExtensions, function (extension) { return findModuleSourceFile(searchName + extension, moduleNameExpr); })) {
-                                    break;
-                                }
-                                var parentPath = ts.getDirectoryPath(searchPath);
-                                if (parentPath === searchPath) {
-                                    break;
-                                }
-                                searchPath = parentPath;
-                            }
+                            var searchName = resolveExternalModule(moduleNameText, basePath);
+                            findModuleSourceFile(searchName, moduleNameExpr);
                         }
                     }
                 }
@@ -426,6 +417,48 @@ var ts;
                 }
             }
             return allFilesBelongToPath;
+        }
+        function resolveExternalModule(moduleName, searchPath) {
+            var cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            function getNameIfExists(fileName) {
+                if (ts.sys.fileExists(fileName)) {
+                    return fileName;
+                }
+            }
+            while (true) {
+                var found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension); });
+                if (!found) {
+                    found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension); });
+                }
+                if (!found) {
+                    var pkgJson = getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName), "package.json")));
+                    if (pkgJson) {
+                        var pkgFile = JSON.parse(ts.sys.readFile(pkgJson));
+                        if (pkgFile.main) {
+                            var indexFileName = ts.removeFileExtension(ts.combinePaths(ts.getDirectoryPath(pkgJson), pkgFile.main));
+                            found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(indexFileName + extension); });
+                        }
+                    }
+                }
+                if (!found) {
+                    found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName), "index")) + extension); });
+                }
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
         }
         function verifyCompilerOptions() {
             if (options.separateCompilation) {
