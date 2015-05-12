@@ -98,33 +98,6 @@ module ts {
             options.newLine === NewLineKind.CarriageReturnLineFeed ? carriageReturnLineFeed :
             options.newLine === NewLineKind.LineFeed ? lineFeed :
             sys.newLine;
-        
-        let resolvedExternalModuleCache: Map<string> = {};
-        function resolveExternalModule(moduleName: string, searchPath: string): string {
-            let cacheLookupName = moduleName + searchPath;
-            if (resolvedExternalModuleCache[cacheLookupName]) {
-                return resolvedExternalModuleCache[cacheLookupName];
-            }
-            if (resolvedExternalModuleCache[cacheLookupName] === '') {
-                return undefined;
-            }
-            while (true) {
-                // Look at files by all extensions
-                let searchNames = map(supportedExtensions, extension => normalizePath(combinePaths(searchPath, moduleName)) + extension);
-                // Also look at all files by node_modules
-                searchNames = searchNames.concat(map(supportedExtensions, extension => normalizePath(combinePaths(combinePaths(searchPath, "node_modules"), moduleName)) + extension));
-                let found = forEach(searchNames, name => sys.fileExists(name) && name);
-                if (found) {
-                    return resolvedExternalModuleCache[cacheLookupName] = found;
-                }
-                let parentPath = getDirectoryPath(searchPath);
-                if (parentPath === searchPath) {
-                    resolvedExternalModuleCache[cacheLookupName] = '';
-                    return undefined;
-                }
-                searchPath = parentPath;
-            }
-        }
 
         return {
             getSourceFile,
@@ -134,7 +107,6 @@ module ts {
             useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
             getCanonicalFileName,
             getNewLine: () => newLine,
-            resolveExternalModule
         };
     }
 
@@ -212,6 +184,7 @@ module ts {
             getIdentifierCount: () => getDiagnosticsProducingTypeChecker().getIdentifierCount(),
             getSymbolCount: () => getDiagnosticsProducingTypeChecker().getSymbolCount(),
             getTypeCount: () => getDiagnosticsProducingTypeChecker().getTypeCount(),
+            resolveExternalModule
         };
         return program;
 
@@ -451,19 +424,8 @@ module ts {
                     if (moduleNameExpr && moduleNameExpr.kind === SyntaxKind.StringLiteral) {
                         let moduleNameText = (<LiteralExpression>moduleNameExpr).text;
                         if (moduleNameText) {
-                            let searchPath = basePath;
-                            let searchName: string; 
-                            while (true) {
-                                searchName = normalizePath(combinePaths(searchPath, moduleNameText));
-                                if (forEach(supportedExtensions, extension => findModuleSourceFile(searchName + extension, moduleNameExpr))) {
-                                    break;
-                                }
-                                let parentPath = getDirectoryPath(searchPath);
-                                if (parentPath === searchPath) {
-                                    break;
-                                }
-                                searchPath = parentPath;
-                            }
+                            let searchName: string = resolveExternalModule(moduleNameText, basePath);
+                            findModuleSourceFile(searchName, moduleNameExpr);
                         }
                     }
                 }
@@ -554,6 +516,33 @@ module ts {
             }
 
             return allFilesBelongToPath;
+        }
+        
+        var resolvedExternalModuleCache: Map<string> = {};
+        function resolveExternalModule(moduleName: string, searchPath: string): string {
+            let cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                // Look at files by all extensions
+                let searchNames = map(supportedExtensions, extension => normalizePath(combinePaths(searchPath, moduleName)) + extension);
+                // Also look at all files by node_modules
+                searchNames = searchNames.concat(map(supportedExtensions, extension => normalizePath(combinePaths(combinePaths(searchPath, "node_modules"), moduleName)) + extension));
+                let found = forEach(searchNames, name => sys.fileExists(name) && name);
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                let parentPath = getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
         }
 
         function verifyCompilerOptions() {

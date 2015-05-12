@@ -82,30 +82,6 @@ var ts;
         var newLine = options.newLine === 0 ? carriageReturnLineFeed :
             options.newLine === 1 ? lineFeed :
                 ts.sys.newLine;
-        var resolvedExternalModuleCache = {};
-        function resolveExternalModule(moduleName, searchPath) {
-            var cacheLookupName = moduleName + searchPath;
-            if (resolvedExternalModuleCache[cacheLookupName]) {
-                return resolvedExternalModuleCache[cacheLookupName];
-            }
-            if (resolvedExternalModuleCache[cacheLookupName] === '') {
-                return undefined;
-            }
-            while (true) {
-                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
-                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
-                var found = ts.forEach(searchNames, function (name) { return ts.sys.fileExists(name) && name; });
-                if (found) {
-                    return resolvedExternalModuleCache[cacheLookupName] = found;
-                }
-                var parentPath = ts.getDirectoryPath(searchPath);
-                if (parentPath === searchPath) {
-                    resolvedExternalModuleCache[cacheLookupName] = '';
-                    return undefined;
-                }
-                searchPath = parentPath;
-            }
-        }
         return {
             getSourceFile: getSourceFile,
             getDefaultLibFileName: function (options) { return ts.combinePaths(ts.getDirectoryPath(ts.normalizePath(ts.sys.getExecutingFilePath())), ts.getDefaultLibFileName(options)); },
@@ -114,7 +90,6 @@ var ts;
             useCaseSensitiveFileNames: function () { return ts.sys.useCaseSensitiveFileNames; },
             getCanonicalFileName: getCanonicalFileName,
             getNewLine: function () { return newLine; },
-            resolveExternalModule: resolveExternalModule
         };
     }
     ts.createCompilerHost = createCompilerHost;
@@ -183,6 +158,7 @@ var ts;
             getIdentifierCount: function () { return getDiagnosticsProducingTypeChecker().getIdentifierCount(); },
             getSymbolCount: function () { return getDiagnosticsProducingTypeChecker().getSymbolCount(); },
             getTypeCount: function () { return getDiagnosticsProducingTypeChecker().getTypeCount(); },
+            resolveExternalModule: resolveExternalModule
         };
         return program;
         function getEmitHost(writeFileCallback) {
@@ -371,19 +347,8 @@ var ts;
                     if (moduleNameExpr && moduleNameExpr.kind === 8) {
                         var moduleNameText = moduleNameExpr.text;
                         if (moduleNameText) {
-                            var searchPath = basePath;
-                            var searchName;
-                            while (true) {
-                                searchName = ts.normalizePath(ts.combinePaths(searchPath, moduleNameText));
-                                if (ts.forEach(ts.supportedExtensions, function (extension) { return findModuleSourceFile(searchName + extension, moduleNameExpr); })) {
-                                    break;
-                                }
-                                var parentPath = ts.getDirectoryPath(searchPath);
-                                if (parentPath === searchPath) {
-                                    break;
-                                }
-                                searchPath = parentPath;
-                            }
+                            var searchName = resolveExternalModule(moduleNameText, basePath);
+                            findModuleSourceFile(searchName, moduleNameExpr);
                         }
                     }
                 }
@@ -451,6 +416,30 @@ var ts;
                 }
             }
             return allFilesBelongToPath;
+        }
+        var resolvedExternalModuleCache = {};
+        function resolveExternalModule(moduleName, searchPath) {
+            var cacheLookupName = moduleName + searchPath;
+            if (resolvedExternalModuleCache[cacheLookupName]) {
+                return resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            while (true) {
+                var searchNames = ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(searchPath, moduleName)) + extension; });
+                searchNames = searchNames.concat(ts.map(ts.supportedExtensions, function (extension) { return ts.normalizePath(ts.combinePaths(ts.combinePaths(searchPath, "node_modules"), moduleName)) + extension; }));
+                var found = ts.forEach(searchNames, function (name) { return ts.sys.fileExists(name) && name; });
+                if (found) {
+                    return resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                var parentPath = ts.getDirectoryPath(searchPath);
+                if (parentPath === searchPath) {
+                    resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                searchPath = parentPath;
+            }
         }
         function verifyCompilerOptions() {
             if (options.separateCompilation) {
