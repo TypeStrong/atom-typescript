@@ -9,7 +9,10 @@ function makeTsGlobal(typescriptServices) {
     var sandbox = {
         ts: {},
         console: console,
-        stack: global.stack
+        stack: global.stack,
+        require: require,
+        module: module,
+        process: process
     };
     vm.createContext(sandbox);
     if (debug_1.debugLanguageService) {

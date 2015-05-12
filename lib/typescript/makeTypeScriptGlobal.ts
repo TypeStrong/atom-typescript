@@ -15,7 +15,10 @@ export function makeTsGlobal(typescriptServices?: string) {
         // This is going to gather the ts module exports
         ts: {},
         console: console,
-        stack: global.stack
+        stack: global.stack,
+        require: require,
+        module: module,
+        process: process
     };
     vm.createContext(sandbox);
 
