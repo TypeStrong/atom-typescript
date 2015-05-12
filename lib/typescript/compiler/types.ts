@@ -1069,6 +1069,8 @@ module ts {
          * Gets a type checker that can be used to semantically analyze source fils in the program.
          */
         getTypeChecker(): TypeChecker;
+        
+        resolveExternalModule(moduleName: string, basePath: string): string;
 
         /* @internal */ getCommonSourceDirectory(): string;
 
@@ -1135,6 +1137,7 @@ module ts {
 
         getSourceFiles(): SourceFile[];
         getSourceFile(fileName: string): SourceFile;
+        resolveExternalModule(moduleName: string, basePath: string): string;
     }
 
     export interface TypeChecker {
