@@ -163,3 +163,4 @@ function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }
 exports.consumeSnippets = consumeSnippets;
+var foo = 123;

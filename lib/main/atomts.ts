@@ -293,3 +293,4 @@ export function provide() {
 export function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }
+var foo = 123;
