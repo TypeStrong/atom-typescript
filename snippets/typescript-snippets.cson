@@ -65,7 +65,7 @@
         'prefix': 'function'
         'body': """
             function ${1:name}(${2:parameter}) {
-                ${3:return true;}
+                ${3:throw new Error("Not implemented yet");}
             }
         """
     'fatarrow':
