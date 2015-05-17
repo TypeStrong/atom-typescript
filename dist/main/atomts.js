@@ -93,11 +93,9 @@ function readyToActivate() {
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
                     var newText = diff.newText;
-                    var oldText = diff.oldText;
                     newText = editor.buffer.getTextInRange(diff.newRange);
-                    oldText = editor.buffer.getTextInRange(diff.oldRange);
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
-                    var limChar = minChar + oldText.length;
+                    var limChar = minChar + diff.oldText.length;
                     var promise = parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {

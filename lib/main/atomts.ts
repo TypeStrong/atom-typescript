@@ -191,22 +191,19 @@ function readyToActivate() {
 
                     // Atom only gives you an `\n` as diff but it sometimes inserts \r\n. Facepalm.
                     var newText = diff.newText;
-                    var oldText = diff.oldText;
                     // console.log(JSON.stringify({txt:newText}));
                     // This works reliably
                     newText = editor.buffer.getTextInRange(diff.newRange);
-                    oldText = editor.buffer.getTextInRange(diff.oldRange);
 
                     // use this for faster language service host
                     var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
-                    var limChar = minChar + oldText.length;
+                    var limChar = minChar + diff.oldText.length;
 
                     var promise = parent.editText({ filePath, minChar, limChar, newText });
 
-                    // // For debugging the language service going out of sync
-                    // console.log(JSON.stringify({filePath,minChar,limChar,newText,oldText}));
+                    // For debugging the language service going out of sync
                     // promise.then(()=>{
-                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveTextEditor().getPath()})
+                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveEditor().getPath()})
                     //         .then((res)=>{
                     //             console.log(JSON.stringify({real:editor.getText()}));
                     //             console.log(JSON.stringify({lang:res.text}));
