@@ -92,11 +92,12 @@ function readyToActivate() {
                     //// 20 20 "aaaa" 20 20 ""
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
+                    // stack();
                     var newText = diff.newText;
-                    newText = editor.buffer.getTextInRange(diff.newRange);
-                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
-                    var limChar = minChar + diff.oldText.length;
-                    var promise = parent.editText({ filePath: filePath, minChar: minChar, limChar: limChar, newText: newText });
+                    var oldText = diff.oldText;
+                    var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
+                    var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
+                    var promise = parent.editText({ filePath: filePath, start: start, end: end, newText: newText });
                 });
                 var saveObserver = editor.onDidSave(function (event) {
                     onDisk = true;

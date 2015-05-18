@@ -330,13 +330,13 @@ export function updateText(query: UpdateTextQuery): Promise<any> {
 }
 
 export interface EditTextQuery extends FilePathQuery {
-    minChar: number;
-    limChar: number;
+    start: EditorPosition;
+    end: EditorPosition;
     newText: string;
 }
 export function editText(query: EditTextQuery): Promise<any> {
     consistentPath(query);
-    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.minChar, query.limChar, query.newText);
+    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.start, query.end, query.newText);
     return resolve({});
 }
 

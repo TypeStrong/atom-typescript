@@ -179,7 +179,7 @@ function readyToActivate() {
                 });
 
                 var buffer = editor.buffer;
-                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange; newRange; oldText: string; newText: string }) => {
+                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange:TextBuffer.IRange; newRange:TextBuffer.IRange; oldText: string; newText: string }) => {
 
                     //// For debugging
                     // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
@@ -188,24 +188,23 @@ function readyToActivate() {
                     //// 20 20 "aaaa" 20 20 ""
                     //// 23 23 "" 23 24 "a"
                     //// 20 20 "" 20 24 "aaaa"
+                    // stack();
 
-                    // Atom only gives you an `\n` as diff but it sometimes inserts \r\n. Facepalm.
                     var newText = diff.newText;
-                    // console.log(JSON.stringify({txt:newText}));
-                    // This works reliably
-                    newText = editor.buffer.getTextInRange(diff.newRange);
+                    var oldText = diff.oldText;
 
+                    var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
+                    var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
+                    
                     // use this for faster language service host
-                    var minChar = buffer.characterIndexForPosition(diff.oldRange.start);
-                    var limChar = minChar + diff.oldText.length;
-
-                    var promise = parent.editText({ filePath, minChar, limChar, newText });
+                    var promise = parent.editText({ filePath, start, end, newText });
 
                     // For debugging the language service going out of sync
-                    // promise.then(()=>{
-                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveEditor().getPath()})
+                    // console.log(JSON.stringify({oldText,newText}));
+                    // promise.then(() => {
+                    //     parent.debugLanguageServiceHostVersion({filePath:atom.workspace.getActiveTextEditor().getPath()})
                     //         .then((res)=>{
-                    //             console.log(JSON.stringify({real:editor.getText()}));
+                    //             console.log(JSON.stringify({real:editor.buffer.getText()}));
                     //             console.log(JSON.stringify({lang:res.text}));
                     //             console.log(editor.getText() == res.text);
                     //         });

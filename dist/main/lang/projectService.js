@@ -200,7 +200,7 @@ function updateText(query) {
 exports.updateText = updateText;
 function editText(query) {
     projectCache_1.consistentPath(query);
-    projectCache_1.getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.minChar, query.limChar, query.newText);
+    projectCache_1.getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.start, query.end, query.newText);
     return resolve({});
 }
 exports.editText = editText;

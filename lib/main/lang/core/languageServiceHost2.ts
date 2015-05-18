@@ -80,9 +80,10 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
 
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
-        // console.error(start,end);
+        // console.error(start,end);        
         buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText);
         // console.error(buffer.getText().length);
+        // console.error(JSON.stringify({newText, final:buffer.getText()}));
 
         _lineStartIsDirty = true;
 
@@ -268,9 +269,11 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         }
     }
 
-    editScript = (fileName: string, minChar: number, limChar: number, newText: string) => {
+    editScript = (fileName: string, start: EditorPosition, end: EditorPosition, newText: string) => {
         var script = this.fileNameToScript[fileName];
         if (script) {
+            var minChar = script.getPositionFromLine(start.line, start.col);
+            var limChar = script.getPositionFromLine(end.line, end.col);            
             script.editContent(minChar, limChar, newText);
             return;
         }

@@ -155,9 +155,11 @@ var LanguageServiceHost = (function () {
                 _this.addScript(fileName, content);
             }
         };
-        this.editScript = function (fileName, minChar, limChar, newText) {
+        this.editScript = function (fileName, start, end, newText) {
             var script = _this.fileNameToScript[fileName];
             if (script) {
+                var minChar = script.getPositionFromLine(start.line, start.col);
+                var limChar = script.getPositionFromLine(end.line, end.col);
                 script.editContent(minChar, limChar, newText);
                 return;
             }
