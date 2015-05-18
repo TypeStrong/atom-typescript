@@ -81,7 +81,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
         // console.error(start,end);        
-        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText);
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, {normalizeLineEndings: false});
         // console.error(buffer.getText().length);
         // console.error(JSON.stringify({newText, final:buffer.getText()}));
 

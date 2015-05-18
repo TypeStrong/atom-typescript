@@ -30,7 +30,7 @@ function createScriptInfo(fileName, text, isOpen) {
     function editContent(minChar, limChar, newText) {
         var start = getLineAndColForPositon(minChar);
         var end = getLineAndColForPositon(limChar);
-        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText);
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, { normalizeLineEndings: false });
         _lineStartIsDirty = true;
         editRanges.push({
             span: { start: minChar, length: limChar - minChar },
