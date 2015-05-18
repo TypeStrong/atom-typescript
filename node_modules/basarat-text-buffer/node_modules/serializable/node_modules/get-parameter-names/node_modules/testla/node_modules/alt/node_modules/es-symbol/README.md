@@ -8,7 +8,7 @@
 [![Dependency Status](https://david-dm.org/goatslacker/es-symbol.svg)](https://david-dm.org/goatslacker/es-symbol)
 
 * No unnecessary dependencies
-* Works in node + browser
+* Works in node + browser (IE8--Modern browsers)
 * Uses native `Symbol` if possible otherwise exports a polyfill
 
 ## Usage
