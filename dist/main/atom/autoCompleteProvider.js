@@ -33,6 +33,8 @@ function loadSnippets() {
 loadSnippets();
 exports.provider = {
     selector: '.source.ts',
+    inclusionPriority: 3,
+    excludeLowerPriority: false,
     getSuggestions: function (options) {
         var filePath = options.editor.getPath();
         if (!filePath)

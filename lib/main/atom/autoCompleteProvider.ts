@@ -114,6 +114,8 @@ loadSnippets();
 
 export var provider: autocompleteplus.Provider = {
     selector: '.source.ts',
+    inclusionPriority: 3,
+    excludeLowerPriority: false,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
         var filePath = options.editor.getPath();
 
