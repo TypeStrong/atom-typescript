@@ -139,9 +139,8 @@ function getDefaultProject(srcFile) {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
-    files = increaseProjectForReferenceAndImports(project.files);
-    files = project.files.concat();
-    files = uniq(project.files.map(consistentPath));
+    files = increaseProjectForReferenceAndImports(files);
+    files = uniq(files.map(consistentPath));
     var project = {
         compilerOptions: exports.defaults,
         files: files,

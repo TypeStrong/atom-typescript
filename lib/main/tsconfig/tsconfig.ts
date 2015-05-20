@@ -269,11 +269,10 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
 
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
-    files = increaseProjectForReferenceAndImports(project.files);
-    files = project.files.concat();
-    files = uniq(project.files.map(consistentPath));
+    files = increaseProjectForReferenceAndImports(files);    
+    files = uniq(files.map(consistentPath));
 
-    var project = {
+    let project = {
         compilerOptions: defaults,
         files,
         typings: typings.ours.concat(typings.implicit),
