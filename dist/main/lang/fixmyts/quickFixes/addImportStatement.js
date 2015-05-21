@@ -31,7 +31,10 @@ var AddImportStatement = (function () {
             return;
         if (info.positionNode.kind !== 65)
             return;
-        var _a = getIdentifierAndFileNames(relevantError, info.project), identifierName = _a.identifierName, file = _a.file;
+        var matches = getIdentifierAndFileNames(relevantError, info.project);
+        if (!matches)
+            return;
+        var identifierName = matches.identifierName, file = matches.file;
         return file ? { display: "import " + identifierName + " = require(\"" + file + "\")" } : undefined;
     };
     AddImportStatement.prototype.provideFix = function (info) {

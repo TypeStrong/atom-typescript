@@ -40,8 +40,10 @@ class AddImportStatement implements QuickFix {
         var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
+        var matches = getIdentifierAndFileNames(relevantError, info.project);
+        if (!matches) return;
 
-        var { identifierName, file} = getIdentifierAndFileNames(relevantError, info.project);
+        var { identifierName, file} = matches;
         return file ? { display: `import ${identifierName} = require(\"${file}\")` } : undefined;
     }
 
