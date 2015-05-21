@@ -95,6 +95,7 @@ function readyToActivate() {
                     // stack();
                     var newText = diff.newText;
                     var oldText = diff.oldText;
+                    newText = editor.buffer.getTextInRange(diff.newRange);
                     var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
                     var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
                     var promise = parent.editText({ filePath: filePath, start: start, end: end, newText: newText });
