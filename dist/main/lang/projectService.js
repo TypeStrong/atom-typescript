@@ -100,9 +100,9 @@ function getCompletionsAtPosition(query) {
             display = ts.displayPartsToString(parts);
         }
         else {
-            display = c.kind;
+            display = '';
         }
-        var comment = ts.displayPartsToString(completionDetails.documentation || []);
+        var comment = (display ? display + '\n' : '') + ts.displayPartsToString(completionDetails.documentation || []);
         return { display: display, comment: comment };
     }
     var completionsToReturn = completionList.map(function (c, index) {
@@ -111,7 +111,7 @@ function getCompletionsAtPosition(query) {
         }
         else {
             details = {
-                display: c.kind,
+                display: '',
                 comment: ''
             };
         }

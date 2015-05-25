@@ -190,9 +190,9 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
             display = ts.displayPartsToString(parts);
         }
         else {
-            display = c.kind;
+            display = '';
         }
-        var comment = ts.displayPartsToString(completionDetails.documentation || []);
+        var comment = (display?display+'\n':'') + ts.displayPartsToString(completionDetails.documentation || []);
 
         return { display: display, comment: comment };
     }
@@ -203,7 +203,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         }
         else {
             details = {
-                display: c.kind,
+                display: '',
                 comment: ''
             }
         }

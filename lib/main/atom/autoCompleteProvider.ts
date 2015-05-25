@@ -204,7 +204,7 @@ export var provider: autocompleteplus.Provider = {
                             return {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
-                                rightLabelHTML: '<span class="badge" style="background-color: black; color: ' + atomUtils.kindToColor(c.kind) + '">' + c.display + '</span>',
+                                rightLabel: c.display,
                                 leftLabel: c.kind,
                                 type: atomUtils.kindToType(c.kind),
                                 description: c.comment,
