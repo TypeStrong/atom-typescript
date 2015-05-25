@@ -7,7 +7,7 @@
   },
   "description": "The only TypeScript plugin you will ever need.",
   "engines": {
-    "atom": "*",
+    "atom": ">=0.199.0 <2.0.0",
     "node": "*"
   },
   "linter-package": true,
@@ -53,8 +53,7 @@
     "grunt-ts": "^3.0.0"
   },
   "package-dependencies": {
-    "linter": "//this field will be ignored right now",
-    "autocomplete-plus": "//this field will be ignored right now"
+    "linter": "//this field will be ignored right now"
   },
   "keywords": [
     "typescript",
