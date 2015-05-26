@@ -65,7 +65,13 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             return this.getAtomTokensForLine(line, finalLexState);
         }
         if (line.match(this.fullTripleSlashReferencePathRegEx)) {
-            return this.getfullTripleSlashReferencePathTokensForLine(line);
+            return this.getFullTripleSlashReferencePathTokensForLine(line);
+        }
+        else if (line.match(this.fullTripleSlashAMDNameRegEx)) {
+            return this.getFullTripleSlashAMDModuleNameTokensForLine(line);
+        }
+        else if (line.match(this.fullTripleSlashAMDDependencyPathRegEx)) {
+            return this.getFullTripleSlashAMDDependencyPathTokensForLine(line);
         }
         else if (line.match(this.importRequireRegex)) {
             return this.getImportRequireTokensForLine(line);
@@ -86,6 +92,10 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
 
     // Useful to tokenize these differently for autocomplete ease
     fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
+    // AMD module name
+    fullTripleSlashAMDNameRegEx = /^(\/\/\/\s*<amd-module\s+name\s*=\s*)('|")(.+?)\2.*?\/>/;
+    // AMD dependency path
+    fullTripleSlashAMDDependencyPathRegEx = /^(\/\/\/\s*<amd-dependency\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
     // Note this will not match multiple imports on same line. So shame on you
     importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
     // es6
@@ -93,9 +103,8 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     // For todo support
     todoRegex = new RegExp('(BUG|TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE)');
 
-    getfullTripleSlashReferencePathTokensForLine(line: string): AtomTSTokens {
+    getFullTripleSlashTokensForLine(line: string, matches: RegExpMatchArray, argumentType: string): AtomTSTokens {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
-        var matches = line.match(this.fullTripleSlashReferencePathRegEx);
         if (matches[3]) {
             var path = matches[3];
             if (line.indexOf('"' + path + '"') != -1) {
@@ -108,13 +117,31 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
             var endPosition = startPosition + path.length;
             var atomTokens = [];
             atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));
-            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', 'reference.path.string']));
+            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', argumentType]));
             atomTokens.push(this.registry.createToken(line.substr(endPosition, line.length - endPosition), ['source.ts', 'keyword']));
             return { tokens: atomTokens, ruleStack: [] };
         }
         else {
             return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
         }
+    }
+
+    getFullTripleSlashReferencePathTokensForLine(line: string): AtomTSTokens {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashReferencePathRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'reference.path.string');
+    }
+
+    getFullTripleSlashAMDModuleNameTokensForLine(line: string): AtomTSTokens {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashAMDNameRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'module.name.string');
+    }
+
+    getFullTripleSlashAMDDependencyPathTokensForLine(line: string): AtomTSTokens {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashAMDDependencyPathRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'dependency.path.string');
     }
 
     getImportRequireTokensForLine(line: string): { tokens: any /* Atom's Token */[]; ruleStack: any[] } {
