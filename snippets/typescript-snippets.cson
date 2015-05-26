@@ -101,3 +101,11 @@
                 $3
             }
         """
+    'externalmodule':
+        'prefix': 'declaremodule'
+        'body': """
+            declare module "$1" {
+                var $2:${3:any};
+                export = $2;
+            }$4
+        """
