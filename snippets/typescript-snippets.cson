@@ -4,6 +4,16 @@
         'body': """
             /// <reference path="$1"/>
         """
+    'AMD module name':
+        'prefix': 'amd-mod'
+        'body': """
+            /// <amd-module name="$1"/>
+        """
+    'AMD dependency':
+        'prefix': 'amd-dep'
+        'body': """
+            /// <amd-dependency path="$1"/>
+        """
     'import':
         'prefix': 'import'
         'body': """

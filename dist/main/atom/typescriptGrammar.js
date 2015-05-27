@@ -20,6 +20,8 @@ var TypeScriptSemanticGrammar = (function (_super) {
         this.trailingWhiteSpaceLength = 0;
         this.classifier = ts.createClassifier();
         this.fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
+        this.fullTripleSlashAMDNameRegEx = /^(\/\/\/\s*<amd-module\s+name\s*=\s*)('|")(.+?)\2.*?\/>/;
+        this.fullTripleSlashAMDDependencyPathRegEx = /^(\/\/\/\s*<amd-dependency\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
         this.importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
         this.es6importRegex = /^import.*from.*/;
         this.todoRegex = new RegExp('(BUG|TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE)');
@@ -41,7 +43,13 @@ var TypeScriptSemanticGrammar = (function (_super) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
         if (line.match(this.fullTripleSlashReferencePathRegEx)) {
-            return this.getfullTripleSlashReferencePathTokensForLine(line);
+            return this.getFullTripleSlashReferencePathTokensForLine(line);
+        }
+        else if (line.match(this.fullTripleSlashAMDNameRegEx)) {
+            return this.getFullTripleSlashAMDModuleNameTokensForLine(line);
+        }
+        else if (line.match(this.fullTripleSlashAMDDependencyPathRegEx)) {
+            return this.getFullTripleSlashAMDDependencyPathTokensForLine(line);
         }
         else if (line.match(this.importRequireRegex)) {
             return this.getImportRequireTokensForLine(line);
@@ -53,9 +61,8 @@ var TypeScriptSemanticGrammar = (function (_super) {
             return this.getAtomTokensForLine(line, finalLexState);
         }
     };
-    TypeScriptSemanticGrammar.prototype.getfullTripleSlashReferencePathTokensForLine = function (line) {
+    TypeScriptSemanticGrammar.prototype.getFullTripleSlashTokensForLine = function (line, matches, argumentType) {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
-        var matches = line.match(this.fullTripleSlashReferencePathRegEx);
         if (matches[3]) {
             var path = matches[3];
             if (line.indexOf('"' + path + '"') != -1) {
@@ -68,13 +75,28 @@ var TypeScriptSemanticGrammar = (function (_super) {
             var endPosition = startPosition + path.length;
             var atomTokens = [];
             atomTokens.push(this.registry.createToken(line.substr(0, startPosition), ['source.ts', 'keyword']));
-            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', 'reference.path.string']));
+            atomTokens.push(this.registry.createToken(line.substr(startPosition, path.length), ['source.ts', argumentType]));
             atomTokens.push(this.registry.createToken(line.substr(endPosition, line.length - endPosition), ['source.ts', 'keyword']));
             return { tokens: atomTokens, ruleStack: [] };
         }
         else {
             return this.convertTsTokensToAtomTokens(tsTokensWithRuleStack);
         }
+    };
+    TypeScriptSemanticGrammar.prototype.getFullTripleSlashReferencePathTokensForLine = function (line) {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashReferencePathRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'reference.path.string');
+    };
+    TypeScriptSemanticGrammar.prototype.getFullTripleSlashAMDModuleNameTokensForLine = function (line) {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashAMDNameRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'module.name.string');
+    };
+    TypeScriptSemanticGrammar.prototype.getFullTripleSlashAMDDependencyPathTokensForLine = function (line) {
+        var tsTokensWithRuleStack = this.getTsTokensForLine(line);
+        var matches = line.match(this.fullTripleSlashAMDDependencyPathRegEx);
+        return this.getFullTripleSlashTokensForLine(line, matches, 'dependency.path.string');
     };
     TypeScriptSemanticGrammar.prototype.getImportRequireTokensForLine = function (line) {
         var tsTokensWithRuleStack = this.getTsTokensForLine(line);
