@@ -124,7 +124,7 @@ export var provider: autocompleteplus.Provider = {
         if (!fs.existsSync(filePath)) return Promise.resolve([]);
 
         // If we are looking at reference or require path support file system completions
-        var pathMatchers = ['reference.path.string', 'require.path.string', 'es6import.path.string', 'dependency.path.string'];
+        var pathMatchers = ['reference.path.string', 'require.path.string', 'es6import.path.string'];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
 
         // For file path completions
