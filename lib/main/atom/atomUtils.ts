@@ -25,7 +25,7 @@ export function onDiskAndTs(editor: AtomCore.IEditor) {
             return false;
         }
         var ext = path.extname(filePath);
-        if (ext == '.ts') {
+        if (ext == '.ts' || ext == '.tst') {
             if (fs.existsSync(filePath)) {
                 return true;
             }
@@ -158,7 +158,7 @@ export function kindToType(kind: string) {
 export function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor) return e.abortKeyBinding() && false;
-    if (path.extname(editor.getPath()) !== '.ts') return e.abortKeyBinding() && false;
+    if (path.extname(editor.getPath()) !== '.ts' || path.extname(editor.getPath()) == '.tst') return e.abortKeyBinding() && false;
 
     return true;
 }

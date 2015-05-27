@@ -119,3 +119,10 @@
                 export = $2;
             }$4
         """
+    'transformer':
+        'prefix': 'transform'
+        'body': """
+            transform:${1:null}{
+                $2
+            }transform:${1:null}
+        """

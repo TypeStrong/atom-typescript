@@ -4,6 +4,7 @@
 import {debounce} from "../lang/utils";
 import * as parent from "../../worker/parent";
 import * as atomUtils from "./atomUtils";
+import {isTransformerFile} from "../lang/transformers/transformer";
 
 export function setupEditor(editor: AtomCore.IEditor) {
 
@@ -20,7 +21,7 @@ export function setupEditor(editor: AtomCore.IEditor) {
             quickFixMarker = null;
         }
     }
-    var queryForQuickFix = debounce((filePathPosition) => {
+    var queryForQuickFix = debounce((filePathPosition:{filePath:string;position:number}) => {
         parent.getQuickFixes(filePathPosition).then(res=> {
             clearExistingQuickfixDecoration();
             if (res.fixes.length) {
@@ -36,6 +37,12 @@ export function setupEditor(editor: AtomCore.IEditor) {
             // https://github.com/TypeStrong/atom-typescript/issues/325
             // https://github.com/TypeStrong/atom-typescript/issues/310
             let pathPos = atomUtils.getFilePathPosition();
+            
+            // TODO: implement quickfix logic for transformed files
+            if (isTransformerFile(pathPos.filePath)) {
+                clearExistingQuickfixDecoration();
+                return;
+            }
 
             queryForQuickFix(pathPos);
         }

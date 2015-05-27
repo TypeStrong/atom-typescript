@@ -31,7 +31,7 @@ export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
                 patterns: {
                     // include: 'source.js' // Just makes us slower :P
                 },
-                fileTypes: ['ts']
+                fileTypes: ['ts','tst']
             });
     }
 

@@ -4,6 +4,16 @@ function isTransformerFile(filePath) {
     return ext == '.tst';
 }
 exports.isTransformerFile = isTransformerFile;
+function getTranformedFilePath(filePath) {
+    if (isTransformerFile(filePath)) {
+        return getPseudoTsFile(filePath);
+    }
+    return filePath;
+}
+exports.getTranformedFilePath = getTranformedFilePath;
+function getPseudoTsFile(filePath) {
+    return filePath + '.ts';
+}
 function isRawFile(filePath) {
     return endsWith(filePath, ".raw.ts");
 }

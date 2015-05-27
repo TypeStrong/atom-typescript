@@ -5,6 +5,8 @@ import path = require('path');
 import os = require('os');
 import mkdirp = require('mkdirp');
 var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string }) => any } = require('fuzzaldrin');
+import {isTransformerFile} from "./transformers/transformer";
+import * as transformer from "./transformers/transformer";
 
 import tsconfig = require('../tsconfig/tsconfig');
 

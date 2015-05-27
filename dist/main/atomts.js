@@ -56,7 +56,8 @@ function readyToActivate() {
         tooltipManager.attach(editorView, editor);
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts') {
+        if (ext == '.ts' || ext == ".tst") {
+            var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();
                 var onDisk = false;

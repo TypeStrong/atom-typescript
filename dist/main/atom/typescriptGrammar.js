@@ -19,7 +19,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
             name: "TypeScript",
             scopeName: "source.ts",
             patterns: {},
-            fileTypes: ['ts']
+            fileTypes: ['ts', 'tst']
         });
         this.registry = registry;
         this.trailingWhiteSpaceLength = 0;

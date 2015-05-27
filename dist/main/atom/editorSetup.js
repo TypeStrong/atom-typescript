@@ -1,6 +1,7 @@
 var utils_1 = require("../lang/utils");
 var parent = require("../../worker/parent");
 var atomUtils = require("./atomUtils");
+var transformer_1 = require("../lang/transformers/transformer");
 function setupEditor(editor) {
     var quickFixDecoration = null;
     var quickFixMarker = null;
@@ -26,6 +27,10 @@ function setupEditor(editor) {
     var cursorObserver = editor.onDidChangeCursorPosition(function () {
         try {
             var pathPos = atomUtils.getFilePathPosition();
+            if (transformer_1.isTransformerFile(pathPos.filePath)) {
+                clearExistingQuickfixDecoration();
+                return;
+            }
             queryForQuickFix(pathPos);
         }
         catch (ex) {

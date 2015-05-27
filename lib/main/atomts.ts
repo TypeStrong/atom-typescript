@@ -125,7 +125,8 @@ function readyToActivate() {
 
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts') {
+        if (ext == '.ts' || ext == ".tst") {
+            let isTst = ext === '.tst';
             try {
                 // Only once stuff
                 onlyOnceStuff();
@@ -150,7 +151,7 @@ function readyToActivate() {
                 }
 
                 // Setup additional observers on the editor
-                editorSetup.setupEditor(editor);
+                editorSetup.setupEditor(editor);                
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
@@ -180,7 +181,7 @@ function readyToActivate() {
                 });
 
                 var buffer = editor.buffer;
-                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange:TextBuffer.IRange; newRange:TextBuffer.IRange; oldText: string; newText: string }) => {
+                var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange: TextBuffer.IRange; newRange: TextBuffer.IRange; oldText: string; newText: string }) => {
 
                     //// For debugging
                     // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
