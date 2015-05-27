@@ -100,8 +100,8 @@
     'forea':
         'prefix': 'forea'
         'body': """
-            ${1:iterable}.forEach(${2:variable} => {
-                $3
+            forEach(${1:variable} => {
+                $2
             });
         """
     'forin':
