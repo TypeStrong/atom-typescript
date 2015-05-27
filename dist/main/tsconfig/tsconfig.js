@@ -423,7 +423,7 @@ function selectMany(arr) {
     return result;
 }
 function endsWith(str, suffix) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    return str && str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 exports.endsWith = endsWith;
 function uniq(arr) {

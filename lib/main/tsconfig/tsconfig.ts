@@ -85,7 +85,7 @@ interface TypeScriptProjectRawSpecification {
     version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
-    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
+    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -667,7 +667,7 @@ function selectMany<T>(arr: T[][]): T[] {
 }
 
 export function endsWith(str: string, suffix: string): boolean {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    return str && str.indexOf(suffix, str.length - suffix.length) !== -1;
 }
 
 function uniq(arr: string[]): string[] {

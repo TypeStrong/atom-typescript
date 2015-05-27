@@ -11,3 +11,4 @@
 /// <reference path="glob-expand/glob-expand.d.ts" />
 /// <reference path="mkdirp/mkdirp.d.ts" />
 /// <reference path="d3/d3.d.ts" />
+/// <reference path="source-map/source-map.d.ts" />
