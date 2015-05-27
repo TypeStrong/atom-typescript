@@ -47,12 +47,18 @@ var StringConcatToTemplate = (function () {
                     var quoteCharacter = text.trim()[0];
                     var quoteRegex = new RegExp(quoteCharacter, 'g');
                     var escapedQuoteRegex = new RegExp("\\\\" + quoteCharacter, 'g');
-                    var newText = text
+                    var newText_1 = text
                         .replace(backTick, "\\" + backTickCharacter)
                         .replace(escapedQuoteRegex, quoteCharacter)
                         .replace($regex, '\\$');
-                    newText = newText.substr(1, newText.length - 2);
-                    finalOutput.unshift(newText);
+                    newText_1 = newText_1.substr(1, newText_1.length - 2);
+                    finalOutput.unshift(newText_1);
+                }
+                else if (node.kind == 172 || node.kind == 10) {
+                    var text = node.getText();
+                    text = text.trim();
+                    text = text.substr(1, text.length - 2);
+                    finalOutput.unshift(text);
                 }
                 else {
                     finalOutput.unshift('${' + node.getText() + '}');

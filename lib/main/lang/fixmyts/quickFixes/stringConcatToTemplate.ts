@@ -71,16 +71,23 @@ class StringConcatToTemplate implements QuickFix {
                     let text = node.getText();
                     let quoteCharacter = text.trim()[0];
 
-                    var quoteRegex = new RegExp(quoteCharacter, 'g')
-                    var escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
+                    let quoteRegex = new RegExp(quoteCharacter, 'g')
+                    let escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
 
-                    var newText = text
+                    let newText = text
                         .replace(backTick, `\\${backTickCharacter}`)
                         .replace(escapedQuoteRegex, quoteCharacter)
                         .replace($regex, '\\$');
 
                     newText = newText.substr(1, newText.length - 2);
                     finalOutput.unshift(newText);
+                }
+                else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral)
+                {
+                    let text = node.getText();
+                    text = text.trim();
+                    text = text.substr(1, text.length - 2);
+                    finalOutput.unshift(text);
                 }
                 // Each expression that isn't a string literal will just be escaped `${}`
                 else {
