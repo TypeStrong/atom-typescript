@@ -6,7 +6,7 @@ Generally the best docs:
 http://manual.macromates.com/en/language_grammars.html
 
 # Dynamic Grammar
-We used dynamic (code driven) grammar initially. Following are the lessons still worth sharing but we plan to move back CSON grammar again.
+We used dynamic (code driven) grammar initially. Following are the lessons still worth sharing but we are using the CSON grammar now.
 
 I am using `atom` and `first-mate` interchangeably here. There isn't a documented way of creating a grammar from *code*. We found a hacky way by reading a *lot of source code*. Please look at `typeScriptGrammar.ts`. Basically you inherit from `Grammar` and let that do the heavy lifting. Then all you need is to return `AtomTokens` from `tokenizeLine`. The way the atom grammar works is that they will store the returned `ruleSet` for any line and call `tokenizeLine` for the next line passing in that `ruleSet`. As soon as you edit a line all the following lines are invalidated and  `tokenizeLine` is called for them again. This works beautifully with the `ts.createClassifier` which is a quick syntactic classifier provided by the TS language service. It only depends on a `finalLexState` (e.g. did the previous line have a continuing multiline comment) and that is what we store in the `ruleSet`.
 
