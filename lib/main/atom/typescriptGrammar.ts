@@ -4,6 +4,8 @@
 // https://github.com/atom/first-mate/
 // https://github.com/fdecampredon/brackets-typescript/blob/master/src/main/mode.ts
 // https://github.com/p-e-w/language-javascript-semantic/blob/master/lib/javascript-semantic-grammar.coffee
+// TODO: update to latest : https://github.com/atom/atom/pull/6757
+
 import utils = require('../lang/utils');
 import TokenClass = ts.TokenClass;
 

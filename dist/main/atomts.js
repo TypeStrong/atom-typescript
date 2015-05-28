@@ -11,7 +11,6 @@ var atomUtils = require('./atom/atomUtils');
 var commands = require("./atom/commands/commands");
 var onSaveHandler = require('./atom/onSaveHandler');
 var debugAtomTs = require('./atom/debugAtomTs');
-var typescriptGrammar = require('./atom/typescriptGrammar');
 var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
@@ -41,7 +40,6 @@ function onlyOnceStuff() {
 }
 function readyToActivate() {
     parent.startWorker();
-    atom.grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar(atom.grammars));
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();

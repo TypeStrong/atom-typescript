@@ -79,7 +79,8 @@ function readyToActivate() {
     parent.startWorker();
 
     // Load our custom code based grammar
-    (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
+    // TODO: fix https://github.com/atom/atom/pull/6757
+    // (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
 
     // Streaming tests
     /*for (var i = 0; i < 100; i++) {
