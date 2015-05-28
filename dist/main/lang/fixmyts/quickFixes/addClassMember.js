@@ -13,6 +13,13 @@ function getIdentifierAndClassNames(error) {
     var identifierName = match[1], className = match[2];
     return { identifierName: identifierName, className: className };
 }
+function getLastNameAfterDot(text) {
+    return text.substr(text.lastIndexOf('.') + 1);
+}
+function getTypeStringForNode(node, typeChecker) {
+    var type = typeChecker.getTypeAtLocation(node);
+    return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)).replace(/\s+/g, ' ');
+}
 var AddClassMember = (function () {
     function AddClassMember() {
         this.key = AddClassMember.name;
@@ -39,8 +46,20 @@ var AddClassMember = (function () {
         if (parentOfParent.kind == 170
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
-            var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
-            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
+        }
+        else if (parentOfParent.kind == 158) {
+            var callExp = parentOfParent;
+            var typeStringParts = ['('];
+            var args = [];
+            callExp.arguments.forEach(function (arg) {
+                var argName = (getLastNameAfterDot(arg.getText()));
+                var argType = getTypeStringForNode(arg, info.typeChecker);
+                args.push(argName + ": " + argType);
+            });
+            typeStringParts.push(args.join(', '));
+            typeStringParts.push(') => any');
+            typeString = typeStringParts.join('');
         }
         var memberTarget = ast.getNodeByKindAndName(info.program, 202, className);
         if (!memberTarget) {

@@ -19,6 +19,18 @@ function getIdentifierAndClassNames(error: ts.Diagnostic) {
     return { identifierName, className };
 }
 
+/** foo.a => a */
+function getLastNameAfterDot(text: string) {
+    return text.substr(text.lastIndexOf('.') + 1);
+}
+
+function getTypeStringForNode(node: ts.Node, typeChecker: ts.TypeChecker) {
+    var type = typeChecker.getTypeAtLocation(node);
+
+    /** Discoverd from review of `services.getQuickInfoAtPosition` */
+    return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)).replace(/\s+/g, ' ');
+}
+
 class AddClassMember implements QuickFix {
     key = AddClassMember.name;
 
@@ -52,10 +64,26 @@ class AddClassMember implements QuickFix {
             && (<ts.BinaryExpression>parentOfParent).operatorToken.getText().trim() == '=') {
 
             let binaryExpression = <ts.BinaryExpression>parentOfParent;
-            var type = info.typeChecker.getTypeAtLocation(binaryExpression.right);
-
-            /** Discoverd from review of `services.getQuickInfoAtPosition` */
-            typeString = ts.displayPartsToString(ts.typeToDisplayParts(info.typeChecker, type)).replace(/\s+/g, ' ');
+            typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
+        }
+        else if (parentOfParent.kind == ts.SyntaxKind.CallExpression) {
+            let callExp = <ts.CallExpression>parentOfParent;
+            let typeStringParts = ['('];
+            
+            // Find the number of arguments
+            let args = [];
+            callExp.arguments.forEach(arg => {
+                var argName = (getLastNameAfterDot(arg.getText()));
+                var argType = getTypeStringForNode(arg, info.typeChecker);
+                
+                args.push(`${argName}: ${argType}`);
+            });
+            typeStringParts.push(args.join(', '));
+            
+            // TODO: infer the return type as well if the next parent is an assignment
+            // Currently its `any`
+            typeStringParts.push(') => any');
+            typeString = typeStringParts.join('');
         }
 
         // Find the containing class declaration
