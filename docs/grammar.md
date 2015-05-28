@@ -1,6 +1,9 @@
 # CSON Grammar
-Best documentation I have found
+What is meant by `name` and `captures`
 https://discuss.atom.io/t/grammar-understanding-captures-vs-name/14783
+
+Generally the best docs:
+http://manual.macromates.com/en/language_grammars.html
 
 # Dynamic Grammar
 We used dynamic (code driven) grammar initially. Following are the lessons still worth sharing but we plan to move back CSON grammar again.

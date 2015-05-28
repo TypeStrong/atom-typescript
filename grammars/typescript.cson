@@ -2,6 +2,7 @@
 'fileTypes': [
   'ts'
   'str'
+  'tst'
 ]
 'name': 'TypeScript'
 'patterns': [
@@ -86,6 +87,28 @@
           'name':'keyword.other.ts'
   }
   {
+      'comment': 'Match <amd-dependency'
+      'match': '(\\/\\/\\/\\s*<amd-dependency\\s*path\\s*=)(.*)(\\/>)'
+      'captures':
+        '1':
+          'name':'keyword.other.ts'
+        '2':
+          'name':'amd.path.string'
+        '3':
+          'name':'keyword.other.ts'
+  }
+  {
+      'comment': 'Match <amd-module'
+      'match': '(\\/\\/\\/\\s*<amd-module\\s*name\\s*=)(.*)(\\/>)'
+      'captures':
+        '1':
+          'name':'keyword.other.ts'
+        '2':
+          'name':'amd.path.string'
+        '3':
+          'name':'keyword.other.ts'
+  }
+  {
       'comment': 'Match import = require'
       'match': '(import)\\s*(\\w*)\\s*=\\s*(require)\\s*\\((.*)\\)'
       'captures':
@@ -111,6 +134,28 @@
   }
   {
     'include': 'source.js'
+  }
+  
+  # TRANSFORMS
+  {
+      'comment': 'Embedded Syntax for JSX'
+      'begin': '(transform):(jsx){'
+      'beginCaptures':
+        '1':
+          'name': 'keyword.other.ts'
+        '2':
+          'name': 'meta.support.constant.ts'
+      'end': '}(transform):(jsx)'
+      'endCaptures':
+          '1':
+            'name': 'keyword.other.ts'
+          '2':
+            'name': 'meta.support.constant.ts'
+      'patterns': [
+        {
+          'include': 'text.html.basic'
+        }
+      ]
   }
 ]
 'scopeName': 'source.ts'
