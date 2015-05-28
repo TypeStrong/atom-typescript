@@ -13,9 +13,6 @@ export interface Transformer {
     name: string;
 
     transform(code: string): { code: string; };
-    
-    /** This is going to be called from the UI thread */
-    tokenizeLine?(line: string, ruleStack: any[], firstLine?: boolean): AtomTSTokens;
 }
 
 

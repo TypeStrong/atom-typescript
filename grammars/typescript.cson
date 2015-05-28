@@ -1,3 +1,4 @@
+'scopeName': 'source.ts'
 'comment': 'TypeScript Syntax: version 1.0'
 'fileTypes': [
   'ts'
@@ -5,6 +6,7 @@
   'tst'
 ]
 'name': 'TypeScript'
+
 'patterns': [
   {
     'comment': 'Match stuff like: module name {...}'
@@ -138,6 +140,26 @@
   
   # TRANSFORMS
   {
+      'comment': 'Embedded Syntaxes support'
+      'begin': '(transform):(null){'
+      'beginCaptures':
+        '1':
+          'name': 'keyword.other.ts'
+        '2':
+          'name': 'meta.support.constant.ts'
+      'end': '}(transform):(null)'
+      'endCaptures':
+          '1':
+            'name': 'keyword.other.ts'
+          '2':
+            'name': 'meta.support.constant.ts'
+      'patterns': [
+        {
+          'include': 'source.ts'
+        }
+      ]
+  }
+  {
       'comment': 'Embedded Syntax for JSX'
       'begin': '(transform):(jsx){'
       'beginCaptures':
@@ -158,4 +180,3 @@
       ]
   }
 ]
-'scopeName': 'source.ts'
