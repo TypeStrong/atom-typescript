@@ -32,7 +32,7 @@ function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChe
     }
 }
 
-class StringConcatToTemplate implements QuickFix {
+export class StringConcatToTemplate implements QuickFix {
     key = StringConcatToTemplate.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -123,5 +123,3 @@ class StringConcatToTemplate implements QuickFix {
         return [refactoring];
     }
 }
-
-export default StringConcatToTemplate;

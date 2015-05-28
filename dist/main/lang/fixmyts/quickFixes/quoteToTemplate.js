@@ -30,4 +30,4 @@ var QuoteToTemplate = (function () {
     };
     return QuoteToTemplate;
 })();
-exports.default = QuoteToTemplate;
+exports.QuoteToTemplate = QuoteToTemplate;

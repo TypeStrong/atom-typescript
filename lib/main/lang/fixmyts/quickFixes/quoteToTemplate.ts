@@ -2,7 +2,7 @@ import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} 
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
-class QuoteToTemplate implements QuickFix {
+export class QuoteToTemplate implements QuickFix {
     key = QuoteToTemplate.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -41,5 +41,3 @@ class QuoteToTemplate implements QuickFix {
         return [refactoring];
     }
 }
-
-export default QuoteToTemplate;

@@ -29,4 +29,4 @@ var EqualsToEquals = (function () {
     };
     return EqualsToEquals;
 })();
-exports.default = EqualsToEquals;
+exports.EqualsToEquals = EqualsToEquals;

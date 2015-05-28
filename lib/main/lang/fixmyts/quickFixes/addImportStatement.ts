@@ -33,7 +33,7 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
     return { identifierName, file, basename };
 }
 
-class AddImportStatement implements QuickFix {
+export class AddImportStatement implements QuickFix {
     key = AddImportStatement.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -82,5 +82,3 @@ class AddImportStatement implements QuickFix {
         return refactorings;
     }
 }
-
-export default AddImportStatement;

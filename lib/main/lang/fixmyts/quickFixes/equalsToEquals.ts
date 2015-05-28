@@ -2,7 +2,7 @@ import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} 
 import * as ast from "../astUtils";
 import {EOL} from "os";
 
-class EqualsToEquals implements QuickFix {
+export class EqualsToEquals implements QuickFix {
     key = EqualsToEquals.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -36,5 +36,3 @@ class EqualsToEquals implements QuickFix {
         return [refactoring];
     }
 }
-
-export default EqualsToEquals;

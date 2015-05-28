@@ -35,4 +35,4 @@ var QuotesToQuotes = (function () {
     };
     return QuotesToQuotes;
 })();
-exports.default = QuotesToQuotes;
+exports.QuotesToQuotes = QuotesToQuotes;

@@ -31,7 +31,7 @@ function getTypeStringForNode(node: ts.Node, typeChecker: ts.TypeChecker) {
     return ts.displayPartsToString(ts.typeToDisplayParts(typeChecker, type)).replace(/\s+/g, ' ');
 }
 
-class AddClassMember implements QuickFix {
+export class AddClassMember implements QuickFix {
     key = AddClassMember.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -120,5 +120,3 @@ class AddClassMember implements QuickFix {
         return [refactoring];
     }
 }
-
-export default AddClassMember;

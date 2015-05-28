@@ -2,8 +2,8 @@ import {QuickFix, QuickFixQueryInformation, Refactoring, CanProvideFixResponse} 
 import * as ast from "../astUtils";
 
 
-class TypeAssert implements QuickFix {
-    key = TypeAssert.name;
+export class TypeAssertPropertyAccessToType implements QuickFix {
+    key = TypeAssertPropertyAccessToType.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x=> x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code)[0];
@@ -46,8 +46,6 @@ class TypeAssert implements QuickFix {
         return [];
     }
 }
-
-export default TypeAssert;
 
 function getIdentifierName(errorText: string) {
     // see https://github.com/Microsoft/TypeScript/blob/6637f49209ceb5ed719573998381eab010fa48c9/src/compiler/diagnosticMessages.json#L842

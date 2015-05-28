@@ -54,4 +54,4 @@ var AddImportStatement = (function () {
     };
     return AddImportStatement;
 })();
-exports.default = AddImportStatement;
+exports.AddImportStatement = AddImportStatement;

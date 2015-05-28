@@ -59,6 +59,7 @@
         "./main/lang/fixmyts/quickFixes/addClassMember.ts",
         "./main/lang/fixmyts/quickFixes/addImportStatement.ts",
         "./main/lang/fixmyts/quickFixes/equalsToEquals.ts",
+        "./main/lang/fixmyts/quickFixes/implementInterface.ts",
         "./main/lang/fixmyts/quickFixes/quoteToTemplate.ts",
         "./main/lang/fixmyts/quickFixes/quotesToQuotes.ts",
         "./main/lang/fixmyts/quickFixes/stringConcatToTemplate.ts",

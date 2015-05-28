@@ -84,4 +84,4 @@ var AddClassMember = (function () {
     };
     return AddClassMember;
 })();
-exports.default = AddClassMember;
+exports.AddClassMember = AddClassMember;

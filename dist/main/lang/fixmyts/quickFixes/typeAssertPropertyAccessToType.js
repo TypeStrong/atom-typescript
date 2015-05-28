@@ -1,8 +1,8 @@
-var TypeAssert = (function () {
-    function TypeAssert() {
-        this.key = TypeAssert.name;
+var TypeAssertPropertyAccessToType = (function () {
+    function TypeAssertPropertyAccessToType() {
+        this.key = TypeAssertPropertyAccessToType.name;
     }
-    TypeAssert.prototype.canProvideFix = function (info) {
+    TypeAssertPropertyAccessToType.prototype.canProvideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         if (!relevantError)
             return;
@@ -14,7 +14,7 @@ var TypeAssert = (function () {
         var identifierName = match.identifierName;
         return { display: "Assert <Type> for property access \"" + identifierName + "\"", isNewTextSnippet: true };
     };
-    TypeAssert.prototype.provideFix = function (info) {
+    TypeAssertPropertyAccessToType.prototype.provideFix = function (info) {
         var parent = info.positionNode.parent;
         if (parent.kind == 156) {
             var propertyAccess = parent;
@@ -34,9 +34,9 @@ var TypeAssert = (function () {
         }
         return [];
     };
-    return TypeAssert;
+    return TypeAssertPropertyAccessToType;
 })();
-exports.default = TypeAssert;
+exports.TypeAssertPropertyAccessToType = TypeAssertPropertyAccessToType;
 function getIdentifierName(errorText) {
     var match = /Property \'(\w+)\' does not exist on type \.*/.exec(errorText);
     if (!match)

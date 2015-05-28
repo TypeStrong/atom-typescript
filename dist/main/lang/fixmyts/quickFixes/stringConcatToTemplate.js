@@ -87,4 +87,4 @@ var StringConcatToTemplate = (function () {
     };
     return StringConcatToTemplate;
 })();
-exports.default = StringConcatToTemplate;
+exports.StringConcatToTemplate = StringConcatToTemplate;
