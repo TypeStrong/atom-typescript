@@ -7,10 +7,10 @@ import {getSourceFileImportsWithTextRange} from "../fixmyts/astUtils";
 import * as path from "path";
 import {
 removeExt,
-consistentPath,
 pathIsRelative,
 makeRelativePath
 } from "../../tsconfig/tsconfig";
+import {consistentPath} from "../../utils/fsUtil";
 
 /**
   * will return the refactorings for what needs to change in the source files if the old path becomes new path

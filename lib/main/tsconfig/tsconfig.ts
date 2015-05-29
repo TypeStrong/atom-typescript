@@ -1,4 +1,4 @@
-
+import * as fsu from "../utils/fsUtil";
 
 import simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
@@ -86,9 +86,6 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
-    
-    transformFiles?: string[];                          // Files that use transformers. This is glob.
-    
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -106,13 +103,9 @@ interface UsefulFromPackageJson {
 // Main configuration
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
-    
-    files: string[];    
+    files: string[];
     typings: string[]; // These are considered externs for .d.ts. Note : duplicated in files
-    filesGlob?: string[];    
-    
-    transformFiles?: string[];  // This is the tranform files glob expanded
-    
+    filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
     package?: UsefulFromPackageJson;
@@ -277,7 +270,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
     files = increaseProjectForReferenceAndImports(files);    
-    files = uniq(files.map(consistentPath));
+    files = uniq(files.map(fsu.consistentPath));
 
     let project = {
         compilerOptions: defaults,
@@ -300,12 +293,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
  * Note: Definition files (.d.ts) are considered thier own project
  */
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
-    
-    // For transform files we check for the file without .ts extension: 
-    if (endsWith(pathOrSrcFile,'.tst.ts')){
-        pathOrSrcFile = removeExt(pathOrSrcFile);
-    }
-    
+
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(errors.GET_PROJECT_INVALID_PATH);
 
@@ -337,16 +325,15 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         projectSpec = JSON.parse(projectFileTextContent);
     } catch (ex) {
         throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(
-            new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: consistentPath(projectFile), error: ex.message });
+            new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
 
     // Setup default project options
     if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
-    
-    // Useful when doing file expansions
-    var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    
+
+    // Our customizations for "tsconfig.json"
     // Use grunt.file.expand type of logic
+    var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
         var toExpand = invisibleFilesGlob;
     }
@@ -360,7 +347,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         catch (ex) {
             throw errorWithDetails<GET_PROJECT_GLOB_EXPAND_FAILED_Details>(
                 new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED),
-                { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
+                { glob: projectSpec.filesGlob, projectFilePath: fsu.consistentPath(projectFile), errorMessage: ex.message });
         }
     }
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
@@ -369,19 +356,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
         }
     }
-    
-    // Files that will need transformation
-    var transformFiles = []
-    if (projectSpec.transformFiles) {
-        transformFiles = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.transformFiles);
-    }
 
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
-    projectSpec.transformFiles = transformFiles.map((file) => path.resolve(projectFileDirectory, file));
-    
-    // Transform files are considered a part of files as well with an additional `.ts` extension
-    projectSpec.files = projectSpec.files.concat(projectSpec.transformFiles.map(f=> f + '.ts'));
 
     var package: UsefulFromPackageJson = null;
     try {
@@ -416,7 +393,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     if (validationResult.errorMessage) {
         throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
             new Error(errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS),
-            { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage }
+            { projectFilePath: fsu.consistentPath(projectFile), errorMessage: validationResult.errorMessage }
             );
     }
 
@@ -433,8 +410,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Normalize to "/" for all files
     // And take the uniq values
-    project.files = uniq(project.files.map(consistentPath));
-    projectFileDirectory = removeTrailingSlash(consistentPath(projectFileDirectory));
+    project.files = uniq(project.files.map(fsu.consistentPath));
+    projectFileDirectory = removeTrailingSlash(fsu.consistentPath(projectFileDirectory));
 
     return {
         projectFileDirectory: projectFileDirectory,
@@ -466,11 +443,6 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
-}
-
-/** we work with "/" for all paths */
-export function consistentPath(filePath: string): string {
-    return filePath.split('\\').join('/');
 }
 
 /////////////////////////////////////////////
@@ -507,7 +479,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
             referenced.push(
                 preProcessedFileInfo.referencedFiles.map(fileReference => {
                     // We assume reference paths are always relative
-                    var file = path.resolve(dir, consistentPath(fileReference.fileName));
+                    var file = path.resolve(dir, fsu.consistentPath(fileReference.fileName));
                     // Try all three, by itself, .ts, .d.ts
                     if (fs.existsSync(file)) {
                         return file;
@@ -577,7 +549,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
         .filter(f=> path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
         || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
     ourTypings.forEach(f=> typings[path.basename(f)] = { filePath: f, version: Infinity });
-    var existing = createMap(files.map(consistentPath));
+    var existing = createMap(files.map(fsu.consistentPath));
 
     function addAllReferencedFilesWithMaxVersion(file: string) {
         var dir = path.dirname(file);
@@ -642,7 +614,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
 
     var all = Object.keys(typings)
         .map(typing => typings[typing].filePath)
-        .map(x=> consistentPath(x));
+        .map(x=> fsu.consistentPath(x));
     var implicit = all
         .filter(x=> !existing[x]);
     var ours = all
@@ -708,7 +680,7 @@ export function makeRelativePath(relativeFolder: string, filePath: string) {
 }
 
 export function removeExt(filePath: string) {
-    return filePath && filePath.substr(0, filePath.lastIndexOf('.'));
+    return filePath.substr(0, filePath.lastIndexOf('.'));
 }
 
 export function removeTrailingSlash(filePath: string) {
@@ -748,9 +720,9 @@ export function travelUpTheDirectoryTreeTillYouFind(dir: string, fileOrDirectory
 
 export function getPotentiallyRelativeFile(basePath: string, filePath: string) {
     if (pathIsRelative(filePath)) {
-        return consistentPath(path.resolve(basePath, filePath));
+        return fsu.consistentPath(path.resolve(basePath, filePath));
     }
-    return consistentPath(filePath);
+    return fsu.consistentPath(filePath);
 }
 
 function getDirs(rootDir: string): string[] {

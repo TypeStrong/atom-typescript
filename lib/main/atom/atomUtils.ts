@@ -2,6 +2,7 @@
 
 import path = require('path');
 import fs = require('fs');
+import * as fsu from "../utils/fsUtil";
 import _atom = require('atom');
 import tsconfig = require('../tsconfig/tsconfig');
 import url = require('url');
@@ -52,7 +53,7 @@ export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath:
     var activeEditors = atom.workspace.getTextEditors().filter(editor=> !!editor.getPath());
 
     function addConsistentlyToMap(editor: AtomCore.IEditor) {
-        map[tsconfig.consistentPath(editor.getPath())] = editor;
+        map[fsu.consistentPath(editor.getPath())] = editor;
     }
 
     activeEditors.forEach(addConsistentlyToMap);
@@ -86,7 +87,7 @@ export function getTypeScriptEditorsWithPaths() {
 }
 
 export function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(e=> tsconfig.consistentPath(e.getPath()));
+    return getTypeScriptEditorsWithPaths().map(e=> fsu.consistentPath(e.getPath()));
 }
 
 export function quickNotifySuccess(htmlMessage: string) {
@@ -166,7 +167,7 @@ export function commandForTypeScript(e) {
 /** Gets the consisten path for the current editor */
 export function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
-    return tsconfig.consistentPath(editor.getPath());
+    return fsu.consistentPath(editor.getPath());
 }
 
 export var knownScopes = {

@@ -2,6 +2,7 @@ var fs = require("fs");
 var path = require("path");
 var tsconfig = require("../tsconfig/tsconfig");
 var project_1 = require("./core/project");
+var fsu = require("../utils/fsUtil");
 var queryParent = require('../../worker/queryParent');
 exports.queryParent = queryParent;
 var child;
@@ -18,7 +19,7 @@ exports.fixChild = fixChild;
 function consistentPath(query) {
     if (!query.filePath)
         return;
-    query.filePath = tsconfig.consistentPath(query.filePath);
+    query.filePath = fsu.consistentPath(query.filePath);
 }
 exports.consistentPath = consistentPath;
 var projectByProjectFilePath = {};
@@ -129,7 +130,7 @@ function getOrCreateProject(filePath) {
     if (tsconfig.endsWith(filePath, '.tst')) {
         filePath = filePath + '.ts';
     }
-    filePath = tsconfig.consistentPath(filePath);
+    filePath = fsu.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         return projectByFilePath[filePath];
     }

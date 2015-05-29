@@ -1,7 +1,7 @@
 var path = require('path');
 var fs = require('fs');
+var fsu = require("../utils/fsUtil");
 var _atom = require('atom');
-var tsconfig = require('../tsconfig/tsconfig');
 var url = require('url');
 function getEditorPosition(editor) {
     var bufferPos = editor.getCursorBufferPosition();
@@ -46,7 +46,7 @@ function getEditorsForAllPaths(filePaths) {
     var map = {};
     var activeEditors = atom.workspace.getTextEditors().filter(function (editor) { return !!editor.getPath(); });
     function addConsistentlyToMap(editor) {
-        map[tsconfig.consistentPath(editor.getPath())] = editor;
+        map[fsu.consistentPath(editor.getPath())] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
     var newPaths = filePaths.filter(function (p) { return !map[p]; });
@@ -74,7 +74,7 @@ function getTypeScriptEditorsWithPaths() {
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(function (e) { return tsconfig.consistentPath(e.getPath()); });
+    return getTypeScriptEditorsWithPaths().map(function (e) { return fsu.consistentPath(e.getPath()); });
 }
 exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
@@ -144,7 +144,7 @@ function commandForTypeScript(e) {
 exports.commandForTypeScript = commandForTypeScript;
 function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
-    return tsconfig.consistentPath(editor.getPath());
+    return fsu.consistentPath(editor.getPath());
 }
 exports.getCurrentPath = getCurrentPath;
 exports.knownScopes = {

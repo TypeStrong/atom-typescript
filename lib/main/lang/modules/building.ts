@@ -2,7 +2,8 @@ import project = require('../core/project');
 import mkdirp = require('mkdirp');
 import path = require('path');
 import fs = require('fs');
-import {pathIsRelative, consistentPath, makeRelativePath} from "../../tsconfig/tsconfig";
+import {pathIsRelative, makeRelativePath} from "../../tsconfig/tsconfig";
+import {consistentPath} from "../../utils/fsUtil";
 import {createMap} from "../utils";
 
 

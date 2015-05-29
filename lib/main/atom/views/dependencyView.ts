@@ -5,7 +5,7 @@ import * as parent from "../../../worker/parent";
 import * as d3  from "d3";
 import {$} from "atom-space-pen-views";
 import {relative} from "path";
-import {consistentPath} from "../../tsconfig/tsconfig";
+import {consistentPath} from "../../utils/fsUtil";
 import * as os from "os";
 
 export var dependencyURI = "ts-dependency:";

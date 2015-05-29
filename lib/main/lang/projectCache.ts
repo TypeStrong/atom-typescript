@@ -2,6 +2,7 @@ import fs = require("fs");
 import path = require("path");
 import tsconfig = require("../tsconfig/tsconfig");
 import {Project,languageServiceHost} from "./core/project";
+import * as fsu from "../utils/fsUtil";
 
 import queryParent = require('../../worker/queryParent');
 import workerLib = require('../../worker/lib/workerLib');
@@ -29,7 +30,7 @@ export interface FilePathQuery {
 /** mutate and fix the filePath silently */
 export function consistentPath(query: FilePathQuery) {
     if (!query.filePath) return;
-    query.filePath = tsconfig.consistentPath(query.filePath);
+    query.filePath = fsu.consistentPath(query.filePath);
 }
 
 
@@ -186,7 +187,7 @@ export function getOrCreateProject(filePath: string) {
         filePath = filePath + '.ts';
     }
     
-    filePath = tsconfig.consistentPath(filePath);
+    filePath = fsu.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         // we are in good shape
         return projectByFilePath[filePath];

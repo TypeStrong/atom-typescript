@@ -9,7 +9,7 @@ var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
 var path_1 = require("path");
-var tsconfig_1 = require("../../tsconfig/tsconfig");
+var fsUtil_1 = require("../../utils/fsUtil");
 var os = require("os");
 exports.dependencyURI = "ts-dependency:";
 var DependencyView = (function (_super) {
@@ -312,7 +312,7 @@ var D3Graph = (function () {
         return this.linkedByName[a.name + "," + b.name] || this.linkedByName[b.name + "," + a.name] || a.name == b.name;
     };
     D3Graph.prototype.difference = function (link) {
-        return tsconfig_1.consistentPath(path_1.relative(link.source.name, link.target.name)).split('/').length;
+        return fsUtil_1.consistentPath(path_1.relative(link.source.name, link.target.name)).split('/').length;
     };
     D3Graph.prototype.inOnly = function (node) {
         return !this.outDegLookup[node.name] && this.inDegLookup[node.name];

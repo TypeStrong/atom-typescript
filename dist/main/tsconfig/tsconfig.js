@@ -1,3 +1,4 @@
+var fsu = require("../utils/fsUtil");
 var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
@@ -140,7 +141,7 @@ function getDefaultProject(srcFile) {
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
     files = increaseProjectForReferenceAndImports(files);
-    files = uniq(files.map(consistentPath));
+    files = uniq(files.map(fsu.consistentPath));
     var project = {
         compilerOptions: exports.defaults,
         files: files,
@@ -157,9 +158,6 @@ function getDefaultProject(srcFile) {
 }
 exports.getDefaultProject = getDefaultProject;
 function getProjectSync(pathOrSrcFile) {
-    if (endsWith(pathOrSrcFile, '.tst.ts')) {
-        pathOrSrcFile = removeExt(pathOrSrcFile);
-    }
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
@@ -186,7 +184,7 @@ function getProjectSync(pathOrSrcFile) {
         projectSpec = JSON.parse(projectFileTextContent);
     }
     catch (ex) {
-        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: consistentPath(projectFile), error: ex.message });
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
     if (!projectSpec.compilerOptions)
         projectSpec.compilerOptions = {};
@@ -202,7 +200,7 @@ function getProjectSync(pathOrSrcFile) {
             projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, toExpand);
         }
         catch (ex) {
-            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: consistentPath(projectFile), errorMessage: ex.message });
+            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: fsu.consistentPath(projectFile), errorMessage: ex.message });
         }
     }
     if (projectSpec.filesGlob) {
@@ -211,13 +209,7 @@ function getProjectSync(pathOrSrcFile) {
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
         }
     }
-    var transformFiles = [];
-    if (projectSpec.transformFiles) {
-        transformFiles = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.transformFiles);
-    }
     projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
-    projectSpec.transformFiles = transformFiles.map(function (file) { return path.resolve(projectFileDirectory, file); });
-    projectSpec.files = projectSpec.files.concat(projectSpec.transformFiles.map(function (f) { return f + '.ts'; }));
     var package = null;
     try {
         var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
@@ -245,15 +237,15 @@ function getProjectSync(pathOrSrcFile) {
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
-        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), { projectFilePath: consistentPath(projectFile), errorMessage: validationResult.errorMessage });
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS), { projectFilePath: fsu.consistentPath(projectFile), errorMessage: validationResult.errorMessage });
     }
     project.compilerOptions = rawToTsCompilerOptions(projectSpec.compilerOptions, projectFileDirectory);
     project.files = increaseProjectForReferenceAndImports(project.files);
     var typings = getDefinitionsForNodeModules(dir, project.files);
     project.files = project.files.concat(typings.implicit);
     project.typings = typings.ours.concat(typings.implicit);
-    project.files = uniq(project.files.map(consistentPath));
-    projectFileDirectory = removeTrailingSlash(consistentPath(projectFileDirectory));
+    project.files = uniq(project.files.map(fsu.consistentPath));
+    projectFileDirectory = removeTrailingSlash(fsu.consistentPath(projectFileDirectory));
     return {
         projectFileDirectory: projectFileDirectory,
         projectFilePath: projectFileDirectory + '/' + projectFileName,
@@ -278,10 +270,6 @@ function createProjectRootSync(srcFile, defaultOptions) {
     return getProjectSync(srcFile);
 }
 exports.createProjectRootSync = createProjectRootSync;
-function consistentPath(filePath) {
-    return filePath.split('\\').join('/');
-}
-exports.consistentPath = consistentPath;
 function increaseProjectForReferenceAndImports(files) {
     var filesMap = simpleValidator.createMap(files);
     var willNeedMoreAnalysis = function (file) {
@@ -305,7 +293,7 @@ function increaseProjectForReferenceAndImports(files) {
             }
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
             referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) {
-                var file = path.resolve(dir, consistentPath(fileReference.fileName));
+                var file = path.resolve(dir, fsu.consistentPath(fileReference.fileName));
                 if (fs.existsSync(file)) {
                     return file;
                 }
@@ -347,7 +335,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
         .filter(function (f) { return path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
         || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'); });
     ourTypings.forEach(function (f) { return typings[path.basename(f)] = { filePath: f, version: Infinity }; });
-    var existing = createMap(files.map(consistentPath));
+    var existing = createMap(files.map(fsu.consistentPath));
     function addAllReferencedFilesWithMaxVersion(file) {
         var dir = path.dirname(file);
         try {
@@ -393,7 +381,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
     }
     var all = Object.keys(typings)
         .map(function (typing) { return typings[typing].filePath; })
-        .map(function (x) { return consistentPath(x); });
+        .map(function (x) { return fsu.consistentPath(x); });
     var implicit = all
         .filter(function (x) { return !existing[x]; });
     var ours = all
@@ -448,7 +436,7 @@ function makeRelativePath(relativeFolder, filePath) {
 }
 exports.makeRelativePath = makeRelativePath;
 function removeExt(filePath) {
-    return filePath && filePath.substr(0, filePath.lastIndexOf('.'));
+    return filePath.substr(0, filePath.lastIndexOf('.'));
 }
 exports.removeExt = removeExt;
 function removeTrailingSlash(filePath) {
@@ -482,9 +470,9 @@ function travelUpTheDirectoryTreeTillYouFind(dir, fileOrDirectory, abortIfInside
 exports.travelUpTheDirectoryTreeTillYouFind = travelUpTheDirectoryTreeTillYouFind;
 function getPotentiallyRelativeFile(basePath, filePath) {
     if (pathIsRelative(filePath)) {
-        return consistentPath(path.resolve(basePath, filePath));
+        return fsu.consistentPath(path.resolve(basePath, filePath));
     }
-    return consistentPath(filePath);
+    return fsu.consistentPath(filePath);
 }
 exports.getPotentiallyRelativeFile = getPotentiallyRelativeFile;
 function getDirs(rootDir) {

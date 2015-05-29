@@ -1,5 +1,5 @@
 
-
+import * as fsu from "../utils/fsUtil";
 import fs = require('fs');
 import path = require('path');
 import os = require('os');
@@ -812,8 +812,8 @@ export interface GetRenameFilesRefactoringsQuery {
     newPath: string;
 }
 export function getRenameFilesRefactorings(query: GetRenameFilesRefactoringsQuery): Promise<ApplyQuickFixResponse> {
-    query.oldPath = tsconfig.consistentPath(query.oldPath);
-    query.newPath = tsconfig.consistentPath(query.newPath);
+    query.oldPath = fsu.consistentPath(query.oldPath);
+    query.newPath = fsu.consistentPath(query.newPath);
     var project = getOrCreateProject(query.oldPath);
     var res = moveFiles.getRenameFilesRefactorings(project.languageService.getProgram(), query.oldPath, query.newPath);
     var refactorings = qf.getRefactoringsByFilePath(res);

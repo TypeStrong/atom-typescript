@@ -1,4 +1,5 @@
 var tsconfig_1 = require("../../tsconfig/tsconfig");
+var fsUtil_1 = require("../../utils/fsUtil");
 var path = require("path");
 var fs = require("fs");
 var astUtils_1 = require("../fixmyts/astUtils");
@@ -20,8 +21,8 @@ function getDependencies(projectFile, program) {
         });
         for (var _b = 0; _b < targets.length; _b++) {
             var target = targets[_b];
-            var targetPath = tsconfig_1.consistentPath(path.relative(projectDir, tsconfig_1.consistentPath(target)));
-            var sourcePath = tsconfig_1.consistentPath(path.relative(projectDir, filePath));
+            var targetPath = fsUtil_1.consistentPath(path.relative(projectDir, fsUtil_1.consistentPath(target)));
+            var sourcePath = fsUtil_1.consistentPath(path.relative(projectDir, filePath));
             links.push({
                 sourcePath: sourcePath,
                 targetPath: targetPath

@@ -4,9 +4,10 @@
 var astUtils_1 = require("../fixmyts/astUtils");
 var path = require("path");
 var tsconfig_1 = require("../../tsconfig/tsconfig");
+var fsUtil_1 = require("../../utils/fsUtil");
 function getRenameFilesRefactorings(program, oldDirectoryOrFile, newDirectoryOrFile) {
-    oldDirectoryOrFile = tsconfig_1.consistentPath(oldDirectoryOrFile);
-    newDirectoryOrFile = tsconfig_1.consistentPath(newDirectoryOrFile);
+    oldDirectoryOrFile = fsUtil_1.consistentPath(oldDirectoryOrFile);
+    newDirectoryOrFile = fsUtil_1.consistentPath(newDirectoryOrFile);
     var oldFileNoExt = tsconfig_1.removeExt(oldDirectoryOrFile);
     var newFileNoExt = tsconfig_1.removeExt(newDirectoryOrFile);
     var refactorings = [];
@@ -16,7 +17,7 @@ function getRenameFilesRefactorings(program, oldDirectoryOrFile, newDirectoryOrF
             .filter(function (fileReference) { return tsconfig_1.pathIsRelative(fileReference.text); })
             .map(function (ref) {
             return {
-                path: tsconfig_1.consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref.text)),
+                path: fsUtil_1.consistentPath(path.resolve(path.dirname(sourceFile.fileName), ref.text)),
                 range: ref.range
             };
         });

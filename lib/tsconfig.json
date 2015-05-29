@@ -80,6 +80,7 @@
         "./main/tsconfig/formatting.ts",
         "./main/tsconfig/simpleValidator.ts",
         "./main/tsconfig/tsconfig.ts",
+        "./main/utils/fsUtil.ts",
         "./typescript/compiler/binder.ts",
         "./typescript/compiler/checker.ts",
         "./typescript/compiler/commandLineParser.ts",
