@@ -151,7 +151,8 @@ function getSignatureHelps(query) {
 exports.getSignatureHelps = getSignatureHelps;
 function emitFile(query) {
     projectCache_1.consistentPath(query);
-    return resolve(building.emitFile(projectCache_1.getOrCreateProject(query.filePath), query.filePath));
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    return resolve(building.emitFile(projectCache_1.getOrCreateProject(filePath), filePath));
 }
 exports.emitFile = emitFile;
 var formatting = require('./modules/formatting');

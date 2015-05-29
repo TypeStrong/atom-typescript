@@ -17,6 +17,24 @@ export class Project {
 
     constructor(public projectFile: tsconfig.TypeScriptProjectFileDetails) {
         this.languageServiceHost = new languageServiceHost.LanguageServiceHost(projectFile);
+        
+        // Add all the files
+        projectFile.project.files.forEach((file) => {            
+            if (tsconfig.endsWith(file, '.tst.ts')) {
+                // initially add without transform sections. 
+                var rawContent = fs.readFileSync(tsconfig.removeExt(file),'utf-8');
+                var withoutTranform = rawContent.replace(/transform:null{.*}transform:null/g,'');
+                
+                this.languageServiceHost.addScript(file, rawContent);
+                
+                // Then add with transform sections
+            }
+            else {
+                this.languageServiceHost.addScript(file);
+            }
+        });
+        
+        
         this.languageService = ts.createLanguageService(this.languageServiceHost, ts.createDocumentRegistry());
     }
 

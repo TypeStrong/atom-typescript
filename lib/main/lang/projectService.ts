@@ -257,7 +257,8 @@ export interface EmitFileQuery extends FilePathQuery { }
 export interface EmitFileResponse extends EmitOutput { }
 export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
     consistentPath(query);
-    return resolve(building.emitFile(getOrCreateProject(query.filePath), query.filePath));
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    return resolve(building.emitFile(getOrCreateProject(filePath), filePath));
 }
 
 import formatting = require('./modules/formatting');

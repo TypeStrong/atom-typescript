@@ -41,6 +41,19 @@ function getPseudoTsFile(filePath: string) {
     return filePath + '.ts';
 }
 
+/**
+ * Reliably get a file that will be on the file system
+ * If the file is a pseudo file
+ * , then return the .tst file 
+ * otherwise just return the filePath as is
+ */
+export function getTransformerFile(filePath: string) {
+    if (endsWith(filePath, '.tst.ts')) {
+        filePath = removeExt(filePath);
+    }
+    return filePath;
+}
+
 /** 
  * A raw file is something that we create in memory stripping out 
  * any transform locations to get the TS language service 
@@ -61,4 +74,8 @@ export function isPseudoFile(filePath: string) {
 
 function endsWith(str: string, suffix: string): boolean {
     return str && str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+function removeExt(filePath: string) {
+    return filePath && filePath.substr(0, filePath.lastIndexOf('.'));
 }

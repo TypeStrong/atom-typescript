@@ -238,7 +238,6 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = ts.getDefaultLibFileName;
-        config.project.files.forEach(function (file) { return _this.addScript(file); });
         if (!config.project.compilerOptions.noLib) {
             this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
         }
