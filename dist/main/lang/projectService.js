@@ -1,6 +1,8 @@
 var path = require('path');
 var os = require('os');
 var fuzzaldrin = require('fuzzaldrin');
+var transformer_1 = require("./transformers/transformer");
+var transformer = require("./transformers/transformer");
 var tsconfig = require('../tsconfig/tsconfig');
 var utils = require('./utils');
 var resolve = Promise.resolve.bind(Promise);
@@ -66,19 +68,11 @@ function build(query) {
     });
 }
 exports.build = build;
-function errorsForFileFiltered(query) {
-    projectCache_1.consistentPath(query);
-    var fileName = path.basename(query.filePath);
-    return errorsForFile({ filePath: query.filePath })
-        .then(function (resp) {
-        return { errors: resp.errors.filter(function (error) { return path.basename(error.filePath) == fileName; }) };
-    });
-}
-exports.errorsForFileFiltered = errorsForFileFiltered;
 function getCompletionsAtPosition(query) {
     projectCache_1.consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = projectCache_1.getOrCreateProject(filePath);
+    filePath = transformer.getPseudoFilePath(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
     var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
     var endsInPunctuation = utils.prefixEndsInPunctuation(prefix);
@@ -194,13 +188,17 @@ function getDefinitionsAtPosition(query) {
 exports.getDefinitionsAtPosition = getDefinitionsAtPosition;
 function updateText(query) {
     projectCache_1.consistentPath(query);
-    projectCache_1.getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
+    var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    lsh.updateScript(filePath, query.text);
     return resolve({});
 }
 exports.updateText = updateText;
 function editText(query) {
     projectCache_1.consistentPath(query);
-    projectCache_1.getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.start, query.end, query.newText);
+    var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    lsh.editScript(filePath, query.start, query.end, query.newText);
     return resolve({});
 }
 exports.editText = editText;
@@ -215,7 +213,17 @@ function getDiagnositcsByFilePath(query) {
 }
 function errorsForFile(query) {
     projectCache_1.consistentPath(query);
-    return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+    if (transformer_1.isTransformerFile(query.filePath)) {
+        var filePath = transformer.getPseudoFilePath(query.filePath);
+        var errors = getDiagnositcsByFilePath({ filePath: filePath }).map(building.diagnosticToTSError);
+        errors.forEach(function (error) {
+            error.filePath = query.filePath;
+        });
+        return resolve({ errors: errors });
+    }
+    else {
+        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+    }
 }
 exports.errorsForFile = errorsForFile;
 function getRenameInfo(query) {

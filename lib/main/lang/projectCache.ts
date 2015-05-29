@@ -38,9 +38,13 @@ export function consistentPath(query: FilePathQuery) {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 var projectByProjectFilePath: { [projectFilePath: string]: Project } = {}
-/** the project file path or any source ts file path */
-var projectByFilePath: { [filePath: string]: Project } = {}
 
+/** 
+ * filePath is :
+ * 	the project file path 
+ * 	Or any source ts file path
+ */
+var projectByFilePath: { [filePath: string]: Project } = {}
 
 var watchingProjectFile: { [projectFilePath: string]: boolean } = {}
 function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
@@ -174,7 +178,14 @@ export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptPro
     }
 }
 
+/** Looks into the cache and if not found caches it */
 export function getOrCreateProject(filePath: string) {
+    
+    // For transform files we check for the file with .ts extension in cache
+    if (tsconfig.endsWith(filePath,'.tst')){
+        filePath = filePath + '.ts';
+    }
+    
     filePath = tsconfig.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         // we are in good shape

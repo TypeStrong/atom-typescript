@@ -126,6 +126,9 @@ function getOrCreateProjectFile(filePath) {
 }
 exports.getOrCreateProjectFile = getOrCreateProjectFile;
 function getOrCreateProject(filePath) {
+    if (tsconfig.endsWith(filePath, '.tst')) {
+        filePath = filePath + '.ts';
+    }
     filePath = tsconfig.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         return projectByFilePath[filePath];

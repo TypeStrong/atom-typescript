@@ -4,13 +4,13 @@ function isTransformerFile(filePath) {
     return ext == '.tst';
 }
 exports.isTransformerFile = isTransformerFile;
-function getTranformedFilePath(filePath) {
+function getPseudoFilePath(filePath) {
     if (isTransformerFile(filePath)) {
         return getPseudoTsFile(filePath);
     }
     return filePath;
 }
-exports.getTranformedFilePath = getTranformedFilePath;
+exports.getPseudoFilePath = getPseudoFilePath;
 function getPseudoTsFile(filePath) {
     return filePath + '.ts';
 }
@@ -18,11 +18,11 @@ function isRawFile(filePath) {
     return endsWith(filePath, ".raw.ts");
 }
 exports.isRawFile = isRawFile;
-function isTransformedFile(filePath) {
+function isPseudoFile(filePath) {
     var ext = path.extname(filePath);
     return endsWith(filePath, ".tst.ts");
 }
-exports.isTransformedFile = isTransformedFile;
+exports.isPseudoFile = isPseudoFile;
 function endsWith(str, suffix) {
     return str && str.indexOf(suffix, str.length - suffix.length) !== -1;
 }

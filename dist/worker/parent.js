@@ -43,7 +43,6 @@ var projectService = require('../main/lang/projectService');
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
-exports.errorsForFileFiltered = catchCommonErrors(parent.sendToIpc(projectService.errorsForFileFiltered));
 exports.getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
     completions: [],
     endsInPunctuation: false

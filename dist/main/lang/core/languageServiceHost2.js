@@ -130,8 +130,9 @@ var LanguageServiceHost = (function () {
         this.fileNameToScript = Object.create(null);
         this.addScript = function (fileName, content) {
             try {
-                if (!content)
+                if (!content) {
                     content = fs.readFileSync(fileName).toString();
+                }
             }
             catch (ex) {
                 content = '';

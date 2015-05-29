@@ -30,7 +30,7 @@ export function isTransformerFile(filePath: string) {
  * then returns the path of the pseudo ts file 
  * else returns filePath as is
  */
-export function getTranformedFilePath(filePath: string) {
+export function getPseudoFilePath(filePath: string) {
     if (isTransformerFile(filePath)) {
         return getPseudoTsFile(filePath);
     }
@@ -54,7 +54,7 @@ export function isRawFile(filePath: string) {
 /**
  * We transform the `.tst` file into a `.tst.ts` file in memory and feed it to the language service
  */
-export function isTransformedFile(filePath: string) {
+export function isPseudoFile(filePath: string) {
     var ext = path.extname(filePath);
     return endsWith(filePath, ".tst.ts");
 }

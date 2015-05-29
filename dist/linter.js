@@ -22,7 +22,7 @@ LinterTslint = (function (_super) {
             || !fs.existsSync(this.editor.buffer.file.path))
             return callback([]);
         filePath = this.editor.buffer.file.path;
-        parent.errorsForFileFiltered({ filePath: filePath }).then(function (resp) {
+        parent.errorsForFile({ filePath: filePath }).then(function (resp) {
             var linterErrors = resp.errors.map(function (err) { return {
                 message: err.message,
                 line: err.startPos.line + 1,

@@ -86,6 +86,9 @@ interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
+    
+    transformFiles?: string[];                          // Files that use transformers. This is glob.
+    
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -103,9 +106,13 @@ interface UsefulFromPackageJson {
 // Main configuration
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
-    files: string[];
+    
+    files: string[];    
     typings: string[]; // These are considered externs for .d.ts. Note : duplicated in files
-    filesGlob?: string[];
+    filesGlob?: string[];    
+    
+    transformFiles?: string[];  // This is the tranform files glob expanded
+    
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
     package?: UsefulFromPackageJson;
@@ -293,7 +300,12 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
  * Note: Definition files (.d.ts) are considered thier own project
  */
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
-
+    
+    // For transform files we check for the file without .ts extension: 
+    if (endsWith(pathOrSrcFile,'.tst.ts')){
+        pathOrSrcFile = removeExt(pathOrSrcFile);
+    }
+    
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(errors.GET_PROJECT_INVALID_PATH);
 
@@ -330,10 +342,11 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     // Setup default project options
     if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
-
-    // Our customizations for "tsconfig.json"
-    // Use grunt.file.expand type of logic
+    
+    // Useful when doing file expansions
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
+    
+    // Use grunt.file.expand type of logic
     if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
         var toExpand = invisibleFilesGlob;
     }
@@ -356,9 +369,19 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
         }
     }
+    
+    // Files that will need transformation
+    var transformFiles = []
+    if (projectSpec.transformFiles) {
+        transformFiles = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.transformFiles);
+    }
 
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
+    projectSpec.transformFiles = transformFiles.map((file) => path.resolve(projectFileDirectory, file));
+    
+    // Transform files are considered a part of files as well with an additional `.ts` extension
+    projectSpec.files = projectSpec.files.concat(projectSpec.transformFiles.map(f=> f + '.ts'));
 
     var package: UsefulFromPackageJson = null;
     try {
@@ -685,7 +708,7 @@ export function makeRelativePath(relativeFolder: string, filePath: string) {
 }
 
 export function removeExt(filePath: string) {
-    return filePath.substr(0, filePath.lastIndexOf('.'));
+    return filePath && filePath.substr(0, filePath.lastIndexOf('.'));
 }
 
 export function removeTrailingSlash(filePath: string) {

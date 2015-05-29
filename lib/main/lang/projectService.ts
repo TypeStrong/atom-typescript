@@ -123,20 +123,6 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
     });
 }
 
-/** Filtered means *only* for this file i.e. exclude errors from files it references/imports */
-export interface ErrorsForFileFilteredQuery extends FilePathQuery { }
-export interface ErrorsForFileFilteredResponse {
-    errors: TSError[];
-}
-export function errorsForFileFiltered(query: ErrorsForFileFilteredQuery): Promise<ErrorsForFileFilteredResponse> {
-    consistentPath(query);
-    var fileName = path.basename(query.filePath);
-
-    return errorsForFile({ filePath: query.filePath })
-        .then((resp) =>
-        <ErrorsForFileFilteredResponse>{ errors: resp.errors.filter((error) => path.basename(error.filePath) == fileName) });
-}
-
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
 }
@@ -158,6 +144,9 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
+    
+    // For transformer files 
+    filePath = transformer.getPseudoFilePath(filePath);
 
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
         filePath, position);
@@ -194,7 +183,7 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
         else {
             display = '';
         }
-        var comment = (display?display+'\n':'') + ts.displayPartsToString(completionDetails.documentation || []);
+        var comment = (display ? display + '\n' : '') + ts.displayPartsToString(completionDetails.documentation || []);
 
         return { display: display, comment: comment };
     }
@@ -327,7 +316,11 @@ export interface UpdateTextQuery extends FilePathQuery {
 }
 export function updateText(query: UpdateTextQuery): Promise<any> {
     consistentPath(query);
-    getOrCreateProject(query.filePath).languageServiceHost.updateScript(query.filePath, query.text);
+    var lsh = getOrCreateProject(query.filePath).languageServiceHost;
+    
+    // Apply the update to the pseudo ts file
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    lsh.updateScript(filePath, query.text);
     return resolve({});
 }
 
@@ -338,7 +331,11 @@ export interface EditTextQuery extends FilePathQuery {
 }
 export function editText(query: EditTextQuery): Promise<any> {
     consistentPath(query);
-    getOrCreateProject(query.filePath).languageServiceHost.editScript(query.filePath, query.start, query.end, query.newText);
+    var lsh = getOrCreateProject(query.filePath).languageServiceHost;
+    
+    // Apply the update to the pseudo ts file
+    var filePath = transformer.getPseudoFilePath(query.filePath);
+    lsh.editScript(filePath, query.start, query.end, query.newText);
     return resolve({});
 }
 
@@ -357,7 +354,19 @@ export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
-    return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+    
+    // for file path errors in transformer
+    if (isTransformerFile(query.filePath)) {
+        let filePath = transformer.getPseudoFilePath(query.filePath);
+        let errors = getDiagnositcsByFilePath({ filePath }).map(building.diagnosticToTSError);
+        errors.forEach(error => {
+            error.filePath = query.filePath;
+        });
+        return resolve({ errors: errors });
+    }
+    else {
+        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+    }
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
@@ -383,11 +392,11 @@ export function getRenameInfo(query: GetRenameInfoQuery): Promise<GetRenameInfoR
         var locations: { [filePath: string]: TextSpan[] } = {};
         project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
             .forEach(loc=> {
-            if (!locations[loc.fileName]) locations[loc.fileName] = [];
+                if (!locations[loc.fileName]) locations[loc.fileName] = [];
 
-            // Using unshift makes them with maximum value on top ;)
-            locations[loc.fileName].unshift(textSpan(loc.textSpan));
-        });
+                // Using unshift makes them with maximum value on top ;)
+                locations[loc.fileName].unshift(textSpan(loc.textSpan));
+            });
         return resolve({
             canRename: true,
             localizedErrorMessage: info.localizedErrorMessage,
@@ -740,12 +749,12 @@ export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesR
     // And if so we also treat the result as a display string
     var fixes = allQuickFixes
         .map(x => {
-        var canProvide = x.canProvideFix(info);
-        if (!canProvide)
-            return;
-        else
-            return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
-    })
+            var canProvide = x.canProvideFix(info);
+            if (!canProvide)
+                return;
+            else
+                return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
+        })
         .filter(x=> !!x);
 
     return resolve({ fixes });

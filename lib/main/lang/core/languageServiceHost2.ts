@@ -5,6 +5,8 @@ import textBuffer = require('basarat-text-buffer');
 
 import tsconfig = require('../../tsconfig/tsconfig');
 
+import * as transformer from "../transformers/transformer";
+
 interface ScriptInfo {
     getFileName(): string;
     getContent(): string;
@@ -237,12 +239,14 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
 
 
         try {
-            if (!content)
+            if (!content) {
                 content = fs.readFileSync(fileName).toString();
+            }
         }
         catch (ex) { // if we cannot read the file for whatever reason
             // TODO: in next version of TypeScript langauge service we would add it with "undefined"
             // For now its just an empty string
+            // TODO: Support transformers, as the .tst.ts file doesn't exist on disk
             content = '';
         }
 

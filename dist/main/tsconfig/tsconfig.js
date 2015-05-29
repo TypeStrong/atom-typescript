@@ -157,6 +157,9 @@ function getDefaultProject(srcFile) {
 }
 exports.getDefaultProject = getDefaultProject;
 function getProjectSync(pathOrSrcFile) {
+    if (endsWith(pathOrSrcFile, '.tst.ts')) {
+        pathOrSrcFile = removeExt(pathOrSrcFile);
+    }
     if (!fs.existsSync(pathOrSrcFile))
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
@@ -208,7 +211,13 @@ function getProjectSync(pathOrSrcFile) {
             fs.writeFileSync(projectFile, prettyJSON(projectSpec));
         }
     }
+    var transformFiles = [];
+    if (projectSpec.transformFiles) {
+        transformFiles = expand({ filter: 'isFile', cwd: cwdPath }, projectSpec.transformFiles);
+    }
     projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
+    projectSpec.transformFiles = transformFiles.map(function (file) { return path.resolve(projectFileDirectory, file); });
+    projectSpec.files = projectSpec.files.concat(projectSpec.transformFiles.map(function (f) { return f + '.ts'; }));
     var package = null;
     try {
         var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
@@ -439,7 +448,7 @@ function makeRelativePath(relativeFolder, filePath) {
 }
 exports.makeRelativePath = makeRelativePath;
 function removeExt(filePath) {
-    return filePath.substr(0, filePath.lastIndexOf('.'));
+    return filePath && filePath.substr(0, filePath.lastIndexOf('.'));
 }
 exports.removeExt = removeExt;
 function removeTrailingSlash(filePath) {
