@@ -6,6 +6,7 @@ var quoteToTemplate_1 = require("./quickFixes/quoteToTemplate");
 var stringConcatToTemplate_1 = require("./quickFixes/stringConcatToTemplate");
 var typeAssertPropertyAccessToAny_1 = require("./quickFixes/typeAssertPropertyAccessToAny");
 var typeAssertPropertyAccessToType_1 = require("./quickFixes/typeAssertPropertyAccessToType");
+var implementInterface_1 = require("./quickFixes/implementInterface");
 exports.allQuickFixes = [
     new addClassMember_1.AddClassMember(),
     new addImportStatement_1.AddImportStatement(),
@@ -15,4 +16,5 @@ exports.allQuickFixes = [
     new quoteToTemplate_1.QuoteToTemplate(),
     new typeAssertPropertyAccessToAny_1.TypeAssertPropertyAccessToAny(),
     new typeAssertPropertyAccessToType_1.TypeAssertPropertyAccessToType(),
+    new implementInterface_1.ImplementInterface()
 ];
