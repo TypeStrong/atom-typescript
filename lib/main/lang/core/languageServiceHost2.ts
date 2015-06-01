@@ -44,7 +44,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
             buffer.lines.forEach((line, index) => {
                 _lineStarts.push(totalLength);
                 var lineLength = line.length;
-                totalLength = totalLength + lineLength + buffer.lineEndings[index];
+                totalLength = totalLength + lineLength + buffer.lineEndings[index].length;
             });
 
             _lineStartIsDirty = false;

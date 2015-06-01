@@ -15,7 +15,7 @@ function createScriptInfo(fileName, text, isOpen) {
             buffer.lines.forEach(function (line, index) {
                 _lineStarts.push(totalLength);
                 var lineLength = line.length;
-                totalLength = totalLength + lineLength + buffer.lineEndings[index];
+                totalLength = totalLength + lineLength + buffer.lineEndings[index].length;
             });
             _lineStartIsDirty = false;
         }

@@ -223,6 +223,7 @@ declare module TextBuffer {
 		setText(text:string):IRange;
 		setTextViaDiff(text:any):any[];
 		setTextInRange(range:IRange, text:string, normalizeLineEndings?:boolean):IRange;
+		setTextInRange(range:[[number,number],[number,number]], text:string, config?:{normalizeLineEndings?:boolean}):IRange;
 		insert(position:IPoint, text:string, normalizeLineEndings?:boolean):IRange;
 		append(text:string, normalizeLineEndings?:boolean):IRange;
 		delete(range:IRange):IRange;
@@ -238,6 +239,7 @@ declare module TextBuffer {
 		getRange():IRange;
 		rangeForRow(row:number, includeNewline?:boolean):IRange;
 		characterIndexForPosition(position:IPoint):number;
+		characterIndexForPosition(position:[number,number]):number;
 		positionForCharacterIndex(offset:number):IPoint;
 		getMaxCharacterIndex():number;
 		loadSync():ITextBuffer;

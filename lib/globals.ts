@@ -37,8 +37,10 @@ declare module 'atom-space-pen-views' {
 }
 
 declare module 'basarat-text-buffer' {
-    var options;
-    export = options;
+    var ctor: {
+        new (content: string): TextBuffer.ITextBuffer;
+    };
+    export = ctor;
 }
 
 interface EmitOutput {
