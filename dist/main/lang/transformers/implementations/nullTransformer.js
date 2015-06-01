@@ -1,3 +1,4 @@
+var transformerRegistry_1 = require("../transformerRegistry");
 var NullTransformer = (function () {
     function NullTransformer() {
         this.name = "null";
@@ -8,3 +9,4 @@ var NullTransformer = (function () {
     return NullTransformer;
 })();
 exports.NullTransformer = NullTransformer;
+transformerRegistry_1.add(new NullTransformer());

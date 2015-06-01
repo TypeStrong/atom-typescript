@@ -13,9 +13,29 @@ export interface Transformer {
     name: string;
 
     transform(code: string): { code: string; };
+    
+    /** Stuff we will provide for you
+     * So you don't need to *implement* it explicitly
+     */
+    regex?: RegExp;
 }
 
+export interface FileTransformationDetails {
+    transforms: TransformerDelimiter[];
+}
 
+export interface TransformerDelimiter {
+    /** .tst file */
+    srcMinChar: number;
+    srcLimChar: number;
+    
+    /** .tst.ts file */
+    destMinChar: number;
+    destLimChar: number;
+    
+    /** which transformer did this */
+    transformer: Transformer;
+}
 
 export interface AtomTSTokens { tokens: any /* Atom's Token */[]; ruleStack: any[] }
 

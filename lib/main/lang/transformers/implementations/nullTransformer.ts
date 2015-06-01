@@ -1,4 +1,5 @@
 import {Transformer} from "../transformer";
+import {add} from "../transformerRegistry";
 
 /** Does no transform whatsoever. This is to test the infrastructure */
 export class NullTransformer implements Transformer {
@@ -8,3 +9,4 @@ export class NullTransformer implements Transformer {
         return { code };
     }
 }
+add(new NullTransformer());
