@@ -39,6 +39,7 @@
         "./main/atom/views/contextView.ts",
         "./main/atom/views/dependencyView.ts",
         "./main/atom/views/documentationView.ts",
+        "./main/atom/views/fileSemanticView.ts",
         "./main/atom/views/fileSymbolsView.ts",
         "./main/atom/views/lineMessageView.ts",
         "./main/atom/views/mainPanelView.ts",

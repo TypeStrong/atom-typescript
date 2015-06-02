@@ -6,11 +6,13 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var sp = require('atom-space-pen-views');
 var mainPanelView = require('./mainPanelView');
+var fileSemanticView = require("./fileSemanticView");
 var titles = {
     togglePanel: 'Toggle TypeScript Panel',
     tabErrors: 'Tab: Errors in Open Files',
     tabLastBuild: 'Tab: Last Build Output',
-    tabReferences: 'Tab: Find References'
+    tabReferences: 'Tab: Find References',
+    fileSemantics: 'Toggle: File Semantics',
 };
 var items = Object.keys(titles).map(function (item) { return { title: titles[item] }; });
 var ContextView = (function (_super) {
@@ -42,6 +44,9 @@ var ContextView = (function (_super) {
         }
         if (item.title == titles.tabReferences) {
             mainPanelView.panelView.referencesPanelSelected();
+        }
+        if (item.title == titles.fileSemantics) {
+            fileSemanticView.showForCurrentEditor();
         }
         this.hide();
     };
