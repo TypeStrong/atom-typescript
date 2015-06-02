@@ -5,6 +5,7 @@
   "bin": {
     "atbuild": "./dist/main/bin/build.js"
   },
+  "preferGlobal": "true",
   "description": "The only TypeScript plugin you will ever need.",
   "engines": {
     "atom": ">=0.199.0 <2.0.0",
