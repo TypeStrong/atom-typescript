@@ -83,7 +83,7 @@ export class RenameView
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveCursorToEndOfScreenLine();
+            this.newNameEditor.model.moveToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();

@@ -728,7 +728,7 @@ declare module AtomCore {
 		moveCursorToBeginningOfScreenLine():void;
 		moveCursorToBeginningOfLine():void;
 		moveCursorToFirstCharacterOfLine():void;
-		moveCursorToEndOfScreenLine():void;
+		moveToEndOfScreenLine():void;
 		moveCursorToEndOfLine():void;
 		moveCursorToBeginningOfWord():void;
 		moveCursorToEndOfWord():void;
