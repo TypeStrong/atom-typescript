@@ -11,7 +11,7 @@ export class View<Options> extends sp.View {
         throw new Error('Must override the base View static content member');
     }
 
-    constructor(public options: Options = <any>{}) {
+    constructor(public options: Options) {
         super();
         this.init();
     }
@@ -19,3 +19,19 @@ export class View<Options> extends sp.View {
 }
 
 export var $ = sp.$;
+
+export class ScrollView<Options> extends sp.ScrollView {
+    get $(): JQuery {
+        return <any>this;
+    }
+
+    static content() {
+        throw new Error('Must override the base View static content member');
+    }
+
+    constructor(public options: Options) {
+        super();
+        this.init();
+    }
+    init() { }
+}

@@ -78,7 +78,7 @@ exports.RenameView = RenameView;
 exports.panelView;
 var panel;
 function attach() {
-    exports.panelView = new RenameView();
+    exports.panelView = new RenameView({});
     panel = atom.workspace.addModalPanel({ item: exports.panelView, priority: 1000, visible: false });
 }
 exports.attach = attach;

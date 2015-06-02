@@ -24,7 +24,7 @@ exports.AwesomePanelView = AwesomePanelView;
 exports.panelView;
 exports.panel;
 function attach() {
-    exports.panelView = new AwesomePanelView();
+    exports.panelView = new AwesomePanelView({});
     exports.panel = atom.workspace.addModalPanel({ item: exports.panelView, priority: 1000, visible: false });
 }
 exports.attach = attach;

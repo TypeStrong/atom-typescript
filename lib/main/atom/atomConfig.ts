@@ -27,10 +27,16 @@ class Config {
             type: 'string',
             default: ''
         },
+        showFileSemanticView: {
+            title: '',
+            type: 'boolean',
+            default: true
+        }
     }
     get debugAtomTs() { return getConfig<boolean>(() => this.schema.debugAtomTs) }
     get preferredQuoteCharacter() { return getConfig<string>(() => this.schema.preferredQuoteCharacter) }
     get typescriptServices() { return getConfig<string>(() => this.schema.typescriptServices) }
+    get showFileSemanticView() { return getConfig<string>(() => this.schema.showFileSemanticView) }
 }
 var config = new Config();
 export = config;

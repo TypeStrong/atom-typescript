@@ -8,10 +8,10 @@ interface Rect {
     bottom: number;
 }
 
-export class TooltipView extends view.View<any> {
+export class TooltipView extends view.View<Rect> {
 
     constructor(public rect: Rect) {
-        super();
+        super(rect);
         $(document.body).append(this.$);
         this.updatePosition()
     }

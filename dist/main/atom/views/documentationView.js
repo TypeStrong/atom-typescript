@@ -53,7 +53,7 @@ exports.docView;
 function attach() {
     if (exports.docView)
         return;
-    exports.docView = new DocumentationView();
+    exports.docView = new DocumentationView({});
     $(atom.views.getView(atom.workspace)).append(exports.docView.$);
 }
 exports.attach = attach;

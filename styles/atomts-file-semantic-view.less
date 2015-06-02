@@ -1,0 +1,115 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+@font-face {
+  font-family: 'symbol-icons';
+  src: url('atom://symbols-tree-view/icons/symbol-icons.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.symbols-tree-view {
+  width: 200px;
+  height: 100%;
+  padding: 4px;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.symbols-context-menu {
+  position: absolute;
+  z-index: 1;
+  width: 120px;
+  .hidden-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: none;
+  }
+  .select-list.popover-list {
+    width: 100%;
+    min-width: 100%;
+    ol {
+      margin-top: 0;
+      .separator {
+        background: @background-color-highlight;
+        height: 1px;
+      }
+      li:hover {
+        background: @background-color-highlight;
+      }
+    }
+  }
+}
+
+@symbol-class:    '\e600';
+@symbol-struct:   '\e601';
+@symbol-macro:    '\e602';
+@symbol-typedef:  '\e603';
+@symbol-union:    '\e604';
+@symbol-interface:'\e605';
+@symbol-enum:     '\e606';
+@symbol-variable: '\e607';
+@symbol-function: '\e608';
+@symbol-namespace:'\e609';
+
+.symbol-icon(@name) {
+  font-family: 'symbol-icons';
+  content: @@name;
+}
+
+.symbols-tree-view .icon-function::before {
+  .symbol-icon(symbol-function);
+}
+
+.symbols-tree-view .icon-class::before {
+  .symbol-icon(symbol-class);
+}
+
+.symbols-tree-view .icon-namespace::before {
+  .symbol-icon(symbol-namespace);
+}
+
+.symbols-tree-view .icon-struct::before {
+  .symbol-icon(symbol-struct);
+}
+
+.symbols-tree-view .icon-variable::before {
+  .symbol-icon(symbol-variable);
+}
+
+.symbols-tree-view .icon-method::before {
+  .symbol-icon(symbol-function);
+}
+
+.symbols-tree-view .icon-field::before {
+  .symbol-icon(symbol-variable);
+}
+
+.symbols-tree-view .icon-member::before {
+  .symbol-icon(symbol-variable);
+}
+
+.symbols-tree-view .icon-interface::before {
+  .symbol-icon(symbol-interface);
+}
+
+.symbols-tree-view .icon-enum::before {
+  .symbol-icon(symbol-enum);
+}
+
+.symbols-tree-view .icon-typedef::before {
+  .symbol-icon(symbol-typedef);
+}
+
+.symbols-tree-view .icon-macro::before {
+  .symbol-icon(symbol-macro);
+}
+
+.symbols-tree-view .icon-union::before {
+  .symbol-icon(symbol-union);
+}

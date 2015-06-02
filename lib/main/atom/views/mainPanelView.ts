@@ -420,7 +420,7 @@ export function attach() {
     // Only attach once
     if (panelView) return;
 
-    panelView = new MainPanelView();
+    panelView = new MainPanelView({});
     panel = atom.workspace.addBottomPanel({ item: panelView, priority: 1000, visible: true });
     panelView.setErrorPanelErrorCount(0, 0);
 }

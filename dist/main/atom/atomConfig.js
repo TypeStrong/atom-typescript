@@ -21,6 +21,11 @@ var Config = (function () {
                 type: 'string',
                 default: ''
             },
+            showFileSemanticView: {
+                title: '',
+                type: 'boolean',
+                default: true
+            }
         };
     }
     Object.defineProperty(Config.prototype, "debugAtomTs", {
@@ -43,6 +48,14 @@ var Config = (function () {
         get: function () {
             var _this = this;
             return getConfig(function () { return _this.schema.typescriptServices; });
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Config.prototype, "showFileSemanticView", {
+        get: function () {
+            var _this = this;
+            return getConfig(function () { return _this.schema.showFileSemanticView; });
         },
         enumerable: true,
         configurable: true

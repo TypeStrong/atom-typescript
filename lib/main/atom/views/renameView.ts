@@ -99,6 +99,6 @@ export class RenameView
 export var panelView: RenameView;
 var panel: AtomCore.Panel;
 export function attach() {
-    panelView = new RenameView();
+    panelView = new RenameView(<any>{});
     panel = atom.workspace.addModalPanel({ item: panelView, priority: 1000, visible: false });
 }

@@ -18,7 +18,7 @@ export class AwesomePanelView extends view.View<any> {
 export var panelView: AwesomePanelView;
 export var panel: AtomCore.Panel;
 export function attach() {
-    panelView = new AwesomePanelView();
+    panelView = new AwesomePanelView({});
     panel = atom.workspace.addModalPanel({ item: panelView, priority: 1000, visible: false });
 
     /*setInterval(() => {

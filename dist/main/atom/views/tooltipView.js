@@ -9,7 +9,7 @@ var $ = view.$;
 var TooltipView = (function (_super) {
     __extends(TooltipView, _super);
     function TooltipView(rect) {
-        _super.call(this);
+        _super.call(this, rect);
         this.rect = rect;
         $(document.body).append(this.$);
         this.updatePosition();

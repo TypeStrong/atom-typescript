@@ -335,7 +335,7 @@ var panel;
 function attach() {
     if (exports.panelView)
         return;
-    exports.panelView = new MainPanelView();
+    exports.panelView = new MainPanelView({});
     panel = atom.workspace.addBottomPanel({ item: exports.panelView, priority: 1000, visible: true });
     exports.panelView.setErrorPanelErrorCount(0, 0);
 }
