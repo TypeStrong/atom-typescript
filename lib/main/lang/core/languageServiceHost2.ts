@@ -21,10 +21,9 @@ interface ScriptInfo {
     getLineAndColForPositon(position: number): EditorPosition;
     getLinePreview(line: number): string;
 }
-interface ITextBuffer extends TextBuffer.ITextBuffer { }
 
 /**
- * Manage a script in the language service host
+ * Allows you to easily create a "script snapshot" < which is something that the actual language service wants to work with
  */
 function createScriptInfo(fileName: string, text: string, isOpen = false): ScriptInfo {
 

@@ -12,10 +12,22 @@ function getRegexes() {
     return allTransformers.map(function (at) { return at.regex; });
 }
 exports.getRegexes = getRegexes;
+var transformFinderRegex = /transform:(.*){/g;
+var transformEndFinderRegexGenerator = function (name) { return new RegExp("}transform:" + name); };
 function getInitialTransformation(code) {
-    return {
-        transforms: []
-    };
+    var transforms = [];
+    var processedSrcUpto = 0;
+    var srcCode = code;
+    var destCode = '';
+    var destDelta = 0;
+    while (true) {
+        var remainingCode = code.substr(processedSrcUpto);
+        var matches = transformFinderRegex.exec(remainingCode);
+        if (!matches || !matches.length || matches.length < 2)
+            return { transforms: transforms };
+        var nextTransformName = matches.slice[1];
+    }
+    return { transforms: transforms };
 }
 exports.getInitialTransformation = getInitialTransformation;
 function transform(name, code) {

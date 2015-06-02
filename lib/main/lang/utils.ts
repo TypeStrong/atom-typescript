@@ -297,12 +297,18 @@ export function debounce<T extends Function>(func: T, milliseconds: number, imme
 var punctuations = createMap([';', '{', '}', '(', ')', '.', ':', '<', '>', "'", '"']);
 export var prefixEndsInPunctuation = (prefix) => prefix.length && prefix.trim().length && punctuations[prefix.trim()[prefix.trim().length - 1]];
 
-var nameExtractor = new RegExp("return (.*);");
+var nameExtractorRegex = /return (.*);/;
 /** Get the name using a lambda so that you don't have magic strings */
 export function getName(nameLambda: () => any) {
-    var m = nameExtractor.exec(nameLambda + "");
+    var m = nameExtractorRegex.exec(nameLambda + "");
     if (m == null)
         throw new Error("The function does not contain a statement matching 'return variableName;'");
     var access = m[1].split('.');
     return access[access.length - 1];
+}
+
+/** Sloppy but effective code to find distinct */
+export function distinct(arr: string[]): string[] {
+    var map = createMap(arr);
+    return Object.keys(map);
 }
