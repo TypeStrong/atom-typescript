@@ -14,6 +14,12 @@ You still have to reload atom with `ctrl+alt+r` to test your changes.
 
 (Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
+**Optional**: If you are working on the binaries that are used if we deploy the package to NPM you can run (again from the directory that has `package.json`): 
+
+```bash
+npm link
+```
+
 ## Git
 You need to have git. Note on windows long file paths can be an issue so run:
 
