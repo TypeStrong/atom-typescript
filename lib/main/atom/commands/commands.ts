@@ -165,9 +165,13 @@ export function registerCommands() {
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
 
+        // atom.commands.dispatch(
+        //     atom.views.getView(atom.workspace.getActiveTextEditor()),
+        //     'typescript:dependency-view');
+        //     
         atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:dependency-view');
+            'typescript:testing-r-view');
 
         // parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
         //     console.log(res.root);

@@ -136,7 +136,7 @@ function registerCommands() {
         //     console.log(res.text.length);
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
-        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
+        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:testing-r-view');
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
         var editor = atom.workspace.getActiveTextEditor();
