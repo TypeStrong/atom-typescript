@@ -138,6 +138,7 @@
         "./typings/node/node.d.ts",
         "./typings/pathwatcher/pathwatcher.d.ts",
         "./typings/q/Q.d.ts",
+        "./typings/react/react.d.ts",
         "./typings/source-map/source-map.d.ts",
         "./typings/space-pen/space-pen.d.ts",
         "./typings/status-bar/status-bar.d.ts",
