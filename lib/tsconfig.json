@@ -45,6 +45,7 @@
         "./main/atom/views/mainPanelView.ts",
         "./main/atom/views/plainMessageView.ts",
         "./main/atom/views/projectSymbolsView.ts",
+        "./main/atom/views/rView.ts",
         "./main/atom/views/renameView.ts",
         "./main/atom/views/simpleOverlaySelectionView.ts",
         "./main/atom/views/simpleSelectionView.ts",

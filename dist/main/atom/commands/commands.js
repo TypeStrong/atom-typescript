@@ -18,6 +18,7 @@ var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView"
 var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
+var rView = require("../views/rView");
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -345,6 +346,17 @@ function registerCommands() {
                 }
             }, editor);
         });
+    });
+    atomUtils.registerOpener({
+        commandSelector: 'atom-workspace',
+        commandName: 'typescript:testing-r-view',
+        uriProtocol: rView.RView.protocol,
+        getData: function () { return atomUtils.getFilePath(); },
+        onOpen: function (data) { return new rView.RView({
+            icon: 'repo-forked',
+            title: 'React View',
+            filePath: data.filePath,
+        }); },
     });
     atom.commands.add('atom-workspace', 'typescript:sync', function (e) {
         if (!atomUtils.commandForTypeScript(e))
