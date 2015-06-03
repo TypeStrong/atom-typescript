@@ -294,8 +294,9 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
  */
 export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDetails {
 
-    if (!fs.existsSync(pathOrSrcFile))
+    if (!fs.existsSync(pathOrSrcFile)) {
         throw new Error(errors.GET_PROJECT_INVALID_PATH);
+    }
 
     // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);

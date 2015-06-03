@@ -158,8 +158,9 @@ function getDefaultProject(srcFile) {
 }
 exports.getDefaultProject = getDefaultProject;
 function getProjectSync(pathOrSrcFile) {
-    if (!fs.existsSync(pathOrSrcFile))
+    if (!fs.existsSync(pathOrSrcFile)) {
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
+    }
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
     var projectFile = '';
     try {

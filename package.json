@@ -3,7 +3,7 @@
   "version": "4.5.6",
   "main": "./dist/main/atomts",
   "bin": {
-    "atbuild": "./dist/main/bin/build"
+    "atbuild": "./dist/main/bin/atbuild"
   },
   "preferGlobal": "true",
   "description": "The only TypeScript plugin you will ever need.",
