@@ -20,9 +20,18 @@
 
   }
   {
-    'comment': 'Match variable type keywords'
-    'match': '\\b(string|bool|number)\\b'
-    'name': 'storage.type.variable.ts'
+    'comment': 'Match type annotation for key types'
+    'match': '\\b:\\s*(string|boolean|number|any)\\b'
+    'captures':
+        '1' : 
+            'name': 'storage.type.variable.ts'
+  }
+  {
+    'comment': 'Match assert for key types'
+    'match': '<(string|boolean|number|any)>'
+    'captures':
+        '1' : 
+            'name': 'storage.type.variable.ts'
   }
   {
     'comment': 'Match this.'
