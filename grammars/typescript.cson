@@ -9,8 +9,8 @@
 
 'patterns': [
   {
-    'comment': 'Match stuff like: module name {...}'
-    'match': '\\b(module)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
+    'comment': 'Match stuff like: namespace name {...}'
+    'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
     'name': 'meta.function.ts'
     'captures':
       '1':

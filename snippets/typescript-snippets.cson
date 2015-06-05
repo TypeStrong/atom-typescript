@@ -71,6 +71,13 @@
                 $2
             }
         """
+    'namespace':
+        'prefix': 'namespace'
+        'body': """
+            namespace ${1:name} {
+                $2
+            }
+        """
     'function':
         'prefix': 'function'
         'body': """
