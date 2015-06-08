@@ -52,6 +52,8 @@ function attach(editorView, editor) {
         if (exprTypeTooltip)
             return;
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
+        pixelPt.top += editor.displayBuffer.getScrollTop();
+        pixelPt.left += editor.displayBuffer.getScrollLeft();
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
         var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);

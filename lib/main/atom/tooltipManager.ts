@@ -74,6 +74,8 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         if (exprTypeTooltip) return;
 
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
+        pixelPt.top += editor.displayBuffer.getScrollTop();
+        pixelPt.left += editor.displayBuffer.getScrollLeft();
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
         var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
