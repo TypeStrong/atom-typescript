@@ -14,7 +14,7 @@ You still have to reload atom with `ctrl+alt+r` to test your changes.
 
 (Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
-**Optional**: If you are working on the binaries that are used if we deploy the package to NPM you can run (again from the directory that has `package.json`): 
+**Optional**: If you are working on the binaries that are used if we deploy the package to NPM you can run (again from the directory that has `package.json`):
 
 ```bash
 npm link
@@ -31,11 +31,13 @@ And use `Shift+Delete` to delete files if simple `delete` doesn't work.
 # Various
 
 ## Publishing
-`apm publish minor`
+Do not update the version in the `package.json` file manually.  The `apm` command does that for you.
 
-or `apm publish patch` depending on how you feel about your changes.
+If you have only fixed bugs in a backward-compatible way (or consider your changes very minimal), run `apm publish patch`.
 
-Note: `apm publish major` must be justified with a corresponding change in changelog.md
+If you have implemented new functionality, run `apm publish minor`.
+
+Note: `apm publish major` must be justified with a corresponding change in changelog.md.
 
 ## Workflow
 **We develop atom-typescript with atom-typescript**
@@ -112,9 +114,9 @@ Please see https://github.com/TypeStrong/atom-typescript/tree/master/docs/gramma
 
 
 ## QuickFix
-The quickest way is to copy an existing one located in the [quick fix directory](https://github.com/TypeStrong/atom-typescript/tree/a91f7e0c935ed2bdc2c642350af50a7a5aed70ad/lib/main/lang/fixmyts/quickFixes). Copy one of these files into a new quick fix. 
+The quickest way is to copy an existing one located in the [quick fix directory](https://github.com/TypeStrong/atom-typescript/tree/a91f7e0c935ed2bdc2c642350af50a7a5aed70ad/lib/main/lang/fixmyts/quickFixes). Copy one of these files into a new quick fix.
 
-Quick fixes need to implement the `QuickFix` interface ([code here](https://github.com/TypeStrong/atom-typescript/blob/a91f7e0c935ed2bdc2c642350af50a7a5aed70ad/lib/main/lang/fixmyts/quickFix.ts#L46-L53)). 
+Quick fixes need to implement the `QuickFix` interface ([code here](https://github.com/TypeStrong/atom-typescript/blob/a91f7e0c935ed2bdc2c642350af50a7a5aed70ad/lib/main/lang/fixmyts/quickFix.ts#L46-L53)).
 
 Once you have the quickfix created just put it into the [quickfix registry](https://github.com/TypeStrong/atom-typescript/blob/a91f7e0c935ed2bdc2c642350af50a7a5aed70ad/lib/main/lang/fixmyts/quickFixRegistry.ts#L14-L24) so that the infrastructure picks it up.
 
