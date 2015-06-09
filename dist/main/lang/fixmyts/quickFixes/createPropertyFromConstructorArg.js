@@ -54,7 +54,8 @@ var CreatePropertyFromConstructorArg = (function () {
     };
     CreatePropertyFromConstructorArg.prototype.createAssignment = function (constructorDecl, symbolName, indentSetting, filePath) {
         var indentLevel2 = this.createIndent(indentSetting, 2);
-        var lastBrace = constructorDecl.body.getChildren().filter(function (x) { return x.kind == 15; })[0];
+        var lastBrace = constructorDecl.body.getChildren()
+            .filter(function (x) { return x.kind == 15; }).reverse()[0];
         var newText = "" + os_1.EOL + indentLevel2 + "this._" + symbolName + " = " + symbolName + ";";
         return {
             span: {

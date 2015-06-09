@@ -104,7 +104,8 @@ export class CreatePropertyFromConstructorArg implements QuickFix {
         filePath: string): Refactoring {
 
         let indentLevel2 = this.createIndent(indentSetting, 2);
-        let lastBrace = constructorDecl.body.getChildren().filter(x=> x.kind == ts.SyntaxKind.CloseBraceToken)[0];
+        let lastBrace = constructorDecl.body.getChildren()
+          .filter(x=> x.kind == ts.SyntaxKind.CloseBraceToken).reverse()[0];
 
         let newText = `${EOL}${indentLevel2}this._${symbolName} = ${symbolName};`;
 
