@@ -31,13 +31,14 @@ And use `Shift+Delete` to delete files if simple `delete` doesn't work.
 # Various
 
 ## Publishing
-Do not update the version in the `package.json` file manually.  The `apm` command does that for you.
 
-If you have only fixed bugs in a backward-compatible way (or consider your changes very minimal), run `apm publish patch`.
+* If you have only fixed bugs in a backward-compatible way (or consider your changes very minimal), run `apm publish patch`.
+* If you have implemented new functionality, run `apm publish minor`.
+* For breaking changes run `apm publish major`. These must be justified with a reason documented in `changelog.md`
 
-If you have implemented new functionality, run `apm publish minor`.
-
-Note: `apm publish major` must be justified with a corresponding change in changelog.md.
+Additional Notes: 
+* The `apm` command does a lot for you *that you shouldn't do manually*. It automatically updates the `package.json` + `creates a git tag` + `pushes to git` + `pushes to apm`.
+* On windows : storing your github password using `git config --global credential.helper wincred` helps smooth out the `apm publish <type>` experience.
 
 ## Workflow
 **We develop atom-typescript with atom-typescript**
