@@ -7,8 +7,8 @@ interface IndentSetting {
     indent: number;
 }
 
-export class CreatePropertyFromConstructorArg implements QuickFix {
-    key = CreatePropertyFromConstructorArg.name;
+export class CreateReadonlyProperty implements QuickFix {
+    key = CreateReadonlyProperty.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
 

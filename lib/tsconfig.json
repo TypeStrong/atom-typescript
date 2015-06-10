@@ -59,7 +59,7 @@
         "./main/lang/fixmyts/quickFixRegistry.ts",
         "./main/lang/fixmyts/quickFixes/addClassMember.ts",
         "./main/lang/fixmyts/quickFixes/addImportStatement.ts",
-        "./main/lang/fixmyts/quickFixes/createPropertyFromConstructorArg.ts",
+        "./main/lang/fixmyts/quickFixes/createReadonlyProperty.ts",
         "./main/lang/fixmyts/quickFixes/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFixes/implementInterface.ts",
         "./main/lang/fixmyts/quickFixes/quoteToTemplate.ts",

@@ -1,9 +1,9 @@
 var os_1 = require("os");
-var CreatePropertyFromConstructorArg = (function () {
-    function CreatePropertyFromConstructorArg() {
-        this.key = CreatePropertyFromConstructorArg.name;
+var CreateReadonlyProperty = (function () {
+    function CreateReadonlyProperty() {
+        this.key = CreateReadonlyProperty.name;
     }
-    CreatePropertyFromConstructorArg.prototype.canProvideFix = function (info) {
+    CreateReadonlyProperty.prototype.canProvideFix = function (info) {
         if (info.positionNode && info.positionNode.parent &&
             info.positionNode.parent.parent && info.positionNode.parent.parent.symbol &&
             info.positionNode.parent.parent.symbol && info.positionNode.parent.parent.symbol.name == '__constructor') {
@@ -12,7 +12,7 @@ var CreatePropertyFromConstructorArg = (function () {
             }
         }
     };
-    CreatePropertyFromConstructorArg.prototype.provideFix = function (info) {
+    CreateReadonlyProperty.prototype.provideFix = function (info) {
         var classDecl = info.positionNode.parent.parent.parent;
         var constructorDecl = info.positionNode.parent.parent;
         var paramDecl = info.positionNode.parent;
@@ -30,7 +30,7 @@ var CreatePropertyFromConstructorArg = (function () {
         var property = this.createProperty(classDecl, symbolName, typeName, indentSetting, info.filePath);
         return [backingDeclaration, assignemnt, property];
     };
-    CreatePropertyFromConstructorArg.prototype.getArgumentType = function (info, paramDecl) {
+    CreateReadonlyProperty.prototype.getArgumentType = function (info, paramDecl) {
         if (paramDecl.type) {
             var start = paramDecl.type.pos;
             var end = paramDecl.type.end;
@@ -40,7 +40,7 @@ var CreatePropertyFromConstructorArg = (function () {
             return 'any';
         }
     };
-    CreatePropertyFromConstructorArg.prototype.createBackingDeclaration = function (classDecl, symbolName, typeName, indentSetting, filePath) {
+    CreateReadonlyProperty.prototype.createBackingDeclaration = function (classDecl, symbolName, typeName, indentSetting, filePath) {
         var indent = this.createIndent(indentSetting, 1);
         var newText = indent + "_" + symbolName + ": " + typeName + ";" + os_1.EOL;
         return {
@@ -52,7 +52,7 @@ var CreatePropertyFromConstructorArg = (function () {
             filePath: filePath
         };
     };
-    CreatePropertyFromConstructorArg.prototype.createAssignment = function (constructorDecl, symbolName, indentSetting, filePath) {
+    CreateReadonlyProperty.prototype.createAssignment = function (constructorDecl, symbolName, indentSetting, filePath) {
         var indentLevel2 = this.createIndent(indentSetting, 2);
         var lastBrace = constructorDecl.body.getChildren()
             .filter(function (x) { return x.kind == 15; }).reverse()[0];
@@ -66,7 +66,7 @@ var CreatePropertyFromConstructorArg = (function () {
             filePath: filePath
         };
     };
-    CreatePropertyFromConstructorArg.prototype.createProperty = function (classDecl, symbolName, typeName, indentSetting, filePath) {
+    CreateReadonlyProperty.prototype.createProperty = function (classDecl, symbolName, typeName, indentSetting, filePath) {
         var indentLevel1 = this.createIndent(indentSetting, 1);
         var indentLevel2 = this.createIndent(indentSetting, 2);
         var newText = ("" + os_1.EOL + indentLevel1 + "get " + symbolName + "(): " + typeName + " {") +
@@ -81,9 +81,9 @@ var CreatePropertyFromConstructorArg = (function () {
             filePath: filePath
         };
     };
-    CreatePropertyFromConstructorArg.prototype.createIndent = function (indentSetting, level) {
+    CreateReadonlyProperty.prototype.createIndent = function (indentSetting, level) {
         return Array(indentSetting.classIndent + (indentSetting.indent * level) + 1).join(' ');
     };
-    return CreatePropertyFromConstructorArg;
+    return CreateReadonlyProperty;
 })();
-exports.CreatePropertyFromConstructorArg = CreatePropertyFromConstructorArg;
+exports.CreateReadonlyProperty = CreateReadonlyProperty;
