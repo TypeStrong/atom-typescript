@@ -287,6 +287,8 @@ export function registerCommands() {
                         <div class="pull-right">line: ${item.position.line}</div>
                         <pre style="clear:both">${item.preview}</pre>
                     `;
+                    // Based on markdown editor
+                    // <atom-text-editor gutter-hidden data-grammar="source ">${item.preview.trim()}</atom-text-editor>
                 },
                 filterKey: utils.getName(() => res.references[0].filePath),
                 confirmed: (definition) => {
