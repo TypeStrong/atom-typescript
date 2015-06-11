@@ -55,7 +55,7 @@
   }
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)\\('
+    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)(\\()'
     'captures':
       '1':
         'name': 'keyword.other.ts'
@@ -63,6 +63,8 @@
         'name': 'storage.modifier.ts'
       '3':
         'name': 'entity.name.function.ts'
+      '4':
+        'name': 'meta.brace.round.ts'
   }
   {
     'comment': 'Match stuff like: function() {...}'
