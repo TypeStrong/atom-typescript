@@ -258,16 +258,13 @@ export class Parent extends RequesterResponder {
             });
             this.child.on('close', (code) => {
                 if (this.stopped) {
-                    console.log('ts worker successfully stopped', code);
-                    return
+                    return;
                 }
 
                 // Handle process dropping
-                console.log('ts worker exited with code:', code);
 
                 // If orphaned then Definitely restart
                 if (code === orphanExitCode) {
-                    console.log('ts worker restarting');
                     this.startWorker(childJsPath, terminalError, customArguments);
                 }
                 // If we got ENOENT. Restarting will not help.
@@ -276,7 +273,7 @@ export class Parent extends RequesterResponder {
                 }
                 // We haven't found a reson to not start worker yet
                 else {
-                    console.log('ts worker restarting');
+                    console.log("ts worker restarting. Don't know why it stopped with code:", code);
                     this.startWorker(childJsPath, terminalError, customArguments);
                 }
             });

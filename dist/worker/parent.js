@@ -17,7 +17,6 @@ if (debug_1.debugSync) {
 }
 function startWorker() {
     parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
-    console.log('AtomTS worker started');
 }
 exports.startWorker = startWorker;
 function stopWorker() {

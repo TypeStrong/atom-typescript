@@ -1,10 +1,7 @@
 /**
  * For rename (move) files / folders
+ * Waiting on https://github.com/atom/tree-view/issues/433
  */
 function registerRenameHandling() {
-    var renameListener = atom.project.onDidChangePaths(function (projectPaths) {
-        console.log(arguments);
-        console.log(projectPaths);
-    });
 }
 exports.registerRenameHandling = registerRenameHandling;
