@@ -44,7 +44,7 @@ export class MainPanelView extends view.View<any> {
             }, text);
 
         this.div({
-            class: 'am-panel tool-panel panel-bottom native-key-bindings atomts-main-panel',
+            class: 'atomts native-key-bindings layout horizontal',
             tabindex: '-1'
         }, () => {
                 this.div({
@@ -52,7 +52,7 @@ export class MainPanelView extends view.View<any> {
                     style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3'
                 });
                 this.div({
-                    class: 'panel-heading'
+                    class: 'panel-heading layout horizontal'
                 }, () => {
                         this.span({
                             style: 'cursor: pointer; color: rgb(0, 148, 255)',
@@ -73,13 +73,31 @@ export class MainPanelView extends view.View<any> {
                             });
 
                         this.div({
-                            class: 'heading-summary',
-                            style: 'display:inline-block; margin-left:5px; width: calc(100% - 800px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                            class: 'heading-summary flex',
+                            style: 'display:inline-block; margin-left:5px; max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
+                        });
+                        
+                        this.progress({
+                            class: 'inline-block build-progress',
+                            style: 'display: none; color:red',
+                            outlet: 'buildProgress'
+                        });
+                        
+                        this.span({ class: 'section-pending', outlet: 'sectionPending' }, () => {
+                            this.span({
+                                outlet: 'txtPendingCount',
+                                style: 'cursor: pointer; margin-right: 7px;',
+                            });
+                            this.span({
+                                class: 'loading loading-spinner-tiny inline-block',
+                                style: 'cursor: pointer; margin-right: 7px;',
+                                click: 'showPending'
+                            });
                         });
 
                         this.div({
-                            class: 'heading-buttons pull-right',
+                            class: 'heading-buttons',
                             style: 'width:50px; display:inline-block'
                         }, () => {
                                 this.span({
@@ -95,23 +113,6 @@ export class MainPanelView extends view.View<any> {
                                     click: 'softReset'
                                 });
                             });
-
-                        this.progress({
-                            class: 'inline-block build-progress',
-                            style: 'display: none; color:red',
-                            outlet: 'buildProgress'
-                        });
-
-                        this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'width: 50px' }, () => {
-                            this.span({
-                                outlet: 'txtPendingCount'
-                            });
-                            this.span({
-                                class: 'loading loading-spinner-tiny inline-block',
-                                style: 'cursor: pointer; margin-right: 7px;',
-                                click: 'showPending'
-                            });
-                        });
                     });
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
@@ -313,8 +314,6 @@ export class MainPanelView extends view.View<any> {
             className = summary.className,
             raw = summary.rawSummary || false,
             handler = summary.handler || undefined;
-        // Reset the class-attributes on the old summary
-        this.summary.attr('class', 'heading-summary');
         // Set the new summary
         this.summary.html(message);
 

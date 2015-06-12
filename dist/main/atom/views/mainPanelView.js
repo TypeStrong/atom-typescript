@@ -35,7 +35,7 @@ var MainPanelView = (function (_super) {
             }, text);
         };
         this.div({
-            class: 'am-panel tool-panel panel-bottom native-key-bindings atomts-main-panel',
+            class: 'atomts native-key-bindings layout horizontal',
             tabindex: '-1'
         }, function () {
             _this.div({
@@ -43,7 +43,7 @@ var MainPanelView = (function (_super) {
                 style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3'
             });
             _this.div({
-                class: 'panel-heading'
+                class: 'panel-heading layout horizontal'
             }, function () {
                 _this.span({
                     style: 'cursor: pointer; color: rgb(0, 148, 255)',
@@ -61,12 +61,28 @@ var MainPanelView = (function (_super) {
                     btn("references", panelHeaders.references);
                 });
                 _this.div({
-                    class: 'heading-summary',
-                    style: 'display:inline-block; margin-left:5px; width: calc(100% - 800px); max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                    class: 'heading-summary flex',
+                    style: 'display:inline-block; margin-left:5px; max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                     outlet: 'summary'
                 });
+                _this.progress({
+                    class: 'inline-block build-progress',
+                    style: 'display: none; color:red',
+                    outlet: 'buildProgress'
+                });
+                _this.span({ class: 'section-pending', outlet: 'sectionPending' }, function () {
+                    _this.span({
+                        outlet: 'txtPendingCount',
+                        style: 'cursor: pointer; margin-right: 7px;',
+                    });
+                    _this.span({
+                        class: 'loading loading-spinner-tiny inline-block',
+                        style: 'cursor: pointer; margin-right: 7px;',
+                        click: 'showPending'
+                    });
+                });
                 _this.div({
-                    class: 'heading-buttons pull-right',
+                    class: 'heading-buttons',
                     style: 'width:50px; display:inline-block'
                 }, function () {
                     _this.span({
@@ -80,21 +96,6 @@ var MainPanelView = (function (_super) {
                         style: 'cursor: pointer',
                         outlet: 'btnSoftReset',
                         click: 'softReset'
-                    });
-                });
-                _this.progress({
-                    class: 'inline-block build-progress',
-                    style: 'display: none; color:red',
-                    outlet: 'buildProgress'
-                });
-                _this.span({ class: 'pull-right section-pending', outlet: 'sectionPending', style: 'width: 50px' }, function () {
-                    _this.span({
-                        outlet: 'txtPendingCount'
-                    });
-                    _this.span({
-                        class: 'loading loading-spinner-tiny inline-block',
-                        style: 'cursor: pointer; margin-right: 7px;',
-                        click: 'showPending'
                     });
                 });
             });
@@ -255,7 +256,6 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.setErrorSummary = function (summary) {
         var message = summary.summary, className = summary.className, raw = summary.rawSummary || false, handler = summary.handler || undefined;
-        this.summary.attr('class', 'heading-summary');
         this.summary.html(message);
         if (className) {
             this.summary.addClass(className);
