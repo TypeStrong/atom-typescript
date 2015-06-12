@@ -32,3 +32,6 @@ Convert string concatenations to a template string
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/equalsToEquals.gif)
 
+## Wrap in read only property
+From constructor argument
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/quickfix/wrapInReadonlyProperty.gif)

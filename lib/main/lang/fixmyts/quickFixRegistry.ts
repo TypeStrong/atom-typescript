@@ -5,7 +5,7 @@ import {QuickFix} from "./quickFix";
 import {AddClassMember} from "./quickFixes/addClassMember";
 import {AddImportStatement} from "./quickFixes/addImportStatement";
 import {EqualsToEquals} from "./quickFixes/equalsToEquals";
-import {CreateReadonlyProperty} from "./quickFixes/createReadonlyProperty";
+import {WrapInProperty} from "./quickFixes/wrapInProperty";
 import {QuotesToQuotes} from "./quickFixes/quotesToQuotes";
 import {QuoteToTemplate} from "./quickFixes/quoteToTemplate";
 import {StringConcatToTemplate} from "./quickFixes/stringConcatToTemplate";
@@ -15,7 +15,7 @@ import {ImplementInterface} from "./quickFixes/implementInterface";
 export var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new AddImportStatement(),
-    new CreateReadonlyProperty(),
+    new WrapInProperty(),
     new EqualsToEquals(),
     new StringConcatToTemplate(),
     new QuotesToQuotes(),
