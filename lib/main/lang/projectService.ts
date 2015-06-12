@@ -9,6 +9,7 @@ import {isTransformerFile} from "./transformers/transformer";
 import * as transformer from "./transformers/transformer";
 
 import tsconfig = require('../tsconfig/tsconfig');
+import * as fsUtil from "../utils/fsUtil";
 
 import utils = require('./utils');
 import project = require('./core/project');
@@ -109,6 +110,55 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         });
         return output;
     });
+    
+    // If there is a package.json with typescript we also output a big main .d.ts for easier use
+    if (proj.projectFile.project.compilerOptions.declaration
+        && proj.projectFile.project.package
+        && proj.projectFile.project.package.name
+        && proj.projectFile.project.package.definition) {
+        let packageDir = proj.projectFile.project.package.directory;
+        let defLocation = fsUtil.resolve(packageDir, proj.projectFile.project.package.definition);
+        let moduleName = proj.projectFile.project.package.name;
+        
+        // All the d.ts files: 
+        let dtsFiles = utils.selectMany(outputs.map(o=> o.outputFiles)).filter(f=> fsUtil.isExt(f, '.d.ts'));
+        
+        // For each d.ts file have a section in the final code
+        // declare module "{moduleName}/relativ/path/to/file"
+        var finalCode: string[] = [];
+
+        let addModuleToOutput = function(modulePath: string, fileToImport: string) {
+            finalCode.push(os.EOL + `
+declare module "${modulePath}"{
+    import tmp = require('${fileToImport}');
+    export = tmp;
+}
+            `.trim());
+        }
+
+        dtsFiles.forEach(file => {
+            let relativePath = fsUtil.makeRelativePath(packageDir, file);
+            // -5 to remove `.d.ts`
+            let relativePathNoExt = relativePath.substring(0, relativePath.length - 5);
+            // Paths should *always* be `.` (as files are sub located)
+            let modulePath = moduleName + relativePathNoExt.substr(1);
+            // remove ./
+            let fileToImport = relativePathNoExt.substr(2);
+            addModuleToOutput(modulePath, fileToImport);
+        });
+        
+        // take into about `main` as well and generate a file to point to the main .d.ts file
+        if (proj.projectFile.project.package.main) {
+            let modulePath = moduleName;
+            let relativePath = proj.projectFile.project.package.main;
+            let fileToImport = relativePath.substr(2).replace(/\.js+$/, '');
+            addModuleToOutput(modulePath, fileToImport);
+        }
+                
+        // Finally write d.ts to disk
+        let joinedDtsCode = finalCode.join(os.EOL);
+        fs.writeFileSync(defLocation, joinedDtsCode);
+    }
 
     return resolve({
         buildOutput: {
