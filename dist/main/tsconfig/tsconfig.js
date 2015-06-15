@@ -366,19 +366,18 @@ function getDefinitionsForNodeModules(projectDir, files) {
         for (var _i = 0; _i < moduleDirs.length; _i++) {
             var moduleDir = moduleDirs[_i];
             var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
-            if (package_json.typescript) {
-                if (package_json.typescript.definition) {
-                    var file = path.resolve(moduleDir, './', package_json.typescript.definition);
-                    typings[path.basename(file)] = {
-                        filePath: file,
-                        version: Infinity
-                    };
-                    addAllReferencedFilesWithMaxVersion(file);
-                }
+            if (package_json.typescript && package_json.typescript.definition) {
+                var file = path.resolve(moduleDir, './', package_json.typescript.definition);
+                typings[path.basename(file)] = {
+                    filePath: file,
+                    version: Infinity
+                };
+                addAllReferencedFilesWithMaxVersion(file);
             }
         }
     }
     catch (ex) {
+        console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
     }
     var all = Object.keys(typings)
         .map(function (typing) { return typings[typing].filePath; })
@@ -483,10 +482,10 @@ function getDirs(rootDir) {
         var file = files[_i];
         if (file[0] != '.') {
             var filePath = rootDir + "/" + file;
-        }
-        var stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-            dirs.push(filePath);
+            var stat = fs.statSync(filePath);
+            if (stat.isDirectory()) {
+                dirs.push(filePath);
+            }
         }
     }
     return dirs;

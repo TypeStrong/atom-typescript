@@ -27,7 +27,7 @@ interface CompilerOptions {
     inlineSources?: boolean;
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
-    module?: string;                                  
+    module?: string;
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
@@ -269,7 +269,7 @@ export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails
 
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
-    files = increaseProjectForReferenceAndImports(files);    
+    files = increaseProjectForReferenceAndImports(files);
     files = uniq(files.map(fsu.consistentPath));
 
     let project = {
@@ -494,16 +494,16 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
                     return null;
                 }).filter(file=> !!file)
                     .concat(
-                    preProcessedFileInfo.importedFiles
-                        .filter((fileReference) => pathIsRelative(fileReference.fileName))
-                        .map(fileReference => {
-                        var file = path.resolve(dir, fileReference.fileName + '.ts');
-                        if (!fs.existsSync(file)) {
-                            file = path.resolve(dir, fileReference.fileName + '.d.ts');
-                        }
-                        return file;
-                    })
-                    )
+                        preProcessedFileInfo.importedFiles
+                            .filter((fileReference) => pathIsRelative(fileReference.fileName))
+                            .map(fileReference => {
+                                var file = path.resolve(dir, fileReference.fileName + '.ts');
+                                if (!fs.existsSync(file)) {
+                                    file = path.resolve(dir, fileReference.fileName + '.d.ts');
+                                }
+                                return file;
+                            })
+                        )
                 );
         });
 
@@ -548,7 +548,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     // These are INF powerful
     var ourTypings = files
         .filter(f=> path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
-        || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
+            || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
     ourTypings.forEach(f=> typings[path.basename(f)] = { filePath: f, version: Infinity });
     var existing = createMap(files.map(fsu.consistentPath));
 
@@ -590,27 +590,27 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
 
-        // For each sub directory of node_modules look at package.json and then `typescript.definition`
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`        
         var moduleDirs = getDirs(node_modules);
         for (let moduleDir of moduleDirs) {
             var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
-            if (package_json.typescript) {
-                if (package_json.typescript.definition) {
-                    let file = path.resolve(moduleDir, './', package_json.typescript.definition);
+            if (package_json.typescript && package_json.typescript.definition) {
 
-                    typings[path.basename(file)] = {
-                        filePath: file,
-                        version: Infinity
-                    };
-                    // Also add any files that this `.d.ts` references as long as they don't conflict with what we have
-                    addAllReferencedFilesWithMaxVersion(file);
-                }
+                let file = path.resolve(moduleDir, './', package_json.typescript.definition);
+
+                typings[path.basename(file)] = {
+                    filePath: file,
+                    version: Infinity
+                };
+                // Also add any files that this `.d.ts` references as long as they don't conflict with what we have
+                addAllReferencedFilesWithMaxVersion(file);
             }
         }
 
     }
     catch (ex) {
         // this is best effort only at the moment
+        console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
     }
 
     var all = Object.keys(typings)
@@ -620,6 +620,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
         .filter(x=> !existing[x]);
     var ours = all
         .filter(x=> existing[x]);
+
     return { implicit, ours };
 }
 
@@ -735,11 +736,11 @@ function getDirs(rootDir: string): string[] {
     for (var file of files) {
         if (file[0] != '.') {
             var filePath = `${rootDir}/${file}`
-        }
-        var stat = fs.statSync(filePath)
+            var stat = fs.statSync(filePath);
 
-        if (stat.isDirectory()) {
-            dirs.push(filePath)
+            if (stat.isDirectory()) {
+                dirs.push(filePath)
+            }
         }
     }
     return dirs

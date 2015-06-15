@@ -4,3 +4,5 @@
 obj/Debug/VSProj.njsproj.FileListAbsolute.txt
 ./node_modules
 .baseDir.ts
+node_modules/immutable/
+node_modules/react/

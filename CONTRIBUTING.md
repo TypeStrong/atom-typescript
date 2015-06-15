@@ -7,6 +7,7 @@ Simply clone the repository, and then link the folder into your packages directo
 ```bash
 git clone https://github.com/TypeStrong/atom-typescript.git
 cd atom-typescript
+npm install
 apm link -l
 ```
 
