@@ -365,7 +365,12 @@ function getDefinitionsForNodeModules(projectDir, files) {
         var moduleDirs = getDirs(node_modules);
         for (var _i = 0; _i < moduleDirs.length; _i++) {
             var moduleDir = moduleDirs[_i];
-            var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
+            try {
+                var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
+            }
+            catch (ex) {
+                continue;
+            }
             if (package_json.typescript && package_json.typescript.definition) {
                 var file = path.resolve(moduleDir, './', package_json.typescript.definition);
                 typings[path.basename(file)] = {

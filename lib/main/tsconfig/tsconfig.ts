@@ -593,7 +593,13 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
         // For each sub directory of node_modules look at package.json and then `typescript.definition`        
         var moduleDirs = getDirs(node_modules);
         for (let moduleDir of moduleDirs) {
-            var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
+            try {
+                var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
+            }
+            catch (ex) {
+                // Can't read package.json ... no worries ... move on to other modules
+                continue;
+            }
             if (package_json.typescript && package_json.typescript.definition) {
 
                 let file = path.resolve(moduleDir, './', package_json.typescript.definition);
