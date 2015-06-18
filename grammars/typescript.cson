@@ -21,7 +21,7 @@
   }
   {
     'comment': 'Match type annotation for key types'
-    'match': '\\b:\\s*(string|boolean|number|any)\\b'
+    'match': ':\\s*(string|boolean|number|any)\\b'
     'captures':
         '1' : 
             'name': 'storage.type.variable.ts'
