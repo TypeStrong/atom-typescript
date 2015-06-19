@@ -211,13 +211,13 @@ function getProjectSync(pathOrSrcFile) {
         }
     }
     projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
-    var package = null;
+    var pkg = null;
     try {
         var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
         if (packagePath) {
             var packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
             var parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
-            package = {
+            pkg = {
                 main: parsedPackage.main,
                 name: parsedPackage.name,
                 directory: path.dirname(packageJSONPath),
@@ -233,7 +233,7 @@ function getProjectSync(pathOrSrcFile) {
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
-        package: package,
+        package: pkg,
         typings: []
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);

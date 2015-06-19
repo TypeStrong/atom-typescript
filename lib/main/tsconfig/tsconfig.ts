@@ -361,13 +361,13 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Remove all relativeness
     projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
-    var package: UsefulFromPackageJson = null;
+    var pkg: UsefulFromPackageJson = null;
     try {
         var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
         if (packagePath) {
             let packageJSONPath = getPotentiallyRelativeFile(projectFileDirectory, packagePath);
             let parsedPackage = JSON.parse(fs.readFileSync(packageJSONPath).toString());
-            package = {
+            pkg = {
                 main: parsedPackage.main,
                 name: parsedPackage.name,
                 directory: path.dirname(packageJSONPath),
@@ -385,7 +385,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
-        package,
+        package: pkg,
         typings: []
     };
 
