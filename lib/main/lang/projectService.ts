@@ -150,13 +150,15 @@ declare module "${modulePath}"{
         // take into about `main` as well and generate a file to point to the main .d.ts file
         if (proj.projectFile.project.package.main) {
             let modulePath = moduleName;
-            let relativePath = proj.projectFile.project.package.main;
+            let fullPath = fsUtil.resolve(packageDir, proj.projectFile.project.package.main);
+            let relativePath = fsUtil.makeRelativePath(packageDir, fullPath);
             let fileToImport = relativePath.substr(2).replace(/\.js+$/, '');
             addModuleToOutput(modulePath, fileToImport);
         }
                 
         // Finally write d.ts to disk
         let joinedDtsCode = finalCode.join(os.EOL);
+        mkdirp.sync(path.dirname(defLocation));
         fs.writeFileSync(defLocation, joinedDtsCode);
     }
 

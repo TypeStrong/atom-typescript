@@ -2,6 +2,7 @@ var fsu = require("../utils/fsUtil");
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
+var mkdirp = require('mkdirp');
 var fuzzaldrin = require('fuzzaldrin');
 var transformer_1 = require("./transformers/transformer");
 var transformer = require("./transformers/transformer");
@@ -78,11 +79,13 @@ function build(query) {
         });
         if (proj.projectFile.project.package.main) {
             var modulePath = moduleName;
-            var relativePath = proj.projectFile.project.package.main;
+            var fullPath = fsUtil.resolve(packageDir, proj.projectFile.project.package.main);
+            var relativePath = fsUtil.makeRelativePath(packageDir, fullPath);
             var fileToImport = relativePath.substr(2).replace(/\.js+$/, '');
             addModuleToOutput(modulePath, fileToImport);
         }
         var joinedDtsCode = finalCode.join(os.EOL);
+        mkdirp.sync(path.dirname(defLocation));
         fs.writeFileSync(defLocation, joinedDtsCode);
     }
     return resolve({

@@ -382,7 +382,11 @@ function getDefinitionsForNodeModules(projectDir, files) {
         }
     }
     catch (ex) {
-        console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
+        if (ex.message == "not found") {
+        }
+        else {
+            console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
+        }
     }
     var all = Object.keys(typings)
         .map(function (typing) { return typings[typing].filePath; })

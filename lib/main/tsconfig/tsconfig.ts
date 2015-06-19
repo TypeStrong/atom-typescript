@@ -615,8 +615,14 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
 
     }
     catch (ex) {
-        // this is best effort only at the moment
-        console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
+        if (ex.message == "not found") {
+            // Sure we didn't find node_modules
+            // Thats cool
+        }
+        // this is best effort only at the moment        
+        else {
+            console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
+        }
     }
 
     var all = Object.keys(typings)
