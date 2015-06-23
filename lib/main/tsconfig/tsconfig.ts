@@ -10,7 +10,7 @@ var types = simpleValidator.types;
 // NOTE: see the changes in `commandLineParser.ts` in the TypeScript sources to see what needs updating
 // When adding you need to :
 /**
- * 	Update the validation 
+ * 	Update the validation
  * 	If its an enum : Update the enum map
  * 	If its a path : Update the `make relative` code
  */
@@ -87,7 +87,7 @@ interface TypeScriptProjectRawSpecification {
     version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
-    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
+    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -574,6 +574,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
+            return file;
         });
 
         // Only ones we don't have by name yet
@@ -592,7 +593,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
 
-        // For each sub directory of node_modules look at package.json and then `typescript.definition`        
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`
         var moduleDirs = getDirs(node_modules);
         for (let moduleDir of moduleDirs) {
             try {
@@ -621,7 +622,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             // Sure we didn't find node_modules
             // Thats cool
         }
-        // this is best effort only at the moment        
+        // this is best effort only at the moment
         else {
             console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
         }
