@@ -57,7 +57,7 @@ export function makeTsGlobal(typescriptServices?: string) {
         vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
     }
     else {
-        vm.runInContext(fs.readFileSync(require.resolve('typescript')).toString(), sandbox);
+        vm.runInContext(fs.readFileSync(require.resolve('ntypescript')).toString(), sandbox);
     }
 
     // Finally export ts to the local global namespace

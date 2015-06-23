@@ -43,12 +43,12 @@ var AddClassMember = (function () {
         var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
-        if (parentOfParent.kind == 170
+        if (parentOfParent.kind == 172
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
         }
-        else if (parentOfParent.kind == 158) {
+        else if (parentOfParent.kind == 160) {
             var callExp = parentOfParent;
             var typeStringParts = ['('];
             var args = [];
@@ -61,9 +61,9 @@ var AddClassMember = (function () {
             typeStringParts.push(') => any');
             typeString = typeStringParts.join('');
         }
-        var memberTarget = ast.getNodeByKindAndName(info.program, 202, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, 204, className);
         if (!memberTarget) {
-            memberTarget = ast.getNodeByKindAndName(info.program, 203, className);
+            memberTarget = ast.getNodeByKindAndName(info.program, 205, className);
         }
         if (!memberTarget) {
             return [];

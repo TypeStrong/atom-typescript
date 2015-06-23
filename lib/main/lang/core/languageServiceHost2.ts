@@ -206,10 +206,10 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
 
 export var getDefaultLibFilePath = (options: ts.CompilerOptions) => {
     var filename = ts.getDefaultLibFileName(options);
-    return (path.join(path.dirname(require.resolve('typescript')), filename)).split('\\').join('/');
+    return (path.join(path.dirname(require.resolve('ntypescript')), filename)).split('\\').join('/');
 }
 
-export var typescriptDirectory = path.dirname(require.resolve('typescript')).split('\\').join('/');
+export var typescriptDirectory = path.dirname(require.resolve('ntypescript')).split('\\').join('/');
 
 
 // NOTES:

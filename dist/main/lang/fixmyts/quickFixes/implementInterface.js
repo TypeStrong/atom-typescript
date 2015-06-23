@@ -32,8 +32,8 @@ var ImplementInterface = (function () {
             return;
         var match = getClassAndInterfaceName(relevantError);
         var className = match.className, interfaceName = match.interfaceName;
-        var interfaceTarget = ast.getNodeByKindAndName(info.program, 203, className);
-        var classTarget = ast.getNodeByKindAndName(info.program, 202, className);
+        var interfaceTarget = ast.getNodeByKindAndName(info.program, 205, className);
+        var classTarget = ast.getNodeByKindAndName(info.program, 204, className);
         var braces = classTarget.getChildren().filter(function (x) { return x.kind == 15; });
         var lastBrace = braces[braces.length - 1];
         var indentLength = info.service.getIndentationAtPosition(classTarget.getSourceFile().fileName, lastBrace.getStart(), info.project.projectFile.project.formatCodeOptions);
