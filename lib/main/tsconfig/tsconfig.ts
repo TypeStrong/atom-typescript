@@ -28,6 +28,7 @@ interface CompilerOptions {
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
+    noEmit?: boolean;
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
@@ -61,6 +62,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    noEmit: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
