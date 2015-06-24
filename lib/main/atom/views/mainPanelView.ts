@@ -16,6 +16,7 @@ import gotoHistory = require('../gotoHistory');
 
 export class MainPanelView extends view.View<any> {
 
+    private fileStatus: JQuery;
     private btnFold: JQuery;
     private btnSoftReset: JQuery;
     private summary: JQuery;
@@ -77,13 +78,13 @@ export class MainPanelView extends view.View<any> {
                             style: 'display:inline-block; margin-left:5px; max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
-                        
+
                         this.progress({
                             class: 'inline-block build-progress',
                             style: 'display: none; color:red',
                             outlet: 'buildProgress'
                         });
-                        
+
                         this.span({ class: 'section-pending', outlet: 'sectionPending' }, () => {
                             this.span({
                                 outlet: 'txtPendingCount',
@@ -95,6 +96,16 @@ export class MainPanelView extends view.View<any> {
                                 click: 'showPending'
                             });
                         });
+
+                        this.div({
+                            style: 'display:inline-block'
+                        }, () => {
+                                this.span({
+                                    class: 'icon-x text-warning',
+                                    style: 'cursor: pointer; margin-right:10px',
+                                    outlet: 'fileStatus'
+                                }, 'File might be outdated');
+                            });
 
                         this.div({
                             class: 'heading-buttons',
@@ -157,6 +168,21 @@ export class MainPanelView extends view.View<any> {
                 return parent.errorsForFile({ filePath: editor.getPath() })
             })
                 .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        }
+    }
+
+    ///////////// Change JS File Status
+    updateFileStatus(status: string) {
+        this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
+        if (status === 'success') {
+            this.fileStatus.text('File is up to date');
+            this.fileStatus.addClass('icon-check text-success');
+        } else if (status === 'error') {
+            this.fileStatus.text('File is outdated');
+            this.fileStatus.addClass('icon-x text-error');
+        } else {
+            this.fileStatus.text('File might be outdated');
+            this.fileStatus.addClass('icon-x text-warning');
         }
     }
 
@@ -482,8 +508,8 @@ export module errorView {
 
     export function showEmittedMessage(output: EmitOutput) {
         if (output.success) {
-            var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
-            atomUtils.quickNotifySuccess(message);
+            // var message = 'TS emit succeeded LEL<br/>' + output.outputFiles.join('<br/>');
+            // atomUtils.quickNotifySuccess(message);
         } else if (output.emitError) {
             atom.notifications.addError('TS Emit Failed');
         } else {

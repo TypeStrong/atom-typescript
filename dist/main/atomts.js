@@ -23,6 +23,7 @@ var autoCompleteWatch;
 var parent = require('../worker/parent');
 exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
+var fileStatus_1 = require("./atom/fileStatus");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
     var editor = atom.workspace.getActiveTextEditor();
     if (!atomUtils.onDiskAndTs(editor)) {
@@ -45,6 +46,7 @@ function readyToActivate() {
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
+            mainPanelView.panelView.updateFileStatus(fileStatus_1.fileStatuses[filePath]);
             mainPanelView.show();
         }
         else {

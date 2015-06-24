@@ -1,12 +1,13 @@
 
 
 ///ts:import=atomConfig
-import atomConfig = require('./atomConfig'); ///ts:import:generated
+  import atomConfig = require('./atomConfig'); ///ts:import:generated
 
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 
-import {errorView, show} from "./views/mainPanelView";
+import {updateFileStatus} from "./fileStatus";
+import {errorView, show, panelView} from "./views/mainPanelView";
 
 ///ts:import=debugAtomTs
 import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated
@@ -34,6 +35,9 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
         if (fileDetails.project.compilerOptions.out) return;
 
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
-            .then((res) => errorView.showEmittedMessage(res));
+            .then((res) => {
+                errorView.showEmittedMessage(res);
+                updateFileStatus(event.filePath, res);
+            });
     });
 }

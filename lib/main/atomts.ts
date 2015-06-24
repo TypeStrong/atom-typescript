@@ -50,6 +50,8 @@ import parent = require('../worker/parent');
 export var config = atomConfig.schema;
 import {debounce} from "./lang/utils";
 
+import {fileStatuses} from "./atom/fileStatus";
+
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
     var editor = atom.workspace.getActiveTextEditor();
@@ -108,6 +110,7 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
 
+            mainPanelView.panelView.updateFileStatus(fileStatuses[filePath]);
             mainPanelView.show();
         }
         else {
@@ -151,7 +154,7 @@ function readyToActivate() {
                 }
 
                 // Setup additional observers on the editor
-                editorSetup.setupEditor(editor);                
+                editorSetup.setupEditor(editor);
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
@@ -194,14 +197,14 @@ function readyToActivate() {
 
                     var newText = diff.newText;
                     var oldText = diff.oldText;
-                    
+
                     // Facepalm: sometimes atom inserts \r\n but says it added \n
                     // Fix that:
                     newText = editor.buffer.getTextInRange(diff.newRange);
 
                     var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
                     var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
-                    
+
                     // use this for faster language service host
                     var promise = parent.editText({ filePath, start, end, newText });
 

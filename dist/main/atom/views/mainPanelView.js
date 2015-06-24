@@ -82,6 +82,15 @@ var MainPanelView = (function (_super) {
                     });
                 });
                 _this.div({
+                    style: 'display:inline-block'
+                }, function () {
+                    _this.span({
+                        class: 'icon-x text-warning',
+                        style: 'cursor: pointer; margin-right:10px',
+                        outlet: 'fileStatus'
+                    }, 'File might be outdated');
+                });
+                _this.div({
                     class: 'heading-buttons',
                     style: 'width:50px; display:inline-block'
                 }, function () {
@@ -133,6 +142,21 @@ var MainPanelView = (function (_super) {
                 return parent.errorsForFile({ filePath: editor.getPath() });
             })
                 .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });
+        }
+    };
+    MainPanelView.prototype.updateFileStatus = function (status) {
+        this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
+        if (status === 'success') {
+            this.fileStatus.text('File is up to date');
+            this.fileStatus.addClass('icon-check text-success');
+        }
+        else if (status === 'error') {
+            this.fileStatus.text('File is outdated');
+            this.fileStatus.addClass('icon-x text-error');
+        }
+        else {
+            this.fileStatus.text('File might be outdated');
+            this.fileStatus.addClass('icon-x text-warning');
         }
     };
     MainPanelView.prototype.showPending = function () {
@@ -391,8 +415,6 @@ var errorView;
     };
     function showEmittedMessage(output) {
         if (output.success) {
-            var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
-            atomUtils.quickNotifySuccess(message);
         }
         else if (output.emitError) {
             atom.notifications.addError('TS Emit Failed');
