@@ -9,14 +9,6 @@ import parent = require('./worker/parent'); ///ts:import:generated
 import fs = require('fs');
 import {Range} from "atom";
 
-interface LinterError {
-    message: string;
-    line: number; // startline.
-    range: any; // LinterRange([startline,startch],[endline,endch]);
-    level: string; // 'error' | 'warning'
-    linter: string; // linter name
-}
-
 interface LinterMessage {
     type: string, // "Error" or "Warning"
     text?: string,
@@ -32,6 +24,7 @@ export var provider = {
     lintOnFly: true, // # must be false for scope: 'project'
     lint: (textEditor: AtomCore.IEditor): Promise<LinterMessage[]> => {
 
+        // We do not support files not on disk
         if (!textEditor.buffer.file
             || !textEditor.buffer.file.path
             || !fs.existsSync(textEditor.buffer.file.path)) return Promise.resolve([]);
@@ -48,29 +41,3 @@ export var provider = {
         });
     }
 }
-
-
-
-/* 
-
-
-// We refuse to work on files that are not on disk.
-if (!this.editor.buffer.file
-    || !this.editor.buffer.file.path
-    || !fs.existsSync(this.editor.buffer.file.path)) return callback([]);
-
-filePath = this.editor.buffer.file.path;
-
-parent.errorsForFile({ filePath: filePath }).then((resp) => {
-    var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
-        message: err.message,
-        line: err.startPos.line + 1,
-        range: new Rng([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
-        level: 'error',
-        linter: 'TypeScript'
-    });
-
-    return callback(linterErrors);
-});
-
-*/
