@@ -7,15 +7,7 @@ import utils = require('./main/lang/utils'); ///ts:import:generated
 import parent = require('./worker/parent'); ///ts:import:generated
 
 import fs = require('fs');
-
-var linterPath = atom.packages.getLoadedPackage("linter").path;
-var Linter = require(linterPath + "/lib/linter");
-var path = require("path");
-var Rng = require("atom").Range;
-
-var LinterTslint,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+import {Range} from "atom";
 
 interface LinterError {
     message: string;
@@ -25,38 +17,60 @@ interface LinterError {
     linter: string; // linter name
 }
 
-LinterTslint = (function(_super) {
-    __extends(LinterTslint, _super);
+interface LinterMessage {
+    type: string, // "Error" or "Warning"
+    text?: string,
+    html?: string,
+    filePath?: string,
+    range?: TextBuffer.IRange,
+    //  trace?: Array<Trace> // We don't care about this so I have this commented out
+}
 
-    function LinterTslint() {
-        return Linter.apply(this, arguments);
-    }
+export var provider = {
+    grammarScopes: ['source.ts'],
+    scope: 'file', //  # or 'project'
+    lintOnFly: true, // # must be false for scope: 'project'
+    lint: (textEditor: AtomCore.IEditor): Promise<LinterMessage[]> => {
 
-    (<any>LinterTslint).syntax = ['source.ts'];
+        if (!textEditor.buffer.file
+            || !textEditor.buffer.file.path
+            || !fs.existsSync(textEditor.buffer.file.path)) return Promise.resolve([]);
 
-    LinterTslint.prototype.lintFile = function(filePath:string, callback: (errors: LinterError[]) => any) {
-        // We refuse to work on files that are not on disk.
-        if (!this.editor.buffer.file
-            || !this.editor.buffer.file.path
-            || !fs.existsSync(this.editor.buffer.file.path)) return callback([]);
+        var filePath = textEditor.buffer.file.path;
 
-        filePath = this.editor.buffer.file.path;
-
-        parent.errorsForFile({ filePath: filePath }).then((resp) => {
-            var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
-                message: err.message,
-                line: err.startPos.line + 1,
-                range: new Rng([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
-                level: 'error',
-                linter: 'TypeScript'
-            });
-
-            return callback(linterErrors);
+        return parent.errorsForFile({ filePath: filePath }).then((resp) => {
+            var linterErrors: LinterMessage[] = resp.errors.map((err) => ({
+                type: "Error",
+                text: err.message,
+                range: new Range([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
+            }));
+            return linterErrors;
         });
-    };
+    }
+}
 
-    return LinterTslint;
 
-})(Linter);
 
-module.exports = LinterTslint;
+/* 
+
+
+// We refuse to work on files that are not on disk.
+if (!this.editor.buffer.file
+    || !this.editor.buffer.file.path
+    || !fs.existsSync(this.editor.buffer.file.path)) return callback([]);
+
+filePath = this.editor.buffer.file.path;
+
+parent.errorsForFile({ filePath: filePath }).then((resp) => {
+    var linterErrors: LinterError[] = resp.errors.map((err) => <LinterError>{
+        message: err.message,
+        line: err.startPos.line + 1,
+        range: new Rng([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
+        level: 'error',
+        linter: 'TypeScript'
+    });
+
+    return callback(linterErrors);
+});
+
+*/

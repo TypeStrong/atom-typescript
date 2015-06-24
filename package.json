@@ -11,14 +11,17 @@
     "atom": ">=0.199.0 <2.0.0",
     "node": "*"
   },
-  "linter-package": true,
-  "linter-implementation": "../dist/linter",
   "providedServices": {
     "autocomplete.provider": {
       "versions": {
         "2.0.0": "provide"
       }
-    }
+    },
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
+      }
+    } 
   },
   "consumedServices": {
     "snippets": {
