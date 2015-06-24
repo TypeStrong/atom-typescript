@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "4.6.4",
+  "version": "4.6.5",
   "main": "./dist/main/atomts",
   "bin": {
     "atbuild": "./dist/main/bin/atbuild"
@@ -21,7 +21,7 @@
       "versions": {
         "1.0.0": "provideLinter"
       }
-    } 
+    }
   },
   "consumedServices": {
     "snippets": {
