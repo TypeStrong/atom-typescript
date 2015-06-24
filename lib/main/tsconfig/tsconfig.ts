@@ -8,11 +8,12 @@ var types = simpleValidator.types;
 // do not want to force users to put magic numbers in their tsconfig files
 // Possible: Use require('typescript').parseConfigFile in TS1.5
 // NOTE: see the changes in `commandLineParser.ts` in the TypeScript sources to see what needs updating
-// When adding you need to :
 /**
- * 	Update the validation 
- * 	If its an enum : Update the enum map
- * 	If its a path : Update the `make relative` code
+ * When adding you need to
+ *  0 Add in this interface
+ * 	1 Add to the validation 
+ * 	2 If its an enum : Update the enum map
+ * 	3 If its a path : Update the `make relative` code
  */
 interface CompilerOptions {
     allowNonTsExtensions?: boolean;
@@ -21,6 +22,7 @@ interface CompilerOptions {
     declaration?: boolean;
     diagnostics?: boolean;
     emitBOM?: boolean;
+    experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
     inlineSourceMap?: boolean;
@@ -55,6 +57,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    experimentalDecorators: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
