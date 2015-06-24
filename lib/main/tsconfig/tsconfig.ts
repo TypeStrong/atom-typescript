@@ -577,7 +577,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
-        });
+        }).filter(f=> !!f);
 
         // Only ones we don't have by name yet
         // TODO: replace INF with an actual version

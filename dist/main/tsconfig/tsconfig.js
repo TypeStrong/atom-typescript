@@ -356,7 +356,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
-        });
+        }).filter(function (f) { return !!f; });
         files = files
             .filter(function (f) { return !typings[path.basename(f)] || typings[path.basename(f)].version > Infinity; });
         files.forEach(function (f) { return typings[path.basename(f)] = { filePath: f, version: Infinity }; });
