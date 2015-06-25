@@ -16,6 +16,7 @@ exports.provider = {
         return parent.errorsForFile({ filePath: filePath }).then(function (resp) {
             var linterErrors = resp.errors.map(function (err) { return ({
                 type: "Error",
+                filePath: filePath,
                 html: "<span class=\"badge badge-flexible\" style=\"color:rgb(0, 148, 255)\"> TS </span> " + err.message,
                 range: new atom_1.Range([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
             }); });
