@@ -85,10 +85,9 @@ var MainPanelView = (function (_super) {
                     style: 'display:inline-block'
                 }, function () {
                     _this.span({
-                        class: 'icon-x text-warning',
-                        style: 'cursor: pointer; margin-right:10px',
+                        style: 'margin-right:10px',
                         outlet: 'fileStatus'
-                    }, 'File might be outdated');
+                    });
                 });
                 _this.div({
                     class: 'heading-buttons',
@@ -146,17 +145,19 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.updateFileStatus = function (status) {
         this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
-        if (status === 'success') {
-            this.fileStatus.text('File is up to date');
-            this.fileStatus.addClass('icon-check text-success');
-        }
-        else if (status === 'error') {
+        if (status.modified) {
             this.fileStatus.text('File is outdated');
             this.fileStatus.addClass('icon-x text-error');
         }
         else {
-            this.fileStatus.text('File might be outdated');
-            this.fileStatus.addClass('icon-x text-warning');
+            if (status.saved) {
+                this.fileStatus.text('File is up to date');
+                this.fileStatus.addClass('icon-check text-success');
+            }
+            else {
+                this.fileStatus.text('File might be outdated');
+                this.fileStatus.addClass('icon-x text-warning');
+            }
         }
     };
     MainPanelView.prototype.showPending = function () {
@@ -414,12 +415,10 @@ var errorView;
         }
     };
     function showEmittedMessage(output) {
-        if (output.success) {
-        }
-        else if (output.emitError) {
+        if (output.emitError) {
             atom.notifications.addError('TS Emit Failed');
         }
-        else {
+        else if (!output.success) {
             atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
         }
     }

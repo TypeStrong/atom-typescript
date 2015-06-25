@@ -6,7 +6,7 @@
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 
-import {updateFileStatus} from "./fileStatus";
+import {getFileStatus} from "../atomts";
 import {errorView, show, panelView} from "./views/mainPanelView";
 
 ///ts:import=debugAtomTs
@@ -36,8 +36,13 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
 
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
             .then((res) => {
+                let status = getFileStatus(event.filePath);
+                status.saved = true;
+
+                // If there was a compilation error, the file differs from the one on the disk
+                status.modified = res.emitError;
+                panelView.updateFileStatus(status);
                 errorView.showEmittedMessage(res);
-                updateFileStatus(event.filePath, res);
             });
     });
 }

@@ -29,7 +29,6 @@
         "./main/atom/commands/outputFileCommands.ts",
         "./main/atom/debugAtomTs.ts",
         "./main/atom/editorSetup.ts",
-        "./main/atom/fileStatus.ts",
         "./main/atom/gotoHistory.ts",
         "./main/atom/onSaveHandler.ts",
         "./main/atom/signatureProvider.ts",

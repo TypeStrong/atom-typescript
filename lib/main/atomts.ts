@@ -50,8 +50,6 @@ import parent = require('../worker/parent');
 export var config = atomConfig.schema;
 import {debounce} from "./lang/utils";
 
-import {fileStatuses} from "./atom/fileStatus";
-
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
     var editor = atom.workspace.getActiveTextEditor();
@@ -73,6 +71,21 @@ function onlyOnceStuff() {
     renameView.attach();
 }
 
+export interface FileStatus {
+    saved: boolean; // True if the file has been saved and compiled during the current session
+    modified: boolean; // True if the file differs from the one on the disk
+};
+
+let fileStatuses: Array<FileStatus> = [];
+
+export function getFileStatus(filePath: string): FileStatus {
+    let status = fileStatuses[filePath];
+    if (!status) {
+        status = <FileStatus> {modified: false, saved: false};
+        fileStatuses[filePath] = status;
+    }
+    return status;
+}
 
 /** only called once we have our dependencies */
 function readyToActivate() {
@@ -110,10 +123,9 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
 
-            mainPanelView.panelView.updateFileStatus(fileStatuses[filePath]);
+            mainPanelView.panelView.updateFileStatus(getFileStatus(filePath));
             mainPanelView.show();
-        }
-        else {
+        } else {
             mainPanelView.hide();
         }
     });
@@ -158,6 +170,10 @@ function readyToActivate() {
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
+
+                    let status = getFileStatus(filePath);
+                    status.modified = editor.isModified();
+                    mainPanelView.panelView.updateFileStatus(status);
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {
