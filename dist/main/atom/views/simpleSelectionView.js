@@ -18,8 +18,9 @@ function simpleSelectionView(options) {
     singleton.show();
     return singleton;
 }
-exports.default = simpleSelectionView;
+exports.simpleSelectionView = simpleSelectionView;
 var sp = require('atom-space-pen-views');
+var $ = sp.$;
 var SimpleSelectListView = (function (_super) {
     __extends(SimpleSelectListView, _super);
     function SimpleSelectListView(options) {
@@ -38,7 +39,14 @@ var SimpleSelectListView = (function (_super) {
         _super.prototype.setItems.call(this, this.options.items);
     };
     SimpleSelectListView.prototype.viewForItem = function (item) {
-        return "<li>\n            " + this.options.viewForItem(item) + "\n        </li>";
+        var view = this.options.viewForItem(item);
+        if (typeof view === "string") {
+            return "<li>\n                " + view + "\n            </li>";
+        }
+        else {
+            return $('<li></li>').append(view);
+        }
+        ;
     };
     SimpleSelectListView.prototype.confirmed = function (item) {
         this.options.confirmed(item);

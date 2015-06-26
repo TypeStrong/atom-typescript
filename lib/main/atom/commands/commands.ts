@@ -15,13 +15,14 @@ import {panelView} from "../views/mainPanelView";
 import * as url from "url";
 import {AstView, astURI, astURIFull} from "../views/astView";
 import {DependencyView, dependencyURI} from "../views/dependencyView";
-import simpleSelectionView from "../views/simpleSelectionView";
+import {simpleSelectionView} from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
 import * as outputFileCommands from "./outputFileCommands";
 import {registerRenameHandling} from "./moveFilesHandling";
 import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
 import escapeHtml = require('escape-html');
 import * as rView from "../views/rView";
+import {$} from "atom-space-pen-views";
 
 export function registerCommands() {
 
@@ -287,11 +288,11 @@ export function registerCommands() {
             simpleSelectionView({
                 items: res.references,
                 viewForItem: (item) => {
-                    return `
+                    return $(`<div>
                         <span>${atom.project.relativize(item.filePath) }</span>
                         <div class="pull-right">line: ${item.position.line}</div>
                         <pre style="clear:both">${item.preview}</pre>
-                    `;
+                    <div>`);
                     // Based on markdown editor
                     // <atom-text-editor gutter-hidden data-grammar="source ">${item.preview.trim()}</atom-text-editor>
                 },

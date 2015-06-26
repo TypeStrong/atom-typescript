@@ -19,6 +19,7 @@ var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
+var atom_space_pen_views_1 = require("atom-space-pen-views");
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -93,7 +94,7 @@ function registerCommands() {
                 return;
             }
             if (definitions.length > 1) {
-                simpleSelectionView_1.default({
+                simpleSelectionView_1.simpleSelectionView({
                     items: definitions,
                     viewForItem: function (item) {
                         return "\n                            <span>" + item.filePath + "</span>\n                            <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        ";
@@ -228,10 +229,10 @@ function registerCommands() {
             return;
         parent.getReferences(atomUtils.getFilePathPosition()).then(function (res) {
             mainPanelView_1.panelView.setReferences(res.references);
-            simpleSelectionView_1.default({
+            simpleSelectionView_1.simpleSelectionView({
                 items: res.references,
                 viewForItem: function (item) {
-                    return "\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <pre style=\"clear:both\">" + item.preview + "</pre>\n                    ";
+                    return atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <pre style=\"clear:both\">" + item.preview + "</pre>\n                    <div>");
                 },
                 filterKey: utils.getName(function () { return res.references[0].filePath; }),
                 confirmed: function (definition) {
