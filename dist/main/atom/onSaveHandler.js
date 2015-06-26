@@ -1,6 +1,5 @@
 var atomUtils = require("./atomUtils");
 var parent = require('../../worker/parent');
-var atomts_1 = require("../atomts");
 var mainPanelView_1 = require("./views/mainPanelView");
 function handle(event) {
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
@@ -17,10 +16,10 @@ function handle(event) {
             return;
         textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
             .then(function (res) {
-            var status = atomts_1.getFileStatus(event.filePath);
+            var status = mainPanelView_1.getFileStatus(event.filePath);
             status.saved = true;
             status.modified = res.emitError;
-            mainPanelView_1.panelView.updateFileStatus(status);
+            mainPanelView_1.panelView.updateFileStatus(event.filePath);
             mainPanelView_1.errorView.showEmittedMessage(res);
         });
     });

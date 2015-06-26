@@ -5,7 +5,6 @@ import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
 import parent = require("../../../worker/parent");
 import * as utils from "../../lang/utils";
-import {FileStatus} from "../../atomts";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -171,7 +170,8 @@ export class MainPanelView extends view.View<any> {
     }
 
     ///////////// Change JS File Status
-    updateFileStatus(status: FileStatus) {
+    updateFileStatus(filePath: string) {
+        var status = getFileStatus(filePath);
         this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
         if (status.modified) {
             this.fileStatus.text('File is outdated');
@@ -515,4 +515,20 @@ export module errorView {
         }
     }
 
+}
+
+export interface FileStatus {
+    saved: boolean; // True if the file has been saved and compiled during the current session
+    modified: boolean; // True if the file differs from the one on the disk
+};
+
+let fileStatuses: Array<FileStatus> = [];
+
+export function getFileStatus(filePath: string): FileStatus {
+    let status = fileStatuses[filePath];
+    if (!status) {
+        status = <FileStatus> {modified: false, saved: false};
+        fileStatuses[filePath] = status;
+    }
+    return status;
 }

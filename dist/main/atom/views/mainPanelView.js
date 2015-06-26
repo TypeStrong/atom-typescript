@@ -144,7 +144,8 @@ var MainPanelView = (function (_super) {
                 .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });
         }
     };
-    MainPanelView.prototype.updateFileStatus = function (status) {
+    MainPanelView.prototype.updateFileStatus = function (filePath) {
+        var status = getFileStatus(filePath);
         this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
         if (status.modified) {
             this.fileStatus.text('File is outdated');
@@ -424,3 +425,14 @@ var errorView;
     }
     errorView.showEmittedMessage = showEmittedMessage;
 })(errorView = exports.errorView || (exports.errorView = {}));
+;
+var fileStatuses = [];
+function getFileStatus(filePath) {
+    var status = fileStatuses[filePath];
+    if (!status) {
+        status = { modified: false, saved: false };
+        fileStatuses[filePath] = status;
+    }
+    return status;
+}
+exports.getFileStatus = getFileStatus;

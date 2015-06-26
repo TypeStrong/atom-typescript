@@ -71,22 +71,6 @@ function onlyOnceStuff() {
     renameView.attach();
 }
 
-export interface FileStatus {
-    saved: boolean; // True if the file has been saved and compiled during the current session
-    modified: boolean; // True if the file differs from the one on the disk
-};
-
-let fileStatuses: Array<FileStatus> = [];
-
-export function getFileStatus(filePath: string): FileStatus {
-    let status = fileStatuses[filePath];
-    if (!status) {
-        status = <FileStatus> {modified: false, saved: false};
-        fileStatuses[filePath] = status;
-    }
-    return status;
-}
-
 /** only called once we have our dependencies */
 function readyToActivate() {
 
@@ -123,7 +107,7 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
 
-            mainPanelView.panelView.updateFileStatus(getFileStatus(filePath));
+            mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
         } else {
             mainPanelView.hide();
@@ -171,9 +155,9 @@ function readyToActivate() {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    let status = getFileStatus(filePath);
+                    let status = mainPanelView.getFileStatus(filePath);
                     status.modified = editor.isModified();
-                    mainPanelView.panelView.updateFileStatus(status);
+                    mainPanelView.panelView.updateFileStatus(filePath);
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {
