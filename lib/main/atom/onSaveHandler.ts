@@ -1,7 +1,7 @@
 import atomUtils = require("./atomUtils");
 
 ///ts:import=atomConfig
-  import atomConfig = require('./atomConfig'); ///ts:import:generated
+import atomConfig = require('./atomConfig'); ///ts:import:generated
 
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated

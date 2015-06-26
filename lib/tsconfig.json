@@ -115,6 +115,7 @@
         "./worker/debug.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
-        "./worker/queryParent.ts"
+        "./worker/queryParent.ts",
+        "../node_modules/ntypescript/bin/typescriptServices.d.ts"
     ]
 }

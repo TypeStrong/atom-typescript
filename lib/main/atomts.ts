@@ -214,10 +214,6 @@ function readyToActivate() {
                     var newText = diff.newText;
                     var oldText = diff.oldText;
 
-                    // Facepalm: sometimes atom inserts \r\n but says it added \n
-                    // Fix that:
-                    newText = editor.buffer.getTextInRange(diff.newRange);
-
                     var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
                     var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
 
