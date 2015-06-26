@@ -41,8 +41,25 @@
         'name': 'storage.type.variable.ts'
   }
   {
+    'match': '\\b(interface)(?:(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))|(?:(?:\\s+(\\w+(?:\\.\\w*)?))(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))?))'
+    'captures':
+      '1':
+        'name': 'storage.type.interface.ts'
+      '2':
+        'name': 'storage.modifier.ts'
+      '3':
+        'name': 'entity.name.type.ts'
+      '4':
+        'name': 'entity.name.type.ts'
+      '5':
+        'name': 'storage.modifier.ts'
+      '6':
+        'name': 'entity.name.type.ts'
+    'name': 'meta.interface.ts'
+  }
+  {
     'comment': 'Match stuff like: constructor'
-    'match': '\\b(constructor|declare|interface|as|AS|public|export)\\b'
+    'match': '\\b(constructor|declare|as|AS|public|export)\\b'
     'name': 'keyword.operator.ts'
   }
   {
