@@ -58,8 +58,13 @@
     'name': 'meta.interface.ts'
   }
   {
+      'comment': 'Match export, declare and constructor'
+      'match': '\\b(export|declare|constructor)\\b'
+      'name': 'keyword.other.ts'
+  }
+  {
     'comment': 'Match stuff like: constructor'
-    'match': '\\b(constructor|declare|as|AS|public|export)\\b'
+    'match': '\\b(as|AS|public)\\b'
     'name': 'keyword.operator.ts'
   }
   {
