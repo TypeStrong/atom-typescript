@@ -232,7 +232,18 @@ function registerCommands() {
             simpleSelectionView_1.simpleSelectionView({
                 items: res.references,
                 viewForItem: function (item) {
-                    return atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <pre style=\"clear:both\">" + item.preview + "</pre>\n                    <div>");
+                    var view = atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <insert></insert>\n                    <div>");
+                    var insertLoc = view.find('insert');
+                    var editorElement = document.createElement('atom-text-editor');
+                    editorElement.setAttributeNode(document.createAttribute('gutter-hidden'));
+                    editorElement.removeAttribute('tabindex');
+                    insertLoc.replaceWith(editorElement);
+                    var editor = editorElement.getModel();
+                    editor.getDecorations({ class: 'cursor-line', type: 'line' })[0].destroy();
+                    editor.setText(item.preview);
+                    var grammar = atom.grammars.grammarForScopeName("source.ts");
+                    editor.setGrammar(grammar);
+                    return view;
                 },
                 filterKey: utils.getName(function () { return res.references[0].filePath; }),
                 confirmed: function (definition) {

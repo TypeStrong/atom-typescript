@@ -288,13 +288,26 @@ export function registerCommands() {
             simpleSelectionView({
                 items: res.references,
                 viewForItem: (item) => {
-                    return $(`<div>
+                    var view = $(`<div>
                         <span>${atom.project.relativize(item.filePath) }</span>
                         <div class="pull-right">line: ${item.position.line}</div>
-                        <pre style="clear:both">${item.preview}</pre>
+                        <insert></insert>
                     <div>`);
-                    // Based on markdown editor
-                    // <atom-text-editor gutter-hidden data-grammar="source ">${item.preview.trim()}</atom-text-editor>
+                    // Based on markdown editor 
+                    // https://github.com/atom/markdown-preview/blob/2bcbadac3980f1aeb455f7078bd1fdfb4e6fe6b1/lib/renderer.coffee#L111
+                    let insertLoc = view.find('insert');
+                    var editorElement = document.createElement('atom-text-editor');
+                    editorElement.setAttributeNode(document.createAttribute('gutter-hidden'))
+                    editorElement.removeAttribute('tabindex') // make read-only
+                    insertLoc.replaceWith(editorElement);
+                    var editor = (<any>editorElement).getModel();
+                    // remove the default selection of a line in each editor
+                    editor.getDecorations({class: 'cursor-line', type: 'line'})[0].destroy()
+                    editor.setText(item.preview);
+                    var grammar = (<any>atom).grammars.grammarForScopeName("source.ts")
+                    editor.setGrammar(grammar);
+                    
+                    return view;
                 },
                 filterKey: utils.getName(() => res.references[0].filePath),
                 confirmed: (definition) => {
