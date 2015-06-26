@@ -5,6 +5,7 @@ import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
 import parent = require("../../../worker/parent");
 import * as utils from "../../lang/utils";
+import {FileStatus} from "../../atomts";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -16,6 +17,7 @@ import gotoHistory = require('../gotoHistory');
 
 export class MainPanelView extends view.View<any> {
 
+    private fileStatus: JQuery;
     private btnFold: JQuery;
     private btnSoftReset: JQuery;
     private summary: JQuery;
@@ -99,6 +101,15 @@ export class MainPanelView extends view.View<any> {
                         });
 
                         this.div({
+                            style: 'display:inline-block'
+                        }, () => {
+                            this.span({
+                                style: 'margin-right:10px',
+                                outlet: 'fileStatus'
+                            });
+                        });
+
+                        this.div({
                             class: 'heading-buttons',
                             style: 'width:50px; display:inline-block'
                         }, () => {
@@ -156,6 +167,23 @@ export class MainPanelView extends view.View<any> {
                 return parent.errorsForFile({ filePath: editor.getPath() })
             })
                 .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        }
+    }
+
+    ///////////// Change JS File Status
+    updateFileStatus(status: FileStatus) {
+        this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
+        if (status.modified) {
+            this.fileStatus.text('File is outdated');
+            this.fileStatus.addClass('icon-x text-error');
+        } else {
+            if (status.saved) {
+                this.fileStatus.text('File is up to date');
+                this.fileStatus.addClass('icon-check text-success');
+            } else { // File hasn't been saved and compiled during the current run, so we don't know the state
+                this.fileStatus.text('File might be outdated');
+                this.fileStatus.addClass('icon-x text-warning');
+            }
         }
     }
 
@@ -480,12 +508,9 @@ export module errorView {
     };
 
     export function showEmittedMessage(output: EmitOutput) {
-        if (output.success) {
-            var message = 'TS emit succeeded<br/>' + output.outputFiles.join('<br/>');
-            atomUtils.quickNotifySuccess(message);
-        } else if (output.emitError) {
+        if (output.emitError) {
             atom.notifications.addError('TS Emit Failed');
-        } else {
+        } else if (!output.success) {
             atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
         }
     }

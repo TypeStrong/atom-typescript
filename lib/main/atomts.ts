@@ -71,6 +71,21 @@ function onlyOnceStuff() {
     renameView.attach();
 }
 
+export interface FileStatus {
+    saved: boolean; // True if the file has been saved and compiled during the current session
+    modified: boolean; // True if the file differs from the one on the disk
+};
+
+let fileStatuses: Array<FileStatus> = [];
+
+export function getFileStatus(filePath: string): FileStatus {
+    let status = fileStatuses[filePath];
+    if (!status) {
+        status = <FileStatus> {modified: false, saved: false};
+        fileStatuses[filePath] = status;
+    }
+    return status;
+}
 
 /** only called once we have our dependencies */
 function readyToActivate() {
@@ -108,9 +123,9 @@ function readyToActivate() {
             parent.errorsForFile({ filePath: filePath })
                 .then((resp) => errorView.setErrors(filePath, resp.errors));
 
+            mainPanelView.panelView.updateFileStatus(getFileStatus(filePath));
             mainPanelView.show();
-        }
-        else {
+        } else {
             mainPanelView.hide();
         }
     });
@@ -151,10 +166,14 @@ function readyToActivate() {
                 }
 
                 // Setup additional observers on the editor
-                editorSetup.setupEditor(editor);                
+                editorSetup.setupEditor(editor);
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
+
+                    let status = getFileStatus(filePath);
+                    status.modified = editor.isModified();
+                    mainPanelView.panelView.updateFileStatus(status);
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {
@@ -197,7 +216,7 @@ function readyToActivate() {
 
                     var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
                     var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
-                    
+
                     // use this for faster language service host
                     var promise = parent.editText({ filePath, start, end, newText });
 

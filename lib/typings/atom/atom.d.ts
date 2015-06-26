@@ -383,7 +383,7 @@ declare module AtomCore {
 	interface ICursorStatic {
 		new (arg:{editor:IEditor; marker:IDisplayBufferMarker; id: number;}):ICursor;
 	}
-	
+
     interface ScopeDescriptor {
 		scopes: string[];
     }
