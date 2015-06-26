@@ -28,24 +28,26 @@ export class LineMessageView extends view.View<ViewOptions> {
     static content() {
         return this.div({
             class: 'line-message'
-        },() => {
-                this.div({
-                    class: 'text-subtle inline-block',
-                    outlet: 'position',
-                    click: 'goToLine',
-                    style: 'cursor: pointer;'
-                });
-                this.div({
-                    class: 'message inline-block',
-                    outlet: 'contents'
-                });
-                this.pre({
+        }, () => {
+            this.div({
+                class: 'text-subtle inline-block',
+                outlet: 'position',
+                click: 'goToLine',
+                style: 'cursor: pointer;'
+            });
+            this.div({
+                class: 'message inline-block',
+                outlet: 'contents'
+            });
+            this.tag(
+                'ts-view',
+                {
                     class: 'preview',
                     outlet: 'code',
                     click: 'goToLine',
                     style: 'cursor: pointer;'
                 });
-            });
+        });
     }
 
     init() {
@@ -58,14 +60,14 @@ export class LineMessageView extends view.View<ViewOptions> {
         this.contents.text(this.options.message);
 
         if (this.options.preview) {
-            this.code.text(this.options.preview);
+            (<any>this.code[0]).text(this.options.preview);
         } else {
             this.code.remove();
         }
     }
 
     goToLine() {
-        this.options.goToLine(this.options.file,this.options.line, this.options.col);
+        this.options.goToLine(this.options.file, this.options.line, this.options.col);
     }
 
     getSummary() {

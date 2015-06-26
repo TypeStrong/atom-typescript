@@ -130,7 +130,7 @@ var MainPanelView = (function (_super) {
         });
         if (atomUtils.onDiskAndTs(editor)) {
             prom.then(function () {
-                atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
+                atomUtils.triggerLinter();
                 return parent.errorsForFile({ filePath: editor.getPath() });
             })
                 .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });

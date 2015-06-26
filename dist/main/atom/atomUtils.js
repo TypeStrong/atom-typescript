@@ -195,6 +195,10 @@ function registerOpener(config) {
     });
 }
 exports.registerOpener = registerOpener;
+function triggerLinter() {
+    atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
+}
+exports.triggerLinter = triggerLinter;
 var _snippetsManager;
 function _setSnippetsManager(snippetsManager) {
     _snippetsManager = snippetsManager;

@@ -239,6 +239,12 @@ export function registerOpener<T>(config: OpenerConfig<T>) {
     });
 }
 
+export function triggerLinter() {
+    // also invalidate linter
+    atom.commands.dispatch(
+        atom.views.getView(atom.workspace.getActiveTextEditor()),
+        'linter:lint');
+}
 
 /************
  * Snippets *

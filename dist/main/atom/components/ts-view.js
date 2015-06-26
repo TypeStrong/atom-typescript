@@ -12,15 +12,18 @@ var TsView = (function (_super) {
     }
     TsView.prototype.createdCallback = function () {
         var preview = this.innerText;
-        var editorElement = document.createElement('atom-text-editor');
+        var editorElement = this.editorElement = document.createElement('atom-text-editor');
         editorElement.setAttributeNode(document.createAttribute('gutter-hidden'));
         editorElement.removeAttribute('tabindex');
-        var editor = editorElement.getModel();
+        var editor = this.editor = editorElement.getModel();
         editor.getDecorations({ class: 'cursor-line', type: 'line' })[0].destroy();
         editor.setText(preview);
         var grammar = atom.grammars.grammarForScopeName("source.ts");
         editor.setGrammar(grammar);
         this.appendChild(editorElement);
+    };
+    TsView.prototype.text = function (text) {
+        this.editor.setText(text);
     };
     return TsView;
 })(HTMLElement);

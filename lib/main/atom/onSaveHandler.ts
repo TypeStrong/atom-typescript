@@ -1,4 +1,4 @@
-
+import atomUtils = require("./atomUtils");
 
 ///ts:import=atomConfig
 import atomConfig = require('./atomConfig'); ///ts:import:generated
@@ -18,9 +18,7 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
     // Refresh errors for file
     textUpdated.then(() => {
         // also invalidate linter
-        atom.commands.dispatch(
-            atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'linter:lint');
+        atomUtils.triggerLinter();
 
         parent.errorsForFile({ filePath: event.filePath })
             .then((resp) => errorView.setErrors(event.filePath, resp.errors));

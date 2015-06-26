@@ -151,10 +151,7 @@ export class MainPanelView extends view.View<any> {
         });
         if (atomUtils.onDiskAndTs(editor)) {
             prom.then(() => {
-                // also invalidate linter
-                atom.commands.dispatch(
-                    atom.views.getView(atom.workspace.getActiveTextEditor()),
-                    'linter:lint');
+                atomUtils.triggerLinter();
 
                 return parent.errorsForFile({ filePath: editor.getPath() })
             })
