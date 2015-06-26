@@ -76,8 +76,17 @@ export class MainPanelView extends view.View<any> {
                             });
 
                         this.div({
+                            style: 'display:inline-block'
+                        }, () => {
+                            this.span({
+                                style: 'margin-left:10px; transition: color 1s', // Added transition to make it easy to see *yes I just did this compile*.
+                                outlet: 'fileStatus'
+                            });
+                        });
+
+                        this.div({
                             class: 'heading-summary flex',
-                            style: 'display:inline-block; margin-left:5px; max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                            style: 'display:inline-block; margin-left:5px; margin-top:3px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
 
@@ -96,15 +105,6 @@ export class MainPanelView extends view.View<any> {
                                 class: 'loading loading-spinner-tiny inline-block',
                                 style: 'cursor: pointer; margin-right: 7px;',
                                 click: 'showPending'
-                            });
-                        });
-
-                        this.div({
-                            style: 'display:inline-block'
-                        }, () => {
-                            this.span({
-                                style: 'margin-right:10px',
-                                outlet: 'fileStatus'
                             });
                         });
 

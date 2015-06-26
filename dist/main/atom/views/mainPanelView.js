@@ -62,8 +62,16 @@ var MainPanelView = (function (_super) {
                     btn("references", panelHeaders.references);
                 });
                 _this.div({
+                    style: 'display:inline-block'
+                }, function () {
+                    _this.span({
+                        style: 'margin-left:10px; transition: color 1s',
+                        outlet: 'fileStatus'
+                    });
+                });
+                _this.div({
                     class: 'heading-summary flex',
-                    style: 'display:inline-block; margin-left:5px; max-height:12px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                    style: 'display:inline-block; margin-left:5px; margin-top:3px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                     outlet: 'summary'
                 });
                 _this.progress({
@@ -80,14 +88,6 @@ var MainPanelView = (function (_super) {
                         class: 'loading loading-spinner-tiny inline-block',
                         style: 'cursor: pointer; margin-right: 7px;',
                         click: 'showPending'
-                    });
-                });
-                _this.div({
-                    style: 'display:inline-block'
-                }, function () {
-                    _this.span({
-                        style: 'margin-right:10px',
-                        outlet: 'fileStatus'
                     });
                 });
                 _this.div({
