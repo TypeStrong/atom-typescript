@@ -96,7 +96,6 @@
         "./typings/d3/d3.d.ts",
         "./typings/emissary/emissary.d.ts",
         "./typings/glob-expand/glob-expand.d.ts",
-        "./typings/immutable.d.ts",
         "./typings/jquery/jquery.d.ts",
         "./typings/minimatch.d.ts",
         "./typings/mixto/mixto.d.ts",
