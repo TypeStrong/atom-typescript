@@ -20,6 +20,7 @@ var TsView = (function (_super) {
         editor.setText(preview);
         var grammar = atom.grammars.grammarForScopeName("source.ts");
         editor.setGrammar(grammar);
+        editor.setSoftWrapped(true);
         this.appendChild(editorElement);
     };
     TsView.prototype.text = function (text) {

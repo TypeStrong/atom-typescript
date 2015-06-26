@@ -17,6 +17,7 @@ export class TsView extends HTMLElement {
         editor.setText(preview);
         var grammar = (<any>atom).grammars.grammarForScopeName("source.ts")
         editor.setGrammar(grammar);
+        editor.setSoftWrapped(true);
 
         this.appendChild(editorElement);
     }
