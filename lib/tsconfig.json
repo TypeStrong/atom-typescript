@@ -28,6 +28,8 @@
         "./main/atom/commands/commands.ts",
         "./main/atom/commands/moveFilesHandling.ts",
         "./main/atom/commands/outputFileCommands.ts",
+        "./main/atom/components/componentRegistry.ts",
+        "./main/atom/components/ts-view.ts",
         "./main/atom/debugAtomTs.ts",
         "./main/atom/editorSetup.ts",
         "./main/atom/gotoHistory.ts",

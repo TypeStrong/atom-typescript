@@ -1,3 +1,6 @@
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 var parent = require("../../../worker/parent");
 var buildView = require("../buildView");
 var atomUtils = require("../atomUtils");
@@ -20,6 +23,7 @@ var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
 var atom_space_pen_views_1 = require("atom-space-pen-views");
+__export(require("../components/componentRegistry"));
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -232,17 +236,7 @@ function registerCommands() {
             simpleSelectionView_1.simpleSelectionView({
                 items: res.references,
                 viewForItem: function (item) {
-                    var view = atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <insert></insert>\n                    <div>");
-                    var insertLoc = view.find('insert');
-                    var editorElement = document.createElement('atom-text-editor');
-                    editorElement.setAttributeNode(document.createAttribute('gutter-hidden'));
-                    editorElement.removeAttribute('tabindex');
-                    insertLoc.replaceWith(editorElement);
-                    var editor = editorElement.getModel();
-                    editor.getDecorations({ class: 'cursor-line', type: 'line' })[0].destroy();
-                    editor.setText(item.preview);
-                    var grammar = atom.grammars.grammarForScopeName("source.ts");
-                    editor.setGrammar(grammar);
+                    var view = atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <ts-view>" + item.preview + "</ts-view>\n                    <div>");
                     return view;
                 },
                 filterKey: utils.getName(function () { return res.references[0].filePath; }),

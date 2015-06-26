@@ -24,6 +24,9 @@ import escapeHtml = require('escape-html');
 import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
 
+// Load all the web components
+export * from "../components/componentRegistry";
+
 export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
@@ -291,22 +294,8 @@ export function registerCommands() {
                     var view = $(`<div>
                         <span>${atom.project.relativize(item.filePath) }</span>
                         <div class="pull-right">line: ${item.position.line}</div>
-                        <insert></insert>
+                        <ts-view>${item.preview}</ts-view>
                     <div>`);
-                    // Based on markdown editor 
-                    // https://github.com/atom/markdown-preview/blob/2bcbadac3980f1aeb455f7078bd1fdfb4e6fe6b1/lib/renderer.coffee#L111
-                    let insertLoc = view.find('insert');
-                    var editorElement = document.createElement('atom-text-editor');
-                    editorElement.setAttributeNode(document.createAttribute('gutter-hidden'))
-                    editorElement.removeAttribute('tabindex') // make read-only
-                    insertLoc.replaceWith(editorElement);
-                    var editor = (<any>editorElement).getModel();
-                    // remove the default selection of a line in each editor
-                    editor.getDecorations({class: 'cursor-line', type: 'line'})[0].destroy()
-                    editor.setText(item.preview);
-                    var grammar = (<any>atom).grammars.grammarForScopeName("source.ts")
-                    editor.setGrammar(grammar);
-                    
                     return view;
                 },
                 filterKey: utils.getName(() => res.references[0].filePath),
