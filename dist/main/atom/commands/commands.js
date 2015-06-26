@@ -22,7 +22,6 @@ var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
-var atom_space_pen_views_1 = require("atom-space-pen-views");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
     outputFileCommands.register();
@@ -236,8 +235,7 @@ function registerCommands() {
             simpleSelectionView_1.simpleSelectionView({
                 items: res.references,
                 viewForItem: function (item) {
-                    var view = atom_space_pen_views_1.$("<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <ts-view>" + item.preview + "</ts-view>\n                    <div>");
-                    return view;
+                    return "<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + item.position.line + "</div>\n                        <ts-view>" + item.preview + "</ts-view>\n                    <div>";
                 },
                 filterKey: utils.getName(function () { return res.references[0].filePath; }),
                 confirmed: function (definition) {

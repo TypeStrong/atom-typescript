@@ -291,12 +291,11 @@ export function registerCommands() {
             simpleSelectionView({
                 items: res.references,
                 viewForItem: (item) => {
-                    var view = $(`<div>
+                    return `<div>
                         <span>${atom.project.relativize(item.filePath) }</span>
                         <div class="pull-right">line: ${item.position.line}</div>
                         <ts-view>${item.preview}</ts-view>
-                    <div>`);
-                    return view;
+                    <div>`;
                 },
                 filterKey: utils.getName(() => res.references[0].filePath),
                 confirmed: (definition) => {
