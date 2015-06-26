@@ -39,13 +39,15 @@ var MainPanelView = (function (_super) {
         }, function () {
             _this.div({
                 class: 'panel-resize-handle',
-                style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3'
+                style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3; -webkit-user-select:none'
             });
             _this.div({
-                class: 'panel-heading layout horizontal'
+                class: 'panel-heading layout horizontal',
+                style: '-webkit-user-select:none',
+                dblclick: 'toggle'
             }, function () {
                 _this.span({
-                    style: 'cursor: pointer; color: rgb(0, 148, 255)',
+                    style: 'cursor: pointer; color: rgb(0, 148, 255); -webkit-user-select:none',
                     click: 'toggle'
                 }, function () {
                     _this.span({ class: "icon-microscope" });
