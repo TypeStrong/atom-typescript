@@ -120,9 +120,9 @@ function getScriptSnapShot(scriptInfo) {
 }
 exports.getDefaultLibFilePath = function (options) {
     var filename = ts.getDefaultLibFileName(options);
-    return (path.join(path.dirname(require.resolve('typescript')), filename)).split('\\').join('/');
+    return (path.join(path.dirname(require.resolve('ntypescript')), filename)).split('\\').join('/');
 };
-exports.typescriptDirectory = path.dirname(require.resolve('typescript')).split('\\').join('/');
+exports.typescriptDirectory = path.dirname(require.resolve('ntypescript')).split('\\').join('/');
 var LanguageServiceHost = (function () {
     function LanguageServiceHost(config) {
         var _this = this;

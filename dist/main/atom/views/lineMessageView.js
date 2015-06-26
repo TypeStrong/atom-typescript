@@ -1,8 +1,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var view = require('./view');
 var $ = view.$;
@@ -26,7 +25,7 @@ var LineMessageView = (function (_super) {
                 class: 'message inline-block',
                 outlet: 'contents'
             });
-            _this.pre({
+            _this.tag('ts-view', {
                 class: 'preview',
                 outlet: 'code',
                 click: 'goToLine',
@@ -42,7 +41,7 @@ var LineMessageView = (function (_super) {
         this.position.text(message);
         this.contents.text(this.options.message);
         if (this.options.preview) {
-            this.code.text(this.options.preview);
+            this.code[0].text(this.options.preview);
         }
         else {
             this.code.remove();

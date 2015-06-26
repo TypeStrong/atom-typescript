@@ -1,10 +1,11 @@
+var atomUtils = require("./atomUtils");
 var parent = require('../../worker/parent');
 var atomts_1 = require("../atomts");
 var mainPanelView_1 = require("./views/mainPanelView");
 function handle(event) {
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
     textUpdated.then(function () {
-        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
+        atomUtils.triggerLinter();
         parent.errorsForFile({ filePath: event.filePath })
             .then(function (resp) { return mainPanelView_1.errorView.setErrors(event.filePath, resp.errors); });
     });

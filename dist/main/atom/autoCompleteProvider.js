@@ -101,9 +101,13 @@ exports.provider = {
                         };
                     }
                     else {
+                        var prefix = options.prefix;
+                        if (c.name.startsWith('$')) {
+                            prefix = "$" + prefix;
+                        }
                         return {
                             text: c.name,
-                            replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                            replacementPrefix: resp.endsInPunctuation ? '' : prefix,
                             rightLabel: c.display,
                             leftLabel: c.kind,
                             type: atomUtils.kindToType(c.kind),

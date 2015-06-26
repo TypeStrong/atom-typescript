@@ -8,11 +8,12 @@ var types = simpleValidator.types;
 // do not want to force users to put magic numbers in their tsconfig files
 // Possible: Use require('typescript').parseConfigFile in TS1.5
 // NOTE: see the changes in `commandLineParser.ts` in the TypeScript sources to see what needs updating
-// When adding you need to :
 /**
- * 	Update the validation
- * 	If its an enum : Update the enum map
- * 	If its a path : Update the `make relative` code
+ * When adding you need to
+ *  0 Add in this interface
+ * 	1 Add to the validation 
+ * 	2 If its an enum : Update the enum map
+ * 	3 If its a path : Update the `make relative` code
  */
 interface CompilerOptions {
     allowNonTsExtensions?: boolean;
@@ -21,6 +22,7 @@ interface CompilerOptions {
     declaration?: boolean;
     diagnostics?: boolean;
     emitBOM?: boolean;
+    experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
     inlineSourceMap?: boolean;
@@ -28,6 +30,7 @@ interface CompilerOptions {
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
+    noEmit?: boolean;
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
@@ -54,6 +57,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    experimentalDecorators: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
@@ -61,6 +65,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    noEmit: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
@@ -85,7 +90,7 @@ interface TypeScriptProjectRawSpecification {
     version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
-    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
+    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -572,7 +577,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
-        });
+        }).filter(f=> !!f);
 
         // Only ones we don't have by name yet
         // TODO: replace INF with an actual version
@@ -590,7 +595,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
 
-        // For each sub directory of node_modules look at package.json and then `typescript.definition`
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`        
         var moduleDirs = getDirs(node_modules);
         for (let moduleDir of moduleDirs) {
             try {
@@ -619,7 +624,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             // Sure we didn't find node_modules
             // Thats cool
         }
-        // this is best effort only at the moment
+        // this is best effort only at the moment        
         else {
             console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
         }

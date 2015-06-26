@@ -6,7 +6,7 @@ function getExternalModuleNames(program) {
     var entries = [];
     program.getSourceFiles().forEach(function (sourceFile) {
         ts.forEachChild(sourceFile, function (child) {
-            if (child.kind === 206 && child.name.kind === 8) {
+            if (child.kind === 208 && child.name.kind === 8) {
                 entries.push(child.name.text);
             }
         });

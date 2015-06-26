@@ -117,6 +117,7 @@ export var provider: autocompleteplus.Provider = {
     inclusionPriority: 3,
     excludeLowerPriority: false,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
+        
         var filePath = options.editor.getPath();
 
         // We refuse to work on files that are not on disk.
@@ -201,9 +202,19 @@ export var provider: autocompleteplus.Provider = {
                             };
                         }
                         else {
+                            var prefix = options.prefix;
+                            // If the completion is $foo
+                            // The prefix from acp is actually only `foo`
+                            // But the var is $foo 
+                            // => so we would potentially end up replacing $foo with $$foo
+                            // Fix that: 
+                            if (c.name.startsWith('$')) {
+                                prefix = "$" + prefix;
+                            }
+                            
                             return {
                                 text: c.name,
-                                replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                                replacementPrefix: resp.endsInPunctuation ? '' : prefix,
                                 rightLabel: c.display,
                                 leftLabel: c.kind,
                                 type: atomUtils.kindToType(c.kind),

@@ -314,6 +314,11 @@ export function provide() {
     return [autoCompleteProvider.provider];
 }
 
+import * as linter from "../linter";
+export function provideLinter() {
+    return linter.provider;
+}
+
 export function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }

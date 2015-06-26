@@ -151,3 +151,8 @@ interface FileDependency {
     sourcePath: string;
     targetPath: string;
 }
+
+/** Provided by the atom team */
+interface String {
+    startsWith(str: string): boolean;
+}

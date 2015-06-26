@@ -6,7 +6,7 @@
 export interface SelectListViewOptions<T> {
     items: T[];
     /** everything except the `li` which is required */
-    viewForItem: (item: T) => string;
+    viewForItem: (item: T) => string | JQuery;
 
     /** some property on item */
     filterKey: string;
@@ -15,7 +15,7 @@ export interface SelectListViewOptions<T> {
 
 var singleton: SimpleSelectListView<any>;
 
-export default function simpleSelectionView<T>(options: SelectListViewOptions<T>): SimpleSelectListView<T> {
+export function simpleSelectionView<T>(options: SelectListViewOptions<T>): SimpleSelectListView<T> {
     if (!singleton) singleton = new SimpleSelectListView<T>(options);
     else { singleton.options = options; }
 
@@ -29,6 +29,7 @@ export default function simpleSelectionView<T>(options: SelectListViewOptions<T>
  */
 
 import sp = require('atom-space-pen-views');
+import $ = sp.$;
 import * as atomUtils from "../atomUtils";
 
 export class SimpleSelectListView<T> extends sp.SelectListView {
@@ -46,10 +47,16 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
     }
 
     /** override */
-    viewForItem(item: T) {
-        return `<li>
-            ${this.options.viewForItem(item) }
-        </li>`;
+    viewForItem(item: T): any {
+        var view = this.options.viewForItem(item);
+        if (typeof view === "string") {
+            return `<li>
+                ${view}
+            </li>`;
+        }
+        else {
+            return $('<li></li>').append(view);
+        };
     }
     
     /** override */
@@ -69,7 +76,8 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
         if (!this.panel) this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show()
 
-        this.focusFilterEditor();
+        this.focusFilterEditor();        
+        // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
     }
     hide() {
         this.panel.hide();

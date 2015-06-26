@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "4.5.16",
+  "version": "4.6.8",
   "main": "./dist/main/atomts",
   "bin": {
     "atbuild": "./dist/main/bin/atbuild"
@@ -11,12 +11,15 @@
     "atom": ">=0.199.0 <2.0.0",
     "node": "*"
   },
-  "linter-package": true,
-  "linter-implementation": "../dist/linter",
   "providedServices": {
     "autocomplete.provider": {
       "versions": {
         "2.0.0": "provide"
+      }
+    },
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
       }
     }
   },
@@ -47,9 +50,9 @@
     "glob-expand": "0.0.2",
     "immutable": "^3.7.3",
     "mkdirp": "^0.5.0",
+    "ntypescript": "1.201506221122.1",
     "react": "^0.13.3",
-    "season": "^5.1.4",
-    "typescript": "https://github.com/Arnavion/typescript-github/tarball/2015-05-06-3d0daef8eb08104920f9272b32d414b9266a5d78"
+    "season": "^5.1.4"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

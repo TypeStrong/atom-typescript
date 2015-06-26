@@ -8,6 +8,7 @@ var compilerOptionsValidation = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    experimentalDecorators: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
@@ -15,6 +16,7 @@ var compilerOptionsValidation = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    noEmit: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
@@ -354,7 +356,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
-        });
+        }).filter(function (f) { return !!f; });
         files = files
             .filter(function (f) { return !typings[path.basename(f)] || typings[path.basename(f)].version > Infinity; });
         files.forEach(function (f) { return typings[path.basename(f)] = { filePath: f, version: Infinity }; });
