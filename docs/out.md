@@ -98,3 +98,7 @@ So `a.ts` [cannot be compiled in isolation](https://github.com/Microsoft/TypeScr
 
 ## Summary
 `--out` is really the job of some build tool. And even such a build tool can benefit from the dependency mentions provided by external modules. So we recommend you use external modules and then let the build tool create a single `.js` for you if you so desire.
+
+https://twitter.com/nycdotnet/status/613705850574778368 
+
+![](https://pbs.twimg.com/media/CIRSOBmWsAQdzvP.jpg)
