@@ -34,7 +34,7 @@ export function register() {
         });
     });
 
-    atom.commands.add('atom-workspace', 'typescript:output-file-execute-in-iojs', (e) => {
+    atom.commands.add('atom-workspace', 'typescript:output-file-execute-in-node', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
         var query = atomUtils.getFilePath();
@@ -45,7 +45,7 @@ export function register() {
             }
             else {
                 // spawn('cmd', ['/C', 'start ' + "node " + res.output.outputFiles[0].name]);
-                var command = "iojs " + res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
+                var command = "node " + res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
                 console.log(command)
 
                 exec(command, (err, stdout, stderr) => {
