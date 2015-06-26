@@ -14,23 +14,23 @@
     'name': 'meta.function.ts'
     'captures':
       '1':
-        'name': 'keyword.operator.ts'
+        'name': 'keyword.other.ts'
       '2':
-        'name': 'variable.parameter.function.ts'
+        'name': 'entity.name.module.ts'
 
   }
   {
     'comment': 'Match type annotation for key types'
     'match': ':\\s*(string|boolean|number|any)\\b'
     'captures':
-        '1' : 
+        '1' :
             'name': 'storage.type.variable.ts'
   }
   {
     'comment': 'Match assert for key types'
     'match': '<(string|boolean|number|any)>'
     'captures':
-        '1' : 
+        '1' :
             'name': 'storage.type.variable.ts'
   }
   {
@@ -140,7 +140,7 @@
       'captures':
         '1':
            'name':'keyword.other.ts'
-        '2':        
+        '2':
            'name':'keyword.other.ts'
         '3':
           'name':'es6import.path.string'
@@ -148,7 +148,7 @@
   {
     'include': 'source.js'
   }
-  
+
   # TRANSFORMS
   {
       'comment': 'Embedded Syntaxes support'
