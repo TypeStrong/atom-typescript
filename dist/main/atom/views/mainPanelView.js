@@ -153,7 +153,7 @@ var MainPanelView = (function (_super) {
             this.fileStatus.addClass('icon-x text-error');
         }
         else {
-            if (status.saved) {
+            if (status.saveSynced) {
                 this.fileStatus.text('Js emit up to date');
                 this.fileStatus.addClass('icon-check text-success');
             }

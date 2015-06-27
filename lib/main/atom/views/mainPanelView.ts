@@ -178,7 +178,7 @@ export class MainPanelView extends view.View<any> {
             this.fileStatus.text('Js emit is outdated');
             this.fileStatus.addClass('icon-x text-error');
         } else {
-            if (status.saved) {
+            if (status.saveSynced) {
                 this.fileStatus.text('Js emit up to date');
                 this.fileStatus.addClass('icon-check text-success');
             } else { // File hasn't been saved and compiled during the current run, so we don't know the state

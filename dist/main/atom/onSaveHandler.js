@@ -18,7 +18,7 @@ function handle(event) {
         textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
             .then(function (res) {
             var status = fileStatusCache_1.getFileStatus(event.filePath);
-            status.saved = true;
+            status.saveSynced = true;
             status.modified = res.emitError;
             mainPanelView_1.panelView.updateFileStatus(event.filePath);
             mainPanelView_1.errorView.showEmittedMessage(res);
