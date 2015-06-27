@@ -59,12 +59,17 @@
   }
   {
       'comment': 'Match export, declare and constructor'
-      'match': '\\b(export|declare|constructor)\\b'
+      'match': '\\b(?:export|declare|constructor)\\b'
       'name': 'keyword.other.ts'
   }
   {
-    'comment': 'Match stuff like: constructor'
-    'match': '\\b(as|AS|public)\\b'
+      'comment': 'Match public and private'
+      'match': '\\b(?:public|private)\\b'
+      'name': 'keyword.type.modifier.ts'
+  }
+  {
+    'comment': 'Match stuff like: as'
+    'match': '\\b(as|AS)\\b'
     'name': 'keyword.operator.ts'
   }
   {
