@@ -20,7 +20,7 @@
   }
   {
     'comment': 'Match this.'
-    'match': '\\b(this)\\.'
+    'match': '\\b(this)\\b'
     'captures':
       '1':
         'name': 'storage.type.variable.ts'
@@ -56,7 +56,7 @@
   # TODO move this to other classes?
   {
     'comment': 'Match stuff like: as'
-    'match': '\\b(as|AS)\\b'
+    'match': '\\b(?:as|AS)\\b'
     'name': 'keyword.operator.ts'
   }
   {
@@ -99,6 +99,7 @@
         'include': '#type'
       }
     ]
+    'disabled': true
   }
   {
     'comment': "Matches all function parameters (but not the parameter's types)"
@@ -229,6 +230,12 @@
       {
         'include': '#typetemplate'
       }
+      {
+        'include': '#functiontype'
+      }
+      {
+        'include': '#objecttype'
+      }
     ]
     #'name': 'meta.type.ts'
   'typenontemplate':
@@ -257,13 +264,48 @@
     'match': 'number|string|boolean|any'
     'name': 'storage.type.variable.ts'
 
+  # TODO Fix this up (for more than one line).
+  # TODO Does not work for function with arguments, match stops after first argument.
   'functiontype':
     'comment': 'Matches the types for functions.'
-    'match': '' # TODO
+    'begin': '\\('
+    'end': '\\b(?!=>)'
+    'name': 'functiontype.ts'
+    'patterns': [
+      {
+        'begin': '\\)\\s*=>\\s*'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+      }
+      {
+        'include': '#typedvariable'
+      }
+    ]
 
+  # TODO May need classes
   'objecttype':
     'comment': 'Matches anonymous object types.'
-    'match': '' # TODO
+    'begin': '{'
+    'end': '}'
+    'patterns': [
+      {
+        'include': '#typedvariable'
+      }
+    ]
+
+  'typedvariable':
+    'begin': '[_a-zA-Z\\$][\\w\\$]*\\??\\s*:\\s*'
+    'end': '(?=\\s*[,\\)])'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+    ]
+
 
   'args':
     'comment': 'Match the arguments in a function'
