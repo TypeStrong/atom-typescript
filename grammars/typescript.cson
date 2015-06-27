@@ -82,7 +82,7 @@
   }
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(private)?(get|set)?\\s+(\\w+)(\\()'
+    'match': '^\\s*(private)?\\s+(?:(get|set)?\\s+(\\w+)|(\\w+)<[^>]+>)(\\()'
     'captures':
       '1':
         'name': 'keyword.other.ts'
@@ -91,6 +91,8 @@
       '3':
         'name': 'entity.name.function.ts'
       '4':
+        'name': 'entity.name.function.ts'
+      '5':
         'name': 'meta.brace.round.ts'
   }
   {
@@ -103,7 +105,7 @@
   }
   {
     'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
-    'match': ':(\\w+\\.?(?:\\w)+)'
+    'match': ': *(\\w+\\.?(?:\\w)+)'
     'captures':
       '1':
         'name': 'variable.type.ts'
