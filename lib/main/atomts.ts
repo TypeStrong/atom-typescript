@@ -32,6 +32,7 @@ import {$} from "atom-space-pen-views";
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 import mainPanelView = require("./atom/views/mainPanelView");
+import {getFileStatus} from "./atom/fileStatusCache";
 
 import editorSetup = require("./atom/editorSetup");
 
@@ -155,7 +156,7 @@ function readyToActivate() {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    let status = mainPanelView.getFileStatus(filePath);
+                    let status = getFileStatus(filePath);
                     status.modified = editor.isModified();
                     mainPanelView.panelView.updateFileStatus(filePath);
 

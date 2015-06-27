@@ -15,6 +15,7 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var mainPanelView = require("./atom/views/mainPanelView");
+var fileStatusCache_1 = require("./atom/fileStatusCache");
 var editorSetup = require("./atom/editorSetup");
 var statusBar;
 var statusBarMessage;
@@ -75,7 +76,7 @@ function readyToActivate() {
                 }
                 editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
-                    var status = mainPanelView.getFileStatus(filePath);
+                    var status = fileStatusCache_1.getFileStatus(filePath);
                     status.modified = editor.isModified();
                     mainPanelView.panelView.updateFileStatus(filePath);
                     if (!onDisk) {

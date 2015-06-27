@@ -6,7 +6,9 @@ import atomConfig = require('./atomConfig'); ///ts:import:generated
 ///ts:import=parent
 import parent = require('../../worker/parent'); ///ts:import:generated
 
-import {errorView, show, panelView, getFileStatus} from "./views/mainPanelView";
+import {errorView, show, panelView} from "./views/mainPanelView";
+
+import {getFileStatus} from "./fileStatusCache";
 
 ///ts:import=debugAtomTs
 import debugAtomTs = require('./debugAtomTs'); ///ts:import:generated

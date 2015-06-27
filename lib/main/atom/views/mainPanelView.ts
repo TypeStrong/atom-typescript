@@ -5,6 +5,7 @@ import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
 import parent = require("../../../worker/parent");
 import * as utils from "../../lang/utils";
+import {FileStatus,getFileStatus} from "../fileStatusCache";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -515,20 +516,4 @@ export module errorView {
         }
     }
 
-}
-
-export interface FileStatus {
-    saved: boolean; // True if the file has been saved and compiled during the current session
-    modified: boolean; // True if the file differs from the one on the disk
-};
-
-let fileStatuses: Array<FileStatus> = [];
-
-export function getFileStatus(filePath: string): FileStatus {
-    let status = fileStatuses[filePath];
-    if (!status) {
-        status = <FileStatus> {modified: false, saved: false};
-        fileStatuses[filePath] = status;
-    }
-    return status;
 }

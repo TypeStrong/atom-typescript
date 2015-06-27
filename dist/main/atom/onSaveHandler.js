@@ -1,6 +1,7 @@
 var atomUtils = require("./atomUtils");
 var parent = require('../../worker/parent');
 var mainPanelView_1 = require("./views/mainPanelView");
+var fileStatusCache_1 = require("./fileStatusCache");
 function handle(event) {
     var textUpdated = parent.updateText({ filePath: event.filePath, text: event.editor.getText() });
     textUpdated.then(function () {
@@ -16,7 +17,7 @@ function handle(event) {
             return;
         textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
             .then(function (res) {
-            var status = mainPanelView_1.getFileStatus(event.filePath);
+            var status = fileStatusCache_1.getFileStatus(event.filePath);
             status.saved = true;
             status.modified = res.emitError;
             mainPanelView_1.panelView.updateFileStatus(event.filePath);

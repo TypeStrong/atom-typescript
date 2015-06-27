@@ -9,6 +9,7 @@ var lineMessageView = require('./lineMessageView');
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var utils = require("../../lang/utils");
+var fileStatusCache_1 = require("../fileStatusCache");
 var panelHeaders = {
     error: 'Errors In Open Files',
     build: 'Last Build Output',
@@ -145,7 +146,7 @@ var MainPanelView = (function (_super) {
         }
     };
     MainPanelView.prototype.updateFileStatus = function (filePath) {
-        var status = getFileStatus(filePath);
+        var status = fileStatusCache_1.getFileStatus(filePath);
         this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
         if (status.modified) {
             this.fileStatus.text('Js emit is outdated');
@@ -425,14 +426,3 @@ var errorView;
     }
     errorView.showEmittedMessage = showEmittedMessage;
 })(errorView = exports.errorView || (exports.errorView = {}));
-;
-var fileStatuses = [];
-function getFileStatus(filePath) {
-    var status = fileStatuses[filePath];
-    if (!status) {
-        status = { modified: false, saved: false };
-        fileStatuses[filePath] = status;
-    }
-    return status;
-}
-exports.getFileStatus = getFileStatus;
