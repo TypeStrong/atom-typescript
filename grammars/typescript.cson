@@ -17,21 +17,6 @@
         'name': 'keyword.other.ts'
       '2':
         'name': 'entity.name.module.ts'
-
-  }
-  {
-    'comment': 'Match type annotation for key types'
-    'match': ':\\s*(string|boolean|number|any)\\b'
-    'captures':
-        '1' :
-            'name': 'storage.type.variable.ts'
-  }
-  {
-    'comment': 'Match assert for key types'
-    'match': '<(string|boolean|number|any)>'
-    'captures':
-        '1' :
-            'name': 'storage.type.variable.ts'
   }
   {
     'comment': 'Match this.'
@@ -67,6 +52,7 @@
       'match': '\\b(?:public|private)\\b'
       'name': 'keyword.type.modifier.ts'
   }
+  # TODO move this to other classes?
   {
     'comment': 'Match stuff like: as'
     'match': '\\b(as|AS)\\b'
@@ -80,6 +66,7 @@
       '1':
         'name': 'variable.type.ts'
   }
+  # TODO match extend types and stuff here
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
     'match': '^\\s*(private)?\\s+(?:(get|set)?\\s+(\\w+)|(\\w+)<[^>]+>)(\\()'
@@ -97,22 +84,27 @@
   }
   {
     'comment': 'Match stuff like: function() {...}'
-    'match': '([a-zA-Z_?.$][\\w?.$]*)\\(\\) \\{'
+    'match': '(?<function)\\s+([a-zA-Z_?.$][\\w?.$]*)\\(.*?)\\s*\\{'
     'name': 'meta.function.ts'
     'captures':
       '1':
         'name': 'entity.name.function.ts'
   }
+  # TODO should these have a different class?
   {
     'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
-    'match': ': *(\\w+\\.?(?:\\w)+)'
-    'captures':
-      '1':
-        'name': 'variable.type.ts'
+    'begin': ':\\s*\\b'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+    ]
   }
+  # TODO no it doesn't
   {
     'comment': "Matches all function parameters (but not the parameter's types)"
-    'match': '([\\w$]+(?=:[\\w.]+\\s*[\\[\\],\\)]))'
+    'match': '([\\w$]+(?=\\??\\s*:\\s*[\\w.]+\\s*[\\[\\],\\)]))'
     'captures':
       '1':
         'name': 'variable.parameter.function.ts'
@@ -220,3 +212,43 @@
       ]
   }
 ]
+
+'repository':
+  'type':
+    'patterns': [
+      {
+          'include': '#keytype'
+      }
+      {
+        'include': '#typenontemplate'
+      }
+      {
+        'include': '#typetemplate'
+      }
+    ]
+    #'name': 'meta.type.ts'
+  'typenontemplate':
+    'comment': 'Matches a simple type without template specification'
+    'match': '[_a-zA-Z\\$][\\w\\$]*\\b(?!<)'
+    'name': 'entity.storage.type.ts'
+
+  'typetemplate':
+    'begin': '([_a-zA-Z\\$][\\w\\$]*)<'
+    'beginCaptures':
+      '1':
+        'name': 'entity.storage.type.template.ts'
+    'end': '>'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'match': ','
+        'name': 'meta.delimiter.object.comma.js'
+      }
+    ]
+
+  'keytype':
+    'comment': 'Match key types.'
+    'match': 'number|string|boolean|any'
+    'name': 'storage.type.variable.ts'
