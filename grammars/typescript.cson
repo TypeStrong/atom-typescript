@@ -53,6 +53,13 @@
     'contentName': 'meta.inherited-from.ts'
   }
   {
+    'comment': 'Prevent built-in types from being highlighted if accessed as property'
+    'match': '(\\.)(?:Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|event|FileUpload|Form|Frame|Function|Hidden|History|Image|JavaArray|JavaClass|JavaObject|JavaPackage|java|Layer|Link|Location|Math|MimeType|Number|navigator|netscape|Object|Option|Packages|Password|Plugin|Radio|RegExp|Reset|Select|String|Style|Submit|screen|sun|Text|Textarea|window|XMLHttpRequest)'
+    'captures':
+      '1':
+        'name': 'meta.delimiter.method.period.js'
+  }
+  {
       'comment': 'Match export, declare and constructor'
       'match': '\\b(?:export|declare|constructor)\\b'
       'name': 'keyword.other.ts'
