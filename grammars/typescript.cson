@@ -26,6 +26,8 @@
         'name': 'storage.type.variable.ts'
   }
   # TODO Highlight types after extend
+  # TODO Same for classes?
+  # Grammar rule taken from JavaScript grammar (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
   {
     'match': '\\b(interface)(?:(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))|(?:(?:\\s+(\\w+(?:\\.\\w*)?))(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))?))'
     'captures':
@@ -67,18 +69,34 @@
       '1':
         'name': 'variable.type.ts'
   }
-  # TODO match extend types and stuff here
+  # TODO normal function definitions?
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'match': '^\\s*(?:(private)\\s+)?(?:(get|set)?\\s+(\\w+)|(\\w+)<[^>]+>)(?=\\()'
+    'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
+    'beginCaptures':
+      '1':
+        'name': 'keyword.other.ts'
+      '2':
+        'name': 'entity.name.function.ts'
+    'end': '>(?=\\()'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'match': 'extends'
+        'name': 'storage.type.modifier.ts'
+      }
+    ]
+  }
+  {
+    'match': '^\\s*(?:(private)\\s+)?(get|set)?\\s+(\\w+)'
     'captures':
       '1':
         'name': 'keyword.other.ts'
       '2':
         'name': 'storage.modifier.ts'
       '3':
-        'name': 'entity.name.function.ts'
-      '4':
         'name': 'entity.name.function.ts'
   }
   # TODO What does this do
@@ -99,7 +117,7 @@
         'include': '#type'
       }
     ]
-    'disabled': true
+    'disabled': false # TODO consider handling all correct cases seperataly
   }
   {
     'comment': "Matches all function parameters (but not the parameter's types)"
@@ -236,6 +254,7 @@
       {
         'include': '#objecttype'
       }
+      # TODO Union type
     ]
     #'name': 'meta.type.ts'
   'typenontemplate':
@@ -269,18 +288,23 @@
   'functiontype':
     'comment': 'Matches the types for functions.'
     'begin': '\\('
-    'end': '\\b(?!=>)'
-    'name': 'functiontype.ts'
-    'patterns': [
-      {
-        'begin': '\\)\\s*=>\\s*'
-        'end': '(?!\\G)'
+    'end': '\\)'
+    'endCaptures':
+      '0':
         'patterns': [
           {
-            'include': '#type'
+            'begin': '\\)\\s*=>\\s*'
+            'end': '(?!\\G)'
+            'patterns': [
+              {
+                'include': '#type'
+              }
+            ]
           }
         ]
-      }
+
+    'name': 'functiontype.ts'
+    'patterns': [
       {
         'include': '#typedvariable'
       }
