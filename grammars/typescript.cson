@@ -9,7 +9,7 @@
 
 'patterns': [
   # TODO Builtin types shouldn't highlight after dot
-  # TODO number in front of decimal point not highlighted?
+  # TODO number in front of decimal point should be highlighted
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -29,7 +29,7 @@
   }
   # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
   {
-    'begin': '(?<=interface|class)\\s+(\\w+(?:\\.\\w*)?(?:<\\w+(?:\\s*,\\s*\\w+)*>)?)?(?:\\s+(extends)\\s)?'
+    'begin': '(?<=interface|class)\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
     'beginCaptures':
       '1':
         'patterns': [
@@ -48,9 +48,9 @@
     'patterns': [
       {
         'include': '#type'
-        # TODO different class for type being inherited?
       }
     ]
+    'contentName': 'meta.inherited-from.ts'
   }
   {
       'comment': 'Match export, declare and constructor'
@@ -70,6 +70,19 @@
     'captures':
       '1':
         'name': 'variable.type.ts'
+  }
+  {
+    'comment': 'Match type SomeType = OtherType'
+    'begin': '(type)\\s+[\\w$]+\\s*=\\s*'
+    'beginCaptures':
+      '1':
+        'name': 'storage.modifier.ts'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+    ]
   }
   # TODO normal function definitions?
   # TODO dedupe the next two definitions with lookbehind?
