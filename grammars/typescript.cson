@@ -8,6 +8,8 @@
 'name': 'TypeScript'
 
 'patterns': [
+  # TODO Builtin types shouldn't highlight after dot
+  # TODO number in front of decimal point not highlighted?
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -118,7 +120,7 @@
         'include': '#type'
       }
     ]
-    'disabled': false # TODO consider handling all correct cases seperataly
+    'disabled': false # TODO handle all correct cases seperataly (messes up for normal JS objects right now)
   }
   {
     'comment': "Matches all function parameters (but not the parameter's types)"
@@ -239,9 +241,11 @@
 
 'repository':
   'type':
+    'begin': '(?=)'
+    'end': '(?!\\G)'
     'patterns': [
       {
-          'include': '#keytype'
+        'include': '#keytype'
       }
       {
         'include': '#typenontemplate'
@@ -255,20 +259,28 @@
       {
         'include': '#objecttype'
       }
-      # TODO Union type
+      {
+        'match': '\\|'
+        'captures':
+          '0':
+            'name': 'keyword.operator.union.ts'
+      }
+      # TODO Add all JS native objects with own syntax coloring?
     ]
-    #'name': 'meta.type.ts'
+
   'typenontemplate':
     'comment': 'Matches a simple type without template specification'
-    'match': '[_a-zA-Z\\$][\\w\\$]*\\b(?!<)'
-    'name': 'entity.storage.type.ts'
+    'match': '([_a-zA-Z\\$][\\w\\$]*)\\b((?:\\[\\])*)(?!<)'
+    'captures':
+      '1':
+        'name': 'entity.storage.type.ts'
 
   'typetemplate':
     'begin': '([_a-zA-Z\\$][\\w\\$]*)<'
     'beginCaptures':
       '1':
         'name': 'entity.storage.type.template.ts'
-    'end': '>'
+    'end': '>((?:\\[\\])*)'
     'patterns': [
       {
         'include': '#type'
@@ -281,11 +293,17 @@
 
   'keytype':
     'comment': 'Match key types.'
-    'match': 'number|string|boolean|any'
-    'name': 'storage.type.variable.ts'
+    'match': '(number|string|boolean|any)((?:\\[\\])*)'
+    'captures':
+      '1':
+        'name': 'storage.type.variable.ts'
+      '2':
+        'name': 'storage.type.array.ts'
 
   # TODO Fix this up (for more than one line).
   # TODO Does not work for function with arguments, match stops after first argument.
+  # TODO Broken inside templated types
+  # TODO Needs array version
   'functiontype':
     'comment': 'Matches the types for functions.'
     'begin': '\\('
@@ -315,16 +333,20 @@
   'objecttype':
     'comment': 'Matches anonymous object types.'
     'begin': '{'
-    'end': '}'
+    'end': '}(\\[\\])?'
     'patterns': [
       {
         'include': '#typedvariable'
+      }
+      {
+        'match': ';'
+        'name': 'meta.delimiter.semicolon.js'
       }
     ]
 
   'typedvariable':
     'begin': '[_a-zA-Z\\$][\\w\\$]*\\??\\s*:\\s*'
-    'end': '(?=\\s*[,\\)])'
+    'end': '(?!\\G)'
     'patterns': [
       {
         'include': '#type'
