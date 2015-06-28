@@ -25,35 +25,35 @@
       '1':
         'name': 'storage.type.variable.ts'
   }
-  # TODO Highlight types after extend
-  # TODO Same for classes?
-  # Grammar rule taken from JavaScript grammar (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
+  # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
   {
-    'match': '\\b(interface)(?:(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))|(?:(?:\\s+(\\w+(?:\\.\\w*)?))(?:\\s+(extends)\\s+(\\w+(?:\\.\\w*)?))?))'
-    'captures':
+    'begin': '(?<=interface|class)\\s+(\\w+(?:\\.\\w*)?(?:<\\w+(?:\\s*,\\s*\\w+)*>)?)?(?:\\s+(extends)\\s)?'
+    'beginCaptures':
       '1':
-        'name': 'storage.type.interface.ts'
+        'patterns': [
+          {
+            'match': '\\w+'
+            'name': 'meta.class.ts'
+          }
+          {
+            'match': ','
+            'name': 'meta.delimiter.object.comma.js'
+          }
+        ]
       '2':
         'name': 'storage.modifier.ts'
-      '3':
-        'name': 'entity.name.type.ts'
-      '4':
-        'name': 'entity.name.type.ts'
-      '5':
-        'name': 'storage.modifier.ts'
-      '6':
-        'name': 'entity.name.type.ts'
-    'name': 'meta.interface.ts'
+    'end': '(?<!extends\\s)\\s*{'
+    'patterns': [
+      {
+        'include': '#type'
+        # TODO different class for type being inherited?
+      }
+    ]
   }
   {
       'comment': 'Match export, declare and constructor'
       'match': '\\b(?:export|declare|constructor)\\b'
       'name': 'keyword.other.ts'
-  }
-  {
-      'comment': 'Match public and private'
-      'match': '\\b(?:public|private)\\b'
-      'name': 'keyword.type.modifier.ts'
   }
   # TODO move this to other classes?
   {
@@ -70,6 +70,7 @@
         'name': 'variable.type.ts'
   }
   # TODO normal function definitions?
+  # TODO dedupe the next two definitions with lookbehind?
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
     'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
