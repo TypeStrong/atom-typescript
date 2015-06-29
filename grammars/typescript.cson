@@ -8,8 +8,10 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # TODO Builtin types shouldn't highlight after dot
-  # TODO number in front of decimal point should be highlighted
+  # TODO highlight types in template instantiation
+  # TODO highlight types as function return type
+  # TODO highlight for vars, and in interface/class stuff, etc...
+  # TODO Unicode shizzle
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -93,6 +95,7 @@
   }
   # TODO normal function definitions?
   # TODO dedupe the next two definitions with lookbehind?
+  # TODO should work without spaces in front
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
     'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
@@ -140,7 +143,7 @@
         'include': '#type'
       }
     ]
-    'disabled': false # TODO handle all correct cases seperataly (messes up for normal JS objects right now)
+    'disabled': true # TODO handle all correct cases seperataly (messes up for normal JS objects right now)
   }
   {
     'comment': "Matches all function parameters (but not the parameter's types)"
@@ -325,24 +328,29 @@
   # TODO Broken inside templated types
   # TODO Needs array version
   'functiontype':
+    'begin': '(?=\\()'
+    'end': '(?<!\\))(?!\\G)'
+    'name': 'wholefunctiontype'
+    'patterns': [
+      {
+        'include': '#functionargumentstype'
+      }
+      {
+        'begin': '(?<=\\))\\s*=>\\s*'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+      }
+    ]
+
+  'functionargumentstype':
     'comment': 'Matches the types for functions.'
     'begin': '\\('
     'end': '\\)'
-    'endCaptures':
-      '0':
-        'patterns': [
-          {
-            'begin': '\\)\\s*=>\\s*'
-            'end': '(?!\\G)'
-            'patterns': [
-              {
-                'include': '#type'
-              }
-            ]
-          }
-        ]
-
-    'name': 'functiontype.ts'
+    'name': 'functiontype.blargh.ts'
     'patterns': [
       {
         'include': '#typedvariable'
