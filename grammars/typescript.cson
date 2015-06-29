@@ -349,7 +349,10 @@
         'include': '#functionargumentstype'
       }
       {
-        'begin': '(?<=\\))\\s*=>\\s*'
+        'begin': '(?<=\\))\\s*(=>)\\s*'
+        'beginCaptures':
+          '1':
+            'name': 'meta.function.arrow.js'
         'end': '(?!\\G)'
         'patterns': [
           {
