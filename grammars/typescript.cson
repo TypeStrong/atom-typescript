@@ -8,10 +8,10 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # TODO highlight types in template instantiation
   # TODO highlight for vars, etc...
   # TODO Unicode shizzle
   # TODO (Inline) comments break everything
+  # TODO highlight void differently?
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -175,6 +175,18 @@
       {
         'include': '#type'
       }
+    ]
+  }
+  {
+    # TODO this *can* misfire sometimes
+    'comment': 'Match types in template instantiation'
+    'begin': '(?<=\\w)<(?=.*>\\()'
+    'end': '>'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      # TODO include comma
     ]
   }
   # TODO normal function definitions
