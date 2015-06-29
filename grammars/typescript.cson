@@ -95,7 +95,6 @@
   }
   # TODO normal function definitions?
   # TODO dedupe the next two definitions with lookbehind?
-  # TODO should work without spaces in front
   {
     'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
     'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
@@ -116,7 +115,7 @@
     ]
   }
   {
-    'match': '^\\s*(?:(private)\\s+)?(get|set)?\\s+(\\w+)'
+    'match': '^\\s*(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)'
     'captures':
       '1':
         'name': 'keyword.other.ts'
@@ -323,7 +322,6 @@
       '2':
         'name': 'storage.type.array.ts'
 
-  # TODO highlight actual arrow
   'functiontype':
     'patterns': [
       {
