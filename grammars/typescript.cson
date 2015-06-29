@@ -9,8 +9,7 @@
 
 'patterns': [
   # TODO highlight types in template instantiation
-  # TODO highlight types as function return type
-  # TODO highlight for vars, and in interface/class stuff, etc...
+  # TODO highlight for vars, etc...
   # TODO Unicode shizzle
   # TODO (Inline) comments break everything
   {
@@ -34,6 +33,7 @@
     'begin': '(?<=interface|class)'
     'end': '}'
     'patterns': [
+      # TODO Normal function definitions in here (and outside)
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
         'begin': '(?<=interface|class)\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
@@ -61,7 +61,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
+        'begin': '^\\s*(?:(private)\\s+)?(\\w*)<'
         'beginCaptures':
           '1':
             'name': 'keyword.other.ts'
@@ -102,11 +102,39 @@
         ]
       }
       {
+        'comment': 'Match function return type'
+        'begin': '(?<=\\))\\s*:\\s*'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+      }
+      # TODO find better name
+      {
+        'begin': '^\\s*(\\w+)(\\??)\\s*:\\s*'
+        'beginCaptures':
+          '1':
+            'name': 'entity.name.variable.ts'
+          '2':
+            'name': 'keyword.operator.js'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+      }
+      {
         'begin': '{'
         'end': '}'
         'patterns': [
           'include': '$self'
         ]
+      }
+      {
+        'include': '#comments'
       }
     ]
   }
@@ -335,6 +363,7 @@
         'name': 'storage.type.variable.ts'
       '2':
         'name': 'storage.type.array.ts'
+      # TODO find better name
 
   'functiontype':
     'patterns': [
@@ -426,5 +455,39 @@
             'include': '#type'
           }
         ]
+      }
+    ]
+
+  # Taken from JS grammar (https://github.com/atom/language-javascript/blob/897e999910fb001780286778a20b7e5c02eb59dd/grammars/javascript.cson#L631-L661)
+  'docblock':
+    'patterns': [
+      {
+        'match': '(?<!\\w)@(abstract|access|alias|augments|author|async|attribute|arg|argument|beta|borrows|bubbes|callback|class|classdesc|config|const|constant|constructs|constructor|copyright|chainable|default|defaultvalue|deprecated|desc|description|enum|emits|event|example|exports|external|extends|extension|extensionfor|extension_for|for|file|fileoverview|fires|final|function|global|host|ignore|implements|inheritdoc|inner|instance|interface|kind|lends|license|listens|main|member|memberof|method|mixex|mixin|module|name|namespace|override|overview|param|private|prop|property|protected|readonly|readOnly|requires|required|return|returns|see|since|static|summary|submodule|this|throws|todo|tutorial|type|typedef|var|variation|version|virtual|uses|writeOnce)\\b'
+        'name': 'storage.type.class.jsdoc'
+      }
+    ]
+
+  'comments':
+    'patterns': [
+      {
+        'begin': '/\\*\\*(?!/)'
+        'captures':
+          '0':
+            'name': 'punctuation.definition.comment.js'
+        'patterns': [
+          {
+            'include': '#docblock'
+          }
+        ]
+        'end': '\\*/'
+        'name': 'comment.block.documentation.js'
+      }
+      {
+        'begin': '/\\*'
+        'captures':
+          '0':
+            'name': 'punctuation.definition.comment.js'
+        'end': '\\*/'
+        'name': 'comment.block.js'
       }
     ]
