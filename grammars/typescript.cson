@@ -12,6 +12,7 @@
   # TODO highlight types as function return type
   # TODO highlight for vars, and in interface/class stuff, etc...
   # TODO Unicode shizzle
+  # TODO (Inline) comments break everything
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -29,30 +30,85 @@
       '1':
         'name': 'storage.type.variable.ts'
   }
-  # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
   {
-    'begin': '(?<=interface|class)\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
-    'beginCaptures':
-      '1':
-        'patterns': [
-          {
-            'match': '\\w+'
-            'name': 'meta.class.ts'
-          }
-          {
-            'match': ','
-            'name': 'meta.delimiter.object.comma.js'
-          }
-        ]
-      '2':
-        'name': 'storage.modifier.ts'
-    'end': '(?<!extends\\s)\\s*{'
+    'begin': '(?<=interface|class)'
+    'end': '}'
     'patterns': [
       {
-        'include': '#type'
+        # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
+        'begin': '(?<=interface|class)\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
+        'beginCaptures':
+          '1':
+            'patterns': [
+              {
+                'match': '\\w+'
+                'name': 'meta.class.ts'
+              }
+              {
+                'match': ','
+                'name': 'meta.delimiter.object.comma.js'
+              }
+            ]
+          '2':
+            'name': 'storage.modifier.ts'
+        'end': '(?<!extends\\s)\\s*{'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+        'contentName': 'meta.inherited-from.ts'
+      }
+      {
+        'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
+        'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
+        'beginCaptures':
+          '1':
+            'name': 'keyword.other.ts'
+          '2':
+            'name': 'entity.name.function.ts'
+        'end': '>(?=\\()'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+          {
+            'match': 'extends'
+            'name': 'storage.type.modifier.ts'
+          }
+        ]
+      }
+      {
+        'match': '^\\s*(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)(?=\\()'
+        'captures':
+          '1':
+            'name': 'keyword.other.ts'
+          '2':
+            'name': 'storage.modifier.ts'
+          '3':
+            'name': 'entity.name.function.ts'
+      }
+      {
+        'comment': 'Matches all function parameters plus optional types'
+        'begin': '(\\()'
+        'end': '(\\))'
+        'captures':
+          '1':
+            'name': 'meta.brace.round.ts'
+        'patterns': [
+          {
+            'include': '#args'
+          }
+        ]
+      }
+      {
+        'begin': '{'
+        'end': '}'
+        'patterns': [
+          'include': '$self'
+        ]
       }
     ]
-    'contentName': 'meta.inherited-from.ts'
   }
   {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
@@ -93,37 +149,7 @@
       }
     ]
   }
-  # TODO normal function definitions?
-  # TODO dedupe the next two definitions with lookbehind?
-  {
-    'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-    'begin': '^\\s*(?:(private)\\s+)?(\\w+)<'
-    'beginCaptures':
-      '1':
-        'name': 'keyword.other.ts'
-      '2':
-        'name': 'entity.name.function.ts'
-    'end': '>(?=\\()'
-    'patterns': [
-      {
-        'include': '#type'
-      }
-      {
-        'match': 'extends'
-        'name': 'storage.type.modifier.ts'
-      }
-    ]
-  }
-  {
-    'match': '^\\s*(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)'
-    'captures':
-      '1':
-        'name': 'keyword.other.ts'
-      '2':
-        'name': 'storage.modifier.ts'
-      '3':
-        'name': 'entity.name.function.ts'
-  }
+  # TODO normal function definitions
   # TODO What does this do
   {
     'comment': 'Match stuff like: function() {...}'
@@ -144,19 +170,7 @@
     ]
     'disabled': true # TODO handle all correct cases seperataly (messes up for normal JS objects right now)
   }
-  {
-    'comment': "Matches all function parameters (but not the parameter's types)"
-    'begin': '(\\()'
-    'end': '(\\))'
-    'captures':
-      '1':
-        'name': 'meta.brace.round.ts'
-    'patterns': [
-      {
-        'include': '#args'
-      }
-    ]
-  }
+  # TODO match function arguments
   {
       'comment': 'Match full triple slash reference comments'
       'match': '(\\/\\/\\/\\s*<reference\\s*path\\s*=)(.*)(\\/>)'
@@ -393,7 +407,6 @@
         'include': '#type'
       }
     ]
-
 
   'args':
     'comment': 'Match the arguments in a function'
