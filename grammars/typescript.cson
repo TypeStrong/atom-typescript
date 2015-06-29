@@ -323,14 +323,27 @@
       '2':
         'name': 'storage.type.array.ts'
 
-  # TODO Fix this up (for more than one line).
-  # TODO Does not work for function with arguments, match stops after first argument.
-  # TODO Broken inside templated types
-  # TODO Needs array version
+  # TODO highlight actual arrow
   'functiontype':
+    'patterns': [
+      {
+        'begin': '\\((?=\\()'
+        'end': '(?<!\\))(?!\\G)\\)(\\[\\])+'
+        'patterns': [
+          {
+            'include': '#completefunctiontype'
+          }
+        ]
+        'name': 'functionarray'
+      }
+      {
+        'include': '#completefunctiontype'
+      }
+    ]
+
+  'completefunctiontype':
     'begin': '(?=\\()'
     'end': '(?<!\\))(?!\\G)'
-    'name': 'wholefunctiontype'
     'patterns': [
       {
         'include': '#functionargumentstype'
@@ -350,7 +363,6 @@
     'comment': 'Matches the types for functions.'
     'begin': '\\('
     'end': '\\)'
-    'name': 'functiontype.blargh.ts'
     'patterns': [
       {
         'include': '#typedvariable'
