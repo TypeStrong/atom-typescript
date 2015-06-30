@@ -11,7 +11,6 @@
   # FIXME Unicode shizzle
   # FIXME (Inline) comments break everything
   # IDEA highlight void differently?
-  # TODO normal function definitions
   # TODO match function arguments
   # TODO const/let?
   # TODO iterator stars
@@ -230,7 +229,7 @@
     'name': 'meta.function.prototype.js'
     'patterns': [
       {
-        'include': '#anonymousfunction'
+        'include': '#function'
       }
     ]
   }
@@ -248,7 +247,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'include': '#anonymousfunction'
+        'include': '#function'
       }
     ]
   }
@@ -264,7 +263,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'include': '#anonymousfunction'
+        'include': '#function'
       }
     ]
   }
@@ -280,7 +279,7 @@
     'name': 'meta.function.json.js'
     'patterns': [
       {
-        'include': '#anonymousfunction'
+        'include': '#function'
       }
     ]
   }
@@ -310,27 +309,13 @@
     'name': 'meta.function.json.js'
     'patterns': [
       {
-        'include': '#anonymousfunction'
+        'include': '#function'
       }
     ]
   }
   {
-    'name': 'meta.function.arrow.js'
-    'begin': '(?<![A-Za-z0-9$_\\)\\]])(?=\\([^&*/+-]*\\)\\s*=>\\s*{)'
-    'end': '(?<=\\))(\\s*=>)'
-    'endCaptures':
-      '1':
-        'name': 'storage.type.arrow.js'
-    'patterns': [
-      {
-        'include': '#functionargumentstype'
-      }
-    ]
+    'include': '#function'
   }
-  {
-    'include': '#anonymousfunction'
-  }
-  # TODO named functions
   # TODO function calls
   {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
@@ -617,7 +602,7 @@
         'begin': '(?<=\\))\\s*(=>)\\s*'
         'beginCaptures':
           '1':
-            'name': 'meta.function.arrow.js'
+            'name': 'storage.type.arrow.js'
         'end': '(?!\\G)'
         'patterns': [
           {
@@ -691,18 +676,46 @@
       }
     ]
 
-  'anonymousfunction':
-    'begin': '(?=)'
-    'end': '(?!\\G)'
+  'function':
     'patterns': [
       {
-        'begin': '(?:(async)(?:\\s+))?(function\\*?)\\s*(\\*?)(?=\\()'
+        'include': '#oldstylefunction'
+      }
+      {
+        'include': '#newstylefunction'
+      }
+    ]
+
+  'newstylefunction':
+    'name': 'meta.function.arrow.js'
+    'begin': '(?<![A-Za-z0-9$_\\)\\]])(?=\\([^&*/+-]*\\)\\s*=>\\s*{)'
+    'end': '(?<=\\))(\\s*=>)'
+    'endCaptures':
+      '1':
+        'name': 'storage.type.arrow.js'
+    'patterns': [
+      {
+        'include': '#functionargumentstype'
+      }
+    ]
+
+  'oldstylefunction':
+    'begin': '(?=(?:(async)(?:\\s+))?(function))'
+    'end': '(?!\\G)'
+    'name': 'meta.function.js'
+    'patterns': [
+      {
+        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+(\\w+))?(\\*?)\\s*(\\*?)(?=\\()'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
           '2':
             'name': 'storage.type.function.js'
           '3':
+            'name': 'entity.name.function.js'
+          '4':
+            'name': 'storage.type.function.js'
+          '5':
             'name': 'storage.type.function.js'
         'end': '(?<=\\))'
         'patterns': [
@@ -712,12 +725,14 @@
         ]
       }
       {
-        'begin': '(?:(async)(?:\\s+))?(function)(?=<)'
+        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+(\\w+))?(?=<)'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
           '2':
             'name': 'storage.type.function.js'
+          '3':
+            'name': 'entity.name.function.js'
         'end': '(?<=\\))'
         'patterns': [
           {
