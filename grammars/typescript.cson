@@ -8,7 +8,6 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # TODO highlight for vars, etc...
   # FIXME Unicode shizzle
   # FIXME (Inline) comments break everything
   # IDEA highlight void differently?
@@ -69,11 +68,14 @@
     ]
   }
   {
-    'begin': '(?<=interface|class)'
+    'begin': '(interface)|(class)'
+    'beginCaptures':
+      '1':
+        'name': 'storage.type.interface.ts'
+      '2':
+        'name': 'storage.type.class.js'
     'end': '}'
     'patterns': [
-      # TODO Normal function definitions in here (and outside)
-      # TODO values for vars?
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
         'begin': '\\G\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
@@ -151,9 +153,9 @@
           }
         ]
       }
-      # TODO find better name
+      # IDEA find better name
       {
-        'begin': '^\\s*(\\w+)(\\??)\\s*:\\s*'
+        'begin': '(\\w+)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'entity.name.variable.ts'
@@ -167,11 +169,43 @@
         ]
       }
       {
+        'match': '(\\w+)(\\??)'
+        'captures':
+          '1':
+            'name': 'entity.name.variable.ts'
+          '2':
+            'name': 'keyword.operator.js'
+      }
+      {
+        'begin': '\\s*(=)\\s*'
+        'beginCaptures':
+          '1':
+            'name': 'keyword.operator.js'
+        'end': '(;)|$'
+        'endCaptures':
+          '1':
+            'name': 'meta.delimiter.semicolon.js'
+        'patterns': [
+          'include': '$self'
+        ]
+      }
+      {
         'begin': '{'
         'end': '}'
         'patterns': [
           'include': '$self'
         ]
+      }
+      {
+        'comment': 'Match keywords static'
+        'match': 'static'
+        'captures':
+          '0':
+            'name': 'storage.modifier.js'
+      }
+      {
+        'match': ';'
+        'name': 'meta.delimiter.semicolon.js'
       }
       {
         'include': '#comments'
@@ -323,6 +357,20 @@
     ]
   }
   {
+    'comment': 'Match all () pairs'
+    'begin': '\\('
+    'end': '\\)'
+    'captures':
+      '0':
+        'name': 'meta.brace.round.js'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+    'disabled': true # FIXME need to figure out uses of ()
+  }
+  {
     'include': 'source.js'
   }
 
@@ -428,13 +476,13 @@
         'name': 'storage.type.variable.ts'
       '2':
         'name': 'storage.type.array.ts'
-      # TODO find better name
+      # IDEA find better name
 
   'functiontype':
     'patterns': [
       {
         'begin': '\\((?=\\()'
-        'end': '(?<!\\))(?!\\G)\\)(\\[\\])+'
+        'end': '(?<!\\))(?!\\G)\\)(\\[\\])*'
         'patterns': [
           {
             'include': '#completefunctiontype'
