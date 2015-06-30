@@ -46,6 +46,9 @@
     },
     "react/react.d.ts": {
       "commit": "c50b111ded0a3a18b87b5abffea3150d6aca94da"
+    },
+    "react/react-jsx.d.ts": {
+      "commit": "6f04d25ad38982d372cc3cda62fa4c0eef9e24d7"
     }
   }
 }

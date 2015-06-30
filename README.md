@@ -30,6 +30,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Project Context Support (`tsconfig.json`)
 * Project Build Support
 * `package.json` Support
+* React Support
 * Format code
 * Goto Declaration
 * Find References
@@ -107,6 +108,22 @@ We have a sample NPM module : https://github.com/basarat/ts-npm-module and its u
 Notes: 
 * Relative paths in `definition` are not supported. This is due to a limitation in how the TypeScript compiler does file lookup.
 * Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
+
+## React Support
+Specifically `jsx` support:
+
+* Have `jsx : "react"` in your `tsconfig.compilerOptions`. 
+* Have `*.tsx` files included in your project e.g using `filesGlob`: 
+```json
+"filesGlob": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "!node_modules/**/*.ts",
+    "!node_modules/**/*.tsx"
+],
+```
+* Use the file extension `.tsx`.
+* `tsd install react-jsx --save --resolve`.
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
