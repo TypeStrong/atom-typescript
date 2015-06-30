@@ -12,7 +12,6 @@
   # IDEA highlight void differently?
   # FIXME review all uses of ts and js
   # FIXME /* */ can be in template stuffs
-  # FIXME union types broken with var
   # FIXME return types for normal function definitions not working
   {
     'comment': 'Match stuff like: namespace name {...}'
@@ -569,7 +568,7 @@
 'repository':
   'type':
     'begin': '(?=)'
-    'end': '(?<!\\*\\/)(?!\\G)(?!\\|)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?!\\G)(?!\\|)'
     'patterns': [
       {
         'include': '#keytype'
@@ -587,16 +586,10 @@
         'include': '#objecttype'
       }
       {
-        'begin': '\\|'
-        'beginCaptures':
+        'match': '\\|'
+        'captures':
           '0':
             'name': 'keyword.operator.union.ts'
-        'end': '(?!\\G)'
-        'patterns': [
-          {
-            'include': '#type'
-          }
-        ]
       }
       {
         'include': '#comments'
