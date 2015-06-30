@@ -12,6 +12,7 @@
   # FIXME (Inline) comments break everything
   # IDEA highlight void differently?
   # FIXME review all uses of ts and js
+  # FIXME /* */ can be in template stuffs
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -62,6 +63,9 @@
               }
             ]
           }
+          {
+            'include': '#comments'
+          }
         ]
       }
     ]
@@ -96,6 +100,9 @@
         'patterns': [
           {
             'include': '#type'
+          }
+          {
+            'include': '#comments'
           }
         ]
         'contentName': 'meta.inherited-from.ts'
@@ -229,6 +236,9 @@
       {
         'include': '#function'
       }
+      {
+        'include': '#comments'
+      }
     ]
   }
   {
@@ -247,6 +257,9 @@
       {
         'include': '#function'
       }
+      {
+        'include': '#comments'
+      }
     ]
   }
   {
@@ -263,6 +276,9 @@
       {
         'include': '#function'
       }
+      {
+        'include': '#comments'
+      }
     ]
   }
   {
@@ -278,6 +294,9 @@
     'patterns': [
       {
         'include': '#function'
+      }
+      {
+        'include': '#comments'
       }
     ]
   }
@@ -309,6 +328,9 @@
       {
         'include': '#function'
       }
+      {
+        'include': '#comments'
+      }
     ]
   }
   {
@@ -336,6 +358,9 @@
             'include': '$self'
           }
         ]
+      }
+      {
+        'include': '#comments'
       }
     ]
   }
@@ -376,6 +401,9 @@
       {
         'include': '#type'
       }
+      {
+        'include': '#comments'
+      }
     ]
   }
   {
@@ -388,6 +416,9 @@
       }
       {
         'include': '#comma'
+      }
+      {
+        'include': '#comments'
       }
     ]
   }
@@ -560,6 +591,9 @@
           '0':
             'name': 'keyword.operator.union.ts'
       }
+      {
+        'include': '#comments'
+      }
       # IDEA Add all JS native objects with own syntax coloring?
     ]
 
@@ -582,6 +616,9 @@
       }
       {
         'include': '#comma'
+      }
+      {
+        'include': '#comments'
       }
     ]
 
@@ -610,6 +647,9 @@
       {
         'include': '#completefunctiontype'
       }
+      {
+        'include': '#comments'
+      }
     ]
 
   'completefunctiontype':
@@ -629,7 +669,13 @@
           {
             'include': '#type'
           }
+          {
+            'include': '#comments'
+          }
         ]
+      }
+      {
+        'include': '#comments'
       }
     ]
 
@@ -647,6 +693,9 @@
       {
         'include': '#args'
       }
+      {
+        'include': '#comments'
+      }
     ]
 
   # REVIEW May need classes
@@ -662,6 +711,9 @@
         'match': ';'
         'name': 'meta.delimiter.semicolon.js'
       }
+      {
+        'include': '#comments'
+      }
     ]
 
   'typedvariable':
@@ -670,6 +722,9 @@
     'patterns': [
       {
         'include': '#type'
+      }
+      {
+        'include': '#comments'
       }
     ]
 
@@ -690,10 +745,16 @@
           {
             'include': '#type'
           }
+          {
+            'include': '#comments'
+          }
         ]
       }
       {
         'include': '#comma'
+      }
+      {
+        'include': '#comments'
       }
     ]
 
@@ -716,6 +777,9 @@
     'patterns': [
       {
         'include': '#args'
+      }
+      {
+        'include': '#comments'
       }
     ]
 
@@ -741,6 +805,9 @@
         'patterns': [
           {
             'include': '#functionargumentstype'
+          }
+          {
+            'include': '#comments'
           }
         ]
       }
@@ -770,10 +837,16 @@
               {
                 'include': '#comma'
               }
+              {
+                'include': '#comments'
+              }
             ]
           }
           {
             'include': '#functionargumentstype'
+          }
+          {
+            'include': '#comments'
           }
         ]
       }
@@ -784,7 +857,13 @@
           {
             'include': '#type'
           }
+          {
+            'include': '#comments'
+          }
         ]
+      }
+      {
+        'include': '#comments'
       }
     ]
 
