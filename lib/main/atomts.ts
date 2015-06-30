@@ -32,6 +32,7 @@ import {$} from "atom-space-pen-views";
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 import mainPanelView = require("./atom/views/mainPanelView");
+import {getFileStatus} from "./atom/fileStatusCache";
 
 import editorSetup = require("./atom/editorSetup");
 
@@ -124,7 +125,7 @@ function readyToActivate() {
 
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts' || ext == ".tst") {
+        if (atomUtils.isAllowedExtension(ext)) {
             let isTst = ext === '.tst';
             try {
                 // Only once stuff
@@ -155,7 +156,7 @@ function readyToActivate() {
                         let newEmit = file.text;
                         fs.readFile(file.name, (err, data) => {
                             let existingEmit = data.toString();
-                            let status = mainPanelView.getFileStatus(filePath);
+                            let status = getFileStatus(filePath);
                             status.emitDiffers = newEmit !== existingEmit;
 
                             // Update status if the file compared above is currently in the active editor
@@ -175,7 +176,7 @@ function readyToActivate() {
                     // The condition is required because on initial load this event fires
                     // on every opened file, not just the active one
                     if (editor === atom.workspace.getActiveTextEditor()) {
-                        let status = mainPanelView.getFileStatus(filePath);
+                        let status = getFileStatus(filePath);
                         status.modified = editor.isModified();
                         mainPanelView.panelView.updateFileStatus(filePath);
                     }

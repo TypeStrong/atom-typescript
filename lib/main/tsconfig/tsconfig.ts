@@ -11,7 +11,7 @@ var types = simpleValidator.types;
 /**
  * When adding you need to
  *  0 Add in this interface
- * 	1 Add to the validation 
+ * 	1 Add to the validation
  * 	2 If its an enum : Update the enum map
  * 	3 If its a path : Update the `make relative` code
  */
@@ -27,10 +27,12 @@ interface CompilerOptions {
     help?: boolean;
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
+    jsx?: string;
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
     noEmit?: boolean;
+    noEmitHelpers?: boolean;
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
@@ -62,10 +64,12 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
     noEmit: { type: types.boolean },
+    noEmitHelpers: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
@@ -90,7 +94,7 @@ interface TypeScriptProjectRawSpecification {
     version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
-    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files    
+    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
 }
@@ -168,7 +172,12 @@ var projectFileName = 'tsconfig.json';
 /**
  * This is what we write to new files
  */
-var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var defaultFilesGlob = [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "!node_modules/**/*.ts",
+    "!node_modules/**/*.tsx"
+];
 /**
  * This is what we use when the user doens't specify a files / filesGlob
  */
@@ -178,6 +187,7 @@ var typeScriptVersion = '1.5.0-alpha';
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
+    jsx: ts.JsxEmit.React,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -199,6 +209,10 @@ var typescriptEnumMap = {
         'amd': ts.ModuleKind.AMD,
         'system': ts.ModuleKind.System,
         'umd': ts.ModuleKind.UMD,
+    },
+    jsx: {
+        'preserve': ts.JsxEmit.Preserve,
+        'react': ts.JsxEmit.React
     }
 };
 
@@ -595,7 +609,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
 
-        // For each sub directory of node_modules look at package.json and then `typescript.definition`        
+        // For each sub directory of node_modules look at package.json and then `typescript.definition`
         var moduleDirs = getDirs(node_modules);
         for (let moduleDir of moduleDirs) {
             try {
@@ -624,7 +638,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             // Sure we didn't find node_modules
             // Thats cool
         }
-        // this is best effort only at the moment        
+        // this is best effort only at the moment
         else {
             console.error('Failed to read package.json from node_modules due to error:', ex, ex.stack);
         }

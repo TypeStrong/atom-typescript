@@ -3,7 +3,7 @@ var $ = view.$;
 import path = require('path');
 
 export interface ViewOptions {
-    /** This is needed to support good goto next / goto previous logic 
+    /** This is needed to support good goto next / goto previous logic
      *  We inform the parent about our navigation
      */
     goToLine: (filePath: string, line: number, col: number) => any;
@@ -14,7 +14,7 @@ export interface ViewOptions {
     /** which column */
     col: number;
     /** so, was that in some other file? */
-    file: string; 
+    file: string;
     /** lets you display a code snippet inside a pre tag */
     preview: string;
 }
@@ -39,14 +39,13 @@ export class LineMessageView extends view.View<ViewOptions> {
                 class: 'message inline-block',
                 outlet: 'contents'
             });
-            this.tag(
-                'ts-view',
-                {
-                    class: 'preview',
-                    outlet: 'code',
-                    click: 'goToLine',
-                    style: 'cursor: pointer;'
-                });
+
+            this.pre({
+                class: 'preview',
+                outlet: 'code',
+                click: 'goToLine',
+                style: 'cursor: pointer;'
+            });
         });
     }
 
@@ -60,7 +59,7 @@ export class LineMessageView extends view.View<ViewOptions> {
         this.contents.text(this.options.message);
 
         if (this.options.preview) {
-            (<any>this.code[0]).text(this.options.preview);
+            this.code.text(this.options.preview);
         } else {
             this.code.remove();
         }

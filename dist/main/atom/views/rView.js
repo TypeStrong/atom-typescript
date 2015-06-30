@@ -13,17 +13,21 @@ var React = require('react');
 var MyComponent = (function (_super) {
     __extends(MyComponent, _super);
     function MyComponent(props) {
+        var _this = this;
         _super.call(this, props);
         this.state = { count: 0 };
+        this.stop = function () {
+            clearInterval(_this.interval);
+        };
     }
     MyComponent.prototype.componentDidMount = function () {
         var _this = this;
-        setInterval(function () {
+        this.interval = setInterval(function () {
             _this.setState({ count: _this.state.count + 1 });
         });
     };
     MyComponent.prototype.render = function () {
-        return React.createElement('div', null, 'This is a test: ' + this.state.count);
+        return React.createElement("div", {"onClick": this.stop}, "This is a test: ", this.state.count);
     };
     MyComponent.defaultProps = { count: 0 };
     return MyComponent;

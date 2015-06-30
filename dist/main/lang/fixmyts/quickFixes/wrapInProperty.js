@@ -7,7 +7,7 @@ var WrapInProperty = (function () {
         if (info.positionNode && info.positionNode.parent &&
             info.positionNode.parent.parent && info.positionNode.parent.parent.symbol &&
             info.positionNode.parent.parent.symbol && info.positionNode.parent.parent.symbol.name == '__constructor') {
-            if (info.positionNode.parent.kind == 131) {
+            if (info.positionNode.parent.kind == 132) {
                 return { display: "Wrap " + info.positionNode.parent.symbol.name + " in a read only property" };
             }
         }

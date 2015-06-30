@@ -8,15 +8,17 @@
         "noLib": false,
         "preserveConstEnums": true,
         "outDir": "../dist",
-        "sourceMap": false
+        "sourceMap": false,
+        "jsx": "react"
     },
     "dts": {
         "name": "atom-typescript"
     },
     "filesGlob": [
         "./**/*.ts",
+        "./**/*.tsx",
         "!node_modules/**/*.ts",
-        "../node_modules/ntypescript/bin/typescriptServices.d.ts"
+        "!node_modules/**/*.tsx"
     ],
     "files": [
         "./globals.ts",
@@ -32,6 +34,7 @@
         "./main/atom/components/ts-view.ts",
         "./main/atom/debugAtomTs.ts",
         "./main/atom/editorSetup.ts",
+        "./main/atom/fileStatusCache.ts",
         "./main/atom/gotoHistory.ts",
         "./main/atom/onSaveHandler.ts",
         "./main/atom/signatureProvider.ts",
@@ -48,7 +51,6 @@
         "./main/atom/views/mainPanelView.ts",
         "./main/atom/views/plainMessageView.ts",
         "./main/atom/views/projectSymbolsView.ts",
-        "./main/atom/views/rView.ts",
         "./main/atom/views/renameView.ts",
         "./main/atom/views/simpleOverlaySelectionView.ts",
         "./main/atom/views/simpleSelectionView.ts",
@@ -104,6 +106,7 @@
         "./typings/node/node.d.ts",
         "./typings/pathwatcher/pathwatcher.d.ts",
         "./typings/q/Q.d.ts",
+        "./typings/react/react-jsx.d.ts",
         "./typings/react/react.d.ts",
         "./typings/source-map/source-map.d.ts",
         "./typings/space-pen/space-pen.d.ts",
@@ -115,6 +118,6 @@
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
         "./worker/queryParent.ts",
-        "../node_modules/ntypescript/bin/typescriptServices.d.ts"
+        "./main/atom/views/rView.tsx"
     ]
 }

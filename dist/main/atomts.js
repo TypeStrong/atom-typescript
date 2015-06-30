@@ -15,6 +15,7 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var mainPanelView = require("./atom/views/mainPanelView");
+var fileStatusCache_1 = require("./atom/fileStatusCache");
 var editorSetup = require("./atom/editorSetup");
 var statusBar;
 var statusBarMessage;
@@ -57,7 +58,7 @@ function readyToActivate() {
         tooltipManager.attach(editorView, editor);
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts' || ext == ".tst") {
+        if (atomUtils.isAllowedExtension(ext)) {
             var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();
@@ -77,7 +78,7 @@ function readyToActivate() {
                         var newEmit = file.text;
                         fs.readFile(file.name, function (err, data) {
                             var existingEmit = data.toString();
-                            var status = mainPanelView.getFileStatus(filePath);
+                            var status = fileStatusCache_1.getFileStatus(filePath);
                             status.emitDiffers = newEmit !== existingEmit;
                             if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
                                 mainPanelView.panelView.updateFileStatus(filePath);
@@ -88,7 +89,7 @@ function readyToActivate() {
                 editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
                     if (editor === atom.workspace.getActiveTextEditor()) {
-                        var status_1 = mainPanelView.getFileStatus(filePath);
+                        var status_1 = fileStatusCache_1.getFileStatus(filePath);
                         status_1.modified = editor.isModified();
                         mainPanelView.panelView.updateFileStatus(filePath);
                     }

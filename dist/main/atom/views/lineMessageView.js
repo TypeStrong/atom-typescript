@@ -25,7 +25,7 @@ var LineMessageView = (function (_super) {
                 class: 'message inline-block',
                 outlet: 'contents'
             });
-            _this.tag('ts-view', {
+            _this.pre({
                 class: 'preview',
                 outlet: 'code',
                 click: 'goToLine',
@@ -41,7 +41,7 @@ var LineMessageView = (function (_super) {
         this.position.text(message);
         this.contents.text(this.options.message);
         if (this.options.preview) {
-            this.code[0].text(this.options.preview);
+            this.code.text(this.options.preview);
         }
         else {
             this.code.remove();

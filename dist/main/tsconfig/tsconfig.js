@@ -13,10 +13,12 @@ var compilerOptionsValidation = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
     noEmit: { type: types.boolean },
+    noEmitHelpers: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
@@ -56,12 +58,18 @@ var expand = require('glob-expand');
 var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
-var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var defaultFilesGlob = [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "!node_modules/**/*.ts",
+    "!node_modules/**/*.tsx"
+];
 var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-alpha';
 exports.defaults = {
-    target: 1,
-    module: 1,
+    target: ts.ScriptTarget.ES5,
+    module: ts.ModuleKind.CommonJS,
+    jsx: ts.JsxEmit.React,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -71,33 +79,37 @@ exports.defaults = {
 };
 var typescriptEnumMap = {
     target: {
-        'es3': 0,
-        'es5': 1,
-        'es6': 2,
-        'latest': 2
+        'es3': ts.ScriptTarget.ES3,
+        'es5': ts.ScriptTarget.ES5,
+        'es6': ts.ScriptTarget.ES6,
+        'latest': ts.ScriptTarget.Latest
     },
     module: {
-        'none': 0,
-        'commonjs': 1,
-        'amd': 2,
-        'system': 4,
-        'umd': 3,
+        'none': ts.ModuleKind.None,
+        'commonjs': ts.ModuleKind.CommonJS,
+        'amd': ts.ModuleKind.AMD,
+        'system': ts.ModuleKind.System,
+        'umd': ts.ModuleKind.UMD,
+    },
+    jsx: {
+        'preserve': ts.JsxEmit.Preserve,
+        'react': ts.JsxEmit.React
     }
 };
 var jsonEnumMap = {
     target: (function () {
         var map = {};
-        map[0] = 'es3';
-        map[1] = 'es5';
-        map[2] = 'es6';
-        map[2] = 'latest';
+        map[ts.ScriptTarget.ES3] = 'es3';
+        map[ts.ScriptTarget.ES5] = 'es5';
+        map[ts.ScriptTarget.ES6] = 'es6';
+        map[ts.ScriptTarget.Latest] = 'latest';
         return map;
     })(),
     module: (function () {
         var map = {};
-        map[0] = 'none';
-        map[1] = 'commonjs';
-        map[2] = 'amd';
+        map[ts.ModuleKind.None] = 'none';
+        map[ts.ModuleKind.CommonJS] = 'commonjs';
+        map[ts.ModuleKind.AMD] = 'amd';
         return map;
     })()
 };
