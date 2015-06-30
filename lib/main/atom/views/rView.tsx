@@ -19,16 +19,21 @@ class MyComponent extends React.Component<Props, State>{
         super(props);
     }
 
+    interval: number;
     componentDidMount() {
-        setInterval(() => {
+        this.interval = setInterval(() => {
             this.setState({ count: this.state.count + 1 });
         });
     }
 
+    stop = () => {
+        clearInterval(this.interval);
+    }
+
     render() {
-        return <div>
+        return <div onClick={this.stop}>
             This is a test: {this.state.count}
-        </div>
+            </div>
     }
 }
 
