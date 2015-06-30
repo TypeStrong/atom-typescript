@@ -114,7 +114,6 @@ function readyToActivate() {
         }
     });
 
-
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
@@ -165,7 +164,6 @@ function readyToActivate() {
                             }
                         });
                     });
-
                 }
 
                 // Setup additional observers on the editor
