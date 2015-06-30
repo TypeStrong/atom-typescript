@@ -112,7 +112,7 @@ Notes:
 ## React Support
 Specifically `jsx` support:
 
-* Have `jsx : "react"` in your `tsconfig.compilerOptions`. 
+* Have `"jsx" : "react"` in your `tsconfig.compilerOptions`. 
 * Have `*.tsx` files included in your project e.g using `filesGlob`: 
 ```json
 "filesGlob": [
