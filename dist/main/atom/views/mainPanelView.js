@@ -424,7 +424,7 @@ var fileStatuses = [];
 function getFileStatus(filePath) {
     var status = fileStatuses[filePath];
     if (!status) {
-        status = { saved: false, emitDiffers: false, modified: false };
+        status = { emitDiffers: false, modified: false };
         fileStatuses[filePath] = status;
     }
     return status;

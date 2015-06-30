@@ -150,13 +150,20 @@ function readyToActivate() {
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
+                    // Comparing potential emit to the existing js file
                     parent.getOutput({filePath: filePath}).then((res) => {
-                      let file = res.output.outputFiles[0];
-                      let newEmit = file.text;
-                      let existingEmit = fs.readFileSync(file.name).toString();
+                        let file = res.output.outputFiles[0];
+                        let newEmit = file.text;
+                        fs.readFile(file.name, (err, data) => {
+                            let existingEmit = data.toString();
+                            let status = mainPanelView.getFileStatus(filePath);
+                            status.emitDiffers = newEmit !== existingEmit;
 
-                      let status = mainPanelView.getFileStatus(filePath);
-                      status.emitDiffers = newEmit !== existingEmit;
+                            // Update status if the file compared above is currently in the active editor
+                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                                mainPanelView.panelView.updateFileStatus(filePath);
+                            }
+                        });
                     });
 
                 }
@@ -167,7 +174,7 @@ function readyToActivate() {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    // It's required because on initial load this event fires
+                    // The condition is required because on initial load this event fires
                     // on every opened file, not just the active one
                     if (editor === atom.workspace.getActiveTextEditor()) {
                         let status = mainPanelView.getFileStatus(filePath);

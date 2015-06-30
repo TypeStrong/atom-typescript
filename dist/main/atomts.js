@@ -75,9 +75,14 @@ function readyToActivate() {
                     parent.getOutput({ filePath: filePath }).then(function (res) {
                         var file = res.output.outputFiles[0];
                         var newEmit = file.text;
-                        var existingEmit = fs.readFileSync(file.name).toString();
-                        var status = mainPanelView.getFileStatus(filePath);
-                        status.emitDiffers = newEmit !== existingEmit;
+                        fs.readFile(file.name, function (err, data) {
+                            var existingEmit = data.toString();
+                            var status = mainPanelView.getFileStatus(filePath);
+                            status.emitDiffers = newEmit !== existingEmit;
+                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                                mainPanelView.panelView.updateFileStatus(filePath);
+                            }
+                        });
                     });
                 }
                 editorSetup.setupEditor(editor);

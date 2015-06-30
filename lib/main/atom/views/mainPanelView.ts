@@ -177,13 +177,8 @@ export class MainPanelView extends view.View<any> {
             this.fileStatus.text('Js emit is outdated');
             this.fileStatus.addClass('icon-x text-error');
         } else {
-            // if (status.saved) {
-                this.fileStatus.text('Js emit up to date');
-                this.fileStatus.addClass('icon-check text-success');
-            // } else { // File hasn't been saved and compiled during the current run, so we don't know the state
-            //     this.fileStatus.text('No js emit requested yet');
-            //     this.fileStatus.addClass('icon-x text-warning');
-            // }
+            this.fileStatus.text('Js emit up to date');
+            this.fileStatus.addClass('icon-check text-success');
         }
     }
 
@@ -518,7 +513,6 @@ export module errorView {
 }
 
 export interface FileStatus {
-    saved: boolean; // True if the file has been saved and compiled during the current session
     modified: boolean; // True if the text in the editor has been modified
     emitDiffers: boolean; // True if the emit on the disk differs from the potential emit of the current ts file
 };
@@ -528,7 +522,7 @@ let fileStatuses: Array<FileStatus> = [];
 export function getFileStatus(filePath: string): FileStatus {
     let status = fileStatuses[filePath];
     if (!status) {
-        status = <FileStatus> {saved: false, emitDiffers: false, modified: false};
+        status = <FileStatus> {emitDiffers: false, modified: false};
         fileStatuses[filePath] = status;
     }
     return status;
