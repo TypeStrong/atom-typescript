@@ -111,6 +111,13 @@ var jsonEnumMap = {
         map[1] = 'commonjs';
         map[2] = 'amd';
         return map;
+    })(),
+    jsx: (function () {
+        var map = {};
+        map[0] = 'none';
+        map[1] = 'preserve';
+        map[2] = 'react';
+        return map;
     })()
 };
 function mixin(target, source) {
@@ -147,6 +154,9 @@ function tsToRawCompilerOptions(compilerOptions) {
     }
     if (compilerOptions.module !== undefined) {
         jsonOptions.module = jsonEnumMap.module[compilerOptions.module];
+    }
+    if (compilerOptions.jsx !== undefined) {
+        jsonOptions.jsx = jsonEnumMap.jsx[compilerOptions.jsx];
     }
     return jsonOptions;
 }

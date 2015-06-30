@@ -12,7 +12,7 @@ var types = simpleValidator.types;
  * When adding you need to
  *  0 Add in this interface
  * 	1 Add to the validation
- * 	2 If its an enum : Update the enum map
+ * 	2 If its an enum : Update `typescriptEnumMap` `jsonEnumMap` `tsToRawCompilerOptions`
  * 	3 If its a path : Update the `make relative` code
  */
 interface CompilerOptions {
@@ -231,6 +231,13 @@ var jsonEnumMap = {
         map[ts.ModuleKind.CommonJS] = 'commonjs';
         map[ts.ModuleKind.AMD] = 'amd';
         return map;
+    })(),
+    jsx: (function() {
+        var map: { [key: number]: string; } = {};
+        map[ts.JsxEmit.None] = 'none';
+        map[ts.JsxEmit.Preserve] = 'preserve';
+        map[ts.JsxEmit.React] = 'react';
+        return map;
     })()
 };
 
@@ -278,6 +285,10 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
 
     if (compilerOptions.module !== undefined) {
         jsonOptions.module = jsonEnumMap.module[compilerOptions.module];
+    }
+    
+    if (compilerOptions.jsx !== undefined) {
+        jsonOptions.jsx = jsonEnumMap.jsx[compilerOptions.jsx];
     }
 
     return jsonOptions;
