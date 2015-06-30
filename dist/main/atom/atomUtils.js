@@ -13,6 +13,10 @@ function getEditorPositionForBufferPosition(editor, bufferPos) {
     return buffer.characterIndexForPosition(bufferPos);
 }
 exports.getEditorPositionForBufferPosition = getEditorPositionForBufferPosition;
+function isAllowedExtension(ext) {
+    return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
+}
+exports.isAllowedExtension = isAllowedExtension;
 function onDiskAndTs(editor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
@@ -20,7 +24,7 @@ function onDiskAndTs(editor) {
             return false;
         }
         var ext = path.extname(filePath);
-        if (ext == '.ts' || ext == '.tst') {
+        if (isAllowedExtension(ext)) {
             if (fs.existsSync(filePath)) {
                 return true;
             }
@@ -137,7 +141,8 @@ function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
         return e.abortKeyBinding() && false;
-    if (path.extname(editor.getPath()) !== '.ts' || path.extname(editor.getPath()) == '.tst')
+    var ext = path.extname(editor.getPath());
+    if (!isAllowedExtension(ext))
         return e.abortKeyBinding() && false;
     return true;
 }

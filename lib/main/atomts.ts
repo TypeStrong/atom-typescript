@@ -125,7 +125,7 @@ function readyToActivate() {
 
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts' || ext == ".tst") {
+        if (atomUtils.isAllowedExtension(ext)) {
             let isTst = ext === '.tst';
             try {
                 // Only once stuff

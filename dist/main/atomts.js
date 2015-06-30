@@ -58,7 +58,7 @@ function readyToActivate() {
         tooltipManager.attach(editorView, editor);
         var filePath = editor.getPath();
         var ext = path.extname(filePath);
-        if (ext == '.ts' || ext == ".tst") {
+        if (atomUtils.isAllowedExtension(ext)) {
             var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();

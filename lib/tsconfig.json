@@ -15,8 +15,9 @@
     },
     "filesGlob": [
         "./**/*.ts",
+        "./**/*.tsx",
         "!node_modules/**/*.ts",
-        "../node_modules/ntypescript/bin/typescriptServices.d.ts"
+        "!node_modules/**/*.tsx"
     ],
     "files": [
         "./globals.ts",
@@ -115,7 +116,6 @@
         "./worker/debug.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
-        "./worker/queryParent.ts",
-        "../node_modules/ntypescript/bin/typescriptServices.d.ts"
+        "./worker/queryParent.ts"
     ]
 }
