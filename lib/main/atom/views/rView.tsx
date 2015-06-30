@@ -33,7 +33,7 @@ class MyComponent extends React.Component<Props, State>{
     render() {
         return <div onClick={this.stop}>
             This is a test: {this.state.count}
-            </div>
+        </div>
     }
 }
 

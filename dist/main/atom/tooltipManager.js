@@ -21,7 +21,7 @@ function attach(editorView, editor) {
     var filePath = editor.getPath();
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
-    if (ext !== '.ts')
+    if (!atomUtils.isAllowedExtension(ext))
         return;
     if (!fs.existsSync(filePath)) {
         return;

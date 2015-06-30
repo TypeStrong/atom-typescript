@@ -1,0 +1,151 @@
+'name': 'TypeScript (TSX)'
+'scopeName': 'source.ts.tsx'
+'fileTypes': [
+  'tsx'
+]
+'patterns': [
+  {
+    'include': '#pcdata'
+  }
+  {
+    'include': '#jsx'
+  }
+  {
+    'include': 'source.ts'
+  }
+]
+'repository':
+  'pcdata':
+    'patterns': [
+      {
+        'include': '#pcdata-quotes'
+      }
+    ]
+  'pcdata-quotes':
+    'name': 'meta.other.pcdata.js'
+    'match': '\\b\\w+[\'"]\\w+\\b'
+  'jsx-tag-attributes':
+    'patterns': [
+      {
+        'include': '#jsx-tag-attribute-name'
+      }
+      {
+        'include': '#jsx-string-double-quoted'
+      }
+      {
+        'include': '#jsx-string-single-quoted'
+      }
+      {
+        'include': '#jsx-evaluated-code'
+      }
+    ]
+  'jsx-tag-attribute-name':
+    'name': 'meta.tag.attribute-name.js'
+    'match': '\\b([a-zA-Z0-9\\-:]+)'
+    'captures':
+      '1':
+        'name': 'entity.other.attribute-name.js'
+  'jsx-string-double-quoted':
+    'begin': '"'
+    'end': '"'
+    'name': 'string.quoted.double.js'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.js'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.js'
+    'patterns': [
+      {
+        'include': '#jsx-entities'
+      }
+    ]
+  'jsx-string-single-quoted':
+    'begin': '\''
+    'end': '\''
+    'name': 'string.quoted.single.js'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.js'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.js'
+    'patterns': [
+      {
+        'include': '#jsx-entities'
+      }
+    ]
+  'jsx-entities':
+    'patterns': [
+      {
+        'name': 'constant.character.entity.js'
+        'match': '(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)'
+        'captures':
+          '1':
+            'name': 'punctuation.definition.entity.js'
+          '3':
+            'name': 'punctuation.definition.entity.js'
+      }
+      {
+        'name': 'invalid.illegal.bad-ampersand.js'
+        'match': '&'
+      }
+    ]
+  'jsx-evaluated-code':
+    'begin': '{'
+    'end': '}'
+    'name': 'meta.brace.curly.js'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.brace.curly.end.js'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.brace.curly.start.js'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+  'jsx-tag-open':
+    'begin': '(<)([a-zA-Z0-9\.:$_]+)'
+    'end': '(/?>)'
+    'name': 'tag.open.js'
+    'endCaptures':
+      '1':
+        'name': 'punctuation.definition.tag.end.js'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.tag.begin.js'
+      '2':
+        'name': 'entity.name.tag.js'
+    'patterns': [
+      {
+        'include': '#jsx-tag-attributes'
+      }
+    ]
+  'jsx-tag-close':
+    'match': '(</)([^>]+)(>)'
+    'name': 'tag.closed.js'
+    'captures':
+      '1':
+        'name': 'punctuation.definition.tag.begin.js'
+      '2':
+        'name': 'entity.name.tag.js'
+      '3':
+        'name': 'punctuation.definition.tag.end.js'
+  'jsx-tag-invalid':
+    'name': 'invalid.illegal.tag.incomplete.js'
+    'match': '<\\s*>'
+  'jsx':
+    'name': 'meta.jsx.js'
+    'patterns': [
+      {
+        'include': '#jsx-tag-open'
+      }
+      {
+        'include': '#jsx-tag-close'
+      }
+      {
+        'include': '#jsx-tag-invalid'
+      }
+    ]
