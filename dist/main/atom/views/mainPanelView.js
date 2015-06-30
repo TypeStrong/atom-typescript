@@ -147,19 +147,13 @@ var MainPanelView = (function (_super) {
     MainPanelView.prototype.updateFileStatus = function (filePath) {
         var status = getFileStatus(filePath);
         this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
-        if (status.modified) {
+        if (status.emitDiffers || status.modified) {
             this.fileStatus.text('Js emit is outdated');
             this.fileStatus.addClass('icon-x text-error');
         }
         else {
-            if (status.saved) {
-                this.fileStatus.text('Js emit up to date');
-                this.fileStatus.addClass('icon-check text-success');
-            }
-            else {
-                this.fileStatus.text('No js emit requested yet');
-                this.fileStatus.addClass('icon-x text-warning');
-            }
+            this.fileStatus.text('Js emit up to date');
+            this.fileStatus.addClass('icon-check text-success');
         }
     };
     MainPanelView.prototype.showPending = function () {
@@ -430,7 +424,7 @@ var fileStatuses = [];
 function getFileStatus(filePath) {
     var status = fileStatuses[filePath];
     if (!status) {
-        status = { modified: false, saved: false };
+        status = { saved: false, emitDiffers: false, modified: false };
         fileStatuses[filePath] = status;
     }
     return status;

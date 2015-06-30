@@ -114,6 +114,7 @@ function readyToActivate() {
         }
     });
 
+
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
@@ -142,11 +143,22 @@ function readyToActivate() {
 
                 debugAtomTs.runDebugCode({ filePath, editor });
 
-                // Set errors in project per file
                 if (onDisk) {
+
+                    // Set errors in project per file
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
+
+                    parent.getOutput({filePath: filePath}).then((res) => {
+                      let file = res.output.outputFiles[0];
+                      let newEmit = file.text;
+                      let existingEmit = fs.readFileSync(file.name).toString();
+
+                      let status = mainPanelView.getFileStatus(filePath);
+                      status.emitDiffers = newEmit !== existingEmit;
+                    });
+
                 }
 
                 // Setup additional observers on the editor
@@ -155,9 +167,13 @@ function readyToActivate() {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    let status = mainPanelView.getFileStatus(filePath);
-                    status.modified = editor.isModified();
-                    mainPanelView.panelView.updateFileStatus(filePath);
+                    // It's required because on initial load this event fires
+                    // on every opened file, not just the active one
+                    if (editor === atom.workspace.getActiveTextEditor()) {
+                        let status = mainPanelView.getFileStatus(filePath);
+                        status.modified = editor.isModified();
+                        mainPanelView.panelView.updateFileStatus(filePath);
+                    }
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {

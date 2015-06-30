@@ -18,7 +18,8 @@ function handle(event) {
             .then(function (res) {
             var status = mainPanelView_1.getFileStatus(event.filePath);
             status.saved = true;
-            status.modified = res.emitError;
+            status.modified = false;
+            status.emitDiffers = res.emitError;
             mainPanelView_1.panelView.updateFileStatus(event.filePath);
             mainPanelView_1.errorView.showEmittedMessage(res);
         });

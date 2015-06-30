@@ -72,12 +72,21 @@ function readyToActivate() {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
                         .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
+                    parent.getOutput({ filePath: filePath }).then(function (res) {
+                        var file = res.output.outputFiles[0];
+                        var newEmit = file.text;
+                        var existingEmit = fs.readFileSync(file.name).toString();
+                        var status = mainPanelView.getFileStatus(filePath);
+                        status.emitDiffers = newEmit !== existingEmit;
+                    });
                 }
                 editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
-                    var status = mainPanelView.getFileStatus(filePath);
-                    status.modified = editor.isModified();
-                    mainPanelView.panelView.updateFileStatus(filePath);
+                    if (editor === atom.workspace.getActiveTextEditor()) {
+                        var status_1 = mainPanelView.getFileStatus(filePath);
+                        status_1.modified = editor.isModified();
+                        mainPanelView.panelView.updateFileStatus(filePath);
+                    }
                     if (!onDisk) {
                         var root = { line: 0, col: 0 };
                         mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
