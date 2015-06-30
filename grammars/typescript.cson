@@ -9,10 +9,11 @@
 
 'patterns': [
   # FIXME Unicode shizzle
-  # FIXME (Inline) comments break everything
   # IDEA highlight void differently?
   # FIXME review all uses of ts and js
   # FIXME /* */ can be in template stuffs
+  # FIXME union types broken with var
+  # FIXME return types for normal function definitions not working
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -36,13 +37,13 @@
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
-    'end': ';'
+    'end': '(;)|(?<!,)$'
     'endCaptures':
-      '0':
+      '1':
         'name': 'punctuation.terminator.statement.js'
     'patterns': [
       {
-        'begin': '(?=)'
+        'begin': '(?<=^|,|\\G)'
         'end': '(,)|(?=;)'
         'endCaptures':
           '1':
@@ -568,7 +569,7 @@
 'repository':
   'type':
     'begin': '(?=)'
-    'end': '(?!\\G)'
+    'end': '(?<!\\*\\/)(?!\\G)(?!\\|)'
     'patterns': [
       {
         'include': '#keytype'
@@ -586,10 +587,16 @@
         'include': '#objecttype'
       }
       {
-        'match': '\\|'
-        'captures':
+        'begin': '\\|'
+        'beginCaptures':
           '0':
             'name': 'keyword.operator.union.ts'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
       }
       {
         'include': '#comments'
@@ -719,6 +726,7 @@
   'typedvariable':
     'begin': '[_a-zA-Z\\$][\\w\\$]*\\??\\s*:\\s*'
     'end': '(?!\\G)'
+    'name': 'typedvariable'
     'patterns': [
       {
         'include': '#type'
