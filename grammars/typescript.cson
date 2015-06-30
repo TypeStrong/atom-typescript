@@ -13,6 +13,8 @@
   # IDEA highlight void differently?
   # TODO normal function definitions
   # TODO match function arguments
+  # TODO const/let?
+  # TODO iterator stars
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -213,6 +215,124 @@
     ]
   }
   {
+    'begin': '([a-zA-Z_?.$][\\w?.$]*)\\.(prototype)\\.([a-zA-Z_?.$][\\w?.$]*)\\s*(=)\\s*(?=(?:async\\s+)?function)'
+    'beginCaptures':
+      '1':
+        'name': 'support.class.js'
+      '2':
+        'name': 'support.constant.js'
+      '3':
+        'name': 'entity.name.function.js'
+      '4':
+        'name': 'keyword.operator.js'
+    'comment': 'match stuff like: Sound.prototype.play = function() { … }'
+    'end': '(?!\\G)'
+    'name': 'meta.function.prototype.js'
+    'patterns': [
+      {
+        'include': '#anonymousfunction'
+      }
+    ]
+  }
+  {
+    'begin': '([a-zA-Z_?.$][\\w?.$]*)\\.([a-zA-Z_?.$][\\w?.$]*)\\s*(=)\\s*(?=(?:async\\s+)?function)'
+    'beginCaptures':
+      '1':
+        'name': 'support.class.js'
+      '2':
+        'name': 'entity.name.function.js'
+      '3':
+        'name': 'keyword.operator.js'
+    'comment': 'match stuff like: Sound.play = function() { … }'
+    'end': '(?!\\G)'
+    'name': 'meta.function.js'
+    'patterns': [
+      {
+        'include': '#anonymousfunction'
+      }
+    ]
+  }
+  {
+    'begin': '([a-zA-Z_?$][\\w?$]*)\\s*(=)\\s*(?=(?:async\\s+)?function)'
+    'beginCaptures':
+      '1':
+        'name': 'entity.name.function.js'
+      '2':
+        'name': 'keyword.operator.js'
+    'comment': 'match stuff like: play = function() { … }'
+    'end': '(?!\\G)'
+    'name': 'meta.function.js'
+    'patterns': [
+      {
+        'include': '#anonymousfunction'
+      }
+    ]
+  }
+  {
+    'begin': '\\b([a-zA-Z_?.$][\\w?.$]*)\\s*(:)\\s*(?=(?:async\\s+)?function)'
+    'beginCaptures':
+      '1':
+        'name': 'entity.name.function.js'
+      '2':
+        'name': 'keyword.operator.js'
+    'comment': 'match stuff like: foobar: function() { … }'
+    'end': '(?!\\G)'
+    'name': 'meta.function.json.js'
+    'patterns': [
+      {
+        'include': '#anonymousfunction'
+      }
+    ]
+  }
+  {
+    'begin': '(?:((\')(.*?)(\'))|((")(.*?)(")))\\s*(:)\\s*(?=(?:async\\s+)?function)'
+    'beginCaptures':
+      '1':
+        'name': 'string.quoted.single.js'
+      '2':
+        'name': 'punctuation.definition.string.begin.js'
+      '3':
+        'name': 'entity.name.function.js'
+      '4':
+        'name': 'punctuation.definition.string.end.js'
+      '5':
+        'name': 'string.quoted.double.js'
+      '6':
+        'name': 'punctuation.definition.string.begin.js'
+      '7':
+        'name': 'entity.name.function.js'
+      '8':
+        'name': 'punctuation.definition.string.end.js'
+      '9':
+        'name': 'keyword.operator.js'
+    'comment': 'Attempt to match "foo": function'
+    'end': '(?!\\G)'
+    'name': 'meta.function.json.js'
+    'patterns': [
+      {
+        'include': '#anonymousfunction'
+      }
+    ]
+  }
+  {
+    'name': 'meta.function.arrow.js'
+    'begin': '(?<![A-Za-z0-9$_\\)\\]])(?=\\([^&*/+-]*\\)\\s*=>\\s*{)'
+    'end': '(?<=\\))(\\s*=>)'
+    'endCaptures':
+      '1':
+        'name': 'storage.type.arrow.js'
+    'patterns': [
+      {
+        'include': '#functionargumentstype'
+      }
+    ]
+  }
+  {
+    'include': '#anonymousfunction'
+  }
+  # TODO named functions
+  # TODO function calls
+  {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
     'match': '(\\.)(?:Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|event|FileUpload|Form|Frame|Function|Hidden|History|Image|JavaArray|JavaClass|JavaObject|JavaPackage|java|Layer|Link|Location|Math|MimeType|Number|navigator|netscape|Object|Option|Packages|Password|Plugin|Radio|RegExp|Reset|Select|String|Style|Submit|screen|sun|Text|Textarea|window|XMLHttpRequest)'
     'captures':
@@ -263,15 +383,6 @@
         'include': '#comma'
       }
     ]
-  }
-  # TODO What does this do
-  {
-    'comment': 'Match stuff like: function() {...}'
-    'match': '(?<function)\\s+([a-zA-Z_?.$][\\w?.$]*)\\(.*?)\\s*\\{'
-    'name': 'meta.function.ts'
-    'captures':
-      '1':
-        'name': 'entity.name.function.ts'
   }
   {
       'comment': 'Match full triple slash reference comments'
@@ -519,10 +630,16 @@
   'functionargumentstype':
     'comment': 'Matches the types for functions.'
     'begin': '\\('
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.parameters.begin.js'
     'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.parameters.end.js'
     'patterns': [
       {
-        'include': '#typedvariable'
+        'include': '#args'
       }
     ]
 
@@ -563,6 +680,71 @@
           '1':
             'name': 'variable.parameter.function.ts'
         'end': '(?=\\s*[,\\)])'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+        ]
+      }
+      {
+        'include': '#comma'
+      }
+    ]
+
+  'anonymousfunction':
+    'begin': '(?=)'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'begin': '(?:(async)(?:\\s+))?(function\\*?)\\s*(\\*?)(?=\\()'
+        'beginCaptures':
+          '1':
+            'name': 'storage.modifier.js'
+          '2':
+            'name': 'storage.type.function.js'
+          '3':
+            'name': 'storage.type.function.js'
+        'end': '(?<=\\))'
+        'patterns': [
+          {
+            'include': '#functionargumentstype'
+          }
+        ]
+      }
+      {
+        'begin': '(?:(async)(?:\\s+))?(function)(?=<)'
+        'beginCaptures':
+          '1':
+            'name': 'storage.modifier.js'
+          '2':
+            'name': 'storage.type.function.js'
+        'end': '(?<=\\))'
+        'patterns': [
+          {
+            'begin': '(?<=\\G)<'
+            'end': '>(?:(\\*)\\s*|\\s*(\\*)|\\s*)(?=\\()'
+            'endCaptures':
+              '1':
+                'name': 'storage.type.function.js'
+              '2':
+                'name': 'storage.type.function.js'
+            'patterns': [
+              {
+                'include': '#type'
+              }
+              {
+                'include': '#comma'
+              }
+            ]
+          }
+          {
+            'include': '#functionargumentstype'
+          }
+        ]
+      }
+      {
+        'begin': '(?<=\\G):\\s*'
+        'end': '(?!\\G)'
         'patterns': [
           {
             'include': '#type'
