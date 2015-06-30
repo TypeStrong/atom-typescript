@@ -61,12 +61,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
 
     // Setup for clearing
-    atom.commands.add('atom-text-editor', 'editor:will-be-removed', (e) => {
-        if (e.currentTarget == editorView[0]) {
-            deactivate();
-        }
-    });
-
+    editor.onDidDestroy(() => deactivate());
 
     function showExpressionType(e: MouseEvent) {
 
