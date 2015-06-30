@@ -11,9 +11,7 @@
   # FIXME Unicode shizzle
   # FIXME (Inline) comments break everything
   # IDEA highlight void differently?
-  # TODO match function arguments
-  # TODO const/let?
-  # TODO iterator stars
+  # FIXME review all uses of ts and js
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -33,7 +31,7 @@
   }
   {
     'comment': 'Match types in variable definitions.'
-    'begin': '(var)\\s+'
+    'begin': '(var|const|let)\\s+'
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
@@ -316,7 +314,31 @@
   {
     'include': '#function'
   }
-  # TODO function calls
+  {
+    'begin': '(?<=[a-zA-Z0-9$_\\)\\]])(\\()'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.parameters.begin.js'
+    'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.parameters.end.js'
+    'patterns': [
+      {
+        'begin': '(?=)'
+        'end': '(,)\\s*|(?=\\))'
+        'endCaptures':
+          '1':
+            'include': '#comma'
+        'name': 'variable.function.parameter.ts'
+        'patterns': [
+          {
+            'include': '$self'
+          }
+        ]
+      }
+    ]
+  }
   {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
     'match': '(\\.)(?:Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|event|FileUpload|Form|Frame|Function|Hidden|History|Image|JavaArray|JavaClass|JavaObject|JavaPackage|java|Layer|Link|Location|Math|MimeType|Number|navigator|netscape|Object|Option|Packages|Password|Plugin|Radio|RegExp|Reset|Select|String|Style|Submit|screen|sun|Text|Textarea|window|XMLHttpRequest)'
@@ -464,7 +486,6 @@
         'include': '$self'
       }
     ]
-    'disabled': true # FIXME need to figure out uses of ()
   }
   {
     'include': 'source.js'
@@ -687,6 +708,7 @@
     ]
 
   'newstylefunction':
+    # FIXME buggy
     'name': 'meta.function.arrow.js'
     'begin': '(?<![A-Za-z0-9$_\\)\\]])(?=\\([^&*/+-]*\\)\\s*=>\\s*{)'
     'end': '(?<=\\))(\\s*=>)'
