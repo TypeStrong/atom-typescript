@@ -8,7 +8,8 @@
         "noLib": false,
         "preserveConstEnums": true,
         "outDir": "../dist",
-        "sourceMap": false
+        "sourceMap": false,
+        "jsx": "react"
     },
     "dts": {
         "name": "atom-typescript"
@@ -50,7 +51,6 @@
         "./main/atom/views/mainPanelView.ts",
         "./main/atom/views/plainMessageView.ts",
         "./main/atom/views/projectSymbolsView.ts",
-        "./main/atom/views/rView.ts",
         "./main/atom/views/renameView.ts",
         "./main/atom/views/simpleOverlaySelectionView.ts",
         "./main/atom/views/simpleSelectionView.ts",
@@ -116,6 +116,7 @@
         "./worker/debug.ts",
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
-        "./worker/queryParent.ts"
+        "./worker/queryParent.ts",
+        "./main/atom/views/rView.tsx"
     ]
 }

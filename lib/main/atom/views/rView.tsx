@@ -26,11 +26,9 @@ class MyComponent extends React.Component<Props, State>{
     }
 
     render() {
-        return React.createElement(
-            'div',
-            null,
-            'This is a test: ' + this.state.count
-            );
+        return <div>
+            This is a test: {this.state.count}
+        </div>
     }
 }
 
@@ -64,8 +62,8 @@ export class RView extends sp.ScrollView {
     /** Override */
     static protocol: string = 'atomtsview:';
 
-    public get $() { return <JQuery><any>this; }
-    private getURI = () => uriForPath((<any>this.constructor).protocol, this.config.filePath);
+    public get $() { return this as any as JQuery; }
+    private getURI = () => uriForPath((this.constructor as any).protocol, this.config.filePath);
     private getTitle = () => this.config.title;
     private getIconName = () => this.config.icon;
 }      

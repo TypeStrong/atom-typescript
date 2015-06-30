@@ -29,7 +29,7 @@ var AddImportStatement = (function () {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         if (!relevantError)
             return;
-        if (info.positionNode.kind !== 65)
+        if (info.positionNode.kind !== 66)
             return;
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches)

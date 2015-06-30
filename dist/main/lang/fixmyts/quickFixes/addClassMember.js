@@ -28,7 +28,7 @@ var AddClassMember = (function () {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         if (!relevantError)
             return;
-        if (info.positionNode.kind !== 65)
+        if (info.positionNode.kind !== 66)
             return;
         var match = getIdentifierAndClassNames(relevantError);
         if (!match)
@@ -43,12 +43,12 @@ var AddClassMember = (function () {
         var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
-        if (parentOfParent.kind == 172
+        if (parentOfParent.kind == 173
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
         }
-        else if (parentOfParent.kind == 160) {
+        else if (parentOfParent.kind == 161) {
             var callExp = parentOfParent;
             var typeStringParts = ['('];
             var args = [];
@@ -61,9 +61,9 @@ var AddClassMember = (function () {
             typeStringParts.push(') => any');
             typeString = typeStringParts.join('');
         }
-        var memberTarget = ast.getNodeByKindAndName(info.program, 204, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, 206, className);
         if (!memberTarget) {
-            memberTarget = ast.getNodeByKindAndName(info.program, 205, className);
+            memberTarget = ast.getNodeByKindAndName(info.program, 207, className);
         }
         if (!memberTarget) {
             return [];

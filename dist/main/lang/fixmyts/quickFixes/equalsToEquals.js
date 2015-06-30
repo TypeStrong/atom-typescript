@@ -3,18 +3,18 @@ var EqualsToEquals = (function () {
         this.key = EqualsToEquals.name;
     }
     EqualsToEquals.prototype.canProvideFix = function (info) {
-        if (info.positionNode.kind === 28) {
+        if (info.positionNode.kind === 29) {
             return { display: "Convert == to ===" };
         }
-        if (info.positionNode.kind === 29) {
+        if (info.positionNode.kind === 30) {
             return { display: "Convert != to !==" };
         }
     };
     EqualsToEquals.prototype.provideFix = function (info) {
-        if (info.positionNode.kind === 28) {
+        if (info.positionNode.kind === 29) {
             var newText = '===';
         }
-        if (info.positionNode.kind === 29) {
+        if (info.positionNode.kind === 30) {
             var newText = '!==';
         }
         var refactoring = {

@@ -27,6 +27,7 @@ interface CompilerOptions {
     help?: boolean;
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
+    jsx?: string;
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
@@ -63,6 +64,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
@@ -170,7 +172,12 @@ var projectFileName = 'tsconfig.json';
 /**
  * This is what we write to new files
  */
-var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var defaultFilesGlob = [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "!node_modules/**/*.ts",
+    "!node_modules/**/*.tsx"
+];
 /**
  * This is what we use when the user doens't specify a files / filesGlob
  */
@@ -180,6 +187,7 @@ var typeScriptVersion = '1.5.0-alpha';
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
+    jsx: ts.JsxEmit.React,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -201,6 +209,10 @@ var typescriptEnumMap = {
         'amd': ts.ModuleKind.AMD,
         'system': ts.ModuleKind.System,
         'umd': ts.ModuleKind.UMD,
+    },
+    jsx: {
+        'preserve': ts.JsxEmit.Preserve,
+        'react': ts.JsxEmit.React
     }
 };
 

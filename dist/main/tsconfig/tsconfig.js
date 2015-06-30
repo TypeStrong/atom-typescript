@@ -13,6 +13,7 @@ var compilerOptionsValidation = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
@@ -57,12 +58,18 @@ var expand = require('glob-expand');
 var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
-var defaultFilesGlob = ["./**/*.ts", "!./node_modules/**/*.ts"];
+var defaultFilesGlob = [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "!node_modules/**/*.ts",
+    "!node_modules/**/*.tsx"
+];
 var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-alpha';
 exports.defaults = {
     target: 1,
     module: 1,
+    jsx: 2,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
@@ -83,6 +90,10 @@ var typescriptEnumMap = {
         'amd': 2,
         'system': 4,
         'umd': 3,
+    },
+    jsx: {
+        'preserve': 1,
+        'react': 2
     }
 };
 var jsonEnumMap = {
