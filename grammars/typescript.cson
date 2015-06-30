@@ -9,9 +9,11 @@
 
 'patterns': [
   # TODO highlight for vars, etc...
-  # TODO Unicode shizzle
-  # TODO (Inline) comments break everything
-  # TODO highlight void differently?
+  # FIXME Unicode shizzle
+  # FIXME (Inline) comments break everything
+  # IDEA highlight void differently?
+  # TODO normal function definitions
+  # TODO match function arguments
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -150,7 +152,7 @@
       'match': '\\b(?:export|declare|constructor)\\b'
       'name': 'keyword.other.ts'
   }
-  # TODO move this to other classes?
+  # REVIEW move this to other classes?
   {
     'comment': 'Match stuff like: as'
     'match': '\\b(?:as|AS)\\b'
@@ -178,18 +180,18 @@
     ]
   }
   {
-    # TODO this *can* misfire sometimes
     'comment': 'Match types in template instantiation'
-    'begin': '(?<=\\w)<(?=.*>\\()'
+    'begin': '(?<=\\w)<(?=([^&*/+-](?!\\|\\|))*>\\()'
     'end': '>'
     'patterns': [
       {
         'include': '#type'
       }
-      # TODO include comma
+      {
+        'include': '#comma'
+      }
     ]
   }
-  # TODO normal function definitions
   # TODO What does this do
   {
     'comment': 'Match stuff like: function() {...}'
@@ -199,18 +201,6 @@
       '1':
         'name': 'entity.name.function.ts'
   }
-  {
-    'comment': 'Matches the types when typing params or variables, such as (param:type1, param2:type2):type3, and var x:string = ...'
-    'begin': ':\\s*\\b'
-    'end': '(?!\\G)'
-    'patterns': [
-      {
-        'include': '#type'
-      }
-    ]
-    'disabled': true # TODO handle all correct cases seperataly (messes up for normal JS objects right now)
-  }
-  # TODO match function arguments
   {
       'comment': 'Match full triple slash reference comments'
       'match': '(\\/\\/\\/\\s*<reference\\s*path\\s*=)(.*)(\\/>)'
@@ -341,7 +331,7 @@
           '0':
             'name': 'keyword.operator.union.ts'
       }
-      # TODO Add all JS native objects with own syntax coloring?
+      # IDEA Add all JS native objects with own syntax coloring?
     ]
 
   'typenontemplate':
@@ -362,8 +352,7 @@
         'include': '#type'
       }
       {
-        'match': ','
-        'name': 'meta.delimiter.object.comma.js'
+        'include': '#comma'
       }
     ]
 
@@ -425,7 +414,7 @@
       }
     ]
 
-  # TODO May need classes
+  # REVIEW May need classes
   'objecttype':
     'comment': 'Matches anonymous object types.'
     'begin': '{'
@@ -503,3 +492,7 @@
         'name': 'comment.block.js'
       }
     ]
+
+    'comma':
+        'match': ','
+        'name': 'meta.delimiter.object.comma.js'
