@@ -330,7 +330,7 @@
         'endCaptures':
           '1':
             'include': '#comma'
-        'name': 'variable.function.parameter.ts'
+        'contentName': 'variable.function.parameter.ts'
         'patterns': [
           {
             'include': '$self'
@@ -708,16 +708,14 @@
     ]
 
   'newstylefunction':
-    # FIXME buggy
-    'name': 'meta.function.arrow.js'
-    'begin': '(?<![A-Za-z0-9$_\\)\\]])(?=\\([^&*/+-]*\\)\\s*=>\\s*{)'
+    'begin': '(?<![A-Za-z0-9$_\\)\\]].)(?<=\\()(?=[^&*/+-]*\\)\\s*=>\\s*{)'
     'end': '(?<=\\))(\\s*=>)'
     'endCaptures':
       '1':
         'name': 'storage.type.arrow.js'
     'patterns': [
       {
-        'include': '#functionargumentstype'
+        'include': '#args'
       }
     ]
 
