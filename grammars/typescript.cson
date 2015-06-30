@@ -12,7 +12,6 @@
   # IDEA highlight void differently?
   # FIXME review all uses of ts and js
   # FIXME /* */ can be in template stuffs
-  # FIXME return types for normal function definitions not working
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
@@ -408,7 +407,7 @@
   }
   {
     'comment': 'Match types in template instantiation'
-    'begin': '(?<=\\w)<(?=([^&*/+-](?!\\|\\|))*>\\()'
+    'begin': '(?<=\\w)<(?=(?:[^\\/*&+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^\\/*&+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
     'end': '>'
     'patterns': [
       {
@@ -719,7 +718,6 @@
   'typedvariable':
     'begin': '[_a-zA-Z\\$][\\w\\$]*\\??\\s*:\\s*'
     'end': '(?!\\G)'
-    'name': 'typedvariable'
     'patterns': [
       {
         'include': '#type'
@@ -770,6 +768,8 @@
     ]
 
   'newstylefunction':
+    # TODO has optional return type
+    # TODO highlight brackets properly
     'begin': '(?<![A-Za-z0-9$_\\)\\]].)(?<=\\()(?=[^&*/+-]*\\)\\s*=>\\s*{)'
     'end': '(?<=\\))(\\s*=>)'
     'endCaptures':
@@ -786,7 +786,7 @@
 
   'oldstylefunction':
     'begin': '(?=(?:(async)(?:\\s+))?(function))'
-    'end': '(?!\\G)'
+    'end': '(?!\\G)(?!:)'
     'name': 'meta.function.js'
     'patterns': [
       {
@@ -852,7 +852,7 @@
         ]
       }
       {
-        'begin': '(?<=\\G):\\s*'
+        'begin': '(?<=\\)):\\s*'
         'end': '(?!\\G)'
         'patterns': [
           {
