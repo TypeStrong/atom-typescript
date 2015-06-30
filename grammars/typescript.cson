@@ -38,7 +38,7 @@
       # TODO Normal function definitions in here (and outside)
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
-        'begin': '(?<=interface|class)\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
+        'begin': '\\G\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
         'beginCaptures':
           '1':
             'patterns': [
