@@ -32,10 +32,48 @@
         'name': 'storage.type.variable.ts'
   }
   {
+    'comment': 'Match types in variable definitions.'
+    'begin': '(var)\\s+'
+    'beginCaptures':
+      '1':
+        'name': 'storage.modifier.js'
+    'end': ';'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.terminator.statement.js'
+    'patterns': [
+      {
+        'begin': '(?=)'
+        'end': '(,)|(?=;)'
+        'endCaptures':
+          '1':
+            'include': '#comma'
+        'patterns': [
+          {
+            'include': '#typedvariable'
+          }
+          {
+            'begin': '\\s*(=)\\s*'
+            'end': '(?=[,;])'
+            'beginCaptures':
+              '1':
+                'name': 'keyword.operator.js'
+            'patterns': [
+              {
+                'include': '$self'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  {
     'begin': '(?<=interface|class)'
     'end': '}'
     'patterns': [
       # TODO Normal function definitions in here (and outside)
+      # TODO values for vars?
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
         'begin': '\\G\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
@@ -63,7 +101,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '^\\s*(?:(private)\\s+)?(\\w*)<'
+        'begin': '(?:(private)\\s+)?(\\w*)<'
         'beginCaptures':
           '1':
             'name': 'keyword.other.ts'
@@ -81,7 +119,7 @@
         ]
       }
       {
-        'match': '^\\s*(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)(?=\\()'
+        'match': '(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)(?=\\()'
         'captures':
           '1':
             'name': 'keyword.other.ts'
@@ -257,6 +295,32 @@
            'name':'keyword.other.ts'
         '3':
           'name':'es6import.path.string'
+  }
+  {
+    'comment': 'Match all {} pairs'
+    'begin': '{'
+    'end': '}'
+    'captures':
+      '0':
+        'name': 'meta.brace.curly.js'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+  }
+  {
+    'comment': 'Match all [] pairs'
+    'begin': '\\['
+    'end': '\\]'
+    'captures':
+      '0':
+        'name': 'meta.brace.square.js'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
   }
   {
     'include': 'source.js'
