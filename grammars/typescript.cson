@@ -15,7 +15,7 @@
       '1':
         'name': 'keyword.other.ts'
       '2':
-        'name': 'entity.name.namespace.ts'
+        'name': 'entity.name.type.namespace.ts'
   }
   {
     'comment': 'Match types in variable definitions.'
@@ -643,13 +643,13 @@
     'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\b((?:\\[\\])*)(?!<)'
     'captures':
       '1':
-        'name': 'support.class.inherited-from.ts'
+        'name': 'entity.other.inherited-class.ts'
 
   'typetemplateinheritedfrom':
     'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)<'
     'beginCaptures':
       '1':
-        'name': 'support.class.template.inherited-from.ts'
+        'name': 'entity.other.template.inherited-class.ts'
     'end': '>((?:\\[\\])*)'
     'patterns': [
       {
