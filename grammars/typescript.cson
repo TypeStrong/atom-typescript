@@ -8,12 +8,10 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # FIXME Unicode shizzle
-  # IDEA highlight void differently?
-  # FIXME review all uses of ts and js
+  # REVIEW highlight void differently?
   {
     'comment': 'Match stuff like: namespace name {...}'
-    'match': '\\b(module|namespace)\\s+(\\s*[a-zA-Z0-9_?.$][\\w?.$]*)\\s*'
+    'match': '\\b(module|namespace)\\s+(\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*'
     'name': 'meta.function.ts'
     'captures':
       '1':
@@ -72,12 +70,12 @@
     'patterns': [
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
-        'begin': '\\G\\s+([\\w$]+(?:\\.[\\w$]*)?(?:<[\\w$]+(?:\\s*,\\s*[\\w$]+)*>)?)?(?:\\s+(extends)\\s)?'
+        'begin': '\\G\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\.(?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)?(?:<[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\s*,\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)*>)?)?(?:\\s+(extends)\\s)?'
         'beginCaptures':
           '1':
             'patterns': [
               {
-                'match': '\\w+'
+                'match': '[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*'
                 'name': 'meta.class.ts'
               }
               {
@@ -100,7 +98,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '(?:(private|puclic)\\s+)?(\\w*)<'
+        'begin': '(?:(private|puclic)\\s+)?((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -121,7 +119,7 @@
         ]
       }
       {
-        'match': '(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)(?=\\()'
+        'match': '(?:(private|public)\\s+)?(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
         'captures':
           '1':
             'name': 'storage.modifier.js'
@@ -147,10 +145,10 @@
         ]
       }
       {
-        'begin': '(\\w+)(\\??)\\s*:\\s*'
+        'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
-            # IDEA find better name
+            # REVIEW find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -165,10 +163,10 @@
         ]
       }
       {
-        'match': '(\\w+)(\\??)'
+        'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)'
         'captures':
           '1':
-            # IDEA find better name
+            # REVIEW find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -206,7 +204,7 @@
     ]
   }
   {
-    'begin': '([a-zA-Z_?.$][\\w?.$]*)\\.(prototype)\\.([a-zA-Z_?.$][\\w?.$]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
+    'begin': '([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)\\.(prototype)\\.([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
     'beginCaptures':
       '1':
         'name': 'support.class.js'
@@ -229,7 +227,7 @@
     ]
   }
   {
-    'begin': '([a-zA-Z_?.$][\\w?.$]*)\\.([a-zA-Z_?.$][\\w?.$]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
+    'begin': '([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)\\.([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
     'beginCaptures':
       '1':
         'name': 'support.class.js'
@@ -250,7 +248,7 @@
     ]
   }
   {
-    'begin': '([a-zA-Z_?$][\\w?$]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
+    'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*(=)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
     'beginCaptures':
       '1':
         'name': 'entity.name.function.js'
@@ -269,7 +267,7 @@
     ]
   }
   {
-    'begin': '\\b([a-zA-Z_?.$][\\w?.$]*)\\s*(:)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
+    'begin': '\\b([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)\\s*(:)\\s*(?=(?:(?:async\\s+)?function)|(?:\\((?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{))'
     'beginCaptures':
       '1':
         'name': 'entity.name.function.js'
@@ -324,7 +322,7 @@
     'include': '#function'
   }
   {
-    'begin': '(?<=[a-zA-Z0-9$_\\)\\]])(\\()'
+    'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}\\)\\]])(\\()'
     'beginCaptures':
       '1':
         'name': 'punctuation.definition.parameters.begin.js'
@@ -379,7 +377,7 @@
   }
   {
     'comment': 'Match type SomeType = OtherType'
-    'begin': '(type)\\s+[\\w$]+\\s*=\\s*'
+    'begin': '(type)\\s+[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*=\\s*'
     'beginCaptures':
       '1':
         'name': 'storage.modifier.ts'
@@ -395,7 +393,7 @@
   }
   {
     'comment': 'Match types in template instantiation'
-    'begin': '(?<=\\w)<(?=(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
+    'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}])<(?=(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
     'end': '>'
     'patterns': [
       {
@@ -444,7 +442,7 @@
   }
   {
       'comment': 'Match import = require'
-      'match': '(import)\\s*(\\w*)\\s*=\\s*(require)\\s*\\((.*)\\)'
+      'match': '(import)\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?\\s*=\\s*(require)\\s*\\((.*)\\)'
       'captures':
         '1':
            'name':'keyword.other.ts'
@@ -584,18 +582,18 @@
       {
         'include': '#comments'
       }
-      # IDEA Add all JS native objects with own syntax coloring?
+      # REVIEW Add all JS native objects with own syntax coloring?
     ]
 
   'typenontemplate':
     'comment': 'Matches a simple type without template specification'
-    'match': '([_a-zA-Z\\$][\\w\\$]*)\\b((?:\\[\\])*)(?!<)'
+    'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\b((?:\\[\\])*)(?!<)'
     'captures':
       '1':
         'name': 'entity.storage.type.ts'
 
   'typetemplate':
-    'begin': '([_a-zA-Z\\$][\\w\\$]*)<'
+    'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)<'
     'beginCaptures':
       '1':
         'name': 'entity.storage.type.template.ts'
@@ -619,7 +617,7 @@
       '1':
         'name': 'storage.type.variable.ts'
       '2':
-        # IDEA find better name and apply it to all array things
+        # REVIEW find better name and apply it to all array things
         'name': 'storage.type.array.ts'
 
   'functiontype':
@@ -713,7 +711,7 @@
     ]
 
   'typedvariable':
-    'begin': '[_a-zA-Z\\$][\\w\\$]*\\??\\s*:\\s*'
+    'begin': '[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\??\\s*:\\s*'
     'end': '(?!\\G)'
     'patterns': [
       {
@@ -728,11 +726,11 @@
     'comment': 'Match the arguments in a function'
     'patterns': [
       {
-        'match': '[_a-zA-Z\\$][\\w\\$]*(?=\\??\\s*[,\\)])'
+        'match': '[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?=\\??\\s*[,\\)])'
         'name': 'variable.parameter.function.ts'
       }
       {
-        'begin': '([_a-zA-Z\\$][\\w\\$]*)\\??\\s*:\\s*'
+        'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\??\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'variable.parameter.function.ts'
@@ -765,8 +763,7 @@
     ]
 
   'newstylefunction':
-    # TODO rewrite with #args?
-    'begin': '(?<![A-Za-z0-9$_\\)\\]].)(?=\\([^\\(].+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
+    'begin': '(?<![\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}\\)\\]].)(?=\\([^\\(].+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
     'end': '(?!\\:)\\s*(=>)'
     'endCaptures':
       '1':
@@ -798,7 +795,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+(\\w+))?(\\*?)\\s*(\\*?)(?=\\()'
+        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(\\*?)\\s*(\\*?)(?=\\()'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -821,7 +818,7 @@
         ]
       }
       {
-        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+(\\w+))?(?=<)'
+        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(?=<)'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
