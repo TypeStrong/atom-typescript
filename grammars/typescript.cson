@@ -1092,6 +1092,23 @@
         'end': '\\*/'
         'name': 'comment.block.js'
       }
+      {
+        'begin': '(^[ \\t]+)?(?=//)'
+        'beginCaptures':
+          '1':
+            'name': 'punctuation.whitespace.comment.leading.js'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'begin': '//'
+            'beginCaptures':
+              '0':
+                'name': 'punctuation.definition.comment.js'
+            'end': '\\n'
+            'name': 'comment.line.double-slash.js'
+          }
+        ]
+      }
     ]
 
   'comma':
