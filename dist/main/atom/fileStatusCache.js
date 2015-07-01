@@ -2,7 +2,7 @@
 var fileStatuses = {};
 function getFileStatus(filePath) {
     if (!fileStatuses[filePath]) {
-        fileStatuses[filePath] = { modified: false, saveSynced: false };
+        fileStatuses[filePath] = { modified: false, emitDiffers: false };
     }
     return fileStatuses[filePath];
 }

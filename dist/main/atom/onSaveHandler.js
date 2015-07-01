@@ -18,8 +18,8 @@ function handle(event) {
         textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
             .then(function (res) {
             var status = fileStatusCache_1.getFileStatus(event.filePath);
-            status.saveSynced = true;
-            status.modified = res.emitError;
+            status.modified = false;
+            status.emitDiffers = res.emitError;
             mainPanelView_1.panelView.updateFileStatus(event.filePath);
             mainPanelView_1.errorView.showEmittedMessage(res);
         });

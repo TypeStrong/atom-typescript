@@ -143,11 +143,28 @@ function readyToActivate() {
 
                 debugAtomTs.runDebugCode({ filePath, editor });
 
-                // Set errors in project per file
                 if (onDisk) {
+
+                    // Set errors in project per file
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(() => parent.errorsForFile({ filePath: filePath }))
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
+
+                    // Comparing potential emit to the existing js file
+                    parent.getOutput({filePath: filePath}).then((res) => {
+                        let file = res.output.outputFiles[0];
+                        let newEmit = file.text;
+                        fs.readFile(file.name, (err, data) => {
+                            let existingEmit = data.toString();
+                            let status = getFileStatus(filePath);
+                            status.emitDiffers = newEmit !== existingEmit;
+
+                            // Update status if the file compared above is currently in the active editor
+                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                                mainPanelView.panelView.updateFileStatus(filePath);
+                            }
+                        });
+                    });
                 }
 
                 // Setup additional observers on the editor
@@ -156,9 +173,13 @@ function readyToActivate() {
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
 
-                    let status = getFileStatus(filePath);
-                    status.modified = editor.isModified();
-                    mainPanelView.panelView.updateFileStatus(filePath);
+                    // The condition is required because on initial load this event fires
+                    // on every opened file, not just the active one
+                    if (editor === atom.workspace.getActiveTextEditor()) {
+                        let status = getFileStatus(filePath);
+                        status.modified = editor.isModified();
+                        mainPanelView.panelView.updateFileStatus(filePath);
+                    }
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {

@@ -172,19 +172,14 @@ export class MainPanelView extends view.View<any> {
 
     ///////////// Change JS File Status
     updateFileStatus(filePath: string) {
-        var status = getFileStatus(filePath);
-        this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
-        if (status.modified) {
+        let status = getFileStatus(filePath);
+        this.fileStatus.removeClass('icon-x icon-check text-error text-success');
+        if (status.emitDiffers || status.modified) {
             this.fileStatus.text('Js emit is outdated');
             this.fileStatus.addClass('icon-x text-error');
         } else {
-            if (status.saveSynced) {
-                this.fileStatus.text('Js emit up to date');
-                this.fileStatus.addClass('icon-check text-success');
-            } else { // File hasn't been saved and compiled during the current run, so we don't know the state
-                this.fileStatus.text('No js emit requested yet');
-                this.fileStatus.addClass('icon-x text-warning');
-            }
+            this.fileStatus.text('Js emit up to date');
+            this.fileStatus.addClass('icon-check text-success');
         }
     }
 

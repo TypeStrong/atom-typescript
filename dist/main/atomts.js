@@ -73,12 +73,26 @@ function readyToActivate() {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
                         .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
+                    parent.getOutput({ filePath: filePath }).then(function (res) {
+                        var file = res.output.outputFiles[0];
+                        var newEmit = file.text;
+                        fs.readFile(file.name, function (err, data) {
+                            var existingEmit = data.toString();
+                            var status = fileStatusCache_1.getFileStatus(filePath);
+                            status.emitDiffers = newEmit !== existingEmit;
+                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                                mainPanelView.panelView.updateFileStatus(filePath);
+                            }
+                        });
+                    });
                 }
                 editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
-                    var status = fileStatusCache_1.getFileStatus(filePath);
-                    status.modified = editor.isModified();
-                    mainPanelView.panelView.updateFileStatus(filePath);
+                    if (editor === atom.workspace.getActiveTextEditor()) {
+                        var status_1 = fileStatusCache_1.getFileStatus(filePath);
+                        status_1.modified = editor.isModified();
+                        mainPanelView.panelView.updateFileStatus(filePath);
+                    }
                     if (!onDisk) {
                         var root = { line: 0, col: 0 };
                         mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);

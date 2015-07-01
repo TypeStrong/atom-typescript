@@ -147,20 +147,14 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.updateFileStatus = function (filePath) {
         var status = fileStatusCache_1.getFileStatus(filePath);
-        this.fileStatus.removeClass('icon-x icon-check text-error text-success text-warning');
-        if (status.modified) {
+        this.fileStatus.removeClass('icon-x icon-check text-error text-success');
+        if (status.emitDiffers || status.modified) {
             this.fileStatus.text('Js emit is outdated');
             this.fileStatus.addClass('icon-x text-error');
         }
         else {
-            if (status.saveSynced) {
-                this.fileStatus.text('Js emit up to date');
-                this.fileStatus.addClass('icon-check text-success');
-            }
-            else {
-                this.fileStatus.text('No js emit requested yet');
-                this.fileStatus.addClass('icon-x text-warning');
-            }
+            this.fileStatus.text('Js emit up to date');
+            this.fileStatus.addClass('icon-check text-success');
         }
     };
     MainPanelView.prototype.showPending = function () {

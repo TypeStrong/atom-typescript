@@ -36,10 +36,10 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
         textUpdated.then(() => parent.emitFile({ filePath: event.filePath }))
             .then((res) => {
                 let status = getFileStatus(event.filePath);
-                status.saveSynced = true;
+                status.modified = false;
 
                 // If there was a compilation error, the file differs from the one on the disk
-                status.modified = res.emitError;
+                status.emitDiffers = res.emitError;
                 panelView.updateFileStatus(event.filePath);
                 errorView.showEmittedMessage(res);
             });

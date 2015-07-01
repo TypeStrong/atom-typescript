@@ -3,16 +3,16 @@
  * This file maintains that
  */
 export interface FileStatus {
-    /** True if the on disk version of the file has been *succesfully* compiled during the current session */
-    saveSynced: boolean;
-    /** True if the file differs from the one on the disk */
+    /** True if the emit on the disk differs from the potential emit of the current ts file */
+    emitDiffers: boolean;
+    /** True if the text in the editor has been modified during the current session */
     modified: boolean;
 };
 
 let fileStatuses: { [index: string]: FileStatus } = {};
 export function getFileStatus(filePath: string): FileStatus {
     if (!fileStatuses[filePath]) {
-        fileStatuses[filePath] = { modified: false, saveSynced: false };
+        fileStatuses[filePath] = { modified: false, emitDiffers: false };
     }
     return fileStatuses[filePath];
 }
