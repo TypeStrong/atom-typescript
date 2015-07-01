@@ -708,6 +708,43 @@
     ]
 
   'completefunctiontype':
+    'patterns': [
+      {
+        'include': '#functionargumentreturntype'
+      }
+      {
+        'begin': '(?=<)'
+        'end': '(?<!>)(?!\\G)'
+        'patterns': [
+          {
+            'begin': '\\G<'
+            'end': '>'
+            'patterns': [
+              {
+                'include': '#typeextend'
+              }
+              {
+                'include': '#type'
+              }
+              {
+                'include': '#comma'
+              }
+              {
+                'include': '#comments'
+              }
+            ]
+          }
+          {
+            'include': '#functionargumentreturntype'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+    ]
+
+   'functionargumentreturntype':
     'begin': '(?=\\()'
     'end': '(?<!\\))(?!\\G)'
     'patterns': [
@@ -829,6 +866,7 @@
     ]
 
   'newstylefunction':
+    # TODO can have template restrictions. RIP
     'begin': '(?<![\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}\\)\\]])(?=\\([^\\(].+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
     'end': '(?!\\:)\\s*(=>)'
     'endCaptures':
