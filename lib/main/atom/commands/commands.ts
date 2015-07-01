@@ -149,6 +149,17 @@ export function registerCommands() {
     // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
 
+    atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+
+        parent.createProject({filePath}).then(()=>{
+            atom.notifications.addInfo('Created a tsconfig.json file');
+        });
+    });
+
     var theContextView: contextView.ContextView;
     atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
         if (!theContextView) theContextView = new contextView.ContextView();

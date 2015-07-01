@@ -68,7 +68,7 @@ exports.cacheAndCreateProject = cacheAndCreateProject;
 function getOrCreateProjectFile(filePath) {
     try {
         if (path.dirname(filePath) == project_1.languageServiceHost.typescriptDirectory) {
-            return tsconfig.getDefaultProject(filePath);
+            return tsconfig.getDefaultInMemoryProject(filePath);
         }
         var projectFile = tsconfig.getProjectSync(filePath);
         queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
@@ -78,51 +78,53 @@ function getOrCreateProjectFile(filePath) {
         var err = ex;
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
-                return tsconfig.getDefaultProject(filePath);
+                return tsconfig.getDefaultInMemoryProject(filePath);
             }
             else {
-                var projectFile = tsconfig.createProjectRootSync(filePath);
-                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-                return projectFile;
+                var details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
+                    error: {
+                        message: ex.message,
+                        details: ex.details
+                    }
+                });
             }
         }
-        else {
-            if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var details0 = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details0.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var details1 = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details1.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
-                var details2 = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details2.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
-            }
-            throw ex;
+        if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
+            var details0 = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details0.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
         }
+        if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
+            var details1 = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details1.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
+        }
+        if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+            var details2 = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details2.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
+        }
+        throw ex;
     }
 }
 exports.getOrCreateProjectFile = getOrCreateProjectFile;

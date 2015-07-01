@@ -69,5 +69,6 @@ exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 exports.getOutput = parent.sendToIpc(projectService.getOutput);
 exports.softReset = parent.sendToIpc(projectService.softReset);
 exports.getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
+exports.createProject = parent.sendToIpc(projectService.createProject);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

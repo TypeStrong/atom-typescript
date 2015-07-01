@@ -122,6 +122,15 @@ function registerCommands() {
     };
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        var editor = atom.workspace.getActiveTextEditor();
+        var filePath = editor.getPath();
+        parent.createProject({ filePath: filePath }).then(function () {
+            atom.notifications.addInfo('Created a tsconfig.json file');
+        });
+    });
     var theContextView;
     atom.commands.add('atom-text-editor', 'typescript:context-actions', function (e) {
         if (!theContextView)

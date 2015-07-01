@@ -142,7 +142,7 @@ export var errors = {
     GET_PROJECT_GLOB_EXPAND_FAILED: 'Failed to expand filesGlob in the project file',
     GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS: 'Project file contains invalid options',
 
-    CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
+    CREATE_FILE_MUST_EXIST: 'The Typescript file must exist on disk in order to create a project',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
 };
 export interface GET_PROJECT_JSON_PARSE_FAILED_Details {
@@ -154,6 +154,10 @@ export interface GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details {
     errorMessage: string;
 }
 export interface GET_PROJECT_GLOB_EXPAND_FAILED_Details {
+    projectFilePath: string;
+    errorMessage: string;
+}
+export interface GET_PROJECT_NO_PROJECT_FOUND_Details {
     projectFilePath: string;
     errorMessage: string;
 }
@@ -268,7 +272,7 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
     return jsonOptions;
 }
 
-export function getDefaultProject(srcFile: string): TypeScriptProjectFileDetails {
+export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFileDetails {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
 
     var files = [srcFile];
@@ -313,7 +317,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     catch (e) {
         let err: Error = e;
         if (err.message == "not found") {
-            throw new Error(errors.GET_PROJECT_NO_PROJECT_FOUND);
+            throw errorWithDetails<GET_PROJECT_NO_PROJECT_FOUND_Details>(
+                new Error(errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: err.message });
         }
     }
     projectFile = path.normalize(projectFile);

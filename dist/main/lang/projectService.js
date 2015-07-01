@@ -6,6 +6,7 @@ var mkdirp = require('mkdirp');
 var fuzzaldrin = require('fuzzaldrin');
 var transformer_1 = require("./transformers/transformer");
 var transformer = require("./transformers/transformer");
+var tsconfig = require('../tsconfig/tsconfig');
 var fsUtil = require("../utils/fsUtil");
 var utils = require('./utils');
 var resolve = Promise.resolve.bind(Promise);
@@ -537,3 +538,11 @@ function getRenameFilesRefactorings(query) {
     return resolve({ refactorings: refactorings });
 }
 exports.getRenameFilesRefactorings = getRenameFilesRefactorings;
+function createProject(query) {
+    projectCache_1.consistentPath(query);
+    var projectFile = tsconfig.createProjectRootSync(query.filePath);
+    projectCache_1.queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
+    projectCache_1.queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+    return resolve({ created: true });
+}
+exports.createProject = createProject;

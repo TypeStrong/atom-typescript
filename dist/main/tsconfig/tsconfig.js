@@ -45,7 +45,7 @@ exports.errors = {
     GET_PROJECT_JSON_PARSE_FAILED: 'Failed to JSON.parse the project file',
     GET_PROJECT_GLOB_EXPAND_FAILED: 'Failed to expand filesGlob in the project file',
     GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS: 'Project file contains invalid options',
-    CREATE_FILE_MUST_EXIST: 'To create a project the file must exist',
+    CREATE_FILE_MUST_EXIST: 'The Typescript file must exist on disk in order to create a project',
     CREATE_PROJECT_ALREADY_EXISTS: 'Project file already exists',
 };
 function errorWithDetails(error, details) {
@@ -136,7 +136,7 @@ function tsToRawCompilerOptions(compilerOptions) {
     });
     return jsonOptions;
 }
-function getDefaultProject(srcFile) {
+function getDefaultInMemoryProject(srcFile) {
     var dir = fs.lstatSync(srcFile).isDirectory() ? srcFile : path.dirname(srcFile);
     var files = [srcFile];
     var typings = getDefinitionsForNodeModules(dir, files);
@@ -156,7 +156,7 @@ function getDefaultProject(srcFile) {
         inMemory: true
     };
 }
-exports.getDefaultProject = getDefaultProject;
+exports.getDefaultInMemoryProject = getDefaultInMemoryProject;
 function getProjectSync(pathOrSrcFile) {
     if (!fs.existsSync(pathOrSrcFile)) {
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
@@ -169,7 +169,7 @@ function getProjectSync(pathOrSrcFile) {
     catch (e) {
         var err = e;
         if (err.message == "not found") {
-            throw new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND);
+            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: err.message });
         }
     }
     projectFile = path.normalize(projectFile);

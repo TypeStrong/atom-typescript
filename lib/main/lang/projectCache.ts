@@ -1,7 +1,7 @@
 import fs = require("fs");
 import path = require("path");
 import tsconfig = require("../tsconfig/tsconfig");
-import {Project,languageServiceHost} from "./core/project";
+import {Project, languageServiceHost} from "./core/project";
 import * as fsu from "../utils/fsUtil";
 
 import queryParent = require('../../worker/queryParent');
@@ -97,11 +97,11 @@ export function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFil
     // We do this lazily
     queryParent.getUpdatedTextForUnsavedEditors({})
         .then(resp=> {
-        resp.editors.forEach(e=> {
-            consistentPath(e);
-            project.languageServiceHost.updateScript(e.filePath, e.text);
+            resp.editors.forEach(e=> {
+                consistentPath(e);
+                project.languageServiceHost.updateScript(e.filePath, e.text);
+            });
         });
-    });
 
     watchProjectFileIfNotDoingItAlready(projectFile.projectFilePath);
 
@@ -109,14 +109,14 @@ export function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFil
 }
 
 /**
- * This explicilty loads the project from the filesystem or creates one
- * creation is done in memory (for .d.ts) OR filesytem
+ * This explicilty loads the project from the filesystem
+ * For (lib.d.ts) and other (.d.ts files where project is not found) creation is done in memory
  */
 export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
     try {
         // If we are asked to look at stuff in lib.d.ts create its own project
         if (path.dirname(filePath) == languageServiceHost.typescriptDirectory) {
-            return tsconfig.getDefaultProject(filePath);
+            return tsconfig.getDefaultInMemoryProject(filePath);
         }
 
         var projectFile = tsconfig.getProjectSync(filePath);
@@ -127,55 +127,61 @@ export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptPro
         if (err.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
             // If we have a .d.ts file then it is its own project and return
             if (tsconfig.endsWith(filePath.toLowerCase(), '.d.ts')) {
-                return tsconfig.getDefaultProject(filePath);
+                return tsconfig.getDefaultInMemoryProject(filePath);
             }
-            // Otherwise create one on disk
+            // Otherwise report error
             else {
-                var projectFile = tsconfig.createProjectRootSync(filePath);
-                queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-                queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-                return projectFile;
+                // var projectFile = tsconfig.createProjectRootSync(filePath);
+                // queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
+                // queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
+                // return projectFile;
+                let details: tsconfig.GET_PROJECT_NO_PROJECT_FOUND_Details = ex.details;
+                queryParent.setConfigurationError({
+                    projectFilePath: details.projectFilePath,
+                    error: {
+                        message: ex.message,
+                        details: ex.details
+                    }
+                });
             }
         }
-        else {
-            if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
-                var details0: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details0.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
-                var details1: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details1.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
-            }
-            if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
-                var details2: tsconfig.GET_PROJECT_GLOB_EXPAND_FAILED_Details = ex.details;
-                queryParent.setConfigurationError({
-                    projectFilePath: details2.projectFilePath,
-                    error: {
-                        message: ex.message,
-                        details: ex.details
-                    }
-                });
-                // Watch this project file to see if user fixes errors
-                watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
-            }
-            throw ex;
+        if (ex.message === tsconfig.errors.GET_PROJECT_JSON_PARSE_FAILED) {
+            var details0: tsconfig.GET_PROJECT_JSON_PARSE_FAILED_Details = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details0.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            // Watch this project file to see if user fixes errors
+            watchProjectFileIfNotDoingItAlready(details0.projectFilePath);
         }
+        if (ex.message === tsconfig.errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS) {
+            var details1: tsconfig.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details1.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            // Watch this project file to see if user fixes errors
+            watchProjectFileIfNotDoingItAlready(details1.projectFilePath);
+        }
+        if (ex.message === tsconfig.errors.GET_PROJECT_GLOB_EXPAND_FAILED) {
+            var details2: tsconfig.GET_PROJECT_GLOB_EXPAND_FAILED_Details = ex.details;
+            queryParent.setConfigurationError({
+                projectFilePath: details2.projectFilePath,
+                error: {
+                    message: ex.message,
+                    details: ex.details
+                }
+            });
+            // Watch this project file to see if user fixes errors
+            watchProjectFileIfNotDoingItAlready(details2.projectFilePath);
+        }
+        throw ex;
     }
 }
 
@@ -183,10 +189,10 @@ export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptPro
 export function getOrCreateProject(filePath: string) {
     
     // For transform files we check for the file with .ts extension in cache
-    if (tsconfig.endsWith(filePath,'.tst')){
+    if (tsconfig.endsWith(filePath, '.tst')) {
         filePath = filePath + '.ts';
     }
-    
+
     filePath = fsu.consistentPath(filePath);
     if (projectByFilePath[filePath]) {
         // we are in good shape
@@ -206,7 +212,7 @@ export interface SoftResetQuery {
     filePath: string;
     text: string;
 }
-export function resetCache(query: SoftResetQuery){
+export function resetCache(query: SoftResetQuery) {
     // clear the cache
     projectByProjectFilePath = {}
     projectByFilePath = {}
@@ -222,10 +228,10 @@ export function resetCache(query: SoftResetQuery){
     // Also update the cache for any other unsaved editors
     queryParent.getUpdatedTextForUnsavedEditors({})
         .then(resp=> {
-        resp.editors.forEach(e=> {
-            consistentPath(e);
-            var proj = getOrCreateProject(e.filePath);
-            proj.languageServiceHost.updateScript(e.filePath, e.text);
+            resp.editors.forEach(e=> {
+                consistentPath(e);
+                var proj = getOrCreateProject(e.filePath);
+                proj.languageServiceHost.updateScript(e.filePath, e.text);
+            });
         });
-    });
 }

@@ -91,6 +91,7 @@ export var applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 export var getOutput = parent.sendToIpc(projectService.getOutput);
 export var softReset = parent.sendToIpc(projectService.softReset);
 export var getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
+export var createProject = parent.sendToIpc(projectService.createProject);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');

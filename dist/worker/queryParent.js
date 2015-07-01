@@ -69,6 +69,18 @@ function setConfigurationError(query) {
                 }
             ];
         }
+        if (query.error.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
+            var details = query.error.details;
+            errors = [
+                {
+                    filePath: details.projectFilePath,
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
+                    message: "No project file found. Please use the 'Create tsconfig.json project file' command",
+                    preview: '',
+                }
+            ];
+        }
     }
     mainPanelView.errorView.setErrors(query.projectFilePath, errors);
     return resolve({});

@@ -95,6 +95,18 @@ export function setConfigurationError(query: { projectFilePath: string; error: {
                 }
             ]
         }
+        if (query.error.message === tsconfig.errors.GET_PROJECT_NO_PROJECT_FOUND) {
+            let details: tsconfig.GET_PROJECT_NO_PROJECT_FOUND_Details = query.error.details;
+            errors = [
+                {
+                    filePath: details.projectFilePath,
+                    startPos: { line: 0, col: 0 },
+                    endPos: { line: 0, col: 0 },
+                    message: "No project file found. Please use the 'Create tsconfig.json project file' command",
+                    preview: '',
+                }
+            ]
+        }
     }
     mainPanelView.errorView.setErrors(query.projectFilePath, errors);
     return resolve({});
