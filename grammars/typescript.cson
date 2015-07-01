@@ -87,13 +87,15 @@
         'end': '(?<!extends\\s)\\s*{'
         'patterns': [
           {
-            'include': '#type'
+            'include': '#typeinheritedfrom'
           }
           {
             'include': '#comments'
           }
+          {
+            'include': '#comma'
+          }
         ]
-        'contentName': 'meta.inherited-from.ts'
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
@@ -106,11 +108,13 @@
         'end': '>(?=\\()'
         'patterns': [
           {
+            'include': '#typeextend'
+          }
+          {
             'include': '#type'
           }
           {
-            'match': 'extends'
-            'name': 'storage.type.modifier.ts'
+            'include': '#comma'
           }
           {
             'include': '#comments'
@@ -580,6 +584,36 @@
       }
     ]
 
+  'typeinheritedfrom':
+    'begin': '(?=)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?!\\G)(?!\\|)'
+    'patterns': [
+      {
+        'include': '#keytype'
+      }
+      {
+        'include': '#functiontype'
+      }
+      {
+        'include': '#objecttype'
+      }
+      {
+        'include': '#typetemplateinheritedfrom'
+      }
+      {
+        'include': '#typenontemplateinheritedfrom'
+      }
+      {
+        'match': '\\|'
+        'captures':
+          '0':
+            'name': 'keyword.operator.union.ts'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
   'typenontemplate':
     'comment': 'Matches a simple type without template specification'
     'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\b((?:\\[\\])*)(?!<)'
@@ -592,6 +626,31 @@
     'beginCaptures':
       '1':
         'name': 'support.class.template.ts'
+    'end': '>((?:\\[\\])*)'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'include': '#comma'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
+  'typenontemplateinheritedfrom':
+    'comment': 'Matches a simple type without template specification'
+    'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\b((?:\\[\\])*)(?!<)'
+    'captures':
+      '1':
+        'name': 'support.class.inherited-from.ts'
+
+  'typetemplateinheritedfrom':
+    'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)<'
+    'beginCaptures':
+      '1':
+        'name': 'support.class.template.inherited-from.ts'
     'end': '>((?:\\[\\])*)'
     'patterns': [
       {
@@ -827,7 +886,11 @@
                 'name': 'storage.type.function.js'
               '2':
                 'name': 'storage.type.function.js'
+                # TODO more extend stuff here
             'patterns': [
+              {
+                'include': '#typeextend'
+              }
               {
                 'include': '#type'
               }
@@ -861,6 +924,18 @@
       }
       {
         'include': '#comments'
+      }
+    ]
+
+  'typeextend':
+    'begin': '(extends)\\s+'
+    'beginCaptures':
+      '1':
+        'name': 'storage.type.modifier.ts'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'include': '#typeinheritedfrom'
       }
     ]
 
