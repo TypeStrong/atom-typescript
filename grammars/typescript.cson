@@ -188,6 +188,7 @@
       }
       {
         'include': '#curlybracerecursion'
+      }
       {
         'comment': 'Match keywords static'
         'match': 'static'
@@ -765,29 +766,14 @@
 
   'newstylefunction':
     # TODO rewrite with #args?
-    'begin': '(?<![A-Za-z0-9$_\\)\\]].)(\\()(?!\\()(?=.+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
-    'beginCaptures':
-      '1':
-        'name': 'punctuation.definition.parameters.begin.js'
+    'begin': '(?<![A-Za-z0-9$_\\)\\]].)(?=\\([^\\(].+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
     'end': '(?!\\:)\\s*(=>)'
     'endCaptures':
       '1':
         'name': 'storage.type.arrow.js'
     'patterns': [
       {
-        'begin': '(?<=\\G)'
-        'end': '(\\))'
-        'endCaptures':
-          '1':
-            'name': 'punctuation.definition.parameters.end.js'
-        'patterns': [
-          {
-            'include': '#args'
-          }
-          {
-            'include': '#comments'
-          }
-        ]
+        'include': '#functionargumentstype'
       }
       {
         'begin': '\\:\\s*'
