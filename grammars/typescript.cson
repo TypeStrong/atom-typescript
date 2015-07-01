@@ -8,7 +8,6 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # REVIEW highlight void differently?
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*'
@@ -148,7 +147,6 @@
         'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
-            # REVIEW find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -166,7 +164,6 @@
         'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)'
         'captures':
           '1':
-            # REVIEW find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -361,7 +358,6 @@
       'match': '\\b(?:export|declare|constructor)\\b'
       'name': 'keyword.other.ts'
   }
-  # REVIEW move this to other classes?
   {
     'comment': 'Match stuff like: as'
     'match': '\\b(?:as|AS)\\b'
@@ -582,7 +578,6 @@
       {
         'include': '#comments'
       }
-      # REVIEW Add all JS native objects with own syntax coloring?
     ]
 
   'typenontemplate':
@@ -590,13 +585,13 @@
     'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\b((?:\\[\\])*)(?!<)'
     'captures':
       '1':
-        'name': 'entity.storage.type.ts'
+        'name': 'support.class.ts'
 
   'typetemplate':
     'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)<'
     'beginCaptures':
       '1':
-        'name': 'entity.storage.type.template.ts'
+        'name': 'support.class.template.ts'
     'end': '>((?:\\[\\])*)'
     'patterns': [
       {
@@ -611,6 +606,7 @@
     ]
 
   'keytype':
+    # REVIEW highlight void as a key type or even different?
     'comment': 'Match key types.'
     'match': '(number|string|boolean|any)((?:\\[\\])*)'
     'captures':
@@ -686,7 +682,6 @@
       }
     ]
 
-  # REVIEW May need classes
   'objecttype':
     'comment': 'Matches anonymous object types.'
     'begin': '{'
