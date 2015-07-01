@@ -12,7 +12,7 @@ var types = simpleValidator.types;
  * When adding you need to
  *  0 Add in this interface
  * 	1 Add to the validation
- * 	2 If its an enum : Update `typescriptEnumMap` `jsonEnumMap` `tsToRawCompilerOptions`
+ * 	2 If its an enum : Update `typescriptEnumMap`
  * 	3 If its a path : Update the `make relative` code
  */
 interface CompilerOptions {
@@ -216,30 +216,10 @@ var typescriptEnumMap = {
     }
 };
 
-var jsonEnumMap = {
-    target: (function() {
-        var map: { [key: number]: string; } = {};
-        map[ts.ScriptTarget.ES3] = 'es3';
-        map[ts.ScriptTarget.ES5] = 'es5';
-        map[ts.ScriptTarget.ES6] = 'es6';
-        map[ts.ScriptTarget.Latest] = 'latest';
-        return map;
-    })(),
-    module: (function() {
-        var map: { [key: number]: string; } = {};
-        map[ts.ModuleKind.None] = 'none';
-        map[ts.ModuleKind.CommonJS] = 'commonjs';
-        map[ts.ModuleKind.AMD] = 'amd';
-        return map;
-    })(),
-    jsx: (function() {
-        var map: { [key: number]: string; } = {};
-        map[ts.JsxEmit.None] = 'none';
-        map[ts.JsxEmit.Preserve] = 'preserve';
-        map[ts.JsxEmit.React] = 'react';
-        return map;
-    })()
-};
+var jsonEnumMap: any = {};
+Object.keys(typescriptEnumMap).forEach(name => {
+    jsonEnumMap[name] = reverseKeysAndValues(typescriptEnumMap[name]);
+});
 
 function mixin(target: any, source: any): any {
     for (var key in source) {
@@ -279,17 +259,12 @@ function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOp
     // Cannot use Object.create because JSON.stringify will only serialize own properties
     var jsonOptions = <CompilerOptions> mixin({}, compilerOptions);
 
-    if (compilerOptions.target !== undefined) {
-        jsonOptions.target = jsonEnumMap.target[compilerOptions.target];
-    }
-
-    if (compilerOptions.module !== undefined) {
-        jsonOptions.module = jsonEnumMap.module[compilerOptions.module];
-    }
-    
-    if (compilerOptions.jsx !== undefined) {
-        jsonOptions.jsx = jsonEnumMap.jsx[compilerOptions.jsx];
-    }
+    Object.keys(compilerOptions).forEach((key) => {
+        if (jsonEnumMap[key] && compilerOptions[key]) {
+            var value = <string>compilerOptions[key];
+            jsonOptions[key] = jsonEnumMap[key][value];
+        }
+    });
 
     return jsonOptions;
 }
@@ -796,4 +771,15 @@ export function createMap(arr: string[]): { [string: string]: boolean } {
         result[key] = true;
         return result;
     }, <{ [string: string]: boolean }>{});
+}
+
+/**
+ * Turns keys into values and values into keys
+ */
+function reverseKeysAndValues(obj) {
+    var toret = {};
+    Object.keys(obj).forEach(function(key) {
+        toret[obj[key]] = key;
+    });
+    return toret;
 }
