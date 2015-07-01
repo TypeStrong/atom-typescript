@@ -381,14 +381,46 @@
   }
   {
     'comment': 'Match type SomeType = OtherType'
-    'begin': '(type)\\s+[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*=\\s*'
+    'begin': '(type)\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)'
     'beginCaptures':
       '1':
         'name': 'storage.modifier.ts'
-    'end': '(?!\\G)'
+      '2':
+        'name': 'meta.class.ts'
+    'end': '(?<!>)(?!\\G)'
     'patterns': [
       {
-        'include': '#type'
+        'begin': '\\G<'
+        'end': '>'
+        'patterns': [
+          {
+            'include': '#typeextend'
+          }
+          {
+            'include': '#type'
+          }
+          {
+            'include': '#comma'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+      {
+        'begin': '\\s*(=)\\s*'
+        'beginCaptures':
+          '1':
+            'name': 'keyword.operator.js'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+          {
+            'include': '#comments'
+          }
+         ]
       }
       {
         'include': '#comments'
