@@ -175,8 +175,7 @@ var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
     "./**/*.ts",
     "./**/*.tsx",
-    "!node_modules/**/*.ts",
-    "!node_modules/**/*.tsx"
+    "!./node_modules/**/*",
 ];
 /**
  * This is what we use when the user doens't specify a files / filesGlob

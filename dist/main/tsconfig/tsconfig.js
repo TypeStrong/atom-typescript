@@ -61,8 +61,7 @@ var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
     "./**/*.ts",
     "./**/*.tsx",
-    "!node_modules/**/*.ts",
-    "!node_modules/**/*.tsx"
+    "!./node_modules/**/*",
 ];
 var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-alpha';
