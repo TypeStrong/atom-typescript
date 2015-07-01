@@ -22,13 +22,6 @@
         'name': 'entity.name.module.ts'
   }
   {
-    'comment': 'Match this.'
-    'match': '\\b(this)\\b'
-    'captures':
-      '1':
-        'name': 'storage.type.variable.ts'
-  }
-  {
     'comment': 'Match types in variable definitions.'
     'begin': '(var|const|let)\\s+'
     'beginCaptures':
