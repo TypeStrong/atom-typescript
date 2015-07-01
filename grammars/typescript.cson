@@ -65,7 +65,7 @@
     'begin': '(interface)|(class)'
     'beginCaptures':
       '1':
-        'name': 'storage.type.interface.ts'
+        'name': 'storage.type.interface.js'
       '2':
         'name': 'storage.type.class.js'
     'end': '}'
@@ -100,12 +100,12 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '(?:(private)\\s+)?(\\w*)<'
+        'begin': '(?:(private|puclic)\\s+)?(\\w*)<'
         'beginCaptures':
           '1':
-            'name': 'keyword.other.ts'
+            'name': 'storage.modifier.js'
           '2':
-            'name': 'entity.name.function.ts'
+            'name': 'entity.name.function.js'
         'end': '>(?=\\()'
         'patterns': [
           {
@@ -115,30 +115,23 @@
             'match': 'extends'
             'name': 'storage.type.modifier.ts'
           }
+          {
+            'include': '#comments'
+          }
         ]
       }
       {
         'match': '(?:(private)\\s+)?(?:(get|set)\\s+)?(\\w+)(?=\\()'
         'captures':
           '1':
-            'name': 'keyword.other.ts'
+            'name': 'storage.modifier.js'
           '2':
             'name': 'storage.modifier.ts'
           '3':
-            'name': 'entity.name.function.ts'
+            'name': 'entity.name.function.js'
       }
       {
-        'comment': 'Matches all function parameters plus optional types'
-        'begin': '(\\()'
-        'end': '(\\))'
-        'captures':
-          '1':
-            'name': 'meta.brace.round.ts'
-        'patterns': [
-          {
-            'include': '#args'
-          }
-        ]
+        'include': '#functionargumentstype'
       }
       {
         'comment': 'Match function return type'
@@ -148,13 +141,16 @@
           {
             'include': '#type'
           }
+          {
+            'include': '#comments'
+          }
         ]
       }
-      # IDEA find better name
       {
         'begin': '(\\w+)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
+            # IDEA find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -163,12 +159,16 @@
           {
             'include': '#type'
           }
+          {
+            'include': '#comments'
+          }
         ]
       }
       {
         'match': '(\\w+)(\\??)'
         'captures':
           '1':
+            # IDEA find better name
             'name': 'entity.name.variable.ts'
           '2':
             'name': 'keyword.operator.js'
@@ -187,12 +187,7 @@
         ]
       }
       {
-        'begin': '{'
-        'end': '}'
-        'patterns': [
-          'include': '$self'
-        ]
-      }
+        'include': '#curlybracerecursion'
       {
         'comment': 'Match keywords static'
         'match': 'static'
@@ -471,17 +466,7 @@
           'name':'es6import.path.string'
   }
   {
-    'comment': 'Match all {} pairs'
-    'begin': '{'
-    'end': '}'
-    'captures':
-      '0':
-        'name': 'meta.brace.curly.js'
-    'patterns': [
-      {
-        'include': '$self'
-      }
-    ]
+    'include': '#curlybracerecursion'
   }
   {
     'comment': 'Match all [] pairs'
@@ -557,6 +542,19 @@
 ]
 
 'repository':
+  'curlybracerecursion':
+    'comment': 'Match all {} pairs'
+    'begin': '{'
+    'end': '}'
+    'captures':
+      '0':
+        'name': 'meta.brace.curly.js'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+
   'type':
     'begin': '(?=)'
     'end': '(?<!\\*\\/)(?<!\\|)(?!\\G)(?!\\|)'
@@ -620,8 +618,8 @@
       '1':
         'name': 'storage.type.variable.ts'
       '2':
+        # IDEA find better name and apply it to all array things
         'name': 'storage.type.array.ts'
-      # IDEA find better name
 
   'functiontype':
     'patterns': [
@@ -693,7 +691,13 @@
   'objecttype':
     'comment': 'Matches anonymous object types.'
     'begin': '{'
-    'end': '}(\\[\\])?'
+    'beginCaptures':
+      '0':
+        'name': 'meta.brace.curly.js'
+    'end': '(})(\\[\\])?'
+    'endCaptures':
+      '1':
+        'name': 'meta.brace.curly.js'
     'patterns': [
       {
         'include': '#typedvariable'
@@ -760,6 +764,7 @@
     ]
 
   'newstylefunction':
+    # TODO rewrite with #args?
     'begin': '(?<![A-Za-z0-9$_\\)\\]].)(\\()(?!\\()(?=.+=>)(?=(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)\\]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
     'beginCaptures':
       '1':
@@ -919,6 +924,6 @@
       }
     ]
 
-    'comma':
-        'match': ','
-        'name': 'meta.delimiter.object.comma.js'
+  'comma':
+      'match': ','
+      'name': 'meta.delimiter.object.comma.js'
