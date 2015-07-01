@@ -8,15 +8,15 @@
 'name': 'TypeScript'
 
 'patterns': [
+  # TODO fancy extend coloring stuff
   {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*'
-    'name': 'meta.function.ts'
     'captures':
       '1':
         'name': 'keyword.other.ts'
       '2':
-        'name': 'entity.name.module.ts'
+        'name': 'entity.name.namespace.ts'
   }
   {
     'comment': 'Match types in variable definitions.'
@@ -606,15 +606,11 @@
     ]
 
   'keytype':
-    # REVIEW highlight void as a key type or even different?
     'comment': 'Match key types.'
-    'match': '(number|string|boolean|any)((?:\\[\\])*)'
+    'match': '(number|string|boolean|any|void)(?:\\[\\])*'
     'captures':
       '1':
         'name': 'storage.type.variable.ts'
-      '2':
-        # REVIEW find better name and apply it to all array things
-        'name': 'storage.type.array.ts'
 
   'functiontype':
     'patterns': [
