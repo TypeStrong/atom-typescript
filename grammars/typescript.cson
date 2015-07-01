@@ -555,7 +555,7 @@
 
   'type':
     'begin': '(?=)'
-    'end': '(?<!\\*\\/)(?<!\\|)(?!\\G)(?!\\|)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
     'patterns': [
       {
         'include': '#keytype'
@@ -581,11 +581,17 @@
       {
         'include': '#comments'
       }
+      {
+        'match': '\\.'
+        'captures':
+          '0':
+            'name': 'meta.delimiter.period.type.ts'
+      }
     ]
 
   'typeinheritedfrom':
     'begin': '(?=)'
-    'end': '(?<!\\*\\/)(?<!\\|)(?!\\G)(?!\\|)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
     'patterns': [
       {
         'include': '#keytype'
@@ -607,6 +613,12 @@
         'captures':
           '0':
             'name': 'keyword.operator.union.ts'
+      }
+      {
+        'match': '\\.'
+        'captures':
+          '0':
+            'name': 'meta.delimiter.period.type.ts'
       }
       {
         'include': '#comments'
