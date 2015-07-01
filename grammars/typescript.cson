@@ -8,8 +8,6 @@
 'name': 'TypeScript'
 
 'patterns': [
-  # TODO fancy extend coloring stuff
-  {
     'comment': 'Match stuff like: namespace name {...}'
     'match': '\\b(module|namespace)\\s+(\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*'
     'captures':
@@ -886,7 +884,6 @@
                 'name': 'storage.type.function.js'
               '2':
                 'name': 'storage.type.function.js'
-                # TODO more extend stuff here
             'patterns': [
               {
                 'include': '#typeextend'
