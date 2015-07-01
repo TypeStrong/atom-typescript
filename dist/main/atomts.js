@@ -77,9 +77,14 @@ function readyToActivate() {
                         var file = res.output.outputFiles[0];
                         var newEmit = file.text;
                         fs.readFile(file.name, function (err, data) {
-                            var existingEmit = data.toString();
                             var status = fileStatusCache_1.getFileStatus(filePath);
-                            status.emitDiffers = newEmit !== existingEmit;
+                            if (err) {
+                                status.emitDiffers = true;
+                            }
+                            else {
+                                var existingEmit = data.toString();
+                                status.emitDiffers = newEmit !== existingEmit;
+                            }
                             if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
                                 mainPanelView.panelView.updateFileStatus(filePath);
                             }

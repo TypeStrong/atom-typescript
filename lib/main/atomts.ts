@@ -151,13 +151,18 @@ function readyToActivate() {
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // Comparing potential emit to the existing js file
-                    parent.getOutput({filePath: filePath}).then((res) => {
+                    parent.getOutput({ filePath: filePath }).then((res) => {
                         let file = res.output.outputFiles[0];
                         let newEmit = file.text;
                         fs.readFile(file.name, (err, data) => {
-                            let existingEmit = data.toString();
                             let status = getFileStatus(filePath);
-                            status.emitDiffers = newEmit !== existingEmit;
+                            if (err) {
+                                status.emitDiffers = true;
+                            }
+                            else {
+                                let existingEmit = data.toString();
+                                status.emitDiffers = newEmit !== existingEmit;
+                            }
 
                             // Update status if the file compared above is currently in the active editor
                             if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
