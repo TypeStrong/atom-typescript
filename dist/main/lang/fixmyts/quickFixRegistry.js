@@ -1,6 +1,7 @@
 var addClassMember_1 = require("./quickFixes/addClassMember");
 var addImportStatement_1 = require("./quickFixes/addImportStatement");
 var equalsToEquals_1 = require("./quickFixes/equalsToEquals");
+var extractVariable_1 = require("./quickFixes/extractVariable");
 var wrapInProperty_1 = require("./quickFixes/wrapInProperty");
 var quotesToQuotes_1 = require("./quickFixes/quotesToQuotes");
 var quoteToTemplate_1 = require("./quickFixes/quoteToTemplate");
@@ -13,6 +14,7 @@ exports.allQuickFixes = [
     new addImportStatement_1.AddImportStatement(),
     new wrapInProperty_1.WrapInProperty(),
     new equalsToEquals_1.EqualsToEquals(),
+    new extractVariable_1.ExtractVariable(),
     new stringConcatToTemplate_1.StringConcatToTemplate(),
     new quotesToQuotes_1.QuotesToQuotes(),
     new quoteToTemplate_1.QuoteToTemplate(),
