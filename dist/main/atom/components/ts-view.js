@@ -12,6 +12,7 @@ var TsView = (function (_super) {
     }
     TsView.prototype.createdCallback = function () {
         var preview = this.innerText;
+        this.innerText = "";
         var editorElement = this.editorElement = document.createElement('atom-text-editor');
         editorElement.setAttributeNode(document.createAttribute('gutter-hidden'));
         editorElement.removeAttribute('tabindex');

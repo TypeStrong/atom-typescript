@@ -6,6 +6,7 @@ export class TsView extends HTMLElement {
     editor;
     createdCallback() {
         var preview = this.innerText;
+        this.innerText = "";
 
         // Based on markdown editor 
         // https://github.com/atom/markdown-preview/blob/2bcbadac3980f1aeb455f7078bd1fdfb4e6fe6b1/lib/renderer.coffee#L111
