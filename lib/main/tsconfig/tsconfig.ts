@@ -187,7 +187,7 @@ var defaultFilesGlob = [
  * This is what we use when the user doens't specify a files / filesGlob
  */
 var invisibleFilesGlob = ["./**/*.ts"];
-var typeScriptVersion = '1.5.0-alpha';
+var typeScriptVersion = '1.5.0-beta';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
