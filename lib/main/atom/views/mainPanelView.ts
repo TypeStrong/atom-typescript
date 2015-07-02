@@ -34,7 +34,7 @@ export class MainPanelView extends view.View<any> {
 
     private sectionPending: JQuery;
     private txtPendingCount: JQuery;
-    private pendingRequests: string[];
+    private pendingRequests: string[] = [];
 
     static content() {
         var btn = (view, text, className: string = '') =>

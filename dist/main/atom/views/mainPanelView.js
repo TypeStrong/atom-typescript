@@ -20,6 +20,7 @@ var MainPanelView = (function (_super) {
     __extends(MainPanelView, _super);
     function MainPanelView() {
         _super.apply(this, arguments);
+        this.pendingRequests = [];
         this.expanded = false;
         this.clearedError = true;
     }
