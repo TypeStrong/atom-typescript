@@ -581,6 +581,9 @@
         'include': '#functiontype'
       }
       {
+        'include': '#tuple'
+      }
+      {
         'include': '#objecttype'
       }
       {
@@ -612,6 +615,9 @@
       }
       {
         'include': '#objecttype'
+      }
+      {
+        'include': '#tuple'
       }
       {
         'include': '#typetemplateinheritedfrom'
@@ -813,6 +819,21 @@
       {
         'match': ';'
         'name': 'meta.delimiter.semicolon.js'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
+  'tuple':
+    'begin': '\\['
+    'end': '\\]'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'include': '#comma'
       }
       {
         'include': '#comments'
