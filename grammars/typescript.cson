@@ -152,7 +152,7 @@
         ]
       }
       {
-        'begin': '(?:(private|public|protected)\\s+)([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
+        'begin': '(?:(private|public|protected)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
