@@ -362,9 +362,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 129) {
+        if (declaration.name.kind === 130) {
             var expr = declaration.name.expression;
-            if (expr.kind === 158) {
+            if (expr.kind === 159) {
                 return expr.name.text;
             }
             return getTextOfIdentifierOrLiteral(expr);
@@ -372,7 +372,7 @@ function getNavigateToItems(query) {
         return undefined;
     }
     function getTextOfIdentifierOrLiteral(node) {
-        if (node.kind === 65 ||
+        if (node.kind === 66 ||
             node.kind === 8 ||
             node.kind === 7) {
             return node.text;

@@ -688,7 +688,6 @@ declare module AtomCore {
 		getMarkerCount():number;
 		hasMultipleCursors():boolean;
 		getCursors():ICursor[];
-		getCursor():ICursor;
 		addCursorAtScreenPosition(screenPosition:any):ICursor;
 		addCursorAtBufferPosition(bufferPosition:any):ICursor;
 		addCursor(marker:any):ICursor;

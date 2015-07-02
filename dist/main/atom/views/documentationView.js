@@ -33,7 +33,7 @@ var DocumentationView = (function (_super) {
     };
     DocumentationView.prototype.autoPosition = function () {
         var editor = atom.workspace.getActiveTextEditor();
-        var cursor = editor.getCursor();
+        var cursor = editor.getCursors()[0];
         var cursorTop = cursor.getPixelRect().top - editor.getScrollTop();
         var editorHeight = editor.getHeight();
         if (editorHeight - cursorTop < 100) {

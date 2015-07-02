@@ -37,7 +37,7 @@ export class TypeAssertPropertyAccessToType implements QuickFix {
                     start: start,
                     length: propertyAccess.name.end - start,
                 },
-                newText: `(<\${1:any}>${oldText})\${2:.${propertyAccess.name.getText()}}\${3}`,
+                newText: `(${oldText} as \${1:any})\${2:.${propertyAccess.name.getText()}}\${3}`,
                 isNewTextSnippet: true,
             };
 

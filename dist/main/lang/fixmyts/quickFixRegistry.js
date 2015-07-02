@@ -1,4 +1,5 @@
 var addClassMember_1 = require("./quickFixes/addClassMember");
+var addClassMethod_1 = require("./quickFixes/addClassMethod");
 var addImportStatement_1 = require("./quickFixes/addImportStatement");
 var equalsToEquals_1 = require("./quickFixes/equalsToEquals");
 var extractVariable_1 = require("./quickFixes/extractVariable");
@@ -10,6 +11,7 @@ var typeAssertPropertyAccessToAny_1 = require("./quickFixes/typeAssertPropertyAc
 var typeAssertPropertyAccessToType_1 = require("./quickFixes/typeAssertPropertyAccessToType");
 var implementInterface_1 = require("./quickFixes/implementInterface");
 exports.allQuickFixes = [
+    new addClassMethod_1.AddClassMethod(),
     new addClassMember_1.AddClassMember(),
     new addImportStatement_1.AddImportStatement(),
     new wrapInProperty_1.WrapInProperty(),

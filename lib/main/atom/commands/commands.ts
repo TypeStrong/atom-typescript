@@ -55,7 +55,7 @@ export function registerCommands() {
                             if (!refactoring.isNewTextSnippet) {
                                 editor.setTextInBufferRange(range, refactoring.newText);
                             } else {
-                                let cursor = editor.getCursor();
+                                let cursor = editor.getCursors()[0];
                                 (<any>cursor).selection.setBufferRange(range);
                                 atomUtils.insertSnippet(refactoring.newText, editor, cursor);
                             }
