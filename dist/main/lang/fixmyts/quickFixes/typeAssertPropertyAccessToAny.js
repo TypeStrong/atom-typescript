@@ -27,7 +27,7 @@ var TypeAssertPropertyAccessToAny = (function () {
                     start: start,
                     length: end - start,
                 },
-                newText: "(<any>" + oldText + ")"
+                newText: "(" + oldText + " as any)"
             };
             return [refactoring];
         }
