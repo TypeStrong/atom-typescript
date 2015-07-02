@@ -103,7 +103,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '(?:(private|puclic)\\s+)?((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
+        'begin': '(?:(private|puclic|protected)\\s+)?((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -152,11 +152,13 @@
         ]
       }
       {
-        'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
+        'begin': '(?:(private|public|protected)\\s+)([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
-            'name': 'entity.name.variable.ts'
+            'name': 'storage.modifier.js'
           '2':
+            'name': 'entity.name.variable.ts'
+          '3':
             'name': 'keyword.operator.js'
         'end': '(?!\\G)'
         'patterns': [
