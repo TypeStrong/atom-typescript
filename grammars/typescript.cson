@@ -126,7 +126,7 @@
         ]
       }
       {
-        'match': '(?:(private|public)\\s+)?(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
+        'match': '(?:(private|public|protected)\\s+)?(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
         'captures':
           '1':
             'name': 'storage.modifier.js'
