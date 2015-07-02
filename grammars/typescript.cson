@@ -28,14 +28,14 @@
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
-    'end': '(;)|(?<!,)$'
+    'end': '(;)|(?<!,|^)$'
     'endCaptures':
       '1':
         'name': 'punctuation.terminator.statement.js'
     'patterns': [
       {
         'begin': '(?<=^|,|\\G)'
-        'end': '(,)|(?=;)|(?<!,)$'
+        'end': '(,)|(?=;)|(?<!,|^)$'
         'endCaptures':
           '1':
             'include': '#comma'
