@@ -68,33 +68,75 @@ export class AddClassMethod implements QuickFix {
 
         }
         else if (parentOfParent.kind == ts.SyntaxKind.CallExpression) {
-            // dict of used argNames by type
-            let typedArgNameDict: { [key: string]: string[] } = {};
+
+            let nativeTypes = ['string', 'number', 'boolean', 'object'];
+            let abc = 'abcdefghijklmnopqrstuvwxyz';
+            let argsAlphabet =abc.split('');
+            let argsAlphabetPosition = 0;
+            let argName = '';
+            let argCount = 0;
 
             let callExp = <ts.CallExpression>parentOfParent;
-            let typeStringParts = ['( '];
+            let typeStringParts = ['('];
 
             // Find the number of arguments
             let args = [];
             callExp.arguments.forEach(arg => {
                 var argType = getTypeStringForNode(arg, info.typeChecker);
-                // create dic key if does not exit
-                if (!typedArgNameDict[argType]) typedArgNameDict[argType] = [];
 
-                // determine param name
-                var argName = argType + typedArgNameDict[argType].length;
-                argName = argName[0].toLowerCase() + argName.substring(1);
+                // determine argument output type
+                // use consecutive letters for native types
+                // or use decapitalized Class name + counter as argument name
+                if (
+                    nativeTypes.indexOf(argType) != -1 //native types
+                    || argType == 'null'
+                    || argType == 'undefined'
+                    || argType == 'RegExp'
+                    || argType.indexOf('{') != -1 //Casted inline argument declarations
+                    || argType.indexOf('=>') != -1 //Method references
+                    ) {
+                        if( argType.indexOf('=>')!=-1){
+                            argName = `${info.typeChecker.getTypeAtLocation(arg).symbol.name}${argCount++}Fn`;
+                        }else{
+                            argName = argsAlphabet[argsAlphabetPosition];
+                            argsAlphabet[argsAlphabetPosition] += argsAlphabet[argsAlphabetPosition].substring(1);
+                            argsAlphabetPosition++;
+                            argsAlphabetPosition %= abc.length;
+                        }
+                }
+                else {
+                    // replace 'typeof ' from name
+                    var argTypeName = argType.replace('typeof ', '');
+                    argName = argTypeName;
 
-                // add param name to the
-                typedArgNameDict[argType].push(argName);
+                    // decapitalize and concat
+                    if (argType.indexOf('typeof ') == -1) {
+                        var firstLower = argName[0].toLowerCase();
 
+                        if (argName.length == 1) {
+                            argName = firstLower;
+                        }
+                        else {
+                            argName = firstLower + argName.substring(1);
+                        }
+                    }
+                    // add counter value and increment it
+                    argName +=argCount.toString();
+                    argCount++
+                }
+
+                // cast null and undefined to any type
+                if (argType == 'null' || argType == 'undefined') {
+                    argType = 'any';
+                }
                 args.push(`${argName}: ${argType}`);
+
             });
             typeStringParts.push(args.join(', '));
 
             // TODO: infer the return type as well if the next parent is an assignment
             // Currently its `any`
-            typeStringParts.push(` ):any { /* implement-me */ }`);
+            typeStringParts.push(`): any { /* implement-me */ }`);
             typeString = typeStringParts.join('');
         }
 
