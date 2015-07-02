@@ -22,6 +22,7 @@ interface CompilerOptions {
     declaration?: boolean;
     diagnostics?: boolean;
     emitBOM?: boolean;
+    experimentalAsyncFunctions?: boolean;
     experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
@@ -59,6 +60,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     declaration: { type: types.boolean },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    experimentalAsyncFunctions: { type: types.boolean },
     experimentalDecorators: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
     help: { type: types.boolean },
@@ -191,6 +193,8 @@ export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
     jsx: ts.JsxEmit.React,
+    experimentalDecorators: true,
+    emitDecoratorMetadata: true,
     declaration: false,
     noImplicitAny: false,
     removeComments: true,
