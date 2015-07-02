@@ -156,7 +156,9 @@ export function registerCommands() {
         var filePath = editor.getPath();
 
         parent.createProject({ filePath }).then((res) => {
-            // TODO: do actual validation on result
+            if (res.createdFilePath) {
+                atom.notifications.addSuccess(`tsconfig.json file created: <br/> ${res.createdFilePath}`);
+            }
         });
     });
 

@@ -128,6 +128,9 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
         parent.createProject({ filePath: filePath }).then(function (res) {
+            if (res.createdFilePath) {
+                atom.notifications.addSuccess("tsconfig.json file created: <br/> " + res.createdFilePath);
+            }
         });
     });
     var theContextView;

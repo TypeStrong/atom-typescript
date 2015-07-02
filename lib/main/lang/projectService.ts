@@ -874,12 +874,11 @@ export function getRenameFilesRefactorings(query: GetRenameFilesRefactoringsQuer
 
 export interface CreateProjectQuery extends FilePathQuery { }
 export interface CreateProjectResponse {
-    created: boolean;
+    createdFilePath: string;
 }
 export function createProject(query: CreateProjectQuery): Promise<CreateProjectResponse> {
     consistentPath(query);
     var projectFile = tsconfig.createProjectRootSync(query.filePath);
-    queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-    queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-    return resolve({ created: true });
+    queryParent.setConfigurationError({ projectFilePath: query.filePath, error: null });
+    return resolve({ createdFilePath: projectFile.projectFilePath });
 }

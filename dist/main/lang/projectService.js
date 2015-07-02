@@ -541,8 +541,7 @@ exports.getRenameFilesRefactorings = getRenameFilesRefactorings;
 function createProject(query) {
     projectCache_1.consistentPath(query);
     var projectFile = tsconfig.createProjectRootSync(query.filePath);
-    projectCache_1.queryParent.notifySuccess({ message: 'AtomTS: tsconfig.json file created: <br/>' + projectFile.projectFilePath });
-    projectCache_1.queryParent.setConfigurationError({ projectFilePath: projectFile.projectFilePath, error: null });
-    return resolve({ created: true });
+    projectCache_1.queryParent.setConfigurationError({ projectFilePath: query.filePath, error: null });
+    return resolve({ createdFilePath: projectFile.projectFilePath });
 }
 exports.createProject = createProject;
