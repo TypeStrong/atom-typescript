@@ -28,23 +28,73 @@
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
-    'end': '(;)|(?<!,)$'
+    'end': '(;)|(?<!,|^)$'
     'endCaptures':
       '1':
         'name': 'punctuation.terminator.statement.js'
     'patterns': [
       {
         'begin': '(?<=^|,|\\G)'
-        'end': '(,)|(?=;)'
+        'end': '(,)|(?=;)|(?<!,|^)$'
         'endCaptures':
           '1':
             'include': '#comma'
         'patterns': [
           {
+            'begin': '(?={)'
+            'end': '(?!\\G)(?!:)'
+            'patterns': [
+              {
+                'include': '#objecttype'
+              }
+              {
+                'begin': '(?<=}):\\s*'
+                'end': '(?!\\G)'
+                'patterns': [
+                  {
+                    'include': '#type'
+                  }
+                ]
+              }
+              {
+                'include': '#comments'
+              }
+            ]
+          }
+          {
+            'begin': '(\\[)[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D},\\s]+(\\]):?'
+            'beginCaptures':
+              '0':
+                'patterns': [
+                  {
+                    'include': '#comma'
+                  }
+                ]
+              '1':
+                'name': 'meta.brace.square.js'
+              '2':
+                'name': 'meta.brace.square.js'
+            'end': '(?<!:)'
+            'patterns': [
+              {
+                'begin': '\\s*'
+                'end': '(?!\\G)'
+                'patterns': [
+                  {
+                    'include': '#type'
+                  }
+                  {
+                    'include': '#comments'
+                  }
+                ]
+              }
+            ]
+          }
+          {
             'include': '#typedvariable'
           }
           {
-            'begin': '\\s*(=)\\s*'
+            'begin': '\\s*(=)'
             'end': '(?=[,;])'
             'beginCaptures':
               '1':
@@ -100,6 +150,9 @@
             'include': '#comma'
           }
         ]
+      }
+      {
+        'include': '#typeindexable'
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
@@ -581,6 +634,9 @@
         'include': '#functiontype'
       }
       {
+        'include': '#tuple'
+      }
+      {
         'include': '#objecttype'
       }
       {
@@ -612,6 +668,9 @@
       }
       {
         'include': '#objecttype'
+      }
+      {
+        'include': '#tuple'
       }
       {
         'include': '#typetemplateinheritedfrom'
@@ -808,11 +867,47 @@
         'name': 'meta.brace.curly.js'
     'patterns': [
       {
+        'include': '#typeindexable'
+      }
+      {
         'include': '#typedvariable'
       }
       {
         'match': ';'
         'name': 'meta.delimiter.semicolon.js'
+      }
+      {
+        'include': '#comma'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
+  'typeindexable':
+    'begin': '\\[[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*:\\s*(string|number)\\s*\\]:\\s*'
+    'beginCaptures':
+      '1':
+        'name': 'storage.type.variable.ts'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
+  'tuple':
+    'begin': '\\['
+    'end': '\\]'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'include': '#comma'
       }
       {
         'include': '#comments'
