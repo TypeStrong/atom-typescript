@@ -151,25 +151,15 @@ function readyToActivate() {
                         .then((resp) => errorView.setErrors(filePath, resp.errors));
 
                     // Comparing potential emit to the existing js file
-                    parent.getOutput({ filePath: filePath }).then((res) => {
-                        let file = res.output.outputFiles[0];
-                        let newEmit = file.text;
-                        fs.readFile(file.name, (err, data) => {
-                            let status = getFileStatus(filePath);
-                            if (err) {
-                                status.emitDiffers = true;
-                            }
-                            else {
-                                let existingEmit = data.toString();
-                                status.emitDiffers = newEmit !== existingEmit;
-                            }
+                    parent.getOutputJsStatus({ filePath: filePath }).then((res) => {
+                        let status = getFileStatus(filePath);
+                        status.emitDiffers = res.emitDiffers;
 
-                            // Update status if the file compared above is currently in the active editor
-                            let ed = atom.workspace.getActiveTextEditor()
-                            if (ed && ed.getPath() === filePath) {
-                                mainPanelView.panelView.updateFileStatus(filePath);
-                            }
-                        });
+                        // Update status if the file compared above is currently in the active editor
+                        let ed = atom.workspace.getActiveTextEditor();
+                        if (ed && ed.getPath() === filePath) {
+                            mainPanelView.panelView.updateFileStatus(filePath);
+                        }
                     });
                 }
 

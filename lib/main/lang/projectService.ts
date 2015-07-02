@@ -859,6 +859,25 @@ export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> 
         return resolve({ jsFilePath: jsFile.name });
     }
 }
+interface GetOutputJsStatusResponse {
+    /** true if *no emit* or *emit is as desired* */
+    emitDiffers: boolean;
+}
+export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStatusResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var output = getRawOutput(project, query.filePath);
+    if (output.emitSkipped) {
+        return resolve({ emitDiffers: true });
+    }
+    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+    if (!jsFile) {
+        return resolve({ emitDiffers: false });
+    } else {
+        var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
+        return resolve({ emitDiffers });
+    }
+}
 
 /**
  * Reset all that we know about the file system

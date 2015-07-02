@@ -536,6 +536,23 @@ function getOutputJs(query) {
     }
 }
 exports.getOutputJs = getOutputJs;
+function getOutputJsStatus(query) {
+    projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    var output = building_1.getRawOutput(project, query.filePath);
+    if (output.emitSkipped) {
+        return resolve({ emitDiffers: true });
+    }
+    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
+    if (!jsFile) {
+        return resolve({ emitDiffers: false });
+    }
+    else {
+        var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
+        return resolve({ emitDiffers: emitDiffers });
+    }
+}
+exports.getOutputJsStatus = getOutputJsStatus;
 function softReset(query) {
     projectCache_1.resetCache(query);
     return resolve({});

@@ -31,13 +31,13 @@ function register() {
         if (!atomUtils.commandForTypeScript(e))
             return;
         var query = atomUtils.getFilePath();
-        parent.getOutput(query).then(function (res) {
-            if (res.output.emitSkipped) {
+        parent.getOutputJs(query).then(function (res) {
+            if (!res.jsFilePath) {
                 atom.notifications.addInfo('AtomTS: No emit for this file');
                 return;
             }
             else {
-                var command = "node " + res.output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0].name;
+                var command = "node " + res.jsFilePath;
                 console.log(command);
                 child_process_1.exec(command, function (err, stdout, stderr) {
                     console.log(stdout);

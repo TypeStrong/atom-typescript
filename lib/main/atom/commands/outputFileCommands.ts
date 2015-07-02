@@ -37,15 +37,15 @@ export function register() {
         if (!atomUtils.commandForTypeScript(e)) return;
 
         var query = atomUtils.getFilePath();
-        parent.getOutput(query).then(res=> {
-            if (res.output.emitSkipped) {
+        parent.getOutputJs(query).then(res=> {
+            if (!res.jsFilePath) {
                 atom.notifications.addInfo('AtomTS: No emit for this file');
                 return;
             }
             else {
                 // spawn('cmd', ['/C', 'start ' + "node " + res.output.outputFiles[0].name]);
-                var command = "node " + res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
-                console.log(command)
+                var command = "node " + res.jsFilePath;
+                console.log(command);
 
                 exec(command, (err, stdout, stderr) => {
                     console.log(stdout);

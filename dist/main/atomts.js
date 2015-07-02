@@ -73,23 +73,13 @@ function readyToActivate() {
                     parent.updateText({ filePath: filePath, text: editor.getText() })
                         .then(function () { return parent.errorsForFile({ filePath: filePath }); })
                         .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
-                    parent.getOutput({ filePath: filePath }).then(function (res) {
-                        var file = res.output.outputFiles[0];
-                        var newEmit = file.text;
-                        fs.readFile(file.name, function (err, data) {
-                            var status = fileStatusCache_1.getFileStatus(filePath);
-                            if (err) {
-                                status.emitDiffers = true;
-                            }
-                            else {
-                                var existingEmit = data.toString();
-                                status.emitDiffers = newEmit !== existingEmit;
-                            }
-                            var ed = atom.workspace.getActiveTextEditor();
-                            if (ed && ed.getPath() === filePath) {
-                                mainPanelView.panelView.updateFileStatus(filePath);
-                            }
-                        });
+                    parent.getOutputJsStatus({ filePath: filePath }).then(function (res) {
+                        var status = fileStatusCache_1.getFileStatus(filePath);
+                        status.emitDiffers = res.emitDiffers;
+                        var ed = atom.workspace.getActiveTextEditor();
+                        if (ed && ed.getPath() === filePath) {
+                            mainPanelView.panelView.updateFileStatus(filePath);
+                        }
                     });
                 }
                 editorSetup.setupEditor(editor);
