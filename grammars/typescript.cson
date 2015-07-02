@@ -41,6 +41,32 @@
             'include': '#comma'
         'patterns': [
           {
+            'begin': '(\\[)[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D},\\s]+(\\]):?'
+            'beginCaptures':
+              '0':
+                'patterns': [
+                  {
+                    'include': '#comma'
+                  }
+                ]
+              '1':
+                'name': 'meta.brace.square.js'
+              '2':
+                'name': 'meta.brace.square.js'
+            'end': '(?<!:)'
+            'patterns': [
+              {
+                'begin': '\\s*'
+                'end': '(?!\\G)'
+                'patterns': [
+                  {
+                    'include': '#type'
+                  }
+                ]
+              }
+            ]
+          }
+          {
             'include': '#typedvariable'
           }
           {
