@@ -326,34 +326,6 @@
   {
     'include': '#function'
   }
-  # {
-  #   'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}\\)\\]])(\\()'
-  #   'beginCaptures':
-  #     '1':
-  #       'name': 'punctuation.definition.parameters.begin.js'
-  #   'end': '\\)'
-  #   'endCaptures':
-  #     '0':
-  #       'name': 'punctuation.definition.parameters.end.js'
-  #   'patterns': [
-  #     {
-  #       'begin': '(?=)'
-  #       'end': '(,)\\s*|(?=\\))'
-  #       'endCaptures':
-  #         '1':
-  #           'include': '#comma'
-  #       'contentName': 'variable.function.parameter.ts'
-  #       'patterns': [
-  #         {
-  #           'include': '$self'
-  #         }
-  #       ]
-  #     }
-  #     {
-  #       'include': '#comments'
-  #     }
-  #   ]
-  # }
   {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
     'match': '(\\.)(?:Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|event|FileUpload|Form|Frame|Function|Hidden|History|Image|JavaArray|JavaClass|JavaObject|JavaPackage|java|Layer|Link|Location|Math|MimeType|Number|navigator|netscape|Object|Option|Packages|Password|Plugin|Radio|RegExp|Reset|Select|String|Style|Submit|screen|sun|Text|Textarea|window|XMLHttpRequest)'
