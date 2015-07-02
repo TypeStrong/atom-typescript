@@ -41,6 +41,24 @@
             'include': '#comma'
         'patterns': [
           {
+            'begin': '(?={)'
+            'end': '(?!\\G)(?!:)'
+            'patterns': [
+              {
+                'include': '#objecttype'
+              }
+              {
+                'begin': '(?<=}):\\s*'
+                'end': '(?!\\G)'
+                'patterns': [
+                  {
+                    'include': '#type'
+                  }
+                ]
+              }
+            ]
+          }
+          {
             'begin': '(\\[)[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D},\\s]+(\\]):?'
             'beginCaptures':
               '0':
