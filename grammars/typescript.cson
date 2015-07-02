@@ -94,7 +94,7 @@
             'include': '#typedvariable'
           }
           {
-            'begin': '\\s*(=)\\s*'
+            'begin': '\\s*(=)'
             'end': '(?=[,;])'
             'beginCaptures':
               '1':
