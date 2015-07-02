@@ -165,7 +165,8 @@ function readyToActivate() {
                             }
 
                             // Update status if the file compared above is currently in the active editor
-                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                            let ed = atom.workspace.getActiveTextEditor()
+                            if (ed && ed.getPath() === filePath) {
                                 mainPanelView.panelView.updateFileStatus(filePath);
                             }
                         });

@@ -85,7 +85,8 @@ function readyToActivate() {
                                 var existingEmit = data.toString();
                                 status.emitDiffers = newEmit !== existingEmit;
                             }
-                            if (atom.workspace.getActiveTextEditor().getPath() === filePath) {
+                            var ed = atom.workspace.getActiveTextEditor();
+                            if (ed && ed.getPath() === filePath) {
                                 mainPanelView.panelView.updateFileStatus(filePath);
                             }
                         });
