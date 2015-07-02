@@ -35,7 +35,7 @@
     'patterns': [
       {
         'begin': '(?<=^|,|\\G)'
-        'end': '(,)|(?=;)'
+        'end': '(,)|(?=;)|(?<!,)$'
         'endCaptures':
           '1':
             'include': '#comma'
@@ -55,6 +55,9 @@
                     'include': '#type'
                   }
                 ]
+              }
+              {
+                'include': '#comments'
               }
             ]
           }
@@ -79,6 +82,9 @@
                 'patterns': [
                   {
                     'include': '#type'
+                  }
+                  {
+                    'include': '#comments'
                   }
                 ]
               }
