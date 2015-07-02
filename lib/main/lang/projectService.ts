@@ -110,7 +110,7 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         });
         return output;
     });
-    
+
     // If there is a package.json with typescript we also output a big main .d.ts for easier use
     if (proj.projectFile.project.compilerOptions.declaration
         && proj.projectFile.project.package
@@ -119,10 +119,10 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         let packageDir = proj.projectFile.project.package.directory;
         let defLocation = fsUtil.resolve(packageDir, proj.projectFile.project.package.definition);
         let moduleName = proj.projectFile.project.package.name;
-        
-        // All the d.ts files: 
+
+        // All the d.ts files:
         let dtsFiles = utils.selectMany(outputs.map(o=> o.outputFiles)).filter(f=> fsUtil.isExt(f, '.d.ts'));
-        
+
         // For each d.ts file have a section in the final code
         // declare module "{moduleName}/relativ/path/to/file"
         var finalCode: string[] = [];
@@ -146,7 +146,7 @@ declare module "${modulePath}"{
             let fileToImport = relativePathNoExt.substr(2);
             addModuleToOutput(modulePath, fileToImport);
         });
-        
+
         // take into about `main` as well and generate a file to point to the main .d.ts file
         if (proj.projectFile.project.package.main) {
             let modulePath = moduleName;
@@ -155,7 +155,7 @@ declare module "${modulePath}"{
             let fileToImport = relativePath.substr(2).replace(/\.js+$/, '');
             addModuleToOutput(modulePath, fileToImport);
         }
-                
+
         // Finally write d.ts to disk
         let joinedDtsCode = finalCode.join(os.EOL);
         mkdirp.sync(path.dirname(defLocation));
@@ -196,8 +196,8 @@ export function getCompletionsAtPosition(query: GetCompletionsAtPositionQuery): 
     consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = getOrCreateProject(filePath);
-    
-    // For transformer files 
+
+    // For transformer files
     filePath = transformer.getPseudoFilePath(filePath);
 
     var completions: ts.CompletionInfo = project.languageService.getCompletionsAtPosition(
@@ -370,7 +370,7 @@ export interface UpdateTextQuery extends FilePathQuery {
 export function updateText(query: UpdateTextQuery): Promise<any> {
     consistentPath(query);
     var lsh = getOrCreateProject(query.filePath).languageServiceHost;
-    
+
     // Apply the update to the pseudo ts file
     var filePath = transformer.getPseudoFilePath(query.filePath);
     lsh.updateScript(filePath, query.text);
@@ -385,7 +385,7 @@ export interface EditTextQuery extends FilePathQuery {
 export function editText(query: EditTextQuery): Promise<any> {
     consistentPath(query);
     var lsh = getOrCreateProject(query.filePath).languageServiceHost;
-    
+
     // Apply the update to the pseudo ts file
     var filePath = transformer.getPseudoFilePath(query.filePath);
     lsh.editScript(filePath, query.start, query.end, query.newText);
@@ -407,7 +407,7 @@ export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
-    
+
     // for file path errors in transformer
     if (isTransformerFile(query.filePath)) {
         let filePath = transformer.getPseudoFilePath(query.filePath);
@@ -845,7 +845,20 @@ export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
     var project = getOrCreateProject(query.filePath);
     return resolve({ output: getRawOutput(project, query.filePath) });
 }
-
+interface GetOutputJsResponse {
+    jsFilePath?: string;
+}
+export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+    var output = getRawOutput(project, query.filePath);
+    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+    if (!jsFile || output.emitSkipped) {
+        return resolve({});
+    } else {
+        return resolve({ jsFilePath: jsFile.name });
+    }
+}
 
 /**
  * Reset all that we know about the file system

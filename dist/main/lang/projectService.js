@@ -362,9 +362,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 130) {
+        if (declaration.name.kind === 129) {
             var expr = declaration.name.expression;
-            if (expr.kind === 159) {
+            if (expr.kind === 158) {
                 return expr.name.text;
             }
             return getTextOfIdentifierOrLiteral(expr);
@@ -372,7 +372,7 @@ function getNavigateToItems(query) {
         return undefined;
     }
     function getTextOfIdentifierOrLiteral(node) {
-        if (node.kind === 66 ||
+        if (node.kind === 65 ||
             node.kind === 8 ||
             node.kind === 7) {
             return node.text;
@@ -523,6 +523,19 @@ function getOutput(query) {
     return resolve({ output: building_1.getRawOutput(project, query.filePath) });
 }
 exports.getOutput = getOutput;
+function getOutputJs(query) {
+    projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    var output = building_1.getRawOutput(project, query.filePath);
+    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
+    if (!jsFile || output.emitSkipped) {
+        return resolve({});
+    }
+    else {
+        return resolve({ jsFilePath: jsFile.name });
+    }
+}
+exports.getOutputJs = getOutputJs;
 function softReset(query) {
     projectCache_1.resetCache(query);
     return resolve({});

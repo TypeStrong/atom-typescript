@@ -8,20 +8,19 @@ function register() {
             return;
         var query = atomUtils.getFilePath();
         var previousActivePane = atom.workspace.getActivePane();
-        parent.getOutput(query).then(function (res) {
-            if (res.output.emitSkipped) {
+        parent.getOutputJs(query).then(function (res) {
+            if (!res.jsFilePath) {
                 atom.notifications.addInfo('AtomTS: No emit for this file');
                 return;
             }
             else {
-                var jsOutput = res.output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0].name;
-                var uri = jsOutput.split("/").join(path.sep);
+                var uri = res.jsFilePath.split("/").join(path.sep);
                 var previewPane = atom.workspace.paneForURI(uri);
                 if (previewPane) {
                     previewPane.destroyItem(previewPane.itemForURI(uri));
                 }
                 else {
-                    atom.workspace.open(jsOutput, { split: "right" }).then(function () {
+                    atom.workspace.open(res.jsFilePath, { split: "right" }).then(function () {
                         previousActivePane.activate();
                     });
                 }

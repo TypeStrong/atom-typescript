@@ -12,21 +12,20 @@ export function register() {
 
         var query = atomUtils.getFilePath();
         var previousActivePane = atom.workspace.getActivePane()
-        parent.getOutput(query).then(res=> {
-            if (res.output.emitSkipped) {
+        parent.getOutputJs(query).then(res=> {
+            if (!res.jsFilePath) {
                 atom.notifications.addInfo('AtomTS: No emit for this file');
                 return;
             }
             else {
                 // pane for uri needs file system path so:
-                var jsOutput = res.output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0].name;
-                var uri = jsOutput.split("/").join(path.sep);
+                var uri = res.jsFilePath.split("/").join(path.sep);
                 let previewPane = atom.workspace.paneForURI(uri);
                 if (previewPane) {
                     previewPane.destroyItem(previewPane.itemForURI(uri))
                 }
                 else {
-                    atom.workspace.open(jsOutput, { split: "right" }).then(() => {
+                    atom.workspace.open(res.jsFilePath, { split: "right" }).then(() => {
                         previousActivePane.activate();
                     });
                 }

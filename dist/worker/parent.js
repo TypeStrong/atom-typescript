@@ -67,6 +67,7 @@ exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 exports.getOutput = parent.sendToIpc(projectService.getOutput);
+exports.getOutputJs = parent.sendToIpc(projectService.getOutputJs);
 exports.softReset = parent.sendToIpc(projectService.softReset);
 exports.getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 exports.createProject = parent.sendToIpc(projectService.createProject);

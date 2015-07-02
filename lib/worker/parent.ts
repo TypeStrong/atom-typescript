@@ -89,6 +89,7 @@ export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 export var getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 export var applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
 export var getOutput = parent.sendToIpc(projectService.getOutput);
+export var getOutputJs = parent.sendToIpc(projectService.getOutputJs);
 export var softReset = parent.sendToIpc(projectService.softReset);
 export var getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 export var createProject = parent.sendToIpc(projectService.createProject);
