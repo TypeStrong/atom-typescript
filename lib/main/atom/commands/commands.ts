@@ -155,8 +155,8 @@ export function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var filePath = editor.getPath();
 
-        parent.createProject({filePath}).then(()=>{
-            atom.notifications.addInfo('Created a tsconfig.json file');
+        parent.createProject({ filePath }).then((res) => {
+            // TODO: do actual validation on result
         });
     });
 
