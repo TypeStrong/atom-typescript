@@ -23,6 +23,7 @@ import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
 import escapeHtml = require('escape-html');
 import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
+import {registerReactCommands} from "./reactCommands";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -31,9 +32,8 @@ export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
     outputFileCommands.register();
-
     registerRenameHandling();
-
+    registerReactCommands();
 
     function applyRefactorings(refactorings: RefactoringsByFilePath) {
         var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();

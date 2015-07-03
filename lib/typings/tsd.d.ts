@@ -14,3 +14,4 @@
 /// <reference path="source-map/source-map.d.ts" />
 /// <reference path="react/react.d.ts" />
 /// <reference path="react/react-jsx.d.ts" />
+/// <reference path="htmltojsx/htmltojsx.d.ts" />

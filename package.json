@@ -48,6 +48,7 @@
     "escape-html": "^1.0.1",
     "fuzzaldrin": "^2.1.0",
     "glob-expand": "0.0.2",
+    "htmltojsx": "^0.2.2",
     "immutable": "^3.7.3",
     "mkdirp": "^0.5.0",
     "ntypescript": "1.201506301047.1",
