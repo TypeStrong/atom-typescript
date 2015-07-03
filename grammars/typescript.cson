@@ -934,11 +934,11 @@
     'comment': 'Match the arguments in a function'
     'patterns': [
       {
-        'match': '[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?=\\??\\s*[,\\)])'
+        'match': '(?:\\.\\.\\.)?[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?=\\??\\s*[,\\)])'
         'name': 'variable.parameter.function.ts'
       }
       {
-        'begin': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\??\\s*:\\s*'
+        'begin': '((?:\\.\\.\\.)?[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\??\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'variable.parameter.function.ts'
