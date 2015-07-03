@@ -113,7 +113,7 @@
     ]
   }
   {
-    'begin': '(?<=\s)(?:(interface)|(class))(?=\s)'
+    'begin': '(?<=\\s)(?:(interface)|(class))\\s'
     'beginCaptures':
       '1':
         'name': 'storage.type.interface.js'
@@ -123,7 +123,7 @@
     'patterns': [
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
-        'begin': '\\G\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\.(?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)?(?:<[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\s*,\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)*>)?)?(?:\\s+(extends)\\s)?'
+        'begin': '\\G\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\.(?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)?(?:<[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\s*,\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)*>)?)?(?:\\s+(extends)\\s)?'
         'beginCaptures':
           '1':
             'patterns': [
