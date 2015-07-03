@@ -194,7 +194,7 @@ var typeScriptVersion = '1.5.0-beta';
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
-    isolatedModules: true,
+    isolatedModules: false,
     jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
     emitDecoratorMetadata: true,
