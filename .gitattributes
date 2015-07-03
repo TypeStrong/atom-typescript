@@ -1,0 +1,5 @@
+# core.autocrlf
+*.ts text
+*.tsx text
+*.cson text
+*.js text
