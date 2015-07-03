@@ -26,6 +26,7 @@ interface CompilerOptions {
     experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     help?: boolean;
+    isolatedModules?: boolean;
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
     jsx?: string;
@@ -66,6 +67,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
@@ -192,6 +194,7 @@ var typeScriptVersion = '1.5.0-beta';
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
+    isolatedModules: true,
     jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
     emitDecoratorMetadata: true,

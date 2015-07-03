@@ -14,6 +14,7 @@ var compilerOptionsValidation = {
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
+    isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
     mapRoot: { type: types.string },
@@ -69,6 +70,7 @@ var typeScriptVersion = '1.5.0-beta';
 exports.defaults = {
     target: 1,
     module: 1,
+    isolatedModules: true,
     jsx: 2,
     experimentalDecorators: true,
     emitDecoratorMetadata: true,
