@@ -113,7 +113,7 @@
     ]
   }
   {
-    'begin': '(interface)|(class\\((?=\\S))'
+    'begin': '(?<=\s)(?:(interface)|(class))(?=\s)'
     'beginCaptures':
       '1':
         'name': 'storage.type.interface.js'
