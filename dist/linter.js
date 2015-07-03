@@ -13,7 +13,8 @@ exports.provider = {
             || !fs.existsSync(textEditor.buffer.file.path))
             return Promise.resolve([]);
         var filePath = textEditor.buffer.file.path;
-        return parent.errorsForFile({ filePath: filePath }).then(function (resp) {
+        return parent.errorsForFile({ filePath: filePath })
+            .then(function (resp) {
             var linterErrors = resp.errors.map(function (err) { return ({
                 type: "Error",
                 filePath: filePath,
@@ -21,6 +22,9 @@ exports.provider = {
                 range: new atom_1.Range([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
             }); });
             return linterErrors;
+        })
+            .catch(function (error) {
+            return [];
         });
     }
 };
