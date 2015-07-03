@@ -113,11 +113,13 @@
     ]
   }
   {
-    'begin': '(?<=\\s)(?:(interface)|(class))\\s'
+    'begin': '(?:^|(;)|\\s)(?:(interface)|(class))\\s'
     'beginCaptures':
       '1':
-        'name': 'storage.type.interface.js'
+        'name': 'meta.delimiter.semicolon.js'
       '2':
+        'name': 'storage.type.interface.js'
+      '3':
         'name': 'storage.type.class.js'
     'end': '}'
     'patterns': [
