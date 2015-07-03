@@ -456,6 +456,7 @@
   }
   {
     'comment': 'Match types in template instantiation'
+    # TODO can improve lookahead here
     'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}])<(?=(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
     'end': '>'
     'patterns': [
@@ -967,6 +968,7 @@
     ]
 
   'newstylefunction':
+    # TODO offer no lookahead variant?
     'patterns': [
       {
         'include': '#newstylefunctionnontemplate'
@@ -1036,7 +1038,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(\\*?)\\s*(\\*?)(?=\\()'
+        'begin': '\\G(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(\\*?)\\s*(\\*?)(?=\\()'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -1059,7 +1061,7 @@
         ]
       }
       {
-        'begin': '(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(?=<)'
+        'begin': '\\G(?:(async)(?:\\s+))?(function)(?:\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))?(?=<)'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
