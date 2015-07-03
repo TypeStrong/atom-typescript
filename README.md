@@ -110,6 +110,8 @@ Notes:
 * Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
 
 ## React Support
+
+### Configuration tips
 Specifically `jsx` support:
 
 * Have `"jsx" : "react"` in your `tsconfig.compilerOptions`. 
@@ -124,6 +126,10 @@ Specifically `jsx` support:
 ```
 * Use the file extension `.tsx`.
 * `tsd install react-jsx --save --resolve`.
+
+### Html to TSX
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/htmltotsx.gif)
 
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
