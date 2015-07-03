@@ -281,7 +281,7 @@
     'name': 'meta.function.prototype.js'
     'patterns': [
       {
-        'include': '#function'
+        'include': '#functionnolookahead'
       }
       {
         'include': '#comments'
@@ -302,7 +302,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'include': '#function'
+        'include': '#functionnolookahead'
       }
       {
         'include': '#comments'
@@ -321,7 +321,7 @@
     'name': 'meta.function.js'
     'patterns': [
       {
-        'include': '#function'
+        'include': '#functionnolookahead'
       }
       {
         'include': '#comments'
@@ -340,7 +340,7 @@
     'name': 'meta.function.json.js'
     'patterns': [
       {
-        'include': '#function'
+        'include': '#functionnolookahead'
       }
       {
         'include': '#comments'
@@ -373,7 +373,7 @@
     'name': 'meta.function.json.js'
     'patterns': [
       {
-        'include': '#function'
+        'include': '#functionnolookahead'
       }
       {
         'include': '#comments'
@@ -458,8 +458,7 @@
   }
   {
     'comment': 'Match types in template instantiation'
-    # TODO can improve lookahead here
-    'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}])<(?=(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:\\/*&|+-]|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
+    'begin': '(?<=[\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}])<?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>\\()'
     'end': '>'
     'patterns': [
       {
@@ -969,8 +968,17 @@
       }
     ]
 
+  'functionnolookahead':
+    'patterns': [
+      {
+        'include': '#oldstylefunction'
+      }
+      {
+        'include': '#newstylefunctionnolookahead'
+      }
+    ]
+
   'newstylefunction':
-    # TODO offer no lookahead variant?
     'patterns': [
       {
         'include': '#newstylefunctionnontemplate'
@@ -998,7 +1006,7 @@
             ]
           }
           {
-            'include': '#newstylefunctionnontemplate'
+            'include': '#newstylefunctionnontemplatenolookahead'
           }
           {
             'include': '#comments'
@@ -1007,8 +1015,72 @@
       }
     ]
 
+  'newstylefunctionnolookahead':
+    'patterns': [
+      {
+        'begin': '(?=<)'
+        'end': '(?<!>)(?!\\G)'
+        'patterns': [
+          {
+            'begin': '\\G<'
+            'end': '>'
+            'patterns': [
+              {
+                'include': '#typeextend'
+              }
+              {
+                'include': '#type'
+              }
+              {
+                'include': '#comma'
+              }
+              {
+                'include': '#comments'
+              }
+            ]
+          }
+          {
+            'include': '#newstylefunctionnontemplatenolookahead'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+      {
+        'include': '#newstylefunctionnontemplatenolookahead'
+      }
+    ]
+
   'newstylefunctionnontemplate':
     'begin': '(?<![\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}\\)\\]])(?=\\([^\\(].+=>)(?=(?:[^&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/))*\\)(?:\\:\\s*(?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+)?\\s*=>\\s*{)'
+    'end': '(?!\\:)\\s*(=>)'
+    'endCaptures':
+      '1':
+        'name': 'storage.type.arrow.js'
+    'patterns': [
+      {
+        'include': '#functionargumentstype'
+      }
+      {
+        'begin': '\\:\\s*'
+        'end': '(?!\\G)'
+        'patterns': [
+          {
+            'include': '#type'
+          }
+          {
+            'include': '#comments'
+          }
+        ]
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+
+  'newstylefunctionnontemplatenolookahead':
+    'begin': '(?=)'
     'end': '(?!\\:)\\s*(=>)'
     'endCaptures':
       '1':
