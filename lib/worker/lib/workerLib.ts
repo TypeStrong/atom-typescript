@@ -48,8 +48,8 @@ class RequesterResponder {
     ///////////////////////////////// REQUESTOR /////////////////////////
 
     private currentListeners: { [message: string]: { [id: string]: PromiseDeferred<any> } } = {};
-    
-    /** Only relevant when we only want the last of this type */    
+
+    /** Only relevant when we only want the last of this type */
     private currentLastOfType: {
         [message: string]: { data: any; defer: PromiseDeferred<any>; }
     } = {};
@@ -80,7 +80,7 @@ class RequesterResponder {
                 this.currentListeners[parsed.message][parsed.id].resolve(parsed.data);
             }
             delete this.currentListeners[parsed.message][parsed.id];
-            
+
             // If there is current last one queued then that needs to be resurrected
             if (this.currentLastOfType[parsed.message]) {
                 let last = this.currentLastOfType[parsed.message];
@@ -90,8 +90,8 @@ class RequesterResponder {
             }
         }
     }
-    
-    private sendToIpcHeart = (data, message) => {        
+
+    private sendToIpcHeart = (data, message) => {
 
         // If we don't have a child exit
         if (!this.getProcess()) {
@@ -123,9 +123,9 @@ class RequesterResponder {
         var message = func.name;
         return (data) => this.sendToIpcHeart(data, message);
     }
-    
-    /** 
-     * If there are more than one pending then we only want the last one as they come in. 
+
+    /**
+     * If there are more than one pending then we only want the last one as they come in.
      * All others will get the default value
      */
     sendToIpcOnlyLast<Query, Response>(func: QRFunction<Query, Response>, defaultResponse: Response): QRFunction<Query, Response> {
@@ -146,14 +146,14 @@ class RequesterResponder {
                 // Note:
                 // The last needs to continue once the current one finishes
                 // That is done in our response handler
-                
-                
+
+
                 // If there is already something queued as last.
                 // Then it is no longer last and needs to be fed a default value
                 if (this.currentLastOfType[message]) {
                     this.currentLastOfType[message].defer.resolve(defaultResponse);
                 }
-                
+
                 // this needs to be the new last
                 var defer = Promise.defer<Response>();
                 this.currentLastOfType[message] = {
@@ -185,25 +185,25 @@ class RequesterResponder {
 
         responsePromise
             .then((response) => {
-            this.getProcess().send({
-                message: message,
-                /** Note: to process a request we just pass the id as we recieve it */
-                id: parsed.id,
-                data: response,
-                error: null,
-                request: false
-            });
-        })
+                this.getProcess().send({
+                    message: message,
+                    /** Note: to process a request we just pass the id as we recieve it */
+                    id: parsed.id,
+                    data: response,
+                    error: null,
+                    request: false
+                });
+            })
             .catch((error) => {
-            this.getProcess().send({
-                message: message,
-                /** Note: to process a request we just pass the id as we recieve it */
-                id: parsed.id,
-                data: null,
-                error: error,
-                request: false
+                this.getProcess().send({
+                    message: message,
+                    /** Note: to process a request we just pass the id as we recieve it */
+                    id: parsed.id,
+                    data: null,
+                    error: error,
+                    request: false
+                });
             });
-        });
     }
 
     private addToResponders<Query, Response>(func: (query: Query) => Promise<Response>) {
