@@ -19,7 +19,7 @@ interface LinterMessage {
 }
 
 export var provider = {
-    grammarScopes: ['source.ts'],
+    grammarScopes: ['source.ts','source.ts.tsx'],
     scope: 'file', //  # or 'project'
     lintOnFly: true, // # must be false for scope: 'project'
     lint: (textEditor: AtomCore.IEditor): Promise<LinterMessage[]> => {

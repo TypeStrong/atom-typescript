@@ -4,7 +4,7 @@ var parent = require('./worker/parent');
 var fs = require('fs');
 var atom_1 = require("atom");
 exports.provider = {
-    grammarScopes: ['source.ts'],
+    grammarScopes: ['source.ts', 'source.ts.tsx'],
     scope: 'file',
     lintOnFly: true,
     lint: function (textEditor) {
