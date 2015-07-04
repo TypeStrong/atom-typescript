@@ -475,6 +475,22 @@
     ]
   }
   {
+    'comment': 'Match type assertions'
+    'begin': '(?<![\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}])<(?=(?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/|\\|(?:[^:&|*/+\\-\\)]|\\)(?=[\\[\\)|>])|\\/\\*\\*?(?:[^*]*?\\*)*\\/))+>[\\p{L}\\p{Nl}$_\\(\\[\\d\\{])'
+    'end': '>'
+    'patterns': [
+      {
+        'include': '#type'
+      }
+      {
+        'include': '#comma'
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+  }
+  {
       'comment': 'Match full triple slash reference comments'
       'match': '(\\/\\/\\/\\s*<reference\\s*path\\s*=)(.*)(\\/>)'
       'captures':
