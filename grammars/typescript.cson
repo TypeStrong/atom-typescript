@@ -642,6 +642,15 @@
     'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
     'patterns': [
       {
+          'begin': '\\((?!\\s*[\\p{L}\\p{Nl}$_\\)][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*(?:[,:]|\\)\\s*=>))'
+          'end': '\\)(?:\\[\\])*'
+          'patterns': [
+              {
+                  'include': '#type'
+              }
+          ]
+      }
+      {
         'include': '#keytype'
       }
       {
@@ -680,6 +689,15 @@
     'begin': '(?=)'
     'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
     'patterns': [
+      {
+          'begin': '\\((?!\\s*[\\p{L}\\p{Nl}$_\\)][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*(?:[,:]|\\)\\s*=>))'
+          'end': '\\)(?:\\[\\])*'
+          'patterns': [
+              {
+                  'include': '#typeinheritedfrom'
+              }
+          ]
+      }
       {
         'include': '#keytype'
       }
@@ -773,26 +791,6 @@
         'name': 'storage.type.variable.ts'
 
   'functiontype':
-    'patterns': [
-      {
-        'begin': '\\((?=\\()'
-        'end': '(?<!\\))(?!\\G)\\)(\\[\\])*'
-        'patterns': [
-          {
-            'include': '#completefunctiontype'
-          }
-        ]
-        'name': 'functionarray'
-      }
-      {
-        'include': '#completefunctiontype'
-      }
-      {
-        'include': '#comments'
-      }
-    ]
-
-  'completefunctiontype':
     'patterns': [
       {
         'include': '#functionargumentreturntype'
