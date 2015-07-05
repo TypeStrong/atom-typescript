@@ -282,13 +282,16 @@ export function activate(state: PackageState) {
             if (!apd.require('autocomplete-plus')) atom.packages.loadPackage('autocomplete-plus');
 
             // Hazah activate them and then activate us!
-            atom.packages.activatePackage('linter').then(() => atom.packages.activatePackage('autocomplete-plus')).then(() => readyToActivate());
+            atom.packages.activatePackage('linter')
+                .then(() => atom.packages.activatePackage('autocomplete-plus'))
+                .then(() => waitForGrammarActivation())
+                .then(() => readyToActivate());
         });
 
         return;
     }
 
-    readyToActivate();
+    waitForGrammarActivation().then(() => readyToActivate());
 }
 
 export function deactivate() {
@@ -319,4 +322,21 @@ export function provideLinter() {
 
 export function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
+}
+
+function waitForGrammarActivation(): Promise<any> {
+    let activated = false;
+    let deferred = Promise.defer();
+    let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+
+        // Just so we won't attach more events than necessary
+        if (activated) return;
+        editor.observeGrammar((grammar: AtomCore.IGrammar) => {
+            if (grammar.packageName === 'atom-typescript') {
+                activated = true;
+                deferred.resolve({});
+            }
+        });
+    });
+    return deferred.promise.then(() => editorWatch.dispose());
 }

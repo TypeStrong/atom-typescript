@@ -146,11 +146,14 @@ function activate(state) {
                 atom.packages.loadPackage('linter');
             if (!apd.require('autocomplete-plus'))
                 atom.packages.loadPackage('autocomplete-plus');
-            atom.packages.activatePackage('linter').then(function () { return atom.packages.activatePackage('autocomplete-plus'); }).then(function () { return readyToActivate(); });
+            atom.packages.activatePackage('linter')
+                .then(function () { return atom.packages.activatePackage('autocomplete-plus'); })
+                .then(function () { return waitForGrammarActivation(); })
+                .then(function () { return readyToActivate(); });
         });
         return;
     }
-    readyToActivate();
+    waitForGrammarActivation().then(function () { return readyToActivate(); });
 }
 exports.activate = activate;
 function deactivate() {
@@ -183,3 +186,18 @@ function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }
 exports.consumeSnippets = consumeSnippets;
+function waitForGrammarActivation() {
+    var activated = false;
+    var deferred = Promise.defer();
+    var editorWatch = atom.workspace.observeTextEditors(function (editor) {
+        if (activated)
+            return;
+        editor.observeGrammar(function (grammar) {
+            if (grammar.packageName === 'atom-typescript') {
+                activated = true;
+                deferred.resolve({});
+            }
+        });
+    });
+    return deferred.promise.then(function () { return editorWatch.dispose(); });
+}
