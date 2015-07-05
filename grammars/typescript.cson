@@ -30,14 +30,16 @@
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
-    'end': '(;)|(?<!,|^)$'
+    'end': '(;)|(in)|(?<!,|^)$'
     'endCaptures':
       '1':
         'name': 'punctuation.terminator.statement.js'
+      '2':
+        'name': 'keyword.other.js'
     'patterns': [
       {
         'begin': '(?<=^|,|\\G)'
-        'end': '(,)|(?=;)|(?<!,|^)$'
+        'end': '(,)|(?=;|in)|(?<!,|^)$'
         'endCaptures':
           '1':
             'include': '#comma'
