@@ -209,7 +209,7 @@ Also command : `TypeScript: Ast Full` that includes the `trivia` (punctuation, c
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/astFull.png)
 
 ## Dependency View
-Command : `Typescript: Dependency View`. A dependency viewer for insight into the project. You can zoom, pan, drag points around and hover over nodes. ([more details](https://github.com/TypeStrong/atom-typescript/blob/master/docs/dependency-view.md))
+Command : `Typescript: Dependency View`. A dependency viewer for insight into the project if you use external modules. You can zoom, pan, drag points around and hover over nodes. ([more details](https://github.com/TypeStrong/atom-typescript/blob/master/docs/dependency-view.md))
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/dependencyView/teaser.png)
 
 ## Sync
