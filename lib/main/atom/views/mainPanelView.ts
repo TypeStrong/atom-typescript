@@ -46,7 +46,7 @@ export class MainPanelView extends view.View<any> {
             }, text);
 
         this.div({
-            class: 'atomts native-key-bindings layout horizontal',
+            class: 'atomts atomts-main-panel-view native-key-bindings layout horizontal',
             tabindex: '-1'
         }, () => {
                 this.div({

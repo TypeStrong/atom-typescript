@@ -36,7 +36,7 @@ var MainPanelView = (function (_super) {
             }, text);
         };
         this.div({
-            class: 'atomts native-key-bindings layout horizontal',
+            class: 'atomts atomts-main-panel-view native-key-bindings layout horizontal',
             tabindex: '-1'
         }, function () {
             _this.div({
