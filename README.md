@@ -112,20 +112,8 @@ Notes:
 ## React Support
 
 ### Configuration tips
-Specifically `jsx` support:
 
-* Have `"jsx" : "react"` in your `tsconfig.compilerOptions`. 
-* Have `*.tsx` files included in your project e.g using `filesGlob`: 
-```json
-"filesGlob": [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "!node_modules/**/*.ts",
-    "!node_modules/**/*.tsx"
-],
-```
-* Use the file extension `.tsx`.
-* `tsd install react-jsx --save --resolve`.
+Covered here : http://basarat.gitbooks.io/typescript/content/docs/jsx/tsx.html
 
 ### Html to TSX
 
