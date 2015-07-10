@@ -30,7 +30,7 @@
     'beginCaptures':
       '1':
         'name': 'storage.modifier.js'
-    'end': '(;)|\\b(in)\\b|(?<!,|^)$'
+    'end': '(;)|\\b(in|of)\\b|(?<!,|^)$'
     'endCaptures':
       '1':
         'name': 'punctuation.terminator.statement.js'
@@ -39,7 +39,7 @@
     'patterns': [
       {
         'begin': '(?<=^|,|\\G)'
-        'end': '(,)|(?=;|\\bin\\b)|(?<!,|^)$'
+        'end': '(,)|(?=;|\\b(?:in|of)\\b)|(?<!,|^)$'
         'endCaptures':
           '1':
             'include': '#comma'
