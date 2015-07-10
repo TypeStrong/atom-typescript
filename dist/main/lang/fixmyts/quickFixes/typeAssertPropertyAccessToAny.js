@@ -16,7 +16,7 @@ var TypeAssertPropertyAccessToAny = (function () {
     };
     TypeAssertPropertyAccessToAny.prototype.provideFix = function (info) {
         var parent = info.positionNode.parent;
-        if (parent.kind == 163) {
+        if (parent.kind == 159) {
             var propertyAccess = parent;
             var start = propertyAccess.getStart();
             var end = propertyAccess.dotToken.getStart();

@@ -23,6 +23,8 @@ var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
 var reactCommands_1 = require("./reactCommands");
+var fileStatusCache_1 = require("../fileStatusCache");
+var projectCache_1 = require("../../lang/projectCache");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
     outputFileCommands.register();
@@ -87,6 +89,20 @@ function registerCommands() {
         atom.notifications.addInfo('Building');
         parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
+            var proj = projectCache_1.getOrCreateProject(filePath);
+            proj.projectFile.project.files.forEach(function (path) {
+                var status = fileStatusCache_1.getFileStatus(path);
+                status.emitDiffers = false;
+            });
+            resp.buildOutput.outputs.forEach(function (o) {
+                if (o.emitError) {
+                    o.errors.forEach(function (err) {
+                        var status = fileStatusCache_1.getFileStatus(err.filePath);
+                        status.emitDiffers = true;
+                    });
+                }
+            });
+            mainPanelView_1.panelView.updateFileStatus(filePath);
         });
     });
     var handleGoToDeclaration = function (e) {

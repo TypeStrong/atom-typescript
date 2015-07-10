@@ -362,9 +362,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 133) {
+        if (declaration.name.kind === 130) {
             var expr = declaration.name.expression;
-            if (expr.kind === 163) {
+            if (expr.kind === 159) {
                 return expr.name.text;
             }
             return getTextOfIdentifierOrLiteral(expr);

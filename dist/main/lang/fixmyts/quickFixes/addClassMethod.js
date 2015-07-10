@@ -43,12 +43,12 @@ var AddClassMethod = (function () {
         var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
-        if (parentOfParent.kind == 178
+        if (parentOfParent.kind == 173
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
         }
-        else if (parentOfParent.kind == 165) {
+        else if (parentOfParent.kind == 161) {
             var nativeTypes = ['string', 'number', 'boolean', 'object'];
             var abc = 'abcdefghijklmnopqrstuvwxyz';
             var argsAlphabet = abc.split('');
@@ -100,9 +100,9 @@ var AddClassMethod = (function () {
             typeStringParts.push("): any { /* implement-me */ }");
             typeString = typeStringParts.join('');
         }
-        var memberTarget = ast.getNodeByKindAndName(info.program, 211, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, 206, className);
         if (!memberTarget) {
-            memberTarget = ast.getNodeByKindAndName(info.program, 212, className);
+            memberTarget = ast.getNodeByKindAndName(info.program, 207, className);
         }
         if (!memberTarget) {
             return [];

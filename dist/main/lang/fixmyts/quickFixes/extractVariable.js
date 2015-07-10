@@ -29,7 +29,7 @@ var ExtractVariable = (function () {
 })();
 exports.ExtractVariable = ExtractVariable;
 function execute(info, onProperty, onFuncCall, onExtractable) {
-    var callExpression = findLowestNode(info.positionNode, 165);
+    var callExpression = findLowestNode(info.positionNode, 161);
     if (callExpression) {
         if (isPropertyCall(info)) {
             return onProperty();
@@ -84,19 +84,19 @@ function extractVariableFromArg(info, callExpression) {
 }
 function isPropertyAccess(info) {
     return isValidPath(info.positionNode, [66,
-        163,
-        192]);
+        159,
+        187]);
 }
 function isFuncCall(info) {
     return isValidPath(info.positionNode, [66,
-        165,
-        192]);
+        161,
+        187]);
 }
 function isPropertyCall(info) {
     return isValidPath(info.positionNode, [66,
-        163,
-        165,
-        192]);
+        159,
+        161,
+        187]);
 }
 function isExtractable(info, callExpression) {
     var argumentIndex = getArgumentIndex(info.positionNode, callExpression);

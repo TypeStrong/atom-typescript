@@ -24,6 +24,8 @@ import escapeHtml = require('escape-html');
 import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
 import {registerReactCommands} from "./reactCommands";
+import {getFileStatus} from "../fileStatusCache";
+import {getOrCreateProject} from "../../lang/projectCache";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -99,6 +101,26 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
+            let proj = getOrCreateProject(filePath);
+            proj.projectFile.project.files.forEach((path) => {
+                let status = getFileStatus(path);
+                status.emitDiffers = false;
+            });
+
+            resp.buildOutput.outputs.forEach((o) => {
+
+                // Emit never fails with an emit error, so it's probably never gonna be true
+                // It's here just in case something changes in TypeScript compiler
+                if (o.emitError) {
+                    o.errors.forEach((err) => {
+                        let status = getFileStatus(err.filePath);
+                        status.emitDiffers = true;
+                    });
+                }
+            });
+
+            // Update the status of the file in the current editor
+            panelView.updateFileStatus(filePath);
         });
     });
 
@@ -185,7 +207,7 @@ export function registerCommands() {
         // atom.commands.dispatch(
         //     atom.views.getView(atom.workspace.getActiveTextEditor()),
         //     'typescript:dependency-view');
-        //     
+        //
         atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
             'typescript:testing-r-view');
