@@ -14,6 +14,7 @@ import {StringConcatToTemplate} from "./quickFixes/stringConcatToTemplate";
 import {TypeAssertPropertyAccessToAny} from "./quickFixes/typeAssertPropertyAccessToAny";
 import {TypeAssertPropertyAccessToType} from "./quickFixes/typeAssertPropertyAccessToType";
 import {ImplementInterface} from "./quickFixes/implementInterface";
+import {SingleLineCommentToJsdoc} from "./quickFixes/singleLineCommentToJsdoc";
 export var allQuickFixes: QuickFix[] = [
     new AddClassMethod(),
     new AddClassMember(),
@@ -26,5 +27,6 @@ export var allQuickFixes: QuickFix[] = [
     new QuoteToTemplate(),
     new TypeAssertPropertyAccessToAny(),
     new TypeAssertPropertyAccessToType(),
-    new ImplementInterface()
+    new ImplementInterface(),
+    new SingleLineCommentToJsdoc()
 ];

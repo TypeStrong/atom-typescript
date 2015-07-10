@@ -6,6 +6,10 @@ function forEachChildRecursive(node, cbNode, depth) {
     return res;
 }
 exports.forEachChildRecursive = forEachChildRecursive;
+function syntaxKindToString(syntaxKind) {
+    return ts.SyntaxKind[syntaxKind];
+}
+exports.syntaxKindToString = syntaxKindToString;
 function getNodeByKindAndName(program, kind, name) {
     var found = undefined;
     function findNode(node) {

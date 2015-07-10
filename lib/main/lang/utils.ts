@@ -48,7 +48,7 @@ export function clone<T>(target: T): T {
 /**
  * Create a quick lookup map from list
  */
-export function createMap(arr: string[]): { [string: string]: boolean } {
+export function createMap(arr: (string|number)[]): { [string: string]: boolean;[number: number]: boolean } {
     return arr.reduce((result: { [string: string]: boolean }, key: string) => {
         result[key] = true;
         return result;

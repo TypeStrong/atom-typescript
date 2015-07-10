@@ -758,19 +758,21 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var program = project.languageService.getProgram();
-    var srcFile = program.getSourceFile(query.filePath);
+    var sourceFile = program.getSourceFile(query.filePath);
+    var sourceFileText = sourceFile.getFullText();
     var fileErrors = getDiagnositcsByFilePath(query);
     /** We want errors that are *touching* and thefore expand the query position by one */
     var positionErrors = fileErrors.filter(e=> ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position);
     var positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
-    var positionNode: ts.Node = ts.getTokenAtPosition(srcFile, query.position);
+    var positionNode: ts.Node = ts.getTokenAtPosition(sourceFile, query.position);
     var service = project.languageService;
     var typeChecker = program.getTypeChecker();
 
     return {
         project,
         program,
-        srcFile,
+        sourceFile,
+        sourceFileText,
         fileErrors,
         positionErrors,
         positionErrorMessages,
@@ -778,7 +780,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         positionNode,
         service,
         typeChecker,
-        filePath: srcFile.fileName
+        filePath: sourceFile.fileName
     };
 }
 

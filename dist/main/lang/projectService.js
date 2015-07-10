@@ -471,17 +471,19 @@ function getInfoForQuickFixAnalysis(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var program = project.languageService.getProgram();
-    var srcFile = program.getSourceFile(query.filePath);
+    var sourceFile = program.getSourceFile(query.filePath);
+    var sourceFileText = sourceFile.getFullText();
     var fileErrors = getDiagnositcsByFilePath(query);
     var positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
     var positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
-    var positionNode = ts.getTokenAtPosition(srcFile, query.position);
+    var positionNode = ts.getTokenAtPosition(sourceFile, query.position);
     var service = project.languageService;
     var typeChecker = program.getTypeChecker();
     return {
         project: project,
         program: program,
-        srcFile: srcFile,
+        sourceFile: sourceFile,
+        sourceFileText: sourceFileText,
         fileErrors: fileErrors,
         positionErrors: positionErrors,
         positionErrorMessages: positionErrorMessages,
@@ -489,7 +491,7 @@ function getInfoForQuickFixAnalysis(query) {
         positionNode: positionNode,
         service: service,
         typeChecker: typeChecker,
-        filePath: srcFile.fileName
+        filePath: sourceFile.fileName
     };
 }
 function getQuickFixes(query) {

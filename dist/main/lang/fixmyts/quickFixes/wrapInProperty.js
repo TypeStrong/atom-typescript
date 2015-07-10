@@ -69,7 +69,7 @@ function getArgumentType(info, paramDecl) {
     if (paramDecl.type) {
         var start = paramDecl.type.pos;
         var end = paramDecl.type.end;
-        return info.srcFile.text.substr(start, (end - start)).trim();
+        return info.sourceFile.text.substr(start, (end - start)).trim();
     }
     else {
         return 'any';

@@ -19,7 +19,8 @@ export interface QuickFixQueryInformation {
     service: ts.LanguageService;
     program: ts.Program;
     typeChecker: ts.TypeChecker;
-    srcFile: ts.SourceFile;
+    sourceFile: ts.SourceFile;
+    sourceFileText: string;
     fileErrors: ts.Diagnostic[];
     positionErrors: ts.Diagnostic[];
     positionErrorMessages: string[];

@@ -61,7 +61,7 @@ export class AddImportStatement implements QuickFix {
                 length: 0
             },
             newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
-            filePath: info.srcFile.fileName
+            filePath: info.sourceFile.fileName
         }];
 
         // Also refactor the variable name to match the file name

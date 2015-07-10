@@ -6,6 +6,8 @@
 // Inspired by `ts.forEachChild`:
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
 
+import {syntaxKindToString} from "../fixmyts/astUtils";
+
 export function astToText(srcFile: ts.Node) {
 
     //// A useful function for debugging
@@ -85,11 +87,6 @@ export function astToTextFull(srcFile: ts.Node) {
 
     return root;
 }
-
-function syntaxKindToString(syntaxKind: ts.SyntaxKind): string {
-    return (<any>ts).SyntaxKind[syntaxKind];
-}
-
 
 function prettyJSONNoParent(object: any): string {
     var cache = [];
