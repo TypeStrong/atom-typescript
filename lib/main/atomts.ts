@@ -106,7 +106,10 @@ function readyToActivate() {
             // Because the fix might be in the other file
             // or the other file might have made this file have an error
             parent.errorsForFile({ filePath: filePath })
-                .then((resp) => errorView.setErrors(filePath, resp.errors));
+                .then((resp) => {
+                    errorView.setErrors(filePath, resp.errors)
+                    atomUtils.triggerLinter();
+                });
 
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
