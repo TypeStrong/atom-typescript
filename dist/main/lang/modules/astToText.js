@@ -4,6 +4,7 @@
  */
 // Inspired by `ts.forEachChild`:
 // https://github.com/Microsoft/TypeScript/blob/65cbd91667acf890f21a3527b3647c7bc994ca32/src/compiler/parser.ts#L43-L320
+var astUtils_1 = require("../fixmyts/astUtils");
 function astToText(srcFile) {
     //// A useful function for debugging
     // aggregate(srcFile, 0);
@@ -13,7 +14,7 @@ function astToText(srcFile) {
     // }
     var nodeIndex = 0;
     function nodeToNodeDisplay(node, depth) {
-        var kind = syntaxKindToString(node.kind);
+        var kind = astUtils_1.syntaxKindToString(node.kind);
         var children = [];
         ts.forEachChild(node, function (cNode) {
             var child = nodeToNodeDisplay(cNode, depth + 1);
@@ -44,7 +45,7 @@ function astToTextFull(srcFile) {
     // }
     var nodeIndex = 0;
     function nodeToNodeDisplay(node, depth) {
-        var kind = syntaxKindToString(node.kind);
+        var kind = astUtils_1.syntaxKindToString(node.kind);
         var children = [];
         node.getChildren().forEach(function (cNode) {
             var child = nodeToNodeDisplay(cNode, depth + 1);
@@ -66,9 +67,6 @@ function astToTextFull(srcFile) {
     return root;
 }
 exports.astToTextFull = astToTextFull;
-function syntaxKindToString(syntaxKind) {
-    return ts.SyntaxKind[syntaxKind];
-}
 function prettyJSONNoParent(object) {
     var cache = [];
     var value = JSON.stringify(object, function (key, value) {

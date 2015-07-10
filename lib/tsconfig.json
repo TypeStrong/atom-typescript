@@ -72,6 +72,7 @@
         "./main/lang/fixmyts/quickFixes/implementInterface.ts",
         "./main/lang/fixmyts/quickFixes/quoteToTemplate.ts",
         "./main/lang/fixmyts/quickFixes/quotesToQuotes.ts",
+        "./main/lang/fixmyts/quickFixes/singleLineCommentToJsdoc.ts",
         "./main/lang/fixmyts/quickFixes/stringConcatToTemplate.ts",
         "./main/lang/fixmyts/quickFixes/typeAssertPropertyAccessToAny.ts",
         "./main/lang/fixmyts/quickFixes/typeAssertPropertyAccessToType.ts",

@@ -10,6 +10,7 @@ var stringConcatToTemplate_1 = require("./quickFixes/stringConcatToTemplate");
 var typeAssertPropertyAccessToAny_1 = require("./quickFixes/typeAssertPropertyAccessToAny");
 var typeAssertPropertyAccessToType_1 = require("./quickFixes/typeAssertPropertyAccessToType");
 var implementInterface_1 = require("./quickFixes/implementInterface");
+var singleLineCommentToJsdoc_1 = require("./quickFixes/singleLineCommentToJsdoc");
 exports.allQuickFixes = [
     new addClassMethod_1.AddClassMethod(),
     new addClassMember_1.AddClassMember(),
@@ -22,5 +23,6 @@ exports.allQuickFixes = [
     new quoteToTemplate_1.QuoteToTemplate(),
     new typeAssertPropertyAccessToAny_1.TypeAssertPropertyAccessToAny(),
     new typeAssertPropertyAccessToType_1.TypeAssertPropertyAccessToType(),
-    new implementInterface_1.ImplementInterface()
+    new implementInterface_1.ImplementInterface(),
+    new singleLineCommentToJsdoc_1.SingleLineCommentToJsdoc()
 ];

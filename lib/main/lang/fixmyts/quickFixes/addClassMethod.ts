@@ -69,9 +69,9 @@ export class AddClassMethod implements QuickFix {
         }
         else if (parentOfParent.kind == ts.SyntaxKind.CallExpression) {
 
-            let nativeTypes = ['string', 'number', 'boolean', 'object'];
+            let nativeTypes = ['string', 'number', 'boolean', 'object', 'null', 'undefined', 'RegExp'];
             let abc = 'abcdefghijklmnopqrstuvwxyz';
-            let argsAlphabet =abc.split('');
+            let argsAlphabet = abc.split('');
             let argsAlphabetPosition = 0;
             let argName = '';
             let argCount = 0;
@@ -87,28 +87,48 @@ export class AddClassMethod implements QuickFix {
                 // determine argument output type
                 // use consecutive letters for native types
                 // or use decapitalized Class name + counter as argument name
-                if (
-                    nativeTypes.indexOf(argType) != -1 //native types
-                    || argType == 'null'
-                    || argType == 'undefined'
-                    || argType == 'RegExp'
+                if (nativeTypes.indexOf(argType) != -1 //native types
                     || argType.indexOf('{') != -1 //Casted inline argument declarations
                     || argType.indexOf('=>') != -1 //Method references
                     ) {
-                        if( argType.indexOf('=>')!=-1){
-                            argName = `${info.typeChecker.getTypeAtLocation(arg).symbol.name}${argCount++}Fn`;
-                        }else{
+
+                    var typeName = "type";
+                    if (info.typeChecker.getTypeAtLocation(arg) &&
+                        info.typeChecker.getTypeAtLocation(arg).symbol &&
+                        info.typeChecker.getTypeAtLocation(arg).symbol.name) {
+                        typeName = info.typeChecker.getTypeAtLocation(arg).symbol.name;
+                    };
+                    var hasAnonymous = typeName.indexOf('__') == 0;
+                    var isAnonymousTypedArgument = hasAnonymous && typeName.substring(2) == "type";
+                    var isAnonymousMethod = hasAnonymous && typeName.substring(2) == "function";
+                    var isAnonymousObject = hasAnonymous && typeName.substring(2) == "object";
+
+                    if (argType.indexOf('=>') != -1 &&
+                        !isAnonymousTypedArgument &&
+                        !isAnonymousMethod &&
+                        !isAnonymousObject) {
+                        argName = `${typeName}${argCount++}`;
+                    }
+                    else {
+                        if (isAnonymousMethod) {
+                            typeName = "function";
+                            argName = `${typeName}${argCount++}`;
+                        }
+                        else if (isAnonymousObject) {
+                            typeName = "object";
+                            argName = `${typeName}${argCount++}`;
+                        }
+                        else {
                             argName = argsAlphabet[argsAlphabetPosition];
                             argsAlphabet[argsAlphabetPosition] += argsAlphabet[argsAlphabetPosition].substring(1);
                             argsAlphabetPosition++;
                             argsAlphabetPosition %= abc.length;
                         }
+                    }
                 }
                 else {
                     // replace 'typeof ' from name
-                    var argTypeName = argType.replace('typeof ', '');
-                    argName = argTypeName;
-
+                    var argName = argType.replace('typeof ', '');
                     // decapitalize and concat
                     if (argType.indexOf('typeof ') == -1) {
                         var firstLower = argName[0].toLowerCase();
@@ -121,7 +141,7 @@ export class AddClassMethod implements QuickFix {
                         }
                     }
                     // add counter value and increment it
-                    argName +=argCount.toString();
+                    argName += argCount.toString();
                     argCount++
                 }
 
@@ -136,7 +156,7 @@ export class AddClassMethod implements QuickFix {
 
             // TODO: infer the return type as well if the next parent is an assignment
             // Currently its `any`
-            typeStringParts.push(`): any { /* implement-me */ }`);
+            typeStringParts.push(`): any { }`);
             typeString = typeStringParts.join('');
         }
 
@@ -174,3 +194,36 @@ export class AddClassMethod implements QuickFix {
         return [refactoring];
     }
 }
+
+
+
+/* TESTS */
+/*
+enum EnumTest{
+    one,two
+}
+class FixTests{
+
+    public static STATIC_METHOD():typeof FixTests{ return FixTests }
+    public instanceMethod():FixTests{ return this;}
+    public instanceGeneric<T>(a:T):T{ return a;}
+    constructor(){
+        this.simple(true,1,'1',/1/g,null,undefined);
+        this.methods( this.instanceMethod, FixTests.STATIC_METHOD );
+        this.enums( EnumTest, EnumTest.one );
+        this.castedMembers(
+            <HTMLElement>{},
+            <{x:number; y:number}>{},
+            <{fn:(e:FixTests)=>FixTests}>{}
+        );
+        this.inlineMethods(():number=>{ return -1;});
+        this.inlineObjects({
+            quickFix:new FixTests,
+            type:FixTests,
+            step:EnumTest.two
+            });
+        this.genericMethod( this.instanceGeneric, this.instanceGeneric<FixTests>(this) );
+
+    }
+}
+*/

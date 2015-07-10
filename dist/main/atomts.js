@@ -45,7 +45,10 @@ function readyToActivate() {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
-                .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
+                .then(function (resp) {
+                mainPanelView_1.errorView.setErrors(filePath, resp.errors);
+                atomUtils.triggerLinter();
+            });
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
         }

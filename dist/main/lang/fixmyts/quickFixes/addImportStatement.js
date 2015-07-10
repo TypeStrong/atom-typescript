@@ -48,7 +48,7 @@ var AddImportStatement = (function () {
                     length: 0
                 },
                 newText: "import " + identifierName + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
-                filePath: info.srcFile.fileName
+                filePath: info.sourceFile.fileName
             }];
         return refactorings;
     };

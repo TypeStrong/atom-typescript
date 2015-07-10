@@ -7,6 +7,11 @@ export function forEachChildRecursive<T>(node: ts.Node, cbNode: (node: ts.Node, 
     return res;
 }
 
+/** Number to string */
+export function syntaxKindToString(syntaxKind: ts.SyntaxKind): string {
+    return (<any>ts).SyntaxKind[syntaxKind];
+}
+
 export function getNodeByKindAndName(program: ts.Program, kind: ts.SyntaxKind, name: string): ts.Node {
     let found: ts.Node = undefined;
 
