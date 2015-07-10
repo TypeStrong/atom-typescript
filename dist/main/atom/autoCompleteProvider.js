@@ -137,7 +137,7 @@ exports.provider = {
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                options.editor.replaceSelectedText(null, function () { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>'; });
+                options.editor.replaceSelectedText(null, function () { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '.ts"/>'; });
             }
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
