@@ -3,6 +3,7 @@
  * This file maintains that
  */
 import * as path from 'path';
+import {consistentPath} from '../utils/fsUtil';
 
 export interface FileStatus {
     /** True if the emit on the disk differs from the potential emit of the current ts file */
@@ -13,7 +14,7 @@ export interface FileStatus {
 
 let fileStatuses: { [index: string]: FileStatus } = {};
 export function getFileStatus(filePath: string): FileStatus {
-    filePath = path.normalize(filePath);
+    filePath = consistentPath(filePath);
     if (!fileStatuses[filePath]) {
         fileStatuses[filePath] = { modified: false, emitDiffers: false };
     }
