@@ -49,7 +49,7 @@ var AddClassMethod = (function () {
             typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
         }
         else if (parentOfParent.kind == 165) {
-            var nativeTypes = ['string', 'number', 'boolean', 'object'];
+            var nativeTypes = ['string', 'number', 'boolean', 'object', 'null', 'undefined', 'RegExp'];
             var abc = 'abcdefghijklmnopqrstuvwxyz';
             var argsAlphabet = abc.split('');
             var argsAlphabetPosition = 0;
@@ -61,24 +61,44 @@ var AddClassMethod = (function () {
             callExp.arguments.forEach(function (arg) {
                 var argType = getTypeStringForNode(arg, info.typeChecker);
                 if (nativeTypes.indexOf(argType) != -1
-                    || argType == 'null'
-                    || argType == 'undefined'
-                    || argType == 'RegExp'
                     || argType.indexOf('{') != -1
                     || argType.indexOf('=>') != -1) {
-                    if (argType.indexOf('=>') != -1) {
-                        argName = "" + info.typeChecker.getTypeAtLocation(arg).symbol.name + argCount++ + "Fn";
+                    var typeName = "type";
+                    if (info.typeChecker.getTypeAtLocation(arg) &&
+                        info.typeChecker.getTypeAtLocation(arg).symbol &&
+                        info.typeChecker.getTypeAtLocation(arg).symbol.name) {
+                        typeName = info.typeChecker.getTypeAtLocation(arg).symbol.name;
+                    }
+                    ;
+                    var hasAnonymous = typeName.indexOf('__') == 0;
+                    var isAnonymousTypedArgument = hasAnonymous && typeName.substring(2) == "type";
+                    var isAnonymousMethod = hasAnonymous && typeName.substring(2) == "function";
+                    var isAnonymousObject = hasAnonymous && typeName.substring(2) == "object";
+                    if (argType.indexOf('=>') != -1 &&
+                        !isAnonymousTypedArgument &&
+                        !isAnonymousMethod &&
+                        !isAnonymousObject) {
+                        argName = "" + typeName + argCount++;
                     }
                     else {
-                        argName = argsAlphabet[argsAlphabetPosition];
-                        argsAlphabet[argsAlphabetPosition] += argsAlphabet[argsAlphabetPosition].substring(1);
-                        argsAlphabetPosition++;
-                        argsAlphabetPosition %= abc.length;
+                        if (isAnonymousMethod) {
+                            typeName = "function";
+                            argName = "" + typeName + argCount++;
+                        }
+                        else if (isAnonymousObject) {
+                            typeName = "object";
+                            argName = "" + typeName + argCount++;
+                        }
+                        else {
+                            argName = argsAlphabet[argsAlphabetPosition];
+                            argsAlphabet[argsAlphabetPosition] += argsAlphabet[argsAlphabetPosition].substring(1);
+                            argsAlphabetPosition++;
+                            argsAlphabetPosition %= abc.length;
+                        }
                     }
                 }
                 else {
-                    var argTypeName = argType.replace('typeof ', '');
-                    argName = argTypeName;
+                    var argName = argType.replace('typeof ', '');
                     if (argType.indexOf('typeof ') == -1) {
                         var firstLower = argName[0].toLowerCase();
                         if (argName.length == 1) {
@@ -97,7 +117,7 @@ var AddClassMethod = (function () {
                 args.push(argName + ": " + argType);
             });
             typeStringParts.push(args.join(', '));
-            typeStringParts.push("): any { /* implement-me */ }");
+            typeStringParts.push("): any { }");
             typeString = typeStringParts.join('');
         }
         var memberTarget = ast.getNodeByKindAndName(info.program, 211, className);
