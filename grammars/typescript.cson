@@ -643,7 +643,7 @@
 
   'type':
     'begin': '(?=)'
-    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\s)(?<!\\.)(?!\\G)(?!\\.)(?!\\s*\\|)'
     'patterns': [
       {
           'begin': '\\((?!\\s*[\\p{L}\\p{Nl}$_\\)][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*(?:[,:]|\\)\\s*=>))'
@@ -658,10 +658,10 @@
         'include': '#keytype'
       }
       {
-        'include': '#typenontemplate'
+        'include': '#typetemplate'
       }
       {
-        'include': '#typetemplate'
+        'include': '#typenontemplate'
       }
       {
         'include': '#functiontype'
@@ -673,9 +673,9 @@
         'include': '#objecttype'
       }
       {
-        'match': '\\|'
+        'match': '\\s*(\\|)\\s*'
         'captures':
-          '0':
+          '1':
             'name': 'keyword.operator.union.ts'
       }
       {
