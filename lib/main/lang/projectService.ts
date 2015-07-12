@@ -86,7 +86,7 @@ export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
 
 export interface BuildQuery extends FilePathQuery { }
 export interface BuildResponse {
-    project: project.Project;
+    tsFilesWithInvalidEmit: [string];
     buildOutput: BuildOutput;
 }
 import building = require('./modules/building');
@@ -163,8 +163,13 @@ declare module "${modulePath}"{
         fs.writeFileSync(defLocation, joinedDtsCode);
     }
 
+    let tsFilesWithInvalidEmit = outputs
+        .filter((o) => o.emitError) // only select outputs that produced an emit error
+        .map((o) => o.errors.map((e) => e.filePath)) // extract file paths from errors
+        .reduce((a, b) => a.concat(b), []); // flatten the array
+
     return resolve({
-        project: proj,
+        tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
         buildOutput: {
             outputs: outputs,
             counts: {

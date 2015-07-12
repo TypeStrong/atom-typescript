@@ -88,17 +88,14 @@ function registerCommands() {
         atom.notifications.addInfo('Building');
         parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
-            resp.project.projectFile.project.files.forEach(function (path) {
-                var status = fileStatusCache_1.getFileStatus(path);
+            var editorsObserver = atom.workspace.observeTextEditors(function (editor) {
+                var status = fileStatusCache_1.getFileStatus(editor.getPath());
                 status.emitDiffers = false;
             });
-            resp.buildOutput.outputs.forEach(function (o) {
-                if (o.emitError) {
-                    o.errors.forEach(function (err) {
-                        var status = fileStatusCache_1.getFileStatus(err.filePath);
-                        status.emitDiffers = true;
-                    });
-                }
+            editorsObserver.dispose();
+            resp.tsFilesWithInvalidEmit.forEach(function (tsFile) {
+                var status = fileStatusCache_1.getFileStatus(tsFile);
+                status.emitDiffers = true;
             });
             mainPanelView_1.panelView.updateFileStatus(filePath);
         });

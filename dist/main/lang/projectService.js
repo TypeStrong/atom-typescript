@@ -89,8 +89,12 @@ function build(query) {
         mkdirp.sync(path.dirname(defLocation));
         fs.writeFileSync(defLocation, joinedDtsCode);
     }
+    var tsFilesWithInvalidEmit = outputs
+        .filter(function (o) { return o.emitError; })
+        .map(function (o) { return o.errors.map(function (e) { return e.filePath; }); })
+        .reduce(function (a, b) { return a.concat(b); }, []);
     return resolve({
-        project: proj,
+        tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
         buildOutput: {
             outputs: outputs,
             counts: {

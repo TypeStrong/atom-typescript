@@ -100,21 +100,19 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
-            resp.project.projectFile.project.files.forEach((path) => {
-                let status = getFileStatus(path);
+            let editorsObserver = atom.workspace.observeTextEditors((editor) => {
+                let status = getFileStatus(editor.getPath());
                 status.emitDiffers = false;
             });
 
-            resp.buildOutput.outputs.forEach((o) => {
+            // We only need to get the editors once, not an actual event observer
+            editorsObserver.dispose();
 
-                // Emit never fails with an emit error, so it's probably never gonna be true
-                // It's here just in case something changes in TypeScript compiler
-                if (o.emitError) {
-                    o.errors.forEach((err) => {
-                        let status = getFileStatus(err.filePath);
-                        status.emitDiffers = true;
-                    });
-                }
+            // Emit never fails with an emit error, so it's probably always gonna be an empty array
+            // It's here just in case something changes in TypeScript compiler
+            resp.tsFilesWithInvalidEmit.forEach((tsFile) => {
+                let status = getFileStatus(tsFile);
+                status.emitDiffers = true;
             });
 
             // Update the status of the file in the current editor
