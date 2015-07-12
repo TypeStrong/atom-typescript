@@ -25,7 +25,6 @@ import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
 import {registerReactCommands} from "./reactCommands";
 import {getFileStatus} from "../fileStatusCache";
-import {getOrCreateProject} from "../../lang/projectCache";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -101,8 +100,7 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
-            let proj = getOrCreateProject(filePath);
-            proj.projectFile.project.files.forEach((path) => {
+            resp.project.projectFile.project.files.forEach((path) => {
                 let status = getFileStatus(path);
                 status.emitDiffers = false;
             });

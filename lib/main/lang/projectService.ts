@@ -86,6 +86,7 @@ export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
 
 export interface BuildQuery extends FilePathQuery { }
 export interface BuildResponse {
+    project: project.Project;
     buildOutput: BuildOutput;
 }
 import building = require('./modules/building');
@@ -163,6 +164,7 @@ declare module "${modulePath}"{
     }
 
     return resolve({
+        project: proj,
         buildOutput: {
             outputs: outputs,
             counts: {

@@ -90,6 +90,7 @@ function build(query) {
         fs.writeFileSync(defLocation, joinedDtsCode);
     }
     return resolve({
+        project: proj,
         buildOutput: {
             outputs: outputs,
             counts: {
