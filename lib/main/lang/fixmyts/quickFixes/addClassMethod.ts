@@ -90,13 +90,15 @@ export class AddClassMethod implements QuickFix {
                 if (nativeTypes.indexOf(argType) != -1 //native types
                     || argType.indexOf('{') != -1 //Casted inline argument declarations
                     || argType.indexOf('=>') != -1 //Method references
+                    || argType.indexOf('[]') != -1 //Array references
                     ) {
 
-                    var typeName = "type";
-                    if (info.typeChecker.getTypeAtLocation(arg) &&
-                        info.typeChecker.getTypeAtLocation(arg).symbol &&
-                        info.typeChecker.getTypeAtLocation(arg).symbol.name) {
-                        typeName = info.typeChecker.getTypeAtLocation(arg).symbol.name;
+                    var type:ts.Type = info.typeChecker.getTypeAtLocation(arg);
+                    var typeName:string = "type";
+                    if (type &&
+                        type.symbol &&
+                        type.symbol.name) {
+                        typeName = type.symbol.name.replace(/[\[\]]/g,'');
                     };
                     var hasAnonymous = typeName.indexOf('__') == 0;
                     var isAnonymousTypedArgument = hasAnonymous && typeName.substring(2) == "type";
@@ -107,7 +109,12 @@ export class AddClassMethod implements QuickFix {
                         !isAnonymousTypedArgument &&
                         !isAnonymousMethod &&
                         !isAnonymousObject) {
+                        if( typeName =='Array' ) typeName = 'array';
                         argName = `${typeName}${argCount++}`;
+                    }
+                    else if( argType.indexOf('[]') != -1 )
+                    {
+                        argName = `array${argCount++}`;
                     }
                     else {
                         if (isAnonymousMethod) {
@@ -128,7 +135,7 @@ export class AddClassMethod implements QuickFix {
                 }
                 else {
                     // replace 'typeof ' from name
-                    var argName = argType.replace('typeof ', '');
+                    argName = argType.replace('typeof ', '');
                     // decapitalize and concat
                     if (argType.indexOf('typeof ') == -1) {
                         var firstLower = argName[0].toLowerCase();
@@ -146,8 +153,8 @@ export class AddClassMethod implements QuickFix {
                 }
 
                 // cast null and undefined to any type
-                if (argType == 'null' || argType == 'undefined') {
-                    argType = 'any';
+                if (argType.indexOf('null')!=-1 || argType.indexOf('undefined')!=-1) {
+                    argType = argType.replace(/null|undefined/g,'any');
                 }
                 args.push(`${argName}: ${argType}`);
 
@@ -202,6 +209,7 @@ export class AddClassMethod implements QuickFix {
 enum EnumTest{
     one,two
 }
+class DataClass{};
 class FixTests{
 
     public static STATIC_METHOD():typeof FixTests{ return FixTests }
@@ -224,6 +232,21 @@ class FixTests{
             });
         this.genericMethod( this.instanceGeneric, this.instanceGeneric<FixTests>(this) );
 
+        this.arraySimple([true], [1], ['1'], [/1/g],[null],[undefined]);
+        this.arrayMethods([this.instanceMethod, FixTests.STATIC_METHOD]);
+        this.arrayEnums([EnumTest], [EnumTest.one]);
+        this.arrayCastedMembers(
+            [<HTMLElement>{}],
+            [<{ x: number; y: number }>{}],
+            [<{ fn: (e: FixTests) => FixTests }>{}]
+            );
+        this.arrayInlineMethods([(): number=> { return -1; }]);
+        this.arrayInlineObjects([{
+            quickFix: new FixTests,
+            type: FixTests,
+            step: EnumTest.two
+        }]);
+        this.arrayGenericMethod([this.instanceGeneric], [this.instanceGeneric<FixTests>(this)]);
     }
 }
 */
