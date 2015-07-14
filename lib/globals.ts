@@ -44,6 +44,7 @@ declare module 'basarat-text-buffer' {
 }
 
 interface EmitOutput {
+    sourceFileName: string;
     outputFiles: string[];
     success: boolean;
     errors: TSError[];

@@ -91,8 +91,7 @@ function build(query) {
     }
     var tsFilesWithInvalidEmit = outputs
         .filter(function (o) { return o.emitError; })
-        .map(function (o) { return o.errors.map(function (e) { return e.filePath; }); })
-        .reduce(function (a, b) { return a.concat(b); }, []);
+        .map(function (o) { return o.sourceFileName; });
     return resolve({
         tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
         buildOutput: {
