@@ -145,6 +145,10 @@ function activate(state) {
         apd.install(function () {
             atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
             notification.dismiss();
+            if (atom.packages.isPackageDisabled('linter'))
+                atom.packages.enablePackage('linter');
+            if (atom.packages.isPackageDisabled('autocomplete-plus'))
+                atom.packages.enablePackage('autocomplete-plus');
             if (!apd.require('linter'))
                 atom.packages.loadPackage('linter');
             if (!apd.require('autocomplete-plus'))
