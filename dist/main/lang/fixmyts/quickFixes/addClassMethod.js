@@ -62,12 +62,14 @@ var AddClassMethod = (function () {
                 var argType = getTypeStringForNode(arg, info.typeChecker);
                 if (nativeTypes.indexOf(argType) != -1
                     || argType.indexOf('{') != -1
-                    || argType.indexOf('=>') != -1) {
+                    || argType.indexOf('=>') != -1
+                    || argType.indexOf('[]') != -1) {
+                    var type = info.typeChecker.getTypeAtLocation(arg);
                     var typeName = "type";
-                    if (info.typeChecker.getTypeAtLocation(arg) &&
-                        info.typeChecker.getTypeAtLocation(arg).symbol &&
-                        info.typeChecker.getTypeAtLocation(arg).symbol.name) {
-                        typeName = info.typeChecker.getTypeAtLocation(arg).symbol.name;
+                    if (type &&
+                        type.symbol &&
+                        type.symbol.name) {
+                        typeName = type.symbol.name.replace(/[\[\]]/g, '');
                     }
                     ;
                     var hasAnonymous = typeName.indexOf('__') == 0;
@@ -78,7 +80,12 @@ var AddClassMethod = (function () {
                         !isAnonymousTypedArgument &&
                         !isAnonymousMethod &&
                         !isAnonymousObject) {
+                        if (typeName == 'Array')
+                            typeName = 'array';
                         argName = "" + typeName + argCount++;
+                    }
+                    else if (argType.indexOf('[]') != -1) {
+                        argName = "array" + argCount++;
                     }
                     else {
                         if (isAnonymousMethod) {
@@ -98,7 +105,7 @@ var AddClassMethod = (function () {
                     }
                 }
                 else {
-                    var argName = argType.replace('typeof ', '');
+                    argName = argType.replace('typeof ', '');
                     if (argType.indexOf('typeof ') == -1) {
                         var firstLower = argName[0].toLowerCase();
                         if (argName.length == 1) {
@@ -111,8 +118,8 @@ var AddClassMethod = (function () {
                     argName += argCount.toString();
                     argCount++;
                 }
-                if (argType == 'null' || argType == 'undefined') {
-                    argType = 'any';
+                if (argType.indexOf('null') != -1 || argType.indexOf('undefined') != -1) {
+                    argType = argType.replace(/null|undefined/g, 'any');
                 }
                 args.push(argName + ": " + argType);
             });

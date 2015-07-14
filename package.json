@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "5.0.21",
+  "version": "5.0.26",
   "main": "./dist/main/atomts",
   "bin": {
     "atbuild": "./dist/main/bin/atbuild"
@@ -51,7 +51,7 @@
     "htmltojsx": "^0.2.2",
     "immutable": "^3.7.3",
     "mkdirp": "^0.5.0",
-    "ntypescript": "1.201507071002.1",
+    "ntypescript": "1.201507091536.1",
     "react": "^0.13.3",
     "season": "^5.1.4"
   },

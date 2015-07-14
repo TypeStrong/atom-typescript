@@ -117,7 +117,7 @@ export var provider: autocompleteplus.Provider = {
     inclusionPriority: 3,
     excludeLowerPriority: false,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
-        
+
         var filePath = options.editor.getPath();
 
         // We refuse to work on files that are not on disk.
@@ -205,13 +205,13 @@ export var provider: autocompleteplus.Provider = {
                             var prefix = options.prefix;
                             // If the completion is $foo
                             // The prefix from acp is actually only `foo`
-                            // But the var is $foo 
+                            // But the var is $foo
                             // => so we would potentially end up replacing $foo with $$foo
-                            // Fix that: 
+                            // Fix that:
                             if (c.name.startsWith('$')) {
                                 prefix = "$" + prefix;
                             }
-                            
+
                             return {
                                 text: c.name,
                                 replacementPrefix: resp.endsInPunctuation ? '' : prefix,
@@ -255,7 +255,7 @@ export var provider: autocompleteplus.Provider = {
             if (options.suggestion.atomTS_IsReference) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                options.editor.replaceSelectedText(null, function() { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '"/>'; });
+                options.editor.replaceSelectedText(null, function() { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '.ts"/>'; });
             }
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
