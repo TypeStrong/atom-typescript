@@ -23,11 +23,13 @@ var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
 var reactCommands_1 = require("./reactCommands");
+var json2dtsCommands_1 = require("./json2dtsCommands");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
     reactCommands_1.registerReactCommands();
+    json2dtsCommands_1.registerJson2dtsCommands();
     function applyRefactorings(refactorings) {
         var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
         var openPathsMap = utils.createMap(paths);
