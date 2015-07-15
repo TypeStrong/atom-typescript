@@ -27,6 +27,15 @@ declare module 'escape-html' {
     export = escape;
 }
 
+// courtesy @blakeembrey
+declare module 'strip-bom' {
+  import Buffer = require('buffer')
+
+  function stripBom (value: string): string
+  function stripBom (value: Buffer): Buffer
+
+  export = stripBom
+}
 
 declare module 'atom-space-pen-views' {
     import atom = require('atom');
