@@ -88,11 +88,10 @@ function registerCommands() {
         atom.notifications.addInfo('Building');
         parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
-            var editorsObserver = atom.workspace.observeTextEditors(function (editor) {
+            atom.workspace.getTextEditors().forEach(function (editor) {
                 var status = fileStatusCache_1.getFileStatus(editor.getPath());
                 status.emitDiffers = false;
             });
-            editorsObserver.dispose();
             resp.tsFilesWithInvalidEmit.forEach(function (tsFile) {
                 var status = fileStatusCache_1.getFileStatus(tsFile);
                 status.emitDiffers = true;

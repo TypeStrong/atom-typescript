@@ -100,13 +100,10 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
-            let editorsObserver = atom.workspace.observeTextEditors((editor) => {
+            atom.workspace.getTextEditors().forEach((editor) => {
                 let status = getFileStatus(editor.getPath());
                 status.emitDiffers = false;
             });
-
-            // We only need to get the editors once, not an actual event observer
-            editorsObserver.dispose();
 
             // Emit never fails with an emit error, so it's probably always gonna be an empty array
             // It's here just in case something changes in TypeScript compiler
