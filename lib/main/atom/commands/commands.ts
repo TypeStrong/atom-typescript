@@ -25,6 +25,7 @@ import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
 import {registerReactCommands} from "./reactCommands";
 import {getFileStatus} from "../fileStatusCache";
+import {registerJson2dtsCommands} from "./json2dtsCommands";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -35,6 +36,7 @@ export function registerCommands() {
     outputFileCommands.register();
     registerRenameHandling();
     registerReactCommands();
+    registerJson2dtsCommands();
 
     function applyRefactorings(refactorings: RefactoringsByFilePath) {
         var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();

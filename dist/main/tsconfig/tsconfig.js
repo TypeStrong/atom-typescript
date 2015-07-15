@@ -1,5 +1,6 @@
 var fsu = require("../utils/fsUtil");
 var simpleValidator = require('./simpleValidator');
+var stripBom = require('strip-bom');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
     allowNonTsExtensions: { type: simpleValidator.types.boolean },
@@ -187,7 +188,7 @@ function getProjectSync(pathOrSrcFile) {
         throw new Error(exports.errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
     }
     try {
-        projectSpec = JSON.parse(projectFileTextContent);
+        projectSpec = JSON.parse(stripBom(projectFileTextContent));
     }
     catch (ex) {
         throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });

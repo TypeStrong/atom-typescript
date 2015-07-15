@@ -1,6 +1,7 @@
 import * as fsu from "../utils/fsUtil";
 
 import simpleValidator = require('./simpleValidator');
+import stripBom = require('strip-bom');
 var types = simpleValidator.types;
 
 // Most compiler options come from require('typescript').CompilerOptions, but
@@ -339,7 +340,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         throw new Error(errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
     }
     try {
-        projectSpec = JSON.parse(projectFileTextContent);
+        projectSpec = JSON.parse(stripBom(projectFileTextContent));
     } catch (ex) {
         throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(
             new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
