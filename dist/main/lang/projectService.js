@@ -92,8 +92,12 @@ function build(query) {
     var tsFilesWithInvalidEmit = outputs
         .filter(function (o) { return o.emitError; })
         .map(function (o) { return o.sourceFileName; });
+    var tsFilesWithValidEmit = outputs
+        .filter(function (o) { return !o.emitError; })
+        .map(function (o) { return o.sourceFileName; });
     return resolve({
         tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
+        tsFilesWithValidEmit: tsFilesWithValidEmit,
         buildOutput: {
             outputs: outputs,
             counts: {

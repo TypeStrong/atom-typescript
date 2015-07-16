@@ -102,8 +102,9 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
-            atom.workspace.getTextEditors().forEach((editor) => {
-                let status = getFileStatus(editor.getPath());
+
+            resp.tsFilesWithValidEmit.forEach((tsFile) => {
+                let status = getFileStatus(tsFile);
                 status.emitDiffers = false;
             });
 

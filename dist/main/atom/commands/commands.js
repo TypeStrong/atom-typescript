@@ -90,8 +90,8 @@ function registerCommands() {
         atom.notifications.addInfo('Building');
         parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
-            atom.workspace.getTextEditors().forEach(function (editor) {
-                var status = fileStatusCache_1.getFileStatus(editor.getPath());
+            resp.tsFilesWithValidEmit.forEach(function (tsFile) {
+                var status = fileStatusCache_1.getFileStatus(tsFile);
                 status.emitDiffers = false;
             });
             resp.tsFilesWithInvalidEmit.forEach(function (tsFile) {
