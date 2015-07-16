@@ -37,6 +37,7 @@ function emitFile(proj, filePath) {
         outputFiles.push(filePath);
     }
     return {
+        sourceFileName: filePath,
         outputFiles: outputFiles,
         success: emitDone && !errors.length,
         errors: errors,

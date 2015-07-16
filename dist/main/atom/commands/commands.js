@@ -23,6 +23,7 @@ var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require('escape-html');
 var rView = require("../views/rView");
 var reactCommands_1 = require("./reactCommands");
+var fileStatusCache_1 = require("../fileStatusCache");
 var json2dtsCommands_1 = require("./json2dtsCommands");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
@@ -89,6 +90,15 @@ function registerCommands() {
         atom.notifications.addInfo('Building');
         parent.build({ filePath: filePath }).then(function (resp) {
             buildView.setBuildOutput(resp.buildOutput);
+            atom.workspace.getTextEditors().forEach(function (editor) {
+                var status = fileStatusCache_1.getFileStatus(editor.getPath());
+                status.emitDiffers = false;
+            });
+            resp.tsFilesWithInvalidEmit.forEach(function (tsFile) {
+                var status = fileStatusCache_1.getFileStatus(tsFile);
+                status.emitDiffers = true;
+            });
+            mainPanelView_1.panelView.updateFileStatus(filePath);
         });
     });
     var handleGoToDeclaration = function (e) {

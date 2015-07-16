@@ -24,6 +24,7 @@ import escapeHtml = require('escape-html');
 import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
 import {registerReactCommands} from "./reactCommands";
+import {getFileStatus} from "../fileStatusCache";
 import {registerJson2dtsCommands} from "./json2dtsCommands";
 
 // Load all the web components
@@ -101,6 +102,20 @@ export function registerCommands() {
 
         parent.build({ filePath: filePath }).then((resp) => {
             buildView.setBuildOutput(resp.buildOutput);
+            atom.workspace.getTextEditors().forEach((editor) => {
+                let status = getFileStatus(editor.getPath());
+                status.emitDiffers = false;
+            });
+
+            // Emit never fails with an emit error, so it's probably always gonna be an empty array
+            // It's here just in case something changes in TypeScript compiler
+            resp.tsFilesWithInvalidEmit.forEach((tsFile) => {
+                let status = getFileStatus(tsFile);
+                status.emitDiffers = true;
+            });
+
+            // Update the status of the file in the current editor
+            panelView.updateFileStatus(filePath);
         });
     });
 
@@ -187,7 +202,7 @@ export function registerCommands() {
         // atom.commands.dispatch(
         //     atom.views.getView(atom.workspace.getActiveTextEditor()),
         //     'typescript:dependency-view');
-        //     
+        //
         atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
             'typescript:testing-r-view');

@@ -50,6 +50,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     }
 
     return {
+        sourceFileName: filePath,
         outputFiles: outputFiles,
         success: emitDone && !errors.length,
         errors: errors,
