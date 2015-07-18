@@ -4,7 +4,13 @@
 This is probably because of us keeping `files` updated with the `filesGlob` option. The reason why we do this is because the official `tsconfig.json` spec does not support `filesGlob`. Therefore we keep `files` in sync with the `filesGlob` so that your team mates can use whatever editor they prefer (sublime text, visual studio etc.).
 
 ## I don't want atom-typescript compiling my js
-Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave)
+Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).  Then you've got all the intellisense / refactoring goodness of atom-typescript but no generated JavaScript.  Why is this useful?  Well you might be using something else for your build such as [gulp-typescript](https://github.com/ivogabe/gulp-typescript) or [tsify](https://github.com/smrq/tsify).
+
+## Which version of TypeScript does atom-typescript use?
+It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness.  There is a possibility that in the future it will move to TypeScript nightlies which is something that the TypeScript team is planning.
+
+## So can I specify which version of TypeScript I'd like to use in atom-typescript?
+No - sorry about that.  But what about the [version](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) in `tsconfig.json`?  Well that's strictly an aide-mémoire - it's to remind you which version of the TypeScript this project is intended to work with. Remember that TypeScript is intentionally backwards compatible (since it hit 1.0). So anything written against the latest and greatest TypeScript version should work just fine against an older version.
 
 ## I prefer single (or double) quotes
 You can set that in the package settings https://atom.io/docs/latest/using-atom-atom-packages#package-settings
