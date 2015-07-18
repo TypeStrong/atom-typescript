@@ -376,16 +376,21 @@ function hide() {
 exports.hide = hide;
 var errorView;
 (function (errorView) {
+    var MAX_ERRORS = 50;
     var filePathErrors = new utils.Dict();
     errorView.setErrors = function (filePath, errorsForFile) {
-        if (!errorsForFile.length)
+        if (!exports.panelView || !exports.panelView.clearError) {
+            return;
+        }
+        if (!errorsForFile.length) {
             filePathErrors.clearValue(filePath);
+        }
         else {
-            if (errorsForFile.length > 50)
-                errorsForFile = errorsForFile.slice(0, 50);
+            if (errorsForFile.length > MAX_ERRORS) {
+                errorsForFile = errorsForFile.slice(0, MAX_ERRORS);
+            }
             filePathErrors.setValue(filePath, errorsForFile);
         }
-        ;
         exports.panelView.clearError();
         var fileErrorCount = filePathErrors.keys().length;
         gotoHistory.errorsInOpenFiles.members = [];
