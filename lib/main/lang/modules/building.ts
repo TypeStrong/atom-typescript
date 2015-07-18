@@ -6,6 +6,7 @@ import {pathIsRelative, makeRelativePath} from "../../tsconfig/tsconfig";
 import {consistentPath} from "../../utils/fsUtil";
 import {createMap} from "../utils";
 
+let babel: any;
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
     var filePath = diagnostic.file.fileName;
@@ -41,6 +42,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
 
     output.outputFiles.forEach(o => {
         mkdirp.sync(path.dirname(o.name));
+        runExternalTranspiler(o, proj);
         fs.writeFileSync(o.name, o.text, "utf8");
     });
 
@@ -61,4 +63,18 @@ export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOu
     var services = proj.languageService;
     var output = services.getEmitOutput(filePath);
     return output;
+}
+
+function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Project) {
+  var externalTranspiler = project.projectFile.project.externalTranspiler;
+  if (!externalTranspiler) {
+    return;
+  }
+  if (externalTranspiler.toLocaleLowerCase() === "babel") {
+    babel = require("babel");
+    //TODO: pass relevant arguments from the project.
+    //TODO: confirm source maps work as expected.
+    outputFile.text = babel.transform(outputFile.text, {}).code;
+  }
+  return;
 }

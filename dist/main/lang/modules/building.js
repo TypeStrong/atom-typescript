@@ -1,6 +1,7 @@
 var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
+var babel;
 function diagnosticToTSError(diagnostic) {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -30,6 +31,7 @@ function emitFile(proj, filePath) {
     });
     output.outputFiles.forEach(function (o) {
         mkdirp.sync(path.dirname(o.name));
+        runExternalTranspiler(o, proj);
         fs.writeFileSync(o.name, o.text, "utf8");
     });
     var outputFiles = output.outputFiles.map(function (o) { return o.name; });
@@ -51,3 +53,14 @@ function getRawOutput(proj, filePath) {
     return output;
 }
 exports.getRawOutput = getRawOutput;
+function runExternalTranspiler(outputFile, project) {
+    var externalTranspiler = project.projectFile.project.externalTranspiler;
+    if (!externalTranspiler) {
+        return;
+    }
+    if (externalTranspiler.toLocaleLowerCase() === "babel") {
+        babel = require("babel");
+        outputFile.text = babel.transform(outputFile.text, {}).code;
+    }
+    return;
+}
