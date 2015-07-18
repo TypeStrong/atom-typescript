@@ -459,17 +459,27 @@ export function hide() {
 
 
 export module errorView {
+    const MAX_ERRORS = 50;
+
     var filePathErrors: utils.Dict<TSError[]> = new utils.Dict<any[]>();
 
     export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
-        if (!errorsForFile.length) filePathErrors.clearValue(filePath);
-        else {
-            // Currently we are limiting errors
-            // To many errors crashes our display
-            if (errorsForFile.length > 50) errorsForFile = errorsForFile.slice(0, 50);
+        if (!panelView || !panelView.clearError) {
+          // if not initialized, just quit; might happen when atom is first opened.
+          return;
+        }
 
-            filePathErrors.setValue(filePath, errorsForFile)
-        };
+        if (!errorsForFile.length) {
+          filePathErrors.clearValue(filePath);
+        } else {
+          // Currently we are limiting errors
+          // Too many errors crashes our display
+          if (errorsForFile.length > MAX_ERRORS) {
+            errorsForFile = errorsForFile.slice(0, MAX_ERRORS);
+          }
+
+          filePathErrors.setValue(filePath, errorsForFile)
+        }
 
         // TODO: this needs to be optimized at some point
         panelView.clearError();
