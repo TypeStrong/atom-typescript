@@ -1,6 +1,7 @@
 var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
+exports.Not_In_Context = "/* NotInContext */";
 function diagnosticToTSError(diagnostic) {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
@@ -47,7 +48,16 @@ function emitFile(proj, filePath) {
 exports.emitFile = emitFile;
 function getRawOutput(proj, filePath) {
     var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
+    var output;
+    try {
+        output = services.getEmitOutput(filePath);
+    }
+    catch (ex) {
+        output = {
+            outputFiles: [{ name: filePath, text: exports.Not_In_Context, writeByteOrderMark: false }],
+            emitSkipped: true
+        };
+    }
     return output;
 }
 exports.getRawOutput = getRawOutput;

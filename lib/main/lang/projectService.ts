@@ -15,6 +15,9 @@ import utils = require('./utils');
 import project = require('./core/project');
 import Project = project.Project;
 import languageServiceHost = project.languageServiceHost;
+import oOCC = require('./OutOfContextCache');
+
+let outOfContextCache = new oOCC.OutOfContextCache();
 
 var resolve: typeof Promise.resolve = Promise.resolve.bind(Promise);
 
@@ -394,12 +397,27 @@ export interface EditTextQuery extends FilePathQuery {
     newText: string;
 }
 export function editText(query: EditTextQuery): Promise<any> {
+    // Steve Need to track that this is not a file to be edited.
+    // Steve debugger;
     consistentPath(query);
-    var lsh = getOrCreateProject(query.filePath).languageServiceHost;
-
-    // Apply the update to the pseudo ts file
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    lsh.editScript(filePath, query.start, query.end, query.newText);
+    if (!outOfContextCache.isOutOfContext(filePath)) {
+        try {
+          var lsh = getOrCreateProject(query.filePath).languageServiceHost;
+          // Apply the update to the pseudo ts file
+          var filePath = transformer.getPseudoFilePath(query.filePath);
+          lsh.editScript(filePath, query.start, query.end, query.newText);
+        } catch (ex) {
+          // Steve debugger;
+          if (ex.message.indexOf('No script with name') > -1) {
+            let outOfContext = outOfContextCache.setFileOutOfContextIfExists(filePath);
+            if (!outOfContext) {
+              throw ex;
+            }
+          } else {
+            throw ex;
+          }
+        }
+    }
     return resolve({});
 }
 
@@ -429,7 +447,24 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         return resolve({ errors: errors });
     }
     else {
-        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+        let result: TSError[];
+        try {
+          if (outOfContextCache.isOutOfContext(query.filePath)) {
+            result = [{
+              filePath: query.filePath,
+              startPos: {line: 1, col: 1},
+              endPos: {line: 1, col: 1},
+              message: "This file is not included in the compilation context.  If this is not intended, please check your tsconfig.json file.",
+              preview: ""
+              }];
+          } else {
+            result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
+          }
+        } catch (ex) {
+            console.log("errorsForFile exception.",ex);
+            result = [];
+        }
+        return resolve({ errors: result});
     }
 }
 
@@ -875,12 +910,21 @@ export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> 
 interface GetOutputJsStatusResponse {
     /** true if *no emit* or *emit is as desired* */
     emitDiffers: boolean;
+    fileOutsideCompilationContext?: boolean;
 }
 export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStatusResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     var output = getRawOutput(project, query.filePath);
     if (output.emitSkipped) {
+        if (output.outputFiles && output.outputFiles.length === 1) {
+          if (output.outputFiles[0].text === building.Not_In_Context) {
+            return resolve({
+              emitDiffers: false,
+              fileOutsideCompilationContext: true
+              });
+          }
+        }
         return resolve({ emitDiffers: true });
     }
     var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];

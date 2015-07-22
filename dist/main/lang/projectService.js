@@ -9,6 +9,8 @@ var transformer = require("./transformers/transformer");
 var tsconfig = require('../tsconfig/tsconfig');
 var fsUtil = require("../utils/fsUtil");
 var utils = require('./utils');
+var oOCC = require('./OutOfContextCache');
+var outOfContextCache = new oOCC.OutOfContextCache();
 var resolve = Promise.resolve.bind(Promise);
 var projectCache_1 = require("./projectCache");
 function textSpan(span) {
@@ -239,9 +241,24 @@ function updateText(query) {
 exports.updateText = updateText;
 function editText(query) {
     projectCache_1.consistentPath(query);
-    var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    lsh.editScript(filePath, query.start, query.end, query.newText);
+    if (!outOfContextCache.isOutOfContext(filePath)) {
+        try {
+            var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
+            var filePath = transformer.getPseudoFilePath(query.filePath);
+            lsh.editScript(filePath, query.start, query.end, query.newText);
+        }
+        catch (ex) {
+            if (ex.message.indexOf('No script with name') > -1) {
+                var outOfContext = outOfContextCache.setFileOutOfContextIfExists(filePath);
+                if (!outOfContext) {
+                    throw ex;
+                }
+            }
+            else {
+                throw ex;
+            }
+        }
+    }
     return resolve({});
 }
 exports.editText = editText;
@@ -265,7 +282,26 @@ function errorsForFile(query) {
         return resolve({ errors: errors });
     }
     else {
-        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+        var result;
+        try {
+            if (outOfContextCache.isOutOfContext(query.filePath)) {
+                result = [{
+                        filePath: query.filePath,
+                        startPos: { line: 1, col: 1 },
+                        endPos: { line: 1, col: 1 },
+                        message: "This file is not included in the compilation context.  If this is not intended, please check your tsconfig.json file.",
+                        preview: ""
+                    }];
+            }
+            else {
+                result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
+            }
+        }
+        catch (ex) {
+            console.log("errorsForFile exception.", ex);
+            result = [];
+        }
+        return resolve({ errors: result });
     }
 }
 exports.errorsForFile = errorsForFile;
@@ -551,6 +587,14 @@ function getOutputJsStatus(query) {
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var output = building_1.getRawOutput(project, query.filePath);
     if (output.emitSkipped) {
+        if (output.outputFiles && output.outputFiles.length === 1) {
+            if (output.outputFiles[0].text === building.Not_In_Context) {
+                return resolve({
+                    emitDiffers: false,
+                    fileOutsideCompilationContext: true
+                });
+            }
+        }
         return resolve({ emitDiffers: true });
     }
     var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];

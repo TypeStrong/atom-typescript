@@ -61,6 +61,7 @@
         "./main/atomts.ts",
         "./main/bin/atbuild.ts",
         "./main/json2dts/json2dts.ts",
+        "./main/lang/OutOfContextCache.ts",
         "./main/lang/core/languageServiceHost2.ts",
         "./main/lang/core/project.ts",
         "./main/lang/fixmyts/astUtils.ts",
