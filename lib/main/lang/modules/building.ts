@@ -61,10 +61,9 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
 export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOutput {
     let services = proj.languageService;
     let output : ts.EmitOutput;
-    try {
+    if (proj.includesSourceFile(filePath)) {
       output = services.getEmitOutput(filePath);
-    } catch (ex) {
-      // Steve debugger;
+    } else {
       output = {
         outputFiles: [{name: filePath, text: Not_In_Context, writeByteOrderMark: false}],
         emitSkipped: true

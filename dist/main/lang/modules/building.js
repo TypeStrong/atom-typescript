@@ -49,10 +49,10 @@ exports.emitFile = emitFile;
 function getRawOutput(proj, filePath) {
     var services = proj.languageService;
     var output;
-    try {
+    if (proj.includesSourceFile(filePath)) {
         output = services.getEmitOutput(filePath);
     }
-    catch (ex) {
+    else {
         output = {
             outputFiles: [{ name: filePath, text: exports.Not_In_Context, writeByteOrderMark: false }],
             emitSkipped: true
