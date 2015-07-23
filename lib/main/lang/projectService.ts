@@ -426,7 +426,13 @@ export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
-    let project = getOrCreateProject(query.filePath);
+    let project : project.Project;
+
+    try {
+      project = getOrCreateProject(query.filePath);
+    } catch (ex) {
+        return resolve({ errors: []});
+    }
 
     // for file path errors in transformer
     if (isTransformerFile(query.filePath)) {
@@ -443,17 +449,21 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         if (project.includesSourceFile(query.filePath)) {
           result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
         } else {
-          result = [{
-            filePath: query.filePath,
-            startPos: {line: 0, col: 0},
-            endPos: {line: 0, col: 0},
-            message: "The file \"" + query.filePath + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
-            preview: ""
-            }];
+          result = notInContextResult(query.filePath);
         }
 
         return resolve({ errors: result});
     }
+}
+
+function notInContextResult(fileName: string) {
+  return [{
+    filePath: fileName,
+    startPos: {line: 0, col: 0},
+    endPos: {line: 0, col: 0},
+    message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
+    preview: ""
+    }];
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
