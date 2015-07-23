@@ -79,7 +79,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
 
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
-        // console.error(start,end);        
+        // console.error(start,end);
         buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, {normalizeLineEndings: false});
         // console.error(buffer.getText().length);
         // console.error(JSON.stringify({newText, final:buffer.getText()}));
@@ -199,8 +199,6 @@ function getScriptSnapShot(scriptInfo: ScriptInfo): ts.IScriptSnapshot {
         getText: (start: number, end: number) => textSnapshot.substring(start, end),
         getLength: () => textSnapshot.length,
         getChangeRange: getChangeRange,
-        getLineStartPositions: () => lineStarts,
-        version: version
     }
 }
 
@@ -270,7 +268,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         var script = this.fileNameToScript[fileName];
         if (script) {
             var minChar = script.getPositionFromLine(start.line, start.col);
-            var limChar = script.getPositionFromLine(end.line, end.col);            
+            var limChar = script.getPositionFromLine(end.line, end.col);
             script.editContent(minChar, limChar, newText);
             return;
         }

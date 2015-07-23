@@ -59,7 +59,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     if (watchingProjectFile[projectFilePath]) return; // Only watch once
     watchingProjectFile[projectFilePath] = true;
 
-    fs.watch(projectFilePath, { persistent: false, recursive: false }, () => {
+    fs.watch(projectFilePath, { persistent: false }, () => {
         // if file no longer exists
         if (!fs.existsSync(projectFilePath)) {
             // if we have a cache for it then clear it

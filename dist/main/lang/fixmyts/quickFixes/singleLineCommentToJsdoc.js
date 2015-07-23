@@ -3,11 +3,11 @@ var SingleLineCommentToJsdoc = (function () {
     function SingleLineCommentToJsdoc() {
         this.key = SingleLineCommentToJsdoc.name;
         this.validNodes = utils.createMap([
-            79,
-            99,
-            105,
-            71,
-            84,
+            ts.SyntaxKind.ExportKeyword,
+            ts.SyntaxKind.VarKeyword,
+            ts.SyntaxKind.LetKeyword,
+            ts.SyntaxKind.ConstKeyword,
+            ts.SyntaxKind.FunctionKeyword,
         ]);
     }
     SingleLineCommentToJsdoc.prototype.canProvideFix = function (info) {

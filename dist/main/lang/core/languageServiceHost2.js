@@ -114,8 +114,6 @@ function getScriptSnapShot(scriptInfo) {
         getText: function (start, end) { return textSnapshot.substring(start, end); },
         getLength: function () { return textSnapshot.length; },
         getChangeRange: getChangeRange,
-        getLineStartPositions: function () { return lineStarts; },
-        version: version
     };
 }
 exports.getDefaultLibFilePath = function (options) {

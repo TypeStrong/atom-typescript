@@ -424,9 +424,9 @@ function getNavigateToItems(query) {
         if (result !== undefined) {
             return result;
         }
-        if (declaration.name.kind === 133) {
+        if (declaration.name.kind === ts.SyntaxKind.ComputedPropertyName) {
             var expr = declaration.name.expression;
-            if (expr.kind === 163) {
+            if (expr.kind === ts.SyntaxKind.PropertyAccessExpression) {
                 return expr.name.text;
             }
             return getTextOfIdentifierOrLiteral(expr);
@@ -434,9 +434,9 @@ function getNavigateToItems(query) {
         return undefined;
     }
     function getTextOfIdentifierOrLiteral(node) {
-        if (node.kind === 66 ||
-            node.kind === 8 ||
-            node.kind === 7) {
+        if (node.kind === ts.SyntaxKind.Identifier ||
+            node.kind === ts.SyntaxKind.StringLiteral ||
+            node.kind === ts.SyntaxKind.NumericLiteral) {
             return node.text;
         }
         return undefined;

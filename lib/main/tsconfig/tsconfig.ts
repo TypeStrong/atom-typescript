@@ -159,6 +159,7 @@ export interface GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details {
     errorMessage: string;
 }
 export interface GET_PROJECT_GLOB_EXPAND_FAILED_Details {
+    glob: string[];
     projectFilePath: string;
     errorMessage: string;
 }

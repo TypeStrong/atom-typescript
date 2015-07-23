@@ -31,4 +31,5 @@ function getDependencies(projectFile, program) {
     }
     return links;
 }
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = getDependencies;

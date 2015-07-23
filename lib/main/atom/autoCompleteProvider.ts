@@ -34,6 +34,7 @@ declare module autocompleteplus {
 
         rightLabel?: string;
         rightLabelHTML?: string;
+        leftLabel?: string;
         type: string;
         description?: string;
 

@@ -6,7 +6,7 @@ function getExternalModuleNames(program) {
     var entries = [];
     program.getSourceFiles().forEach(function (sourceFile) {
         ts.forEachChild(sourceFile, function (child) {
-            if (child.kind === 215 && child.name.kind === 8) {
+            if (child.kind === ts.SyntaxKind.ModuleDeclaration && child.name.kind === ts.SyntaxKind.StringLiteral) {
                 entries.push(child.name.text);
             }
         });
