@@ -9,6 +9,9 @@ var packageName = 'atom-typescript';
 function getConfig<T>(nameLambda: () => any): T {
     return atom.config.get(packageName + '.' + getName(nameLambda));
 }
+function setConfig<T>(nameLambda: () => any, value: T): T {
+    return atom.config.set(packageName + '.' + getName(nameLambda), value);
+}
 
 class Config {
     schema = {
@@ -27,8 +30,8 @@ class Config {
             type: 'string',
             default: ''
         },
-        showFileSemanticView: {
-            title: '',
+        showSemanticView: {
+            title: 'Show semantic view',
             type: 'boolean',
             default: true
         }
@@ -36,7 +39,8 @@ class Config {
     get debugAtomTs() { return getConfig<boolean>(() => this.schema.debugAtomTs) }
     get preferredQuoteCharacter() { return getConfig<string>(() => this.schema.preferredQuoteCharacter) }
     get typescriptServices() { return getConfig<string>(() => this.schema.typescriptServices) }
-    get showFileSemanticView() { return getConfig<string>(() => this.schema.showFileSemanticView) }
+    get showSemanticView() { return getConfig<boolean>(() => this.schema.showSemanticView) }
+    set showSemanticView(value: boolean) { setConfig<boolean>(() => this.schema.showSemanticView, value) }
 }
 var config = new Config();
 export = config;

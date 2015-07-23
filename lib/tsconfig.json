@@ -47,13 +47,13 @@
         "./main/atom/views/contextView.ts",
         "./main/atom/views/dependencyView.ts",
         "./main/atom/views/documentationView.ts",
-        "./main/atom/views/fileSemanticView.ts",
         "./main/atom/views/fileSymbolsView.ts",
         "./main/atom/views/lineMessageView.ts",
         "./main/atom/views/mainPanelView.ts",
         "./main/atom/views/plainMessageView.ts",
         "./main/atom/views/projectSymbolsView.ts",
         "./main/atom/views/renameView.ts",
+        "./main/atom/views/semanticViewGlobals.d.ts",
         "./main/atom/views/simpleOverlaySelectionView.ts",
         "./main/atom/views/simpleSelectionView.ts",
         "./main/atom/views/tooltipView.ts",
@@ -126,6 +126,7 @@
         "./worker/lib/workerLib.ts",
         "./worker/parent.ts",
         "./worker/queryParent.ts",
-        "./main/atom/views/rView.tsx"
+        "./main/atom/views/rView.tsx",
+        "./main/atom/views/semanticView.tsx"
     ]
 }

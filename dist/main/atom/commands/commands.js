@@ -25,6 +25,7 @@ var rView = require("../views/rView");
 var reactCommands_1 = require("./reactCommands");
 var fileStatusCache_1 = require("../fileStatusCache");
 var json2dtsCommands_1 = require("./json2dtsCommands");
+var semanticView = require("../views/semanticView");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
     outputFileCommands.register();
@@ -156,7 +157,7 @@ function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
     });
-    atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', function (e) {
+    atom.commands.add('atom-workspace', 'typescript:bas-development-testing', function (e) {
         // documentationView.docView.hide();
         // documentationView.docView.autoPosition();
         // documentationView.testDocumentationView();
@@ -165,7 +166,12 @@ function registerCommands() {
         //     console.log(res.text.length);
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
-        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:testing-r-view');
+        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:toggle-semantic-view');
+    });
+    atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        semanticView.toggle();
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
         var editor = atom.workspace.getActiveTextEditor();

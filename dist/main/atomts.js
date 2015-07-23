@@ -36,6 +36,7 @@ function onlyOnceStuff() {
         return;
     else
         __onlyOnce = true;
+    mainPanelView.attach();
     documentationView.attach();
     renameView.attach();
 }
@@ -43,6 +44,7 @@ function readyToActivate() {
     parent.startWorker();
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
+            onlyOnceStuff();
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) {
@@ -69,7 +71,6 @@ function readyToActivate() {
                 if (fs.existsSync(filePath)) {
                     onDisk = true;
                 }
-                mainPanelView.attach();
                 hideIfNotActiveOnStart();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {

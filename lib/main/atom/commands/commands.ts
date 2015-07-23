@@ -26,6 +26,7 @@ import {$} from "atom-space-pen-views";
 import {registerReactCommands} from "./reactCommands";
 import {getFileStatus} from "../fileStatusCache";
 import {registerJson2dtsCommands} from "./json2dtsCommands";
+import * as semanticView from "../views/semanticView";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -190,7 +191,7 @@ export function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:bas-development-testing', (e) => {
+    atom.commands.add('atom-workspace', 'typescript:bas-development-testing', (e) => {
         // documentationView.docView.hide();
         // documentationView.docView.autoPosition();
         // documentationView.testDocumentationView();
@@ -200,17 +201,26 @@ export function registerCommands() {
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
 
-        // atom.commands.dispatch(
+        // atom.commands.dispatch
         //     atom.views.getView(atom.workspace.getActiveTextEditor()),
         //     'typescript:dependency-view');
         //
+        /*atom.commands.dispatch(
+            atom.views.getView(atom.workspace.getActiveTextEditor()),
+            'typescript:testing-r-view');*/
         atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:testing-r-view');
+            'typescript:toggle-semantic-view');
 
         // parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
         //     console.log(res.root);
         // });
+    });
+
+    atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        semanticView.toggle();
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
