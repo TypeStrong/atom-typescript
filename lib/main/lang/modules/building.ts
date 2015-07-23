@@ -41,11 +41,23 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
         errors.push(diagnosticToTSError(diagnostic));
     });
 
-    output.outputFiles.forEach(o => {
-        mkdirp.sync(path.dirname(o.name));
-        runExternalTranspiler(o, proj);
-        fs.writeFileSync(o.name, o.text, "utf8");
-    });
+    {
+      let sourceMapContents: {[index:string]: any} = {};
+      output.outputFiles.forEach(o => {
+          mkdirp.sync(path.dirname(o.name));
+          let additionalEmits = runExternalTranspiler(o, proj, sourceMapContents);
+
+          if (!sourceMapContents[o.name]) {
+              // .js.map files will be written as an "additional emit" later.
+              fs.writeFileSync(o.name, o.text, "utf8");
+          }
+
+          additionalEmits.forEach(a => {
+              mkdirp.sync(path.dirname(a.name));
+              fs.writeFileSync(a.name, a.text, "utf8");
+            })
+      });
+    }
 
     var outputFiles = output.outputFiles.map((o) => o.name);
     if (path.extname(filePath) == '.d.ts') {
@@ -74,16 +86,89 @@ export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOu
     return output;
 }
 
-function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Project) {
-  var externalTranspiler = project.projectFile.project.externalTranspiler;
-  if (!externalTranspiler) {
-    return;
+function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Project, sourceMapContents: {[index:string]: any}) : ts.OutputFile[] {
+  if (!isJSFile(outputFile.name) && !isJSSourceMapFile(outputFile.name)) {
+    return [];
   }
+
+  let settings = project.projectFile.project;
+  let externalTranspiler = settings.externalTranspiler;
+  if (!externalTranspiler) {
+    return [];
+  }
+
+  if (isJSSourceMapFile(outputFile.name)) {
+    let sourceMapPayload = JSON.parse(outputFile.text);
+    let jsFileName = consistentPath(path.resolve(path.dirname(outputFile.name), sourceMapPayload.file));
+    sourceMapContents[outputFile.name] = {jsFileName: jsFileName, sourceMapPayload};
+    return [];
+  }
+
   if (externalTranspiler.toLocaleLowerCase() === "babel") {
     babel = require("babel");
-    //TODO: pass relevant arguments from the project.
-    //TODO: confirm source maps work as expected.
-    outputFile.text = babel.transform(outputFile.text, {}).code;
+
+    let babelOptions : any = {};
+
+    let sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
+
+    if (sourceMapContents[sourceMapFileName]) {
+      babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
+    }
+    if (settings.compilerOptions.sourceMap) {
+      babelOptions.sourceMaps = true;
+    }
+    if (settings.compilerOptions.inlineSourceMap) {
+      babelOptions.sourceMaps = "inline";
+    }
+    if (!settings.compilerOptions.removeComments) {
+      babelOptions.comments = true;
+    }
+
+    let babelResult = babel.transform(outputFile.text, babelOptions);
+    outputFile.text = babelResult.code;
+
+    if (babelResult.map && settings.compilerOptions.sourceMap) {
+      let additionalEmit : ts.OutputFile = {
+        name: sourceMapFileName,
+        text : JSON.stringify(babelResult.map),
+        writeByteOrderMark: settings.compilerOptions.emitBOM
+      };
+
+      if (additionalEmit.name === "") {
+        // can't emit a blank file name - this should only be reached if the TypeScript
+        // language service returns the .js file before the .js.map file.
+        console.warn(`The TypeScript language service did not yet provide a .js.map name for file ${outputFile.name}`);
+        return [];
+      }
+
+      return [additionalEmit];
+    }
+
+    return [];
   }
-  return;
+
+  function getJSMapNameForJSFile(jsFileName: string) {
+    for (let jsMapName in sourceMapContents) {
+      if (sourceMapContents.hasOwnProperty(jsMapName)) {
+        if (sourceMapContents[jsMapName].jsFileName === jsFileName) {
+          return jsMapName;
+        }
+      }
+    }
+    return "";
+  }
+}
+
+
+
+function isJSFile(fileName: string) {
+  return (path.extname(fileName).toLocaleLowerCase() === ".js");
+}
+
+function isJSSourceMapFile(fileName: string) {
+  let lastExt = path.extname(fileName);
+  if (lastExt === ".map") {
+    return isJSFile(fileName.substr(0,fileName.length - 4));
+  }
+  return false;
 }
