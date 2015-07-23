@@ -19,7 +19,7 @@ export function getEditorPositionForBufferPosition(editor: AtomCore.IEditor, buf
     return buffer.characterIndexForPosition(bufferPos);
 }
 
-export function isAllowedExtension(ext) {
+export function isAllowedExtension(ext: string) {
     return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
 }
 
