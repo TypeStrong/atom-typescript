@@ -27,7 +27,7 @@ var Config = (function () {
             showSemanticView: {
                 title: 'Show semantic view',
                 type: 'boolean',
-                default: true
+                default: false
             }
         };
     }

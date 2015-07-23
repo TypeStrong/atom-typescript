@@ -8,7 +8,8 @@ import React = require('react');
 interface Props {
     config: SemanticViewConfig
 }
-interface State { }
+interface State {
+}
 
 class MyComponent extends React.Component<Props, State>{
     state = {};
@@ -16,7 +17,14 @@ class MyComponent extends React.Component<Props, State>{
         super(props);
     }
 
-    currentEditor: AtomCore.IEditor;
+    _editor: AtomCore.IEditor;
+    set editor(value: AtomCore.IEditor) {
+        this._editor = value
+        this.forceUpdate();
+    }
+    get editor() {
+        return this._editor;
+    }
     componentDidMount() {
         // We listen to a few things
 
@@ -26,19 +34,20 @@ class MyComponent extends React.Component<Props, State>{
         var editorChanging: AtomCore.Disposable;
 
         let subscribeToEditor = (editor: AtomCore.IEditor) => {
-            this.currentEditor = editor;
+            this.editor = editor;
             // Subscribe to stop changing
             // Subscribe to stop scrolling
-            this.forceUpdate();
 
-            panel.show();
+            if (atomConfig.showSemanticView) {
+                panel.show();
+            }
         }
 
         let unsubscribeToEditor = () => {
-            if (!this.currentEditor) return;
-
-            this.currentEditor = undefined;
             panel.hide();
+            if (!this.editor) return;
+
+            this.setState({ editor: undefined });
         }
 
         if (atomUtils.isActiveEditorOnDiskAndTs()) {
@@ -47,7 +56,7 @@ class MyComponent extends React.Component<Props, State>{
 
         // Tab changing
         atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-            if (atomUtils.onDiskAndTs(editor)) {
+            if (atomUtils.onDiskAndTs(editor) && atomConfig.showSemanticView) {
                 subscribeToEditor(editor);
             }
             else {
@@ -64,7 +73,7 @@ class MyComponent extends React.Component<Props, State>{
     render() {
         return <div>
             Current editor: <br/>
-            {this.currentEditor ? this.currentEditor.getPath() : ""}
+            {this.editor ? this.editor.getPath() : ""}
             </div>;
     }
 }
@@ -87,6 +96,13 @@ export class SemanticView extends view.View<any> {
 
     constructor(public config) {
         super(config);
+    }
+
+    /**
+     * This function exists because the react component needs access to `panel` which needs access to `SemanticView`.
+     * So we lazily create react component after panel creation
+     */
+    start() {
         React.render(React.createElement(MyComponent, {}), this.rootDomElement);
     }
 }
@@ -104,6 +120,7 @@ export function attach() {
 
     mainView = new SemanticView({});
     panel = atom.workspace.addRightPanel({ item: mainView, priority: 1000, visible: atomConfig.showSemanticView && atomUtils.isActiveEditorOnDiskAndTs() });
+    mainView.start();
 }
 
 export function toggle() {

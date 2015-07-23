@@ -13,27 +13,39 @@ var MyComponent = (function (_super) {
         _super.call(this, props);
         this.state = {};
     }
+    Object.defineProperty(MyComponent.prototype, "editor", {
+        get: function () {
+            return this._editor;
+        },
+        set: function (value) {
+            this._editor = value;
+            this.forceUpdate();
+        },
+        enumerable: true,
+        configurable: true
+    });
     MyComponent.prototype.componentDidMount = function () {
         // We listen to a few things
         var _this = this;
         var editorScrolling;
         var editorChanging;
         var subscribeToEditor = function (editor) {
-            _this.currentEditor = editor;
-            _this.forceUpdate();
-            panel.show();
+            _this.editor = editor;
+            if (atomConfig.showSemanticView) {
+                panel.show();
+            }
         };
         var unsubscribeToEditor = function () {
-            if (!_this.currentEditor)
-                return;
-            _this.currentEditor = undefined;
             panel.hide();
+            if (!_this.editor)
+                return;
+            _this.setState({ editor: undefined });
         };
         if (atomUtils.isActiveEditorOnDiskAndTs()) {
             subscribeToEditor(atomUtils.getActiveEditor());
         }
         atom.workspace.onDidChangeActivePaneItem(function (editor) {
-            if (atomUtils.onDiskAndTs(editor)) {
+            if (atomUtils.onDiskAndTs(editor) && atomConfig.showSemanticView) {
                 subscribeToEditor(editor);
             }
             else {
@@ -44,7 +56,7 @@ var MyComponent = (function (_super) {
     MyComponent.prototype.componentWillUnmount = function () {
     };
     MyComponent.prototype.render = function () {
-        return React.createElement("div", null, "Current editor: ", React.createElement("br", null), this.currentEditor ? this.currentEditor.getPath() : "");
+        return React.createElement("div", null, "Current editor: ", React.createElement("br", null), this.editor ? this.editor.getPath() : "");
     };
     return MyComponent;
 })(React.Component);
@@ -53,7 +65,6 @@ var SemanticView = (function (_super) {
     function SemanticView(config) {
         _super.call(this, config);
         this.config = config;
-        React.render(React.createElement(MyComponent, {}), this.rootDomElement);
     }
     Object.defineProperty(SemanticView.prototype, "rootDomElement", {
         get: function () {
@@ -68,6 +79,9 @@ var SemanticView = (function (_super) {
             _this.div({ outlet: 'mainContent' });
         });
     };
+    SemanticView.prototype.start = function () {
+        React.render(React.createElement(MyComponent, {}), this.rootDomElement);
+    };
     return SemanticView;
 })(view.View);
 exports.SemanticView = SemanticView;
@@ -78,6 +92,7 @@ function attach() {
     }
     exports.mainView = new SemanticView({});
     panel = atom.workspace.addRightPanel({ item: exports.mainView, priority: 1000, visible: atomConfig.showSemanticView && atomUtils.isActiveEditorOnDiskAndTs() });
+    exports.mainView.start();
 }
 exports.attach = attach;
 function toggle() {

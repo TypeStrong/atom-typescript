@@ -33,7 +33,7 @@ class Config {
         showSemanticView: {
             title: 'Show semantic view',
             type: 'boolean',
-            default: true
+            default: false
         }
     }
     get debugAtomTs() { return getConfig<boolean>(() => this.schema.debugAtomTs) }

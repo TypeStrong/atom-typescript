@@ -74,7 +74,7 @@ function onlyOnceStuff() {
     // Add the rename view
     renameView.attach();
 
-    // semanticView.attach();
+    semanticView.attach();
 }
 
 /** only called once we have our dependencies */

@@ -15,6 +15,7 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var mainPanelView = require("./atom/views/mainPanelView");
+var semanticView = require("./atom/views/semanticView");
 var fileStatusCache_1 = require("./atom/fileStatusCache");
 var editorSetup = require("./atom/editorSetup");
 var statusBar;
@@ -39,6 +40,7 @@ function onlyOnceStuff() {
     mainPanelView.attach();
     documentationView.attach();
     renameView.attach();
+    semanticView.attach();
 }
 function readyToActivate() {
     parent.startWorker();
