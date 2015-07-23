@@ -14,6 +14,22 @@ If it conforms the latest TypeScript services API then yes! Just set the path to
 
 However, please note that the [version](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) in `tsconfig.json` does not indicate the compiler atom is using.  That's strictly an aide-mémoire - it's to remind you which version of the TypeScript this project is intended to work with.
 
+## Can I use an alternate transpiler?
+Atom-typescript supports using Babel as an alternate ES5 transpiler in coordination with the TypeScript language service.  This may be useful if TypeScript does not yet support transpiling a certain feature correctly (for example [scope per for loop iteration with let](https://github.com/Microsoft/TypeScript/issues/3915)).
+
+To enable using Babel as the transpiler, make these changes to your `tsconfig.json` file:
+
+**1:** Add this key in the root:
+
+```js
+{
+ "externalTranspiler": "babel"
+}
+```
+**2:** Set the `target` compiler option to `"es6"`.  This is not *technically* required, but if you don't do this, you'll just be transpiling an already-transpiled file.
+
+Note that atom-typescript's Babel integraion works with in concert with the `removeComments`, `sourceMap`, and `inlineSourceMap` compiler options settings in `tsconfig.json`, so those items should just work as expected.  Any source maps should be doubly-mapped back to the original TypeScript.
+
 ## I prefer single (or double) quotes
 You can set that in the package settings https://atom.io/docs/latest/using-atom-atom-packages#package-settings
 
