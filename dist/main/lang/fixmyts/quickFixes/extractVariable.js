@@ -29,7 +29,7 @@ var ExtractVariable = (function () {
 })();
 exports.ExtractVariable = ExtractVariable;
 function execute(info, onProperty, onFuncCall, onExtractable) {
-    var callExpression = findLowestNode(info.positionNode, 165);
+    var callExpression = findLowestNode(info.positionNode, ts.SyntaxKind.CallExpression);
     if (callExpression) {
         if (isPropertyCall(info)) {
             return onProperty();
@@ -83,25 +83,25 @@ function extractVariableFromArg(info, callExpression) {
         }];
 }
 function isPropertyAccess(info) {
-    return isValidPath(info.positionNode, [66,
-        163,
-        192]);
+    return isValidPath(info.positionNode, [ts.SyntaxKind.Identifier,
+        ts.SyntaxKind.PropertyAccessExpression,
+        ts.SyntaxKind.ExpressionStatement]);
 }
 function isFuncCall(info) {
-    return isValidPath(info.positionNode, [66,
-        165,
-        192]);
+    return isValidPath(info.positionNode, [ts.SyntaxKind.Identifier,
+        ts.SyntaxKind.CallExpression,
+        ts.SyntaxKind.ExpressionStatement]);
 }
 function isPropertyCall(info) {
-    return isValidPath(info.positionNode, [66,
-        163,
-        165,
-        192]);
+    return isValidPath(info.positionNode, [ts.SyntaxKind.Identifier,
+        ts.SyntaxKind.PropertyAccessExpression,
+        ts.SyntaxKind.CallExpression,
+        ts.SyntaxKind.ExpressionStatement]);
 }
 function isExtractable(info, callExpression) {
     var argumentIndex = getArgumentIndex(info.positionNode, callExpression);
     return (argumentIndex > -1) &&
-        (!((info.positionNode.kind == 66) &&
+        (!((info.positionNode.kind == ts.SyntaxKind.Identifier) &&
             (info.positionNode.parent == callExpression)));
 }
 function findLowestNode(startNode, kind) {

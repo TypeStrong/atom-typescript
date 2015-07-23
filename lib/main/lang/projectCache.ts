@@ -40,9 +40,9 @@ export function consistentPath(query: FilePathQuery) {
 
 var projectByProjectFilePath: { [projectFilePath: string]: Project } = {}
 
-/** 
+/**
  * filePath is :
- * 	the project file path 
+ * 	the project file path
  * 	Or any source ts file path
  */
 var projectByFilePath: { [filePath: string]: Project } = {}
@@ -59,7 +59,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath: string) {
     if (watchingProjectFile[projectFilePath]) return; // Only watch once
     watchingProjectFile[projectFilePath] = true;
 
-    fs.watch(projectFilePath, { persistent: false, recursive: false }, () => {
+    fs.watch(projectFilePath, { persistent: false }, () => {
         // if file no longer exists
         if (!fs.existsSync(projectFilePath)) {
             // if we have a cache for it then clear it
@@ -113,6 +113,7 @@ export function cacheAndCreateProject(projectFile: tsconfig.TypeScriptProjectFil
  * For (lib.d.ts) and other (.d.ts files where project is not found) creation is done in memory
  */
 export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptProjectFileDetails {
+
     try {
         // If we are asked to look at stuff in lib.d.ts create its own project
         if (path.dirname(filePath) == languageServiceHost.typescriptDirectory) {
@@ -187,7 +188,7 @@ export function getOrCreateProjectFile(filePath: string): tsconfig.TypeScriptPro
 
 /** Looks into the cache and if not found caches it */
 export function getOrCreateProject(filePath: string) {
-    
+
     // For transform files we check for the file with .ts extension in cache
     if (tsconfig.endsWith(filePath, '.tst')) {
         filePath = filePath + '.ts';

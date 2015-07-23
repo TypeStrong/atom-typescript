@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var sp = require('atom-space-pen-views');
 var mainPanelView = require('./mainPanelView');
-var fileSemanticView = require("./fileSemanticView");
+var semanticView = require("./semanticView");
 var titles = {
     togglePanel: 'Toggle TypeScript Panel',
     tabErrors: 'Tab: Errors in Open Files',
@@ -45,7 +45,7 @@ var ContextView = (function (_super) {
             mainPanelView.panelView.referencesPanelSelected();
         }
         if (item.title == titles.fileSemantics) {
-            fileSemanticView.showForCurrentEditor();
+            semanticView.toggle();
         }
         this.hide();
     };

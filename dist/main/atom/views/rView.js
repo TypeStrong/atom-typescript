@@ -1,5 +1,5 @@
 // Sample implementation of a react view
-// DOCS: 
+// DOCS:
 // http://facebook.github.io/react/blog/2015/01/27/react-v0.13.0-beta-1.html#es6-classes
 // https://facebook.github.io/react/docs/component-specs.html
 var __extends = (this && this.__extends) || function (d, b) {
@@ -52,8 +52,8 @@ var RView = (function (_super) {
     });
     RView.content = function () {
         var _this = this;
-        return this.div({ class: 'atomts-r-view native-key-bindings' }, function () {
-            _this.div({ outlet: 'mainContent' });
+        return this.div({ class: 'atomts atomts-r-view native-key-bindings' }, function () {
+            _this.div({ outlet: 'mainContent layout' });
         });
     };
     Object.defineProperty(RView.prototype, "$", {

@@ -29,12 +29,12 @@ declare module 'escape-html' {
 
 // courtesy @blakeembrey
 declare module 'strip-bom' {
-  import Buffer = require('buffer')
+    import Buffer = require('buffer')
 
-  function stripBom (value: string): string
-  function stripBom (value: Buffer): Buffer
+    function stripBom(value: string): string
+    function stripBom(value: Buffer): Buffer
 
-  export = stripBom
+    export = stripBom
 }
 
 declare module 'atom-space-pen-views' {
@@ -126,6 +126,18 @@ interface NavigateToItem {
     filePath: string;
     position: EditorPosition;
     fileName: string;
+}
+
+/**
+ * used by semantic view
+ */
+interface SemanticTreeNode {
+    text: string;
+    kind: string;
+    kindModifiers: string;
+    start: EditorPosition;
+    end: EditorPosition;
+    subNodes: SemanticTreeNode[];
 }
 
 interface ReferenceDetails {

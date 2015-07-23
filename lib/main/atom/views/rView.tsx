@@ -1,5 +1,5 @@
 // Sample implementation of a react view
-// DOCS: 
+// DOCS:
 // http://facebook.github.io/react/blog/2015/01/27/react-v0.13.0-beta-1.html#es6-classes
 // https://facebook.github.io/react/docs/component-specs.html
 
@@ -48,8 +48,8 @@ export class RView extends sp.ScrollView {
         return this.mainContent[0];
     }
     static content() {
-        return this.div({ class: 'atomts-r-view native-key-bindings' }, () => {
-            this.div({ outlet: 'mainContent' });
+        return this.div({ class: 'atomts atomts-r-view native-key-bindings' }, () => {
+            this.div({ outlet: 'mainContent layout' });
         });
     }
 
@@ -63,7 +63,7 @@ export class RView extends sp.ScrollView {
         React.render(React.createElement(MyComponent, {}), this.rootDomElement);
     }
 
-        
+
     /** Override */
     static protocol: string = 'atomtsview:';
 
@@ -71,4 +71,4 @@ export class RView extends sp.ScrollView {
     private getURI = () => uriForPath((this.constructor as any).protocol, this.config.filePath);
     private getTitle = () => this.config.title;
     private getIconName = () => this.config.icon;
-}      
+}

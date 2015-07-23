@@ -32,7 +32,7 @@ function watchProjectFileIfNotDoingItAlready(projectFilePath) {
     if (watchingProjectFile[projectFilePath])
         return;
     watchingProjectFile[projectFilePath] = true;
-    fs.watch(projectFilePath, { persistent: false, recursive: false }, function () {
+    fs.watch(projectFilePath, { persistent: false }, function () {
         if (!fs.existsSync(projectFilePath)) {
             var project = projectByProjectFilePath[projectFilePath];
             if (project) {

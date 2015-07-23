@@ -40,6 +40,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * TypeScript context menu
 * Symbols in Project
 * Symbols in File
+* Semantic View
 * Rename refactoring
 * Quick Fix
 * Common Snippets
@@ -105,7 +106,7 @@ And if you have `declaration:true` in your `tsconfig.json` then we would generat
 
 We have a sample NPM module : https://github.com/basarat/ts-npm-module and its usage is demoed in https://github.com/basarat/ts-npm-module-consume.
 
-Notes: 
+Notes:
 * Relative paths in `definition` are not supported. This is due to a limitation in how the TypeScript compiler does file lookup.
 * Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
 
@@ -144,6 +145,11 @@ Integrates with atom's symbols view (`ctrl+r` or `cmd+r`) to provide you with a 
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/symbolsView.gif)
 
+## Semantic View
+A bird's eye view of the current file. Use command `toggle semantic view`. The view updates while you edit the code. You can also click to jump to any portion of the file.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/semanticView.png)
+
 ## Project Symbols View
 Also called Go To Type in other IDEs. Integrates with atom's project level symbols (`ctrl+shift+r` or `cmd+shift+r`) to provide you with a list of searchable symbols in the *entire typescript project*.
 
@@ -161,7 +167,7 @@ Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to t
 ### Add class members
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/addClassMember.gif)
 
-### More Quick fixes 
+### More Quick fixes
 We are actively adding quick fixes so [**go here for an up to date list**](https://github.com/TypeStrong/atom-typescript/blob/master/docs/quickfix.md).
 
 ## tsconfig validation

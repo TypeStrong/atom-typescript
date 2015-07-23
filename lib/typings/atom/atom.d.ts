@@ -1041,6 +1041,7 @@ declare module AtomCore {
 
 	interface IConfig {
 		get(keyPath:string):any;
+		set(keyPath:string, value:any):any;
 		// TBD
 	}
 

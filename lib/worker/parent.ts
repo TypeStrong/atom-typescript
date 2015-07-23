@@ -81,6 +81,7 @@ export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projec
 export var debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
 export var getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
 export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
+export var getSemtanticTree = parent.sendToIpc(projectService.getSemtanticTree);
 export var getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
 export var getReferences = parent.sendToIpc(projectService.getReferences);
 export var getAST = parent.sendToIpc(projectService.getAST);

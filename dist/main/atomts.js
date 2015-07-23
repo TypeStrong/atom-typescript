@@ -15,6 +15,7 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require('./atom/views/documentationView');
 var renameView = require('./atom/views/renameView');
 var mainPanelView = require("./atom/views/mainPanelView");
+var semanticView = require("./atom/views/semanticView");
 var fileStatusCache_1 = require("./atom/fileStatusCache");
 var editorSetup = require("./atom/editorSetup");
 var statusBar;
@@ -36,13 +37,16 @@ function onlyOnceStuff() {
         return;
     else
         __onlyOnce = true;
+    mainPanelView.attach();
     documentationView.attach();
     renameView.attach();
+    semanticView.attach();
 }
 function readyToActivate() {
     parent.startWorker();
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
+            onlyOnceStuff();
             var filePath = editor.getPath();
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) {
@@ -69,7 +73,6 @@ function readyToActivate() {
                 if (fs.existsSync(filePath)) {
                     onDisk = true;
                 }
-                mainPanelView.attach();
                 hideIfNotActiveOnStart();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {

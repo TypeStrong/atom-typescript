@@ -17,6 +17,11 @@ function isAllowedExtension(ext) {
     return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
 }
 exports.isAllowedExtension = isAllowedExtension;
+function isActiveEditorOnDiskAndTs() {
+    var editor = atom.workspace.getActiveTextEditor();
+    return onDiskAndTs(editor);
+}
+exports.isActiveEditorOnDiskAndTs = isActiveEditorOnDiskAndTs;
 function onDiskAndTs(editor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();

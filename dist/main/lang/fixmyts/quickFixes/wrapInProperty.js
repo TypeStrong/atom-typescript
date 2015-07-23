@@ -7,7 +7,7 @@ var WrapInProperty = (function () {
         if (info.positionNode && info.positionNode.parent &&
             info.positionNode.parent.parent && info.positionNode.parent.parent.symbol &&
             info.positionNode.parent.parent.symbol && info.positionNode.parent.parent.symbol.name == '__constructor') {
-            if (info.positionNode.parent.kind == 135) {
+            if (info.positionNode.parent.kind == ts.SyntaxKind.Parameter) {
                 return { display: "Wrap " + info.positionNode.parent.symbol.name + " in a read only property" };
             }
         }
@@ -18,7 +18,7 @@ var WrapInProperty = (function () {
         var paramDecl = info.positionNode.parent;
         var symbolName = info.positionNode.parent.symbol.name;
         var typeName = getArgumentType(info, paramDecl);
-        var firstBrace = classDecl.getChildren().filter(function (x) { return x.kind == 14; })[0];
+        var firstBrace = classDecl.getChildren().filter(function (x) { return x.kind == ts.SyntaxKind.OpenBraceToken; })[0];
         var classIndent = info.service.getIndentationAtPosition(info.filePath, firstBrace.end, info.project.projectFile.project.formatCodeOptions);
         var indent = info.project.projectFile.project.formatCodeOptions.IndentSize;
         var indentSetting = {
@@ -35,7 +35,7 @@ exports.WrapInProperty = WrapInProperty;
 function createAssignment(constructorDecl, symbolName, indentSetting, filePath) {
     var indentLevel2 = createIndent(indentSetting, 2);
     var lastBrace = constructorDecl.body.getChildren()
-        .filter(function (x) { return x.kind == 15; }).reverse()[0];
+        .filter(function (x) { return x.kind == ts.SyntaxKind.CloseBraceToken; }).reverse()[0];
     var newText = "" + os_1.EOL + indentLevel2 + "this._" + symbolName + " = " + symbolName + ";";
     return {
         span: {

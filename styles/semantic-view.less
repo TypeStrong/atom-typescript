@@ -1,0 +1,109 @@
+// From https://github.com/xndcn/symbols-tree-view
+@import "ui-variables";
+@font-face {
+  font-family: 'symbol-icons';
+  src: url('atom://atom-typescript/images/symbol-icons.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@symbol-class: '\e600';
+@symbol-struct: '\e601';
+@symbol-macro: '\e602';
+@symbol-typedef: '\e603';
+@symbol-union: '\e604';
+@symbol-interface: '\e605';
+@symbol-enum: '\e606';
+@symbol-variable: '\e607';
+@symbol-function: '\e608';
+@symbol-namespace: '\e609';
+.symbol-icon(@name) {
+    font-family: 'symbol-icons';
+    content: @@name;
+}
+.atomts-semantic-view {
+    max-width: 250px;
+    // needed otherwise the panel takes up all the space and doesn't scroll
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 10px;
+    .selected {
+        background: @background-color-highlight;
+    }
+
+    .node{
+        cursor: pointer;
+    }
+
+    .icon-class::before {
+      .symbol-icon(symbol-class);
+    }
+    .icon-struct::before {
+      .symbol-icon(symbol-struct);
+    }
+    .icon-variable::before {
+      .symbol-icon(symbol-variable);
+    }
+
+    .icon-field::before {
+      .symbol-icon(symbol-variable);
+    }
+    .icon-member::before {
+      .symbol-icon(symbol-variable);
+    }
+    .icon-interface::before {
+      .symbol-icon(symbol-interface);
+    }
+    .icon-enum::before {
+      .symbol-icon(symbol-enum);
+    }
+    .icon-typedef::before {
+      .symbol-icon(symbol-typedef);
+    }
+    .icon-macro::before {
+      .symbol-icon(symbol-macro);
+    }
+    .icon-union::before {
+      .symbol-icon(symbol-union);
+    }
+
+
+
+    .icon-module::before {
+      .symbol-icon(symbol-macro);
+    }
+
+    // variable like
+    .icon-var::before {
+      .symbol-icon(symbol-variable);
+    }
+    .icon-property::before {
+      .symbol-icon(symbol-variable);
+    }
+    .icon-alias::before {
+      .symbol-icon(symbol-variable);
+    }
+
+    // function like
+    .icon-function::before {
+      .symbol-icon(symbol-function);
+    }
+    .icon-constructor::before {
+      .symbol-icon(symbol-function);
+    }
+    .icon-method::before {
+      .symbol-icon(symbol-function);
+    }
+    .icon-setter::before {
+      .symbol-icon(symbol-function);
+    }
+    .icon-getter::before {
+      .symbol-icon(symbol-function);
+    }
+
+    // module like
+    .icon-namespace::before {
+      .symbol-icon(symbol-namespace);
+    }
+
+}

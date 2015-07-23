@@ -69,10 +69,10 @@ var defaultFilesGlob = [
 var invisibleFilesGlob = ["./**/*.ts"];
 var typeScriptVersion = '1.5.0-beta';
 exports.defaults = {
-    target: 1,
-    module: 1,
+    target: ts.ScriptTarget.ES5,
+    module: ts.ModuleKind.CommonJS,
     isolatedModules: false,
-    jsx: 2,
+    jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
     emitDecoratorMetadata: true,
     declaration: false,
@@ -84,21 +84,21 @@ exports.defaults = {
 };
 var typescriptEnumMap = {
     target: {
-        'es3': 0,
-        'es5': 1,
-        'es6': 2,
-        'latest': 2
+        'es3': ts.ScriptTarget.ES3,
+        'es5': ts.ScriptTarget.ES5,
+        'es6': ts.ScriptTarget.ES6,
+        'latest': ts.ScriptTarget.Latest
     },
     module: {
-        'none': 0,
-        'commonjs': 1,
-        'amd': 2,
-        'system': 4,
-        'umd': 3,
+        'none': ts.ModuleKind.None,
+        'commonjs': ts.ModuleKind.CommonJS,
+        'amd': ts.ModuleKind.AMD,
+        'system': ts.ModuleKind.System,
+        'umd': ts.ModuleKind.UMD,
     },
     jsx: {
-        'preserve': 1,
-        'react': 2
+        'preserve': ts.JsxEmit.Preserve,
+        'react': ts.JsxEmit.React
     }
 };
 var jsonEnumMap = {};

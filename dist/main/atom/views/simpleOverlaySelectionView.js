@@ -18,6 +18,7 @@ function default_1(options, editor) {
     singleton.show();
     return singleton;
 }
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 var sp = require('atom-space-pen-views');
 var SimpleOverlaySelectListView = (function (_super) {

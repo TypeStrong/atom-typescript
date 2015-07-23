@@ -1,6 +1,6 @@
 import sp = require('atom-space-pen-views');
 import mainPanelView = require('./mainPanelView');
-import * as fileSemanticView from "./fileSemanticView";
+import * as semanticView from "./semanticView";
 
 interface ContextViewItem {
     title: string;
@@ -47,9 +47,9 @@ export class ContextView extends sp.SelectListView {
             mainPanelView.panelView.referencesPanelSelected();
         }
         if (item.title == titles.fileSemantics){
-            fileSemanticView.showForCurrentEditor();
+            semanticView.toggle();
         }
-        
+
         this.hide();
     }
 

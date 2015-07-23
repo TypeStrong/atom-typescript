@@ -19,10 +19,14 @@ export function getEditorPositionForBufferPosition(editor: AtomCore.IEditor, buf
     return buffer.characterIndexForPosition(bufferPos);
 }
 
-export function isAllowedExtension(ext){
+export function isAllowedExtension(ext) {
     return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
 }
 
+export function isActiveEditorOnDiskAndTs() {
+    var editor = atom.workspace.getActiveTextEditor();
+    return onDiskAndTs(editor);
+}
 export function onDiskAndTs(editor: AtomCore.IEditor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();

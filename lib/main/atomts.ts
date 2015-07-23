@@ -32,6 +32,7 @@ import {$} from "atom-space-pen-views";
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 import mainPanelView = require("./atom/views/mainPanelView");
+import * as semanticView from "./atom/views/semanticView";
 import {getFileStatus} from "./atom/fileStatusCache";
 
 import editorSetup = require("./atom/editorSetup");
@@ -65,11 +66,15 @@ function onlyOnceStuff() {
     if (__onlyOnce) return;
     else __onlyOnce = true;
 
+    mainPanelView.attach();
+
     // Add the documentation view
     documentationView.attach();
 
     // Add the rename view
     renameView.attach();
+
+    semanticView.attach();
 }
 
 /** only called once we have our dependencies */
@@ -100,6 +105,7 @@ function readyToActivate() {
     // Observe changed active editor
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
+            onlyOnceStuff();
             var filePath = editor.getPath();
 
             // Refresh errors stuff on change active tab.
@@ -141,7 +147,6 @@ function readyToActivate() {
                 }
 
                 // Setup the TS reporter:
-                mainPanelView.attach();
                 hideIfNotActiveOnStart();
 
                 debugAtomTs.runDebugCode({ filePath, editor });

@@ -14,12 +14,12 @@ function getNodeByKindAndName(program, kind, name) {
     var found = undefined;
     function findNode(node) {
         if (node.kind == kind) {
-            if (node.kind == 211) {
+            if (node.kind == ts.SyntaxKind.ClassDeclaration) {
                 if (node.name.text == name) {
                     found = node;
                 }
             }
-            if (node.kind == 212) {
+            if (node.kind == ts.SyntaxKind.InterfaceDeclaration) {
                 if (node.name.text == name) {
                     found = node;
                 }
@@ -50,36 +50,36 @@ function getSourceFileImportsWithTextRange(srcFile) {
 exports.getSourceFileImportsWithTextRange = getSourceFileImportsWithTextRange;
 function getImports(searchNode, importedModules) {
     ts.forEachChild(searchNode, function (node) {
-        if (node.kind === 219 || node.kind === 218 || node.kind === 225) {
+        if (node.kind === ts.SyntaxKind.ImportDeclaration || node.kind === ts.SyntaxKind.ImportEqualsDeclaration || node.kind === ts.SyntaxKind.ExportDeclaration) {
             var moduleNameExpr = getExternalModuleName(node);
-            if (moduleNameExpr && moduleNameExpr.kind === 8) {
+            if (moduleNameExpr && moduleNameExpr.kind === ts.SyntaxKind.StringLiteral) {
                 importedModules.push(moduleNameExpr.text);
             }
         }
-        else if (node.kind === 215 && node.name.kind === 8) {
+        else if (node.kind === ts.SyntaxKind.ModuleDeclaration && node.name.kind === ts.SyntaxKind.StringLiteral) {
             getImports(node.body, importedModules);
         }
     });
 }
 function getExternalModuleName(node) {
-    if (node.kind === 219) {
+    if (node.kind === ts.SyntaxKind.ImportDeclaration) {
         return node.moduleSpecifier;
     }
-    if (node.kind === 218) {
+    if (node.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
         var reference = node.moduleReference;
-        if (reference.kind === 229) {
+        if (reference.kind === ts.SyntaxKind.ExternalModuleReference) {
             return reference.expression;
         }
     }
-    if (node.kind === 225) {
+    if (node.kind === ts.SyntaxKind.ExportDeclaration) {
         return node.moduleSpecifier;
     }
 }
 function getImportsWithTextRange(searchNode, importedModules) {
     ts.forEachChild(searchNode, function (node) {
-        if (node.kind === 219 || node.kind === 218 || node.kind === 225) {
+        if (node.kind === ts.SyntaxKind.ImportDeclaration || node.kind === ts.SyntaxKind.ImportEqualsDeclaration || node.kind === ts.SyntaxKind.ExportDeclaration) {
             var moduleNameExpr = getExternalModuleName(node);
-            if (moduleNameExpr && moduleNameExpr.kind === 8) {
+            if (moduleNameExpr && moduleNameExpr.kind === ts.SyntaxKind.StringLiteral) {
                 var moduleExpr = moduleNameExpr;
                 importedModules.push({
                     text: moduleExpr.text,
@@ -87,7 +87,7 @@ function getImportsWithTextRange(searchNode, importedModules) {
                 });
             }
         }
-        else if (node.kind === 215 && node.name.kind === 8) {
+        else if (node.kind === ts.SyntaxKind.ModuleDeclaration && node.name.kind === ts.SyntaxKind.StringLiteral) {
             getImportsWithTextRange(node.body, importedModules);
         }
     });

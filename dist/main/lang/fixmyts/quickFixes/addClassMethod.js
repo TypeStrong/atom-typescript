@@ -28,7 +28,7 @@ var AddClassMethod = (function () {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == ts.Diagnostics.Property_0_does_not_exist_on_type_1.code; })[0];
         if (!relevantError)
             return;
-        if (info.positionNode.kind !== 66)
+        if (info.positionNode.kind !== ts.SyntaxKind.Identifier)
             return;
         var match = getIdentifierAndClassNames(relevantError);
         if (!match)
@@ -43,12 +43,12 @@ var AddClassMethod = (function () {
         var className = getIdentifierAndClassNames(relevantError).className;
         var typeString = 'any';
         var parentOfParent = identifier.parent.parent;
-        if (parentOfParent.kind == 178
+        if (parentOfParent.kind == ts.SyntaxKind.BinaryExpression
             && parentOfParent.operatorToken.getText().trim() == '=') {
             var binaryExpression = parentOfParent;
             typeString = getTypeStringForNode(binaryExpression.right, info.typeChecker);
         }
-        else if (parentOfParent.kind == 165) {
+        else if (parentOfParent.kind == ts.SyntaxKind.CallExpression) {
             var nativeTypes = ['string', 'number', 'boolean', 'object', 'null', 'undefined', 'RegExp'];
             var abc = 'abcdefghijklmnopqrstuvwxyz';
             var argsAlphabet = abc.split('');
@@ -127,15 +127,15 @@ var AddClassMethod = (function () {
             typeStringParts.push("): any { }");
             typeString = typeStringParts.join('');
         }
-        var memberTarget = ast.getNodeByKindAndName(info.program, 211, className);
+        var memberTarget = ast.getNodeByKindAndName(info.program, ts.SyntaxKind.ClassDeclaration, className);
         if (!memberTarget) {
-            memberTarget = ast.getNodeByKindAndName(info.program, 212, className);
+            memberTarget = ast.getNodeByKindAndName(info.program, ts.SyntaxKind.InterfaceDeclaration, className);
         }
         if (!memberTarget) {
             return [];
         }
         var targetDeclaration = memberTarget;
-        var firstBrace = targetDeclaration.getChildren().filter(function (x) { return x.kind == 14; })[0];
+        var firstBrace = targetDeclaration.getChildren().filter(function (x) { return x.kind == ts.SyntaxKind.OpenBraceToken; })[0];
         var indentLength = info.service.getIndentationAtPosition(memberTarget.getSourceFile().fileName, firstBrace.end, info.project.projectFile.project.formatCodeOptions);
         var indent = Array(indentLength + info.project.projectFile.project.formatCodeOptions.IndentSize + 1).join(' ');
         var refactoring = {
