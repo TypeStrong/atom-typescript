@@ -1,6 +1,5 @@
 import sp = require('atom-space-pen-views');
 import mainPanelView = require('./mainPanelView');
-import * as fileSemanticView from "./fileSemanticView";
 import * as semanticView from "./semanticView";
 
 interface ContextViewItem {

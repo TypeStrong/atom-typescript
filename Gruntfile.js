@@ -10,7 +10,7 @@ module.exports = function (grunt) {
                 module: 'commonjs',
                 sourceMap: false,
                 preserveConstEnums: true,
-                compiler: './node_modules/typescript/bin/tsc'
+                compiler: './node_modules/ntypescript/bin/tsc'
             },
             dev: {
                 src: [srcDir + '/**/*.ts'],
