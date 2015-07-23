@@ -391,6 +391,29 @@ function getNavigationBarItems(query) {
     return resolve({ items: items });
 }
 exports.getNavigationBarItems = getNavigationBarItems;
+function navigationBarItemToSemanticTreeNode(item, project, query) {
+    var toReturn = {
+        text: item.text,
+        kind: item.kind,
+        kindModifiers: item.kindModifiers,
+        start: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start),
+        end: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start + item.spans[0].length),
+        subNodes: item.childItems ? item.childItems.map(function (ci) { return navigationBarItemToSemanticTreeNode(ci, project, query); }) : []
+    };
+    return toReturn;
+}
+function getSemtanticTree(query) {
+    projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    var navBarItems = project.languageService.getNavigationBarItems(query.filePath);
+    if (navBarItems.length && navBarItems[0].text == "<global>") {
+        navBarItems.shift();
+    }
+    sortNavbarItemsBySpan(navBarItems);
+    var nodes = navBarItems.map(function (nbi) { return navigationBarItemToSemanticTreeNode(nbi, project, query); });
+    return resolve({ nodes: nodes });
+}
+exports.getSemtanticTree = getSemtanticTree;
 function getNavigateToItems(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);

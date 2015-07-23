@@ -610,6 +610,41 @@ export function getNavigationBarItems(query: FilePathQuery): Promise<GetNavigati
     return resolve({ items });
 }
 
+export interface SemanticTreeQuery extends FilePathQuery { }
+export interface SemanticTreeReponse {
+    nodes: SemanticTreeNode[];
+}
+function navigationBarItemToSemanticTreeNode(item: ts.NavigationBarItem, project: project.Project, query: FilePathQuery): SemanticTreeNode {
+    var toReturn: SemanticTreeNode = {
+        text: item.text,
+        kind: item.kind,
+        kindModifiers: item.kindModifiers,
+        start: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start),
+        end: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start + item.spans[0].length),
+        subNodes: item.childItems ? item.childItems.map(ci => navigationBarItemToSemanticTreeNode(ci, project, query)) : []
+    }
+    return toReturn;
+}
+export function getSemtanticTree(query: SemanticTreeQuery): Promise<SemanticTreeReponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+
+    var navBarItems = project.languageService.getNavigationBarItems(query.filePath);
+
+    // remove the first global (whatever that is???)
+    if (navBarItems.length && navBarItems[0].text == "<global>") {
+        navBarItems.shift();
+    }
+
+    // Sort items by first spans:
+    sortNavbarItemsBySpan(navBarItems);
+
+    // convert to SemanticTreeNodes
+    var nodes = navBarItems.map(nbi => navigationBarItemToSemanticTreeNode(nbi, project, query));
+
+    return resolve({ nodes });
+}
+
 //--------------------------------------------------------------------------
 //  getNavigateToItems
 //--------------------------------------------------------------------------
