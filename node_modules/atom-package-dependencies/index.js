@@ -42,7 +42,8 @@ function checkInstalled(pack, callback){
   //checks if a package is installed. If not, it installs it
   var apm = getApmPath();
   var searchString = '^' + pack + '@';
-  var cmdString = apm + ' ls -b';
+  // Add quotes so that paths with spaces work.
+  var cmdString = '"' + apm + '" ls -b';
   doExternalCommand(cmdString, function(code, output){
     grepAsync(searchString, output, function(result){
       if(!result){
@@ -60,7 +61,8 @@ function checkInstalled(pack, callback){
 function installPack(pack, callback){
   //install package from apm registry
   var apm = getApmPath();
-  var cmdString = apm + ' --color false install ' + pack;
+  // Add quotes so that paths with spaces work.
+  var cmdString = '"' + apm + '" --color false install ' + pack;
   doExternalCommand(cmdString, function(code, output){
     if(!code){
       console.log(pack + ' installed successfully.');
