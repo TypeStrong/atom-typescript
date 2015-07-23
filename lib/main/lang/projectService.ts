@@ -75,13 +75,19 @@ export interface QuickInfoResponse {
 export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
+    if (!project.includesSourceFile(query.filePath)) {
+      return Promise.resolve({ valid: false });
+    }
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
-    if (!info) return Promise.resolve({ valid: false });
-    else return resolve({
-        valid: true,
-        name: ts.displayPartsToString(info.displayParts || []),
-        comment: ts.displayPartsToString(info.documentation || []),
-    });
+    if (!info) {
+      return Promise.resolve({ valid: false });
+    } else {
+      return resolve({
+          valid: true,
+          name: ts.displayPartsToString(info.displayParts || []),
+          comment: ts.displayPartsToString(info.documentation || [])
+        });
+    }
 }
 
 export interface BuildQuery extends FilePathQuery { }
@@ -395,11 +401,13 @@ export interface EditTextQuery extends FilePathQuery {
 }
 export function editText(query: EditTextQuery): Promise<any> {
     consistentPath(query);
-    var lsh = getOrCreateProject(query.filePath).languageServiceHost;
-
-    // Apply the update to the pseudo ts file
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    lsh.editScript(filePath, query.start, query.end, query.newText);
+    let project = getOrCreateProject(query.filePath);
+    if (project.includesSourceFile(query.filePath)) {
+        let lsh = project.languageServiceHost;
+        // Apply the update to the pseudo ts file
+        let filePath = transformer.getPseudoFilePath(query.filePath);
+        lsh.editScript(filePath, query.start, query.end, query.newText);
+    }
     return resolve({});
 }
 
@@ -418,6 +426,13 @@ export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
+    let project : project.Project;
+
+    try {
+      project = getOrCreateProject(query.filePath);
+    } catch (ex) {
+        return resolve({ errors: []});
+    }
 
     // for file path errors in transformer
     if (isTransformerFile(query.filePath)) {
@@ -429,8 +444,26 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         return resolve({ errors: errors });
     }
     else {
-        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+        let result: TSError[];
+
+        if (project.includesSourceFile(query.filePath)) {
+          result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
+        } else {
+          result = notInContextResult(query.filePath);
+        }
+
+        return resolve({ errors: result});
     }
+}
+
+function notInContextResult(fileName: string) {
+  return [{
+    filePath: fileName,
+    startPos: {line: 0, col: 0},
+    endPos: {line: 0, col: 0},
+    message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
+    preview: ""
+    }];
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
@@ -767,17 +800,31 @@ import * as ast from "./fixmyts/astUtils";
 import {allQuickFixes} from "./fixmyts/quickFixRegistry";
 function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQueryInformation {
     consistentPath(query);
-    var project = getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText = sourceFile.getFullText();
-    var fileErrors = getDiagnositcsByFilePath(query);
-    /** We want errors that are *touching* and thefore expand the query position by one */
-    var positionErrors = fileErrors.filter(e=> ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position);
-    var positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
-    var positionNode: ts.Node = ts.getTokenAtPosition(sourceFile, query.position);
-    var service = project.languageService;
-    var typeChecker = program.getTypeChecker();
+    let project = getOrCreateProject(query.filePath);
+    let program = project.languageService.getProgram();
+    let sourceFile = program.getSourceFile(query.filePath);
+    let sourceFileText: string,
+      fileErrors: ts.Diagnostic[],
+      positionErrors: ts.Diagnostic[],
+      positionErrorMessages: string[],
+      positionNode: ts.Node;
+    if (project.includesSourceFile(query.filePath)) {
+        sourceFileText = sourceFile.getFullText();
+        fileErrors = getDiagnositcsByFilePath(query);
+        /** We want errors that are *touching* and thefore expand the query position by one */
+        positionErrors = fileErrors.filter(e=> ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position);
+        positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
+        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+    } else {
+      sourceFileText = "";
+      fileErrors = [];
+      positionErrors = [];
+      positionErrorMessages = [];
+      positionNode = undefined;
+    }
+
+    let service = project.languageService;
+    let typeChecker = program.getTypeChecker();
 
     return {
         project,
@@ -791,7 +838,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         positionNode,
         service,
         typeChecker,
-        filePath: sourceFile.fileName
+        filePath: query.filePath
     };
 }
 
@@ -809,6 +856,12 @@ export interface GetQuickFixesResponse {
 }
 export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesResponse> {
     consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+
+    if (!project.includesSourceFile(query.filePath)) {
+      return resolve({fixes: []});
+    }
+
     var info = getInfoForQuickFixAnalysis(query);
 
     // And then we let the quickFix determine if it wants provide any fixes for this file
@@ -863,9 +916,11 @@ interface GetOutputJsResponse {
 }
 export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> {
     consistentPath(query);
+
     var project = getOrCreateProject(query.filePath);
     var output = getRawOutput(project, query.filePath);
     var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+
     if (!jsFile || output.emitSkipped) {
         return resolve({});
     } else {
@@ -881,6 +936,11 @@ export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStat
     var project = getOrCreateProject(query.filePath);
     var output = getRawOutput(project, query.filePath);
     if (output.emitSkipped) {
+        if (output.outputFiles && output.outputFiles.length === 1) {
+          if (output.outputFiles[0].text === building.Not_In_Context) {
+            return resolve({ emitDiffers: false });
+          }
+        }
         return resolve({ emitDiffers: true });
     }
     var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];

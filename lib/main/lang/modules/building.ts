@@ -6,6 +6,7 @@ import {pathIsRelative, makeRelativePath} from "../../tsconfig/tsconfig";
 import {consistentPath} from "../../utils/fsUtil";
 import {createMap} from "../utils";
 
+export const Not_In_Context = "/* NotInContext */";
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
     var filePath = diagnostic.file.fileName;
@@ -58,7 +59,15 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     };
 }
 export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOutput {
-    var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
+    let services = proj.languageService;
+    let output : ts.EmitOutput;
+    if (proj.includesSourceFile(filePath)) {
+      output = services.getEmitOutput(filePath);
+    } else {
+      output = {
+        outputFiles: [{name: filePath, text: Not_In_Context, writeByteOrderMark: false}],
+        emitSkipped: true
+      }
+    }
     return output;
 }

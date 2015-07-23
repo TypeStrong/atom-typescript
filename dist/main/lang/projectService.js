@@ -27,15 +27,20 @@ exports.echo = echo;
 function quickInfo(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
-    var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
-    if (!info)
+    if (!project.includesSourceFile(query.filePath)) {
         return Promise.resolve({ valid: false });
-    else
+    }
+    var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
+    if (!info) {
+        return Promise.resolve({ valid: false });
+    }
+    else {
         return resolve({
             valid: true,
             name: ts.displayPartsToString(info.displayParts || []),
-            comment: ts.displayPartsToString(info.documentation || []),
+            comment: ts.displayPartsToString(info.documentation || [])
         });
+    }
 }
 exports.quickInfo = quickInfo;
 var building = require('./modules/building');
@@ -239,9 +244,12 @@ function updateText(query) {
 exports.updateText = updateText;
 function editText(query) {
     projectCache_1.consistentPath(query);
-    var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    lsh.editScript(filePath, query.start, query.end, query.newText);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    if (project.includesSourceFile(query.filePath)) {
+        var lsh = project.languageServiceHost;
+        var filePath = transformer.getPseudoFilePath(query.filePath);
+        lsh.editScript(filePath, query.start, query.end, query.newText);
+    }
     return resolve({});
 }
 exports.editText = editText;
@@ -256,6 +264,13 @@ function getDiagnositcsByFilePath(query) {
 }
 function errorsForFile(query) {
     projectCache_1.consistentPath(query);
+    var project;
+    try {
+        project = projectCache_1.getOrCreateProject(query.filePath);
+    }
+    catch (ex) {
+        return resolve({ errors: [] });
+    }
     if (transformer_1.isTransformerFile(query.filePath)) {
         var filePath = transformer.getPseudoFilePath(query.filePath);
         var errors = getDiagnositcsByFilePath({ filePath: filePath }).map(building.diagnosticToTSError);
@@ -265,10 +280,26 @@ function errorsForFile(query) {
         return resolve({ errors: errors });
     }
     else {
-        return resolve({ errors: getDiagnositcsByFilePath(query).map(building.diagnosticToTSError) });
+        var result;
+        if (project.includesSourceFile(query.filePath)) {
+            result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
+        }
+        else {
+            result = notInContextResult(query.filePath);
+        }
+        return resolve({ errors: result });
     }
 }
 exports.errorsForFile = errorsForFile;
+function notInContextResult(fileName) {
+    return [{
+            filePath: fileName,
+            startPos: { line: 0, col: 0 },
+            endPos: { line: 0, col: 0 },
+            message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
+            preview: ""
+        }];
+}
 function getRenameInfo(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -480,11 +511,21 @@ function getInfoForQuickFixAnalysis(query) {
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var program = project.languageService.getProgram();
     var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText = sourceFile.getFullText();
-    var fileErrors = getDiagnositcsByFilePath(query);
-    var positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
-    var positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
-    var positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+    var sourceFileText, fileErrors, positionErrors, positionErrorMessages, positionNode;
+    if (project.includesSourceFile(query.filePath)) {
+        sourceFileText = sourceFile.getFullText();
+        fileErrors = getDiagnositcsByFilePath(query);
+        positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
+        positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
+        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+    }
+    else {
+        sourceFileText = "";
+        fileErrors = [];
+        positionErrors = [];
+        positionErrorMessages = [];
+        positionNode = undefined;
+    }
     var service = project.languageService;
     var typeChecker = program.getTypeChecker();
     return {
@@ -499,11 +540,15 @@ function getInfoForQuickFixAnalysis(query) {
         positionNode: positionNode,
         service: service,
         typeChecker: typeChecker,
-        filePath: sourceFile.fileName
+        filePath: query.filePath
     };
 }
 function getQuickFixes(query) {
     projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    if (!project.includesSourceFile(query.filePath)) {
+        return resolve({ fixes: [] });
+    }
     var info = getInfoForQuickFixAnalysis(query);
     var fixes = quickFixRegistry_1.allQuickFixes
         .map(function (x) {
@@ -551,6 +596,11 @@ function getOutputJsStatus(query) {
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var output = building_1.getRawOutput(project, query.filePath);
     if (output.emitSkipped) {
+        if (output.outputFiles && output.outputFiles.length === 1) {
+            if (output.outputFiles[0].text === building.Not_In_Context) {
+                return resolve({ emitDiffers: false });
+            }
+        }
         return resolve({ emitDiffers: true });
     }
     var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
