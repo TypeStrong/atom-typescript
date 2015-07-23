@@ -122,7 +122,7 @@ class MyComponent extends React.Component<Props, State>{
     }
     render() {
         this.whileRendering = {
-            lastCursorLine: this.editor ? this.editor.getLastCursor().getBufferRow() : null
+            lastCursorLine: this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null
         };
         return <div>
             {this.tree.map(node => this.renderNode(node, 0)) }

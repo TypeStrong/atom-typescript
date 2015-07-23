@@ -104,7 +104,7 @@ var MyComponent = (function (_super) {
     MyComponent.prototype.render = function () {
         var _this = this;
         this.whileRendering = {
-            lastCursorLine: this.editor ? this.editor.getLastCursor().getBufferRow() : null
+            lastCursorLine: this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null
         };
         return React.createElement("div", null, this.tree.map(function (node) { return _this.renderNode(node, 0); }));
     };
