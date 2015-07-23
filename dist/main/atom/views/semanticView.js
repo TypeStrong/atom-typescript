@@ -5,7 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var atomConfig = require("../atomConfig");
 var atomUtils = require("../atomUtils");
-var view = require("./view");
+var sp = require("atom-space-pen-views");
 var React = require('react');
 var parent = require("../../../worker/parent");
 var rts;
@@ -147,8 +147,8 @@ var SemanticView = (function (_super) {
     });
     SemanticView.content = function () {
         var _this = this;
-        return this.div({ class: 'atomts-semantic-view native-key-bindings' }, function () {
-            _this.div({ outlet: 'mainContent' });
+        return this.div({ class: 'atomts atomts-semantic-view native-key-bindings' }, function () {
+            _this.div({ outlet: 'mainContent', class: 'layout vertical' });
         });
     };
     SemanticView.prototype.start = function () {
@@ -158,7 +158,7 @@ var SemanticView = (function (_super) {
         React.render(React.createElement(MyComponent, {}), this.rootDomElement);
     };
     return SemanticView;
-})(view.View);
+})(sp.ScrollView);
 exports.SemanticView = SemanticView;
 var panel;
 function attach() {

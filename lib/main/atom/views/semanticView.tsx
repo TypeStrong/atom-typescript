@@ -155,15 +155,15 @@ class MyComponent extends React.Component<Props, State>{
     }
 }
 
-export class SemanticView extends view.View<any> {
+export class SemanticView extends sp.ScrollView {
 
     public mainContent: JQuery;
     public get rootDomElement() {
         return this.mainContent[0];
     }
     static content() {
-        return this.div({ class: 'atomts-semantic-view native-key-bindings' }, () => {
-            this.div({ outlet: 'mainContent' });
+        return this.div({ class: 'atomts atomts-semantic-view native-key-bindings' }, () => {
+            this.div({ outlet: 'mainContent', class: 'layout vertical' });
         });
     }
 

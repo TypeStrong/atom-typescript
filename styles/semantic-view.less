@@ -23,6 +23,9 @@
 }
 .atomts-semantic-view {
     max-width: 200px;
+    // needed otherwise the panel takes up all the space and doesn't scroll
+    max-height: 100%;
+    overflow-y: auto;
     padding: 10px;
     .selected {
         background: @background-color-highlight;
