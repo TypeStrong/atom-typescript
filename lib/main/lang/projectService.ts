@@ -400,8 +400,6 @@ export interface EditTextQuery extends FilePathQuery {
     newText: string;
 }
 export function editText(query: EditTextQuery): Promise<any> {
-    // Steve Need to track that this is not a file to be edited.
-    // Steve debugger;
     consistentPath(query);
     let project = getOrCreateProject(query.filePath);
     if (project.includesSourceFile(query.filePath)) {
@@ -908,10 +906,11 @@ interface GetOutputJsResponse {
 }
 export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> {
     consistentPath(query);
+
     var project = getOrCreateProject(query.filePath);
-    /// if (project.)
     var output = getRawOutput(project, query.filePath);
     var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+
     if (!jsFile || output.emitSkipped) {
         return resolve({});
     } else {
@@ -921,7 +920,6 @@ export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> 
 interface GetOutputJsStatusResponse {
     /** true if *no emit* or *emit is as desired* */
     emitDiffers: boolean;
-    fileOutsideCompilationContext?: boolean;
 }
 export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStatusResponse> {
     consistentPath(query);
@@ -930,10 +928,7 @@ export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStat
     if (output.emitSkipped) {
         if (output.outputFiles && output.outputFiles.length === 1) {
           if (output.outputFiles[0].text === building.Not_In_Context) {
-            return resolve({
-              emitDiffers: false,
-              fileOutsideCompilationContext: true
-              });
+            return resolve({ emitDiffers: false });
           }
         }
         return resolve({ emitDiffers: true });

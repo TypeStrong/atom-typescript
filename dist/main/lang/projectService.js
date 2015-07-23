@@ -589,10 +589,7 @@ function getOutputJsStatus(query) {
     if (output.emitSkipped) {
         if (output.outputFiles && output.outputFiles.length === 1) {
             if (output.outputFiles[0].text === building.Not_In_Context) {
-                return resolve({
-                    emitDiffers: false,
-                    fileOutsideCompilationContext: true
-                });
+                return resolve({ emitDiffers: false });
             }
         }
         return resolve({ emitDiffers: true });
