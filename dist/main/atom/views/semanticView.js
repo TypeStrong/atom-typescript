@@ -14,76 +14,42 @@ var rts;
         return Array(indent + 1).join().split('').map(function (i) { return "\u00a0\u00a0\u00a0\u00a0"; });
     }
     rts.indent = indent;
-    function getterSetter(component, initial) {
-        var _value = initial;
-        return {
-            get: function () {
-                return _value;
-            },
-            set: function (value) {
-                _value = value;
-                component.forceUpdate();
-            }
-        };
-    }
-    rts.getterSetter = getterSetter;
 })(rts || (rts = {}));
 var MyComponent = (function (_super) {
     __extends(MyComponent, _super);
     function MyComponent(props) {
         _super.call(this, props);
-        this.state = {};
-        this._tree = [];
         this.whileRendering = {
             lastCursorLine: null
         };
+        this.state = {
+            tree: []
+        };
     }
-    Object.defineProperty(MyComponent.prototype, "editor", {
-        get: function () {
-            return this._editor;
-        },
-        set: function (value) {
-            this._editor = value;
-            this.forceUpdate();
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MyComponent.prototype, "tree", {
-        get: function () {
-            return this._tree;
-        },
-        set: function (value) {
-            this._tree = value;
-            this.forceUpdate();
-        },
-        enumerable: true,
-        configurable: true
-    });
     MyComponent.prototype.componentDidMount = function () {
         // We listen to a few things
         var _this = this;
         var editorScrolling;
         var editorChanging;
         var subscribeToEditor = function (editor) {
-            _this.editor = editor;
+            _this.setState({ editor: editor });
             parent.getSemtanticTree({ filePath: editor.getPath() }).then(function (res) {
-                _this.tree = res.nodes;
+                _this.setState({ tree: res.nodes });
             });
-            editorScrolling = _this.editor.onDidChangeCursorPosition(function () {
+            editorScrolling = editor.onDidChangeCursorPosition(function () {
                 _this.forceUpdate();
             });
-            editorChanging = _this.editor.onDidStopChanging(function () {
+            editorChanging = editor.onDidStopChanging(function () {
                 parent.getSemtanticTree({ filePath: editor.getPath() }).then(function (res) {
-                    _this.tree = res.nodes;
+                    _this.setState({ tree: res.nodes });
                 });
             });
             panel.show();
         };
         var unsubscribeToEditor = function () {
             panel.hide();
-            _this.tree = [];
-            if (!_this.editor)
+            _this.setState({ tree: [] });
+            if (!_this.state.editor)
                 return;
             editorScrolling.dispose();
             editorChanging.dispose();
@@ -104,9 +70,9 @@ var MyComponent = (function (_super) {
     MyComponent.prototype.render = function () {
         var _this = this;
         this.whileRendering = {
-            lastCursorLine: this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null
+            lastCursorLine: this.state.editor && this.state.editor.getLastCursor() ? this.state.editor.getLastCursor().getBufferRow() : null
         };
-        return React.createElement("div", null, this.tree.map(function (node) { return _this.renderNode(node, 0); }));
+        return React.createElement("div", null, this.state.tree.map(function (node) { return _this.renderNode(node, 0); }));
     };
     MyComponent.prototype.renderNode = function (node, indent) {
         var _this = this;
@@ -127,7 +93,7 @@ var MyComponent = (function (_super) {
     };
     MyComponent.prototype.gotoNode = function (node) {
         var gotoLine = node.start.line;
-        this.editor.setCursorBufferPosition([gotoLine, 0]);
+        this.state.editor.setCursorBufferPosition([gotoLine, 0]);
     };
     return MyComponent;
 })(React.Component);

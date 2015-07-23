@@ -14,50 +14,24 @@ namespace rts {
     export function indent(indent: number) {
         return Array(indent + 1).join().split('').map(i => "\u00a0\u00a0\u00a0\u00a0");
     }
-
-    /** A quick and dirty abstraction over state */
-    export function getterSetter<T>(component: React.Component<any, any>, initial?: T) {
-        var _value: T = initial;
-        return {
-            get: (): T => {
-                return _value;
-            },
-            set: (value: T) => {
-                _value = value;
-                component.forceUpdate();
-            }
-        }
-    }
 }
 
 interface Props {
 }
 interface State {
+    editor?: AtomCore.IEditor;
+    tree?: SemanticTreeNode[];
 }
 
 class MyComponent extends React.Component<Props, State>{
-    state = {};
     constructor(props: Props) {
         super(props);
+
+        this.state =  {
+            tree: []
+        };
     }
 
-    _editor: AtomCore.IEditor;
-    set editor(value: AtomCore.IEditor) {
-        this._editor = value
-        this.forceUpdate();
-    }
-    get editor() {
-        return this._editor;
-    }
-
-    _tree: SemanticTreeNode[] = [];
-    set tree(value: SemanticTreeNode[]) {
-        this._tree = value
-        this.forceUpdate();
-    }
-    get tree() {
-        return this._tree;
-    }
     componentDidMount() {
         // We listen to a few things
 
@@ -67,21 +41,21 @@ class MyComponent extends React.Component<Props, State>{
         var editorChanging: AtomCore.Disposable;
 
         let subscribeToEditor = (editor: AtomCore.IEditor) => {
-            this.editor = editor;
+            this.setState({editor});
 
             parent.getSemtanticTree({ filePath: editor.getPath() }).then((res) => {
-                this.tree = res.nodes;
+                this.setState({tree:res.nodes});
             });
 
             // Subscribe to stop scrolling
-            editorScrolling = this.editor.onDidChangeCursorPosition(() => {
+            editorScrolling = editor.onDidChangeCursorPosition(() => {
                 this.forceUpdate();
             });
 
             // Subscribe to stop changing
-            editorChanging = this.editor.onDidStopChanging(() => {
+            editorChanging = editor.onDidStopChanging(() => {
                 parent.getSemtanticTree({ filePath: editor.getPath() }).then((res) => {
-                    this.tree = res.nodes;
+                    this.setState({tree:res.nodes});
                 });
             });
 
@@ -90,8 +64,8 @@ class MyComponent extends React.Component<Props, State>{
 
         let unsubscribeToEditor = () => {
             panel.hide();
-            this.tree = [];
-            if (!this.editor) return;
+            this.setState({tree:[]});
+            if (!this.state.editor) return;
 
             editorScrolling.dispose();
             editorChanging.dispose();
@@ -122,10 +96,10 @@ class MyComponent extends React.Component<Props, State>{
     }
     render() {
         this.whileRendering = {
-            lastCursorLine: this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null
+            lastCursorLine: this.state.editor && this.state.editor.getLastCursor() ? this.state.editor.getLastCursor().getBufferRow() : null
         };
         return <div>
-            {this.tree.map(node => this.renderNode(node, 0)) }
+            {this.state.tree.map(node => this.renderNode(node, 0)) }
             </div>;
     }
 
@@ -151,7 +125,7 @@ class MyComponent extends React.Component<Props, State>{
     }
     gotoNode(node: SemanticTreeNode) {
         var gotoLine = node.start.line;
-        this.editor.setCursorBufferPosition([gotoLine, 0]);
+        this.state.editor.setCursorBufferPosition([gotoLine, 0]);
     }
 }
 
