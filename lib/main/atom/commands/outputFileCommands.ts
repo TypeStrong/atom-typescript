@@ -44,10 +44,10 @@ export function register() {
             }
             else {
                 // spawn('cmd', ['/C', 'start ' + "node " + res.output.outputFiles[0].name]);
-                var command = "node " + res.jsFilePath;
+                var command = `node ${path.basename(res.jsFilePath) }`;
                 console.log(command);
 
-                exec(command, (err, stdout, stderr) => {
+                exec(command, { cwd: path.dirname(res.jsFilePath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' } }, (err, stdout, stderr) => {
                     console.log(stdout);
                     if (stderr.toString().trim().length) {
                         console.error(stderr);
