@@ -43,6 +43,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Semantic View
 * Rename refactoring
 * Quick Fix
+* Toggle Breakpoint
 * Common Snippets
 * `import` / `/// <reference` relative path resolution
 * Output Toggle
@@ -169,6 +170,11 @@ Press the `TypeScript: Quick Fix` shortcut `alt+enter` at an error location to t
 
 ### More Quick fixes
 We are actively adding quick fixes so [**go here for an up to date list**](https://github.com/TypeStrong/atom-typescript/blob/master/docs/quickfix.md).
+
+## Toggle Breakpoint
+Use command `TypeScript: Toggle Breakpoint` shortcut `f9`:
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/toggleBreakpoint.gif)
 
 ## tsconfig validation
 We will validate it and help you to fix it :)
