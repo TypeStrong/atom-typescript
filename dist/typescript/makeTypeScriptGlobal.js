@@ -17,7 +17,7 @@ function makeTsGlobal(typescriptServices) {
         vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
     }
     else {
-        vm.runInContext(fs.readFileSync(require.resolve('ntypescript')).toString(), sandbox);
+        sandbox.ts = require('ntypescript');
     }
     global.ts = sandbox.ts;
 }
