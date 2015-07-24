@@ -496,6 +496,15 @@ export function registerCommands() {
         panelView.softReset();
     });
 
+    atom.commands.add('atom-text-editor', 'typescript:toggle-breakpoint', (e) => {
+        if (!atomUtils.commandForTypeScript(e)) return;
+
+        atom.notifications.addInfo('toggle breakpoint');
+
+        parent.toggleBreakpoint(atomUtils.getFilePathPosition()).then((res) => {
+            applyRefactorings(res.refactorings);
+        });
+    });
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
         var autocompletePlus = apd.require('autocomplete-plus');

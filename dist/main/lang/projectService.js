@@ -658,3 +658,50 @@ function createProject(query) {
     return resolve({ createdFilePath: projectFile.projectFilePath });
 }
 exports.createProject = createProject;
+function toggleBreakpoint(query) {
+    projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    var program = project.languageService.getProgram();
+    var sourceFile = program.getSourceFile(query.filePath);
+    var sourceFileText = sourceFile.getFullText();
+    var positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+    var refactoring;
+    if (positionNode.kind != ts.SyntaxKind.DebuggerKeyword && positionNode.getFullStart() > 0) {
+        var previousNode = ts.getTokenAtPosition(sourceFile, positionNode.getFullStart() - 1);
+        if (previousNode.kind == ts.SyntaxKind.DebuggerStatement) {
+            positionNode = previousNode;
+        }
+        if (previousNode.parent && previousNode.parent.kind == ts.SyntaxKind.DebuggerStatement) {
+            positionNode = previousNode.parent;
+        }
+    }
+    if (positionNode.kind == ts.SyntaxKind.DebuggerKeyword || positionNode.kind == ts.SyntaxKind.DebuggerStatement) {
+        var start = positionNode.getFullStart();
+        var end = start + positionNode.getFullWidth();
+        while (end < sourceFileText.length && sourceFileText[end] == ';') {
+            end = end + 1;
+        }
+        refactoring = {
+            filePath: query.filePath,
+            span: {
+                start: start,
+                length: end - start
+            },
+            newText: ''
+        };
+    }
+    else {
+        var toInsert = 'debugger;';
+        refactoring = {
+            filePath: query.filePath,
+            span: {
+                start: positionNode.getFullStart(),
+                length: 0
+            },
+            newText: toInsert
+        };
+    }
+    var refactorings = qf.getRefactoringsByFilePath(refactoring ? [refactoring] : []);
+    return resolve({ refactorings: refactorings });
+}
+exports.toggleBreakpoint = toggleBreakpoint;

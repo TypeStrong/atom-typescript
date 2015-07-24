@@ -73,5 +73,6 @@ exports.getOutputJsStatus = parent.sendToIpc(projectService.getOutputJsStatus);
 exports.softReset = parent.sendToIpc(projectService.softReset);
 exports.getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 exports.createProject = parent.sendToIpc(projectService.createProject);
+exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 var queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

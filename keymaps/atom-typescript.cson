@@ -8,6 +8,8 @@
   'alt-enter': 'typescript:quick-fix'
   'ctrl-M': 'typescript:output-toggle'
   'cmd-M': 'typescript:output-toggle'
+# Debuging
+  'f9': 'typescript:toggle-breakpoint'
 
 # Stronger bindings
 'atom-workspace':

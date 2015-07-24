@@ -398,5 +398,13 @@ function registerCommands() {
             return;
         mainPanelView_1.panelView.softReset();
     });
+    atom.commands.add('atom-text-editor', 'typescript:toggle-breakpoint', function (e) {
+        if (!atomUtils.commandForTypeScript(e))
+            return;
+        atom.notifications.addInfo('toggle breakpoint');
+        parent.toggleBreakpoint(atomUtils.getFilePathPosition()).then(function (res) {
+            applyRefactorings(res.refactorings);
+        });
+    });
 }
 exports.registerCommands = registerCommands;

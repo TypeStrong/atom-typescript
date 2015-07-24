@@ -76,16 +76,16 @@ export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
     if (!project.includesSourceFile(query.filePath)) {
-      return Promise.resolve({ valid: false });
+        return Promise.resolve({ valid: false });
     }
     var info = project.languageService.getQuickInfoAtPosition(query.filePath, query.position);
     if (!info) {
-      return Promise.resolve({ valid: false });
+        return Promise.resolve({ valid: false });
     } else {
-      return resolve({
-          valid: true,
-          name: ts.displayPartsToString(info.displayParts || []),
-          comment: ts.displayPartsToString(info.documentation || [])
+        return resolve({
+            valid: true,
+            name: ts.displayPartsToString(info.displayParts || []),
+            comment: ts.displayPartsToString(info.documentation || [])
         });
     }
 }
@@ -426,12 +426,12 @@ export function errorsForFile(query: FilePathQuery): Promise<{
     errors: TSError[]
 }> {
     consistentPath(query);
-    let project : project.Project;
+    let project: project.Project;
 
     try {
-      project = getOrCreateProject(query.filePath);
+        project = getOrCreateProject(query.filePath);
     } catch (ex) {
-        return resolve({ errors: []});
+        return resolve({ errors: [] });
     }
 
     // for file path errors in transformer
@@ -447,22 +447,22 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         let result: TSError[];
 
         if (project.includesSourceFile(query.filePath)) {
-          result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
+            result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
         } else {
-          result = notInContextResult(query.filePath);
+            result = notInContextResult(query.filePath);
         }
 
-        return resolve({ errors: result});
+        return resolve({ errors: result });
     }
 }
 
 function notInContextResult(fileName: string) {
-  return [{
-    filePath: fileName,
-    startPos: {line: 0, col: 0},
-    endPos: {line: 0, col: 0},
-    message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
-    preview: ""
+    return [{
+        filePath: fileName,
+        startPos: { line: 0, col: 0 },
+        endPos: { line: 0, col: 0 },
+        message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
+        preview: ""
     }];
 }
 
@@ -839,10 +839,10 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
     let program = project.languageService.getProgram();
     let sourceFile = program.getSourceFile(query.filePath);
     let sourceFileText: string,
-      fileErrors: ts.Diagnostic[],
-      positionErrors: ts.Diagnostic[],
-      positionErrorMessages: string[],
-      positionNode: ts.Node;
+        fileErrors: ts.Diagnostic[],
+        positionErrors: ts.Diagnostic[],
+        positionErrorMessages: string[],
+        positionNode: ts.Node;
     if (project.includesSourceFile(query.filePath)) {
         sourceFileText = sourceFile.getFullText();
         fileErrors = getDiagnositcsByFilePath(query);
@@ -851,11 +851,11 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
         positionNode = ts.getTokenAtPosition(sourceFile, query.position);
     } else {
-      sourceFileText = "";
-      fileErrors = [];
-      positionErrors = [];
-      positionErrorMessages = [];
-      positionNode = undefined;
+        sourceFileText = "";
+        fileErrors = [];
+        positionErrors = [];
+        positionErrorMessages = [];
+        positionNode = undefined;
     }
 
     let service = project.languageService;
@@ -894,7 +894,7 @@ export function getQuickFixes(query: GetQuickFixesQuery): Promise<GetQuickFixesR
     var project = getOrCreateProject(query.filePath);
 
     if (!project.includesSourceFile(query.filePath)) {
-      return resolve({fixes: []});
+        return resolve({ fixes: [] });
     }
 
     var info = getInfoForQuickFixAnalysis(query);
@@ -972,9 +972,9 @@ export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStat
     var output = getRawOutput(project, query.filePath);
     if (output.emitSkipped) {
         if (output.outputFiles && output.outputFiles.length === 1) {
-          if (output.outputFiles[0].text === building.Not_In_Context) {
-            return resolve({ emitDiffers: false });
-          }
+            if (output.outputFiles[0].text === building.Not_In_Context) {
+                return resolve({ emitDiffers: false });
+            }
         }
         return resolve({ emitDiffers: true });
     }
@@ -1021,4 +1021,73 @@ export function createProject(query: CreateProjectQuery): Promise<CreateProjectR
     var projectFile = tsconfig.createProjectRootSync(query.filePath);
     queryParent.setConfigurationError({ projectFilePath: query.filePath, error: null });
     return resolve({ createdFilePath: projectFile.projectFilePath });
+}
+
+/**
+ * Toggle breakpoint
+ */
+export interface ToggleBreakpointQuery extends FilePathPositionQuery { }
+export interface ToggleBreakpointResponse {
+    refactorings: qf.RefactoringsByFilePath;
+}
+export function toggleBreakpoint(query: ToggleBreakpointQuery): Promise<ToggleBreakpointResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+
+    // Get the node at the current location.
+    let program = project.languageService.getProgram();
+    let sourceFile = program.getSourceFile(query.filePath);
+    let sourceFileText = sourceFile.getFullText();
+    let positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+
+    let refactoring: Refactoring;
+
+    // Because we add a debugger *before* the current token
+    //  ... just preemptively check the previous token to see if *that* is a debugger keyword by any chance
+    if (positionNode.kind != ts.SyntaxKind.DebuggerKeyword && positionNode.getFullStart() > 0) {
+        let previousNode = ts.getTokenAtPosition(sourceFile, positionNode.getFullStart() - 1);
+        // Note: the previous node might be `debugger`
+        if (previousNode.kind == ts.SyntaxKind.DebuggerStatement) {
+            positionNode = previousNode;
+        }
+        // Or `debugger;` (previous node would be `;` but parent is the right one)
+        if (previousNode.parent && previousNode.parent.kind == ts.SyntaxKind.DebuggerStatement) {
+            positionNode = previousNode.parent;
+        }
+    }
+
+    // If it is a debugger keyword ... remove it
+    if (positionNode.kind == ts.SyntaxKind.DebuggerKeyword || positionNode.kind == ts.SyntaxKind.DebuggerStatement) {
+        let start = positionNode.getFullStart();
+        let end = start + positionNode.getFullWidth();
+
+        // also get trailing semicolons
+        while (end < sourceFileText.length && sourceFileText[end] == ';') {
+            end = end + 1;
+        }
+
+        refactoring = {
+            filePath: query.filePath,
+            span: {
+                start: start,
+                length: end - start
+            },
+            newText: ''
+        }
+    }
+    // Otherwise add a breakpoint; *before* the current token whatever that may be
+    else {
+        let toInsert = 'debugger;';
+        refactoring = {
+            filePath: query.filePath,
+            span: {
+                start: positionNode.getFullStart(),
+                length: 0
+            },
+            newText: toInsert
+        }
+    }
+
+    var refactorings = qf.getRefactoringsByFilePath(refactoring ? [refactoring] : []);
+    return resolve({ refactorings });
 }
