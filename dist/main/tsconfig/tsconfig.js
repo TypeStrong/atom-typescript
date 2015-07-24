@@ -240,7 +240,8 @@ function getProjectSync(pathOrSrcFile) {
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
         package: pkg,
-        typings: []
+        typings: [],
+        externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
