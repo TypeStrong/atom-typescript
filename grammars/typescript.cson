@@ -387,6 +387,33 @@
     ]
   }
   {
+    'begin': '(?:(?<=[\\)\\]])|([\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]+))(\\()'
+    'beginCaptures':
+      '2':
+        'name': 'punctuation.definition.parameters.begin.js'
+    'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.parameters.end.js'
+    'patterns': [
+      {
+        'begin': '(?=)'
+        'end': '(,)\\s*|(?=\\))'
+        'endCaptures':
+          '1':
+            'include': '#comma'
+        'patterns': [
+          {
+            'include': '$self'
+          }
+        ]
+      }
+      {
+        'include': '#comments'
+      }
+    ]
+  }
+  {
     'include': '#function'
   }
   {
