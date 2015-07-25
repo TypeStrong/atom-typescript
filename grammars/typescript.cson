@@ -387,6 +387,9 @@
     ]
   }
   {
+    'include': '#function'
+  }
+  {
     'begin': '(?:(?<=[\\)\\]])|([\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]+))(\\()'
     'beginCaptures':
       '2':
@@ -412,9 +415,6 @@
         'include': '#comments'
       }
     ]
-  }
-  {
-    'include': '#function'
   }
   {
     'comment': 'Prevent built-in types from being highlighted if accessed as property'
