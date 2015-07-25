@@ -390,7 +390,21 @@
     'include': '#function'
   }
   {
-    'begin': '(?:(?<=[\\)\\]])|([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*))(\\()'
+    'match': '(new)\\s+([\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*(?:\\.[\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*)*)'
+    'captures':
+      '1':
+        'name': 'keyword.operator.new.js'
+      '2':
+        'patterns': [
+          {
+            'name': 'entity.name.type.instance.js'
+            'match': '[\\p{L}\\p{Nl}$_.][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}.]*'
+          }
+        ]
+    'name': 'meta.class.instance.constructor'
+  }
+  {
+    'begin': '(?:(?<=[\\)\\]])|\\b([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*))(\\()'
     'beginCaptures':
       '1':
         'patterns': [
