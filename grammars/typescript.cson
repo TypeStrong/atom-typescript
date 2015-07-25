@@ -392,6 +392,21 @@
   {
     'begin': '(?:(?<=[\\)\\]])|([\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]+))(\\()'
     'beginCaptures':
+      '1':
+        'patterns': [
+          {
+            'match': '\\b(shift|showModelessDialog|showModalDialog|showHelp|scroll|scrollX|scrollByPages|scrollByLines|scrollY|scrollTo|stop|strike|sin|sizeToContent|sidebar|signText|sort|sup|sub|substr|substring|splice|split|send|set(Milliseconds|Seconds|Minutes|Hours|Month|Year|FullYear|Date|UTC(Milliseconds|Seconds|Minutes|Hours|Month|FullYear|Date)|Time|Hotkeys|Cursor|Timeout|Interval|ZOptions|Active|Resizable|RequestHeader)|search|sqrt|slice|savePreferences|small|home|handleEvent|navigate|char|charCodeAt|charAt|cos|concat|contextual|confirm|compile|ceil|clear|clearTimeout|clearInterval|captureEvents|call|createStyleSheet|createPopup|createEventObject|to(GMTString|UTCString|String|Source|UpperCase|LowerCase|LocaleString)|test|tan|taint|taintEnabled|isNaN|isFinite|indexOf|italics|disableExternalCapture|dump|detachEvent|unshift|untaint|unescape|unwatch|updateCommands|join|javaEnabled|pop|pow|push|plugins.refresh|paddings|parse|parseInt|parseFloat|print|prompt|preference|escape|enableExternalCapture|eval|elementFromPoint|exp|exec|execScript|execCommand|valueOf|UTC|queryCommandState|queryCommandIndeterm|queryCommandEnabled|queryCommandValue|find|file|fileModifiedDate|fileSize|fileCreatedDate|fileUpdatedDate|fixed|fontsize|fontcolor|forward|floor|fromCharCode|watch|link|load|log|lastIndexOf|asin|anchor|acos|attachEvent|atob|atan|atan2|apply|alert|abs|abort|round|routeEvents|resize|resizeBy|resizeTo|recalc|returnValue|replace|reverse|reload|releaseCapture|releaseEvents|random|go|get(Milliseconds|Seconds|Minutes|Hours|Month|Day|Year|FullYear|Time|Date|TimezoneOffset|UTC(Milliseconds|Seconds|Minutes|Hours|Day|Month|FullYear|Date)|Attention|Selection|ResponseHeader|AllResponseHeaders)|min|moveBy|moveBelow|moveTo|moveToAbsolute|moveAbove|mergeAttributes|match|margins|max|btoa|big|bold|borderWidths|blink|back)\\b(?=\\()'
+            'name': 'support.function.js'
+          }
+          {
+            'match': '\\b(substringData|submit|splitText|setNamedItem|setAttribute|setAttributeNode|select|hasChildNodes|hasFeature|namedItem|click|close|cloneNode|createComment|createCDATASection|createCaption|createTHead|createTextNode|createTFoot|createDocumentFragment|createProcessingInstruction|createEntityReference|createElement|createAttribute|tabIndex|insertRow|insertBefore|insertCell|insertData|item|open|deleteRow|deleteCell|deleteCaption|deleteTHead|deleteTFoot|deleteData|focus|write|writeln|add|appendChild|appendData|reset|replaceChild|replaceData|move|moveNamedItem|moveChild|moveAttribute|moveAttributeNode|getNamedItem|getElementsByName|getElementsByTagName|getElementById|getAttribute|getAttributeNode|blur)\\b(?=\\\()'
+            'name': 'support.function.dom.js'
+          }
+          {
+            'match': '\\bsuper'
+            'name': 'keyword.other.ts'
+          }
+        ]
       '2':
         'name': 'punctuation.definition.parameters.begin.js'
     'end': '\\)'
@@ -432,14 +447,6 @@
     'comment': 'Match stuff like: as'
     'match': '\\b(?:as|AS)\\b'
     'name': 'keyword.operator.ts'
-  }
-  {
-    'comment': 'Match stuff like: super(argument, list)'
-    'match': '(super)\\)'
-    'name': 'keyword.other.ts'
-    'captures':
-      '1':
-        'name': 'variable.type.ts'
   }
   {
     'comment': 'Match type SomeType = OtherType'
