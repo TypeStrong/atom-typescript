@@ -129,7 +129,7 @@
     'patterns': [
       {
         # Grammar rule originally taken from JavaScript grammar, but heavily modified (https://github.com/atom/language-javascript/blob/517019cdc8e9114b13c2edcebf4ec49cf27e7a64/grammars/javascript.cson#L263-L279)
-        'begin': '\\G\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\.(?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)?(?:<[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\s*,\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)*>)?)?(?:\\s+(extends)\\s)?'
+        'begin': '\\G\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\.(?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)?(?:<[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*(?:\\s*,\\s*[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)*>)?)?(?:\\s+(extends|implements)\\s)?'
         'beginCaptures':
           '1':
             'patterns': [
@@ -144,7 +144,7 @@
             ]
           '2':
             'name': 'storage.modifier.ts'
-        'end': '(?<!extends\\s)\\s*{'
+        'end': '(?<!extends\\s|implements\\s)\\s*{'
         'patterns': [
           {
             'include': '#typeinheritedfrom'
@@ -698,7 +698,7 @@
 
   'type':
     'begin': '(?=)'
-    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\.)(?!\\G)(?!\\.)(?!\\|)'
+    'end': '(?<!\\*\\/)(?<!\\|)(?<!\\s)(?<!\\.)(?!\\G)(?!\\.)(?!\\s*\\|)'
     'patterns': [
       {
           'begin': '\\((?!\\s*[\\p{L}\\p{Nl}$_\\)][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*\\s*(?:[,:]|\\)\\s*=>))'
@@ -713,10 +713,10 @@
         'include': '#keytype'
       }
       {
-        'include': '#typenontemplate'
+        'include': '#typetemplate'
       }
       {
-        'include': '#typetemplate'
+        'include': '#typenontemplate'
       }
       {
         'include': '#functiontype'
@@ -728,9 +728,9 @@
         'include': '#objecttype'
       }
       {
-        'match': '\\|'
+        'match': '\\s*(\\|)\\s*'
         'captures':
-          '0':
+          '1':
             'name': 'keyword.operator.union.ts'
       }
       {
