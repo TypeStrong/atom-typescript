@@ -15,6 +15,9 @@ You still have to reload atom with `ctrl+alt+r` to test your changes.
 
 (Note: [There is more guidance here](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) but what we have is sufficient. `apm link -l` creates a symlink for the folder into `%HOMEPATH%\.atom\packages`)
 
+## Pull
+Whenever you pull in latest changes, you should run `npm install`. Whenever we update to latest TypeScript we need to recompile all our js to make sure everybody gets the same code.
+
 **Optional**: If you are working on the binaries that are used if we deploy the package to NPM you can run (again from the directory that has `package.json`):
 
 ```bash
@@ -30,12 +33,6 @@ git config --system core.longpaths true
 And use `Shift+Delete` to delete files if simple `delete` doesn't work.
 
 # Various
-
-## Pull
-
-Whenever you pull in latest changes, you should run `npm install`. Otherwise the output js you get might be different from the desired one. This is because the TypeScript compiler is adding new enum members and that shifts the *js emit* for our code a bit.
-
-Also: Whenever we update to latest TypeScript we need to recompile all our js.
 
 ## Publishing
 
