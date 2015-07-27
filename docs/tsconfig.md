@@ -17,7 +17,8 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 * [`formatCodeOptions`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatcodeoptions) : Code formatting options
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
-* [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version): The TypeScript version
+* [`scripts`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#scripts) : Sometimes its useful to have post build scripts
+* [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) : The TypeScript version
 
 
 ## Examples
@@ -76,7 +77,18 @@ These are used when you request the IDE to format TypeScript code.
 ```
 
 ### compileOnSave
-We highly recommend you leave it as the default (true). But if you want you can can disable compile on save from IDEs. This allows you to leave the compilation to external tools. [This is planned to be supported by other IDEs as well.](https://github.com/Microsoft/TypeScript/issues/2326)
+We highly recommend you leave it as the default (true). But if you want you can can disable compile on save from IDEs. This allows you to leave the compilation to external tools. [Discussion](https://github.com/Microsoft/TypeScript/issues/2326)
+
+### scripts
+Inspired by `project.json` : https://github.com/aspnet/Home/wiki/Project.json-file#scripts. We only support `postbuild` at the moment.
+
+```json
+{
+  "scripts": {
+    "postbuild": "echo after building"
+  }
+}
+```
 
 ### version
 This exists simply to make it easier for the future you to know which TypeScript version was used when this project file was created. You can read more here [Microsoft/TypeScript#2113](https://github.com/Microsoft/TypeScript/issues/2133)

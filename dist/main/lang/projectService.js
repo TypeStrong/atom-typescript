@@ -2,6 +2,7 @@ var fsu = require("../utils/fsUtil");
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
+var child_process = require("child_process");
 var mkdirp = require('mkdirp');
 var fuzzaldrin = require('fuzzaldrin');
 var transformer_1 = require("./transformers/transformer");
@@ -93,6 +94,16 @@ function build(query) {
         var joinedDtsCode = finalCode.join(os.EOL);
         mkdirp.sync(path.dirname(defLocation));
         fs.writeFileSync(defLocation, joinedDtsCode);
+    }
+    if (proj.projectFile.project.scripts
+        && proj.projectFile.project.scripts.postbuild) {
+        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, function (err, stdout, stderr) {
+            if (err) {
+                console.error('postbuild failed!');
+                console.error(proj.projectFile.project.scripts.postbuild);
+                console.error(stderr);
+            }
+        });
     }
     var tsFilesWithInvalidEmit = outputs
         .filter(function (o) { return o.emitError; })

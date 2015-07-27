@@ -3,6 +3,7 @@ import * as fsu from "../utils/fsUtil";
 import fs = require('fs');
 import path = require('path');
 import os = require('os');
+import child_process = require("child_process");
 import mkdirp = require('mkdirp');
 var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string }) => any } = require('fuzzaldrin');
 import {isTransformerFile} from "./transformers/transformer";
@@ -168,6 +169,18 @@ declare module "${modulePath}"{
         let joinedDtsCode = finalCode.join(os.EOL);
         mkdirp.sync(path.dirname(defLocation));
         fs.writeFileSync(defLocation, joinedDtsCode);
+    }
+
+    // If there is a post build script to run ... run it
+    if (proj.projectFile.project.scripts
+        && proj.projectFile.project.scripts.postbuild) {
+        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, (err, stdout, stderr) => {
+            if (err) {
+                console.error('postbuild failed!');
+                console.error(proj.projectFile.project.scripts.postbuild);
+                console.error(stderr);
+            }
+        });
     }
 
     let tsFilesWithInvalidEmit = outputs

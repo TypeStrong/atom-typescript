@@ -95,16 +95,6 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
 }
 var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 
-interface TypeScriptProjectRawSpecification {
-    version?: string;
-    compilerOptions?: CompilerOptions;
-    files?: string[];                                   // optional: paths to files
-    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
-    formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
-    compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
-    externalTranspiler?: string;
-}
-
 interface UsefulFromPackageJson {
     /** We need this as this is the name the user is going to import **/
     name: string;
@@ -115,7 +105,24 @@ interface UsefulFromPackageJson {
     main: string;
 }
 
-// Main configuration
+/**
+ * This is the JSON.parse result of a tsconfig.json
+ */
+interface TypeScriptProjectRawSpecification {
+    version?: string;
+    compilerOptions?: CompilerOptions;
+    files?: string[];                                   // optional: paths to files
+    filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
+    formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
+    compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
+    externalTranspiler?: string;
+    scripts?: { postbuild?: string };
+}
+
+/**
+ * This is `TypeScriptProjectRawSpecification` parsed further
+ * Designed for use throughout out code base
+ */
 export interface TypeScriptProjectSpecification {
     compilerOptions: ts.CompilerOptions;
     files: string[];
@@ -125,6 +132,7 @@ export interface TypeScriptProjectSpecification {
     compileOnSave: boolean;
     package?: UsefulFromPackageJson;
     externalTranspiler?: string;
+    scripts: { postbuild?: string };
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -291,12 +299,13 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
     files = increaseProjectForReferenceAndImports(files);
     files = uniq(files.map(fsu.consistentPath));
 
-    let project = {
+    let project : TypeScriptProjectSpecification = {
         compilerOptions: defaults,
         files,
         typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
-        compileOnSave: true
+        compileOnSave: true,
+        scripts: {}
     };
 
     return {
@@ -407,7 +416,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
         package: pkg,
         typings: [],
-        externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler
+        externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
+        scripts: projectSpec.scripts || {}
     };
 
     // Validate the raw compiler options before converting them to TS compiler options

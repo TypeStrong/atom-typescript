@@ -6,7 +6,10 @@ import {pathIsRelative, makeRelativePath} from "../../tsconfig/tsconfig";
 import {consistentPath} from "../../utils/fsUtil";
 import {createMap} from "../utils";
 
+/** Lazy loaded babel tanspiler */
 let babel: any;
+
+/** If we get a compile request for a ts file that is not in project. We return a js file with the following content */
 export const Not_In_Context = "/* NotInContext */";
 
 export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
@@ -158,8 +161,6 @@ function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Proje
     return "";
   }
 }
-
-
 
 function isJSFile(fileName: string) {
   return (path.extname(fileName).toLocaleLowerCase() === ".js");
