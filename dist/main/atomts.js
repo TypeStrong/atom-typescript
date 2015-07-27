@@ -46,8 +46,13 @@ function readyToActivate() {
     parent.startWorker();
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
-            onlyOnceStuff();
             var filePath = editor.getPath();
+            onlyOnceStuff();
+            parent.getTsconfig({ filePath: filePath }).then(function (res) {
+                mainPanelView.panelView.setTsconfigInUse(res.filePath);
+            }).catch(function (err) {
+                mainPanelView.panelView.setTsconfigInUse('');
+            });
             parent.errorsForFile({ filePath: filePath })
                 .then(function (resp) {
                 mainPanelView_1.errorView.setErrors(filePath, resp.errors);
@@ -69,6 +74,11 @@ function readyToActivate() {
             var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();
+                parent.getTsconfig({ filePath: filePath }).then(function (res) {
+                    mainPanelView.panelView.setTsconfigInUse(res.filePath);
+                }).catch(function (err) {
+                    mainPanelView.panelView.setTsconfigInUse('');
+                });
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {
                     onDisk = true;

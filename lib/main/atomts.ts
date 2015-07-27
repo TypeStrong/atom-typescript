@@ -105,8 +105,14 @@ function readyToActivate() {
     // Observe changed active editor
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
-            onlyOnceStuff();
             var filePath = editor.getPath();
+
+            onlyOnceStuff();
+            parent.getTsconfig({filePath}).then((res)=>{
+                mainPanelView.panelView.setTsconfigInUse(res.filePath);
+            }).catch(err=>{
+                mainPanelView.panelView.setTsconfigInUse('');
+            });
 
             // Refresh errors stuff on change active tab.
             // Because the fix might be in the other file
@@ -139,6 +145,11 @@ function readyToActivate() {
             try {
                 // Only once stuff
                 onlyOnceStuff();
+                parent.getTsconfig({filePath}).then((res)=>{
+                    mainPanelView.panelView.setTsconfigInUse(res.filePath);
+                }).catch(err=>{
+                    mainPanelView.panelView.setTsconfigInUse('');
+                });
 
                 // We only do analysis once the file is persisted to disk
                 var onDisk = false;

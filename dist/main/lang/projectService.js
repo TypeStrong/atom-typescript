@@ -705,3 +705,9 @@ function toggleBreakpoint(query) {
     return resolve({ refactorings: refactorings });
 }
 exports.toggleBreakpoint = toggleBreakpoint;
+function getTsconfig(query) {
+    projectCache_1.consistentPath(query);
+    var project = projectCache_1.getOrCreateProject(query.filePath);
+    return resolve({ filePath: project.projectFile.projectFilePath });
+}
+exports.getTsconfig = getTsconfig;

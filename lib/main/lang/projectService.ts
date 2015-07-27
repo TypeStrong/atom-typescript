@@ -1091,3 +1091,18 @@ export function toggleBreakpoint(query: ToggleBreakpointQuery): Promise<ToggleBr
     var refactorings = qf.getRefactoringsByFilePath(refactoring ? [refactoring] : []);
     return resolve({ refactorings });
 }
+
+
+/**
+ * TSConfig in use
+ */
+export interface GetTsconfigQuery extends FilePathQuery { }
+export interface GetTsconfigResponse {
+    filePath: string;
+}
+export function getTsconfig(query: GetTsconfigQuery): Promise<GetTsconfigResponse> {
+    consistentPath(query);
+    var project = getOrCreateProject(query.filePath);
+
+    return resolve({ filePath: project.projectFile.projectFilePath });
+}

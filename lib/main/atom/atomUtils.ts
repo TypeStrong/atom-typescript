@@ -255,6 +255,30 @@ export function triggerLinter() {
         'linter:lint');
 }
 
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+export function getFilePathRelativeToAtomProject(filePath: string) {
+    filePath = fsu.consistentPath(filePath);
+    // Sample:
+    // atom.project.relativize(`D:/REPOS/atom-typescript/lib/main/atom/atomUtils.ts`)
+    return '~' + atom.project.relativize(filePath);
+}
+
+/**
+ * Opens the given file in the same project
+ */
+export function openFile(filePath: string, position: { line?: number; col?: number } = {}) {
+    var config: any = {};
+    if (position.line) {
+        config.initialLine = position.line - 1;
+    }
+    if (position.col) {
+        config.initialColumn = position.col;
+    }
+    atom.workspace.open(filePath, config);
+}
+
 /************
  * Snippets *
  ************/

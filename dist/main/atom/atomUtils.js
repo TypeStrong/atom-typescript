@@ -209,6 +209,23 @@ function triggerLinter() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
 }
 exports.triggerLinter = triggerLinter;
+function getFilePathRelativeToAtomProject(filePath) {
+    filePath = fsu.consistentPath(filePath);
+    return '~' + atom.project.relativize(filePath);
+}
+exports.getFilePathRelativeToAtomProject = getFilePathRelativeToAtomProject;
+function openFile(filePath, position) {
+    if (position === void 0) { position = {}; }
+    var config = {};
+    if (position.line) {
+        config.initialLine = position.line - 1;
+    }
+    if (position.col) {
+        config.initialColumn = position.col;
+    }
+    atom.workspace.open(filePath, config);
+}
+exports.openFile = openFile;
 var _snippetsManager;
 function _setSnippetsManager(snippetsManager) {
     _snippetsManager = snippetsManager;

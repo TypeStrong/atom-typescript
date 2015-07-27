@@ -17,6 +17,7 @@ import gotoHistory = require('../gotoHistory');
 
 export class MainPanelView extends view.View<any> {
 
+    private tsconfigInUse: JQuery;
     private fileStatus: JQuery;
     private btnFold: JQuery;
     private btnSoftReset: JQuery;
@@ -75,6 +76,16 @@ export class MainPanelView extends view.View<any> {
                                 btn("build", panelHeaders.build)
                                 btn("references", panelHeaders.references)
                             });
+
+                        this.div({
+                            style: 'display:inline-block; margin-top: 2px; cursor: pointer;',
+                            click: 'clickedCurrentTsconfigFilePath'
+                        }, () => {
+                            this.span({
+                                style: 'margin-left:10px;',
+                                outlet: 'tsconfigInUse'
+                            });
+                        });
 
                         this.div({
                             style: 'display:inline-block'
@@ -167,6 +178,28 @@ export class MainPanelView extends view.View<any> {
                 return parent.errorsForFile({ filePath: editor.getPath() })
             })
                 .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        }
+    }
+
+    ///////////// Current TSconfig
+    private fullTsconfigPath: string;
+    setTsconfigInUse(tsconfigFilePath: string) {
+        this.fullTsconfigPath = tsconfigFilePath;
+        if (!this.fullTsconfigPath) {
+            this.tsconfigInUse.text('no tsconfig.json');
+        }
+        else {
+            var path = atomUtils.getFilePathRelativeToAtomProject(tsconfigFilePath);
+            this.tsconfigInUse.text(`${path}`);
+        }
+    }
+    clickedCurrentTsconfigFilePath() {
+        if (!this.fullTsconfigPath) {
+            atom.notifications.addInfo("No tsconfig for current file")
+            return;
+        }
+        else{
+            atomUtils.openFile(this.fullTsconfigPath);
         }
     }
 
@@ -331,9 +364,9 @@ export class MainPanelView extends view.View<any> {
         this.errorBody.append(view.$);
     }
 
-    setErrorSummary(summary: any /*TODO: Type this*/) {
-        var
-            message = summary.summary,
+    /*TODO: Type this*/
+    setErrorSummary(summary: any) {
+        var message = summary.summary,
             className = summary.className,
             raw = summary.rawSummary || false,
             handler = summary.handler || undefined;

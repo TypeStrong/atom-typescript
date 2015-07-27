@@ -64,6 +64,15 @@ var MainPanelView = (function (_super) {
                     btn("references", panelHeaders.references);
                 });
                 _this.div({
+                    style: 'display:inline-block; margin-top: 2px; cursor: pointer;',
+                    click: 'clickedCurrentTsconfigFilePath'
+                }, function () {
+                    _this.span({
+                        style: 'margin-left:10px;',
+                        outlet: 'tsconfigInUse'
+                    });
+                });
+                _this.div({
                     style: 'display:inline-block'
                 }, function () {
                     _this.span({
@@ -144,6 +153,25 @@ var MainPanelView = (function (_super) {
                 return parent.errorsForFile({ filePath: editor.getPath() });
             })
                 .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });
+        }
+    };
+    MainPanelView.prototype.setTsconfigInUse = function (tsconfigFilePath) {
+        this.fullTsconfigPath = tsconfigFilePath;
+        if (!this.fullTsconfigPath) {
+            this.tsconfigInUse.text('no tsconfig.json');
+        }
+        else {
+            var path = atomUtils.getFilePathRelativeToAtomProject(tsconfigFilePath);
+            this.tsconfigInUse.text("" + path);
+        }
+    };
+    MainPanelView.prototype.clickedCurrentTsconfigFilePath = function () {
+        if (!this.fullTsconfigPath) {
+            atom.notifications.addInfo("No tsconfig for current file");
+            return;
+        }
+        else {
+            atomUtils.openFile(this.fullTsconfigPath);
         }
     };
     MainPanelView.prototype.updateFileStatus = function (filePath) {
