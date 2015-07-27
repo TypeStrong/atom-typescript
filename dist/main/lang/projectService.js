@@ -66,7 +66,8 @@ function build(query) {
         });
         return output;
     });
-    if (proj.projectFile.project.compilerOptions.declaration
+    if (!proj.projectFile.project.compilerOptions.out
+        && proj.projectFile.project.compilerOptions.declaration
         && proj.projectFile.project.package
         && proj.projectFile.project.package.name
         && proj.projectFile.project.package.definition) {

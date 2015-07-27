@@ -124,7 +124,8 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
     });
 
     // If there is a package.json with typescript we also output a big main .d.ts for easier use
-    if (proj.projectFile.project.compilerOptions.declaration
+    if (!proj.projectFile.project.compilerOptions.out
+        && proj.projectFile.project.compilerOptions.declaration
         && proj.projectFile.project.package
         && proj.projectFile.project.package.name
         && proj.projectFile.project.package.definition) {
