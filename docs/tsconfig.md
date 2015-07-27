@@ -17,7 +17,7 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 * [`formatCodeOptions`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatcodeoptions) : Code formatting options
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
-* [`buildOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#buildOnSave) : Should AtomTS build on save
+* [`buildOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#buildonsave) : Should AtomTS build on save
 * [`scripts`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#scripts) : Sometimes its useful to have post build scripts
 * [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) : The TypeScript version
 
