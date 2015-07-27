@@ -154,6 +154,7 @@ function getDefaultInMemoryProject(srcFile) {
         typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true,
+        buildOnSave: false,
         scripts: {}
     };
     return {
@@ -243,7 +244,8 @@ function getProjectSync(pathOrSrcFile) {
         package: pkg,
         typings: [],
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
-        scripts: projectSpec.scripts || {}
+        scripts: projectSpec.scripts || {},
+        buildOnSave: !!projectSpec.buildOnSave
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {

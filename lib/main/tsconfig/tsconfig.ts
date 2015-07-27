@@ -115,6 +115,7 @@ interface TypeScriptProjectRawSpecification {
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
+    buildOnSave?: boolean;
     externalTranspiler?: string;
     scripts?: { postbuild?: string };
 }
@@ -130,6 +131,7 @@ export interface TypeScriptProjectSpecification {
     filesGlob?: string[];
     formatCodeOptions: ts.FormatCodeOptions;
     compileOnSave: boolean;
+    buildOnSave: boolean;
     package?: UsefulFromPackageJson;
     externalTranspiler?: string;
     scripts: { postbuild?: string };
@@ -299,12 +301,13 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
     files = increaseProjectForReferenceAndImports(files);
     files = uniq(files.map(fsu.consistentPath));
 
-    let project : TypeScriptProjectSpecification = {
+    let project: TypeScriptProjectSpecification = {
         compilerOptions: defaults,
         files,
         typings: typings.ours.concat(typings.implicit),
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true,
+        buildOnSave: false,
         scripts: {}
     };
 
@@ -417,7 +420,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         package: pkg,
         typings: [],
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
-        scripts: projectSpec.scripts || {}
+        scripts: projectSpec.scripts || {},
+        buildOnSave: !!projectSpec.buildOnSave
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
@@ -426,7 +430,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         throw errorWithDetails<GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS_Details>(
             new Error(errors.GET_PROJECT_PROJECT_FILE_INVALID_OPTIONS),
             { projectFilePath: fsu.consistentPath(projectFile), errorMessage: validationResult.errorMessage }
-            );
+        );
     }
 
     // Convert the raw options to TS options
@@ -525,17 +529,17 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
                     return null;
                 }).filter(file=> !!file)
                     .concat(
-                        preProcessedFileInfo.importedFiles
-                            .filter((fileReference) => pathIsRelative(fileReference.fileName))
-                            .map(fileReference => {
-                                var file = path.resolve(dir, fileReference.fileName + '.ts');
-                                if (!fs.existsSync(file)) {
-                                    file = path.resolve(dir, fileReference.fileName + '.d.ts');
-                                }
-                                return file;
-                            })
-                        )
-                );
+                    preProcessedFileInfo.importedFiles
+                        .filter((fileReference) => pathIsRelative(fileReference.fileName))
+                        .map(fileReference => {
+                            var file = path.resolve(dir, fileReference.fileName + '.ts');
+                            if (!fs.existsSync(file)) {
+                                file = path.resolve(dir, fileReference.fileName + '.d.ts');
+                            }
+                            return file;
+                        })
+                    )
+            );
         });
 
         return selectMany(referenced);
