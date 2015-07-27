@@ -108,8 +108,8 @@ function readyToActivate() {
             var filePath = editor.getPath();
 
             onlyOnceStuff();
-            parent.getTsconfig({filePath}).then((res)=>{
-                mainPanelView.panelView.setTsconfigInUse(res.filePath);
+            parent.getProjectFileDetails({filePath}).then((res)=>{
+                mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
             }).catch(err=>{
                 mainPanelView.panelView.setTsconfigInUse('');
             });
@@ -145,8 +145,8 @@ function readyToActivate() {
             try {
                 // Only once stuff
                 onlyOnceStuff();
-                parent.getTsconfig({filePath}).then((res)=>{
-                    mainPanelView.panelView.setTsconfigInUse(res.filePath);
+                parent.getProjectFileDetails({filePath}).then((res)=>{
+                    mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
                 }).catch(err=>{
                     mainPanelView.panelView.setTsconfigInUse('');
                 });

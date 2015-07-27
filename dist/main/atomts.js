@@ -48,8 +48,8 @@ function readyToActivate() {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
             onlyOnceStuff();
-            parent.getTsconfig({ filePath: filePath }).then(function (res) {
-                mainPanelView.panelView.setTsconfigInUse(res.filePath);
+            parent.getProjectFileDetails({ filePath: filePath }).then(function (res) {
+                mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
             }).catch(function (err) {
                 mainPanelView.panelView.setTsconfigInUse('');
             });
@@ -74,8 +74,8 @@ function readyToActivate() {
             var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();
-                parent.getTsconfig({ filePath: filePath }).then(function (res) {
-                    mainPanelView.panelView.setTsconfigInUse(res.filePath);
+                parent.getProjectFileDetails({ filePath: filePath }).then(function (res) {
+                    mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
                 }).catch(function (err) {
                     mainPanelView.panelView.setTsconfigInUse('');
                 });

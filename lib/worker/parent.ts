@@ -96,7 +96,6 @@ export var softReset = parent.sendToIpc(projectService.softReset);
 export var getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 export var createProject = parent.sendToIpc(projectService.createProject);
 export var toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
-export var getTsconfig = parent.sendToIpc(projectService.getTsconfig);
 
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');
