@@ -48,10 +48,11 @@ var building = require('./modules/building');
 function build(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);
-    var totalCount = proj.projectFile.project.files.length;
+    var filesToEmit = proj.projectFile.project.compilerOptions.out ? [proj.projectFile.project.files[0]] : proj.projectFile.project.files;
+    var totalCount = filesToEmit.length;
     var builtCount = 0;
     var errorCount = 0;
-    var outputs = proj.projectFile.project.files.map(function (filePath) {
+    var outputs = filesToEmit.map(function (filePath) {
         var output = building.emitFile(proj, filePath);
         builtCount++;
         errorCount = errorCount + output.errors.length;

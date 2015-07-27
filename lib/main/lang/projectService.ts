@@ -102,10 +102,13 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
     consistentPath(query);
     var proj = getOrCreateProject(query.filePath);
 
-    var totalCount = proj.projectFile.project.files.length;
+    /** I am assuming ther was at least one file. How else would we even get here? */
+    let filesToEmit = proj.projectFile.project.compilerOptions.out ? [proj.projectFile.project.files[0]] : proj.projectFile.project.files;
+
+    let totalCount = filesToEmit.length;
     var builtCount = 0;
     var errorCount = 0;
-    var outputs = proj.projectFile.project.files.map((filePath) => {
+    let outputs: EmitOutput[] = filesToEmit.map((filePath) => {
         var output = building.emitFile(proj, filePath);
         builtCount++;
         errorCount = errorCount + output.errors.length;
