@@ -162,7 +162,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '(?:(private|puclic|protected)\\s+)?((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
+        'begin': '(?:(private|puclic|protected|static)\\s+){0,2}((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -185,7 +185,7 @@
         ]
       }
       {
-        'match': '(?:(private|public|protected)\\s+)?(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
+        'match': '(?:(private|puclic|protected|static)\\s+){0,2}(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
         'captures':
           '1':
             'name': 'storage.modifier.js'
@@ -211,7 +211,7 @@
         ]
       }
       {
-        'begin': '(?:(private|public|protected)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
+        'begin': '(?:(private|puclic|protected|static)\\s+){0,2}([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -252,13 +252,6 @@
       }
       {
         'include': '#curlybracerecursion'
-      }
-      {
-        'comment': 'Match keywords static'
-        'match': 'static'
-        'captures':
-          '0':
-            'name': 'storage.modifier.js'
       }
       {
         'match': ';'
