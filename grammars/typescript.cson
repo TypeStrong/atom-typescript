@@ -254,6 +254,9 @@
         'include': '#curlybracerecursion'
       }
       {
+        'include': '$self'
+      }
+      {
         'match': ';'
         'name': 'meta.delimiter.semicolon.js'
       }
@@ -532,6 +535,21 @@
       }
       {
         'include': '#comments'
+      }
+    ]
+  }
+  {
+    'begin': '\\?'
+    'beginCaptures':
+      '0':
+        'name': 'keyword.operator.js'
+    'end': ':'
+    'endCaptures':
+      '0':
+        'name': 'keyword.operator.js'
+    'patterns': [
+      {
+        'include': '$self'
       }
     ]
   }
