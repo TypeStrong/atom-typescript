@@ -161,6 +161,9 @@
         'include': '#typeindexable'
       }
       {
+        'include': '#decorator'
+      }
+      {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
         'begin': '(?:(private|puclic|protected|static)\\s+){0,2}((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
         'beginCaptures':
@@ -381,6 +384,9 @@
         'include': '#comments'
       }
     ]
+  }
+  {
+    'include': '#decorator'
   }
   {
     'include': '#function'
@@ -1011,6 +1017,23 @@
       }
       {
         'include': '#comments'
+      }
+    ]
+
+  'decorator':
+    'begin': '(\\@[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\()'
+    'beginCaptures':
+      '1':
+        'name': 'storage.type.annotation.js'
+      '2':
+        'name': 'punctuation.definition.parameters.begin.js'
+    'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.parameters.end.js'
+    'patterns': [
+      {
+        'include': '$self'
       }
     ]
 
