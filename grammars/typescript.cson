@@ -165,7 +165,7 @@
       }
       {
         'comment': 'Matches class method names and styles as function, even if marked private, or getters/setters'
-        'begin': '(?:(private|puclic|protected|static)\\s+){0,2}((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
+        'begin': '((?:(?:private|puclic|protected|static)\\s+){0,2})((?:[\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)?)<'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -188,7 +188,7 @@
         ]
       }
       {
-        'match': '(?:(private|puclic|protected|static)\\s+){0,2}(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
+        'match': '((?:(?:private|puclic|protected|static)\\s+){0,2})(?:(get|set)\\s+)?([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(?=\\()'
         'captures':
           '1':
             'name': 'storage.modifier.js'
@@ -214,7 +214,7 @@
         ]
       }
       {
-        'begin': '(?:(private|puclic|protected|static)\\s+){0,2}([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
+        'begin': '((?:(?:private|puclic|protected|static)\\s+){0,2})([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)\\s*:\\s*'
         'beginCaptures':
           '1':
             'name': 'storage.modifier.js'
@@ -233,11 +233,13 @@
         ]
       }
       {
-        'match': '([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)'
+        'match': '((?:(?:private|puclic|protected|static)\\s+){0,2})([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)(\\??)'
         'captures':
           '1':
-            'name': 'entity.name.variable.ts'
+            'name': 'storage.modifier.js'
           '2':
+            'name': 'entity.name.variable.ts'
+          '3':
             'name': 'keyword.operator.js'
       }
       {
