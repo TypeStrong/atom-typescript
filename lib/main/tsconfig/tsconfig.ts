@@ -116,7 +116,7 @@ interface TypeScriptProjectRawSpecification {
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
     buildOnSave?: boolean;
-    externalTranspiler?: string;
+    externalTranspiler?: { name: string; options?: any };
     scripts?: { postbuild?: string };
 }
 
@@ -133,7 +133,7 @@ export interface TypeScriptProjectSpecification {
     compileOnSave: boolean;
     buildOnSave: boolean;
     package?: UsefulFromPackageJson;
-    externalTranspiler?: string;
+    externalTranspiler?: { name: string; options?: any };
     scripts: { postbuild?: string };
 }
 

@@ -4,7 +4,7 @@ import path = require('path');
 import fs = require('fs');
 import {pathIsRelative, makeRelativePath} from "../../tsconfig/tsconfig";
 import {consistentPath} from "../../utils/fsUtil";
-import {createMap} from "../utils";
+import {createMap, assign} from "../utils";
 
 /** Lazy loaded babel tanspiler */
 let babel: any;
@@ -31,6 +31,8 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     var emitDone = !output.emitSkipped;
     var errors: TSError[] = [];
 
+    let sourceFile = services.getSourceFile(filePath);
+
     // Emit is no guarantee that there are no errors
     var allDiagnostics = services.getCompilerOptionsDiagnostics()
         .concat(services.getSyntacticDiagnostics(filePath))
@@ -48,7 +50,13 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
       let sourceMapContents: {[index:string]: any} = {};
       output.outputFiles.forEach(o => {
           mkdirp.sync(path.dirname(o.name));
-          let additionalEmits = runExternalTranspiler(o, proj, sourceMapContents);
+          let additionalEmits = runExternalTranspiler(
+              filePath,
+              sourceFile.text,
+              o,
+              proj,
+              sourceMapContents
+          );
 
           if (!sourceMapContents[o.name]) {
               // .js.map files will be written as an "additional emit" later.
@@ -89,7 +97,12 @@ export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOu
     return output;
 }
 
-function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Project, sourceMapContents: {[index:string]: any}) : ts.OutputFile[] {
+function runExternalTranspiler(sourceFileName: string,
+                               sourceFileText: string,
+                               outputFile: ts.OutputFile,
+                               project: project.Project,
+                               sourceMapContents: {[index:string]: any}) : ts.OutputFile[] {
+
   if (!isJSFile(outputFile.name) && !isJSSourceMapFile(outputFile.name)) {
     return [];
   }
@@ -107,15 +120,30 @@ function runExternalTranspiler(outputFile: ts.OutputFile, project: project.Proje
     return [];
   }
 
-  if (externalTranspiler.toLocaleLowerCase() === "babel") {
-    babel = require("babel");
+  if (typeof externalTranspiler === 'string') {
+      externalTranspiler = {
+          name: externalTranspiler as any,
+          options: {}
+      }
+  }
 
-    let babelOptions : any = {};
+  if (externalTranspiler.name.toLocaleLowerCase() === "babel") {
+    if (!babel) {
+      babel = require("babel")
+    }
+
+    let babelOptions : any = assign({}, externalTranspiler.options, {
+      filename: outputFile.name
+    });
 
     let sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
 
     if (sourceMapContents[sourceMapFileName]) {
       babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
+      let baseName = path.basename(sourceFileName);
+      // NOTE: Babel generates invalid source map without consistent `sources` and `file`.
+      babelOptions.inputSourceMap.sources = [baseName];
+      babelOptions.inputSourceMap.file = baseName;
     }
     if (settings.compilerOptions.sourceMap) {
       babelOptions.sourceMaps = true;
