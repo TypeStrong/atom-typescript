@@ -2,6 +2,7 @@ var mkdirp = require('mkdirp');
 var path = require('path');
 var fs = require('fs');
 var fsUtil_1 = require("../../utils/fsUtil");
+var utils_1 = require("../utils");
 var babel;
 exports.Not_In_Context = "/* NotInContext */";
 function diagnosticToTSError(diagnostic) {
@@ -22,6 +23,7 @@ function emitFile(proj, filePath) {
     var output = services.getEmitOutput(filePath);
     var emitDone = !output.emitSkipped;
     var errors = [];
+    var sourceFile = services.getSourceFile(filePath);
     var allDiagnostics = services.getCompilerOptionsDiagnostics()
         .concat(services.getSyntacticDiagnostics(filePath))
         .concat(services.getSemanticDiagnostics(filePath));
@@ -35,7 +37,7 @@ function emitFile(proj, filePath) {
         var sourceMapContents = {};
         output.outputFiles.forEach(function (o) {
             mkdirp.sync(path.dirname(o.name));
-            var additionalEmits = runExternalTranspiler(o, proj, sourceMapContents);
+            var additionalEmits = runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents);
             if (!sourceMapContents[o.name]) {
                 fs.writeFileSync(o.name, o.text, "utf8");
             }
@@ -73,7 +75,7 @@ function getRawOutput(proj, filePath) {
     return output;
 }
 exports.getRawOutput = getRawOutput;
-function runExternalTranspiler(outputFile, project, sourceMapContents) {
+function runExternalTranspiler(sourceFileName, sourceFileText, outputFile, project, sourceMapContents) {
     if (!isJSFile(outputFile.name) && !isJSSourceMapFile(outputFile.name)) {
         return [];
     }
@@ -88,37 +90,52 @@ function runExternalTranspiler(outputFile, project, sourceMapContents) {
         sourceMapContents[outputFile.name] = { jsFileName: jsFileName, sourceMapPayload: sourceMapPayload };
         return [];
     }
-    if (externalTranspiler.toLocaleLowerCase() === "babel") {
-        babel = require("babel");
-        var babelOptions = {};
-        var sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
-        if (sourceMapContents[sourceMapFileName]) {
-            babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
-        }
-        if (settings.compilerOptions.sourceMap) {
-            babelOptions.sourceMaps = true;
-        }
-        if (settings.compilerOptions.inlineSourceMap) {
-            babelOptions.sourceMaps = "inline";
-        }
-        if (!settings.compilerOptions.removeComments) {
-            babelOptions.comments = true;
-        }
-        var babelResult = babel.transform(outputFile.text, babelOptions);
-        outputFile.text = babelResult.code;
-        if (babelResult.map && settings.compilerOptions.sourceMap) {
-            var additionalEmit = {
-                name: sourceMapFileName,
-                text: JSON.stringify(babelResult.map),
-                writeByteOrderMark: settings.compilerOptions.emitBOM
-            };
-            if (additionalEmit.name === "") {
-                console.warn("The TypeScript language service did not yet provide a .js.map name for file " + outputFile.name);
-                return [];
+    if (typeof externalTranspiler === 'string') {
+        externalTranspiler = {
+            name: externalTranspiler,
+            options: {}
+        };
+    }
+    if (typeof externalTranspiler === 'object') {
+        if (externalTranspiler.name.toLocaleLowerCase() === "babel") {
+            if (!babel) {
+                babel = require("babel");
             }
-            return [additionalEmit];
+            var babelOptions = utils_1.assign({}, externalTranspiler.options || {}, {
+                filename: outputFile.name
+            });
+            var sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
+            if (sourceMapContents[sourceMapFileName]) {
+                babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
+                var baseName = path.basename(sourceFileName);
+                babelOptions.inputSourceMap.sources = [baseName];
+                babelOptions.inputSourceMap.file = baseName;
+            }
+            if (settings.compilerOptions.sourceMap) {
+                babelOptions.sourceMaps = true;
+            }
+            if (settings.compilerOptions.inlineSourceMap) {
+                babelOptions.sourceMaps = "inline";
+            }
+            if (!settings.compilerOptions.removeComments) {
+                babelOptions.comments = true;
+            }
+            var babelResult = babel.transform(outputFile.text, babelOptions);
+            outputFile.text = babelResult.code;
+            if (babelResult.map && settings.compilerOptions.sourceMap) {
+                var additionalEmit = {
+                    name: sourceMapFileName,
+                    text: JSON.stringify(babelResult.map),
+                    writeByteOrderMark: settings.compilerOptions.emitBOM
+                };
+                if (additionalEmit.name === "") {
+                    console.warn("The TypeScript language service did not yet provide a .js.map name for file " + outputFile.name);
+                    return [];
+                }
+                return [additionalEmit];
+            }
+            return [];
         }
-        return [];
     }
     function getJSMapNameForJSFile(jsFileName) {
         for (var jsMapName in sourceMapContents) {
