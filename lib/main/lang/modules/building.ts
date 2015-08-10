@@ -122,60 +122,63 @@ function runExternalTranspiler(sourceFileName: string,
 
         if (typeof externalTranspiler === 'string') {
             externalTranspiler = {
-                name: externalTranspiler as any,
+                name: externalTranspiler as string,
                 options: {}
             }
         }
 
-        if (externalTranspiler.name.toLocaleLowerCase() === "babel") {
-            if (!babel) {
-                babel = require("babel")
-            }
-
-            let babelOptions: any = assign({}, externalTranspiler.options, {
-                filename: outputFile.name
-            });
-
-            let sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
-
-            if (sourceMapContents[sourceMapFileName]) {
-                babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
-                let baseName = path.basename(sourceFileName);
-                // NOTE: Babel generates invalid source map without consistent `sources` and `file`.
-                babelOptions.inputSourceMap.sources = [baseName];
-                babelOptions.inputSourceMap.file = baseName;
-            }
-            if (settings.compilerOptions.sourceMap) {
-                babelOptions.sourceMaps = true;
-            }
-            if (settings.compilerOptions.inlineSourceMap) {
-                babelOptions.sourceMaps = "inline";
-            }
-            if (!settings.compilerOptions.removeComments) {
-                babelOptions.comments = true;
-            }
-
-            let babelResult = babel.transform(outputFile.text, babelOptions);
-            outputFile.text = babelResult.code;
-
-            if (babelResult.map && settings.compilerOptions.sourceMap) {
-                let additionalEmit : ts.OutputFile = {
-                    name: sourceMapFileName,
-                    text : JSON.stringify(babelResult.map),
-                    writeByteOrderMark: settings.compilerOptions.emitBOM
-                };
-
-                if (additionalEmit.name === "") {
-                    // can't emit a blank file name - this should only be reached if the TypeScript
-                    // language service returns the .js file before the .js.map file.
-                    console.warn(`The TypeScript language service did not yet provide a .js.map name for file ${outputFile.name}`);
-                    return [];
+        // We need this type guard to narrow externalTranspiler's type
+        if (typeof externalTranspiler === 'object') {
+            if (externalTranspiler.name.toLocaleLowerCase() === "babel") {
+                if (!babel) {
+                    babel = require("babel")
                 }
 
-                return [additionalEmit];
-            }
+                let babelOptions: any = assign({}, externalTranspiler.options || {}, {
+                    filename: outputFile.name
+                });
 
-            return [];
+                let sourceMapFileName = getJSMapNameForJSFile(outputFile.name);
+
+                if (sourceMapContents[sourceMapFileName]) {
+                    babelOptions.inputSourceMap = sourceMapContents[sourceMapFileName].sourceMapPayload;
+                    let baseName = path.basename(sourceFileName);
+                    // NOTE: Babel generates invalid source map without consistent `sources` and `file`.
+                    babelOptions.inputSourceMap.sources = [baseName];
+                    babelOptions.inputSourceMap.file = baseName;
+                }
+                if (settings.compilerOptions.sourceMap) {
+                    babelOptions.sourceMaps = true;
+                }
+                if (settings.compilerOptions.inlineSourceMap) {
+                    babelOptions.sourceMaps = "inline";
+                }
+                if (!settings.compilerOptions.removeComments) {
+                    babelOptions.comments = true;
+                }
+
+                let babelResult = babel.transform(outputFile.text, babelOptions);
+                outputFile.text = babelResult.code;
+
+                if (babelResult.map && settings.compilerOptions.sourceMap) {
+                    let additionalEmit : ts.OutputFile = {
+                        name: sourceMapFileName,
+                        text : JSON.stringify(babelResult.map),
+                        writeByteOrderMark: settings.compilerOptions.emitBOM
+                    };
+
+                    if (additionalEmit.name === "") {
+                        // can't emit a blank file name - this should only be reached if the TypeScript
+                        // language service returns the .js file before the .js.map file.
+                        console.warn(`The TypeScript language service did not yet provide a .js.map name for file ${outputFile.name}`);
+                        return [];
+                    }
+
+                    return [additionalEmit];
+                }
+
+                return [];
+            }
         }
 
         function getJSMapNameForJSFile(jsFileName: string) {
