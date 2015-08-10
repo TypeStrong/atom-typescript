@@ -48,7 +48,7 @@ export class SimpleValidator {
                 var value: any = config[k];
                 if (validationInfo.validValues && validationInfo.validValues.length) {
                     var validValues = validationInfo.validValues;
-                    if (!validValues.some(valid => valid === value)) {
+                    if (!validValues.some(valid => valid.toLowerCase() === value.toLowerCase())) {
                         errors.invalidValues.push(`Key: '${k}' has an invalid value: ${value}`);
                     }
                 }
