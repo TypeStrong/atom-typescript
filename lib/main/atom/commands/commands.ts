@@ -208,9 +208,14 @@ export function registerCommands() {
         /*atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
             'typescript:testing-r-view');*/
+        
+        // atom.commands.dispatch(
+        //     atom.views.getView(atom.workspace.getActiveTextEditor()),
+        //     'typescript:toggle-semantic-view');
+             
         atom.commands.dispatch(
             atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:toggle-semantic-view');
+            'typescript:dependency-view');
 
         // parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
         //     console.log(res.root);

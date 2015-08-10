@@ -93,11 +93,11 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
             nodes.classed('filtered-out', true);
             links.classed('filtered-out', true);
             text.classed('filtered-out', true);
-            let filteredNodes = graph.selectAll(`circle[data-name*=${htmlName({ name: val }) }]`);
+            let filteredNodes = graph.selectAll(`circle[data-name*="${htmlName({ name: val }) }"]`);
             filteredNodes.classed('filtered-out', false);
-            var filteredLinks = graph.selectAll(`[data-source*=${htmlName({ name: val }) }][data-target*=${htmlName({ name: val }) }]`);
+            var filteredLinks = graph.selectAll(`[data-source*="${htmlName({ name: val }) }"][data-target*="${htmlName({ name: val }) }"]`);
             filteredLinks.classed('filtered-out', false);
-            let filteredText = graph.selectAll(`text[data-name*=${htmlName({ name: val }) }]`);
+            let filteredText = graph.selectAll(`text[data-name*="${htmlName({ name: val }) }"]`);
             filteredText.classed('filtered-out', false);
         }
     });
@@ -253,6 +253,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
     }
 
     function onNodeMouseOver(d: D3LinkNode) {
+        
         // Highlight circle
         var elm = findElementByNode(prefixes.circle, d);
         elm.classed("hovering", true);
@@ -305,7 +306,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 elmNodes.classed('dimmed', false);
 
                 // Highlight arrows
-                let outgoingLink = graph.selectAll('path.link[data-source=' + htmlName(o.source) + ']');
+                let outgoingLink = graph.selectAll('path.link[data-source="' + htmlName(o.source) + '"]');
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
                 outgoingLink.classed('outgoing', true);
@@ -315,7 +316,7 @@ function renderGraph(dependencies: FileDependency[], mainContent: JQuery, displa
                 this.classList.remove('dimmed');
                 
                 // Highlight arrows
-                let incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
+                let incommingLink = graph.selectAll('path.link[data-target="' + htmlName(o.target) + '"]');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
                 incommingLink.classed('incomming', true);

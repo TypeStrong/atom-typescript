@@ -166,7 +166,7 @@ function registerCommands() {
         //     console.log(res.text.length);
         //     // console.log(JSON.stringify({txt:res.text}))
         // });
-        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:toggle-semantic-view');
+        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
     });
     atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', function (e) {
         if (!atomUtils.commandForTypeScript(e))

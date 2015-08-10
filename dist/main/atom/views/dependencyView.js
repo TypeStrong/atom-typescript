@@ -68,11 +68,11 @@ function renderGraph(dependencies, mainContent, display) {
             nodes.classed('filtered-out', true);
             links.classed('filtered-out', true);
             text.classed('filtered-out', true);
-            var filteredNodes = graph.selectAll("circle[data-name*=" + htmlName({ name: val }) + "]");
+            var filteredNodes = graph.selectAll("circle[data-name*=\"" + htmlName({ name: val }) + "\"]");
             filteredNodes.classed('filtered-out', false);
-            var filteredLinks = graph.selectAll("[data-source*=" + htmlName({ name: val }) + "][data-target*=" + htmlName({ name: val }) + "]");
+            var filteredLinks = graph.selectAll("[data-source*=\"" + htmlName({ name: val }) + "\"][data-target*=\"" + htmlName({ name: val }) + "\"]");
             filteredLinks.classed('filtered-out', false);
-            var filteredText = graph.selectAll("text[data-name*=" + htmlName({ name: val }) + "]");
+            var filteredText = graph.selectAll("text[data-name*=\"" + htmlName({ name: val }) + "\"]");
             filteredText.classed('filtered-out', false);
         }
     });
@@ -237,14 +237,14 @@ function renderGraph(dependencies, mainContent, display) {
                 elmNodes.attr('fill-opacity', 1);
                 elmNodes.attr('stroke-opacity', 1);
                 elmNodes.classed('dimmed', false);
-                var outgoingLink = graph.selectAll('path.link[data-source=' + htmlName(o.source) + ']');
+                var outgoingLink = graph.selectAll('path.link[data-source="' + htmlName(o.source) + '"]');
                 outgoingLink.attr('data-show', 'true');
                 outgoingLink.attr('marker-end', 'url(#regular)');
                 outgoingLink.classed('outgoing', true);
             }
             else if (o.target.name === d.name) {
                 this.classList.remove('dimmed');
-                var incommingLink = graph.selectAll('path.link[data-target=' + htmlName(o.target) + ']');
+                var incommingLink = graph.selectAll('path.link[data-target="' + htmlName(o.target) + '"]');
                 incommingLink.attr('data-show', 'true');
                 incommingLink.attr('marker-end', 'url(#regular)');
                 incommingLink.classed('incomming', true);
