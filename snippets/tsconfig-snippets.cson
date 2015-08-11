@@ -4,6 +4,7 @@
         'body': """
             "filesGlob": [
                 "./**/*.ts",
+                "./**/*.tsx",
                 "!./node_modules/**/*.ts"
             ],
         """
