@@ -133,3 +133,8 @@
                 $2
             }transform:${1:null}
         """
+    'shebang':
+        'prefix': '#!'
+        'body': """
+            #!/usr/bin/env node
+        """
