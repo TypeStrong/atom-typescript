@@ -34,6 +34,7 @@ interface CompilerOptions {
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
+    newLine?: string;
     noEmit?: boolean;
     noEmitHelpers?: boolean;
     noEmitOnError?: boolean;
@@ -73,6 +74,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
@@ -237,6 +239,10 @@ var typescriptEnumMap = {
     jsx: {
         'preserve': ts.JsxEmit.Preserve,
         'react': ts.JsxEmit.React
+    },
+    newLine: {
+        'CRLF': ts.NewLineKind.CarriageReturnLineFeed,
+        'LF': ts.NewLineKind.LineFeed
     }
 };
 

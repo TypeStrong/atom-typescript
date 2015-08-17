@@ -20,6 +20,7 @@ var compilerOptionsValidation = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
@@ -99,6 +100,10 @@ var typescriptEnumMap = {
     jsx: {
         'preserve': ts.JsxEmit.Preserve,
         'react': ts.JsxEmit.React
+    },
+    newLine: {
+        'CRLF': ts.NewLineKind.CarriageReturnLineFeed,
+        'LF': ts.NewLineKind.LineFeed
     }
 };
 var jsonEnumMap = {};
