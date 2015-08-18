@@ -12,6 +12,12 @@
 
 /** Utility function to print stack trace from whereever */
 declare function stack();
+declare module NodeJS {
+    export interface Global {
+        stack: any;
+        ts: any;
+    }
+}
 
 interface Function {
     name?: string; // exists for named function on node / atom / "good" browsers ;)

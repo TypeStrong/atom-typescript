@@ -20,7 +20,7 @@ interface TSTokens { tokens: TSToken[]; ruleStack: any[] }
 // This should be
 //  {Grammar} = require "first-mate"
 // but doing so throws "Error: Cannot find module 'first-mate'"
-global.AtomTSBaseGrammar = require((<any> atom).config.resourcePath + "/node_modules/first-mate/lib/grammar.js");
+(<any>global).AtomTSBaseGrammar = require((<any> atom).config.resourcePath + "/node_modules/first-mate/lib/grammar.js");
 
 export class TypeScriptSemanticGrammar extends AtomTSBaseGrammar {
     constructor(public registry) {

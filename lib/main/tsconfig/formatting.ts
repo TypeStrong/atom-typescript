@@ -31,6 +31,7 @@ export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
         InsertSpaceBeforeAndAfterBinaryOperators: true,
         InsertSpaceAfterKeywordsInControlFlowStatements: true,
         InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+        InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
         InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
         PlaceOpenBraceOnNewLineForFunctions: false,
         PlaceOpenBraceOnNewLineForControlBlocks: false,

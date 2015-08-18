@@ -10,6 +10,7 @@ function defaultFormatCodeOptions() {
         InsertSpaceBeforeAndAfterBinaryOperators: true,
         InsertSpaceAfterKeywordsInControlFlowStatements: true,
         InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+        InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
         InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
         PlaceOpenBraceOnNewLineForFunctions: false,
         PlaceOpenBraceOnNewLineForControlBlocks: false,
