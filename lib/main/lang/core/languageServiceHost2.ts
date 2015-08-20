@@ -376,7 +376,6 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
             let removeFileExtension = ts.removeFileExtension;
             let getDirectoryPath = ts.getDirectoryPath;
             let forEach = ts.forEach;
-            let supportedExtensions = ts.supportedExtensions;
         
             let cacheLookupName = moduleName + containingFile;
             if (this.resolvedExternalModuleCache[cacheLookupName]) {
@@ -392,8 +391,13 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
             }
             while (true) {
                 // Look at files by all extensions
-                let found = ts.forEach(ts.supportedExtensions,
+                let supportedExtensions = ts.supportedExtensions;
+                let found = ts.forEach(supportedExtensions,
                     extension => getNameIfExists(ts.normalizePath(ts.combinePaths(containingFile, moduleName)) + extension));
+                
+                // If not found ... continue lookup but this time with `.d.ts` first
+                supportedExtensions = ['.d.ts','.ts','.tsx'];
+                
                 // Also look at all files by node_modules
                 if (!found) {
                     found = ts.forEach(ts.supportedExtensions,

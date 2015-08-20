@@ -251,7 +251,6 @@ var LanguageServiceHost = (function () {
         var removeFileExtension = ts.removeFileExtension;
         var getDirectoryPath = ts.getDirectoryPath;
         var forEach = ts.forEach;
-        var supportedExtensions = ts.supportedExtensions;
         var cacheLookupName = moduleName + containingFile;
         if (this.resolvedExternalModuleCache[cacheLookupName]) {
             return this.resolvedExternalModuleCache[cacheLookupName];
@@ -265,7 +264,9 @@ var LanguageServiceHost = (function () {
             }
         }
         while (true) {
-            var found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(containingFile, moduleName)) + extension); });
+            var supportedExtensions = ts.supportedExtensions;
+            var found = ts.forEach(supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(containingFile, moduleName)) + extension); });
+            supportedExtensions = ['.d.ts', '.ts', '.tsx'];
             if (!found) {
                 found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(containingFile, "node_modules"), moduleName)) + extension); });
             }
