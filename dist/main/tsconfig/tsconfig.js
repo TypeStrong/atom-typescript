@@ -67,7 +67,7 @@ var defaultFilesGlob = [
     "./**/*.tsx",
     "!./node_modules/**/*",
 ];
-var invisibleFilesGlob = ["./**/*.ts"];
+var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
 var typeScriptVersion = '1.5.0-beta';
 exports.defaults = {
     target: ts.ScriptTarget.ES5,

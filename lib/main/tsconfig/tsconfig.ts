@@ -204,7 +204,7 @@ var defaultFilesGlob = [
 /**
  * This is what we use when the user doens't specify a files / filesGlob
  */
-var invisibleFilesGlob = ["./**/*.ts"];
+var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
 var typeScriptVersion = '1.5.0-beta';
 
 export var defaults: ts.CompilerOptions = {
