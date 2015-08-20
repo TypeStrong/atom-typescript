@@ -236,10 +236,63 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = ts.getDefaultLibFileName;
+        this.resolvedExternalModuleCache = {};
         if (!config.project.compilerOptions.noLib) {
             this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
         }
     }
+    LanguageServiceHost.prototype.resolveModuleNames = function (moduleNames, containingFile) {
+        var _this = this;
+        return moduleNames.map(function (x) { return _this.resolveExternalModule(x, containingFile); });
+    };
+    LanguageServiceHost.prototype.resolveExternalModule = function (moduleName, containingFile) {
+        var normalizePath = ts.normalizePath;
+        var combinePaths = ts.combinePaths;
+        var removeFileExtension = ts.removeFileExtension;
+        var getDirectoryPath = ts.getDirectoryPath;
+        var forEach = ts.forEach;
+        var supportedExtensions = ts.supportedExtensions;
+        var cacheLookupName = moduleName + containingFile;
+        if (this.resolvedExternalModuleCache[cacheLookupName]) {
+            return this.resolvedExternalModuleCache[cacheLookupName];
+        }
+        if (this.resolvedExternalModuleCache[cacheLookupName] === '') {
+            return undefined;
+        }
+        function getNameIfExists(fileName) {
+            if (fs.existsSync(fileName)) {
+                return fileName;
+            }
+        }
+        while (true) {
+            var found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(containingFile, moduleName)) + extension); });
+            if (!found) {
+                found = ts.forEach(ts.supportedExtensions, function (extension) { return getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(containingFile, "node_modules"), moduleName)) + extension); });
+            }
+            if (!found) {
+                var pkgJson = getNameIfExists(normalizePath(combinePaths(combinePaths(combinePaths(containingFile, "node_modules"), moduleName), "package.json")));
+                if (pkgJson) {
+                    var pkgFile = JSON.parse(fs.readFileSync(pkgJson, 'utf8'));
+                    if (pkgFile.main) {
+                        var indexFileName = removeFileExtension(combinePaths(getDirectoryPath(pkgJson), pkgFile.main));
+                        found = forEach(supportedExtensions, function (extension) { return getNameIfExists(indexFileName + extension); });
+                    }
+                }
+            }
+            if (!found) {
+                found = forEach(supportedExtensions, function (extension) { return getNameIfExists(normalizePath(combinePaths(combinePaths(combinePaths(containingFile, "node_modules"), moduleName), "index")) + extension); });
+            }
+            if (found) {
+                return this.resolvedExternalModuleCache[cacheLookupName] = found;
+            }
+            var parentPath = getDirectoryPath(containingFile);
+            if (parentPath === containingFile) {
+                this.resolvedExternalModuleCache[cacheLookupName] = '';
+                return undefined;
+            }
+            containingFile = parentPath;
+        }
+    };
     return LanguageServiceHost;
 })();
 exports.LanguageServiceHost = LanguageServiceHost;

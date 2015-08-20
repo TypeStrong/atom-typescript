@@ -360,4 +360,74 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return this.config.projectFileDirectory;
     }
     getDefaultLibFileName = ts.getDefaultLibFileName;
+    
+    resolveModuleNames(moduleNames: string[], containingFile: string): string[] {
+        return moduleNames.map(x=> this.resolveExternalModule(x, containingFile));
+    }
+    
+    /**
+     * node_modules resolution logic
+     * Code from https://github.com/Microsoft/TypeScript/pull/3147/files
+     */
+    resolvedExternalModuleCache: ts.Map<string> = {};
+    resolveExternalModule(moduleName: string, containingFile: string): string {
+            let normalizePath = ts.normalizePath;
+            let combinePaths = ts.combinePaths;
+            let removeFileExtension = ts.removeFileExtension;
+            let getDirectoryPath = ts.getDirectoryPath;
+            let forEach = ts.forEach;
+            let supportedExtensions = ts.supportedExtensions;
+        
+            let cacheLookupName = moduleName + containingFile;
+            if (this.resolvedExternalModuleCache[cacheLookupName]) {
+                return this.resolvedExternalModuleCache[cacheLookupName];
+            }
+            if (this.resolvedExternalModuleCache[cacheLookupName] === '') {
+                return undefined;
+            }
+            function getNameIfExists(fileName: string): string {
+                if (fs.existsSync(fileName)) {
+                    return fileName;
+                }
+            }
+            while (true) {
+                // Look at files by all extensions
+                let found = ts.forEach(ts.supportedExtensions,
+                    extension => getNameIfExists(ts.normalizePath(ts.combinePaths(containingFile, moduleName)) + extension));
+                // Also look at all files by node_modules
+                if (!found) {
+                    found = ts.forEach(ts.supportedExtensions,
+                        extension => getNameIfExists(ts.normalizePath(ts.combinePaths(ts.combinePaths(containingFile, "node_modules"), moduleName)) + extension));
+                }
+                // Also look at package.json's main in node_modules
+                if (!found) {
+                    // If we found a package.json then look at its main field
+                    let pkgJson = getNameIfExists(normalizePath(combinePaths(combinePaths(combinePaths(containingFile, "node_modules"), moduleName), "package.json")));
+                    if (pkgJson) {
+                        let pkgFile = JSON.parse(fs.readFileSync(pkgJson,'utf8'));
+                        if (pkgFile.main) {
+                            var indexFileName = removeFileExtension(combinePaths(getDirectoryPath(pkgJson), pkgFile.main));
+                            found = forEach(supportedExtensions,
+                                extension => getNameIfExists(indexFileName + extension))
+                        }
+                    }
+                }
+                // look at node_modules index
+                if (!found) {
+                    found = forEach(supportedExtensions,
+                        extension => getNameIfExists(normalizePath(combinePaths(combinePaths(combinePaths(containingFile, "node_modules"), moduleName), "index")) + extension));
+                }
+                
+                // Finally cache and return or continue up the directory tree
+                if (found) {
+                    return this.resolvedExternalModuleCache[cacheLookupName] = found;
+                }
+                let parentPath = getDirectoryPath(containingFile);
+                if (parentPath === containingFile) {
+                    this.resolvedExternalModuleCache[cacheLookupName] = '';
+                    return undefined;
+                }
+                containingFile = parentPath;
+            }
+        }
 }
