@@ -13,6 +13,7 @@ function default_1(options, editor) {
         singleton = new SimpleOverlaySelectListView(options, editor);
     else {
         singleton.options = options;
+        singleton.editor = editor;
     }
     singleton.setItems();
     singleton.show();
