@@ -17,7 +17,10 @@ var singleton: SimpleOverlaySelectListView<any>;
 
 export default function <T>(options: SelectListViewOptions<T>, editor: AtomCore.IEditor): SimpleOverlaySelectListView<T> {
     if (!singleton) singleton = new SimpleOverlaySelectListView<T>(options, editor);
-    else { singleton.options = options; }
+    else {
+        singleton.options = options;
+        singleton.editor = editor;
+    }
 
     singleton.setItems();
     singleton.show();
