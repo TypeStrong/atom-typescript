@@ -28,6 +28,9 @@ var errors = selectMany(proj.projectFile.project.files.map((filePath) => {
     return output.errors;
 }));
 
+// Also optionally emit a root dts:		
+building.emitDts(proj);
+
 if (errors.length == 0) {
     console.log('Compile successfull');
     process.exit(0);
