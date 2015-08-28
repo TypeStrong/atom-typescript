@@ -3,12 +3,10 @@ var fs = require('fs');
 var path = require('path');
 var os = require('os');
 var child_process = require("child_process");
-var mkdirp = require('mkdirp');
 var fuzzaldrin = require('fuzzaldrin');
 var transformer_1 = require("./transformers/transformer");
 var transformer = require("./transformers/transformer");
 var tsconfig = require('../tsconfig/tsconfig');
-var fsUtil = require("../utils/fsUtil");
 var utils = require('./utils');
 var resolve = Promise.resolve.bind(Promise);
 var projectCache_1 = require("./projectCache");
@@ -66,37 +64,7 @@ function build(query) {
         });
         return output;
     });
-    if (!proj.projectFile.project.compilerOptions.out
-        && proj.projectFile.project.compilerOptions.declaration
-        && proj.projectFile.project.package
-        && proj.projectFile.project.package.name
-        && proj.projectFile.project.package.definition) {
-        var packageDir = proj.projectFile.project.package.directory;
-        var defLocation = fsUtil.resolve(packageDir, proj.projectFile.project.package.definition);
-        var moduleName = proj.projectFile.project.package.name;
-        var dtsFiles = utils.selectMany(outputs.map(function (o) { return o.outputFiles; })).filter(function (f) { return fsUtil.isExt(f, '.d.ts'); });
-        var finalCode = [];
-        var addModuleToOutput = function (modulePath, fileToImport) {
-            finalCode.push(os.EOL + ("\ndeclare module \"" + modulePath + "\"{\n    import tmp = require('" + fileToImport + "');\n    export = tmp;\n}\n            ").trim());
-        };
-        dtsFiles.forEach(function (file) {
-            var relativePath = fsUtil.makeRelativePath(packageDir, file);
-            var relativePathNoExt = relativePath.substring(0, relativePath.length - 5);
-            var modulePath = moduleName + relativePathNoExt.substr(1);
-            var fileToImport = relativePathNoExt.substr(2);
-            addModuleToOutput(modulePath, fileToImport);
-        });
-        if (proj.projectFile.project.package.main) {
-            var modulePath = moduleName;
-            var fullPath = fsUtil.resolve(packageDir, proj.projectFile.project.package.main);
-            var relativePath = fsUtil.makeRelativePath(packageDir, fullPath);
-            var fileToImport = relativePath.substr(2).replace(/\.js+$/, '');
-            addModuleToOutput(modulePath, fileToImport);
-        }
-        var joinedDtsCode = finalCode.join(os.EOL);
-        mkdirp.sync(path.dirname(defLocation));
-        fs.writeFileSync(defLocation, joinedDtsCode);
-    }
+    building.emitDts(proj);
     if (proj.projectFile.project.scripts
         && proj.projectFile.project.scripts.postbuild) {
         child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, function (err, stdout, stderr) {

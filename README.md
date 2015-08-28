@@ -103,7 +103,7 @@ Where a sample `package.json` (anywhere next to or above a `tsconfig.json`) look
 }
 ```
 
-And if you have `declaration:true` in your `tsconfig.json` then we would generate a `awesome.d.ts` file for you *on build* so that other TypeScript projects can do a simple `require('awesome')`.
+We would generate a `awesome.d.ts` file for you *on build* so that other TypeScript projects can do a simple `require('awesome')`.
 
 We have a sample NPM module : https://github.com/basarat/ts-npm-module and its usage is demoed in https://github.com/basarat/ts-npm-module-consume.
 

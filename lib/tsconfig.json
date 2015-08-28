@@ -92,6 +92,7 @@
         "./main/lang/transformers/transformerRegistry.ts",
         "./main/lang/utils.ts",
         "./main/react/htmltotsx.ts",
+        "./main/tsconfig/dts-generator.ts",
         "./main/tsconfig/formatting.ts",
         "./main/tsconfig/simpleValidator.ts",
         "./main/tsconfig/tsconfig.ts",

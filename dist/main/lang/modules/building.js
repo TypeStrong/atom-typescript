@@ -158,3 +158,37 @@ function isJSSourceMapFile(fileName) {
     }
     return false;
 }
+var dts = require("../../tsconfig/dts-generator");
+function emitDts(proj) {
+    if (!proj.projectFile.project)
+        return;
+    if (proj.projectFile.project.compilerOptions.out)
+        return;
+    if (!proj.projectFile.project.package)
+        return;
+    if (!proj.projectFile.project.package.directory)
+        return;
+    if (!proj.projectFile.project.package.definition)
+        return;
+    var outFile = path.resolve(proj.projectFile.project.package.directory, './', proj.projectFile.project.package.definition);
+    var baseDir = proj.projectFile.project.package.directory;
+    var name = proj.projectFile.project.package.name;
+    var main = proj.projectFile.project.package.main;
+    if (main) {
+        main = name + '/' + fsUtil_1.consistentPath(main.replace('./', ''));
+        main = main.replace(/\.*.js$/g, '');
+    }
+    var externs = proj.projectFile.project.typings;
+    var files = proj.projectFile.project.files;
+    dts.generate({
+        baseDir: baseDir,
+        files: files,
+        externs: externs,
+        name: name,
+        target: proj.projectFile.project.compilerOptions.target,
+        out: outFile,
+        main: main,
+        outDir: proj.projectFile.project.compilerOptions.outDir
+    });
+}
+exports.emitDts = emitDts;
