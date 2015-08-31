@@ -5,7 +5,7 @@ import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
 import parent = require("../../../worker/parent");
 import * as utils from "../../lang/utils";
-import {FileStatus,getFileStatus} from "../fileStatusCache";
+import { FileStatus, getFileStatus } from "../fileStatusCache";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -205,15 +205,21 @@ export class MainPanelView extends view.View<any> {
 
     ///////////// Change JS File Status
     updateFileStatus(filePath: string) {
-        let status = getFileStatus(filePath);
-        this.fileStatus.removeClass('icon-x icon-check text-error text-success');
-        if (status.emitDiffers || status.modified) {
-            this.fileStatus.text('Js emit is outdated');
-            this.fileStatus.addClass('icon-x text-error');
-        } else {
-            this.fileStatus.text('Js emit up to date');
-            this.fileStatus.addClass('icon-check text-success');
-        }
+        parent.getProjectFileDetails({ filePath }).then(fileDetails => {
+            if (!fileDetails.project.compileOnSave) {
+                this.fileStatus.addClass("hidden");
+            } else {
+                let status = getFileStatus(filePath);
+                this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
+                if (status.emitDiffers || status.modified) {
+                    this.fileStatus.text('Js emit is outdated');
+                    this.fileStatus.addClass('icon-x text-error');
+                } else {
+                    this.fileStatus.text('Js emit up to date');
+                    this.fileStatus.addClass('icon-check text-success');
+                }
+            }
+        });
     }
 
     ///////////// Pending Requests

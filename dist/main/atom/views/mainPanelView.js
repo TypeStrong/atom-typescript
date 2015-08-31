@@ -175,16 +175,24 @@ var MainPanelView = (function (_super) {
         }
     };
     MainPanelView.prototype.updateFileStatus = function (filePath) {
-        var status = fileStatusCache_1.getFileStatus(filePath);
-        this.fileStatus.removeClass('icon-x icon-check text-error text-success');
-        if (status.emitDiffers || status.modified) {
-            this.fileStatus.text('Js emit is outdated');
-            this.fileStatus.addClass('icon-x text-error');
-        }
-        else {
-            this.fileStatus.text('Js emit up to date');
-            this.fileStatus.addClass('icon-check text-success');
-        }
+        var _this = this;
+        parent.getProjectFileDetails({ filePath: filePath }).then(function (fileDetails) {
+            if (!fileDetails.project.compileOnSave) {
+                _this.fileStatus.addClass("hidden");
+            }
+            else {
+                var status_1 = fileStatusCache_1.getFileStatus(filePath);
+                _this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
+                if (status_1.emitDiffers || status_1.modified) {
+                    _this.fileStatus.text('Js emit is outdated');
+                    _this.fileStatus.addClass('icon-x text-error');
+                }
+                else {
+                    _this.fileStatus.text('Js emit up to date');
+                    _this.fileStatus.addClass('icon-check text-success');
+                }
+            }
+        });
     };
     MainPanelView.prototype.showPending = function () {
         atom.notifications.addInfo('Pending Requests: <br/> - ' + this.pendingRequests.join('<br/> - '));
