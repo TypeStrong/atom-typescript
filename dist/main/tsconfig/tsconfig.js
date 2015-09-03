@@ -261,6 +261,7 @@ function getProjectSync(pathOrSrcFile) {
     var typings = getDefinitionsForNodeModules(dir, project.files);
     project.files = project.files.concat(typings.implicit);
     project.typings = typings.ours.concat(typings.implicit);
+    project.files = project.files.concat(typings.packagejson);
     project.files = uniq(project.files.map(fsu.consistentPath));
     projectFileDirectory = removeTrailingSlash(fsu.consistentPath(projectFileDirectory));
     return {
@@ -343,6 +344,7 @@ function increaseProjectForReferenceAndImports(files) {
     return files;
 }
 function getDefinitionsForNodeModules(projectDir, files) {
+    var packagejson = [];
     function versionStringToNumber(version) {
         var _a = version.split('.'), maj = _a[0], min = _a[1], patch = _a[2];
         return parseInt(maj) * 1000000 + parseInt(min);
@@ -383,6 +385,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
             var moduleDir = moduleDirs[_i];
             try {
                 var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
+                packagejson.push(moduleDir + "/package.json");
             }
             catch (ex) {
                 continue;
@@ -411,7 +414,7 @@ function getDefinitionsForNodeModules(projectDir, files) {
         .filter(function (x) { return !existing[x]; });
     var ours = all
         .filter(function (x) { return existing[x]; });
-    return { implicit: implicit, ours: ours };
+    return { implicit: implicit, ours: ours, packagejson: packagejson };
 }
 function prettyJSON(object) {
     var cache = [];

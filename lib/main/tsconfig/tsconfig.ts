@@ -449,6 +449,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var typings = getDefinitionsForNodeModules(dir, project.files);
     project.files = project.files.concat(typings.implicit);
     project.typings = typings.ours.concat(typings.implicit);
+    project.files = project.files.concat(typings.packagejson);
 
     // Normalize to "/" for all files
     // And take the uniq values
@@ -575,8 +576,9 @@ interface Typings {
  *  We will expand on files making sure that we don't have a `typing` with the same name
  *  Also if two node_modules reference a similar sub project (and also recursively) then the one with latest `version` field wins
  */
-function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ours: string[]; implicit: string[] } {
-
+function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ours: string[]; implicit: string[], packagejson: string[] } {
+    let packagejson = [];
+    
     /** TODO use later when we care about versions */
     function versionStringToNumber(version: string): number {
         var [maj, min, patch] = version.split('.');
@@ -636,6 +638,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
         for (let moduleDir of moduleDirs) {
             try {
                 var package_json = JSON.parse(fs.readFileSync(`${moduleDir}/package.json`).toString());
+                packagejson.push(`${moduleDir}/package.json`);
             }
             catch (ex) {
                 // Can't read package.json ... no worries ... move on to other modules
@@ -674,7 +677,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     var ours = all
         .filter(x=> existing[x]);
 
-    return { implicit, ours };
+    return { implicit, ours, packagejson };
 }
 
 export function prettyJSON(object: any): string {

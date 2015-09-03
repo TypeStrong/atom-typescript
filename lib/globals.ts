@@ -183,4 +183,5 @@ interface FileDependency {
 /** Provided by the atom team */
 interface String {
     startsWith(str: string): boolean;
+    endsWith(str: string): boolean;
 }
