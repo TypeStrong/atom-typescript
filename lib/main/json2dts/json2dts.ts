@@ -1,5 +1,4 @@
-
-import JSON2DTS = require("json2dts");
+var JSON2DTS = require("json2dts");
 var Json2dts = (<any>JSON2DTS).Json2dts;
 var toValidJSON = (<any>JSON2DTS).toValidJSON;
 
