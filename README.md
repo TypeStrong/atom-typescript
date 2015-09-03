@@ -91,25 +91,8 @@ Shortcut: `F6`. If there are any errors they are shown as well.
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/build%20errors.png)
 
-## `package.json` Support
-Where a sample `package.json` (anywhere next to or above a `tsconfig.json`) looks like:
-```json
-{
-    "name": "awesome",
-    "main": "./dist/foo.js",
-    "typescript": {
-        "definition": "awesome.d.ts"
-    }
-}
-```
-
-We would generate a `awesome.d.ts` file for you *on build* so that other TypeScript projects can do a simple `require('awesome')`.
-
-We have a sample NPM module : https://github.com/basarat/ts-npm-module and its usage is demoed in https://github.com/basarat/ts-npm-module-consume.
-
-Notes:
-* Relative paths in `definition` are not supported. This is due to a limitation in how the TypeScript compiler does file lookup.
-* Other people will be able to do `require('awesome')` only if their IDE supports looking at `node_modules` like we do. Otherwise they can always explicitly `/// <reference` your `awesome.d.ts` that we generate to get the same effect.
+## NPM Module Support
+We have a sample NPM module : https://github.com/basarat/ts-npm-module  (trick : in tsconfig have `"declaration" : true` an in package.json have a `typings` field pointing to the `main` file) and its usage is demoed in https://github.com/basarat/ts-npm-module-consume.
 
 ## React Support
 
