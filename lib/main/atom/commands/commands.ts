@@ -5,7 +5,6 @@ import autoCompleteProvider = require("../autoCompleteProvider");
 import path = require('path');
 import documentationView = require("../views/documentationView");
 import renameView = require("../views/renameView");
-var apd = require('atom-package-dependencies');
 import contextView = require("../views/contextView");
 import fileSymbolsView = require("../views/fileSymbolsView");
 import projectSymbolsView = require("../views/projectSymbolsView");
@@ -510,7 +509,7 @@ export function registerCommands() {
     });
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
-        var autocompletePlus = apd.require('autocomplete-plus');
+        var autocompletePlus = apd.require('autocomplete-plus'); // Note: apd isn't required here
         var maxIndex = 10;
         var currentSuggestionIndex = 0;
         autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-cancel',() => {

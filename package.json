@@ -40,7 +40,7 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
-    "atom-package-dependencies": "https://github.com/basarat/atom-package-dependencies/archive/cb2.tar.gz",
+    "atom-package-deps": "^2.0.2",
     "atom-space-pen-views": "^2.0.4",
     "babel": "^5.6.23",
     "basarat-text-buffer": "6.0.0",
@@ -62,9 +62,7 @@
     "grunt": "^0.4.5",
     "grunt-ts": "^3.0.0"
   },
-  "package-dependencies": {
-    "linter": "//this field will be ignored right now"
-  },
+  "package-deps": ["linter"],
   "keywords": [
     "typescript",
     "javascript",
