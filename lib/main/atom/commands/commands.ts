@@ -509,7 +509,7 @@ export function registerCommands() {
     });
     /// Register autocomplete commands to show documentations
     /*atom.packages.activatePackage('autocomplete-plus').then(() => {
-        var autocompletePlus = apd.require('autocomplete-plus'); // Note: apd isn't required here
+        var autocompletePlus = apd.require('autocomplete-plus');
         var maxIndex = 10;
         var currentSuggestionIndex = 0;
         autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-cancel',() => {
