@@ -8,7 +8,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 1. Install [atom](https://atom.io).
 2. `apm install atom-typescript` (`apm` needs `git` in your path)
-3. Fire up atom. Wait for the message: `AtomTS: Dependencies installed correctly. Enjoy TypeScript ♥` **It may take up to 5 minutes for this message to appear. Be patient!**
+3. Fire up atom. Open a TypeScript file. Potentially wait for further installs (just `apm install linter` if its not there already).
 
 **Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md).
 
