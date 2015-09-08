@@ -97,21 +97,6 @@ Advantage: you only need to define the query/response interface once (in `projec
 ## Language Service Documentation
 The TypeScript Language service docs: https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API
 
-## Depending upon other atom packages
-There isn't a documented way : https://discuss.atom.io/t/depending-on-other-packages/2360/16
-
-So using https://www.npmjs.com/package/atom-package-dependencies
-
-```js
-var apd = require('atom-package-dependencies');
-
-var mdp = apd.require('markdown-preview');
-mdp.toggle();
-
-// Also
-apd.install();
-```
-
 ## Showing errors in atom
 Done using the `linter` plugin. If you think about it. TypeScript is really just a super powerful version of `jshint` and that is the reason to use `linter` for errors.
 

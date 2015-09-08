@@ -5,7 +5,6 @@ import autoCompleteProvider = require("../autoCompleteProvider");
 import path = require('path');
 import documentationView = require("../views/documentationView");
 import renameView = require("../views/renameView");
-var apd = require('atom-package-dependencies');
 import contextView = require("../views/contextView");
 import fileSymbolsView = require("../views/fileSymbolsView");
 import projectSymbolsView = require("../views/projectSymbolsView");

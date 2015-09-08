@@ -6,9 +6,6 @@ import path = require('path');
 import fs = require('fs');
 import os = require('os');
 
-// Make sure we have the packages we depend upon
-var apd = require('atom-package-dependencies');
-
 import {errorView} from "./atom/views/mainPanelView";
 
 ///ts:import=autoCompleteProvider
@@ -285,35 +282,7 @@ function readyToActivate() {
 }
 
 export function activate(state: PackageState) {
-
-    // Don't activate if we have a dependency that isn't available
-    var linter = apd.require('linter');
-    var acp = apd.require('autocomplete-plus');
-
-    if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
-        apd.install(function() {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
-            notification.dismiss();
-
-            if (atom.packages.isPackageDisabled('linter')) atom.packages.enablePackage('linter');
-            if (atom.packages.isPackageDisabled('autocomplete-plus')) atom.packages.enablePackage('autocomplete-plus');
-
-            // Packages don't get loaded automatically as a result of an install
-            if (!apd.require('linter')) atom.packages.loadPackage('linter');
-            if (!apd.require('autocomplete-plus')) atom.packages.loadPackage('autocomplete-plus');
-
-            // Hazah activate them and then activate us!
-            atom.packages.activatePackage('linter')
-                .then(() => atom.packages.activatePackage('autocomplete-plus'))
-                .then(() => waitForGrammarActivation())
-                .then(() => readyToActivate());
-        });
-
-        return;
-    }
-
-    waitForGrammarActivation().then(() => readyToActivate());
+    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate)
 }
 
 export function deactivate() {
