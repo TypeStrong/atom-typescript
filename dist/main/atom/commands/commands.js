@@ -7,7 +7,6 @@ var atomUtils = require("../atomUtils");
 var autoCompleteProvider = require("../autoCompleteProvider");
 var path = require('path');
 var renameView = require("../views/renameView");
-var apd = require('atom-package-dependencies');
 var contextView = require("../views/contextView");
 var fileSymbolsView = require("../views/fileSymbolsView");
 var projectSymbolsView = require("../views/projectSymbolsView");

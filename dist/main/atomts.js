@@ -3,7 +3,6 @@ var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
 makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
 var path = require('path');
 var fs = require('fs');
-var apd = require('atom-package-dependencies');
 var mainPanelView_1 = require("./atom/views/mainPanelView");
 var autoCompleteProvider = require('./atom/autoCompleteProvider');
 var tooltipManager = require('./atom/tooltipManager');
@@ -151,29 +150,7 @@ function readyToActivate() {
     commands.registerCommands();
 }
 function activate(state) {
-    var linter = apd.require('linter');
-    var acp = apd.require('autocomplete-plus');
-    if (!linter || !acp) {
-        var notification = atom.notifications.addInfo('AtomTS: Some dependencies not found. Running "apm install" on these for you. Please wait for a success confirmation!', { dismissable: true });
-        apd.install(function () {
-            atom.notifications.addSuccess("AtomTS: Dependencies installed correctly. Enjoy TypeScript \u2665", { dismissable: true });
-            notification.dismiss();
-            if (atom.packages.isPackageDisabled('linter'))
-                atom.packages.enablePackage('linter');
-            if (atom.packages.isPackageDisabled('autocomplete-plus'))
-                atom.packages.enablePackage('autocomplete-plus');
-            if (!apd.require('linter'))
-                atom.packages.loadPackage('linter');
-            if (!apd.require('autocomplete-plus'))
-                atom.packages.loadPackage('autocomplete-plus');
-            atom.packages.activatePackage('linter')
-                .then(function () { return atom.packages.activatePackage('autocomplete-plus'); })
-                .then(function () { return waitForGrammarActivation(); })
-                .then(function () { return readyToActivate(); });
-        });
-        return;
-    }
-    waitForGrammarActivation().then(function () { return readyToActivate(); });
+    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate);
 }
 exports.activate = activate;
 function deactivate() {
