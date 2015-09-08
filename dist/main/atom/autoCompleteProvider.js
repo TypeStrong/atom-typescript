@@ -102,7 +102,7 @@ exports.provider = {
                     }
                     else {
                         var prefix = options.prefix;
-                        if (c.name.startsWith('$')) {
+                        if (c.name && c.name.startsWith('$')) {
                             prefix = "$" + prefix;
                         }
                         return {

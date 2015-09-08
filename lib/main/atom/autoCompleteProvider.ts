@@ -209,7 +209,7 @@ export var provider: autocompleteplus.Provider = {
                             // But the var is $foo
                             // => so we would potentially end up replacing $foo with $$foo
                             // Fix that:
-                            if (c.name.startsWith('$')) {
+                            if (c.name && c.name.startsWith('$')) {
                                 prefix = "$" + prefix;
                             }
 
