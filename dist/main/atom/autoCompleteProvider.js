@@ -51,7 +51,7 @@ exports.provider = {
                     var suggestionText = relativePath;
                     var suggestion = {
                         text: suggestionText,
-                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix,
+                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix.trim(),
                         rightLabelHTML: '<span>' + file.name + '</span>',
                         type: 'path'
                     };
@@ -107,7 +107,7 @@ exports.provider = {
                         }
                         return {
                             text: c.name,
-                            replacementPrefix: resp.endsInPunctuation ? '' : prefix,
+                            replacementPrefix: resp.endsInPunctuation ? '' : prefix.trim(),
                             rightLabel: c.display,
                             leftLabel: c.kind,
                             type: atomUtils.kindToType(c.kind),
