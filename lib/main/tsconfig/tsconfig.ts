@@ -50,6 +50,7 @@ interface CompilerOptions {
     rootDir?: string;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
+    suppressExcessPropertyErrors?: boolean;           // Optionally disable strict object literal assignment checking
     suppressImplicitAnyIndexErrors?: boolean;
     target?: string;                                  // 'es3'|'es5' (default)|'es6'
     version?: boolean;
@@ -90,6 +91,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     rootDir: { type: types.string },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
+    suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
     target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },
     version: { type: types.boolean },
@@ -578,7 +580,7 @@ interface Typings {
  */
 function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ours: string[]; implicit: string[], packagejson: string[] } {
     let packagejson = [];
-    
+
     /** TODO use later when we care about versions */
     function versionStringToNumber(version: string): number {
         var [maj, min, patch] = version.split('.');
