@@ -62,7 +62,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
                 sourceMapContents
             );
 
-            if (!sourceMapContents[o.name]) {
+            if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
                 // .js.map files will be written as an "additional emit" later.
                 fs.writeFileSync(o.name, o.text, "utf8");
             }
@@ -74,7 +74,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
         });
     }
 
-    // There is no *official* emit output for a `d.ts` 
+    // There is no *official* emit output for a `d.ts`
     // but its nice to have a consistent world view in the rest of our code
     var outputFiles = output.outputFiles.map((o) => o.name);
     if (path.extname(filePath) == '.d.ts') {

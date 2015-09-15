@@ -38,7 +38,7 @@ function emitFile(proj, filePath) {
         output.outputFiles.forEach(function (o) {
             mkdirp.sync(path.dirname(o.name));
             var additionalEmits = runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents);
-            if (!sourceMapContents[o.name]) {
+            if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
                 fs.writeFileSync(o.name, o.text, "utf8");
             }
             additionalEmits.forEach(function (a) {
