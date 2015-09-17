@@ -34,6 +34,7 @@ interface CompilerOptions {
     locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
+    moduleResolution?: string;
     newLine?: string;
     noEmit?: boolean;
     noEmitHelpers?: boolean;
@@ -75,6 +76,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
+    moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
     newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
@@ -212,6 +214,7 @@ var typeScriptVersion = '1.5.0-beta';
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
     isolatedModules: false,
     jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
@@ -237,6 +240,10 @@ var typescriptEnumMap = {
         'amd': ts.ModuleKind.AMD,
         'system': ts.ModuleKind.System,
         'umd': ts.ModuleKind.UMD,
+    },
+    moduleResolution: {
+        'node': ts.ModuleResolutionKind.NodeJs,
+        'classic': ts.ModuleResolutionKind.Classic
     },
     jsx: {
         'preserve': ts.JsxEmit.Preserve,
