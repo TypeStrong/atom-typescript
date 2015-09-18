@@ -88,7 +88,7 @@ export class MainPanelView extends view.View<any> {
                         });
 
                         this.div({
-                            style: 'display:inline-block'
+                            style: 'display:inline-block;overflow-x:visible;white-space:nowrap;'
                         }, () => {
                             this.span({
                                 style: 'margin-left:10px; transition: color 1s', // Added transition to make it easy to see *yes I just did this compile*.
@@ -212,10 +212,10 @@ export class MainPanelView extends view.View<any> {
                 let status = getFileStatus(filePath);
                 this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
                 if (status.emitDiffers || status.modified) {
-                    this.fileStatus.text('Js emit is outdated');
+                    this.fileStatus.text('JS Outdated');
                     this.fileStatus.addClass('icon-x text-error');
                 } else {
-                    this.fileStatus.text('Js emit up to date');
+                    this.fileStatus.text('JS Current');
                     this.fileStatus.addClass('icon-check text-success');
                 }
             }
