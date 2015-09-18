@@ -59,8 +59,7 @@
     "strip-bom": "^2.0.0"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-ts": "^3.0.0"
+    "grunt": "^0.4.5"
   },
   "package-deps": [
     "linter"
