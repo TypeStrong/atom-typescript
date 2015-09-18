@@ -73,7 +73,7 @@ var MainPanelView = (function (_super) {
                     });
                 });
                 _this.div({
-                    style: 'display:inline-block'
+                    style: 'display:inline-block;overflow-x:visible;white-space:nowrap;'
                 }, function () {
                     _this.span({
                         style: 'margin-left:10px; transition: color 1s',
@@ -184,11 +184,11 @@ var MainPanelView = (function (_super) {
                 var status_1 = fileStatusCache_1.getFileStatus(filePath);
                 _this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
                 if (status_1.emitDiffers || status_1.modified) {
-                    _this.fileStatus.text('Js emit is outdated');
+                    _this.fileStatus.text('JS Outdated');
                     _this.fileStatus.addClass('icon-x text-error');
                 }
                 else {
-                    _this.fileStatus.text('Js emit up to date');
+                    _this.fileStatus.text('JS Current');
                     _this.fileStatus.addClass('icon-check text-success');
                 }
             }
