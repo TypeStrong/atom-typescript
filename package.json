@@ -58,9 +58,7 @@
     "season": "^5.1.4",
     "strip-bom": "^2.0.0"
   },
-  "devDependencies": {
-    "grunt": "^0.4.5"
-  },
+  "devDependencies": {},
   "package-deps": [
     "linter"
   ],
