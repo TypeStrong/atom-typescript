@@ -26,7 +26,7 @@ exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
     var editor = atom.workspace.getActiveTextEditor();
-    if (!atomUtils.onDiskAndTs(editor)) {
+    if (!atomUtils.onDiskAndTsRelated(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -58,6 +58,9 @@ function readyToActivate() {
                 atomUtils.triggerLinter();
             });
             mainPanelView.panelView.updateFileStatus(filePath);
+            mainPanelView.show();
+        }
+        else if (atomUtils.onDiskAndTsRelated(editor)) {
             mainPanelView.show();
         }
         else {
@@ -114,14 +117,6 @@ function readyToActivate() {
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
-                    //// For debugging
-                    // console.log(buffer.characterIndexForPosition(diff.oldRange.start), buffer.characterIndexForPosition(diff.oldRange.end), diff.oldText,
-                    //     buffer.characterIndexForPosition(diff.newRange.start), buffer.characterIndexForPosition(diff.newRange.end), diff.newText);
-                    //// Examples
-                    //// 20 20 "aaaa" 20 20 ""
-                    //// 23 23 "" 23 24 "a"
-                    //// 20 20 "" 20 24 "aaaa"
-                    // stack();
                     var newText = diff.newText;
                     var oldText = diff.oldText;
                     var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };

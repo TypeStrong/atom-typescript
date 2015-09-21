@@ -38,6 +38,25 @@ function onDiskAndTs(editor) {
     return false;
 }
 exports.onDiskAndTs = onDiskAndTs;
+function onDiskAndTsRelated(editor) {
+    if (editor instanceof require('atom').TextEditor) {
+        var filePath = editor.getPath();
+        if (!filePath) {
+            return false;
+        }
+        var ext = path.extname(filePath);
+        if (isAllowedExtension(ext)) {
+            if (fs.existsSync(filePath)) {
+                return true;
+            }
+        }
+        if (filePath.endsWith('tsconfig.json')) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.onDiskAndTsRelated = onDiskAndTsRelated;
 function getFilePathPosition() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();

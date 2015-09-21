@@ -52,7 +52,7 @@ import {debounce} from "./lang/utils";
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
     var editor = atom.workspace.getActiveTextEditor();
-    if (!atomUtils.onDiskAndTs(editor)) {
+    if (!atomUtils.onDiskAndTsRelated(editor)) {
         mainPanelView.hide();
     }
 }, 100);
@@ -122,7 +122,11 @@ function readyToActivate() {
 
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
-        } else {
+        }
+        else if (atomUtils.onDiskAndTsRelated(editor)){
+            mainPanelView.show();
+        }
+        else {
             mainPanelView.hide();
         }
     });

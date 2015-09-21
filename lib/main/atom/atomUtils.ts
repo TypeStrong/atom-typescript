@@ -43,6 +43,26 @@ export function onDiskAndTs(editor: AtomCore.IEditor) {
     return false;
 }
 
+/** Either ts or tsconfig */
+export function onDiskAndTsRelated(editor: AtomCore.IEditor) {
+    if (editor instanceof require('atom').TextEditor) {
+        var filePath = editor.getPath();
+        if (!filePath) {
+            return false;
+        }
+        var ext = path.extname(filePath);
+        if (isAllowedExtension(ext)) {
+            if (fs.existsSync(filePath)) {
+                return true;
+            }
+        }
+        if (filePath.endsWith('tsconfig.json')) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export function getFilePathPosition(): { filePath: string; position: number } {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();
