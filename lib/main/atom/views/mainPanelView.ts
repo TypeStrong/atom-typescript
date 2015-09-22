@@ -500,9 +500,9 @@ export function hide() {
 export module errorView {
     const MAX_ERRORS = 50;
 
-    var filePathErrors: utils.Dict<TSError[]> = new utils.Dict<any[]>();
+    var filePathErrors: utils.Dict<CodeError[]> = new utils.Dict<any[]>();
 
-    export var setErrors = (filePath: string, errorsForFile: TSError[]) => {
+    export var setErrors = (filePath: string, errorsForFile: CodeError[]) => {
         if (!panelView || !panelView.clearError) {
           // if not initialized, just quit; might happen when atom is first opened.
           return;
@@ -534,7 +534,7 @@ export module errorView {
         else {
             var totalErrorCount = 0;
             for (var path in filePathErrors.table) {
-                filePathErrors.getValue(path).forEach((error: TSError) => {
+                filePathErrors.getValue(path).forEach((error: CodeError) => {
                     totalErrorCount++;
                     panelView.addError(new lineMessageView.LineMessageView({
                         goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles),

@@ -62,7 +62,7 @@ interface EmitOutput {
     sourceFileName: string;
     outputFiles: string[];
     success: boolean;
-    errors: TSError[];
+    errors: CodeError[];
     emitError: boolean;
 }
 
@@ -82,10 +82,10 @@ interface BuildUpdate {
     errorCount: number;
     firstError: boolean;
     filePath: string;
-    errorsInFile: TSError[];
+    errorsInFile: CodeError[];
 }
 
-interface TSError {
+interface CodeError {
     filePath: string;
     startPos: EditorPosition;
     endPos: EditorPosition;

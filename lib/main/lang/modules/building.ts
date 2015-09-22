@@ -12,7 +12,7 @@ let babel: any;
 /** If we get a compile request for a ts file that is not in project. We return a js file with the following content */
 export const Not_In_Context = "/* NotInContext */";
 
-export function diagnosticToTSError(diagnostic: ts.Diagnostic): TSError {
+export function diagnosticToTSError(diagnostic: ts.Diagnostic): CodeError {
     var filePath = diagnostic.file.fileName;
     var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
     var endPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start + diagnostic.length);
@@ -30,7 +30,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     var services = proj.languageService;
     var output = services.getEmitOutput(filePath);
     var emitDone = !output.emitSkipped;
-    var errors: TSError[] = [];
+    var errors: CodeError[] = [];
 
     let sourceFile = services.getSourceFile(filePath);
 

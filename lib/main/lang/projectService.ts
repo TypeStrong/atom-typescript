@@ -392,7 +392,7 @@ function getDiagnositcsByFilePath(query: FilePathQuery) {
 }
 
 export function errorsForFile(query: FilePathQuery): Promise<{
-    errors: TSError[]
+    errors: CodeError[]
 }> {
     consistentPath(query);
     let project: project.Project;
@@ -413,7 +413,7 @@ export function errorsForFile(query: FilePathQuery): Promise<{
         return resolve({ errors: errors });
     }
     else {
-        let result: TSError[];
+        let result: CodeError[];
 
         if (project.includesSourceFile(query.filePath)) {
             result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
