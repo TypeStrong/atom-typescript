@@ -27,7 +27,6 @@ var MyComponent = (function (_super) {
         };
     }
     MyComponent.prototype.componentDidMount = function () {
-        // We listen to a few things
         var _this = this;
         var editorScrolling;
         var editorChanging;

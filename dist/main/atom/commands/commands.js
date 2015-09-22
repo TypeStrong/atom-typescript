@@ -157,14 +157,6 @@ function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
     atom.commands.add('atom-workspace', 'typescript:bas-development-testing', function (e) {
-        // documentationView.docView.hide();
-        // documentationView.docView.autoPosition();
-        // documentationView.testDocumentationView();
-        // parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
-        //     .then((res) => {
-        //     console.log(res.text.length);
-        //     // console.log(JSON.stringify({txt:res.text}))
-        // });
         atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
     });
     atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', function (e) {
@@ -373,7 +365,6 @@ function registerCommands() {
                 },
                 filterKey: 'display',
                 confirmed: function (item) {
-                    // NOTE: we can special case UI's here if we want.
                     parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then(function (res) {
                         applyRefactorings(res.refactorings);
                     });

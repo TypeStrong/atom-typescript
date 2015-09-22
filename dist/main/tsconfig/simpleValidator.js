@@ -1,6 +1,3 @@
-/// Not useful for user input validation
-// But great for simple config validation 
-// works only by "n" valid options
 exports.types = {
     string: 'string',
     boolean: 'boolean',

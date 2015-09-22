@@ -1,5 +1,3 @@
-// Inspiration : https://atom.io/packages/ide-haskell
-// and https://atom.io/packages/ide-flow
 var atomUtils = require('./atomUtils');
 var parent = require('../../worker/parent');
 var path = require('path');

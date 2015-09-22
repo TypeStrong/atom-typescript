@@ -24,10 +24,6 @@ var StringConcatToTemplate = (function () {
         this.key = StringConcatToTemplate.name;
     }
     StringConcatToTemplate.prototype.canProvideFix = function (info) {
-        // Algo
-        // Can provide a quick fix if we are part of an expression that
-        // is a part of a binary + expression
-        // and when these binary +es end we come to an expression which is of type `string`
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         if (strRoot) {
             return { display: 'String concatenations to a template string' };

@@ -1,5 +1,3 @@
-// This file is only called from linter
-// See : https://github.com/AtomLinter/Linter/issues/337
 var parent = require('./worker/parent');
 var fs = require('fs');
 var atom_1 = require("atom");

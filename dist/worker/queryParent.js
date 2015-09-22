@@ -1,4 +1,3 @@
-/// Functions that the parent allows the child to query
 var resolve = Promise.resolve.bind(Promise);
 var tsconfig = require('../main/tsconfig/tsconfig');
 var atomUtils;

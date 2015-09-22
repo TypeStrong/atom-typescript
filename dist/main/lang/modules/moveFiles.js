@@ -1,6 +1,3 @@
-/**
- * Gets the refactorings you would need if you move files around
- */
 var astUtils_1 = require("../fixmyts/astUtils");
 var path = require("path");
 var tsconfig_1 = require("../../tsconfig/tsconfig");

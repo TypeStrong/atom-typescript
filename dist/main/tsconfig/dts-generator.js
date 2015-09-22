@@ -1,7 +1,3 @@
-/**
- * All rights : https://github.com/SitePen/dts-generator
- * I needed to rework it to work with package.json + tsconfig.json
- */
 var pathUtil = require("path");
 var os = require("os");
 var fs = require("fs");
