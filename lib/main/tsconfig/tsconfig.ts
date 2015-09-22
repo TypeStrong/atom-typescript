@@ -32,6 +32,7 @@ interface CompilerOptions {
     inlineSources?: boolean;
     jsx?: string;
     locale?: string;
+    listFiles?: boolean;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
     moduleResolution?: string;
@@ -74,6 +75,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
+    listFiles: { type: types.boolean },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },

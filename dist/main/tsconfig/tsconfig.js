@@ -18,6 +18,7 @@ var compilerOptionsValidation = {
     isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
     locals: { type: types.string },
+    listFiles: { type: types.boolean },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
