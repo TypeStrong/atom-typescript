@@ -587,7 +587,7 @@ function getOutputJs(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var output = building_1.getRawOutput(project, query.filePath);
-    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
+    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx"; })[0];
     if (!jsFile || output.emitSkipped) {
         return resolve({});
     }

@@ -923,7 +923,7 @@ export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> 
 
     var project = getOrCreateProject(query.filePath);
     var output = getRawOutput(project, query.filePath);
-    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx")[0];
 
     if (!jsFile || output.emitSkipped) {
         return resolve({});
