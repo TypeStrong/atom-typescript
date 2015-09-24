@@ -40,23 +40,19 @@ export class MainPanelView extends view.View<any> {
     static content() {
         var btn = (view, text, className: string = '') =>
             this.button({
-                'class': "btn " + className,
+                'class': `btn btn-sm ${className}`,
                 'click': `${view}PanelSelectedClick`,
-                'outlet': `${view}PanelBtn`,
-                'style': 'top:-2px!important'
+                'outlet': `${view}PanelBtn`
             }, text);
 
         this.div({
-            class: 'atomts atomts-main-panel-view native-key-bindings layout horizontal',
+            class: 'atomts atomts-main-panel-view native-key-bindings',
+            style: 'padding: 6px',
             tabindex: '-1'
         }, () => {
                 this.div({
-                    class: 'panel-resize-handle',
-                    style: 'position: absolute; top: 0; left: 0; right: 0; height: 10px; cursor: row-resize; z-index: 3; -webkit-user-select:none'
-                });
-                this.div({
-                    class: 'panel-heading layout horizontal',
-                    style: '-webkit-user-select:none',
+                    class: 'layout horizontal',
+                    style: '-webkit-user-select: none; align-items: center',
                     dblclick: 'toggle'
                 }, () => {
                         this.span({
@@ -69,26 +65,26 @@ export class MainPanelView extends view.View<any> {
 
                         this.div({
                             class: 'btn-group',
-                            style: 'margin-left: 5px'
+                            style: 'margin-left: 8px'
                         },
                             () => {
-                                btn("error", panelHeaders.error, 'selected')
-                                btn("build", panelHeaders.build)
-                                btn("references", panelHeaders.references)
+                                btn('error', panelHeaders.error, 'selected')
+                                btn('build', panelHeaders.build)
+                                btn('references', panelHeaders.references)
                             });
 
                         this.div({
-                            style: 'display:inline-block; margin-top: 2px; cursor: pointer;',
+                            style: 'cursor: pointer;',
                             click: 'clickedCurrentTsconfigFilePath'
                         }, () => {
                             this.span({
-                                style: 'margin-left:10px;',
+                                style: 'margin-left: 10px;',
                                 outlet: 'tsconfigInUse'
                             });
                         });
 
                         this.div({
-                            style: 'display:inline-block;overflow-x:visible;white-space:nowrap;'
+                            style: 'overflow-x: visible; white-space: nowrap;'
                         }, () => {
                             this.span({
                                 style: 'margin-left:10px; transition: color 1s', // Added transition to make it easy to see *yes I just did this compile*.
@@ -98,31 +94,33 @@ export class MainPanelView extends view.View<any> {
 
                         this.div({
                             class: 'heading-summary flex',
-                            style: 'display:inline-block; margin-left:5px; margin-top:3px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                            style: 'margin-left: 5px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
                             outlet: 'summary'
                         });
 
                         this.progress({
                             class: 'inline-block build-progress',
-                            style: 'display: none; color:red',
+                            style: 'display: none; color: red',
                             outlet: 'buildProgress'
                         });
 
-                        this.span({ class: 'section-pending', outlet: 'sectionPending' }, () => {
+                        this.span({
+                            class: 'section-pending',
+                            outlet: 'sectionPending',
+                            click: 'showPending'
+                        }, () => {
                             this.span({
                                 outlet: 'txtPendingCount',
                                 style: 'cursor: pointer; margin-right: 7px;',
                             });
                             this.span({
                                 class: 'loading loading-spinner-tiny inline-block',
-                                style: 'cursor: pointer; margin-right: 7px;',
-                                click: 'showPending'
+                                style: 'cursor: pointer; margin-right: 7px;'
                             });
                         });
 
                         this.div({
-                            class: 'heading-buttons',
-                            style: 'width:50px; display:inline-block'
+                            class: 'heading-buttons'
                         }, () => {
                                 this.span({
                                     class: 'heading-fold icon-unfold',
@@ -141,17 +139,17 @@ export class MainPanelView extends view.View<any> {
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
                     outlet: 'errorBody',
-                    style: 'overflow-y: auto; display:none'
+                    style: 'overflow-y: auto; display: none'
                 });
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
                     outlet: 'buildBody',
-                    style: 'overflow-y: auto; display:none'
+                    style: 'overflow-y: auto; display: none'
                 });
                 this.div({
                     class: 'panel-body atomts-panel-body padded',
                     outlet: 'referencesBody',
-                    style: 'overflow-y: auto; display:none'
+                    style: 'overflow-y: auto; display: none'
                 });
             });
     }
