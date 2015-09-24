@@ -49,108 +49,120 @@ export class MainPanelView extends view.View<any> {
             class: 'atomts atomts-main-panel-view native-key-bindings',
             tabindex: '-1'
         }, () => {
-                this.div({
-                    class: 'layout horizontal atomts-panel-header',
-                    style: '-webkit-user-select: none; align-items: center',
-                    dblclick: 'toggle'
+            this.div({
+                class: 'layout horizontal',
+                style: '-webkit-user-select: none; flex-wrap: wrap',
+                dblclick: 'toggle'
+            }, () => {
+                this.span({
+                  class: 'layout horizontal atomts-panel-header',
+                  style: 'align-items: center'
                 }, () => {
-                        this.span({
-                            style: 'cursor: pointer; color: rgb(0, 148, 255); -webkit-user-select:none',
-                            click: 'toggle'
-                        }, () => {
-                                this.span({ class: "icon-microscope" });
-                                this.span({ style: 'font-weight:bold' }, " TypeScript ");
-                            });
-
-                        this.div({
-                            class: 'btn-group',
-                            style: 'margin-left: 8px'
-                        },
-                            () => {
-                                btn('error', panelHeaders.error, 'selected')
-                                btn('build', panelHeaders.build)
-                                btn('references', panelHeaders.references)
-                            });
-
-                        this.div({
-                            style: 'cursor: pointer;',
-                            click: 'clickedCurrentTsconfigFilePath'
-                        }, () => {
-                            this.span({
-                                style: 'margin-left: 10px;',
-                                outlet: 'tsconfigInUse'
-                            });
-                        });
-
-                        this.div({
-                            style: 'overflow-x: visible; white-space: nowrap;'
-                        }, () => {
-                            this.span({
-                                style: 'margin-left:10px; transition: color 1s', // Added transition to make it easy to see *yes I just did this compile*.
-                                outlet: 'fileStatus'
-                            });
-                        });
-
-                        this.div({
-                            class: 'heading-summary flex',
-                            style: 'margin-left: 5px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
-                            outlet: 'summary'
-                        });
-
-                        this.progress({
-                            class: 'inline-block build-progress',
-                            style: 'display: none; color: red',
-                            outlet: 'buildProgress'
-                        });
-
-                        this.span({
-                            class: 'section-pending',
-                            outlet: 'sectionPending',
-                            click: 'showPending'
-                        }, () => {
-                            this.span({
-                                outlet: 'txtPendingCount',
-                                style: 'cursor: pointer; margin-right: 7px;',
-                            });
-                            this.span({
-                                class: 'loading loading-spinner-tiny inline-block',
-                                style: 'cursor: pointer; margin-right: 7px;'
-                            });
-                        });
-
-                        this.div({
-                            class: 'heading-buttons'
-                        }, () => {
-                                this.span({
-                                    class: 'heading-fold icon-unfold',
-                                    style: 'cursor: pointer; margin-right:10px',
-                                    outlet: 'btnFold',
-                                    click: 'toggle'
-                                });
-                                this.span({
-                                    class: 'heading-fold icon-sync',
-                                    style: 'cursor: pointer',
-                                    outlet: 'btnSoftReset',
-                                    click: 'softReset'
-                                });
-                            });
+                    this.span({
+                        style: 'cursor: pointer; color: rgb(0, 148, 255); -webkit-user-select: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 16px',
+                        click: 'toggle'
+                    }, () => {
+                        this.span({ class: 'icon-microscope' });
+                        this.span({ style: 'font-weight: bold' }, 'TypeScript');
                     });
+
+                    this.div({
+                        class: 'btn-group',
+                        style: 'margin-left: 6px; flex: 1 0 auto'
+                    }, () => {
+                        btn('error', panelHeaders.error, 'selected')
+                        btn('build', panelHeaders.build)
+                        btn('references', panelHeaders.references)
+                    });
+                });
+
+                this.span({
+                  class: 'layout horizontal atomts-panel-header',
+                  style: 'align-items: center; flex: 1 1 auto'
+                }, () => {
+                    this.div({
+                        style: 'cursor: pointer;',
+                        click: 'clickedCurrentTsconfigFilePath'
+                    }, () => {
+                        this.span({
+                            outlet: 'tsconfigInUse'
+                        });
+                    });
+
+                    this.div({
+                        style: 'overflow-x: visible; white-space: nowrap;'
+                    }, () => {
+                        this.span({
+                            style: 'margin-left: 10px; transition: color 1s', // Added transition to make it easy to see *yes I just did this compile*.
+                            outlet: 'fileStatus'
+                        });
+                    });
+
+                    this.div({
+                        class: 'heading-summary flex',
+                        style: 'margin-left: 5px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                        outlet: 'summary'
+                    });
+
+                    this.progress({
+                        class: 'inline-block build-progress',
+                        style: 'display: none; color: red',
+                        outlet: 'buildProgress'
+                    });
+
+                    this.span({
+                        class: 'section-pending',
+                        outlet: 'sectionPending',
+                        click: 'showPending'
+                    }, () => {
+                        this.span({
+                            outlet: 'txtPendingCount',
+                            style: 'cursor: pointer; margin-left: 5px',
+                        });
+
+                        this.span({
+                            class: 'loading loading-spinner-tiny inline-block',
+                            style: 'cursor: pointer; margin-left: 5px'
+                        });
+                    });
+
+                    this.div({
+                        class: 'heading-buttons',
+                        style: 'margin-left: 5px'
+                    }, () => {
+                        this.span({
+                            class: 'heading-fold icon-unfold',
+                            style: 'cursor: pointer; margin-right: 10px',
+                            outlet: 'btnFold',
+                            click: 'toggle'
+                        });
+
+                        this.span({
+                            class: 'heading-fold icon-sync',
+                            style: 'cursor: pointer',
+                            outlet: 'btnSoftReset',
+                            click: 'softReset'
+                        });
+                    });
+                });
+
                 this.div({
                     class: 'panel-body atomts-panel-body',
                     outlet: 'errorBody',
-                    style: 'overflow-y: auto; display: none'
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
                 });
                 this.div({
                     class: 'panel-body atomts-panel-body',
                     outlet: 'buildBody',
-                    style: 'overflow-y: auto; display: none'
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
                 });
                 this.div({
                     class: 'panel-body atomts-panel-body',
                     outlet: 'referencesBody',
-                    style: 'overflow-y: auto; display: none'
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
                 });
             });
+        });
     }
 
 
