@@ -47,11 +47,10 @@ export class MainPanelView extends view.View<any> {
 
         this.div({
             class: 'atomts atomts-main-panel-view native-key-bindings',
-            style: 'padding: 6px',
             tabindex: '-1'
         }, () => {
                 this.div({
-                    class: 'layout horizontal',
+                    class: 'layout horizontal atomts-panel-header',
                     style: '-webkit-user-select: none; align-items: center',
                     dblclick: 'toggle'
                 }, () => {
@@ -137,17 +136,17 @@ export class MainPanelView extends view.View<any> {
                             });
                     });
                 this.div({
-                    class: 'panel-body atomts-panel-body padded',
+                    class: 'panel-body atomts-panel-body',
                     outlet: 'errorBody',
                     style: 'overflow-y: auto; display: none'
                 });
                 this.div({
-                    class: 'panel-body atomts-panel-body padded',
+                    class: 'panel-body atomts-panel-body',
                     outlet: 'buildBody',
                     style: 'overflow-y: auto; display: none'
                 });
                 this.div({
-                    class: 'panel-body atomts-panel-body padded',
+                    class: 'panel-body atomts-panel-body',
                     outlet: 'referencesBody',
                     style: 'overflow-y: auto; display: none'
                 });
