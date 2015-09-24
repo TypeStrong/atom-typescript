@@ -61,7 +61,7 @@ class RequesterResponder {
     protected processResponse(m: any) {
         var parsed: Message<any> = m;
 
-        this.pendingRequests.pop();
+        this.pendingRequests.shift();
         this.pendingRequestsChanged(this.pendingRequests);
 
         if (!parsed.message || !parsed.id) {

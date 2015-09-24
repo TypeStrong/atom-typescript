@@ -74,7 +74,7 @@ var RequesterResponder = (function () {
     }
     RequesterResponder.prototype.processResponse = function (m) {
         var parsed = m;
-        this.pendingRequests.pop();
+        this.pendingRequests.shift();
         this.pendingRequestsChanged(this.pendingRequests);
         if (!parsed.message || !parsed.id) {
             console.log('PARENT ERR: Invalid JSON data from child:', m);
