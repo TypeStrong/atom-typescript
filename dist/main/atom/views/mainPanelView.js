@@ -36,101 +36,110 @@ var MainPanelView = (function (_super) {
         };
         this.div({
             class: 'atomts atomts-main-panel-view native-key-bindings',
-            style: 'padding: 6px',
             tabindex: '-1'
         }, function () {
             _this.div({
                 class: 'layout horizontal',
-                style: '-webkit-user-select: none; align-items: center',
+                style: '-webkit-user-select: none; flex-wrap: wrap',
                 dblclick: 'toggle'
             }, function () {
                 _this.span({
-                    style: 'cursor: pointer; color: rgb(0, 148, 255); -webkit-user-select:none',
-                    click: 'toggle'
-                }, function () {
-                    _this.span({ class: "icon-microscope" });
-                    _this.span({ style: 'font-weight:bold' }, " TypeScript ");
-                });
-                _this.div({
-                    class: 'btn-group',
-                    style: 'margin-left: 8px'
-                }, function () {
-                    btn('error', panelHeaders.error, 'selected');
-                    btn('build', panelHeaders.build);
-                    btn('references', panelHeaders.references);
-                });
-                _this.div({
-                    style: 'cursor: pointer;',
-                    click: 'clickedCurrentTsconfigFilePath'
+                    class: 'layout horizontal atomts-panel-header',
+                    style: 'align-items: center'
                 }, function () {
                     _this.span({
-                        style: 'margin-left: 10px;',
-                        outlet: 'tsconfigInUse'
+                        style: 'cursor: pointer; color: rgb(0, 148, 255); -webkit-user-select: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 16px',
+                        click: 'toggle'
+                    }, function () {
+                        _this.span({ class: 'icon-microscope' });
+                        _this.span({ style: 'font-weight: bold' }, 'TypeScript');
                     });
-                });
-                _this.div({
-                    style: 'overflow-x: visible; white-space: nowrap;'
-                }, function () {
-                    _this.span({
-                        style: 'margin-left:10px; transition: color 1s',
-                        outlet: 'fileStatus'
+                    _this.div({
+                        class: 'btn-group',
+                        style: 'margin-left: 6px; flex: 1 0 auto'
+                    }, function () {
+                        btn('error', panelHeaders.error, 'selected');
+                        btn('build', panelHeaders.build);
+                        btn('references', panelHeaders.references);
                     });
-                });
-                _this.div({
-                    class: 'heading-summary flex',
-                    style: 'margin-left: 5px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
-                    outlet: 'summary'
-                });
-                _this.progress({
-                    class: 'inline-block build-progress',
-                    style: 'display: none; color: red',
-                    outlet: 'buildProgress'
                 });
                 _this.span({
-                    class: 'section-pending',
-                    outlet: 'sectionPending',
-                    click: 'showPending'
+                    class: 'layout horizontal atomts-panel-header',
+                    style: 'align-items: center; flex: 1 1 auto'
                 }, function () {
-                    _this.span({
-                        outlet: 'txtPendingCount',
-                        style: 'cursor: pointer; margin-right: 7px;',
+                    _this.div({
+                        style: 'cursor: pointer;',
+                        click: 'clickedCurrentTsconfigFilePath'
+                    }, function () {
+                        _this.span({
+                            outlet: 'tsconfigInUse'
+                        });
+                    });
+                    _this.div({
+                        style: 'overflow-x: visible; white-space: nowrap;'
+                    }, function () {
+                        _this.span({
+                            style: 'margin-left: 10px; transition: color 1s',
+                            outlet: 'fileStatus'
+                        });
+                    });
+                    _this.div({
+                        class: 'heading-summary flex',
+                        style: 'margin-left: 5px; overflow: hidden; white-space:nowrap; text-overflow: ellipsis',
+                        outlet: 'summary'
+                    });
+                    _this.progress({
+                        class: 'inline-block build-progress',
+                        style: 'display: none; color: red',
+                        outlet: 'buildProgress'
                     });
                     _this.span({
-                        class: 'loading loading-spinner-tiny inline-block',
-                        style: 'cursor: pointer; margin-right: 7px;'
+                        class: 'section-pending',
+                        outlet: 'sectionPending',
+                        click: 'showPending'
+                    }, function () {
+                        _this.span({
+                            outlet: 'txtPendingCount',
+                            style: 'cursor: pointer; margin-left: 5px',
+                        });
+                        _this.span({
+                            class: 'loading loading-spinner-tiny inline-block',
+                            style: 'cursor: pointer; margin-left: 5px'
+                        });
+                    });
+                    _this.div({
+                        class: 'heading-buttons',
+                        style: 'margin-left: 5px'
+                    }, function () {
+                        _this.span({
+                            class: 'heading-fold icon-unfold',
+                            style: 'cursor: pointer; margin-right: 10px',
+                            outlet: 'btnFold',
+                            click: 'toggle'
+                        });
+                        _this.span({
+                            class: 'heading-fold icon-sync',
+                            style: 'cursor: pointer',
+                            outlet: 'btnSoftReset',
+                            click: 'softReset'
+                        });
                     });
                 });
                 _this.div({
-                    class: 'heading-buttons'
-                }, function () {
-                    _this.span({
-                        class: 'heading-fold icon-unfold',
-                        style: 'cursor: pointer; margin-right:10px',
-                        outlet: 'btnFold',
-                        click: 'toggle'
-                    });
-                    _this.span({
-                        class: 'heading-fold icon-sync',
-                        style: 'cursor: pointer',
-                        outlet: 'btnSoftReset',
-                        click: 'softReset'
-                    });
+                    class: 'panel-body atomts-panel-body',
+                    outlet: 'errorBody',
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
                 });
-            });
-            _this.div({
-                class: 'panel-body atomts-panel-body padded',
-                outlet: 'errorBody',
-                style: 'overflow-y: auto; display: none'
-            });
-            _this.div({
-                class: 'panel-body atomts-panel-body padded',
-                outlet: 'buildBody',
-                style: 'overflow-y: auto; display: none'
-            });
-            _this.div({
-                class: 'panel-body atomts-panel-body padded',
-                outlet: 'referencesBody',
-                style: 'overflow-y: auto; display: none'
+                _this.div({
+                    class: 'panel-body atomts-panel-body',
+                    outlet: 'buildBody',
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
+                });
+                _this.div({
+                    class: 'panel-body atomts-panel-body',
+                    outlet: 'referencesBody',
+                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
+                });
             });
         });
     };
