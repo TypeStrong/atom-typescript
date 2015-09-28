@@ -117,7 +117,6 @@ interface UsefulFromPackageJson {
  * This is the JSON.parse result of a tsconfig.json
  */
 interface TypeScriptProjectRawSpecification {
-    version?: string;
     compilerOptions?: CompilerOptions;
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
@@ -211,7 +210,6 @@ var defaultFilesGlob = [
  * This is what we use when the user doens't specify a files / filesGlob
  */
 var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
-var typeScriptVersion = '1.5.0-beta';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -491,7 +489,6 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
 
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
-    projectSpec.version = typeScriptVersion;
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
     projectSpec.filesGlob = defaultFilesGlob;
 

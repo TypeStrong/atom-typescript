@@ -19,7 +19,6 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
 * [`buildOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#buildonsave) : Should AtomTS build on save
 * [`scripts`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#scripts) : Sometimes its useful to have post build scripts
-* [`version`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) : The TypeScript version
 
 
 ## Examples
@@ -99,9 +98,6 @@ Build means *compile all files*. Useful if for some reason you are using `--out`
   "buildOnSave": true
 }
 ```
-
-### version
-This exists simply to make it easier for the future you to know which TypeScript version was used when this project file was created. You can read more here [Microsoft/TypeScript#2113](https://github.com/Microsoft/TypeScript/issues/2133)
 
 ## Additional Notes
 FWIW [a json schema is also available](http://json.schemastore.org/tsconfig)

@@ -71,7 +71,6 @@ var defaultFilesGlob = [
     "!./node_modules/**/*",
 ];
 var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
-var typeScriptVersion = '1.5.0-beta';
 exports.defaults = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
@@ -289,7 +288,6 @@ function createProjectRootSync(srcFile, defaultOptions) {
     if (fs.existsSync(projectFilePath))
         throw new Error(exports.errors.CREATE_PROJECT_ALREADY_EXISTS);
     var projectSpec = {};
-    projectSpec.version = typeScriptVersion;
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || exports.defaults);
     projectSpec.filesGlob = defaultFilesGlob;
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));

@@ -7,12 +7,10 @@ This is probably because of us keeping `files` updated with the `filesGlob` opti
 Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).  Then you've got all the intellisense / refactoring goodness of atom-typescript but no generated JavaScript.  Why is this useful?  Well you might be using something else for your build such as [gulp-typescript](https://github.com/ivogabe/gulp-typescript) or [tsify](https://github.com/smrq/tsify).
 
 ## Which version of TypeScript does atom-typescript use?
-It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness.  There is a possibility that in the future it will move to TypeScript nightlies which is something that the TypeScript team is planning.
+It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness.  There is a possibility that in the future it will move to TypeScript nightlies but our current automation is working well.
 
 ## Can I use a custom TypeScript compiler?
 If it conforms the latest TypeScript services API then yes! Just set the path to `typescriptServices.js` in the package options.  
-
-However, please note that the [version](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#version) in `tsconfig.json` does not indicate the compiler atom is using.  That's strictly an aide-mémoire - it's to remind you which version of the TypeScript this project is intended to work with.
 
 ## Can I use an alternate transpiler?
 Atom-typescript supports using Babel as an alternate ES5 transpiler in coordination with the TypeScript language service.  This may be useful if TypeScript does not yet support transpiling a certain feature correctly (for example [scope per for loop iteration with let](https://github.com/Microsoft/TypeScript/issues/3915)).

@@ -5,6 +5,9 @@ We only plan to *strictly* document the breaking changes. The rest is optional.
 # Planned
 (No breaking changes staged)
 
+# v7.0.0
+* Removed the (already ignored in any significant way) `version` option from tsconfig. [More](https://github.com/TypeStrong/atom-typescript/issues/617)
+
 # v6.0.0
 * Bring back `dts-generator` as using the other mechanism has a few gotchas that might surprise new users. We will remove this feature once [https://github.com/Microsoft/TypeScript/issues/2338] is officially supported.
 
