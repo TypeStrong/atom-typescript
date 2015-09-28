@@ -78,7 +78,7 @@ export class MainPanelView extends view.View<any> {
 
                 this.span({
                   class: 'layout horizontal atomts-panel-header',
-                  style: 'align-items: center; flex: 1 1 auto'
+                  style: 'align-items: center; flex: 1 1 auto; line-height: 24px;' // Line height is equal to height of github loading icon
                 }, () => {
                     this.div({
                         style: 'cursor: pointer;',

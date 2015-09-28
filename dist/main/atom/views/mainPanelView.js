@@ -65,7 +65,7 @@ var MainPanelView = (function (_super) {
                 });
                 _this.span({
                     class: 'layout horizontal atomts-panel-header',
-                    style: 'align-items: center; flex: 1 1 auto'
+                    style: 'align-items: center; flex: 1 1 auto; line-height: 24px;'
                 }, function () {
                     _this.div({
                         style: 'cursor: pointer;',
