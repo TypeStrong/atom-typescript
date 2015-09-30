@@ -99,12 +99,6 @@ The TypeScript Language service docs: https://github.com/Microsoft/TypeScript/wi
 
 ## Showing errors in atom
 Done using the `linter` plugin. If you think about it. TypeScript is really just a super powerful version of `jshint` and that is the reason to use `linter` for errors.
-
-You need to inherit from `Linter` class from the `linter`: http://atomlinter.github.io/Linter/
-```js
-var linterPath = atom.packages.getLoadedPackage("linter").path
-var Linter:LinterClass = require linterPath+"/lib/linter"
-```
 Just look at `linter.ts` in our code.
 
 ## Grammar
