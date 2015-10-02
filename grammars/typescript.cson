@@ -105,7 +105,7 @@
                 'name': 'keyword.operator.js'
             'patterns': [
               {
-                'include': '$self'
+                'include': '$base'
               }
             ]
           }
@@ -252,14 +252,14 @@
           '1':
             'name': 'meta.delimiter.semicolon.js'
         'patterns': [
-          'include': '$self'
+          'include': '$base'
         ]
       }
       {
         'include': '#curlybracerecursion'
       }
       {
-        'include': '$self'
+        'include': '$base'
       }
       {
         'match': ';'
@@ -440,7 +440,7 @@
             'include': '#comma'
         'patterns': [
           {
-            'include': '$self'
+            'include': '$base'
           }
         ]
       }
@@ -557,7 +557,7 @@
         'name': 'keyword.operator.js'
     'patterns': [
       {
-        'include': '$self'
+        'include': '$base'
       }
     ]
   }
@@ -637,7 +637,7 @@
         'name': 'meta.brace.square.js'
     'patterns': [
       {
-        'include': '$self'
+        'include': '$base'
       }
     ]
   }
@@ -650,7 +650,7 @@
         'name': 'meta.brace.round.js'
     'patterns': [
       {
-        'include': '$self'
+        'include': '$base'
       }
     ]
   }
@@ -711,7 +711,7 @@
         'name': 'meta.brace.curly.js'
     'patterns': [
       {
-        'include': '$self'
+        'include': '$base'
       }
     ]
 
@@ -1035,7 +1035,7 @@
         'name': 'punctuation.definition.parameters.end.js'
     'patterns': [
       {
-        'include': '$self'
+        'include': '$base'
       }
     ]
 
