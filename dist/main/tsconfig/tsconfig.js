@@ -212,6 +212,9 @@ function getProjectSync(pathOrSrcFile) {
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files && !projectSpec.filesGlob) {
         var toExpand = invisibleFilesGlob;
+        if (projectSpec.exclude) {
+            toExpand = toExpand.concat(projectSpec.exclude.map(function (exclude) { return '!' + exclude; }));
+        }
     }
     if (projectSpec.filesGlob) {
         var toExpand = projectSpec.filesGlob;
