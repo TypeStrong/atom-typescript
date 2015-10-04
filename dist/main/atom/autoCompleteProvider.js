@@ -10,29 +10,9 @@ function triggerAutocompletePlus() {
     explicitlyTriggered = true;
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
-var tsSnipPrefixLookup = Object.create(null);
-function loadSnippets() {
-    var confPath = atom.getConfigDirPath();
-    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson", function (err, snippetsRoot) {
-        if (err)
-            return;
-        if (!snippetsRoot || !snippetsRoot['.source.ts'])
-            return;
-        var tsSnippets = snippetsRoot['.source.ts'];
-        for (var snippetName in tsSnippets) {
-            if (tsSnippets.hasOwnProperty(snippetName)) {
-                tsSnipPrefixLookup[tsSnippets[snippetName].prefix] = {
-                    body: tsSnippets[snippetName].body,
-                    name: snippetName
-                };
-            }
-        }
-    });
-}
-loadSnippets();
 exports.provider = {
     selector: '.source.ts',
-    inclusionPriority: 3,
+    inclusionPriority: 4,
     excludeLowerPriority: false,
     getSuggestions: function (options) {
         var filePath = options.editor.getPath();
@@ -114,15 +94,6 @@ exports.provider = {
                         };
                     }
                 });
-                if (tsSnipPrefixLookup[options.prefix]) {
-                    var suggestion = {
-                        snippet: tsSnipPrefixLookup[options.prefix].body,
-                        replacementPrefix: options.prefix,
-                        rightLabelHTML: "snippet: " + options.prefix,
-                        type: 'snippet'
-                    };
-                    suggestions.unshift(suggestion);
-                }
                 return suggestions;
             });
             return promisedSuggestions;

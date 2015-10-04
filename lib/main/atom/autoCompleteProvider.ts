@@ -77,45 +77,9 @@ interface SnippetsContianer {
     [name: string]: SnippetDescriptor;
 }
 
-
-// this is the structure we use to speed up the lookup by avoiding having to
-// iterate over the object properties during the requestHandler
-// this will take a little longer during load but I guess that is better than
-// taking longer at each key stroke
-interface SnippetDetail {
-    body: string;
-    name: string;
-}
-
-var tsSnipPrefixLookup: { [prefix: string]: SnippetDetail; } = Object.create(null);
-function loadSnippets() {
-    var confPath = atom.getConfigDirPath();
-    CSON.readFile(confPath + "/packages/atom-typescript/snippets/typescript-snippets.cson",
-        (err, snippetsRoot) => {
-            if (err) return;
-            if (!snippetsRoot || !snippetsRoot['.source.ts']) return;
-
-            // rearrange/invert the way this can be looked up: we want to lookup by prefix
-            // this way the lookup gets faster because we dont have to iterate over the
-            // properties of the object
-            var tsSnippets: SnippetsContianer = snippetsRoot['.source.ts'];
-            for (var snippetName in tsSnippets) {
-                if (tsSnippets.hasOwnProperty(snippetName)) {
-                    // if the file contains a prefix multiple times only
-                    // the last will be active because the previous ones will be overwritten
-                    tsSnipPrefixLookup[tsSnippets[snippetName].prefix] = {
-                        body: tsSnippets[snippetName].body,
-                        name: snippetName
-                    }
-                }
-            }
-        });
-}
-loadSnippets();
-
 export var provider: autocompleteplus.Provider = {
     selector: '.source.ts',
-    inclusionPriority: 3,
+    inclusionPriority: 4,
     excludeLowerPriority: false,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
 
@@ -223,21 +187,6 @@ export var provider: autocompleteplus.Provider = {
                             };
                         }
                     });
-
-
-                    // see if we have a snippet for this prefix
-                    if (tsSnipPrefixLookup[options.prefix]) {
-                        // you only get the snippet suggested after you have typed
-                        // the full trigger word/ prefex
-                        // and then it replaces a keyword/match that might also be present, e.g. "class"
-                        let suggestion: autocompleteplus.Suggestion = {
-                            snippet: tsSnipPrefixLookup[options.prefix].body,
-                            replacementPrefix: options.prefix,
-                            rightLabelHTML: "snippet: " + options.prefix,
-                            type: 'snippet'
-                        };
-                        suggestions.unshift(suggestion);
-                    }
 
                     return suggestions;
                 });
