@@ -118,6 +118,7 @@ interface UsefulFromPackageJson {
  */
 interface TypeScriptProjectRawSpecification {
     compilerOptions?: CompilerOptions;
+    exclude?: string[];                                 // optional: An array of 'glob / minimatch / RegExp' patterns to specify directories / files to exclude
     files?: string[];                                   // optional: paths to files
     filesGlob?: string[];                               // optional: An array of 'glob / minimatch / RegExp' patterns to specify source files
     formatCodeOptions?: formatting.FormatCodeOptions;   // optional: formatting options
@@ -384,6 +385,9 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
     if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
         var toExpand = invisibleFilesGlob;
+        if(projectSpec.exclude){
+            toExpand = toExpand.concat(projectSpec.exclude.map((exclude) => '!' + exclude));
+        }
     }
     if (projectSpec.filesGlob) { // If there is a files glob we will use that
         var toExpand = projectSpec.filesGlob
