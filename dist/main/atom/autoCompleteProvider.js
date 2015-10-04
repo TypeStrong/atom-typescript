@@ -12,7 +12,8 @@ function triggerAutocompletePlus() {
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
 exports.provider = {
     selector: '.source.ts',
-    inclusionPriority: 4,
+    inclusionPriority: 3,
+    suggestionPriority: 3,
     excludeLowerPriority: false,
     getSuggestions: function (options) {
         var filePath = options.editor.getPath();

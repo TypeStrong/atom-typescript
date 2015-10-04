@@ -53,6 +53,7 @@ declare module autocompleteplus {
     export interface Provider {
         inclusionPriority?: number;
         excludeLowerPriority?: boolean;
+        suggestionPriority?: number;
         selector: string;
         disableForSelector?: string;
         getSuggestions: (options: RequestOptions) => Promise<Suggestion[]>;
@@ -79,7 +80,8 @@ interface SnippetsContianer {
 
 export var provider: autocompleteplus.Provider = {
     selector: '.source.ts',
-    inclusionPriority: 4,
+    inclusionPriority: 3,
+    suggestionPriority: 3,
     excludeLowerPriority: false,
     getSuggestions: (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]>=> {
 
