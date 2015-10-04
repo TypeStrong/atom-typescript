@@ -9,10 +9,10 @@
 
 'patterns': [
 
-####
-# Rules that no one should change
-# These are used by code to provide fancy completions
-####
+  ####
+  # Rules that no one should change
+  # These are used by code to provide fancy completions
+  ####
 
   {
       'comment': 'Match debugger statement'
@@ -79,9 +79,9 @@
           'name':'es6import.path.string'
   }
 
-###
-# Other rules
-###
+  ####
+  # Other rules
+  ####
 
   {
     'comment': 'Match stuff like: namespace name {...}'
