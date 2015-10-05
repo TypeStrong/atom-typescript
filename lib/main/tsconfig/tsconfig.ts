@@ -46,6 +46,7 @@ interface CompilerOptions {
     noLibCheck?: boolean;
     noResolve?: boolean;
     out?: string;
+    outFile?: string;                                 // new name for out
     outDir?: string;                                  // Redirect output structure to this directory
     preserveConstEnums?: boolean;
     removeComments?: boolean;                         // Do not emit comments in output
@@ -89,6 +90,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noLibCheck: { type: types.boolean },
     noResolve: { type: types.boolean },
     out: { type: types.string },
+    outFile: { type: types.string },
     outDir: { type: types.string },
     preserveConstEnums: { type: types.boolean },
     removeComments: { type: types.boolean },
@@ -290,6 +292,11 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
 
     if (compilerOptions.out !== undefined) {
         compilerOptions.out = path.resolve(projectDir, compilerOptions.out);
+    }
+    
+    if (compilerOptions.outFile !== undefined) {
+        // Till out is removed. Support outFile by just copying it to `out`
+        compilerOptions.out = path.resolve(projectDir, compilerOptions.outFile);
     }
 
     return compilerOptions;
