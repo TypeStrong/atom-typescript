@@ -16,11 +16,15 @@ if (debug_1.debugSync) {
     parent.sendToIpcOnlyLast = function (x) { return x; };
 }
 function startWorker() {
-    parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
+    if (!debug_1.debugSync) {
+        parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
+    }
 }
 exports.startWorker = startWorker;
 function stopWorker() {
-    parent.stopWorker();
+    if (!debug_1.debugSync) {
+        parent.stopWorker();
+    }
 }
 exports.stopWorker = stopWorker;
 function showError(error) {

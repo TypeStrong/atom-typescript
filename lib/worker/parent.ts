@@ -24,11 +24,15 @@ if (debugSync) {
 }
 
 export function startWorker() {
-    parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
+    if (!debugSync) {
+        parent.startWorker(__dirname + '/child.js', showError, atomConfig.typescriptServices ? [atomConfig.typescriptServices] : []);
+    }
 }
 
 export function stopWorker() {
-    parent.stopWorker();
+    if (!debugSync) {
+        parent.stopWorker();
+    }
 }
 
 function showError(error: Error) {
