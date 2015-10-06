@@ -53,7 +53,7 @@
     "immutable": "^3.7.3",
     "json2dts": "0.0.1",
     "mkdirp": "^0.5.0",
-    "ntypescript": "1.201510040223.1",
+    "ntypescript": "1.201509200205.1",
     "react": "^0.13.3",
     "season": "^5.1.4",
     "strip-bom": "^2.0.0"
