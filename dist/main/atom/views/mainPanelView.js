@@ -209,10 +209,10 @@ var MainPanelView = (function (_super) {
         this.txtPendingCount.html("<span class=\"text-highlight\">" + this.pendingRequests.length + "</span>");
         this.sectionPending.stop();
         if (pending.length) {
-            this.sectionPending.fadeIn(500);
+            this.sectionPending.animate({ opacity: 0.5 }, 500);
         }
         else {
-            this.sectionPending.fadeOut(200);
+            this.sectionPending.animate({ opacity: 0 }, 200);
         }
     };
     MainPanelView.prototype.errorPanelSelectedClick = function () {
