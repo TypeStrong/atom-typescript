@@ -241,10 +241,10 @@ export class MainPanelView extends view.View<any> {
 
         this.sectionPending.stop();
         if (pending.length) {
-            this.sectionPending.fadeIn(500);
+            this.sectionPending.animate({opacity: 0.5}, 500);
         }
         else {
-            this.sectionPending.fadeOut(200);
+            this.sectionPending.animate({opacity: 0}, 200);
         }
     }
 
