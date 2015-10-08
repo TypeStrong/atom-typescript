@@ -62,7 +62,7 @@ function errorWithDetails(error, details) {
 }
 var fs = require('fs');
 var path = require('path');
-var expand = require('glob-expand');
+var glob = require('glob');
 var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
@@ -71,7 +71,7 @@ var defaultFilesGlob = [
     "**/*.tsx",
     "!node_modules/**",
 ];
-var invisibleFilesGlob = ["**/*.ts", "**/*.tsx"];
+var invisibleFilesGlob = '{**/*.ts,**/*.tsx}';
 exports.defaults = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
@@ -214,18 +214,21 @@ function getProjectSync(pathOrSrcFile) {
     if (!projectSpec.compilerOptions)
         projectSpec.compilerOptions = {};
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    if (!projectSpec.files && !projectSpec.filesGlob) {
-        var toExpand = invisibleFilesGlob;
-        if (projectSpec.exclude) {
-            toExpand = toExpand.concat(projectSpec.exclude.map(function (exclude) { return ("!" + exclude + "/**"); }));
-        }
+    var filesGlob = invisibleFilesGlob;
+    var ignore = [];
+    if (Array.isArray(projectSpec.filesGlob)) {
+        filesGlob = projectSpec.filesGlob.length === 1 ? projectSpec.filesGlob[0] : "{" + projectSpec.filesGlob.join(',') + "}";
     }
-    if (projectSpec.filesGlob) {
-        var toExpand = projectSpec.filesGlob;
+    else if (projectSpec.exclude) {
+        ignore = projectSpec.exclude.map(function (path) { return (path + "/**"); });
     }
-    if (toExpand) {
+    if (filesGlob) {
         try {
-            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, toExpand);
+            projectSpec.files = glob.sync(filesGlob, {
+                cwd: cwdPath,
+                ignore: ignore,
+                nodir: true
+            });
         }
         catch (ex) {
             throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: fsu.consistentPath(projectFile), errorMessage: ex.message });
