@@ -1,7 +1,6 @@
 import * as fsu from "../utils/fsUtil";
 
 import simpleValidator = require('./simpleValidator');
-import stripBom = require('strip-bom');
 var types = simpleValidator.types;
 
 // Most compiler options come from require('typescript').CompilerOptions, but
@@ -196,11 +195,14 @@ function errorWithDetails<T>(error: Error, details: T): Error {
 
 import fs = require('fs');
 import path = require('path');
-import glob = require('glob');
+import tsconfig = require('tsconfig');
 import os = require('os');
+import detectIndent = require('detect-indent');
+import extend = require('xtend');
 import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
+
 /**
  * This is what we write to new files
  */
@@ -352,33 +354,28 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         throw new Error(errors.GET_PROJECT_INVALID_PATH);
     }
 
-    // Get the path directory
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
+    var projectFile = tsconfig.resolveSync(dir);
 
-    // Keep going up till we find the project file
-    var projectFile = '';
-    try {
-        projectFile = travelUpTheDirectoryTreeTillYouFind(dir, projectFileName);
+    if (!projectFile) {
+      throw errorWithDetails<GET_PROJECT_NO_PROJECT_FOUND_Details>(
+          new Error(errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: 'not found' });
     }
-    catch (e) {
-        let err: Error = e;
-        if (err.message == "not found") {
-            throw errorWithDetails<GET_PROJECT_NO_PROJECT_FOUND_Details>(
-                new Error(errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: err.message });
-        }
-    }
-    projectFile = path.normalize(projectFile);
+
     var projectFileDirectory = path.dirname(projectFile) + path.sep;
 
     // We now have a valid projectFile. Parse it:
     var projectSpec: TypeScriptProjectRawSpecification;
+    var projectFileTextContent: string;
+
     try {
-        var projectFileTextContent = fs.readFileSync(projectFile, 'utf8');
+        projectFileTextContent = fs.readFileSync(projectFile, 'utf8');
     } catch (ex) {
         throw new Error(errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
     }
+
     try {
-        projectSpec = JSON.parse(stripBom(projectFileTextContent));
+        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile);
     } catch (ex) {
         throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(
             new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
@@ -387,41 +384,18 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Setup default project options
     if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
 
-    // Our customizations for "tsconfig.json"
-    // Use grunt.file.expand type of logic
-    var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    var filesGlob = invisibleFilesGlob;
-    var ignore = [];
-
-    if (Array.isArray(projectSpec.filesGlob)) {
-      filesGlob = projectSpec.filesGlob.length === 1 ? projectSpec.filesGlob[0] : `{${projectSpec.filesGlob.join(',')}}`;
-    } else if (projectSpec.exclude) {
-      ignore = projectSpec.exclude.map(path => `${path}/**`)
-    }
-
-    if (filesGlob) { // Expand whatever needs expanding
-        try {
-            projectSpec.files = glob.sync(filesGlob, {
-              cwd: cwdPath,
-              ignore: ignore,
-              nodir: true
-            });
-        }
-        catch (ex) {
-            throw errorWithDetails<GET_PROJECT_GLOB_EXPAND_FAILED_Details>(
-                new Error(errors.GET_PROJECT_GLOB_EXPAND_FAILED),
-                { glob: projectSpec.filesGlob, projectFilePath: fsu.consistentPath(projectFile), errorMessage: ex.message });
-        }
-    }
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
-        var prettyJSONProjectSpec = prettyJSON(projectSpec);
+        var relativeProjectSpec = extend(projectSpec, {
+          files: projectSpec.files.map(x => fsu.consistentPath(path.relative(projectFileDirectory, x))),
+          exclude: projectSpec.exclude.map(x => fsu.consistentPath(path.relative(projectFileDirectory, x)))
+        });
+
+        var prettyJSONProjectSpec = prettyJSON(relativeProjectSpec, detectIndent(projectFileTextContent).indent);
+
         if (prettyJSONProjectSpec !== projectFileTextContent) {
-            fs.writeFileSync(projectFile, prettyJSON(projectSpec));
+            fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
-
-    // Remove all relativeness
-    projectSpec.files = projectSpec.files.map((file) => path.resolve(projectFileDirectory, file));
 
     var pkg: UsefulFromPackageJson = null;
     try {
@@ -703,9 +677,10 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     return { implicit, ours, packagejson };
 }
 
-export function prettyJSON(object: any): string {
+export function prettyJSON(object: any, indent: string | number = 4): string {
     var cache = [];
-    var value = JSON.stringify(object,
+    var value = JSON.stringify(
+        object,
         // fixup circular reference
         function(key, value) {
             if (typeof value === 'object' && value !== null) {
@@ -718,8 +693,8 @@ export function prettyJSON(object: any): string {
             }
             return value;
         },
-    // indent 4 spaces
-        4);
+        indent
+    );
     value = value.split('\n').join(os.EOL) + os.EOL;
     cache = null;
     return value;
