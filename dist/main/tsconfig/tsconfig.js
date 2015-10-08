@@ -67,11 +67,11 @@ var os = require('os');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "!./node_modules/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+    "!node_modules/**",
 ];
-var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
+var invisibleFilesGlob = ["**/*.ts", "**/*.tsx"];
 exports.defaults = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
@@ -217,7 +217,7 @@ function getProjectSync(pathOrSrcFile) {
     if (!projectSpec.files && !projectSpec.filesGlob) {
         var toExpand = invisibleFilesGlob;
         if (projectSpec.exclude) {
-            toExpand = toExpand.concat(projectSpec.exclude.map(function (exclude) { return '!' + exclude; }));
+            toExpand = toExpand.concat(projectSpec.exclude.map(function (exclude) { return ("!" + exclude + "/**"); }));
         }
     }
     if (projectSpec.filesGlob) {

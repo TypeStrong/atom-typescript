@@ -205,14 +205,14 @@ var projectFileName = 'tsconfig.json';
  * This is what we write to new files
  */
 var defaultFilesGlob = [
-    "./**/*.ts",
-    "./**/*.tsx",
-    "!./node_modules/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+    "!node_modules/**",
 ];
 /**
  * This is what we use when the user doens't specify a files / filesGlob
  */
-var invisibleFilesGlob = ["./**/*.ts", "./**/*.tsx"];
+var invisibleFilesGlob = ["**/*.ts", "**/*.tsx"];
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -293,7 +293,7 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
     if (compilerOptions.out !== undefined) {
         compilerOptions.out = path.resolve(projectDir, compilerOptions.out);
     }
-    
+
     if (compilerOptions.outFile !== undefined) {
         // Till out is removed. Support outFile by just copying it to `out`
         compilerOptions.out = path.resolve(projectDir, compilerOptions.outFile);
@@ -393,7 +393,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
         var toExpand = invisibleFilesGlob;
         if(projectSpec.exclude){
-            toExpand = toExpand.concat(projectSpec.exclude.map((exclude) => '!' + exclude));
+            toExpand = toExpand.concat(projectSpec.exclude.map((exclude) => `!${exclude}/**`));
         }
     }
     if (projectSpec.filesGlob) { // If there is a files glob we will use that

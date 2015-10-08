@@ -3,8 +3,23 @@
 ## I keep getting changes to tsconfig.json
 This is probably because of us keeping `files` updated with the `filesGlob` option. The reason why we do this is because the official `tsconfig.json` spec does not support `filesGlob`. Therefore we keep `files` in sync with the `filesGlob` so that your team mates can use whatever editor they prefer (sublime text, visual studio etc.).
 
+## For really large projects atom-typescript gets slow
+If you have `tsconfig.json` in a folder that contains `node_modules`, atom-typescript might become slow (due to extensive file listing). Two possible fixes:
+* Move `tsconfig.json` into a sub folder e.g. `src`
+* Add a `filesGlob` that excludes `node_modules` e.g.:
+
+```ts
+"filesGlob" : [
+    "**/*.ts",
+    "**/*.tsx",
+    "!node_modules/**",
+];
+```
+
+[Further Details](https://github.com/TypeStrong/atom-typescript/issues/648).
+
 ## I don't want atom-typescript compiling my js
-Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).  Then you've got all the intellisense / refactoring goodness of atom-typescript but no generated JavaScript.  Why is this useful?  Well you might be using something else for your build such as [gulp-typescript](https://github.com/ivogabe/gulp-typescript) or [tsify](https://github.com/smrq/tsify).
+Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).  Then you've got all the intellisense / refactoring goodness of atom-typescript but no generated JavaScript.  Why is this useful?  Well you might be using something else for your build such as [ts-loader](https://github.com/TypeStrong/ts-loader) or [tsify](https://github.com/TypeStrong/tsify) or [gulp-typescript](https://github.com/ivogabe/gulp-typescript).
 
 ## Which version of TypeScript does atom-typescript use?
 It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness.  There is a possibility that in the future it will move to TypeScript nightlies but our current automation is working well.
