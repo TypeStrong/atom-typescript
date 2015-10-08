@@ -196,7 +196,7 @@ function errorWithDetails<T>(error: Error, details: T): Error {
 
 import fs = require('fs');
 import path = require('path');
-import expand = require('glob-expand');
+import glob = require('glob');
 import os = require('os');
 import formatting = require('./formatting');
 
@@ -212,7 +212,7 @@ var defaultFilesGlob = [
 /**
  * This is what we use when the user doens't specify a files / filesGlob
  */
-var invisibleFilesGlob = ["**/*.ts", "**/*.tsx"];
+var invisibleFilesGlob = '{**/*.ts,**/*.tsx}';
 
 export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
@@ -390,18 +390,22 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     // Our customizations for "tsconfig.json"
     // Use grunt.file.expand type of logic
     var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    if (!projectSpec.files && !projectSpec.filesGlob) { // If there is no files and no filesGlob, we create an invisible one.
-        var toExpand = invisibleFilesGlob;
-        if(projectSpec.exclude){
-            toExpand = toExpand.concat(projectSpec.exclude.map((exclude) => `!${exclude}/**`));
-        }
+    var filesGlob = invisibleFilesGlob;
+    var ignore = [];
+
+    if (Array.isArray(projectSpec.filesGlob)) {
+      filesGlob = projectSpec.filesGlob.length === 1 ? projectSpec.filesGlob[0] : `{${projectSpec.filesGlob.join(',')}}`;
+    } else if (projectSpec.exclude) {
+      ignore = projectSpec.exclude.map(path => `${path}/**`)
     }
-    if (projectSpec.filesGlob) { // If there is a files glob we will use that
-        var toExpand = projectSpec.filesGlob
-    }
-    if (toExpand) { // Expand whatever needs expanding
+
+    if (filesGlob) { // Expand whatever needs expanding
         try {
-            projectSpec.files = expand({ filter: 'isFile', cwd: cwdPath }, toExpand);
+            projectSpec.files = glob.sync(filesGlob, {
+              cwd: cwdPath,
+              ignore: ignore,
+              nodir: true
+            });
         }
         catch (ex) {
             throw errorWithDetails<GET_PROJECT_GLOB_EXPAND_FAILED_Details>(

@@ -2,7 +2,7 @@ import utils = require("../utils");
 import {Transformer, TransformerDelimiter, FileTransformationDetails} from "./transformer";
 
 /**
- * Transformers should push themeselves into this registry. 
+ * Transformers should push themeselves into this registry.
  * This is so that the registry does not depend on the transformers
  * As that will cause a circular reference
  */
@@ -37,7 +37,7 @@ export function getInitialTransformation(code: string): FileTransformationDetail
 
     while (true) {
         let remainingCode = code.substr(processedSrcUpto);
-        // Get the next transform that exist in this file: 
+        // Get the next transform that exist in this file:
         var matches = transformFinderRegex.exec(remainingCode);
         // No more transforms:
         if (!matches || !matches.length || matches.length < 2) return { transforms };
@@ -45,10 +45,10 @@ export function getInitialTransformation(code: string): FileTransformationDetail
         var nextTransformName = matches.slice[1];
         // Update the processedUpto
     }
-        
+
     /**
      * TODO: for each transform we note down the src start and src end
-     * Then we transform the src code. This gives a dest start (initially same as src start) and dest end (more or less) 
+     * Then we transform the src code. This gives a dest start (initially same as src start) and dest end (more or less)
      * we use this to additionally compute a running (delta) in dest. This delta is used in the next (dest start).
      */
 
@@ -67,12 +67,13 @@ export function transform(name: string, code: string): { code: string } {
     return transformer.transform(code);
 }
 
-// Ensure that all the transformers are loaded: 
+// Ensure that all the transformers are loaded:
 // Since nothing depends on these explicitly (don't want a circular ref)
 // We need to load them manually:
 import * as path from "path";
-var expand = require('glob-expand');
-let files: string[] = expand({ filter: 'isFile', cwd: __dirname }, [
-    "./implementations/*.js"
-]);
+var glob = require('glob');
+let files: string[] = glob.sync('./implementations/*.js', {
+  nodir: true,
+  cwd: __dirname
+});
 files = files.map(f=> require(f));

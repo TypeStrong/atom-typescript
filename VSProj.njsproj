@@ -39,7 +39,7 @@
     <Folder Include="lib\typings\" />
     <Folder Include="lib\typings\atom\" />
     <Folder Include="lib\typings\emissary\" />
-    <Folder Include="lib\typings\glob-expand\" />
+    <Folder Include="lib\typings\glob\" />
     <Folder Include="lib\typings\jquery\" />
     <Folder Include="lib\typings\mixto\" />
     <Folder Include="lib\typings\mkdirp\" />

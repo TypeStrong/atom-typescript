@@ -39,8 +39,9 @@ function transform(name, code) {
     return transformer.transform(code);
 }
 exports.transform = transform;
-var expand = require('glob-expand');
-var files = expand({ filter: 'isFile', cwd: __dirname }, [
-    "./implementations/*.js"
-]);
+var glob = require('glob');
+var files = glob.sync('./implementations/*.js', {
+    nodir: true,
+    cwd: __dirname
+});
 files = files.map(function (f) { return require(f); });
