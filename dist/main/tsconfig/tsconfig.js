@@ -1,6 +1,5 @@
 var fsu = require("../utils/fsUtil");
 var simpleValidator = require('./simpleValidator');
-var stripBom = require('strip-bom');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
     allowNonTsExtensions: { type: simpleValidator.types.boolean },
@@ -62,8 +61,10 @@ function errorWithDetails(error, details) {
 }
 var fs = require('fs');
 var path = require('path');
-var glob = require('glob');
+var tsconfig = require('tsconfig');
 var os = require('os');
+var detectIndent = require('detect-indent');
+var extend = require('xtend');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
@@ -186,61 +187,37 @@ function getProjectSync(pathOrSrcFile) {
         throw new Error(exports.errors.GET_PROJECT_INVALID_PATH);
     }
     var dir = fs.lstatSync(pathOrSrcFile).isDirectory() ? pathOrSrcFile : path.dirname(pathOrSrcFile);
-    var projectFile = '';
-    try {
-        projectFile = travelUpTheDirectoryTreeTillYouFind(dir, projectFileName);
+    var projectFile = tsconfig.resolveSync(dir);
+    if (!projectFile) {
+        throw errorWithDetails(new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: 'not found' });
     }
-    catch (e) {
-        var err = e;
-        if (err.message == "not found") {
-            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: err.message });
-        }
-    }
-    projectFile = path.normalize(projectFile);
     var projectFileDirectory = path.dirname(projectFile) + path.sep;
     var projectSpec;
+    var projectFileTextContent;
     try {
-        var projectFileTextContent = fs.readFileSync(projectFile, 'utf8');
+        projectFileTextContent = fs.readFileSync(projectFile, 'utf8');
     }
     catch (ex) {
         throw new Error(exports.errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
     }
     try {
-        projectSpec = JSON.parse(stripBom(projectFileTextContent));
+        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile);
     }
     catch (ex) {
         throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
     if (!projectSpec.compilerOptions)
         projectSpec.compilerOptions = {};
-    var cwdPath = path.relative(process.cwd(), path.dirname(projectFile));
-    var filesGlob = invisibleFilesGlob;
-    var ignore = [];
-    if (Array.isArray(projectSpec.filesGlob)) {
-        filesGlob = projectSpec.filesGlob.length === 1 ? projectSpec.filesGlob[0] : "{" + projectSpec.filesGlob.join(',') + "}";
-    }
-    else if (projectSpec.exclude) {
-        ignore = projectSpec.exclude.map(function (path) { return (path + "/**"); });
-    }
-    if (filesGlob) {
-        try {
-            projectSpec.files = glob.sync(filesGlob, {
-                cwd: cwdPath,
-                ignore: ignore,
-                nodir: true
-            });
-        }
-        catch (ex) {
-            throw errorWithDetails(new Error(exports.errors.GET_PROJECT_GLOB_EXPAND_FAILED), { glob: projectSpec.filesGlob, projectFilePath: fsu.consistentPath(projectFile), errorMessage: ex.message });
-        }
-    }
     if (projectSpec.filesGlob) {
-        var prettyJSONProjectSpec = prettyJSON(projectSpec);
+        var relativeProjectSpec = extend(projectSpec, {
+            files: projectSpec.files.map(function (x) { return fsu.consistentPath(path.relative(projectFileDirectory, x)); }),
+            exclude: projectSpec.exclude.map(function (x) { return fsu.consistentPath(path.relative(projectFileDirectory, x)); })
+        });
+        var prettyJSONProjectSpec = prettyJSON(relativeProjectSpec, detectIndent(projectFileTextContent).indent);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
-            fs.writeFileSync(projectFile, prettyJSON(projectSpec));
+            fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
-    projectSpec.files = projectSpec.files.map(function (file) { return path.resolve(projectFileDirectory, file); });
     var pkg = null;
     try {
         var packagePath = travelUpTheDirectoryTreeTillYouFind(projectFileDirectory, 'package.json');
@@ -432,7 +409,8 @@ function getDefinitionsForNodeModules(projectDir, files) {
         .filter(function (x) { return existing[x]; });
     return { implicit: implicit, ours: ours, packagejson: packagejson };
 }
-function prettyJSON(object) {
+function prettyJSON(object, indent) {
+    if (indent === void 0) { indent = 4; }
     var cache = [];
     var value = JSON.stringify(object, function (key, value) {
         if (typeof value === 'object' && value !== null) {
@@ -442,7 +420,7 @@ function prettyJSON(object) {
             cache.push(value);
         }
         return value;
-    }, 4);
+    }, indent);
     value = value.split('\n').join(os.EOL) + os.EOL;
     cache = null;
     return value;
