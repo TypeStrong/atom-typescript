@@ -381,9 +381,6 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
             new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
 
-    // Setup default project options
-    if (!projectSpec.compilerOptions) projectSpec.compilerOptions = {};
-
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
         var relativeProjectSpec = extend(projectSpec, {
           files: projectSpec.files.map(x => fsu.consistentPath(path.relative(projectFileDirectory, x))),
