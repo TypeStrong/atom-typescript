@@ -53,8 +53,6 @@
         "main/atom/views/plainMessageView.ts",
         "main/atom/views/projectSymbolsView.ts",
         "main/atom/views/renameView.ts",
-        "main/atom/views/rView.tsx",
-        "main/atom/views/semanticView.tsx",
         "main/atom/views/semanticViewGlobals.d.ts",
         "main/atom/views/simpleOverlaySelectionView.ts",
         "main/atom/views/simpleSelectionView.ts",
@@ -128,7 +126,9 @@
         "worker/debug.ts",
         "worker/lib/workerLib.ts",
         "worker/parent.ts",
-        "worker/queryParent.ts"
+        "worker/queryParent.ts",
+        "main/atom/views/rView.tsx",
+        "main/atom/views/semanticView.tsx"
     ],
     "exclude": []
 }

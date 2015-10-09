@@ -206,8 +206,6 @@ function getProjectSync(pathOrSrcFile) {
     catch (ex) {
         throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
-    if (!projectSpec.compilerOptions)
-        projectSpec.compilerOptions = {};
     if (projectSpec.filesGlob) {
         var relativeProjectSpec = extend(projectSpec, {
             files: projectSpec.files.map(function (x) { return fsu.consistentPath(path.relative(projectFileDirectory, x)); }),
