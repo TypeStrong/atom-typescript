@@ -209,11 +209,3 @@ Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/mas
 
 ## Changelog
 Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/docs/CHANGELOG.md).
-
-## Donating
-Support this project and [others by basarat][gratipay-basarat] via [gratipay][gratipay-basarat].
-
-[![Support via Gratipay][gratipay]][gratipay-basarat]
-
-[gratipay]: https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png
-[gratipay-basarat]: https://gratipay.com/basarat/
