@@ -59,7 +59,8 @@ exports.provider = {
                 explicitlyTriggered = false;
             }
             else {
-                if (options.prefix && options.prefix.trim() == ';') {
+                var prefix = options.prefix.trim();
+                if (prefix === '' || prefix === ';') {
                     return Promise.resolve([]);
                 }
             }
