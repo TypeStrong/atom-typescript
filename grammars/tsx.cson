@@ -1,151 +1,150 @@
-'name': 'TypeScript (TSX)'
-'scopeName': 'source.ts.tsx'
-'fileTypes': [
-  'tsx'
+name: "TypeScript (TSX)"
+scopeName: "source.ts.tsx"
+fileTypes: [
+	"tsx"
 ]
-'patterns': [
-  {
-    'include': '#pcdata'
-  }
-  {
-    'include': '#jsx'
-  }
-  {
-    'include': 'source.ts'
-  }
+patterns: [
+	{
+		include: "#pcdata"
+	}
+	{
+		include: "#literal-jsx"
+	}
+	{
+		include: "source.ts"
+	}
 ]
-'repository':
-  'pcdata':
-    'patterns': [
-      {
-        'include': '#pcdata-quotes'
-      }
-    ]
-  'pcdata-quotes':
-    'name': 'meta.other.pcdata.js'
-    'match': '\\b\\w+[\'"]\\w+\\b'
-  'jsx-tag-attributes':
-    'patterns': [
-      {
-        'include': '#jsx-tag-attribute-name'
-      }
-      {
-        'include': '#jsx-string-double-quoted'
-      }
-      {
-        'include': '#jsx-string-single-quoted'
-      }
-      {
-        'include': '#jsx-evaluated-code'
-      }
-    ]
-  'jsx-tag-attribute-name':
-    'name': 'meta.tag.attribute-name.js'
-    'match': '\\b([a-zA-Z0-9\\-:]+)'
-    'captures':
-      '1':
-        'name': 'entity.other.attribute-name.js'
-  'jsx-string-double-quoted':
-    'begin': '"'
-    'end': '"'
-    'name': 'string.quoted.double.js'
-    'endCaptures':
-      '0':
-        'name': 'punctuation.definition.string.end.js'
-    'beginCaptures':
-      '0':
-        'name': 'punctuation.definition.string.begin.js'
-    'patterns': [
-      {
-        'include': '#jsx-entities'
-      }
-    ]
-  'jsx-string-single-quoted':
-    'begin': '\''
-    'end': '\''
-    'name': 'string.quoted.single.js'
-    'endCaptures':
-      '0':
-        'name': 'punctuation.definition.string.end.js'
-    'beginCaptures':
-      '0':
-        'name': 'punctuation.definition.string.begin.js'
-    'patterns': [
-      {
-        'include': '#jsx-entities'
-      }
-    ]
-  'jsx-entities':
-    'patterns': [
-      {
-        'name': 'constant.character.entity.js'
-        'match': '(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)'
-        'captures':
-          '1':
-            'name': 'punctuation.definition.entity.js'
-          '3':
-            'name': 'punctuation.definition.entity.js'
-      }
-      {
-        'name': 'invalid.illegal.bad-ampersand.js'
-        'match': '&'
-      }
-    ]
-  'jsx-evaluated-code':
-    'begin': '{'
-    'end': '}'
-    'name': 'meta.brace.curly.js'
-    'endCaptures':
-      '0':
-        'name': 'punctuation.definition.brace.curly.end.js'
-    'beginCaptures':
-      '0':
-        'name': 'punctuation.definition.brace.curly.start.js'
-    'patterns': [
-      {
-        'include': '$self'
-      }
-    ]
-  'jsx-tag-open':
-    'begin': '(<)([a-zA-Z0-9\.:$_]+)'
-    'end': '(/?>)'
-    'name': 'tag.open.js'
-    'endCaptures':
-      '1':
-        'name': 'punctuation.definition.tag.end.js'
-    'beginCaptures':
-      '1':
-        'name': 'punctuation.definition.tag.begin.js'
-      '2':
-        'name': 'entity.name.tag.js'
-    'patterns': [
-      {
-        'include': '#jsx-tag-attributes'
-      }
-    ]
-  'jsx-tag-close':
-    'match': '(</)([^>]+)(>)'
-    'name': 'tag.closed.js'
-    'captures':
-      '1':
-        'name': 'punctuation.definition.tag.begin.js'
-      '2':
-        'name': 'entity.name.tag.js'
-      '3':
-        'name': 'punctuation.definition.tag.end.js'
-  'jsx-tag-invalid':
-    'name': 'invalid.illegal.tag.incomplete.js'
-    'match': '<\\s*>'
-  'jsx':
-    'name': 'meta.jsx.js'
-    'patterns': [
-      {
-        'include': '#jsx-tag-open'
-      }
-      {
-        'include': '#jsx-tag-close'
-      }
-      {
-        'include': '#jsx-tag-invalid'
-      }
-    ]
+repository:
+	pcdata:
+		patterns: [
+			{
+				include: "#pcdata-quotes"
+			}
+		]
+	"pcdata-quotes":
+		name: "meta.other.pcdata.js"
+		match: "\\b\\w+[\"]\\w+\\b"
+	"literal-jsx":
+		contentName: "meta.jsx.js"
+		begin: "(?<=\\(|\\{|\\[|,|&&|\\|\\||\\?|:|=|=>|\\Wreturn|^return|^)(?=\\s*<[_$a-zA-Z])"
+		end: "(?<=/>|>)"
+		patterns: [
+			{
+				include: "#jsx-tag-start"
+			}
+		]
+	"jsx-tag-start":
+		patterns: [
+			{
+				begin: "(<)([_$a-zA-Z][-$:.\\w]*[$\\w]*)"
+				beginCaptures:
+					"1":
+						name: "punctuation.definition.tag.begin.jsx"
+					"2":
+						name: "entity.name.tag.jsx"
+				end: "(</)(\\2)(>)|(/>)"
+				endCaptures:
+					"1":
+						name: "punctuation.definition.tag.begin.jsx"
+					"2":
+						name: "entity.name.tag.jsx"
+					"3":
+						name: "punctuation.definition.tag.end.jsx"
+					"4":
+						name: "punctuation.definition.tag.end.jsx"
+				patterns: [
+					{
+						include: "#jsx-tag-end"
+					}
+					{
+						include: "#jsx-attributes"
+					}
+				]
+			}
+			{
+				name: "invalid.illegal.tag.incomplete.jsx"
+				match: "<"
+			}
+		]
+	"jsx-tag-end":
+		begin: ">"
+		beginCaptures:
+			"0":
+				name: "punctuation.definition.tag.end.jsx"
+		end: "(?=</)"
+		patterns: [
+			{
+				include: "#jsx-tag-start"
+			}
+			{
+				include: "#jsx-evaluated-code"
+			}
+			{
+				include: "#jsx-entities"
+			}
+		]
+	"jsx-attributes":
+		patterns: [
+			{
+				include: "#jsx-attribute-name"
+			}
+			{
+				include: "#jsx-attribute-assignment"
+			}
+			{
+				include: "#jsx-string-quoted"
+			}
+			{
+				include: "#jsx-evaluated-code"
+			}
+			{
+				include: "#comments"
+			}
+		]
+	"jsx-attribute-name":
+		name: "entity.other.attribute-name.jsx"
+		match: "[_$a-zA-Z][-$\\w]*"
+	"jsx-attribute-assignment":
+		name: "keyword.operator.assignment.jsx"
+		match: "="
+	"jsx-evaluated-code":
+		name: "meta.embedded.expression.jsx"
+		begin: "{"
+		beginCaptures:
+			"0":
+				name: "punctuation.section.embedded.begin.jsx"
+		end: "}"
+		endCaptures:
+			"0":
+				name: "punctuation.section.embedded.end.jsx"
+		patterns: [
+			{
+				include: "#expression"
+			}
+		]
+	"jsx-string-quoted":
+		name: "string.quoted.jsx"
+		begin: "([\"'])"
+		beginCaptures:
+			"0":
+				name: "punctuation.definition.string.begin.jsx"
+		end: "\\1"
+		endCaptures:
+			"0":
+				name: "punctuation.definition.string.end.jsx"
+		patterns: [
+			{
+				include: "#jsx-entities"
+			}
+		]
+	"jsx-entities":
+		patterns: [
+			{
+				name: "constant.character.entity.jsx"
+				match: "&(?:[a-zA-Z0-9]+|#\\d+|#x\\h+);"
+			}
+			{
+				name: "invalid.illegal.bad-ampersand.jsx"
+				match: "&\\S*;"
+			}
+		]
