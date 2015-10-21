@@ -3,7 +3,7 @@ var fs = require('fs');
 var atom_1 = require("atom");
 exports.provider = {
     name: 'TS',
-    grammarScopes: ['source.ts', 'source.ts.tsx'],
+    grammarScopes: ['source.ts', 'source.tsx'],
     scope: 'file',
     lintOnFly: true,
     lint: function (textEditor) {

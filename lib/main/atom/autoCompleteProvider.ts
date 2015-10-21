@@ -79,7 +79,7 @@ interface SnippetsContianer {
 }
 
 export var provider: autocompleteplus.Provider = {
-    selector: '.source.ts',
+    selector: '.source.ts, .source.tsx',
     inclusionPriority: 3,
     suggestionPriority: 3,
     excludeLowerPriority: false,
