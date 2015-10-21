@@ -1,4 +1,4 @@
-'.source.ts':
+'.source.ts, .source.tsx':
     'reference':
         'prefix': 'ref'
         'body': """
