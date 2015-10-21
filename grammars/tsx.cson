@@ -1,5 +1,5 @@
 name: "TypeScript (TSX)"
-scopeName: "source.tsx"
+scopeName: "source.ts.tsx"
 fileTypes: [
 	"tsx"
 ]
