@@ -231,10 +231,19 @@ export class Parent extends RequesterResponder {
     /** start worker */
     startWorker(childJsPath: string, terminalError: (e: Error) => any, customArguments: string[]) {
         try {
+            /** At least on NixOS, the environment must be preserved for
+                dynamic libraries to be properly linked.
+                On Windows/MacOS, it needs to be cleared, cf. atom/atom#2887 */
+            var spawnEnv = (process.platform === 'linux') ? Object.create(process.env) : {};
+            spawnEnv['ATOM_SHELL_INTERNAL_RUN_AS_NODE'] = '1';
             this.child = spawn(this.node, [
             // '--debug', // Uncomment if you want to debug the child process
                 childJsPath
-            ].concat(customArguments), { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
+            ].concat(customArguments), {
+              cwd: path.dirname(childJsPath),
+              env: spawnEnv,
+              stdio: ['ipc']
+            });
 
             this.child.on('error', (err) => {
                 if (err.code === "ENOENT" && err.path === this.node) {
