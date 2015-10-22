@@ -153,9 +153,15 @@ var Parent = (function (_super) {
     Parent.prototype.startWorker = function (childJsPath, terminalError, customArguments) {
         var _this = this;
         try {
+            var spawnEnv = (process.platform === 'linux') ? Object.create(process.env) : {};
+            spawnEnv['ATOM_SHELL_INTERNAL_RUN_AS_NODE'] = '1';
             this.child = spawn(this.node, [
                 childJsPath
-            ].concat(customArguments), { cwd: path.dirname(childJsPath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' }, stdio: ['ipc'] });
+            ].concat(customArguments), {
+                cwd: path.dirname(childJsPath),
+                env: spawnEnv,
+                stdio: ['ipc']
+            });
             this.child.on('error', function (err) {
                 if (err.code === "ENOENT" && err.path === _this.node) {
                     _this.gotENOENTonSpawnNode = true;
