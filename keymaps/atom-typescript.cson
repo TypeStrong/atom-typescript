@@ -1,4 +1,4 @@
-'atom-workspace atom-text-editor:not([mini])[data-grammar~=ts]':
+'atom-workspace atom-text-editor:not([mini])[data-grammar^="source ts"]':
   'alt-cmd-l': 'typescript:format-code'
   'alt-ctrl-l': 'typescript:format-code'
   'ctrl-;': 'typescript:context-actions'
