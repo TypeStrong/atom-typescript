@@ -27,7 +27,7 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 ### exclude
 These references are relative to the `tsconfig.json` path. This does not accept glob formatting.
 
-NOTE: `files` can override the `exclude` array. It's recommended to use either `exclude` & `files` -- OR -- `filesGlob`, not both. `filesGlob` solves the exclude problem as long as your team is exclusively using atom-typescript.
+NOTE: `exclude` should not be used when `files` or `filesGlob` are in use. The presence of the `files` property takes presedence over the `exclude` property. [Read about it in the TypeScript wiki](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json#details).
 
 ```json
 {
@@ -35,10 +35,6 @@ NOTE: `files` can override the `exclude` array. It's recommended to use either `
        "node_modules",
        "bower_components",
        "lib/libFileToExclude.d.ts"
-     ],
-     "files": [
-       "js/script.ts",
-       "typings/tsd.d.ts"
      ]
 }
 ```
