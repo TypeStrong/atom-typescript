@@ -1,5 +1,5 @@
 # `tsconfig.json`
-A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.5` and above) only cares about `compilerOptions` and `files`. We add additional features to this [with the typescript team's approval to extend the file as long as we don't conflict](https://github.com/Microsoft/TypeScript/issues/1955).
+A unified project format for TypeScript ([see merged PR on Microsoft/TypeScript](https://github.com/Microsoft/TypeScript/pull/1692)). The TypeScript compiler (`1.5` and above) only cares about `compilerOptions` and `files`. TypeScript `1.6` introduced the `exclude` property. We add additional features to this [with the typescript team's approval to extend the file as long as we don't conflict](https://github.com/Microsoft/TypeScript/issues/1955).
 
 `tsconfig.json` is great for building the ["compilation context" so you **don't need to use** `/// <reference` comments](http://blog.icanmakethiswork.io/2015/02/hey-tsconfigjson-where-have-you-been.html).
 
@@ -14,6 +14,7 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 
 * [`compilerOptions`](https://github.com/TypeStrong/atom-typescript/blob/e2fa67c4715189b71430f766ed9a92d9fb3255f9/lib/main/tsconfig/tsconfig.ts#L8-L35): similar to what you would pass on the commandline to `tsc`.
   * One exception : [We don't support `--out` because it will hurt you in the long run, and we will warn you if you use it](https://github.com/TypeStrong/atom-typescript/blob/master/docs/out.md).
+* [`exclude`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#exclude): To exclude directories or files from being referenced. This accepts files or folders. This does not accept glob formatting.
 * [`filesGlob`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#filesglob): To make it easier for you to just add / remove files in your project we add `filesGlob` which accepts an array of `glob / minimatch / RegExp` patterns (similar to grunt) to specify source files.
 * [`formatCodeOptions`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatcodeoptions) : Code formatting options
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
@@ -22,6 +23,25 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 
 
 ## Examples
+
+### exclude
+These references are relative to the `tsconfig.json` path. This does not accept glob formatting.
+
+NOTE: `files` can override the `exclude` array. It's recommended to use either `exclude` & `files` -- OR -- `filesGlob`, not both. `filesGlob` solves the exclude problem as long as your team is exclusively using atom-typescript.
+
+```json
+{
+     "exclude": [
+       "node_modules",
+       "bower_components",
+       "lib/libFileToExclude.d.ts"
+     ],
+     "files": [
+       "js/script.ts",
+       "typings/tsd.d.ts"
+     ]
+}
+```
 
 ### filesGlob
 
