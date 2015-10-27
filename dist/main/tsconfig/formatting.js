@@ -5,6 +5,7 @@ function defaultFormatCodeOptions() {
         TabSize: 4,
         NewLineCharacter: os.EOL,
         ConvertTabsToSpaces: true,
+        IndentStyle: ts.IndentStyle.Smart,
         InsertSpaceAfterCommaDelimiter: true,
         InsertSpaceAfterSemicolonInForStatements: true,
         InsertSpaceBeforeAndAfterBinaryOperators: true,

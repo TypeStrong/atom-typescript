@@ -26,6 +26,7 @@ export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
         TabSize: 4,
         NewLineCharacter: os.EOL,
         ConvertTabsToSpaces: true,
+        IndentStyle: ts.IndentStyle.Smart,
         InsertSpaceAfterCommaDelimiter: true,
         InsertSpaceAfterSemicolonInForStatements: true,
         InsertSpaceBeforeAndAfterBinaryOperators: true,
