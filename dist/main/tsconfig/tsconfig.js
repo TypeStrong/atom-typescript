@@ -38,6 +38,7 @@ var compilerOptionsValidation = {
     rootDir: { type: types.string },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
+    stripInternal: { type: types.boolean },
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
     target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },

@@ -52,6 +52,7 @@ interface CompilerOptions {
     rootDir?: string;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
+    stripInternal?: boolean;
     suppressExcessPropertyErrors?: boolean;           // Optionally disable strict object literal assignment checking
     suppressImplicitAnyIndexErrors?: boolean;
     target?: string;                                  // 'es3'|'es5' (default)|'es6'
@@ -96,6 +97,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     rootDir: { type: types.string },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
+    stripInternal: { type: types.boolean },
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
     target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },
