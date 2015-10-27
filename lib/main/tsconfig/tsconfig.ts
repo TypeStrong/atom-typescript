@@ -377,19 +377,14 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     }
 
     try {
-        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile);
+        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile, { resolvePaths: false });
     } catch (ex) {
         throw errorWithDetails<GET_PROJECT_JSON_PARSE_FAILED_Details>(
             new Error(errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
 
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
-        var relativeProjectSpec = extend(projectSpec, {
-          files: projectSpec.files.map(x => fsu.consistentPath(path.relative(projectFileDirectory, x))),
-          exclude: projectSpec.exclude.map(x => fsu.consistentPath(path.relative(projectFileDirectory, x)))
-        });
-
-        var prettyJSONProjectSpec = prettyJSON(relativeProjectSpec, detectIndent(projectFileTextContent).indent);
+        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
 
         if (prettyJSONProjectSpec !== projectFileTextContent) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
@@ -416,7 +411,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
 
     var project: TypeScriptProjectSpecification = {
         compilerOptions: {},
-        files: projectSpec.files,
+        files: projectSpec.files.map(x => path.resolve(projectFileDirectory, x)),
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
