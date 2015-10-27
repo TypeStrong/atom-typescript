@@ -65,7 +65,6 @@ var path = require('path');
 var tsconfig = require('tsconfig');
 var os = require('os');
 var detectIndent = require('detect-indent');
-var extend = require('xtend');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
@@ -202,17 +201,13 @@ function getProjectSync(pathOrSrcFile) {
         throw new Error(exports.errors.GET_PROJECT_FAILED_TO_OPEN_PROJECT_FILE);
     }
     try {
-        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile);
+        projectSpec = tsconfig.parseFileSync(projectFileTextContent, projectFile, { resolvePaths: false });
     }
     catch (ex) {
         throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
     if (projectSpec.filesGlob) {
-        var relativeProjectSpec = extend(projectSpec, {
-            files: projectSpec.files.map(function (x) { return fsu.consistentPath(path.relative(projectFileDirectory, x)); }),
-            exclude: projectSpec.exclude.map(function (x) { return fsu.consistentPath(path.relative(projectFileDirectory, x)); })
-        });
-        var prettyJSONProjectSpec = prettyJSON(relativeProjectSpec, detectIndent(projectFileTextContent).indent);
+        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
         if (prettyJSONProjectSpec !== projectFileTextContent) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
@@ -235,7 +230,7 @@ function getProjectSync(pathOrSrcFile) {
     }
     var project = {
         compilerOptions: {},
-        files: projectSpec.files,
+        files: projectSpec.files.map(function (x) { return path.resolve(projectFileDirectory, x); }),
         filesGlob: projectSpec.filesGlob,
         formatCodeOptions: formatting.makeFormatCodeOptions(projectSpec.formatCodeOptions),
         compileOnSave: projectSpec.compileOnSave == undefined ? true : projectSpec.compileOnSave,
