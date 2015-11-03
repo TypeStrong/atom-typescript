@@ -365,6 +365,7 @@ export class MainPanelView extends view.View<any> {
     private clearedError = true;
     clearError() {
         this.clearedError = true;
+        this.clearSummary();
         this.errorBody.empty();
     }
 
@@ -396,6 +397,11 @@ export class MainPanelView extends view.View<any> {
         }
     }
 
+    clearSummary() {
+        this.summary.html('');
+        this.summary.off();
+    }
+
     setErrorPanelErrorCount(fileErrorCount: number, totalErrorCount: number) {
         var title = `${panelHeaders.error} ( <span class="text-success">No Errors</span> )`;
         if (totalErrorCount > 0) {
@@ -407,7 +413,7 @@ export class MainPanelView extends view.View<any> {
             )`;
         }
         else {
-            this.summary.html('');
+            this.clearSummary();
             this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
         }
 
