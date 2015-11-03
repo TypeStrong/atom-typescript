@@ -311,6 +311,7 @@ var MainPanelView = (function (_super) {
     };
     MainPanelView.prototype.clearError = function () {
         this.clearedError = true;
+        this.clearSummary();
         this.errorBody.empty();
     };
     MainPanelView.prototype.addError = function (view) {
@@ -330,13 +331,17 @@ var MainPanelView = (function (_super) {
             handler(this.summary);
         }
     };
+    MainPanelView.prototype.clearSummary = function () {
+        this.summary.html('');
+        this.summary.off();
+    };
     MainPanelView.prototype.setErrorPanelErrorCount = function (fileErrorCount, totalErrorCount) {
         var title = panelHeaders.error + " ( <span class=\"text-success\">No Errors</span> )";
         if (totalErrorCount > 0) {
             title = panelHeaders.error + " (\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + fileErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> file" + (fileErrorCount === 1 ? "" : "s") + " </span>\n                <span class=\"text-highlight\" style=\"font-weight: bold\"> " + totalErrorCount + " </span>\n                <span class=\"text-error\" style=\"font-weight: bold;\"> error" + (totalErrorCount === 1 ? "" : "s") + " </span>\n            )";
         }
         else {
-            this.summary.html('');
+            this.clearSummary();
             this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
         }
         this.errorPanelBtn.html(title);
