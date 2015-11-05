@@ -50,7 +50,7 @@ You can set that in the package settings https://atom.io/docs/latest/using-atom-
 You probably deleted them or added them or moved them around. We don't watch the file system as it is memory intensive and unreliable across operating systems. You can ask atom-typescript to do a rescan of your file system using the `sync` command (https://github.com/TypeStrong/atom-typescript#sync)
 
 ## Failed to Update
-This can happen particularly on windows as it is not possible to delete a file if it is executing. Close all atom instances and run the following commands:
+This can happen particularly on windows ([relevant issue](https://github.com/TypeStrong/atom-typescript/issues/195)) as it is not possible to delete a file if it is executing. Close all atom instances and run the following commands:
 
 ```
 apm uninstall atom-typescript
