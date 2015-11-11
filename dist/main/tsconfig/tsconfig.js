@@ -174,7 +174,8 @@ function getDefaultInMemoryProject(srcFile) {
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true,
         buildOnSave: false,
-        scripts: {}
+        scripts: {},
+        rewriteTsconfig: true
     };
     return {
         projectFileDirectory: dir,
@@ -210,7 +211,7 @@ function getProjectSync(pathOrSrcFile) {
     }
     if (projectSpec.filesGlob) {
         var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
-        if (prettyJSONProjectSpec !== projectFileTextContent) {
+        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
@@ -240,7 +241,8 @@ function getProjectSync(pathOrSrcFile) {
         typings: [],
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
-        buildOnSave: !!projectSpec.buildOnSave
+        buildOnSave: !!projectSpec.buildOnSave,
+        rewriteTsconfig: true
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {

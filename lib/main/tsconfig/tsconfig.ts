@@ -129,6 +129,7 @@ interface TypeScriptProjectRawSpecification {
     buildOnSave?: boolean;
     externalTranspiler?: string | { name: string; options?: any };
     scripts?: { postbuild?: string };
+    rewriteTsconfig?: boolean;                          // optional: rewrite tsconfig to prettified version. Used by Atom.
 }
 
 /**
@@ -146,6 +147,7 @@ export interface TypeScriptProjectSpecification {
     package?: UsefulFromPackageJson;
     externalTranspiler?: string | { name: string; options?: any };
     scripts: { postbuild?: string };
+    rewriteTsconfig: boolean;
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -337,7 +339,8 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
         formatCodeOptions: formatting.defaultFormatCodeOptions(),
         compileOnSave: true,
         buildOnSave: false,
-        scripts: {}
+        scripts: {},
+        rewriteTsconfig: true
     };
 
     return {
@@ -388,7 +391,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
         var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
 
-        if (prettyJSONProjectSpec !== projectFileTextContent) {
+        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
@@ -421,7 +424,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         typings: [],
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
-        buildOnSave: !!projectSpec.buildOnSave
+        buildOnSave: !!projectSpec.buildOnSave,
+        rewriteTsconfig: true
     };
 
     // Validate the raw compiler options before converting them to TS compiler options

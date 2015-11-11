@@ -20,6 +20,8 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
 * [`buildOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#buildonsave) : Should AtomTS build on save
 * [`scripts`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#scripts) : Sometimes its useful to have post build scripts
+* [`rewriteTsconfig`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#rewriteTsconfig) : Many
+projects don't want Atom to constantly rewrite their `tsconfig.json`.
 
 
 ## Examples
@@ -114,6 +116,11 @@ Build means *compile all files*. Useful if for some reason you are using `--out`
   "buildOnSave": true
 }
 ```
+
+### rewriteTsconfig
+Atom-Typescript constantly resolves the `filesGlob` listed in your `tsconfig.json` to ensure that the glob is in sync
+with your project. If your project doesn't require this (you are managing your `filesGlob` some other way), set this
+to `false` (this defaults to `true`).
 
 ## Additional Notes
 FWIW [a json schema is also available](http://json.schemastore.org/tsconfig)

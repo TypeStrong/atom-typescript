@@ -3,6 +3,10 @@
 ## I keep getting changes to tsconfig.json
 This is probably because of us keeping `files` updated with the `filesGlob` option. The reason why we do this is because the official `tsconfig.json` spec does not support `filesGlob`. Therefore we keep `files` in sync with the `filesGlob` so that your team mates can use whatever editor they prefer (sublime text, visual studio etc.).
 
+You can now disable this behavior by setting the `rewriteTsconfig` flag to `false` in your project's `tsconfig.json`.
+
+[Further Details](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#rewriteTsconfig)
+
 ## For really large projects atom-typescript gets slow
 If you have `tsconfig.json` in a folder that contains `node_modules`, atom-typescript might become slow (due to extensive file listing). Two possible fixes:
 * Move `tsconfig.json` into a sub folder e.g. `src`
