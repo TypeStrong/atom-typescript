@@ -42,8 +42,6 @@ class RequesterResponder {
     protected getProcess: {
         (): { send?: <T>(message: Message<T>) => any }
     }
-    = () => { throw new Error('getProcess is abstract'); return null; }
-
 
     ///////////////////////////////// REQUESTOR /////////////////////////
 

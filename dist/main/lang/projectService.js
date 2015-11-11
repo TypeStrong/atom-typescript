@@ -334,8 +334,8 @@ function getProjectFileDetails(query) {
 exports.getProjectFileDetails = getProjectFileDetails;
 function sortNavbarItemsBySpan(items) {
     items.sort(function (a, b) { return a.spans[0].start - b.spans[0].start; });
-    for (var _i = 0; _i < items.length; _i++) {
-        var item = items[_i];
+    for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+        var item = items_1[_i];
         if (item.childItems) {
             sortNavbarItemsBySpan(item.childItems);
         }

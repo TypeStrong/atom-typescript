@@ -295,8 +295,8 @@ var MainPanelView = (function (_super) {
         var title = panelHeaders.references + " ( <span class=\"text-highlight\" style=\"font-weight: bold\">Found: " + references.length + "</span> )";
         this.referencesPanelBtn.html(title);
         gotoHistory.referencesOutput.members = [];
-        for (var _i = 0; _i < references.length; _i++) {
-            var ref = references[_i];
+        for (var _i = 0, references_1 = references; _i < references_1.length; _i++) {
+            var ref = references_1[_i];
             var view = new lineMessageView.LineMessageView({
                 goToLine: function (filePath, line, col) { return gotoHistory.gotoLine(filePath, line, col, gotoHistory.referencesOutput); },
                 message: '',

@@ -19,8 +19,8 @@ function getDependencies(projectFile, program) {
             }
             return file;
         });
-        for (var _b = 0; _b < targets.length; _b++) {
-            var target = targets[_b];
+        for (var _b = 0, targets_1 = targets; _b < targets_1.length; _b++) {
+            var target = targets_1[_b];
             var targetPath = fsUtil_1.consistentPath(path.relative(projectDir, fsUtil_1.consistentPath(target)));
             var sourcePath = fsUtil_1.consistentPath(path.relative(projectDir, filePath));
             links.push({

@@ -30,27 +30,28 @@ export function getInitialTransformation(code: string): FileTransformationDetail
 
 
     var transforms: TransformerDelimiter[] = [];
-    var processedSrcUpto = 0;
-    var srcCode = code;
-    var destCode = '';
-    var destDelta = 0;
-
-    while (true) {
-        let remainingCode = code.substr(processedSrcUpto);
-        // Get the next transform that exist in this file:
-        var matches = transformFinderRegex.exec(remainingCode);
-        // No more transforms:
-        if (!matches || !matches.length || matches.length < 2) return { transforms };
-        // Found one!
-        var nextTransformName = matches.slice[1];
-        // Update the processedUpto
-    }
-
-    /**
-     * TODO: for each transform we note down the src start and src end
-     * Then we transform the src code. This gives a dest start (initially same as src start) and dest end (more or less)
-     * we use this to additionally compute a running (delta) in dest. This delta is used in the next (dest start).
-     */
+    // var processedSrcUpto = 0;
+    // var srcCode = code;
+    // var destCode = '';
+    // var destDelta = 0;
+    //
+    // while (true) {
+    //     let remainingCode = code.substr(processedSrcUpto);
+    //     // Get the next transform that exist in this file:
+    //     var matches = transformFinderRegex.exec(remainingCode);
+    //     // No more transforms:
+    //     if (!matches || !matches.length || matches.length < 2) return { transforms };
+    //     // Found one!
+    //     var nextTransformName = matches.slice[1];
+    //     // Update the processedUpto
+    //     break;
+    // }
+    //
+    // /**
+    //  * TODO: for each transform we note down the src start and src end
+    //  * Then we transform the src code. This gives a dest start (initially same as src start) and dest end (more or less)
+    //  * we use this to additionally compute a running (delta) in dest. This delta is used in the next (dest start).
+    //  */
 
 
     return { transforms };

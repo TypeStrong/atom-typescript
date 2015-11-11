@@ -54,7 +54,7 @@
     "immutable": "^3.7.3",
     "json2dts": "0.0.1",
     "mkdirp": "^0.5.0",
-    "ntypescript": "1.201510270605.1",
+    "ntypescript": "1.201511100604.1",
     "react": "^0.13.3",
     "season": "^5.1.4",
     "tsconfig": "^2.1.0",

@@ -96,3 +96,7 @@ interface PromiseDeferred<T> {
 }
 
 declare var Promise: PromiseConstructor;
+
+declare module 'pinkie-promise'{
+    export = Promise;
+}

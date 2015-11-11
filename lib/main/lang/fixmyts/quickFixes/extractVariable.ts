@@ -19,9 +19,6 @@ export class ExtractVariable implements QuickFix {
             () => {
                 return { display: `Extract variable` };
             });
-
-        throw "Unexpected state in canProvideFix";
-
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
@@ -36,8 +33,6 @@ export class ExtractVariable implements QuickFix {
             (callExpression) => {
                 return extractVariableFromArg(info, callExpression);
             });
-
-        throw "Unexpected state in provideFix";
     }
 
 }

@@ -13,7 +13,6 @@ var ExtractVariable = (function () {
         }, function () {
             return { display: "Extract variable" };
         });
-        throw "Unexpected state in canProvideFix";
     };
     ExtractVariable.prototype.provideFix = function (info) {
         return execute(info, function () {
@@ -23,7 +22,6 @@ var ExtractVariable = (function () {
         }, function (callExpression) {
             return extractVariableFromArg(info, callExpression);
         });
-        throw "Unexpected state in provideFix";
     };
     return ExtractVariable;
 })();

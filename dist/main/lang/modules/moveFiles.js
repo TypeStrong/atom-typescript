@@ -20,8 +20,8 @@ function getRenameFilesRefactorings(program, oldDirectoryOrFile, newDirectoryOrF
         });
         var matches = imports.filter(function (f) { return f.path == oldFileNoExt; });
         if (matches.length) {
-            for (var _i = 0; _i < matches.length; _i++) {
-                var match = matches[_i];
+            for (var _i = 0, matches_1 = matches; _i < matches_1.length; _i++) {
+                var match = matches_1[_i];
                 refactorings.push({
                     filePath: sourceFile.fileName,
                     span: {

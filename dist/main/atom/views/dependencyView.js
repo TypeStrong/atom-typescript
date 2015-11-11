@@ -88,8 +88,8 @@ function renderGraph(dependencies, mainContent, display) {
         var cycles = d3Graph.cycles();
         var message = '';
         var textContent = '';
-        for (var _i = 0; _i < cycles.length; _i++) {
-            var cycle = cycles[_i];
+        for (var _i = 0, cycles_1 = cycles; _i < cycles_1.length; _i++) {
+            var cycle = cycles_1[_i];
             message += '<h3>Cycle Found: </h3>';
             message += cycle.join(' <br/> ') + '<br/>';
             textContent += '---Cycle Found---' + os.EOL;

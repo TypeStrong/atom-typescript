@@ -17,7 +17,6 @@ var orphanExitCode = 100;
 var RequesterResponder = (function () {
     function RequesterResponder() {
         var _this = this;
-        this.getProcess = function () { throw new Error('getProcess is abstract'); return null; };
         this.currentListeners = {};
         this.currentLastOfType = {};
         this.pendingRequests = [];
