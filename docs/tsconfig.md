@@ -23,7 +23,6 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`atom`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#rewriteTsconfig) : Configuration specific to Atom. Currently
 only contains `rewriteTsconfig` which prevents Atom from rewriting a project's `tsconfig.json`.
 
-
 ## Examples
 
 ### exclude
