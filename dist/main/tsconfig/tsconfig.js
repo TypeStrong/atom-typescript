@@ -299,28 +299,32 @@ function increaseProjectForReferenceAndImports(files) {
                 return;
             }
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
+            var extensions = ['.ts', '.d.ts', '.tsx'];
+            function getIfExists(filePathNoExt) {
+                for (var _i = 0, extensions_1 = extensions; _i < extensions_1.length; _i++) {
+                    var ext = extensions_1[_i];
+                    if (fs.existsSync(filePathNoExt + ext)) {
+                        return filePathNoExt + ext;
+                    }
+                }
+            }
             referenced.push(preProcessedFileInfo.referencedFiles.map(function (fileReference) {
                 var file = path.resolve(dir, fsu.consistentPath(fileReference.fileName));
                 if (fs.existsSync(file)) {
                     return file;
                 }
-                if (fs.existsSync(file + '.ts')) {
-                    return file + '.ts';
-                }
-                if (fs.existsSync(file + '.d.ts')) {
-                    return file + '.d.ts';
-                }
-                return null;
+                return getIfExists(file);
             }).filter(function (file) { return !!file; })
                 .concat(preProcessedFileInfo.importedFiles
                 .filter(function (fileReference) { return pathIsRelative(fileReference.fileName); })
                 .map(function (fileReference) {
-                var file = path.resolve(dir, fileReference.fileName + '.ts');
-                if (!fs.existsSync(file)) {
-                    file = path.resolve(dir, fileReference.fileName + '.d.ts');
+                var fileNoExt = path.resolve(dir, fileReference.fileName);
+                var file = getIfExists(fileNoExt);
+                if (!file) {
+                    file = getIfExists(file + "/index");
                 }
                 return file;
-            })));
+            }).filter(function (file) { return !!file; })));
         });
         return selectMany(referenced);
     };
