@@ -23,7 +23,7 @@ var MyComponent = (function (_super) {
         });
     };
     MyComponent.prototype.render = function () {
-        return React.createElement("div", {"onClick": this.stop}, "This is a test: ", this.state.count);
+        return React.createElement("div", {onClick: this.stop}, "This is a test: ", this.state.count);
     };
     MyComponent.defaultProps = { count: 0 };
     return MyComponent;
