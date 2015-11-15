@@ -305,8 +305,8 @@ function increaseProjectForReferenceAndImports(files) {
             var preProcessedFileInfo = ts.preProcessFile(content, true), dir = path.dirname(file);
             var extensions = ['.ts', '.d.ts', '.tsx'];
             function getIfExists(filePathNoExt) {
-                for (var _i = 0, extensions_1 = extensions; _i < extensions_1.length; _i++) {
-                    var ext = extensions_1[_i];
+                for (var _i = 0; _i < extensions.length; _i++) {
+                    var ext = extensions[_i];
                     if (fs.existsSync(filePathNoExt + ext)) {
                         return filePathNoExt + ext;
                     }
@@ -378,8 +378,8 @@ function getDefinitionsForNodeModules(projectDir, files) {
     try {
         var node_modules = travelUpTheDirectoryTreeTillYouFind(projectDir, 'node_modules', true);
         var moduleDirs = getDirs(node_modules);
-        for (var _i = 0, moduleDirs_1 = moduleDirs; _i < moduleDirs_1.length; _i++) {
-            var moduleDir = moduleDirs_1[_i];
+        for (var _i = 0; _i < moduleDirs.length; _i++) {
+            var moduleDir = moduleDirs[_i];
             try {
                 var package_json = JSON.parse(fs.readFileSync(moduleDir + "/package.json").toString());
                 packagejson.push(moduleDir + "/package.json");
@@ -504,8 +504,8 @@ exports.getPotentiallyRelativeFile = getPotentiallyRelativeFile;
 function getDirs(rootDir) {
     var files = fs.readdirSync(rootDir);
     var dirs = [];
-    for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-        var file = files_1[_i];
+    for (var _i = 0; _i < files.length; _i++) {
+        var file = files[_i];
         if (file[0] != '.') {
             var filePath = rootDir + "/" + file;
             var stat = fs.statSync(filePath);
