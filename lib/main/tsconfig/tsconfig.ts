@@ -17,6 +17,8 @@ var types = simpleValidator.types;
  */
 interface CompilerOptions {
     allowNonTsExtensions?: boolean;
+    allowUnreachableCode?: boolean;
+    allowUnusedLabels?: boolean;
     charset?: string;
     codepage?: number;
     declaration?: boolean;
@@ -40,7 +42,9 @@ interface CompilerOptions {
     noEmitHelpers?: boolean;
     noEmitOnError?: boolean;
     noErrorTruncation?: boolean;
+    noFallthroughCasesInSwitch?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
+    noImplicitReturns?: boolean;
     noLib?: boolean;
     noLibCheck?: boolean;
     noResolve?: boolean;
@@ -62,6 +66,8 @@ interface CompilerOptions {
 
 var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     allowNonTsExtensions: { type: types.boolean },
+    allowUnreachableCode: { type: types.boolean },
+    allowUnusedLabels: { type: types.boolean },
     charset: { type: types.string },
     codepage: { type: types.number },
     declaration: { type: types.boolean },
@@ -85,7 +91,9 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noEmitHelpers: { type: types.boolean },
     noEmitOnError: { type: types.boolean },
     noErrorTruncation: { type: types.boolean },
+    noFallthroughCasesInSwitch: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
+    noImplicitReturns: { type: types.boolean },
     noLib: { type: types.boolean },
     noLibCheck: { type: types.boolean },
     noResolve: { type: types.boolean },
