@@ -215,7 +215,7 @@ function getProjectSync(pathOrSrcFile) {
     }
     if (projectSpec.filesGlob) {
         var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
-        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom.rewriteTsconfig) {
+        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom && projectSpec.atom.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
