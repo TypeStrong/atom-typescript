@@ -2,9 +2,6 @@
 
 ## Critical
 
-### autocomplete-plus
-We will install this for you to give a good autocomplete experience
-
 ### linter
 We will install this for you to give a good error highlight experience
 
