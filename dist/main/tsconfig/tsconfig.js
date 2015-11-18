@@ -213,9 +213,14 @@ function getProjectSync(pathOrSrcFile) {
     catch (ex) {
         throw errorWithDetails(new Error(exports.errors.GET_PROJECT_JSON_PARSE_FAILED), { projectFilePath: fsu.consistentPath(projectFile), error: ex.message });
     }
+    if (!projectSpec.atom) {
+        projectSpec.atom = {
+            rewriteTsconfig: true,
+        };
+    }
     if (projectSpec.filesGlob) {
         var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
-        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom && projectSpec.atom.rewriteTsconfig) {
+        if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
     }
