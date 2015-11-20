@@ -7,6 +7,9 @@
   },
   "preferGlobal": "true",
   "description": "The only TypeScript plugin you will ever need.",
+  "scripts": {
+    "test": "ntsc -p ./lib"
+  },
   "engines": {
     "atom": ">=0.199.0 <2.0.0",
     "node": "*"
