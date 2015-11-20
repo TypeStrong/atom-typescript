@@ -130,5 +130,8 @@
         "./main/atom/views/rView.tsx",
         "./main/atom/views/semanticView.tsx"
     ],
-    "exclude": []
+    "exclude": [],
+    "atom": {
+        "rewriteTsconfig": true
+    }
 }

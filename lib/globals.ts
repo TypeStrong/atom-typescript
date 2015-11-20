@@ -1,3 +1,4 @@
+/// <reference path="../node_modules/ntypescript/bin/ntypescript.d.ts"/>
 /// <reference path="./typings/tsd.d.ts"/>
 
 // From brackets plugin
