@@ -161,7 +161,10 @@ function runExternalTranspiler(sourceFileName, sourceFileText, outputFile, proje
                 if (!settings.compilerOptions.removeComments) {
                     babelOptions.comments = true;
                 }
+                var directory = process.cwd();
+                process.chdir(project.projectFile.projectFileDirectory);
                 var babelResult = babel.transform(outputFile.text, babelOptions);
+                process.chdir(directory);
                 outputFile.text = babelResult.code;
                 if (babelResult.map && settings.compilerOptions.sourceMap) {
                     var additionalEmit = {
