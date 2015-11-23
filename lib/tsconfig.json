@@ -17,6 +17,7 @@
     "filesGlob": [
         "./**/*.ts",
         "./**/*.tsx",
+        "../typings/main.d.ts",
         "!node_modules/**/*.ts",
         "!node_modules/**/*.tsx"
     ],
@@ -117,7 +118,6 @@
         "./typings/q/Q.d.ts",
         "./typings/react/react-jsx.d.ts",
         "./typings/react/react.d.ts",
-        "./typings/source-map/source-map.d.ts",
         "./typings/space-pen/space-pen.d.ts",
         "./typings/status-bar/status-bar.d.ts",
         "./typings/text-buffer/text-buffer.d.ts",
@@ -128,7 +128,8 @@
         "./worker/parent.ts",
         "./worker/queryParent.ts",
         "./main/atom/views/rView.tsx",
-        "./main/atom/views/semanticView.tsx"
+        "./main/atom/views/semanticView.tsx",
+        "../typings/main.d.ts"
     ],
     "exclude": [],
     "atom": {
