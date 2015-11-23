@@ -10,7 +10,6 @@
 /// <reference path="q/Q.d.ts" />
 /// <reference path="mkdirp/mkdirp.d.ts" />
 /// <reference path="d3/d3.d.ts" />
-/// <reference path="source-map/source-map.d.ts" />
 /// <reference path="react/react.d.ts" />
 /// <reference path="react/react-jsx.d.ts" />
 /// <reference path="htmltojsx/htmltojsx.d.ts" />

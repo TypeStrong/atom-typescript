@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "source-map": "github:typings/typed-source-map#86c25e7a550d5af7a63d979625602c17cce157f6",
+    "tsconfig": "npm:tsconfig"
+  }
+}
