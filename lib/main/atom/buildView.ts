@@ -33,7 +33,7 @@ export function setBuildOutput(buildOutput: BuildOutput) {
     else {
         mainPanelView.panelView.setBuildPanelCount(0);
     }
-    
+
     // Update the errors list for goto history
     gotoHistory.buildOutput.members = [];
 
@@ -45,8 +45,8 @@ export function setBuildOutput(buildOutput: BuildOutput) {
             mainPanelView.panelView.addBuild(new lineMessageView.LineMessageView({
                 goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.buildOutput),
                 message: error.message,
-                line: error.startPos.line + 1,
-                col: error.startPos.col,
+                line: error.startPos ? error.startPos.line + 1 : null,
+                col: error.startPos ? error.startPos.col : null,
                 file: error.filePath,
                 preview: error.preview
             }));
