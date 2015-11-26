@@ -203,7 +203,10 @@ function runExternalTranspiler(sourceFileName: string,
                     babelOptions.comments = true;
                 }
 
+                var directory = process.cwd();
+                process.chdir(project.projectFile.projectFileDirectory);
                 let babelResult = babel.transform(outputFile.text, babelOptions);
+                process.chdir(directory);
                 outputFile.text = babelResult.code;
 
                 if (babelResult.map && settings.compilerOptions.sourceMap) {
