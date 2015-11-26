@@ -106,7 +106,7 @@ function getBabelInstance(projectDirectory) {
         return new Promise(function (resolve) {
             findup(projectDirectory, '.babelrc', function (err, dir) {
                 if (err)
-                    resolve(babel);
+                    return resolve(babel);
                 fs.readFile(path.join(dir, '.babelrc'), function (err, data) {
                     try {
                         babelConfigs[projectDirectory] = JSON.parse(data.toString());

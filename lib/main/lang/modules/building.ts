@@ -131,7 +131,7 @@ function getBabelInstance(projectDirectory: string) {
     }).then(babel => {
         return new Promise<any>(resolve => {
             findup(projectDirectory, '.babelrc', function(err: any, dir) {
-                if (err) resolve(babel);
+                if (err) return resolve(babel);
 
                 fs.readFile(path.join(dir, '.babelrc'), function(err, data) {
                     try {
