@@ -22,41 +22,62 @@ function diagnosticToTSError(diagnostic) {
 exports.diagnosticToTSError = diagnosticToTSError;
 function emitFile(proj, filePath) {
     var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
-    var emitDone = !output.emitSkipped;
     var errors = [];
-    var sourceFile = services.getSourceFile(filePath);
-    var allDiagnostics = services.getCompilerOptionsDiagnostics()
-        .concat(services.getSyntacticDiagnostics(filePath))
-        .concat(services.getSemanticDiagnostics(filePath));
-    allDiagnostics.forEach(function (diagnostic) {
-        if (!diagnostic.file)
-            return;
-        var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        errors.push(diagnosticToTSError(diagnostic));
-    });
-    {
-        var sourceMapContents = {};
-        output.outputFiles.forEach(function (o) {
-            mkdirp.sync(path.dirname(o.name));
-            runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents).then(function (additionalEmits) {
-                if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
-                    fs.writeFileSync(o.name, o.text, "utf8");
-                }
-                additionalEmits.forEach(function (a) {
-                    mkdirp.sync(path.dirname(a.name));
-                    fs.writeFileSync(a.name, a.text, "utf8");
+    var output;
+    var outputFiles;
+    var emitDone;
+    try {
+        output = services.getEmitOutput(filePath);
+        emitDone = !output.emitSkipped;
+    }
+    catch (err) {
+        var noPosition = {
+            line: 0,
+            col: 0
+        };
+        errors.push({
+            filePath: filePath,
+            message: err.stack,
+            startPos: noPosition,
+            endPos: noPosition,
+            preview: err.toString()
+        });
+        emitDone = false;
+    }
+    if (output) {
+        var sourceFile = services.getSourceFile(filePath);
+        var allDiagnostics = services.getCompilerOptionsDiagnostics()
+            .concat(services.getSyntacticDiagnostics(filePath))
+            .concat(services.getSemanticDiagnostics(filePath));
+        allDiagnostics.forEach(function (diagnostic) {
+            if (!diagnostic.file)
+                return;
+            var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            errors.push(diagnosticToTSError(diagnostic));
+        });
+        {
+            var sourceMapContents = {};
+            output.outputFiles.forEach(function (o) {
+                mkdirp.sync(path.dirname(o.name));
+                runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents).then(function (additionalEmits) {
+                    if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
+                        fs.writeFileSync(o.name, o.text, "utf8");
+                    }
+                    additionalEmits.forEach(function (a) {
+                        mkdirp.sync(path.dirname(a.name));
+                        fs.writeFileSync(a.name, a.text, "utf8");
+                    });
                 });
             });
-        });
-    }
-    var outputFiles = output.outputFiles.map(function (o) { return o.name; });
-    if (path.extname(filePath) == '.d.ts') {
-        outputFiles.push(filePath);
+        }
+        var outputFiles = output.outputFiles.map(function (o) { return o.name; });
+        if (path.extname(filePath) == '.d.ts') {
+            outputFiles.push(filePath);
+        }
     }
     return {
         sourceFileName: filePath,
-        outputFiles: outputFiles,
+        outputFiles: outputFiles || [],
         success: emitDone && !errors.length,
         errors: errors,
         emitError: !emitDone

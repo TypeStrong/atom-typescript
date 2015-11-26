@@ -31,62 +31,82 @@ export function diagnosticToTSError(diagnostic: ts.Diagnostic): CodeError {
 
 export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     var services = proj.languageService;
-    var output = services.getEmitOutput(filePath);
-    var emitDone = !output.emitSkipped;
     var errors: CodeError[] = [];
-
-    let sourceFile = services.getSourceFile(filePath);
-
-    // Emit is no guarantee that there are no errors
-    // so lets collect those
-    var allDiagnostics = services.getCompilerOptionsDiagnostics()
-        .concat(services.getSyntacticDiagnostics(filePath))
-        .concat(services.getSemanticDiagnostics(filePath));
-    allDiagnostics.forEach(diagnostic => {
-        // happens only for 'lib.d.ts' for some reason
-        if (!diagnostic.file) return;
-
-        var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        errors.push(diagnosticToTSError(diagnostic));
-    });
-
-    /**
-     * Run an external transpiler
-     */
-    {
-        let sourceMapContents: { [index: string]: any } = {};
-        output.outputFiles.forEach(o => {
-            mkdirp.sync(path.dirname(o.name));
-            runExternalTranspiler(
-                filePath,
-                sourceFile.text,
-                o,
-                proj,
-                sourceMapContents
-            ).then((additionalEmits) => {
-                if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
-                    // .js.map files will be written as an "additional emit" later.
-                    fs.writeFileSync(o.name, o.text, "utf8");
-                }
-
-                additionalEmits.forEach(a => {
-                    mkdirp.sync(path.dirname(a.name));
-                    fs.writeFileSync(a.name, a.text, "utf8");
-                });
-            });
-        });
+    var output;
+    var outputFiles;
+    var emitDone;
+    try {
+        output = services.getEmitOutput(filePath);
+        emitDone = !output.emitSkipped;
     }
+    catch (err) {
+        var noPosition = {
+          line: 0,
+          col: 0
+        }
+        errors.push({
+          filePath: filePath,
+          message: err.stack,
+          startPos: noPosition,
+          endPos: noPosition,
+          preview: err.toString()
+        });
+        emitDone = false;
+    }
+    if (output) {
 
-    // There is no *official* emit output for a `d.ts`
-    // but its nice to have a consistent world view in the rest of our code
-    var outputFiles = output.outputFiles.map((o) => o.name);
-    if (path.extname(filePath) == '.d.ts') {
-        outputFiles.push(filePath);
+      let sourceFile = services.getSourceFile(filePath);
+      // Emit is no guarantee that there are no errors
+      // so lets collect those
+      var allDiagnostics = services.getCompilerOptionsDiagnostics()
+          .concat(services.getSyntacticDiagnostics(filePath))
+          .concat(services.getSemanticDiagnostics(filePath));
+      allDiagnostics.forEach(diagnostic => {
+          // happens only for 'lib.d.ts' for some reason
+          if (!diagnostic.file) return;
+
+          var startPosition = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+          errors.push(diagnosticToTSError(diagnostic));
+      });
+
+      /**
+       * Run an external transpiler
+       */
+      {
+          let sourceMapContents: { [index: string]: any } = {};
+          output.outputFiles.forEach(o => {
+              mkdirp.sync(path.dirname(o.name));
+              runExternalTranspiler(
+                  filePath,
+                  sourceFile.text,
+                  o,
+                  proj,
+                  sourceMapContents
+              ).then((additionalEmits) => {
+                  if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
+                      // .js.map files will be written as an "additional emit" later.
+                      fs.writeFileSync(o.name, o.text, "utf8");
+                  }
+
+                  additionalEmits.forEach(a => {
+                      mkdirp.sync(path.dirname(a.name));
+                      fs.writeFileSync(a.name, a.text, "utf8");
+                  });
+              });
+          });
+      }
+
+      // There is no *official* emit output for a `d.ts`
+      // but its nice to have a consistent world view in the rest of our code
+      var outputFiles = output.outputFiles.map((o) => o.name);
+      if (path.extname(filePath) == '.d.ts') {
+          outputFiles.push(filePath);
+      }
     }
 
     return {
         sourceFileName: filePath,
-        outputFiles: outputFiles,
+        outputFiles: outputFiles || [],
         success: emitDone && !errors.length,
         errors: errors,
         emitError: !emitDone
