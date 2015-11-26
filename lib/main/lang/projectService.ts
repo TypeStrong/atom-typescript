@@ -124,7 +124,7 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
         return output;
     });
 
-    // Also optionally emit a root dts:		
+    // Also optionally emit a root dts:
     building.emitDts(proj);
 
     // If there is a post build script to run ... run it
@@ -138,7 +138,7 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
             }
         });
     }
-    
+
     let tsFilesWithInvalidEmit = outputs
         .filter((o) => o.emitError)
         .map((o) => o.sourceFileName);
@@ -909,7 +909,7 @@ export function applyQuickFix(query: ApplyQuickFixQuery): Promise<ApplyQuickFixR
 interface GetOutputResponse {
     output: ts.EmitOutput;
 }
-import {getRawOutput} from "./modules/building";
+import {getRawOutputPostExternal, getRawOutput} from "./modules/building";
 export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
@@ -938,22 +938,26 @@ interface GetOutputJsStatusResponse {
 export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStatusResponse> {
     consistentPath(query);
     var project = getOrCreateProject(query.filePath);
-    var output = getRawOutput(project, query.filePath);
-    if (output.emitSkipped) {
-        if (output.outputFiles && output.outputFiles.length === 1) {
-            if (output.outputFiles[0].text === building.Not_In_Context) {
+    return getRawOutputPostExternal(project, query.filePath)
+    .then((output) => {
+        if (output.emitSkipped) {
+            if (output.outputFiles && output.outputFiles.length === 1) {
+                if (output.outputFiles[0].text === building.Not_In_Context) {
+                    return resolve({ emitDiffers: false });
+                }
+            }
+            return resolve({ emitDiffers: true });
+        }
+        else {
+            var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
+            if (!jsFile) {
                 return resolve({ emitDiffers: false });
+            } else {
+                var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
+                return resolve({ emitDiffers });
             }
         }
-        return resolve({ emitDiffers: true });
-    }
-    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
-    if (!jsFile) {
-        return resolve({ emitDiffers: false });
-    } else {
-        var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
-        return resolve({ emitDiffers });
-    }
+    });
 }
 
 /**
