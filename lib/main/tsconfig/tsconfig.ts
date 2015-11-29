@@ -495,6 +495,8 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
     projectSpec.filesGlob = defaultFilesGlob;
+    projectSpec.compileOnSave = true;
+    projectSpec.buildOnSave = true;
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);

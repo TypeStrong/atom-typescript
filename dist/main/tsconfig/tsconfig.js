@@ -284,6 +284,8 @@ function createProjectRootSync(srcFile, defaultOptions) {
     var projectSpec = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || exports.defaults);
     projectSpec.filesGlob = defaultFilesGlob;
+    projectSpec.compileOnSave = true;
+    projectSpec.buildOnSave = true;
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
 }
