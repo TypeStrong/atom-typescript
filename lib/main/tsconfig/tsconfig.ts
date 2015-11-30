@@ -496,7 +496,7 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
     projectSpec.filesGlob = defaultFilesGlob;
     projectSpec.compileOnSave = true;
-    projectSpec.buildOnSave = true;
+    projectSpec.buildOnSave = false;
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
