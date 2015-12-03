@@ -3,6 +3,7 @@ var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
     allowNonTsExtensions: { type: types.boolean },
+    allowSyntheticDefaultImports: { type: types.boolean },
     allowUnreachableCode: { type: types.boolean },
     allowUnusedLabels: { type: types.boolean },
     charset: { type: types.string },
