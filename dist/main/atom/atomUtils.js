@@ -1,3 +1,4 @@
+"use strict";
 var path = require('path');
 var fs = require('fs');
 var fsu = require("../utils/fsUtil");

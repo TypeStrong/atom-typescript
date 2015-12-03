@@ -1,3 +1,4 @@
+"use strict";
 var utils = require("../../utils");
 var SingleLineCommentToJsdoc = (function () {
     function SingleLineCommentToJsdoc() {

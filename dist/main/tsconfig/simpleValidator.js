@@ -1,3 +1,4 @@
+"use strict";
 exports.types = {
     string: 'string',
     boolean: 'boolean',

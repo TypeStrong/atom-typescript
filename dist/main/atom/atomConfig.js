@@ -1,3 +1,4 @@
+"use strict";
 var utils_1 = require("../lang/utils");
 var packageName = 'atom-typescript';
 function getConfig(nameLambda) {

@@ -1,3 +1,4 @@
+"use strict";
 var tsconfig_1 = require("../../tsconfig/tsconfig");
 var fsUtil_1 = require("../../utils/fsUtil");
 var path = require("path");

@@ -1,3 +1,4 @@
+"use strict";
 var fs = require('fs');
 exports.languageServiceHost = require('./languageServiceHost2');
 var tsconfig = require('../../tsconfig/tsconfig');

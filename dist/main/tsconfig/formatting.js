@@ -1,3 +1,4 @@
+"use strict";
 var os = require('os');
 function defaultFormatCodeOptions() {
     return {

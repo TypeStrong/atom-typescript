@@ -1,3 +1,4 @@
+"use strict";
 var pathUtil = require("path");
 var os = require("os");
 var fs = require("fs");

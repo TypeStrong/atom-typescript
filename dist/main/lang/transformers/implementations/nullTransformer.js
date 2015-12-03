@@ -1,3 +1,4 @@
+"use strict";
 var transformerRegistry_1 = require("../transformerRegistry");
 var NullTransformer = (function () {
     function NullTransformer() {

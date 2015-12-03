@@ -1,3 +1,4 @@
+"use strict";
 var fsu = require("../utils/fsUtil");
 var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;

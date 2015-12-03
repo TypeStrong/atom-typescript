@@ -1,3 +1,4 @@
+"use strict";
 var path = require("path");
 function isTransformerFile(filePath) {
     var ext = path.extname(filePath);

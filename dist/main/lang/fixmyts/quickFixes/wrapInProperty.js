@@ -1,3 +1,4 @@
+"use strict";
 var os_1 = require("os");
 var WrapInProperty = (function () {
     function WrapInProperty() {

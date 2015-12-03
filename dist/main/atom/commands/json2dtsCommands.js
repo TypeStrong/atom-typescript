@@ -1,3 +1,4 @@
+"use strict";
 var atomUtils = require("../atomUtils");
 var json2dts_1 = require("../../json2dts/json2dts");
 function registerJson2dtsCommands() {

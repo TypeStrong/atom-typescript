@@ -1,3 +1,4 @@
+"use strict";
 var atomUtils = require('./atomUtils');
 var parent = require('../../worker/parent');
 var path = require('path');

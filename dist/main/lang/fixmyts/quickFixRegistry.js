@@ -1,3 +1,4 @@
+"use strict";
 var addClassMember_1 = require("./quickFixes/addClassMember");
 var addClassMethod_1 = require("./quickFixes/addClassMethod");
 var addImportStatement_1 = require("./quickFixes/addImportStatement");

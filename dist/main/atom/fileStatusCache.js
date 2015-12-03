@@ -1,3 +1,4 @@
+"use strict";
 var fsUtil_1 = require('../utils/fsUtil');
 ;
 var fileStatuses = {};

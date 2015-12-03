@@ -1,3 +1,4 @@
+"use strict";
 var utils_1 = require("../lang/utils");
 var parent = require("../../worker/parent");
 var atomUtils = require("./atomUtils");

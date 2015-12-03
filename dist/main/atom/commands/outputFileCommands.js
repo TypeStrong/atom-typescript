@@ -1,3 +1,4 @@
+"use strict";
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var child_process_1 = require("child_process");

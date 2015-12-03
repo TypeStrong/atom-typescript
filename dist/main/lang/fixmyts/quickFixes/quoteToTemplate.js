@@ -1,3 +1,4 @@
+"use strict";
 var QuoteToTemplate = (function () {
     function QuoteToTemplate() {
         this.key = QuoteToTemplate.name;

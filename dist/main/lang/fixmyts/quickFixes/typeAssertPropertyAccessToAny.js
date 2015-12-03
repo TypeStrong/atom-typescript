@@ -1,3 +1,4 @@
+"use strict";
 var TypeAssertPropertyAccessToAny = (function () {
     function TypeAssertPropertyAccessToAny() {
         this.key = TypeAssertPropertyAccessToAny.name;

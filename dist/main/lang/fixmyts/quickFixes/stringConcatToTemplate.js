@@ -1,3 +1,4 @@
+"use strict";
 function isBinaryAddition(node) {
     return (node.kind == ts.SyntaxKind.BinaryExpression &&
         node.operatorToken.kind == ts.SyntaxKind.PlusToken);

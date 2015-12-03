@@ -1,3 +1,4 @@
+"use strict";
 var atomUtils = require("../atomUtils");
 var htmltotsx_1 = require("../../react/htmltotsx");
 function registerReactCommands() {
