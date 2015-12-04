@@ -79,18 +79,6 @@ function getRawOutput(proj, filePath) {
     return output;
 }
 exports.getRawOutput = getRawOutput;
-function getRawOutputPostExternal(proj, filePath) {
-    var output1 = getRawOutput(proj, filePath);
-    var sourceFile = proj.languageService.getSourceFile(filePath);
-    var sourceMapContents = {};
-    return runExternalTranspiler(filePath, sourceFile.text, output1.outputFiles[0], proj, sourceMapContents).then(function () {
-        return {
-            outputFiles: output1.outputFiles,
-            emitSkipped: false
-        };
-    });
-}
-exports.getRawOutputPostExternal = getRawOutputPostExternal;
 function getBabelInstance(projectDirectory) {
     return new Promise(function (resolve) {
         if (!babels[projectDirectory]) {

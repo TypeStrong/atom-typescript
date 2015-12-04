@@ -106,20 +106,6 @@ export function getRawOutput(proj: project.Project, filePath: string): ts.EmitOu
     return output;
 }
 
-export function getRawOutputPostExternal(proj: project.Project, filePath: string): Promise<ts.EmitOutput> {
-    var output1 = getRawOutput(proj, filePath);
-    let sourceFile = proj.languageService.getSourceFile(filePath);
-    let sourceMapContents: { [index: string]: any } = {};
-    return runExternalTranspiler(
-      filePath, sourceFile.text, output1.outputFiles[0], proj, sourceMapContents
-    ).then(() => {
-      return {
-        outputFiles: output1.outputFiles,
-        emitSkipped: false
-      };
-    });
-}
-
 function getBabelInstance(projectDirectory: string) {
     return new Promise<any>(resolve => {
         if (!babels[projectDirectory]) {
