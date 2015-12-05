@@ -283,7 +283,7 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         if (!editor)
             return false;
-        if (path.extname(editor.getPath()) !== '.ts')
+        if (path.extname(editor.getPath()) !== '.ts' && path.extname(editor.getPath()) !== '.tsx')
             return false;
         e.abortKeyBinding();
         var filePath = editor.getPath();
