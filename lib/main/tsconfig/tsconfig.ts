@@ -138,6 +138,7 @@ interface TypeScriptProjectRawSpecification {
     compileOnSave?: boolean;                            // optional: compile on save. Ignored to build tools. Used by IDEs
     buildOnSave?: boolean;
     externalTranspiler?: string | { name: string; options?: any };
+    externalResolver?: string | { name: string; options?: any };
     scripts?: { postbuild?: string };
     atom?: { rewriteTsconfig?: boolean };
 }
@@ -156,6 +157,7 @@ export interface TypeScriptProjectSpecification {
     buildOnSave: boolean;
     package?: UsefulFromPackageJson;
     externalTranspiler?: string | { name: string; options?: any };
+    externalResolver?: string | { name: string; options? : any };
     scripts: { postbuild?: string };
     atom: { rewriteTsconfig: boolean };
 }
@@ -440,6 +442,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         package: pkg,
         typings: [],
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
+        externalResolver: projectSpec.externalResolver == undefined ? undefined : projectSpec.externalResolver,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
         atom: { rewriteTsconfig: true }

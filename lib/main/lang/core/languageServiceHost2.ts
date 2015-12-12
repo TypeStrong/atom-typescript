@@ -209,6 +209,10 @@ export var getDefaultLibFilePath = (options: ts.CompilerOptions) => {
 
 export var typescriptDirectory = path.dirname(require.resolve('ntypescript')).split('\\').join('/');
 
+interface ResolverInstance {
+    resolveModuleNames(moduleNames: string[], containingFile: string): ts.ResolvedModule[];
+};
+type ResolverConstructor = new (config: tsconfig.TypeScriptProjectFileDetails, options? : any) => ResolverInstance;
 
 // NOTES:
 // * fileName is * always * the absolute path to the file
@@ -219,17 +223,36 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
      * a map associating file absolute path to ScriptInfo
      */
     fileNameToScript: { [fileName: string]: ScriptInfo } = Object.create(null);
+    resolveModuleNames: (moduleNames: string[], containingFile: string) => ts.ResolvedModule[];
 
     constructor(private config: tsconfig.TypeScriptProjectFileDetails) {
         // Add the `lib.d.ts`
         if (!config.project.compilerOptions.noLib) {
           this.addScript(getDefaultLibFilePath(config.project.compilerOptions));
         }
+        this.installExternalResolver();
+    }
+
+    installExternalResolver() {
+        let externalResolver = this.config.project.externalResolver;
+        if (!externalResolver) {
+            return;
+        }
+
+        // Normalize the external resolver.
+        if (typeof externalResolver === "string") {
+            externalResolver = { name: externalResolver as string };
+        }
+
+        // Guard to make Typescript understand the real type of the externalResolver.
+        if (typeof externalResolver === 'object') {
+            let ResolverClass: ResolverConstructor = require(path.join(this.config.projectFileDirectory, externalResolver.name));
+            let resolverInstance = new ResolverClass(this.config, externalResolver.options);
+            this.resolveModuleNames = resolverInstance.resolveModuleNames.bind(resolverInstance);
+        }
     }
 
     addScript = (fileName: string, content?: string) => {
-
-
         try {
             if (!content) {
                 content = fs.readFileSync(fileName).toString();
