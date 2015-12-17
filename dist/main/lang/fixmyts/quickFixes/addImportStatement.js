@@ -20,7 +20,13 @@ function getIdentifierAndFileNames(error, project) {
     }).files;
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
-    return { identifierName: identifierName, file: file, basename: basename };
+    var moduleKind = project.projectFile.project.compilerOptions.module;
+    return { identifierName: identifierName, file: file, basename: basename, moduleKind: moduleKind };
+}
+function getDisplay(identifierName, file, moduleKind) {
+    return (moduleKind === ts.ModuleKind.System)
+        ? "import {" + identifierName + "} from \"" + file + "\""
+        : "import " + identifierName + " = require(\"" + file + "\")";
 }
 var AddImportStatement = (function () {
     function AddImportStatement() {
@@ -35,20 +41,21 @@ var AddImportStatement = (function () {
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches)
             return;
-        var identifierName = matches.identifierName, file = matches.file;
-        return file ? { display: "import " + identifierName + " = require(\"" + file + "\")" } : undefined;
+        var identifierName = matches.identifierName, file = matches.file, moduleKind = matches.moduleKind;
+        return file ? { display: getDisplay(identifierName, file, moduleKind) } : undefined;
     };
     AddImportStatement.prototype.provideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, info.project);
+        var display = getDisplay(identifierName, fileNameforFix.file, fileNameforFix.moduleKind);
         var refactorings = [{
                 span: {
                     start: 0,
                     length: 0
                 },
-                newText: "import " + identifierName + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
+                newText: display + ";" + os_1.EOL,
                 filePath: info.sourceFile.fileName
             }];
         return refactorings;

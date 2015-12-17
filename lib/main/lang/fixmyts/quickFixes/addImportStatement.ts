@@ -30,7 +30,14 @@ function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
     });
     var file = files.length > 0 ? files[0].relativePath : undefined;
     var basename = files.length > 0 ? files[0].name : undefined;
-    return { identifierName, file, basename };
+    var moduleKind = project.projectFile.project.compilerOptions.module;
+    return { identifierName, file, basename, moduleKind };
+}
+
+function getDisplay(identifierName: string, file: string, moduleKind: ts.ModuleKind) {
+    return (moduleKind === ts.ModuleKind.System)
+        ? `import {${identifierName}} from \"${file}\"`
+        : `import ${identifierName} = require(\"${file}\")`;
 }
 
 export class AddImportStatement implements QuickFix {
@@ -43,8 +50,8 @@ export class AddImportStatement implements QuickFix {
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches) return;
 
-        var { identifierName, file} = matches;
-        return file ? { display: `import ${identifierName} = require(\"${file}\")` } : undefined;
+        var { identifierName, file, moduleKind } = matches;
+        return file ? { display: getDisplay(identifierName, file, moduleKind) } : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
@@ -53,6 +60,7 @@ export class AddImportStatement implements QuickFix {
 
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, info.project);
+        var display = getDisplay(identifierName, fileNameforFix.file, fileNameforFix.moduleKind);
 
         // Add stuff at the top of the file
         let refactorings: Refactoring[] = [{
@@ -60,7 +68,7 @@ export class AddImportStatement implements QuickFix {
                 start: 0,
                 length: 0
             },
-            newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
+            newText: `${display};${EOL}`,
             filePath: info.sourceFile.fileName
         }];
 
