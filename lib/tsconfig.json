@@ -129,7 +129,8 @@
         "./worker/parent.ts",
         "./worker/queryParent.ts",
         "./main/atom/views/rView.tsx",
-        "./main/atom/views/semanticView.tsx"
+        "./main/atom/views/semanticView.tsx",
+        "../typings/main.d.ts"
     ],
     "exclude": [],
     "atom": {
