@@ -22,11 +22,11 @@ function getIdentifierAndFileNames(error, project) {
     var basename = files.length > 0 ? files[0].name : undefined;
     return { identifierName: identifierName, file: file, basename: basename };
 }
-var AddImportStatement = (function () {
-    function AddImportStatement() {
-        this.key = AddImportStatement.name;
+var AddImportFromStatement = (function () {
+    function AddImportFromStatement() {
+        this.key = AddImportFromStatement.name;
     }
-    AddImportStatement.prototype.canProvideFix = function (info) {
+    AddImportFromStatement.prototype.canProvideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         if (!relevantError)
             return;
@@ -36,9 +36,9 @@ var AddImportStatement = (function () {
         if (!matches)
             return;
         var identifierName = matches.identifierName, file = matches.file;
-        return file ? { display: "import " + identifierName + " = require(\"" + file + "\")" } : undefined;
+        return file ? { display: "import {" + identifierName + "} from \"" + file + "\"" } : undefined;
     };
-    AddImportStatement.prototype.provideFix = function (info) {
+    AddImportFromStatement.prototype.provideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
@@ -48,11 +48,11 @@ var AddImportStatement = (function () {
                     start: 0,
                     length: 0
                 },
-                newText: "import " + identifierName + " = require(\"" + fileNameforFix.file + "\");" + os_1.EOL,
+                newText: "import {" + identifierName + "} from \"" + fileNameforFix.file + "\";" + os_1.EOL,
                 filePath: info.sourceFile.fileName
             }];
         return refactorings;
     };
-    return AddImportStatement;
+    return AddImportFromStatement;
 })();
-exports.AddImportStatement = AddImportStatement;
+exports.AddImportFromStatement = AddImportFromStatement;
