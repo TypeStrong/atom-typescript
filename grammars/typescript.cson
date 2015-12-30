@@ -1383,13 +1383,7 @@
 
   'angulartemplate':
     'begin': '\\b(template:\\s*`)'
-    'beginCaptures':
-      '0':
-        'name': 'storage.type.annotation.js'
     'end': '(`)'
-    'endCaptures':
-      '0':
-        'name': 'storage.type.annotation.js'
     'patterns': [
       { 'include': 'text.html.basic' }
     ]
