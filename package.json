@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "7.14.3",
+  "version": "7.15.0",
   "main": "./dist/main/atomts",
   "bin": {
     "atbuild": "./dist/main/bin/atbuild"
