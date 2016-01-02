@@ -60,5 +60,5 @@ var ProjectSymbolsView = (function (_super) {
         this.hide();
     };
     return ProjectSymbolsView;
-})(sp.SelectListView);
+}(sp.SelectListView));
 exports.ProjectSymbolsView = ProjectSymbolsView;

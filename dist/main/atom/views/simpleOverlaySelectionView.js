@@ -63,5 +63,5 @@ var SimpleOverlaySelectListView = (function (_super) {
         this.hide();
     };
     return SimpleOverlaySelectListView;
-})(sp.SelectListView);
+}(sp.SelectListView));
 exports.SimpleOverlaySelectListView = SimpleOverlaySelectListView;

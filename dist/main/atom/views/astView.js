@@ -48,7 +48,7 @@ var AstView = (function (_super) {
         });
     };
     return AstView;
-})(sp.ScrollView);
+}(sp.ScrollView));
 exports.AstView = AstView;
 function renderTree(rootNode, _mainContent, display) {
     var root = {

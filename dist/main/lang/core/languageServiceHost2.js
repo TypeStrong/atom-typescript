@@ -242,5 +242,5 @@ var LanguageServiceHost = (function () {
         }
     }
     return LanguageServiceHost;
-})();
+}());
 exports.LanguageServiceHost = LanguageServiceHost;

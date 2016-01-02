@@ -67,5 +67,5 @@ var LineMessageView = (function (_super) {
         };
     };
     return LineMessageView;
-})(view.View);
+}(view.View));
 exports.LineMessageView = LineMessageView;

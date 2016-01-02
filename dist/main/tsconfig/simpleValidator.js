@@ -45,7 +45,7 @@ var SimpleValidator = (function () {
         return errors;
     };
     return SimpleValidator;
-})();
+}());
 exports.SimpleValidator = SimpleValidator;
 function createMap(arr) {
     return arr.reduce(function (result, key) {

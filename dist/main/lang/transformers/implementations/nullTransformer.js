@@ -8,6 +8,6 @@ var NullTransformer = (function () {
         return { code: code };
     };
     return NullTransformer;
-})();
+}());
 exports.NullTransformer = NullTransformer;
 transformerRegistry_1.add(new NullTransformer());

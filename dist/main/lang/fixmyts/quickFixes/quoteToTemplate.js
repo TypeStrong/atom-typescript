@@ -30,5 +30,5 @@ var QuoteToTemplate = (function () {
         return [refactoring];
     };
     return QuoteToTemplate;
-})();
+}());
 exports.QuoteToTemplate = QuoteToTemplate;

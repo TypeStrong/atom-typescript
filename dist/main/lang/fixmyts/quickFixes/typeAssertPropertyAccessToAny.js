@@ -35,7 +35,7 @@ var TypeAssertPropertyAccessToAny = (function () {
         return [];
     };
     return TypeAssertPropertyAccessToAny;
-})();
+}());
 exports.TypeAssertPropertyAccessToAny = TypeAssertPropertyAccessToAny;
 function getIdentifierName(errorText) {
     var match = /Property \'(\w+)\' does not exist on type \.*/.exec(errorText);

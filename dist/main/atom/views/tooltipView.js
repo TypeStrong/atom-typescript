@@ -43,5 +43,5 @@ var TooltipView = (function (_super) {
         this.$.css({ left: left, top: top, right: right });
     };
     return TooltipView;
-})(view.View);
+}(view.View));
 exports.TooltipView = TooltipView;

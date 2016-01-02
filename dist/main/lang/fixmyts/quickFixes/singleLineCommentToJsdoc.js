@@ -40,5 +40,5 @@ var SingleLineCommentToJsdoc = (function () {
         return [refactoring];
     };
     return SingleLineCommentToJsdoc;
-})();
+}());
 exports.SingleLineCommentToJsdoc = SingleLineCommentToJsdoc;

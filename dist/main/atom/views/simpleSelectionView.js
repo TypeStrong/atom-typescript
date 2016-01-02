@@ -67,5 +67,5 @@ var SimpleSelectListView = (function (_super) {
         this.hide();
     };
     return SimpleSelectListView;
-})(sp.SelectListView);
+}(sp.SelectListView));
 exports.SimpleSelectListView = SimpleSelectListView;

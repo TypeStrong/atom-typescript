@@ -69,6 +69,6 @@ var Config = (function () {
         configurable: true
     });
     return Config;
-})();
+}());
 var config = new Config();
 module.exports = config;

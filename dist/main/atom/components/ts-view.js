@@ -27,6 +27,6 @@ var TsView = (function (_super) {
         this.editor.setText(text);
     };
     return TsView;
-})(HTMLElement);
+}(HTMLElement));
 exports.TsView = TsView;
 document.registerElement('ts-view', TsView);

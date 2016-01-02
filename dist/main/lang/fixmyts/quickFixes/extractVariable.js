@@ -25,7 +25,7 @@ var ExtractVariable = (function () {
         });
     };
     return ExtractVariable;
-})();
+}());
 exports.ExtractVariable = ExtractVariable;
 function execute(info, onProperty, onFuncCall, onExtractable) {
     var callExpression = findLowestNode(info.positionNode, ts.SyntaxKind.CallExpression);

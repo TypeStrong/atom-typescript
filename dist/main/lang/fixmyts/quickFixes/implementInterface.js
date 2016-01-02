@@ -43,5 +43,5 @@ var ImplementInterface = (function () {
         return refactorings;
     };
     return ImplementInterface;
-})();
+}());
 exports.ImplementInterface = ImplementInterface;

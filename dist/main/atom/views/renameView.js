@@ -73,7 +73,7 @@ var RenameView = (function (_super) {
     };
     RenameView.content = html;
     return RenameView;
-})(view.View);
+}(view.View));
 exports.RenameView = RenameView;
 var panel;
 function attach() {

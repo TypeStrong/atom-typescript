@@ -83,5 +83,5 @@ var StringConcatToTemplate = (function () {
         return [refactoring];
     };
     return StringConcatToTemplate;
-})();
+}());
 exports.StringConcatToTemplate = StringConcatToTemplate;

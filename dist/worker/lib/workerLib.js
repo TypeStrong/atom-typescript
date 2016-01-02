@@ -139,7 +139,7 @@ var RequesterResponder = (function () {
             .forEach(function (funcName) { return _this.addToResponders(aModule[funcName]); });
     };
     return RequesterResponder;
-})();
+}());
 var Parent = (function (_super) {
     __extends(Parent, _super);
     function Parent() {
@@ -213,7 +213,7 @@ var Parent = (function (_super) {
         this.child = null;
     };
     return Parent;
-})(RequesterResponder);
+}(RequesterResponder));
 exports.Parent = Parent;
 var Child = (function (_super) {
     __extends(Child, _super);
@@ -239,5 +239,5 @@ var Child = (function (_super) {
         }, 1000);
     };
     return Child;
-})(RequesterResponder);
+}(RequesterResponder));
 exports.Child = Child;

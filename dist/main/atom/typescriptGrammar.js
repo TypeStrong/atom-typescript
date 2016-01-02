@@ -168,7 +168,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
         return { tokens: tokens, ruleStack: tsTokensWithRuleStack.ruleStack };
     };
     return TypeScriptSemanticGrammar;
-})(AtomTSBaseGrammar);
+}(AtomTSBaseGrammar));
 exports.TypeScriptSemanticGrammar = TypeScriptSemanticGrammar;
 function getAtomStyleForToken(token, str) {
     switch (token.classification) {

@@ -24,7 +24,7 @@ var View = (function (_super) {
     };
     View.prototype.init = function () { };
     return View;
-})(sp.View);
+}(sp.View));
 exports.View = View;
 exports.$ = sp.$;
 var ScrollView = (function (_super) {
@@ -46,5 +46,5 @@ var ScrollView = (function (_super) {
     };
     ScrollView.prototype.init = function () { };
     return ScrollView;
-})(sp.ScrollView);
+}(sp.ScrollView));
 exports.ScrollView = ScrollView;

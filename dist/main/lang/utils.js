@@ -81,7 +81,7 @@ var Signal = (function () {
         return this.listeners.length > 0;
     };
     return Signal;
-})();
+}());
 exports.Signal = Signal;
 function binarySearch(array, value) {
     var low = 0;
@@ -139,7 +139,7 @@ var Dict = (function () {
         return array;
     };
     return Dict;
-})();
+}());
 exports.Dict = Dict;
 function delay(seconds) {
     if (seconds === void 0) { seconds = 2; }

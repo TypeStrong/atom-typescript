@@ -150,5 +150,5 @@ var AddClassMethod = (function () {
         return [refactoring];
     };
     return AddClassMethod;
-})();
+}());
 exports.AddClassMethod = AddClassMethod;

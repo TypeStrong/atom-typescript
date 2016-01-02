@@ -19,7 +19,7 @@ var AwesomePanelView = (function (_super) {
         this.something.html('<div>tada</div>');
     };
     return AwesomePanelView;
-})(view.View);
+}(view.View));
 exports.AwesomePanelView = AwesomePanelView;
 function attach() {
     exports.panelView = new AwesomePanelView({});

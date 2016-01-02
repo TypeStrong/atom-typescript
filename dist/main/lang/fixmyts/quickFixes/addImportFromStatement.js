@@ -54,5 +54,5 @@ var AddImportFromStatement = (function () {
         return refactorings;
     };
     return AddImportFromStatement;
-})();
+}());
 exports.AddImportFromStatement = AddImportFromStatement;

@@ -35,5 +35,5 @@ var QuotesToQuotes = (function () {
         return [refactoring];
     };
     return QuotesToQuotes;
-})();
+}());
 exports.QuotesToQuotes = QuotesToQuotes;

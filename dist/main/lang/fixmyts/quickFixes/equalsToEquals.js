@@ -29,5 +29,5 @@ var EqualsToEquals = (function () {
         return [refactoring];
     };
     return EqualsToEquals;
-})();
+}());
 exports.EqualsToEquals = EqualsToEquals;

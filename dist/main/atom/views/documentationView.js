@@ -47,7 +47,7 @@ var DocumentationView = (function (_super) {
         }
     };
     return DocumentationView;
-})(view.View);
+}(view.View));
 exports.DocumentationView = DocumentationView;
 function attach() {
     if (exports.docView)

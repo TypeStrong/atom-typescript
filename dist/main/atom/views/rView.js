@@ -28,7 +28,7 @@ var MyComponent = (function (_super) {
     };
     MyComponent.defaultProps = { count: 0 };
     return MyComponent;
-})(React.Component);
+}(React.Component));
 var RView = (function (_super) {
     __extends(RView, _super);
     function RView(config) {
@@ -60,5 +60,5 @@ var RView = (function (_super) {
     });
     RView.protocol = 'atomtsview:';
     return RView;
-})(sp.ScrollView);
+}(sp.ScrollView));
 exports.RView = RView;

@@ -67,5 +67,5 @@ var ContextView = (function (_super) {
         this.hide();
     };
     return ContextView;
-})(sp.SelectListView);
+}(sp.SelectListView));
 exports.ContextView = ContextView;

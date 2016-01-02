@@ -96,7 +96,7 @@ var MyComponent = (function (_super) {
         this.state.editor.setCursorBufferPosition([gotoLine, 0]);
     };
     return MyComponent;
-})(React.Component);
+}(React.Component));
 var SemanticView = (function (_super) {
     __extends(SemanticView, _super);
     function SemanticView(config) {
@@ -124,7 +124,7 @@ var SemanticView = (function (_super) {
         React.render(React.createElement(MyComponent, {}), this.rootDomElement);
     };
     return SemanticView;
-})(sp.ScrollView);
+}(sp.ScrollView));
 exports.SemanticView = SemanticView;
 var panel;
 function attach() {

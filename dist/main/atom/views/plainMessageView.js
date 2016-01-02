@@ -28,5 +28,5 @@ var PlainMessageView = (function (_super) {
         };
     };
     return PlainMessageView;
-})(view.View);
+}(view.View));
 exports.PlainMessageView = PlainMessageView;

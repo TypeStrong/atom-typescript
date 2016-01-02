@@ -31,7 +31,7 @@ var WrapInProperty = (function () {
         return [assignemnt, property];
     };
     return WrapInProperty;
-})();
+}());
 exports.WrapInProperty = WrapInProperty;
 function createAssignment(constructorDecl, symbolName, indentSetting, filePath) {
     var indentLevel2 = createIndent(indentSetting, 2);

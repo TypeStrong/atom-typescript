@@ -84,5 +84,5 @@ var AddClassMember = (function () {
         return [refactoring];
     };
     return AddClassMember;
-})();
+}());
 exports.AddClassMember = AddClassMember;

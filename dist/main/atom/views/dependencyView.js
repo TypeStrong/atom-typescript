@@ -42,7 +42,7 @@ var DependencyView = (function (_super) {
         });
     };
     return DependencyView;
-})(sp.ScrollView);
+}(sp.ScrollView));
 exports.DependencyView = DependencyView;
 var prefixes = {
     circle: 'circle'
@@ -369,7 +369,7 @@ var D3Graph = (function () {
         return this.circularPaths;
     };
     return D3Graph;
-})();
+}());
 function linkArc(d) {
     var targetX = d.target.x;
     var targetY = d.target.y;

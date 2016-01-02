@@ -400,7 +400,7 @@ var MainPanelView = (function (_super) {
         }
     };
     return MainPanelView;
-})(view.View);
+}(view.View));
 exports.MainPanelView = MainPanelView;
 var panel;
 function attach() {

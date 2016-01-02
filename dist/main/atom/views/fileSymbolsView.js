@@ -50,5 +50,5 @@ var FileSymbolsView = (function (_super) {
         this.hide();
     };
     return FileSymbolsView;
-})(sp.SelectListView);
+}(sp.SelectListView));
 exports.FileSymbolsView = FileSymbolsView;
