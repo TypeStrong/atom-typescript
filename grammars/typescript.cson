@@ -8,12 +8,10 @@
 'name': 'TypeScript'
 
 'patterns': [
-
   ####
   # Rules that no one should change
   # These are used by code to provide fancy completions
   ####
-
   {
       'comment': 'Match debugger statement'
       'match': '\\s*(debugger)[\\s;]+'
@@ -917,7 +915,7 @@
       }
     ]
 
-   'functionargumentreturntype':
+  'functionargumentreturntype':
     'begin': '(?=\\()'
     'end': '(?<!\\))(?!\\G)'
     'patterns': [
@@ -1047,7 +1045,7 @@
         'name': 'punctuation.definition.parameters.end.js'
     'patterns': [
       {
-        'include': '$base'
+        'include': '#angulartemplate'
       }
     ]
 
@@ -1380,5 +1378,12 @@
     ]
 
   'comma':
-      'match': ','
-      'name': 'meta.delimiter.object.comma.js'
+    'match': ','
+    'name': 'meta.delimiter.object.comma.js'
+
+  'angulartemplate':
+    'begin': '\\b(template:\\s*`)'
+    'end': '(`)'
+    'patterns': [
+      { 'include': 'text.html.basic' }
+    ]
