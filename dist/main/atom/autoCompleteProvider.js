@@ -115,10 +115,11 @@ exports.provider = {
             if (options.suggestion.atomTS_IsImport) {
                 options.editor.moveToBeginningOfLine();
                 options.editor.selectToEndOfLine();
-                var groups = /^\s*import\s*(\w*)\s*=\s*require\s*\(\s*(["'])/.exec(options.editor.getSelectedText());
-                var alias = groups[1];
-                quote = quote || groups[2];
-                options.editor.replaceSelectedText(null, function () { return "import " + alias + " = require(" + quote + options.suggestion.atomTS_IsImport.relativePath + quote + ");"; });
+                var groups = /^(\s*)import\s*(\w*)\s*=\s*require\s*\(\s*(["'])/.exec(options.editor.getSelectedText());
+                var leadingWhiteSpace = groups[1];
+                var alias = groups[2];
+                quote = quote || groups[3];
+                options.editor.replaceSelectedText(null, function () { return leadingWhiteSpace + "import " + alias + " = require(" + quote + options.suggestion.atomTS_IsImport.relativePath + quote + ");"; });
             }
             if (options.suggestion.atomTS_IsES6Import) {
                 var row = options.editor.getCursorBufferPosition().row;
