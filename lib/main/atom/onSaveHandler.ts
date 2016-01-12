@@ -54,6 +54,7 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
         }
 
         if (fileDetails.project.atom.formatOnSave) {
+            // Trigger a format
             atom.commands.dispatch(
                 atom.views.getView(event.editor),
                 'typescript:format-code');

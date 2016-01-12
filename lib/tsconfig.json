@@ -134,6 +134,7 @@
     ],
     "exclude": [],
     "atom": {
-        "rewriteTsconfig": true
+        "rewriteTsconfig": true,
+        "formatOnSave": false
     }
 }

@@ -253,7 +253,7 @@ function getProjectSync(pathOrSrcFile) {
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
-        atom: { rewriteTsconfig: true, formatOnSave: false }
+        atom: { rewriteTsconfig: true, formatOnSave: !!projectSpec.atom.formatOnSave }
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
