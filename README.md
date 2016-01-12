@@ -31,7 +31,7 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Project Build Support
 * `package.json` Support
 * React Support
-* Format code
+* Format code (configurable to be on save)
 * Goto Declaration
 * Find References
 * Block comment and uncomment

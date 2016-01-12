@@ -20,8 +20,9 @@ i.e. an empty JSON file at the *root* of your project :heart: This will be suffi
 * [`compileOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave) : Should AtomTS compile on save
 * [`buildOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#buildonsave) : Should AtomTS build on save
 * [`scripts`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#scripts) : Sometimes its useful to have post build scripts
-* [`atom`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#rewriteTsconfig) : Configuration specific to Atom. Currently
-only contains `rewriteTsconfig` which prevents Atom from rewriting a project's `tsconfig.json`.
+* [`atom`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#atom) : Configuration specific to Atom.
+  * [`rewriteTsconfig`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#rewriteTsconfig) which prevents Atom from rewriting a project's `tsconfig.json`
+  * [`formatOnSave`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatOnSave) which will format the Typescript file on save.
 
 ## Examples
 
@@ -130,6 +131,18 @@ to `false` (this defaults to `true`).
 {
   "atom": {
     "rewriteTsconfig": true
+  }
+}
+```
+
+**formatOnSave**
+
+Setting this to `true` will format the entire file exactly like `ctrl+alt+l` or `cmd+alt+l` does on save. (this defaults to `false`)
+
+```json
+{
+  "atom": {
+    "formatOnSave": true
   }
 }
 ```
