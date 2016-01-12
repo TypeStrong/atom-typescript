@@ -139,7 +139,7 @@ interface TypeScriptProjectRawSpecification {
     buildOnSave?: boolean;
     externalTranspiler?: string | { name: string; options?: any };
     scripts?: { postbuild?: string };
-    atom?: { rewriteTsconfig?: boolean };
+    atom?: { rewriteTsconfig?: boolean, formatOnSave?: boolean };
 }
 
 /**
@@ -157,7 +157,7 @@ export interface TypeScriptProjectSpecification {
     package?: UsefulFromPackageJson;
     externalTranspiler?: string | { name: string; options?: any };
     scripts: { postbuild?: string };
-    atom: { rewriteTsconfig: boolean };
+    atom: { rewriteTsconfig: boolean, formatOnSave: boolean };
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -350,7 +350,7 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
         compileOnSave: true,
         buildOnSave: false,
         scripts: {},
-        atom: { rewriteTsconfig: true },
+        atom: { rewriteTsconfig: true, formatOnSave: false },
     };
 
     return {
@@ -442,7 +442,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
-        atom: { rewriteTsconfig: true }
+        atom: { rewriteTsconfig: true, formatOnSave: false }
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
