@@ -27,6 +27,9 @@ function handle(event) {
         if (fileDetails.project.buildOnSave) {
             atom.commands.dispatch(atom.views.getView(event.editor), 'typescript:build');
         }
+        if (true) {
+            atom.commands.dispatch(atom.views.getView(event.editor), 'typescript:format-code');
+        }
     });
 }
 exports.handle = handle;

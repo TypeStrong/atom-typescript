@@ -53,5 +53,11 @@ export function handle(event: { filePath: string; editor: AtomCore.IEditor }) {
                 'typescript:build');
         }
 
+        if(true){
+          atom.commands.dispatch(
+              atom.views.getView(event.editor),
+              'typescript:format-code');
+        }
+
     });
 }
