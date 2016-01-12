@@ -338,7 +338,7 @@ export function registerCommands() {
                 viewForItem: (item) => {
                     return `<div>
                         <span>${atom.project.relativize(item.filePath) }</span>
-                        <div class="pull-right">line: ${item.position.line}</div>
+                        <div class="pull-right">line: ${item.position.line + 1}</div>
                         <ts-view>${item.preview}</ts-view>
                     <div>`;
                 },
