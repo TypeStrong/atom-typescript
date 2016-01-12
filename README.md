@@ -107,6 +107,8 @@ Covered here : http://basarat.gitbooks.io/typescript/content/docs/jsx/tsx.html
 ## Format Code
 Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection if you have something selected otherwise it will format the entire file.
 
+Format on save is covered [here](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#formatOnSave)
+
 ## Go to Declaration
 Shortcut : `F12`. Will open the *first* declaration of the said item for now. (Note: some people call it Go to Definition)
 
