@@ -9,6 +9,7 @@
   "description": "The only TypeScript plugin you will ever need.",
   "scripts": {
     "test": "ntsc -p ./lib",
+    "build": "node scripts/grammar.js",
     "prepublish": "typings install"
   },
   "engines": {
@@ -66,6 +67,10 @@
     "xtend": "^4.0.0"
   },
   "devDependencies": {
+    "cson": "^3.0.2",
+    "js-yaml": "^3.5.2",
+    "mz": "^2.1.0",
+    "popsicle": "^3.0.1",
     "typings": "^0.2.3"
   },
   "package-deps": [

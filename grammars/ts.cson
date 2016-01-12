@@ -1,9 +1,9 @@
-name: "TypeScriptReact"
-scopeName: "source.tsx"
+name: "TypeScript"
+scopeName: "source.ts"
 fileTypes: [
-  "tsx"
+  "ts"
 ]
-uuid: "805375ec-d614-41f5-8993-5843fe63ea82"
+uuid: "ef98eb90-bf9b-11e4-bb52-0800200c9a66"
 patterns: [
   {
     include: "#expression"
@@ -11,13 +11,13 @@ patterns: [
 ]
 repository:
   "var-expr":
-    name: "meta.var.expr.tsx"
+    name: "meta.var.expr.ts"
     begin: "(?<!\\()\\s*\\b(var|let|const(?!\\s+enum))\\s+([a-zA-Z_$][\\w$]*)"
     beginCaptures:
       "1":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
       "2":
-        name: "variable.tsx"
+        name: "variable.ts"
     end: "(?=$|[;=\\}\\{])|(?<=\\})"
     patterns: [
       {
@@ -31,14 +31,14 @@ repository:
       }
     ]
   "control-statement":
-    name: "keyword.control.tsx"
-    match: "(?<!\\.)\\b(break|catch|continue|debugger|declare|do|else|finally|for|if|return|switch|throw|try|while|with|super|switch|case)\\b"
+    name: "keyword.control.ts"
+    match: "(?<!\\.)\\b(break|catch|continue|debugger|declare|do|else|finally|for|if|return|switch|throw|try|while|with|super|case|default)\\b"
   "switch-case":
-    name: "case.expr.tsx"
+    name: "case.expr.ts"
     begin: "(?<!\\.)\\b(case|default)\\b"
     beginCaptures:
       "1":
-        name: "keyword.control.tsx"
+        name: "keyword.control.ts"
     end: ":"
     patterns: [
       {
@@ -46,7 +46,7 @@ repository:
       }
     ]
   declaration:
-    name: "meta.declaration.tsx"
+    name: "meta.declaration.ts"
     patterns: [
       {
         include: "#function-declaration"
@@ -62,13 +62,13 @@ repository:
       }
     ]
   "type-declaration":
-    name: "meta.type.declaration.tsx"
+    name: "meta.type.declaration.ts"
     begin: "\\b(type)\\b\\s+([a-zA-Z_$][\\w$]*)\\s*=\\s*"
     beginCaptures:
       "1":
-        name: "keyword.other.tsx"
+        name: "keyword.other.ts"
       "2":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
     end: "(?=[,);>]|var|type|function|class|interface)"
     patterns: [
       {
@@ -76,29 +76,29 @@ repository:
       }
     ]
   "enum-declaration":
-    name: "meta.enum.declaration.tsx"
+    name: "meta.enum.declaration.ts"
     match: "(?:\\b(const)\\s+)?\\b(enum)\\s+([a-zA-Z_$][\\w$]*)"
     captures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
       "3":
-        name: "entity.name.class.tsx"
+        name: "entity.name.class.ts"
   "object-declaration":
-    name: "meta.declaration.object.tsx"
+    name: "meta.declaration.object.ts"
     begin: "\\b(?:(export)\\s+)?\\b(?:(abstract)\\s+)?\\b(?<!\\.)(class|interface)\\b"
     beginCaptures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "3":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
     end: "(?<=\\})"
     endCaptures:
       "1":
-        name: "brace.curly.tsx"
+        name: "brace.curly.ts"
     patterns: [
       {
         include: "#comment"
@@ -117,21 +117,21 @@ repository:
       }
     ]
   "object-name":
-    name: "meta.object.name.tsx"
+    name: "meta.object.name.ts"
     match: "[a-zA-Z_$][\\w$]*"
     captures:
       "0":
-        name: "entity.name.class.tsx"
+        name: "entity.name.class.ts"
   "object-heritage":
-    name: "meta.object.heritage.tsx"
+    name: "meta.object.heritage.ts"
     begin: "(?:\\b(extends|implements))"
     beginCaptures:
       "1":
-        name: "keyword.other.tsx"
+        name: "keyword.other.ts"
     end: "(?=\\{)"
     endCaptures:
       "1":
-        name: "brace.curly.tsx"
+        name: "brace.curly.ts"
     patterns: [
       {
         include: "#comment"
@@ -144,21 +144,21 @@ repository:
       }
     ]
   "object-heritage-parent":
-    name: "meta.object.heritage.parent.tsx"
+    name: "meta.object.heritage.parent.ts"
     match: "(?:\\s*([a-zA-Z_$][\\w$]*))"
     captures:
       "1":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
   "object-body":
-    name: "meta.object.body.tsx"
+    name: "meta.object.body.ts"
     begin: "\\{"
     beginCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     end: "\\}"
     endCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     patterns: [
       {
         include: "#string"
@@ -192,15 +192,15 @@ repository:
       }
     ]
   "type-object":
-    name: "meta.object.type.tsx"
+    name: "meta.object.type.ts"
     begin: "\\{"
     beginCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     end: "\\}"
     endCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     patterns: [
       {
         include: "#comment"
@@ -219,13 +219,13 @@ repository:
       }
     ]
   "field-declaration":
-    name: "meta.field.declaration.tsx"
+    name: "meta.field.declaration.ts"
     begin: "(?<!\\()\\s*((?:\\b[a-zA-Z_$][\\w$]*)|(?:\\'[^']*\\')|(?:\\\"[^\"]*\\\"))\\s*(\\?\\s*)?(?=(=|:))"
     beginCaptures:
       "1":
-        name: "variable.tsx"
+        name: "variable.ts"
       "2":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     end: "(?=\\}|;|,)|(?<=\\})"
     patterns: [
       {
@@ -233,21 +233,23 @@ repository:
       }
     ]
   "method-declaration":
-    name: "meta.method.declaration.tsx"
-    begin: "\\b(?:(abstract)\\s+)?\\b(?:(public|private|protected)\\s+)?(?:(get|set)\\s+)?(?:(new)|(?:([a-zA-Z_$][\\.\\w$]*)\\s*(\\??)))?\\s*(?=\\(|\\<)"
+    name: "meta.method.declaration.ts"
+    begin: "\\b(?:(abstract)\\s+)?\\b(?:(public|private|protected)\\s+)?\\b(?:(async)\\s+)?(?:(get|set)\\s+)?(?:(new)|(?:([a-zA-Z_$][\\.\\w$]*)\\s*(\\??)))?\\s*(?=\\(|\\<)"
     beginCaptures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "3":
-        name: "storage.type.property.tsx"
+        name: "storage.modifier.ts"
       "4":
-        name: "keyword.operator.tsx"
+        name: "storage.type.property.ts"
       "5":
-        name: "entity.name.function.tsx"
+        name: "keyword.operator.ts"
       "6":
-        name: "keyword.operator.tsx"
+        name: "entity.name.function.ts"
+      "7":
+        name: "keyword.operator.ts"
     end: "(?=\\}|;|,)|(?<=\\})"
     patterns: [
       {
@@ -270,29 +272,29 @@ repository:
       }
     ]
   "method-overload-declaration":
-    name: "meta.method.overload.declaration.tsx"
+    name: "meta.method.overload.declaration.ts"
     match: "\\b(?:(public|private|protected)\\s+)?(?:(new)|(?:([a-zA-Z_$][\\.\\w$]*)\\s*(\\??)))?\\s*(?=\\(|\\<)"
     captures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
       "3":
-        name: "entity.name.function.tsx"
+        name: "entity.name.function.ts"
       "4":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
   "indexer-declaration":
-    name: "meta.indexer.declaration.tsx"
+    name: "meta.indexer.declaration.ts"
     begin: "\\["
     beginCaptures:
       "0":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
     end: "(\\])\\s*(\\?\\s*)?|$"
     endCaptures:
       "1":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
       "2":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     patterns: [
       {
         include: "#type-annotation"
@@ -305,21 +307,23 @@ repository:
       }
     ]
   "indexer-parameter":
-    name: "meta.indexer.parameter.tsx"
+    name: "meta.indexer.parameter.ts"
     match: "([a-zA-Z_$][\\w$]*)(?=\\:)"
     captures:
       "1":
-        name: "variable.parameter.tsx"
+        name: "variable.parameter.ts"
   "function-declaration":
-    name: "meta.function.tsx"
-    begin: "\\b(?:(export)\\s+)?(function\\b)(?:\\s+([a-zA-Z_$][\\w$]*))?\\s*"
+    name: "meta.function.ts"
+    begin: "\\b(?:(export)\\s+)?(?:(async)\\s+)?(function\\b)(?:\\s+([a-zA-Z_$][\\w$]*))?\\s*"
     beginCaptures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "storage.type.function.tsx"
+        name: "storage.modifier.ts"
       "3":
-        name: "entity.name.function.tsx"
+        name: "storage.type.function.ts"
+      "4":
+        name: "entity.name.function.ts"
     end: "(?=;|\\})|(?<=\\})"
     patterns: [
       {
@@ -342,25 +346,25 @@ repository:
       }
     ]
   "function-overload-declaration":
-    name: "meta.function.overload.tsx"
+    name: "meta.function.overload.ts"
     match: "\\b(?:(export)\\s+)?(function\\b)(?:\\s+([a-zA-Z_$][\\w$]*))?\\s*"
     captures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "storage.type.function.tsx"
+        name: "storage.type.function.ts"
       "3":
-        name: "entity.name.function.tsx"
+        name: "entity.name.function.ts"
   block:
-    name: "meta.block.tsx"
+    name: "meta.block.ts"
     begin: "\\{"
     beginCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     end: "\\}"
     endCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     patterns: [
       {
         include: "#object-member"
@@ -370,34 +374,34 @@ repository:
       }
     ]
   "decl-block":
-    name: "meta.decl.block.tsx"
+    name: "meta.decl.block.ts"
     begin: "\\{"
     beginCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     end: "\\}"
     endCaptures:
       "0":
-        name: "meta.brace.curly.tsx"
+        name: "meta.brace.curly.ts"
     patterns: [
       {
         include: "#expression"
       }
     ]
   "parameter-name":
-    name: "parameter.name.tsx"
+    name: "parameter.name.ts"
     match: "(?:\\s*\\b(public|private|protected)\\b\\s+)?(\\.\\.\\.)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\??)"
     captures:
       "1":
-        name: "storage.modifier.tsx"
+        name: "storage.modifier.ts"
       "2":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
       "3":
-        name: "variable.parameter.tsx"
+        name: "variable.parameter.ts"
       "4":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
   "return-type":
-    name: "meta.return.type.tsx"
+    name: "meta.return.type.ts"
     begin: "(?<=\\))\\s*:"
     end: "(?=$)|(?=\\{|;|//)"
     patterns: [
@@ -406,7 +410,7 @@ repository:
       }
     ]
   "type-annotation":
-    name: "meta.type.annotation.tsx"
+    name: "meta.type.annotation.ts"
     begin: ":"
     end: "(?=$|[,);\\}\\]]|//)|(?==[^>])|(?<=[\\}>\\]\\)]|[a-zA-Z_$])\\s*(?=\\{)"
     patterns: [
@@ -421,7 +425,7 @@ repository:
       }
     ]
   type:
-    name: "meta.type.tsx"
+    name: "meta.type.ts"
     patterns: [
       {
         include: "#type-primitive"
@@ -449,15 +453,15 @@ repository:
       }
     ]
   "function-type-parameters":
-    name: "meta.function.type.parameter.tsx"
+    name: "meta.function.type.parameter.ts"
     begin: "\\("
     beginCaptures:
       "0":
-        name: "meta.brace.round.tsx"
+        name: "meta.brace.round.ts"
     end: "\\)"
     endCaptures:
       "0":
-        name: "meta.brace.round.tsx"
+        name: "meta.brace.round.ts"
     patterns: [
       {
         include: "#comment"
@@ -473,17 +477,17 @@ repository:
       }
     ]
   "type-primitive":
-    name: "meta.type.primitive.tsx"
+    name: "meta.type.primitive.ts"
     match: "\\b(string|number|boolean|symbol|any|void)\\b"
     captures:
       "1":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
   "type-paren-or-function-type-parameters":
-    name: "meta.type.paren.cover.tsx"
+    name: "meta.type.paren.cover.ts"
     begin: "(?:\\b(new)\\b)?\\s*\\("
     beginCaptures:
       "1":
-        name: "keyword.control.tsx"
+        name: "keyword.control.ts"
     end: "\\)"
     patterns: [
       {
@@ -496,15 +500,18 @@ repository:
         include: "#function-type-parameters"
       }
     ]
+  "await-modifier":
+    name: "storage.modifier.ts"
+    match: "await"
   "type-operator":
-    name: "keyword.operator.type.tsx"
+    name: "keyword.operator.type.ts"
     match: "[.|]"
   "type-function-return-type":
-    name: "meta.type.function.return.tsx"
+    name: "meta.type.function.return.ts"
     begin: "=>"
     beginCaptures:
       "0":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     end: "(?=\\s*[,\\)\\{=;>]|//|$)"
     patterns: [
       {
@@ -512,15 +519,15 @@ repository:
       }
     ]
   "type-tuple":
-    name: "meta.type.tuple.tsx"
+    name: "meta.type.tuple.ts"
     begin: "\\["
     beginCaptures:
       "0":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
     end: "\\]"
     endCaptures:
       "0":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
     patterns: [
       {
         include: "#type"
@@ -530,26 +537,26 @@ repository:
       }
     ]
   "type-name":
-    name: "meta.type.name.tsx"
+    name: "meta.type.name.ts"
     match: "[a-zA-Z_$][.\\w$]*"
     captures:
       "1":
-        name: "entity.name.type.tsx"
+        name: "entity.name.type.ts"
   "type-parameters":
-    name: "meta.type.parameters.tsx"
+    name: "meta.type.parameters.ts"
     begin: "([a-zA-Z_$][\\w$]*)?(<)"
     beginCaptures:
       "1":
-        name: "entity.name.type.tsx"
+        name: "entity.name.type.ts"
       "2":
-        name: "meta.brace.angle.tsx"
+        name: "meta.brace.angle.ts"
     end: "(?=$)|(>)"
     endCaptures:
       "2":
-        name: "meta.brace.angle.tsx"
+        name: "meta.brace.angle.ts"
     patterns: [
       {
-        name: "keyword.other.tsx"
+        name: "keyword.other.ts"
         match: "\\b(extends)\\b"
       }
       {
@@ -563,7 +570,7 @@ repository:
     begin: "(=)"
     beginCaptures:
       "1":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     end: "(?=$|[,);=])"
     patterns: [
       {
@@ -571,7 +578,7 @@ repository:
       }
     ]
   expression:
-    name: "meta.expression.tsx"
+    name: "meta.expression.ts"
     patterns: [
       {
         comment: "Match ES6 \"import from\" syntax"
@@ -638,9 +645,6 @@ repository:
             name: "keyword.debugger.ts"
       }
       {
-        include: "#jsx"
-      }
-      {
         include: "#for-in-simple"
       }
       {
@@ -666,6 +670,9 @@ repository:
       }
       {
         include: "#declaration"
+      }
+      {
+        include: "#cast"
       }
       {
         include: "#new-expr"
@@ -702,16 +709,19 @@ repository:
       }
     ]
   "for-in-simple":
-    name: "forin.expr.tsx"
+    name: "forin.expr.ts"
     match: "(?<=\\()\\s*\\b(var|let|const)\\s+([a-zA-Z_$][\\w$]*)\\s+(in|of)\\b"
     captures:
       "1":
-        name: "storage.type.tsx"
+        name: "storage.type.ts"
       "3":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
   "function-call":
-    name: "functioncall.expr.tsx"
+    name: "functioncall.expr.ts"
     patterns: [
+      {
+        include: "#await-modifier"
+      }
       {
         include: "#type-parameters"
       }
@@ -719,20 +729,38 @@ repository:
         include: "#paren-expression"
       }
     ]
-  "new-expr":
-    name: "new.expr.tsx"
-    begin: "\\b(new)\\b"
+  cast:
+    name: "cast.expr.ts"
+    begin: "(?:(?<=return|throw|yield|await|[=(,:>]))\\s*(<)(?!<?\\=)"
     beginCaptures:
       "1":
-        name: "keyword.operator.tsx"
-    end: "(?=[(;]|$)"
+        name: "meta.brace.angle.ts"
+    end: ">"
+    endCaptures:
+      "0":
+        name: "meta.brace.angle.ts"
     patterns: [
       {
         include: "#type"
       }
     ]
+  "new-expr":
+    name: "new.expr.ts"
+    begin: "\\b(new)\\b"
+    beginCaptures:
+      "1":
+        name: "keyword.operator.ts"
+    end: "(?=[(;]|$)"
+    patterns: [
+      {
+        include: "#type"
+      }
+      {
+        include: "#comment"
+      }
+    ]
   "object-member":
-    name: "meta.object.member.tsx"
+    name: "meta.object.member.ts"
     begin: "[a-zA-Z_$][\\w$]*\\s*:"
     end: "(?=,|\\})"
     patterns: [
@@ -741,39 +769,39 @@ repository:
       }
     ]
   "expression-operator":
-    name: "keyword.operator.tsx"
-    match: "=>|\\b(delete|export|import|in|instanceof|module|namespace|new|typeof|void|as)\\b"
+    name: "keyword.operator.ts"
+    match: "=>|\\b(delete|export|import|in|instanceof|module|namespace|new|typeof|void)\\b"
   "arithmetic-operator":
-    name: "keyword.operator.arithmetic.tsx"
+    name: "keyword.operator.arithmetic.ts"
     match: "\\*|/|\\-\\-|\\-|\\+\\+|\\+|%"
   "relational-operator":
-    name: "keyword.operator.comparison.tsx"
+    name: "keyword.operator.comparison.ts"
     match: "===|==|=|!=|!==|<=|>=|<>|<|>"
   "assignment-operator":
-    name: "keyword.operator.assignment.tsx"
+    name: "keyword.operator.assignment.ts"
     match: "<<=|>>=|>>>=|\\*=|(?<!\\()/=|%=|\\+=|\\-=|&=|\\^="
   "logic-operator":
-    name: "keyword.operator.arithmetic.tsx"
+    name: "keyword.operator.arithmetic.ts"
     match: "\\!|&|~|\\||&&|\\|\\|"
   "storage-keyword":
-    name: "storage.type.tsx"
+    name: "storage.type.ts"
     match: "\\b(number|boolean|string|any|var|let|function|const)\\b"
   "paren-expression":
     begin: "\\("
     beginCaptures:
       "0":
-        name: "meta.brace.paren.tsx"
+        name: "meta.brace.paren.ts"
     end: "\\)"
     endCaptures:
       "0":
-        name: "meta.brace.paren.tsx"
+        name: "meta.brace.paren.ts"
     patterns: [
       {
         include: "#expression"
       }
     ]
   "qstring-double":
-    name: "string.double.tsx"
+    name: "string.double.ts"
     begin: "\""
     end: "\"|(?=$)"
     patterns: [
@@ -782,7 +810,7 @@ repository:
       }
     ]
   "qstring-single":
-    name: "string.single.tsx"
+    name: "string.single.ts"
     begin: "'"
     end: "'|(?=$)"
     patterns: [
@@ -791,21 +819,21 @@ repository:
       }
     ]
   regex:
-    name: "string.regex.tsx"
+    name: "string.regex.ts"
     begin: "(?<=[=(:,\\[]|^|return|&&|\\|\\||!)\\s*(/)(?![/*+{}?])"
     end: "$|(/)[igm]*"
     patterns: [
       {
-        name: "constant.character.escape.tsx"
+        name: "constant.character.escape.ts"
         match: "\\\\."
       }
       {
-        name: "constant.character.class.tsx"
+        name: "constant.character.class.ts"
         match: "\\[(\\\\\\]|[^\\]])*\\]"
       }
     ]
   string:
-    name: "string.tsx"
+    name: "string.ts"
     patterns: [
       {
         include: "#qstring-single"
@@ -815,15 +843,15 @@ repository:
       }
     ]
   template:
-    name: "meta.template.tsx"
+    name: "meta.template.ts"
     begin: "`"
     beginCaptures:
       "0":
-        name: "string.template.tsx"
+        name: "string.template.ts"
     end: "`"
     endCaptures:
       "0":
-        name: "string.template.tsx"
+        name: "string.template.ts"
     patterns: [
       {
         include: "#template-substitution-element"
@@ -833,7 +861,7 @@ repository:
       }
     ]
   "template-string-contents":
-    name: "string.template.tsx"
+    name: "string.template.ts"
     begin: ".*?"
     end: "(?=(\\$\\{|`))"
     patterns: [
@@ -845,22 +873,22 @@ repository:
     name: "constant.character.escape"
     match: "\\\\(x\\h{2}|[0-2][0-7]{,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)"
   "template-substitution-element":
-    name: "template.element.tsx"
+    name: "template.element.ts"
     begin: "\\$\\{"
     beginCaptures:
       "0":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     end: "\\}"
     endCaptures:
       "0":
-        name: "keyword.operator.tsx"
+        name: "keyword.operator.ts"
     patterns: [
       {
         include: "#expression"
       }
     ]
   comment:
-    name: "comment.tsx"
+    name: "comment.ts"
     patterns: [
       {
         include: "#comment-block-doc"
@@ -873,18 +901,18 @@ repository:
       }
     ]
   "comment-block-doc":
-    name: "comment.block.documentation.tsx"
+    name: "comment.block.documentation.ts"
     begin: "/\\*\\*(?!/)"
     end: "\\*/"
   "comment-block":
-    name: "comment.block.tsx"
+    name: "comment.block.ts"
     begin: "/\\*"
     end: "\\*/"
   "comment-line":
-    name: "comment.line.tsx"
+    name: "comment.line.ts"
     match: "(//).*$\\n?"
   literal:
-    name: "literal.tsx"
+    name: "literal.ts"
     patterns: [
       {
         include: "#numeric-literal"
@@ -906,255 +934,41 @@ repository:
       }
     ]
   "array-literal":
-    name: "meta.array.literal.tsx"
+    name: "meta.array.literal.ts"
     begin: "\\["
     beginCaptures:
       "0":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
     end: "\\]"
     endCaptures:
       "0":
-        name: "meta.brace.square.tsx"
+        name: "meta.brace.square.ts"
     patterns: [
       {
         include: "#expression"
       }
     ]
   "numeric-literal":
-    name: "constant.numeric.tsx"
+    name: "constant.numeric.ts"
     match: "\\b(?<=[^$])((0(x|X)[0-9a-fA-F]+)|([0-9]+(\\.[0-9]+)?))\\b"
   "boolean-literal":
-    name: "constant.language.boolean.tsx"
+    name: "constant.language.boolean.ts"
     match: "\\b(false|true)\\b"
   "null-literal":
-    name: "constant.language.null.tsx"
+    name: "constant.language.null.ts"
     match: "\\b(null)\\b"
   "this-literal":
-    name: "constant.language.this.tsx"
+    name: "constant.language.this.ts"
     match: "\\b(this)\\b"
   "undefined-literal":
-    name: "constant.language.tsx"
+    name: "constant.language.ts"
     match: "\\b(undefined)\\b"
   "access-modifier":
-    name: "storage.modifier.tsx"
+    name: "storage.modifier.ts"
     match: "\\b(public|protected|private)\\b"
   "static-modifier":
-    name: "keyword.other.tsx"
+    name: "keyword.other.ts"
     match: "\\b(static)\\b"
   "property-accessor":
-    name: "storage.type.property.tsx"
+    name: "storage.type.property.ts"
     match: "\\b(get|set)\\b"
-  "jsx-tag-attributes":
-    patterns: [
-      {
-        include: "#jsx-tag-attribute-name"
-      }
-      {
-        include: "#jsx-tag-attribute-assignment"
-      }
-      {
-        include: "#jsx-string-double-quoted"
-      }
-      {
-        include: "#jsx-string-single-quoted"
-      }
-      {
-        include: "#jsx-evaluated-code"
-      }
-    ]
-  "jsx-tag-attribute-name":
-    name: "meta.tag.attribute-name.tsx"
-    match: '''
-      (?x)
-        \\s*
-        ([_$a-zA-Z][-$\\w]*)
-        (?=\\s|=|/?>|/\\*|//)
-    '''
-    captures:
-      "1":
-        name: "entity.other.attribute-name.tsx"
-  "jsx-tag-attribute-assignment":
-    name: "keyword.operator.assignment.tsx"
-    match: "=(?=\\s*(?:'|\"|{|/\\*|//|\\n))"
-  "jsx-string-double-quoted":
-    name: "string.quoted.double.tsx"
-    begin: "\""
-    end: "\""
-    beginCaptures:
-      "0":
-        name: "punctuation.definition.string.begin.tsx"
-    endCaptures:
-      "0":
-        name: "punctuation.definition.string.end.tsx"
-    patterns: [
-      {
-        include: "#jsx-entities"
-      }
-    ]
-  "jsx-string-single-quoted":
-    name: "string.quoted.single.tsx"
-    begin: "'"
-    end: "'"
-    beginCaptures:
-      "0":
-        name: "punctuation.definition.string.begin.tsx"
-    endCaptures:
-      "0":
-        name: "punctuation.definition.string.end.tsx"
-    patterns: [
-      {
-        include: "#jsx-entities"
-      }
-    ]
-  "jsx-entities":
-    patterns: [
-      {
-        name: "constant.character.entity.tsx"
-        match: "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)"
-        captures:
-          "1":
-            name: "punctuation.definition.entity.tsx"
-          "3":
-            name: "punctuation.definition.entity.tsx"
-      }
-      {
-        name: "invalid.illegal.bad-ampersand.tsx"
-        match: "&"
-      }
-    ]
-  "jsx-evaluated-code":
-    name: "meta.brace.curly.tsx"
-    begin: "{"
-    end: "}"
-    beginCaptures:
-      "0":
-        name: "punctuation.definition.brace.curly.start.tsx"
-    endCaptures:
-      "0":
-        name: "punctuation.definition.brace.curly.end.tsx"
-    patterns: [
-      {
-        include: "#expression"
-      }
-    ]
-  "jsx-tag-attributes-illegal":
-    name: "invalid.illegal.attribute.tsx"
-    match: "\\S+"
-  "jsx-tag-without-attributes":
-    name: "tag.without-attributes.tsx"
-    begin: "(<)([_$a-zA-Z][-$\\w.]*(?<!\\.|-))(>)"
-    end: "(</)([_$a-zA-Z][-$\\w.]*(?<!\\.|-))(>)"
-    beginCaptures:
-      "1":
-        name: "punctuation.definition.tag.begin.tsx"
-      "2":
-        name: "entity.name.tag.tsx"
-      "3":
-        name: "punctuation.definition.tag.end.tsx"
-    endCaptures:
-      "1":
-        name: "punctuation.definition.tag.begin.tsx"
-      "2":
-        name: "entity.name.tag.tsx"
-      "3":
-        name: "punctuation.definition.tag.end.tsx"
-    patterns: [
-      {
-        include: "#jsx-children"
-      }
-    ]
-  "jsx-tag-open":
-    name: "tag.open.tsx"
-    begin: '''
-      (?x)
-        (<)
-        ([_$a-zA-Z][-$\\w.]*(?<!\\.|-))
-        (?=\\s+(?!\\?)|/?>)
-    '''
-    end: "(/?>)"
-    beginCaptures:
-      "1":
-        name: "punctuation.definition.tag.begin.tsx"
-      "2":
-        name: "entity.name.tag.tsx"
-    endCaptures:
-      "1":
-        name: "punctuation.definition.tag.end.tsx"
-    patterns: [
-      {
-        include: "#comment"
-      }
-      {
-        include: "#jsx-tag-attributes"
-      }
-      {
-        include: "#jsx-tag-attributes-illegal"
-      }
-    ]
-  "jsx-tag-close":
-    name: "tag.close.tsx"
-    begin: "(</)([_$a-zA-Z][-$\\w.]*(?<!\\.|-))"
-    end: "(>)"
-    beginCaptures:
-      "1":
-        name: "punctuation.definition.tag.begin.tsx"
-      "2":
-        name: "entity.name.tag.tsx"
-    endCaptures:
-      "1":
-        name: "punctuation.definition.tag.end.tsx"
-    patterns: [
-      {
-        include: "#comment"
-      }
-    ]
-  "jsx-tag-invalid":
-    name: "invalid.illegal.tag.incomplete.tsx"
-    match: "<\\s*>"
-  "jsx-children":
-    patterns: [
-      {
-        include: "#jsx-tag-without-attributes"
-      }
-      {
-        include: "#jsx-tag-open"
-      }
-      {
-        include: "#jsx-tag-close"
-      }
-      {
-        include: "#jsx-tag-invalid"
-      }
-      {
-        include: "#jsx-evaluated-code"
-      }
-      {
-        include: "#jsx-entities"
-      }
-    ]
-  jsx:
-    name: "meta.jsx.tsx"
-    patterns: [
-      {
-        include: "#jsx-tag-without-attributes"
-      }
-      {
-        include: "#jsx-tag-open"
-      }
-      {
-        include: "#jsx-tag-close"
-      }
-      {
-        include: "#jsx-tag-invalid"
-      }
-      {
-        name: "meta.jsx.children.tsx"
-        begin: "(?<=(?:'|\"|})>)"
-        end: "(?=</)"
-        patterns: [
-          {
-            include: "#jsx-children"
-          }
-        ]
-      }
-    ]
