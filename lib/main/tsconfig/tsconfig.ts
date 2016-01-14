@@ -139,7 +139,7 @@ interface TypeScriptProjectRawSpecification {
     buildOnSave?: boolean;
     externalTranspiler?: string | { name: string; options?: any };
     scripts?: { postbuild?: string };
-    atom?: { rewriteTsconfig?: boolean };
+    atom?: { rewriteTsconfig?: boolean, formatOnSave?: boolean };
 }
 
 /**
@@ -157,7 +157,7 @@ export interface TypeScriptProjectSpecification {
     package?: UsefulFromPackageJson;
     externalTranspiler?: string | { name: string; options?: any };
     scripts: { postbuild?: string };
-    atom: { rewriteTsconfig: boolean };
+    atom: { rewriteTsconfig: boolean, formatOnSave: boolean };
 }
 
 ///////// FOR USE WITH THE API /////////////
@@ -290,7 +290,7 @@ function mixin(target: any, source: any): any {
 
 function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string): ts.CompilerOptions {
     // Cannot use Object.create because the compiler checks hasOwnProperty
-    var compilerOptions = <ts.CompilerOptions> mixin({}, defaults);
+    var compilerOptions = <ts.CompilerOptions>mixin({}, defaults);
     for (var key in jsonOptions) {
         if (typescriptEnumMap[key]) {
             compilerOptions[key] = typescriptEnumMap[key][jsonOptions[key].toLowerCase()];
@@ -322,7 +322,7 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
 
 function tsToRawCompilerOptions(compilerOptions: ts.CompilerOptions): CompilerOptions {
     // Cannot use Object.create because JSON.stringify will only serialize own properties
-    var jsonOptions = <CompilerOptions> mixin({}, compilerOptions);
+    var jsonOptions = <CompilerOptions>mixin({}, compilerOptions);
 
     Object.keys(compilerOptions).forEach((key) => {
         if (jsonEnumMap[key] && compilerOptions[key]) {
@@ -350,7 +350,7 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
         compileOnSave: true,
         buildOnSave: false,
         scripts: {},
-        atom: { rewriteTsconfig: true },
+        atom: { rewriteTsconfig: true, formatOnSave: false },
     };
 
     return {
@@ -375,8 +375,8 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     var projectFile = tsconfig.resolveSync(dir);
 
     if (!projectFile) {
-      throw errorWithDetails<GET_PROJECT_NO_PROJECT_FOUND_Details>(
-          new Error(errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: 'not found' });
+        throw errorWithDetails<GET_PROJECT_NO_PROJECT_FOUND_Details>(
+            new Error(errors.GET_PROJECT_NO_PROJECT_FOUND), { projectFilePath: fsu.consistentPath(pathOrSrcFile), errorMessage: 'not found' });
     }
 
     var projectFileDirectory = path.dirname(projectFile) + path.sep;
@@ -442,7 +442,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
-        atom: { rewriteTsconfig: true }
+        atom: { rewriteTsconfig: true, formatOnSave: !!projectSpec.atom.formatOnSave }
     };
 
     // Validate the raw compiler options before converting them to TS compiler options
@@ -521,7 +521,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
         }
     }
 
-    var getReferencedOrImportedFiles = (files: string[]): string[]=> {
+    var getReferencedOrImportedFiles = (files: string[]): string[] => {
         var referenced: string[][] = [];
 
         files.forEach(file => {
@@ -553,7 +553,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
                         return file;
                     }
                     return getIfExists(file);
-                }).filter(file=> !!file)
+                }).filter(file => !!file)
                     .concat(
                     preProcessedFileInfo.importedFiles
                         .filter((fileReference) => pathIsRelative(fileReference.fileName))
@@ -564,7 +564,7 @@ function increaseProjectForReferenceAndImports(files: string[]): string[] {
                                 file = getIfExists(`${file}/index`);
                             }
                             return file;
-                        }).filter(file=> !!file)
+                        }).filter(file => !!file)
                     )
             );
         });
@@ -610,9 +610,9 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     // Find our `typings` (anything in a typings folder with extension `.d.ts` is considered a typing)
     // These are INF powerful
     var ourTypings = files
-        .filter(f=> path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
+        .filter(f => path.basename(path.dirname(f)) == 'typings' && endsWith(f, '.d.ts')
             || path.basename(path.dirname(path.dirname(f))) == 'typings' && endsWith(f, '.d.ts'));
-    ourTypings.forEach(f=> typings[path.basename(f)] = { filePath: f, version: Infinity });
+    ourTypings.forEach(f => typings[path.basename(f)] = { filePath: f, version: Infinity });
     var existing = createMap(files.map(fsu.consistentPath));
 
     function addAllReferencedFilesWithMaxVersion(file: string) {
@@ -635,7 +635,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
             if (fs.existsSync(file + '.d.ts')) {
                 return file + '.d.ts';
             }
-        }).filter(f=> !!f);
+        }).filter(f => !!f);
 
         // Only ones we don't have by name yet
         // TODO: replace INF with an actual version
@@ -644,7 +644,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
         // Add these
         files.forEach(f => typings[path.basename(f)] = { filePath: f, version: Infinity });
         // Keep expanding
-        files.forEach(f=> addAllReferencedFilesWithMaxVersion(f));
+        files.forEach(f => addAllReferencedFilesWithMaxVersion(f));
     }
 
     // Keep going up till we find node_modules
@@ -691,11 +691,11 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
 
     var all = Object.keys(typings)
         .map(typing => typings[typing].filePath)
-        .map(x=> fsu.consistentPath(x));
+        .map(x => fsu.consistentPath(x));
     var implicit = all
-        .filter(x=> !existing[x]);
+        .filter(x => !existing[x]);
     var ours = all
-        .filter(x=> existing[x]);
+        .filter(x => existing[x]);
 
     return { implicit, ours, packagejson };
 }
