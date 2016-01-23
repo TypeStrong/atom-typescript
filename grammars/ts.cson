@@ -69,7 +69,7 @@ repository:
         name: "keyword.other.ts"
       "2":
         name: "storage.type.ts"
-    end: "(?=[,);>]|var|type|function|class|interface)"
+    end: "(?=$|[,);>]|var|type|function|class|interface)"
     patterns: [
       {
         include: "#type"
@@ -226,7 +226,7 @@ repository:
         name: "variable.ts"
       "2":
         name: "keyword.operator.ts"
-    end: "(?=\\}|;|,)|(?<=\\})"
+    end: "(?=\\}|;|,|$)|(?<=\\})"
     patterns: [
       {
         include: "#expression"
@@ -250,7 +250,7 @@ repository:
         name: "entity.name.function.ts"
       "7":
         name: "keyword.operator.ts"
-    end: "(?=\\}|;|,)|(?<=\\})"
+    end: "(?=\\}|;|,|$)|(?<=\\})"
     patterns: [
       {
         include: "#comment"

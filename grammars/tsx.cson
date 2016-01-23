@@ -69,7 +69,7 @@ repository:
         name: "keyword.other.tsx"
       "2":
         name: "storage.type.tsx"
-    end: "(?=[,);>]|var|type|function|class|interface)"
+    end: "(?=$|[,);>]|var|type|function|class|interface)"
     patterns: [
       {
         include: "#type"
@@ -226,7 +226,7 @@ repository:
         name: "variable.tsx"
       "2":
         name: "keyword.operator.tsx"
-    end: "(?=\\}|;|,)|(?<=\\})"
+    end: "(?=\\}|;|,|$)|(?<=\\})"
     patterns: [
       {
         include: "#expression"
@@ -248,7 +248,7 @@ repository:
         name: "entity.name.function.tsx"
       "6":
         name: "keyword.operator.tsx"
-    end: "(?=\\}|;|,)|(?<=\\})"
+    end: "(?=\\}|;|,|$)|(?<=\\})"
     patterns: [
       {
         include: "#comment"
