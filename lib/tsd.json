@@ -8,9 +8,6 @@
     "emissary/emissary.d.ts": {
       "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
-    "pathwatcher/pathwatcher.d.ts": {
-      "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
-    },
     "mixto/mixto.d.ts": {
       "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
@@ -29,9 +26,6 @@
     "jquery/jquery.d.ts": {
       "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
-    "node/node.d.ts": {
-      "commit": "66f88ec51858bb21bc375fa91a963c04bc09401e"
-    },
     "q/Q.d.ts": {
       "commit": "69bdfb0884020e41f17a1dd80ad4c77de2636874"
     },
@@ -49,9 +43,6 @@
     },
     "htmltojsx/htmltojsx.d.ts": {
       "commit": "1632606f82cfbaf89d4b96b8dccacfaf2a6ae2f3"
-    },
-    "glob/glob.d.ts": {
-      "commit": "66f88ec51858bb21bc375fa91a963c04bc09401e"
     },
     "minimatch/minimatch.d.ts": {
       "commit": "66f88ec51858bb21bc375fa91a963c04bc09401e"
