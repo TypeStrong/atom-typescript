@@ -1,4 +1,4 @@
-# FAQ 
+# FAQ
 
 Please checkout [the FAQ](https://github.com/TypeStrong/atom-typescript/blob/master/docs/faq.md) before creating a new issue :rose:
 
@@ -48,7 +48,7 @@ Update the version used by Atom-TypeScript using `npm install ntypescript@latest
 ## Publishing
 
 * If you have only fixed bugs in a backward-compatible way (or consider your changes very minimal), run `apm publish patch`.
-* If you have implemented new functionality, run `apm publish minor`.
+* If you have implemented new functionality, run `apm publish minor`. (A TypeScript update should at least be minor).
 * For breaking changes run `apm publish major`. These must be justified with a reason documented in `changelog.md`
 
 Additional Notes:
