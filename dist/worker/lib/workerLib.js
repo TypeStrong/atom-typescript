@@ -93,10 +93,10 @@ var RequesterResponder = (function () {
             }
             delete this.currentListeners[parsed.message][parsed.id];
             if (this.currentLastOfType[parsed.message]) {
-                var last = this.currentLastOfType[parsed.message];
+                var last_1 = this.currentLastOfType[parsed.message];
                 delete this.currentLastOfType[parsed.message];
-                var lastPromise = this.sendToIpcHeart(last.data, parsed.message);
-                lastPromise.then(function (res) { return last.defer.resolve(res); }, function (rej) { return last.defer.reject(rej); });
+                var lastPromise = this.sendToIpcHeart(last_1.data, parsed.message);
+                lastPromise.then(function (res) { return last_1.defer.resolve(res); }, function (rej) { return last_1.defer.reject(rej); });
             }
         }
     };

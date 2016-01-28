@@ -138,7 +138,7 @@ var TypeScriptSemanticGrammar = (function (_super) {
             var style = getAtomStyleForToken(info, str);
             if (style == 'comment.block') {
                 var toret = [];
-                var match;
+                var match = void 0;
                 while (match = _this.todoRegex.exec(str)) {
                     var start = match.index;
                     var length = match[1].length;

@@ -263,7 +263,7 @@ function errorsForFile(query) {
         return resolve({ errors: errors });
     }
     else {
-        var result;
+        var result = void 0;
         if (project.includesSourceFile(query.filePath)) {
             result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
         }

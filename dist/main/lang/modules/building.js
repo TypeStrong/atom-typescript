@@ -37,11 +37,11 @@ function emitFile(proj, filePath) {
         errors.push(diagnosticToTSError(diagnostic));
     });
     {
-        var sourceMapContents = {};
+        var sourceMapContents_1 = {};
         output.outputFiles.forEach(function (o) {
             mkdirp.sync(path.dirname(o.name));
-            runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents).then(function (additionalEmits) {
-                if (!sourceMapContents[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
+            runExternalTranspiler(filePath, sourceFile.text, o, proj, sourceMapContents_1).then(function (additionalEmits) {
+                if (!sourceMapContents_1[o.name] && !proj.projectFile.project.compilerOptions.noEmit) {
                     fs.writeFileSync(o.name, o.text, "utf8");
                 }
                 additionalEmits.forEach(function (a) {
