@@ -496,9 +496,12 @@ export function createProjectRootSync(srcFile: string, defaultOptions?: ts.Compi
     // We need to write the raw spec
     var projectSpec: TypeScriptProjectRawSpecification = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || defaults);
-    projectSpec.filesGlob = defaultFilesGlob;
+    projectSpec.exclude = ["node_modules", "typings/browser", "typings/browser.d.ts"];
     projectSpec.compileOnSave = true;
     projectSpec.buildOnSave = false;
+    projectSpec.atom = {
+        rewriteTsconfig: false
+    };
 
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);

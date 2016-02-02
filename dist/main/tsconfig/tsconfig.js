@@ -285,9 +285,12 @@ function createProjectRootSync(srcFile, defaultOptions) {
         throw new Error(exports.errors.CREATE_PROJECT_ALREADY_EXISTS);
     var projectSpec = {};
     projectSpec.compilerOptions = tsToRawCompilerOptions(defaultOptions || exports.defaults);
-    projectSpec.filesGlob = defaultFilesGlob;
+    projectSpec.exclude = ["node_modules", "typings/browser", "typings/browser.d.ts"];
     projectSpec.compileOnSave = true;
     projectSpec.buildOnSave = false;
+    projectSpec.atom = {
+        rewriteTsconfig: false
+    };
     fs.writeFileSync(projectFilePath, prettyJSON(projectSpec));
     return getProjectSync(srcFile);
 }
