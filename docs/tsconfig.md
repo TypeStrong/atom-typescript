@@ -58,16 +58,17 @@ A default `filesGlob` is available for you as a snippet : `fg`
         "noLib": false
     },
     "filesGlob": [
-        "./**/*.ts",
-        "!./node_modules/**/*.ts"
+        "**/*.ts",
+        "**/*.tsx",
+        "!node_modules/**"
     ],
     "files": [
-        "./globals.ts",
-        "./linter.ts",
-        "./main/atom/atomUtils.ts",
-        "./main/atom/autoCompleteProvider.ts",
-        "./worker/messages.ts",
-        "./worker/parent.ts"
+        "globals.ts",
+        "linter.ts",
+        "main/atom/atomUtils.ts",
+        "main/atom/autoCompleteProvider.ts",
+        "worker/messages.ts",
+        "worker/parent.ts"
     ]
 }
 ```
