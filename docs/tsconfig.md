@@ -59,6 +59,7 @@ A default `filesGlob` is available for you as a snippet : `fg`
     },
     "filesGlob": [
         "**/*.ts",
+        "**/*.tsx",
         "!node_modules/**"
     ],
     "files": [
