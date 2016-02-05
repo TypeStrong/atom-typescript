@@ -69,7 +69,7 @@ Just hover
 ![you definitely get the point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/hover.png)
 
 ## Compile on save
-TypeScript files will be compiled on save automattically. Different notifications are given if `emit` was successful or not. If you need to disable this feature. add `"compileOnSave": false` in your `tsconfig.json`.
+TypeScript files will be compiled on save automattically. Different notifications are given if `emit` was successful or not. If you need to disable this feature. add `"compileOnSave": false` in your [`tsconfig.json`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).
 
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/compile%20success.png)
 
@@ -78,7 +78,7 @@ TypeScript files will be compiled on save automattically. Different notification
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/emit%20error.png)
 
 ## Project Support
-Supported via `tsconfig.json` ([read more](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md)) which is going to be the defacto Project file format for the next versions of TypeScript.
+Supported via [`tsconfig.json`](https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md) which is going to be the defacto Project file format for the next versions of TypeScript.
 
 It also supports `filesGlob` which will expand `files` for you based on `minmatch|glob|regex` (similar to grunt).
 
