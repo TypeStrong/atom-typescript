@@ -5,7 +5,8 @@
 export var types = {
     string: 'string',
     boolean: 'boolean',
-    number: 'number'
+    number: 'number',
+    object: 'object'
 }
 
 export interface ValidationInfo {
