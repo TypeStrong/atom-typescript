@@ -61,7 +61,7 @@ var atomPatterns = [
   },
   {
     comment: 'Match import = require',
-    match: '(import)\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*=\\s*(require)\\s*\\((.*)\\)',
+    match: '\\b(import)\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*=\\s*(require)\\s*\\((.*)\\)',
     captures: {
       '1': {
         name: 'keyword.other.ts'
@@ -79,7 +79,7 @@ var atomPatterns = [
   },
   {
     comment: 'Match ES6 "import from" syntax',
-    match: '(import).*(from)\\s+(([\'"`]).*\\4)',
+    match: '\\b(import)\\b.*\\b(from)\\b\\s+(([\'"]).*\\4)',
     captures: {
       '1': {
         name: 'keyword.other.ts'
