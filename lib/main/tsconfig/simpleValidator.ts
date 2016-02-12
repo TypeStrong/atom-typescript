@@ -1,11 +1,12 @@
 /// Not useful for user input validation
-// But great for simple config validation 
+// But great for simple config validation
 // works only by "n" valid options
 
 export var types = {
     string: 'string',
     boolean: 'boolean',
-    number: 'number'
+    number: 'number',
+    object: 'object'
 }
 
 export interface ValidationInfo {
@@ -41,7 +42,7 @@ export class SimpleValidator {
                 else {
                     errors.extraKeys.push(`Unknown Option: ${k}`)
                 }
-            }     
+            }
             // Do validation
             else {
                 var validationInfo = this.validationInfo[k];

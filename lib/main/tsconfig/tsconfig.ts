@@ -38,6 +38,9 @@ interface CompilerOptions {
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
     moduleResolution?: string;
+    baseUrl?: string;
+    paths?: { [pattern: string]: string[] };
+    rootDirs?: string[];
     newLine?: string;
     noEmit?: boolean;
     noEmitHelpers?: boolean;
@@ -88,6 +91,9 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd', 'es6', 'es2015'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
+    baseUrl: { type: types.string },
+    paths: { type: types.object },
+    rootDirs: { type: types.object },
     newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
@@ -234,6 +240,9 @@ export var defaults: ts.CompilerOptions = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    baseUrl: undefined,
+    paths: undefined,
+    rootDirs: undefined,
     isolatedModules: false,
     jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
