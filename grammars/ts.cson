@@ -12,13 +12,26 @@ patterns: [
 repository:
   "var-expr":
     name: "meta.var.expr.ts"
-    begin: "(?<!\\()\\s*\\b(var|let|const(?!\\s+enum))\\s+([a-zA-Z_$][\\w$]*)"
+    begin: "(?<!\\()\\s*\\b(var|let|const(?!\\s+enum)\\b)"
     beginCaptures:
       "1":
         name: "storage.type.ts"
-      "2":
+    end: "(?=$|;)"
+    patterns: [
+      {
+        include: "#var-single-variable"
+      }
+      {
+        include: "#comment"
+      }
+    ]
+  "var-single-variable":
+    name: "meta.var-single-variable.expr.ts"
+    begin: "\\b([a-zA-Z_$][\\w$]*)\\s*(=?)"
+    beginCaptures:
+      "1":
         name: "variable.ts"
-    end: "(?=$|[;=\\}\\{])|(?<=\\})"
+    end: "(?=$|[;,])"
     patterns: [
       {
         include: "#type-annotation"
@@ -29,22 +42,13 @@ repository:
       {
         include: "#comment"
       }
-    ]
-  "control-statement":
-    name: "keyword.control.ts"
-    match: "(?<!\\.)\\b(break|catch|continue|debugger|declare|do|else|finally|for|if|return|switch|throw|try|while|with|super|case|default)\\b"
-  "switch-case":
-    name: "case.expr.ts"
-    begin: "(?<!\\.)\\b(case|default)\\b"
-    beginCaptures:
-      "1":
-        name: "keyword.control.ts"
-    end: ":"
-    patterns: [
       {
         include: "#expression"
       }
     ]
+  "control-statement":
+    name: "keyword.control.ts"
+    match: "(?<!\\.)\\b(break|catch|continue|debugger|declare|do|else|finally|for|if|return|switch|throw|try|while|with|super|case|default)\\b"
   declaration:
     name: "meta.declaration.ts"
     patterns: [
@@ -135,6 +139,9 @@ repository:
     patterns: [
       {
         include: "#comment"
+      }
+      {
+        include: "#object-heritage"
       }
       {
         include: "#type-parameters"
@@ -250,7 +257,7 @@ repository:
         name: "entity.name.function.ts"
       "7":
         name: "keyword.operator.ts"
-    end: "(?=\\}|;|,|$)|(?<=\\})"
+    end: "(?=\\}|;|,)|(?<=\\})"
     patterns: [
       {
         include: "#comment"
@@ -273,15 +280,21 @@ repository:
     ]
   "method-overload-declaration":
     name: "meta.method.overload.declaration.ts"
-    match: "\\b(?:(public|private|protected)\\s+)?(?:(new)|(?:([a-zA-Z_$][\\.\\w$]*)\\s*(\\??)))?\\s*(?=\\(|\\<)"
+    match: "\\b(?:(abstract)\\s+)?\\b(?:(public|private|protected)\\s+)?\\b(?:(async)\\s+)?(?:(get|set)\\s+)?(?:(new)|(?:([a-zA-Z_$][\\.\\w$]*)\\s*(\\??)))?\\s*(?=\\(|\\<)"
     captures:
       "1":
         name: "storage.modifier.ts"
       "2":
-        name: "keyword.operator.ts"
+        name: "storage.modifier.ts"
       "3":
-        name: "entity.name.function.ts"
+        name: "storage.modifier.ts"
       "4":
+        name: "storage.type.property.ts"
+      "5":
+        name: "keyword.operator.ts"
+      "6":
+        name: "entity.name.function.ts"
+      "7":
         name: "keyword.operator.ts"
   "indexer-declaration":
     name: "meta.indexer.declaration.ts"
@@ -582,7 +595,7 @@ repository:
     patterns: [
       {
         comment: "Match ES6 \"import from\" syntax"
-        match: "(import).*(from)\\s+((['\"`]).*\\4)"
+        match: "\\b(import)\\b.*\\b(from)\\b\\s+((['\"]).*\\4)"
         captures:
           "1":
             name: "keyword.other.ts"
@@ -593,7 +606,7 @@ repository:
       }
       {
         comment: "Match import = require"
-        match: "(import)\\s*([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*=\\s*(require)\\s*\\((.*)\\)"
+        match: "\\b(import)\\s+([\\p{L}\\p{Nl}$_][\\p{L}\\p{Nl}$\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}\\x{200C}\\x{200D}]*)\\s*=\\s*(require)\\s*\\((.*)\\)"
         captures:
           "1":
             name: "keyword.other.ts"
@@ -678,6 +691,9 @@ repository:
         include: "#new-expr"
       }
       {
+        include: "#switch-statement"
+      }
+      {
         include: "#block"
       }
       {
@@ -702,10 +718,55 @@ repository:
         include: "#function-call"
       }
       {
-        include: "#switch-case"
+        include: "#case-clause"
       }
       {
         include: "#control-statement"
+      }
+    ]
+  "switch-expression":
+    name: "switch-expression.expr.ts"
+    begin: "\\b(switch)\\b\\s*\\("
+    beginCaptures:
+      "1":
+        name: "keyword.operator.ts"
+    end: "\\)"
+    patterns: [
+      {
+        include: "#expression"
+      }
+    ]
+  "switch-block":
+    name: "switch-block.expr.ts"
+    begin: "{"
+    end: "(?=\\})"
+    patterns: [
+      {
+        include: "#expression"
+      }
+    ]
+  "case-clause":
+    name: "case-clause.expr.ts"
+    begin: "(?<!\\.)\\b(case|default)\\b"
+    beginCaptures:
+      "1":
+        name: "keyword.control.ts"
+    end: ":"
+    patterns: [
+      {
+        include: "#expression"
+      }
+    ]
+  "switch-statement":
+    name: "switch-statement.expr.ts"
+    begin: "(?=\\bswitch\\b\\s*\\()"
+    end: "}"
+    patterns: [
+      {
+        include: "#switch-expression"
+      }
+      {
+        include: "#switch-block"
       }
     ]
   "for-in-simple":
@@ -770,7 +831,7 @@ repository:
     ]
   "expression-operator":
     name: "keyword.operator.ts"
-    match: "=>|\\b(delete|export|import|in|instanceof|module|namespace|new|typeof|void)\\b"
+    match: "=>|\\b(delete|export|import|from|in|instanceof|module|namespace|new|typeof|void|as)\\b"
   "arithmetic-operator":
     name: "keyword.operator.arithmetic.ts"
     match: "\\*|/|\\-\\-|\\-|\\+\\+|\\+|%"
