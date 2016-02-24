@@ -95,6 +95,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noErrorTruncation: { type: types.boolean },
     noFallthroughCasesInSwitch: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
+    disableCompileOnSave: { type: types.boolean },
     noImplicitReturns: { type: types.boolean },
     noLib: { type: types.boolean },
     noLibCheck: { type: types.boolean },
