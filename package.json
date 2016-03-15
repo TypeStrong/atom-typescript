@@ -71,7 +71,7 @@
     "js-yaml": "^3.5.2",
     "mz": "^2.1.0",
     "popsicle": "^3.0.1",
-    "typings": "^0.6.8"
+    "typings": "0.7.9"
   },
   "package-deps": [
     "linter"
