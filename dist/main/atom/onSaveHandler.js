@@ -13,7 +13,7 @@ function handle(event) {
     mainPanelView_1.show();
     parent.getProjectFileDetails({ filePath: event.filePath }).then(function (fileDetails) {
         if (fileDetails.project.compileOnSave
-            && !fileDetails.project.compilerOptions.out
+            && !fileDetails.project.compilerOptions.outFile
             && !fileDetails.project.buildOnSave) {
             textUpdated.then(function () { return parent.emitFile({ filePath: event.filePath }); })
                 .then(function (res) {

@@ -261,7 +261,7 @@ import dts = require("../../tsconfig/dts-generator");
 export function emitDts(proj: project.Project) {
 
     if (!proj.projectFile.project) return;
-    if (proj.projectFile.project.compilerOptions.out) return;
+    if (proj.projectFile.project.compilerOptions.outFile) return;
     if (!proj.projectFile.project.package) return;
     if (!proj.projectFile.project.package.directory) return;
     if (!proj.projectFile.project.package.definition) return;

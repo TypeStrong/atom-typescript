@@ -309,12 +309,12 @@ function rawToTsCompilerOptions(jsonOptions: CompilerOptions, projectDir: string
     }
 
     if (compilerOptions.out !== undefined) {
-        compilerOptions.out = path.resolve(projectDir, compilerOptions.out);
+        // Till out is removed. Support by just copying it to `outFile`
+        compilerOptions.outFile = path.resolve(projectDir, compilerOptions.out);
     }
 
     if (compilerOptions.outFile !== undefined) {
-        // Till out is removed. Support outFile by just copying it to `out`
-        compilerOptions.out = path.resolve(projectDir, compilerOptions.outFile);
+        compilerOptions.outFile = path.resolve(projectDir, compilerOptions.outFile);
     }
 
     return compilerOptions;
