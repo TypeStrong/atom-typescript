@@ -104,7 +104,7 @@ export function build(query: BuildQuery): Promise<BuildResponse> {
 
     let filesToEmit = proj.projectFile.project.files.filter(fte => !fte.toLowerCase().endsWith('.json'));
     /** I am assuming there was at least one file. How else would we even get here? */
-    filesToEmit = proj.projectFile.project.compilerOptions.out ? [filesToEmit[0]] : filesToEmit;
+    filesToEmit = proj.projectFile.project.compilerOptions.outFile ? [filesToEmit[0]] : filesToEmit;
 
     let totalCount = filesToEmit.length;
     var builtCount = 0;

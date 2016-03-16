@@ -232,7 +232,7 @@ function emitDts(proj) {
         externs: externs,
         name: name,
         target: proj.projectFile.project.compilerOptions.target,
-        out: outFile,
+        outFile: outFile,
         main: main,
         outDir: proj.projectFile.project.compilerOptions.outDir
     });

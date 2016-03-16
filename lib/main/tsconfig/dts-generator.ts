@@ -18,7 +18,7 @@ interface Options {
     indent?: string;
     main?: string;
     name: string;
-    out: string;
+    outFile: string;
     target?: ts.ScriptTarget;
     outDir?: string;
 }
@@ -122,8 +122,8 @@ export function generate(options: Options, sendMessage: (message: string) => voi
         externsMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
 
-    mkdirp.sync(pathUtil.dirname(options.out));
-    var output = fs.createWriteStream(options.out, <any>{ mode: parseInt('644', 8) });
+    mkdirp.sync(pathUtil.dirname(options.outFile));
+    var output = fs.createWriteStream(options.outFile, <any>{ mode: parseInt('644', 8) });
 
     var host = ts.createCompilerHost(compilerOptions);
     var program = ts.createProgram(filenames, compilerOptions, host);
@@ -143,7 +143,7 @@ export function generate(options: Options, sendMessage: (message: string) => voi
         output.on('error', reject);
 
         if (options.externs) {
-            let relativeRoot = pathUtil.dirname(options.out);
+            let relativeRoot = pathUtil.dirname(options.outFile);
             options.externs.forEach(function(path: string) {
                 sendMessage(`Writing external dependency ${path}`);
                 output.write(`/// <reference path="${makeRelativePath(relativeRoot, path)}" />${eol}`);
@@ -217,7 +217,7 @@ export function generate(options: Options, sendMessage: (message: string) => voi
                 }
                 else if (
                     node.kind === ts.SyntaxKind.StringLiteral &&
-                    (node.parent.kind === ts.SyntaxKind.ExportDeclaration 
+                    (node.parent.kind === ts.SyntaxKind.ExportDeclaration
                         || node.parent.kind === ts.SyntaxKind.ImportDeclaration)
                     ) {
                     var text = (<ts.StringLiteral>node).text;

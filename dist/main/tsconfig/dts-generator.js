@@ -83,8 +83,8 @@ function generate(options, sendMessage) {
     options.externs && options.externs.forEach(function (filename) {
         externsMap[consistentPath(pathUtil.resolve(baseDir, filename))] = true;
     });
-    mkdirp.sync(pathUtil.dirname(options.out));
-    var output = fs.createWriteStream(options.out, { mode: parseInt('644', 8) });
+    mkdirp.sync(pathUtil.dirname(options.outFile));
+    var output = fs.createWriteStream(options.outFile, { mode: parseInt('644', 8) });
     var host = ts.createCompilerHost(compilerOptions);
     var program = ts.createProgram(filenames, compilerOptions, host);
     var checker = ts.createTypeChecker(program, true);
@@ -98,7 +98,7 @@ function generate(options, sendMessage) {
         output.on('close', function () { resolve(undefined); });
         output.on('error', reject);
         if (options.externs) {
-            var relativeRoot_1 = pathUtil.dirname(options.out);
+            var relativeRoot_1 = pathUtil.dirname(options.outFile);
             options.externs.forEach(function (path) {
                 sendMessage("Writing external dependency " + path);
                 output.write("/// <reference path=\"" + makeRelativePath(relativeRoot_1, path) + "\" />" + eol);
