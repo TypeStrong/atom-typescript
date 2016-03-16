@@ -48,7 +48,7 @@ function build(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);
     var filesToEmit = proj.projectFile.project.files.filter(function (fte) { return !fte.toLowerCase().endsWith('.json'); });
-    filesToEmit = proj.projectFile.project.compilerOptions.out ? [filesToEmit[0]] : filesToEmit;
+    filesToEmit = proj.projectFile.project.compilerOptions.outFile ? [filesToEmit[0]] : filesToEmit;
     var totalCount = filesToEmit.length;
     var builtCount = 0;
     var errorCount = 0;

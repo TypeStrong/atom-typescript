@@ -302,7 +302,7 @@ export function emitDts(proj: project.Project) {
         name: name,
 
         target: proj.projectFile.project.compilerOptions.target,
-        out: outFile,
+        outFile: outFile,
 
         main: main,
 

@@ -150,10 +150,10 @@ function rawToTsCompilerOptions(jsonOptions, projectDir) {
         compilerOptions.rootDir = path.resolve(projectDir, compilerOptions.rootDir);
     }
     if (compilerOptions.out !== undefined) {
-        compilerOptions.out = path.resolve(projectDir, compilerOptions.out);
+        compilerOptions.outFile = path.resolve(projectDir, compilerOptions.out);
     }
     if (compilerOptions.outFile !== undefined) {
-        compilerOptions.out = path.resolve(projectDir, compilerOptions.outFile);
+        compilerOptions.outFile = path.resolve(projectDir, compilerOptions.outFile);
     }
     return compilerOptions;
 }
