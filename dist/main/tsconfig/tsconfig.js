@@ -47,7 +47,7 @@ var compilerOptionsValidation = {
     stripInternal: { type: types.boolean },
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
-    target: { type: types.string, validValues: ['es3', 'es5', 'es6'] },
+    target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
     version: { type: types.boolean },
     watch: { type: types.boolean },
 };
