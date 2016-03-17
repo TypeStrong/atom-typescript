@@ -71,6 +71,7 @@ var path = require('path');
 var tsconfig = require('tsconfig');
 var os = require('os');
 var detectIndent = require('detect-indent');
+var detectNewline = require('detect-newline');
 var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
@@ -221,7 +222,7 @@ function getProjectSync(pathOrSrcFile) {
         };
     }
     if (projectSpec.filesGlob) {
-        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
+        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent, detectNewline(projectFileTextContent));
         if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
         }
@@ -427,8 +428,9 @@ function getDefinitionsForNodeModules(projectDir, files) {
         .filter(function (x) { return existing[x]; });
     return { implicit: implicit, ours: ours, packagejson: packagejson };
 }
-function prettyJSON(object, indent) {
+function prettyJSON(object, indent, newLine) {
     if (indent === void 0) { indent = 4; }
+    if (newLine === void 0) { newLine = os.EOL; }
     var cache = [];
     var value = JSON.stringify(object, function (key, value) {
         if (typeof value === 'object' && value !== null) {
@@ -439,7 +441,7 @@ function prettyJSON(object, indent) {
         }
         return value;
     }, indent);
-    value = value.split('\n').join(os.EOL) + os.EOL;
+    value = value.replace(/(?:\r\n|\r|\n)/g, newLine) + newLine;
     cache = null;
     return value;
 }

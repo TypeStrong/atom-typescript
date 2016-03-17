@@ -212,6 +212,7 @@ import path = require('path');
 import tsconfig = require('tsconfig');
 import os = require('os');
 import detectIndent = require('detect-indent');
+import detectNewline = require('detect-newline');
 import extend = require('xtend');
 import formatting = require('./formatting');
 
@@ -406,7 +407,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     }
 
     if (projectSpec.filesGlob) { // for filesGlob we keep the files in sync
-        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent);
+        var prettyJSONProjectSpec = prettyJSON(projectSpec, detectIndent(projectFileTextContent).indent, detectNewline(projectFileTextContent));
 
         if (prettyJSONProjectSpec !== projectFileTextContent && projectSpec.atom.rewriteTsconfig) {
             fs.writeFileSync(projectFile, prettyJSONProjectSpec);
@@ -703,7 +704,7 @@ function getDefinitionsForNodeModules(projectDir: string, files: string[]): { ou
     return { implicit, ours, packagejson };
 }
 
-export function prettyJSON(object: any, indent: string | number = 4): string {
+export function prettyJSON(object: any, indent: string | number = 4, newLine: string = os.EOL): string {
     var cache = [];
     var value = JSON.stringify(
         object,
@@ -721,7 +722,7 @@ export function prettyJSON(object: any, indent: string | number = 4): string {
         },
         indent
     );
-    value = value.split('\n').join(os.EOL) + os.EOL;
+    value = value.replace(/(?:\r\n|\r|\n)/g, newLine) + newLine;
     cache = null;
     return value;
 }
