@@ -181,16 +181,18 @@ function consumeSnippets(snippetsManager) {
 exports.consumeSnippets = consumeSnippets;
 function waitForGrammarActivation() {
     var activated = false;
-    var deferred = Promise.defer();
-    var editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        if (activated)
-            return;
-        editor.observeGrammar(function (grammar) {
-            if (grammar.packageName === 'atom-typescript') {
-                activated = true;
-                deferred.resolve({});
-            }
+    var promise = new Promise(function (resolve, reject) {
+        var editorWatch = atom.workspace.observeTextEditors(function (editor) {
+            if (activated)
+                return;
+            editor.observeGrammar(function (grammar) {
+                if (grammar.packageName === 'atom-typescript') {
+                    activated = true;
+                    resolve({});
+                    editorWatch.dispose();
+                }
+            });
         });
     });
-    return deferred.promise.then(function () { return editorWatch.dispose(); });
+    return promise;
 }
