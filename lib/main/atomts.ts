@@ -321,17 +321,19 @@ export function consumeSnippets(snippetsManager) {
 
 function waitForGrammarActivation(): Promise<any> {
     let activated = false;
-    let deferred = Promise.defer();
-    let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+    const promise = new Promise((resolve,reject) => {
+        let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
-        // Just so we won't attach more events than necessary
-        if (activated) return;
-        editor.observeGrammar((grammar: AtomCore.IGrammar) => {
-            if (grammar.packageName === 'atom-typescript') {
-                activated = true;
-                deferred.resolve({});
-            }
+            // Just so we won't attach more events than necessary
+            if (activated) return;
+            editor.observeGrammar((grammar: AtomCore.IGrammar) => {
+                if (grammar.packageName === 'atom-typescript') {
+                    activated = true;
+                    resolve({});
+                    editorWatch.dispose();
+                }
+            });
         });
     });
-    return deferred.promise.then(() => editorWatch.dispose());
+    return promise;
 }

@@ -33,7 +33,7 @@ interface PromiseConstructor {
      * and a reject callback used to reject the promise with a provided reason or error.
      */
     new <T>(init: (resolve: (value?: T | Promise<T>) => void, reject: (reason?: any) => void) => void): Promise<T>;
- 
+
     <T>(init: (resolve: (value?: T | Promise<T>) => void, reject: (reason?: any) => void) => void): Promise<T>;
 
     /**
@@ -86,9 +86,6 @@ interface PromiseConstructor {
      * @returns A resolved promise.
      */
     resolve(): Promise<void>;
-
-    /// BAS ADDITIONS AFTER INSPECTION INTO ATOM
-    defer<T>(): PromiseDeferred<T>;
 }
 
 interface PromiseDeferred<T> {

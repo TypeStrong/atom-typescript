@@ -30,12 +30,13 @@ var RequesterResponder = (function () {
             if (!_this.currentListeners[message])
                 _this.currentListeners[message] = {};
             var id = createId();
-            var defer = Promise.defer();
-            _this.currentListeners[message][id] = defer;
+            var promise = new Promise(function (resolve, reject) {
+                _this.currentListeners[message][id] = { resolve: resolve, reject: reject, promise: promise };
+            });
             _this.pendingRequests.push(message);
             _this.pendingRequestsChanged(_this.pendingRequests);
             _this.getProcess().send({ message: message, id: id, data: data, request: true });
-            return defer.promise;
+            return promise;
         };
         this.responders = {};
         this.processRequest = function (m) {
@@ -120,12 +121,13 @@ var RequesterResponder = (function () {
                 if (_this.currentLastOfType[message]) {
                     _this.currentLastOfType[message].defer.resolve(defaultResponse);
                 }
-                var defer = Promise.defer();
-                _this.currentLastOfType[message] = {
-                    data: data,
-                    defer: defer
-                };
-                return defer.promise;
+                var promise_1 = new Promise(function (resolve, reject) {
+                    _this.currentLastOfType[message] = {
+                        data: data,
+                        defer: { promise: promise_1, resolve: resolve, reject: reject }
+                    };
+                });
+                return promise_1;
             }
         };
     };
