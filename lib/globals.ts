@@ -39,6 +39,11 @@ declare module 'detect-indent' {
     export = detectIndent;
 }
 
+declare module 'detect-newline' {
+    function detectNewline (string: string): string;
+    export = detectNewline;
+}
+
 declare module 'xtend' {
     function extend <T, U> (dest: T, src: U): T & U;
     export = extend;
