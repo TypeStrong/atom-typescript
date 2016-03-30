@@ -26,7 +26,7 @@ function emitFile(proj, filePath) {
     var output = services.getEmitOutput(filePath);
     var emitDone = !output.emitSkipped;
     var errors = [];
-    var sourceFile = services.getSourceFile(filePath);
+    var sourceFile = services.getNonBoundSourceFile(filePath);
     var allDiagnostics = services.getCompilerOptionsDiagnostics()
         .concat(services.getSyntacticDiagnostics(filePath))
         .concat(services.getSemanticDiagnostics(filePath));

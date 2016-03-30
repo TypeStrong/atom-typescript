@@ -35,7 +35,7 @@ export function emitFile(proj: project.Project, filePath: string): EmitOutput {
     var emitDone = !output.emitSkipped;
     var errors: CodeError[] = [];
 
-    let sourceFile = services.getSourceFile(filePath);
+    let sourceFile = services.getNonBoundSourceFile(filePath);
 
     // Emit is no guarantee that there are no errors
     // so lets collect those
@@ -180,7 +180,7 @@ function runExternalTranspiler(sourceFileName: string,
         if (externalTranspiler.name.toLocaleLowerCase() === "babel") {
             return getBabelInstance(project.projectFile.projectFileDirectory).then((babel) => {
 
-                let babelOptions: any = assign(babelConfigs[project.projectFile.projectFileDirectory] || {}, externalTranspiler.options || {}, {
+                let babelOptions: any = assign(babelConfigs[project.projectFile.projectFileDirectory] || {}, (externalTranspiler as any).options || {}, {
                     filename: outputFile.name
                 });
 
