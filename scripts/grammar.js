@@ -22,7 +22,7 @@ var atomPatterns = [
         name: 'keyword.other.ts'
       },
       '2': {
-        name: 'reference.path.string'
+        name: 'reference.path.string.quoted'
       },
       '3': {
         name: 'keyword.other.ts'
@@ -37,7 +37,7 @@ var atomPatterns = [
         name: 'keyword.other.ts'
       },
       '2': {
-        name: 'amd.path.string'
+        name: 'amd.path.string.quoted'
       },
       '3': {
         name: 'keyword.other.ts'
@@ -52,7 +52,7 @@ var atomPatterns = [
         name: 'keyword.other.ts'
       },
       '2': {
-        name: 'amd.path.string'
+        name: 'amd.path.string.quoted'
       },
       '3': {
         name: 'keyword.other.ts'
@@ -73,7 +73,7 @@ var atomPatterns = [
         name: 'keyword.other.ts'
       },
       '4': {
-        name: 'require.path.string'
+        name: 'require.path.string.quoted'
       }
     }
   },
@@ -88,7 +88,7 @@ var atomPatterns = [
         name: 'keyword.other.ts'
       },
       '3': {
-        name: 'es6import.path.string'
+        name: 'es6import.path.string.quoted'
       }
     }
   }
@@ -99,8 +99,23 @@ Promise.all([
   request('https://raw.githubusercontent.com/Microsoft/TypeScript-TmLanguage/master/TypeScriptReact.YAML-tmLanguage')
 ])
   .then(function (result) {
+    var name
     var ts = yaml.safeLoad(result[0].body)
     var tsx = yaml.safeLoad(result[1].body)
+
+    for(var key in ts.repository) {
+      name = ts.repository[key].name
+      if(name && name.indexOf('string.quoted') === -1) {
+        ts.repository[key].name = name.replace('string', 'string.quoted')
+      }
+    }
+
+    for(var key in tsx.repository) {
+      name = tsx.repository[key].name
+      if(name && name.indexOf('string.quoted') === -1) {
+        tsx.repository[key].name = name.replace('string', 'string.quoted')
+      }
+    }
 
     atomPatterns.forEach(function (pattern) {
       ts.repository.expression.patterns.unshift(pattern)
