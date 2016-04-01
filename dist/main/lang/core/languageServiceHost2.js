@@ -1,6 +1,7 @@
 "use strict";
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 var textBuffer = require('basarat-text-buffer');
 function createScriptInfo(fileName, text, isOpen) {
     if (isOpen === void 0) { isOpen = false; }
@@ -206,6 +207,18 @@ var LanguageServiceHost = (function () {
             return { preview: preview, position: position };
         };
         this.getCompilationSettings = function () { return _this.config.project.compilerOptions; };
+        this.getNewLine = function () {
+            var eol = os.EOL;
+            switch (_this.config.project.compilerOptions.newLine) {
+                case ts.NewLineKind.CarriageReturnLineFeed:
+                    eol = "\r\n";
+                    break;
+                case ts.NewLineKind.LineFeed:
+                    eol = "\n";
+                    break;
+            }
+            return eol;
+        };
         this.getScriptFileNames = function () { return Object.keys(_this.fileNameToScript); };
         this.getScriptVersion = function (fileName) {
             var script = _this.fileNameToScript[fileName];
