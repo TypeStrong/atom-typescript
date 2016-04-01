@@ -26,7 +26,7 @@ If you have `tsconfig.json` in a folder that contains `node_modules`, atom-types
 Set `compileOnSave : false` in your tsconfig.json (https://github.com/TypeStrong/atom-typescript/blob/master/docs/tsconfig.md#compileonsave).  Then you've got all the intellisense / refactoring goodness of atom-typescript but no generated JavaScript.  Why is this useful?  Well you might be using something else for your build such as [ts-loader](https://github.com/TypeStrong/ts-loader) or [tsify](https://github.com/TypeStrong/tsify) or [gulp-typescript](https://github.com/ivogabe/gulp-typescript).
 
 ## Which version of TypeScript does atom-typescript use?
-It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness.  There is a possibility that in the future it will move to TypeScript nightlies but our current automation is working well.
+It uses [ntypescript](https://github.com/TypeStrong/ntypescript) which is just a build of Microsoft/Master.  This means it's the latest and greatest of the TypeScript goodness (You can see the last date it was updated in our [`package.json`](https://github.com/TypeStrong/atom-typescript/blob/master/package.json) e.g. `"ntypescript": "1.201603290104.1",` means `2016-03-29`).  There is a possibility that in the future it will move to TypeScript nightlies but our current automation is working well.
 
 ## Can I use a custom TypeScript compiler?
 If it conforms the latest TypeScript services API then yes! Just set the path to `typescriptServices.js` in the package options.  
