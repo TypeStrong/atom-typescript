@@ -16,6 +16,7 @@ var types = simpleValidator.types;
  * 	3 If its a path : Update the `make relative` code
  */
 interface CompilerOptions {
+    allowJs?: boolean;
     allowNonTsExtensions?: boolean;
     allowSyntheticDefaultImports?: boolean;
     allowUnreachableCode?: boolean;
@@ -67,6 +68,7 @@ interface CompilerOptions {
 }
 
 var compilerOptionsValidation: simpleValidator.ValidationInfo = {
+    allowJs: { type: types.boolean },
     allowNonTsExtensions: { type: types.boolean },
     allowSyntheticDefaultImports: { type: types.boolean },
     allowUnreachableCode: { type: types.boolean },
