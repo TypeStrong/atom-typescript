@@ -602,7 +602,7 @@ repository:
           "2":
             name: "keyword.other.ts"
           "3":
-            name: "es6import.path.string"
+            name: "es6import.path.quoted.string"
       }
       {
         comment: "Match import = require"
@@ -615,7 +615,7 @@ repository:
           "3":
             name: "keyword.other.ts"
           "4":
-            name: "require.path.string"
+            name: "require.path.quoted.string"
       }
       {
         comment: "Match <amd-module"
@@ -624,7 +624,7 @@ repository:
           "1":
             name: "keyword.other.ts"
           "2":
-            name: "amd.path.string"
+            name: "amd.path.quoted.string"
           "3":
             name: "keyword.other.ts"
       }
@@ -635,7 +635,7 @@ repository:
           "1":
             name: "keyword.other.ts"
           "2":
-            name: "amd.path.string"
+            name: "amd.path.quoted.string"
           "3":
             name: "keyword.other.ts"
       }
@@ -646,7 +646,7 @@ repository:
           "1":
             name: "keyword.other.ts"
           "2":
-            name: "reference.path.string"
+            name: "reference.path.quoted.string"
           "3":
             name: "keyword.other.ts"
       }
@@ -847,7 +847,7 @@ repository:
       }
     ]
   "qstring-double":
-    name: "string.double.tsx"
+    name: "string.quoted.double.tsx"
     begin: "\""
     end: "\"|(?=$)"
     patterns: [
@@ -856,7 +856,7 @@ repository:
       }
     ]
   "qstring-single":
-    name: "string.single.tsx"
+    name: "string.quoted.single.tsx"
     begin: "'"
     end: "'|(?=$)"
     patterns: [
@@ -865,7 +865,7 @@ repository:
       }
     ]
   regex:
-    name: "string.regex.tsx"
+    name: "string.quoted.regex.tsx"
     begin: "(?<=[=(:,\\[]|^|return|&&|\\|\\||!)\\s*(/)(?![/*+{}?])"
     end: "$|(/)[igm]*"
     patterns: [
@@ -893,11 +893,11 @@ repository:
     begin: "`"
     beginCaptures:
       "0":
-        name: "string.template.tsx"
+        name: "string.quoted.template.tsx"
     end: "`"
     endCaptures:
       "0":
-        name: "string.template.tsx"
+        name: "string.quoted.template.tsx"
     patterns: [
       {
         include: "#template-substitution-element"
@@ -907,7 +907,7 @@ repository:
       }
     ]
   "template-string-contents":
-    name: "string.template.tsx"
+    name: "string.quoted.template.tsx"
     begin: ".*?"
     end: "(?=(\\$\\{|`))"
     patterns: [
