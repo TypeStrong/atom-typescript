@@ -1,6 +1,7 @@
 import path = require('path');
 import utils = require('../utils');
 import fs = require('fs');
+import os = require('os')
 import textBuffer = require('basarat-text-buffer');
 
 import tsconfig = require('../../tsconfig/tsconfig');
@@ -328,6 +329,18 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
     ////////////////////////////////////////
 
     getCompilationSettings = () => this.config.project.compilerOptions;
+    getNewLine = () => {
+        let eol = os.EOL;
+        switch (this.config.project.compilerOptions.newLine) {
+            case ts.NewLineKind.CarriageReturnLineFeed:
+                eol = "\r\n";
+                break;
+            case ts.NewLineKind.LineFeed:
+                eol = "\n";
+                break;
+        }
+        return eol;
+    }
     getScriptFileNames = (): string[]=> Object.keys(this.fileNameToScript);
     getScriptVersion = (fileName: string): string => {
         var script = this.fileNameToScript[fileName];

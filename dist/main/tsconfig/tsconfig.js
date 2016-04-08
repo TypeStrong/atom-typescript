@@ -141,7 +141,9 @@ function rawToTsCompilerOptions(jsonOptions, projectDir) {
     var compilerOptions = mixin({}, exports.defaults);
     for (var key in jsonOptions) {
         if (typescriptEnumMap[key]) {
-            compilerOptions[key] = typescriptEnumMap[key][jsonOptions[key].toLowerCase()];
+            var name_1 = jsonOptions[key];
+            var map = typescriptEnumMap[key];
+            compilerOptions[key] = map[name_1.toLowerCase()] || map[name_1.toUpperCase()];
         }
         else {
             compilerOptions[key] = jsonOptions[key];
