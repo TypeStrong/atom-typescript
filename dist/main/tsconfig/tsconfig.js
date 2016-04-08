@@ -3,6 +3,7 @@ var fsu = require("../utils/fsUtil");
 var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
+    allowJs: { type: types.boolean },
     allowNonTsExtensions: { type: types.boolean },
     allowSyntheticDefaultImports: { type: types.boolean },
     allowUnreachableCode: { type: types.boolean },
