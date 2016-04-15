@@ -44,6 +44,7 @@ var compilerOptionsValidation = {
     preserveConstEnums: { type: types.boolean },
     removeComments: { type: types.boolean },
     rootDir: { type: types.string },
+    skipDefaultLibCheck: { type: types.boolean },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
     stripInternal: { type: types.boolean },

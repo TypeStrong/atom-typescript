@@ -57,6 +57,7 @@ interface CompilerOptions {
     preserveConstEnums?: boolean;
     removeComments?: boolean;                         // Do not emit comments in output
     rootDir?: string;
+    skipDefaultLibCheck?: boolean;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     stripInternal?: boolean;
@@ -109,6 +110,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     preserveConstEnums: { type: types.boolean },
     removeComments: { type: types.boolean },
     rootDir: { type: types.string },
+    skipDefaultLibCheck: { type: types.boolean },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
     stripInternal: { type: types.boolean },
