@@ -837,13 +837,13 @@ repository:
     match: "\\*|/|\\-\\-|\\-|\\+\\+|\\+|%"
   "relational-operator":
     name: "keyword.operator.comparison.ts"
-    match: "===|==|=|!=|!==|<=|>=|<>|<|>"
+    match: "===|!==|==|!=|<=|>=|<>|=|<|>"
   "assignment-operator":
     name: "keyword.operator.assignment.ts"
-    match: "<<=|>>=|>>>=|\\*=|(?<!\\()/=|%=|\\+=|\\-=|&=|\\^="
+    match: "<<=|>>>=|>>=|\\*=|(?<!\\()/=|%=|\\+=|\\-=|&=|\\^="
   "logic-operator":
     name: "keyword.operator.arithmetic.ts"
-    match: "\\!|&|~|\\||&&|\\|\\|"
+    match: "\\!|&&|&|~|\\||\\|\\|"
   "storage-keyword":
     name: "storage.type.ts"
     match: "\\b(number|boolean|string|any|var|let|function|const)\\b"
