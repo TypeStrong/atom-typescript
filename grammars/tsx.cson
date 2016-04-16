@@ -822,13 +822,13 @@ repository:
     match: "\\*|/|\\-\\-|\\-|\\+\\+|\\+|%"
   "relational-operator":
     name: "keyword.operator.comparison.tsx"
-    match: "===|==|=|!=|!==|<=|>=|<>|<|>"
+    match: "===|!==|==|!=|<=|>=|<>|=|<|>"
   "assignment-operator":
     name: "keyword.operator.assignment.tsx"
-    match: "<<=|>>=|>>>=|\\*=|(?<!\\()/=|%=|\\+=|\\-=|&=|\\^="
+    match: "<<=|>>>=|>>=|\\*=|(?<!\\()/=|%=|\\+=|\\-=|&=|\\^="
   "logic-operator":
     name: "keyword.operator.arithmetic.tsx"
-    match: "\\!|&|~|\\||&&|\\|\\|"
+    match: "\\!|&&|&|~|\\||\\|\\|"
   "storage-keyword":
     name: "storage.type.tsx"
     match: "\\b(number|boolean|string|any|var|let|function|const)\\b"
