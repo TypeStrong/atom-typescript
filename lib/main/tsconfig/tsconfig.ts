@@ -29,6 +29,7 @@ interface CompilerOptions {
     experimentalAsyncFunctions?: boolean;
     experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
+    forceConsistentCasingInFileNames?: boolean;
     help?: boolean;
     isolatedModules?: boolean;
     inlineSourceMap?: boolean;
@@ -51,10 +52,13 @@ interface CompilerOptions {
     noLib?: boolean;
     noLibCheck?: boolean;
     noResolve?: boolean;
-    out?: string;
+    out?: string;                                     // Deprecated. Use outFile instead
     outFile?: string;                                 // new name for out
     outDir?: string;                                  // Redirect output structure to this directory
     preserveConstEnums?: boolean;
+    pretty?: boolean;                                 // Experimental
+    project?: string;
+    reactNamespace?: string;
     removeComments?: boolean;                         // Do not emit comments in output
     rootDir?: string;
     skipDefaultLibCheck?: boolean;
@@ -82,6 +86,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     experimentalAsyncFunctions: { type: types.boolean },
     experimentalDecorators: { type: types.boolean },
     emitDecoratorMetadata: { type: types.boolean },
+    forceConsistentCasingInFileNames: { type: types.boolean },
     help: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
@@ -108,6 +113,9 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     outFile: { type: types.string },
     outDir: { type: types.string },
     preserveConstEnums: { type: types.boolean },
+    pretty: { type: types.boolean },
+    project: { type: types.string },
+    reactNamespace: { type: types.string },
     removeComments: { type: types.boolean },
     rootDir: { type: types.string },
     skipDefaultLibCheck: { type: types.boolean },
@@ -233,7 +241,7 @@ var defaultFilesGlob = [
     "!node_modules/**",
 ];
 /**
- * This is what we use when the user doens't specify a files / filesGlob
+ * This is what we use when the user doesn't specify a files / filesGlob
  */
 var invisibleFilesGlob = '{**/*.ts,**/*.tsx}';
 
