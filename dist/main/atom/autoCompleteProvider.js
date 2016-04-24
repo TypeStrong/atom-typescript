@@ -22,10 +22,10 @@ exports.provider = {
             return Promise.resolve([]);
         if (!fs.existsSync(filePath))
             return Promise.resolve([]);
-        var pathMatchers = ['reference.path.quoted.string', 'require.path.quoted.string', 'es6import.path.quoted.string'];
+        var pathMatchers = ['reference.path.string.quoted', 'require.path.string.quoted', 'es6import.path.string.quoted'];
         var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
         if (pathMatchers.some(function (p) { return lastScope === p; })) {
-            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.quoted.string' })
+            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.string.quoted' })
                 .then(function (resp) {
                 return resp.files.map(function (file) {
                     var relativePath = file.relativePath;
@@ -36,17 +36,17 @@ exports.provider = {
                         rightLabelHTML: '<span>' + file.name + '</span>',
                         type: 'path'
                     };
-                    if (lastScope == 'reference.path.quoted.string') {
+                    if (lastScope == 'reference.path.string.quoted') {
                         suggestion.atomTS_IsReference = {
                             relativePath: relativePath
                         };
                     }
-                    if (lastScope == 'require.path.quoted.string') {
+                    if (lastScope == 'require.path.string.quoted') {
                         suggestion.atomTS_IsImport = {
                             relativePath: relativePath
                         };
                     }
-                    if (lastScope == 'es6import.path.quoted.string') {
+                    if (lastScope == 'es6import.path.string.quoted') {
                         suggestion.atomTS_IsES6Import = {
                             relativePath: relativePath
                         };
