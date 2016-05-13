@@ -22,6 +22,10 @@ function isAPartOfAChainOfStringAdditions(node, typeChecker) {
 }
 var StringConcatToTemplate = (function () {
     function StringConcatToTemplate() {
+        this.backTickCharacter = '`';
+        this.backTick = new RegExp(this.backTickCharacter, 'g');
+        this.$regex = /\$/g;
+        this.finalOutput = [];
         this.key = StringConcatToTemplate.name;
     }
     StringConcatToTemplate.prototype.canProvideFix = function (info) {
@@ -32,46 +36,21 @@ var StringConcatToTemplate = (function () {
     };
     StringConcatToTemplate.prototype.provideFix = function (info) {
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
-        var finalOutput = [];
         var current = strRoot;
-        var backTickCharacter = '`';
-        var backTick = new RegExp(backTickCharacter, 'g');
-        var $regex = /\$/g;
         while (true) {
-            function appendToFinal(node) {
-                if (node.kind == ts.SyntaxKind.StringLiteral) {
-                    var text = node.getText();
-                    var quoteCharacter = text.trim()[0];
-                    var quoteRegex = new RegExp(quoteCharacter, 'g');
-                    var escapedQuoteRegex = new RegExp("\\\\" + quoteCharacter, 'g');
-                    var newText_1 = text
-                        .replace(backTick, "\\" + backTickCharacter)
-                        .replace(escapedQuoteRegex, quoteCharacter)
-                        .replace($regex, '\\$');
-                    newText_1 = newText_1.substr(1, newText_1.length - 2);
-                    finalOutput.unshift(newText_1);
-                }
-                else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
-                    var text = node.getText();
-                    text = text.trim();
-                    text = text.substr(1, text.length - 2);
-                    finalOutput.unshift(text);
-                }
-                else {
-                    finalOutput.unshift('${' + node.getText() + '}');
-                }
-            }
             if (current.kind == ts.SyntaxKind.BinaryExpression) {
                 var binary = current;
-                appendToFinal(binary.right);
+                this.appendToFinal(binary.right);
                 current = binary.left;
             }
             else {
-                appendToFinal(current);
+                this.appendToFinal(current);
                 break;
             }
         }
-        var newText = backTickCharacter + finalOutput.join('') + backTickCharacter;
+        var newText = this.backTickCharacter +
+            this.finalOutput.join('') +
+            this.backTickCharacter;
         var refactoring = {
             span: {
                 start: strRoot.getStart(),
@@ -81,6 +60,29 @@ var StringConcatToTemplate = (function () {
             filePath: info.filePath
         };
         return [refactoring];
+    };
+    StringConcatToTemplate.prototype.appendToFinal = function (node) {
+        if (node.kind == ts.SyntaxKind.StringLiteral) {
+            var text = node.getText();
+            var quoteCharacter = text.trim()[0];
+            var quoteRegex = new RegExp(quoteCharacter, 'g');
+            var escapedQuoteRegex = new RegExp("\\\\" + quoteCharacter, 'g');
+            var newText = text
+                .replace(this.backTick, "\\" + this.backTickCharacter)
+                .replace(escapedQuoteRegex, quoteCharacter)
+                .replace(this.$regex, '\\$');
+            newText = newText.substr(1, newText.length - 2);
+            this.finalOutput.unshift(newText);
+        }
+        else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
+            var text = node.getText();
+            text = text.trim();
+            text = text.substr(1, text.length - 2);
+            this.finalOutput.unshift(text);
+        }
+        else {
+            this.finalOutput.unshift('${' + node.getText() + '}');
+        }
     };
     return StringConcatToTemplate;
 }());

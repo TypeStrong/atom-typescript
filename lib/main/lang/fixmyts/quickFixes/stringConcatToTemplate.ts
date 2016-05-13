@@ -33,6 +33,10 @@ function isAPartOfAChainOfStringAdditions(node: ts.Node, typeChecker: ts.TypeChe
 }
 
 export class StringConcatToTemplate implements QuickFix {
+    backTickCharacter = '`';
+    backTick = new RegExp(this.backTickCharacter, 'g');
+    $regex = /\$/g;
+    finalOutput: string[] = [];
     key = StringConcatToTemplate.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -50,66 +54,27 @@ export class StringConcatToTemplate implements QuickFix {
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
-
-        let finalOutput: string[] = [];
-
         let current: ts.Node = strRoot;
-
-        var backTickCharacter = '`';
-        var backTick = new RegExp(backTickCharacter, 'g');
-        var $regex = /\$/g;
 
         // We pop of each left node one by one
         while (true) {
-
-            function appendToFinal(node: ts.Node) {
-                // Each string literal needs :
-                // to be checked that it doesn't contain (`) and those need to be escaped.
-                // Also `$` needs escaping
-                // Also the quote characters at the limits need to be removed
-                if (node.kind == ts.SyntaxKind.StringLiteral) {
-                    let text = node.getText();
-                    let quoteCharacter = text.trim()[0];
-
-                    let quoteRegex = new RegExp(quoteCharacter, 'g')
-                    let escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
-
-                    let newText = text
-                        .replace(backTick, `\\${backTickCharacter}`)
-                        .replace(escapedQuoteRegex, quoteCharacter)
-                        .replace($regex, '\\$');
-
-                    newText = newText.substr(1, newText.length - 2);
-                    finalOutput.unshift(newText);
-                }
-                else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral)
-                {
-                    let text = node.getText();
-                    text = text.trim();
-                    text = text.substr(1, text.length - 2);
-                    finalOutput.unshift(text);
-                }
-                // Each expression that isn't a string literal will just be escaped `${}`
-                else {
-                    finalOutput.unshift('${' + node.getText() + '}');
-                }
-            }
-
             // if we are still in some sequence of additions
             if (current.kind == ts.SyntaxKind.BinaryExpression) {
                 let binary = <ts.BinaryExpression>current;
-                appendToFinal(binary.right);
+                this.appendToFinal(binary.right);
 
                 // Continue with left
                 current = binary.left;
             }
             else {
-                appendToFinal(current);
+                this.appendToFinal(current);
                 break;
             }
         }
 
-        let newText = backTickCharacter + finalOutput.join('') + backTickCharacter;
+        let newText = this.backTickCharacter +
+                      this.finalOutput.join('') +
+                      this.backTickCharacter;
 
         var refactoring: Refactoring = {
             span: {
@@ -121,5 +86,37 @@ export class StringConcatToTemplate implements QuickFix {
         };
 
         return [refactoring];
+    }
+
+    private appendToFinal(node: ts.Node) {
+        // Each string literal needs :
+        // to be checked that it doesn't contain (`) and those need to be escaped.
+        // Also `$` needs escaping
+        // Also the quote characters at the limits need to be removed
+        if (node.kind == ts.SyntaxKind.StringLiteral) {
+            let text = node.getText();
+            let quoteCharacter = text.trim()[0];
+
+            let quoteRegex = new RegExp(quoteCharacter, 'g')
+            let escapedQuoteRegex = new RegExp(`\\\\${quoteCharacter}`, 'g')
+
+            let newText = text
+                .replace(this.backTick, `\\${this.backTickCharacter}`)
+                .replace(escapedQuoteRegex, quoteCharacter)
+                .replace(this.$regex, '\\$');
+
+            newText = newText.substr(1, newText.length - 2);
+            this.finalOutput.unshift(newText);
+        }
+        else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
+            let text = node.getText();
+            text = text.trim();
+            text = text.substr(1, text.length - 2);
+            this.finalOutput.unshift(text);
+        }
+        // Each expression that isn't a string literal will just be escaped `${}`
+        else {
+            this.finalOutput.unshift('${' + node.getText() + '}');
+        }
     }
 }
