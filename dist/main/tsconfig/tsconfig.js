@@ -51,6 +51,7 @@ var compilerOptionsValidation = {
     skipDefaultLibCheck: { type: types.boolean },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
+    strictNullChecks: { type: types.boolean },
     stripInternal: { type: types.boolean },
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
