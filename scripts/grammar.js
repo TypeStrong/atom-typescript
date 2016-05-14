@@ -101,7 +101,7 @@ var atomPatterns = [
     beginCaptures: {
       '1': { name: 'name: string.template.ts' }
     },
-    end: '`',
+    end: '(?<!\\\\)`',
     endCaptures: {
       '0': { name: 'name: string.template.ts' }
     },
