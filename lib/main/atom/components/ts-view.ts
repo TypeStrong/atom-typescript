@@ -1,14 +1,16 @@
 // Some docs
 // http://www.html5rocks.com/en/tutorials/webcomponents/customelements/ (look at lifecycle callback methods)
 
+import escapeHtml = require("escape-html");
+
 export class TsView extends HTMLElement {
     editorElement;
     editor;
     createdCallback() {
-        var preview = this.innerText;
+        var preview = escapeHtml(this.innerText);
         this.innerText = "";
 
-        // Based on markdown editor 
+        // Based on markdown editor
         // https://github.com/atom/markdown-preview/blob/2bcbadac3980f1aeb455f7078bd1fdfb4e6fe6b1/lib/renderer.coffee#L111
         var editorElement = this.editorElement = document.createElement('atom-text-editor');
         editorElement.setAttributeNode(document.createAttribute('gutter-hidden'));
@@ -22,10 +24,10 @@ export class TsView extends HTMLElement {
 
         this.appendChild(editorElement);
     }
-    
-    // API 
+
+    // API
     text(text: string) {
-        this.editor.setText(text);
+        this.editor.setText(escapeHtml(text));
     }
 }
 
