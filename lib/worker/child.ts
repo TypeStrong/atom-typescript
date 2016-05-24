@@ -5,6 +5,8 @@ if (process.argv.length > 2) {
 // setup typescript
 import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
 makeTsGlobal(typescriptServices);
+import {setTypescriptServices} from "../main/lang/typescriptServices";
+setTypescriptServices(typescriptServices);
 
 import workerLib = require('./lib/workerLib');
 

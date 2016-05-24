@@ -92,6 +92,7 @@
         "./main/lang/transformers/implementations/nullTransformer.ts",
         "./main/lang/transformers/transformer.ts",
         "./main/lang/transformers/transformerRegistry.ts",
+        "./main/lang/typescriptServices.ts",
         "./main/lang/utils.ts",
         "./main/react/htmltotsx.ts",
         "./main/tsconfig/dts-generator.ts",
