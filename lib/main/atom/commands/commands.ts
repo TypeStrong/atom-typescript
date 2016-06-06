@@ -8,6 +8,7 @@ import renameView = require("../views/renameView");
 import contextView = require("../views/contextView");
 import fileSymbolsView = require("../views/fileSymbolsView");
 import projectSymbolsView = require("../views/projectSymbolsView");
+import {create as createTypeOverlay} from "../views/typeOverlayView";
 import gotoHistory = require("../gotoHistory");
 import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
@@ -318,6 +319,38 @@ export function registerCommands() {
                 });
             });
         }
+    });
+
+    atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {
+      var editor = atom.workspace.getActiveTextEditor();
+      var editorView = atom.views.getView(editor);
+      var cursor = editor.getLastCursor()
+      var position = atomUtils.getEditorPositionForBufferPosition(editor, cursor.getBufferPosition());
+      var filePath = editor.getPath();
+      parent.quickInfo({ filePath, position }).then((resp) => {
+        if (resp.valid) {
+          var decoration = editor.decorateMarker(cursor.getMarker(), {
+            type: 'overlay',
+            item: createTypeOverlay(resp.name, resp.comment)
+          });
+
+          var onKeydown = (e) => {
+            if (e.keyCode == 27) { // esc
+              destroyTypeOverlay();
+            }
+          };
+          var destroyTypeOverlay = () => {
+            decoration.destroy();
+            cursorListener.dispose();
+            editorView.removeEventListener('blur', destroyTypeOverlay);
+            editorView.removeEventListener('keydown', onKeydown);
+          };
+
+          var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
+          editorView.addEventListener('blur', destroyTypeOverlay);
+          editorView.addEventListener('keydown', onKeydown);
+        }
+      });
     });
 
     atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {
