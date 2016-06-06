@@ -11,6 +11,7 @@ var renameView = require("../views/renameView");
 var contextView = require("../views/contextView");
 var fileSymbolsView = require("../views/fileSymbolsView");
 var projectSymbolsView = require("../views/projectSymbolsView");
+var typeOverlayView_1 = require("../views/typeOverlayView");
 var gotoHistory = require("../gotoHistory");
 var utils = require("../../lang/utils");
 var mainPanelView_1 = require("../views/mainPanelView");
@@ -243,6 +244,35 @@ function registerCommands() {
                 });
             });
         }
+    });
+    atom.commands.add('atom-workspace', 'typescript:show-type', function (e) {
+        var editor = atom.workspace.getActiveTextEditor();
+        var editorView = atom.views.getView(editor);
+        var cursor = editor.getLastCursor();
+        var position = atomUtils.getEditorPositionForBufferPosition(editor, cursor.getBufferPosition());
+        var filePath = editor.getPath();
+        parent.quickInfo({ filePath: filePath, position: position }).then(function (resp) {
+            if (resp.valid) {
+                var decoration = editor.decorateMarker(cursor.getMarker(), {
+                    type: 'overlay',
+                    item: typeOverlayView_1.create(resp.name, resp.comment)
+                });
+                var onKeydown = function (e) {
+                    if (e.keyCode == 27) {
+                        destroyTypeOverlay();
+                    }
+                };
+                var destroyTypeOverlay = function () {
+                    decoration.destroy();
+                    cursorListener.dispose();
+                    editorView.removeEventListener('blur', destroyTypeOverlay);
+                    editorView.removeEventListener('keydown', onKeydown);
+                };
+                var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
+                editorView.addEventListener('blur', destroyTypeOverlay);
+                editorView.addEventListener('keydown', onKeydown);
+            }
+        });
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-next', function (e) {
         gotoHistory.gotoNext();

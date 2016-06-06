@@ -58,6 +58,7 @@
         "./main/atom/views/simpleOverlaySelectionView.ts",
         "./main/atom/views/simpleSelectionView.ts",
         "./main/atom/views/tooltipView.ts",
+        "./main/atom/views/typeOverlayView.ts",
         "./main/atom/views/view.ts",
         "./main/atomts.ts",
         "./main/bin/atbuild.ts",
