@@ -70,6 +70,7 @@ interface CompilerOptions {
     target?: string;                                  // 'es3'|'es5' (default)|'es6'|'es2015'
     version?: boolean;
     watch?: boolean;
+    lib?: string[];
 }
 
 var compilerOptionsValidation: simpleValidator.ValidationInfo = {
@@ -128,6 +129,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
     version: { type: types.boolean },
     watch: { type: types.boolean },
+    lib: { type: types.array }
 }
 var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 
