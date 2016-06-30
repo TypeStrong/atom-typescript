@@ -1,5 +1,11 @@
 # FAQ
 
+## Syntax Highlighting is bad
+
+For grammar issues go here : https://github.com/Microsoft/TypeScript-TmLanguage/issues and link back to us if you want us to pull from upstream 🌹.
+
+More on how our grammar is managed : https://github.com/TypeStrong/atom-typescript/blob/master/docs/grammar.md
+
 ## I keep getting changes to tsconfig.json
 This is probably because of us keeping `files` updated with the `filesGlob` option. The reason why we do this is because the official `tsconfig.json` spec does not support `filesGlob`. Therefore we keep `files` in sync with the `filesGlob` so that your team mates can use whatever editor they prefer (sublime text, visual studio etc.).
 
