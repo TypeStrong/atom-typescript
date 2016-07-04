@@ -369,7 +369,7 @@ export function getDefaultInMemoryProject(srcFile: string): TypeScriptProjectFil
         compileOnSave: true,
         buildOnSave: false,
         scripts: {},
-        atom: { rewriteTsconfig: true, formatOnSave: false },
+        atom: { rewriteTsconfig: false, formatOnSave: false },
     };
 
     return {
@@ -420,7 +420,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
     /** Setup defaults for atom key */
     if (!projectSpec.atom) {
         projectSpec.atom = {
-            rewriteTsconfig: true,
+            rewriteTsconfig: false,
         }
     }
 
@@ -461,7 +461,7 @@ export function getProjectSync(pathOrSrcFile: string): TypeScriptProjectFileDeta
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
-        atom: { rewriteTsconfig: true, formatOnSave: !!projectSpec.atom.formatOnSave }
+        atom: { rewriteTsconfig: false, formatOnSave: !!projectSpec.atom.formatOnSave }
     };
 
     // Validate the raw compiler options before converting them to TS compiler options

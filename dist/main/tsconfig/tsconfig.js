@@ -193,7 +193,7 @@ function getDefaultInMemoryProject(srcFile) {
         compileOnSave: true,
         buildOnSave: false,
         scripts: {},
-        atom: { rewriteTsconfig: true, formatOnSave: false },
+        atom: { rewriteTsconfig: false, formatOnSave: false },
     };
     return {
         projectFileDirectory: dir,
@@ -229,7 +229,7 @@ function getProjectSync(pathOrSrcFile) {
     }
     if (!projectSpec.atom) {
         projectSpec.atom = {
-            rewriteTsconfig: true,
+            rewriteTsconfig: false,
         };
     }
     if (projectSpec.filesGlob) {
@@ -265,7 +265,7 @@ function getProjectSync(pathOrSrcFile) {
         externalTranspiler: projectSpec.externalTranspiler == undefined ? undefined : projectSpec.externalTranspiler,
         scripts: projectSpec.scripts || {},
         buildOnSave: !!projectSpec.buildOnSave,
-        atom: { rewriteTsconfig: true, formatOnSave: !!projectSpec.atom.formatOnSave }
+        atom: { rewriteTsconfig: false, formatOnSave: !!projectSpec.atom.formatOnSave }
     };
     var validationResult = validator.validate(projectSpec.compilerOptions);
     if (validationResult.errorMessage) {
