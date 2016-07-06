@@ -95,9 +95,6 @@ exports.defaults = {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
-    baseUrl: undefined,
-    paths: undefined,
-    rootDirs: undefined,
     isolatedModules: false,
     jsx: ts.JsxEmit.React,
     experimentalDecorators: true,
@@ -172,6 +169,14 @@ function rawToTsCompilerOptions(jsonOptions, projectDir) {
     }
     if (compilerOptions.outFile !== undefined) {
         compilerOptions.outFile = path.resolve(projectDir, compilerOptions.outFile);
+    }
+    if (compilerOptions.baseUrl !== undefined) {
+        compilerOptions.baseUrl = path.resolve(projectDir, compilerOptions.baseUrl);
+    }
+    if (compilerOptions.rootDirs !== undefined && Array.isArray(compilerOptions.rootDirs)) {
+        compilerOptions.rootDirs = compilerOptions.rootDirs.map(function (dir) {
+            return path.resolve(projectDir, dir);
+        });
     }
     return compilerOptions;
 }
