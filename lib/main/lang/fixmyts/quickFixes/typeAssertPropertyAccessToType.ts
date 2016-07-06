@@ -26,8 +26,13 @@ export class TypeAssertPropertyAccessToType implements QuickFix {
         let parent = info.positionNode.parent;
         if (parent.kind == ts.SyntaxKind.PropertyAccessExpression) {
             let propertyAccess = <ts.PropertyAccessExpression>parent;
+
+            // Find the previous identifier skipping over the DotToken
+            let idx = propertyAccess.getChildren().indexOf(info.positionNode)
+            let prev = propertyAccess.getChildAt(idx-2);
+
             let start = propertyAccess.getStart();
-            let end = propertyAccess.dotToken.getStart();
+            let end = prev.getEnd();
 
             let oldText = propertyAccess.getText().substr(0, end - start);
 
