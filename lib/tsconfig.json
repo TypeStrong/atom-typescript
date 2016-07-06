@@ -23,6 +23,7 @@
     ],
     "files": [
         "./globals.ts",
+        "./hyperclickProvider.ts",
         "./linter.ts",
         "./main/atom/atomConfig.ts",
         "./main/atom/atomUtils.ts",

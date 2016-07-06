@@ -337,3 +337,8 @@ function waitForGrammarActivation(): Promise<any> {
     });
     return promise;
 }
+
+import * as hyperclickProvider from "../hyperclickProvider";
+export function getHyperclickProvider() {
+  return hyperclickProvider;
+}
