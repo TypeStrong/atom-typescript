@@ -6,6 +6,8 @@ const TS_GRAMMARS = Set<string>(["source.ts", "source.tsx"]);
 
 export let providerName = "typescript-hyperclick-provider";
 
+export let wordRegExp = /([A-Za-z0-9])+|['"`](\\.|[^'"`\\\\])*['"`]/g;
+
 export function getSuggestionForWord(textEditor: AtomCore.IEditor, text: string, range: TextBuffer.IRange) {
     return {
         range: range,
