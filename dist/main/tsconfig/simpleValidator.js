@@ -2,7 +2,8 @@
 exports.types = {
     string: 'string',
     boolean: 'boolean',
-    number: 'number'
+    number: 'number',
+    object: 'object'
 };
 var SimpleValidator = (function () {
     function SimpleValidator(validationInfo) {
