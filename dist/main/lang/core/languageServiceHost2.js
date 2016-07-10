@@ -259,15 +259,8 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = ts.getDefaultLibFileName;
-        if (!config.project.compilerOptions.lib) {
+        if (!config.project.compilerOptions.noLib) {
             this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
-        }
-        else if (Array.isArray(config.project.compilerOptions.lib)) {
-            for (var _i = 0, _a = config.project.compilerOptions.lib; _i < _a.length; _i++) {
-                var lib = _a[_i];
-                var filename = "lib." + lib + ".d.ts";
-                this.addScript((path.join(getTypescriptLocation(), filename)).split('\\').join('/'));
-            }
         }
     }
     return LanguageServiceHost;
