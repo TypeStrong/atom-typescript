@@ -233,7 +233,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
 
     constructor(private config: tsconfig.TypeScriptProjectFileDetails) {
         // Add the `lib.d.ts`
-        if (!config.project.compilerOptions.noLib || !config.project.compilerOptions.lib) {
+        if (!config.project.compilerOptions.noLib && !config.project.compilerOptions.lib) {
           this.addScript(getDefaultLibFilePath(config.project.compilerOptions));
         }
         else if (Array.isArray(config.project.compilerOptions.lib)) {
