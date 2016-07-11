@@ -196,3 +196,8 @@ function waitForGrammarActivation() {
     });
     return promise;
 }
+var hyperclickProvider = require("../hyperclickProvider");
+function getHyperclickProvider() {
+    return hyperclickProvider;
+}
+exports.getHyperclickProvider = getHyperclickProvider;
