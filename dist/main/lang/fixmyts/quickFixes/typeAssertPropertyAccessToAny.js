@@ -19,8 +19,10 @@ var TypeAssertPropertyAccessToAny = (function () {
         var parent = info.positionNode.parent;
         if (parent.kind == ts.SyntaxKind.PropertyAccessExpression) {
             var propertyAccess = parent;
+            var idx = propertyAccess.getChildren().indexOf(info.positionNode);
+            var prev = propertyAccess.getChildAt(idx - 2);
             var start = propertyAccess.getStart();
-            var end = propertyAccess.dotToken.getStart();
+            var end = prev.getEnd();
             var oldText = propertyAccess.getText().substr(0, end - start);
             var refactoring = {
                 filePath: info.filePath,
