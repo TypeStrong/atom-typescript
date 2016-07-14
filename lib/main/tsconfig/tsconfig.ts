@@ -56,6 +56,7 @@ interface CompilerOptions {
     noLib?: boolean;
     noLibCheck?: boolean;
     noResolve?: boolean;
+    noUnusedLocals?: boolean;
     out?: string;                                     // Deprecated. Use outFile instead
     outFile?: string;                                 // new name for out
     outDir?: string;                                  // Redirect output structure to this directory
@@ -118,6 +119,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noLib: { type: types.boolean },
     noLibCheck: { type: types.boolean },
     noResolve: { type: types.boolean },
+    noUnusedLocals: { type: types.boolean },
     out: { type: types.string },
     outFile: { type: types.string },
     outDir: { type: types.string },
