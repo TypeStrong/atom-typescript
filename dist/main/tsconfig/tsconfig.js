@@ -37,6 +37,7 @@ var compilerOptionsValidation = {
     noErrorTruncation: { type: types.boolean },
     noFallthroughCasesInSwitch: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
+    noImplicitThis: { type: types.boolean },
     noImplicitUseStrict: { type: types.boolean },
     noImplicitReturns: { type: types.boolean },
     noLib: { type: types.boolean },
