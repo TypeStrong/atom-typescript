@@ -19,15 +19,16 @@ export class TypeAssertPropertyAccessToType implements QuickFix {
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
-        /**
-         * We want the largest property access expressing `a.b.c` starting at the identifer `c`
-         * Since this gets tokenized as `a.b` `.` `c` so its just the parent :)
-         */
         let parent = info.positionNode.parent;
         if (parent.kind == ts.SyntaxKind.PropertyAccessExpression) {
             let propertyAccess = <ts.PropertyAccessExpression>parent;
+
+            // Find the previous identifier skipping over the DotToken
+            let idx = propertyAccess.getChildren().indexOf(info.positionNode)
+            let prev = propertyAccess.getChildAt(idx-2);
+
             let start = propertyAccess.getStart();
-            let end = propertyAccess.dotToken.getStart();
+            let end = prev.getEnd();
 
             let oldText = propertyAccess.getText().substr(0, end - start);
 

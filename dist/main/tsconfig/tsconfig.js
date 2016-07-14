@@ -27,6 +27,9 @@ var compilerOptionsValidation = {
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd', 'es6', 'es2015'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
+    baseUrl: { type: types.string },
+    paths: { type: types.object },
+    rootDirs: { type: types.object },
     newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
@@ -166,6 +169,14 @@ function rawToTsCompilerOptions(jsonOptions, projectDir) {
     }
     if (compilerOptions.outFile !== undefined) {
         compilerOptions.outFile = path.resolve(projectDir, compilerOptions.outFile);
+    }
+    if (compilerOptions.baseUrl !== undefined) {
+        compilerOptions.baseUrl = path.resolve(projectDir, compilerOptions.baseUrl);
+    }
+    if (compilerOptions.rootDirs !== undefined && Array.isArray(compilerOptions.rootDirs)) {
+        compilerOptions.rootDirs = compilerOptions.rootDirs.map(function (dir) {
+            return path.resolve(projectDir, dir);
+        });
     }
     return compilerOptions;
 }

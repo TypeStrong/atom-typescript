@@ -6,6 +6,7 @@ export var types = {
     string: 'string',
     boolean: 'boolean',
     number: 'number',
+    object: 'object',
     array: 'array'
 }
 
