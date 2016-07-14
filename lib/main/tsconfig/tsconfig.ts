@@ -51,6 +51,7 @@ interface CompilerOptions {
     noFallthroughCasesInSwitch?: boolean;
     noImplicitAny?: boolean;                          // Error on inferred `any` type
     noImplicitReturns?: boolean;
+    noImplicitThis?: boolean;
     noImplicitUseStrict?: boolean;
     noLib?: boolean;
     noLibCheck?: boolean;
@@ -111,6 +112,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noErrorTruncation: { type: types.boolean },
     noFallthroughCasesInSwitch: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
+    noImplicitThis: { type: types.boolean },
     noImplicitUseStrict: { type: types.boolean },
     noImplicitReturns: { type: types.boolean },
     noLib: { type: types.boolean },
