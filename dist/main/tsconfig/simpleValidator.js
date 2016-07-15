@@ -3,7 +3,8 @@ exports.types = {
     string: 'string',
     boolean: 'boolean',
     number: 'number',
-    object: 'object'
+    object: 'object',
+    array: 'array'
 };
 var SimpleValidator = (function () {
     function SimpleValidator(validationInfo) {
@@ -28,14 +29,21 @@ var SimpleValidator = (function () {
             else {
                 var validationInfo = _this.validationInfo[k];
                 var value = config[k];
-                if (validationInfo.validValues && validationInfo.validValues.length) {
-                    var validValues = validationInfo.validValues;
-                    if (!validValues.some(function (valid) { return valid.toLowerCase() === value.toLowerCase(); })) {
-                        errors.invalidValues.push("Key: '" + k + "' has an invalid value: " + value);
+                if (validationInfo.type && validationInfo.type === 'array') {
+                    if (!Array.isArray(value)) {
+                        errors.invalidValues.push("Key: '" + k + "' has an invalid type: " + typeof value);
                     }
                 }
-                if (validationInfo.type && typeof value !== validationInfo.type) {
-                    errors.invalidValues.push("Key: '" + k + "' has an invalid type: " + typeof value);
+                else {
+                    if (validationInfo.validValues && validationInfo.validValues.length) {
+                        var validValues = validationInfo.validValues;
+                        if (!validValues.some(function (valid) { return valid.toLowerCase() === value.toLowerCase(); })) {
+                            errors.invalidValues.push("Key: '" + k + "' has an invalid value: " + value);
+                        }
+                    }
+                    if (validationInfo.type && typeof value !== validationInfo.type) {
+                        errors.invalidValues.push("Key: '" + k + "' has an invalid type: " + typeof value);
+                    }
                 }
             }
         });
