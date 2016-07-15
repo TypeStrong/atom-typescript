@@ -63,6 +63,7 @@ var compilerOptionsValidation = {
     target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
     version: { type: types.boolean },
     watch: { type: types.boolean },
+    lib: { type: types.array }
 };
 var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 exports.errors = {
