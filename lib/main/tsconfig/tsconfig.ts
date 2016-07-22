@@ -73,6 +73,7 @@ interface CompilerOptions {
     suppressExcessPropertyErrors?: boolean;           // Optionally disable strict object literal assignment checking
     suppressImplicitAnyIndexErrors?: boolean;
     target?: string;                                  // 'es3'|'es5' (default)|'es6'|'es2015'
+    types?: string[];
     version?: boolean;
     watch?: boolean;
     lib?: string[];
@@ -137,6 +138,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
     target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
+    types: { type: types.object },
     version: { type: types.boolean },
     watch: { type: types.boolean },
     lib: { type: types.array }
