@@ -44,6 +44,7 @@ var compilerOptionsValidation = {
     noLibCheck: { type: types.boolean },
     noResolve: { type: types.boolean },
     noUnusedLocals: { type: types.boolean },
+    noUnusedParameters: { type: types.boolean },
     out: { type: types.string },
     outFile: { type: types.string },
     outDir: { type: types.string },
