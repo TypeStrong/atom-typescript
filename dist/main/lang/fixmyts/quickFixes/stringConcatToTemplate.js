@@ -35,6 +35,7 @@ var StringConcatToTemplate = (function () {
         }
     };
     StringConcatToTemplate.prototype.provideFix = function (info) {
+        this.finalOutput = [];
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         var current = strRoot;
         while (true) {

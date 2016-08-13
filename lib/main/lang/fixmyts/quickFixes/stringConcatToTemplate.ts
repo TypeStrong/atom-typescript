@@ -53,6 +53,8 @@ export class StringConcatToTemplate implements QuickFix {
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
+        this.finalOutput = [];
+
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         let current: ts.Node = strRoot;
 
