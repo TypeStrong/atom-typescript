@@ -36,7 +36,6 @@ export class StringConcatToTemplate implements QuickFix {
     backTickCharacter = '`';
     backTick = new RegExp(this.backTickCharacter, 'g');
     $regex = /\$/g;
-    finalOutput: string[] = [];
     key = StringConcatToTemplate.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
@@ -53,6 +52,8 @@ export class StringConcatToTemplate implements QuickFix {
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
+        const finalOutput: string[] = [];
+
         var strRoot = isAPartOfAChainOfStringAdditions(info.positionNode, info.typeChecker);
         let current: ts.Node = strRoot;
 
@@ -61,19 +62,19 @@ export class StringConcatToTemplate implements QuickFix {
             // if we are still in some sequence of additions
             if (current.kind == ts.SyntaxKind.BinaryExpression) {
                 let binary = <ts.BinaryExpression>current;
-                this.appendToFinal(binary.right);
+                this.appendToFinal(finalOutput, binary.right);
 
                 // Continue with left
                 current = binary.left;
             }
             else {
-                this.appendToFinal(current);
+                this.appendToFinal(finalOutput, current);
                 break;
             }
         }
 
         let newText = this.backTickCharacter +
-                      this.finalOutput.join('') +
+                      finalOutput.join('') +
                       this.backTickCharacter;
 
         var refactoring: Refactoring = {
@@ -88,7 +89,7 @@ export class StringConcatToTemplate implements QuickFix {
         return [refactoring];
     }
 
-    private appendToFinal(node: ts.Node) {
+    private appendToFinal(finalOutput: string[], node: ts.Node) {
         // Each string literal needs :
         // to be checked that it doesn't contain (`) and those need to be escaped.
         // Also `$` needs escaping
@@ -106,17 +107,17 @@ export class StringConcatToTemplate implements QuickFix {
                 .replace(this.$regex, '\\$');
 
             newText = newText.substr(1, newText.length - 2);
-            this.finalOutput.unshift(newText);
+            finalOutput.unshift(newText);
         }
         else if (node.kind == ts.SyntaxKind.TemplateExpression || node.kind == ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
             let text = node.getText();
             text = text.trim();
             text = text.substr(1, text.length - 2);
-            this.finalOutput.unshift(text);
+            finalOutput.unshift(text);
         }
         // Each expression that isn't a string literal will just be escaped `${}`
         else {
-            this.finalOutput.unshift('${' + node.getText() + '}');
+            finalOutput.unshift('${' + node.getText() + '}');
         }
     }
 }
