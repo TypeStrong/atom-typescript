@@ -137,6 +137,30 @@ Promise.all([
       tsx.repository.expression.patterns.unshift(pattern)
     })
 
+    /*
+    support https://github.com/atom/language-todo single line comments:
+    // TODO
+    // FIXME
+    // CHANGED
+    // XXX
+    // IDEA
+    // HACK
+    // NOTE
+    // REVIEW
+    // NB
+    // BUG
+    */
+    ts.repository["comment-line"] = {
+        "name": "comment.line.ts",
+        "begin": "//",
+        "end": "$",
+    };
+    tsx.repository["comment-line"] = {
+        "name": "comment.line.ts",
+        "begin": "//",
+        "end": "$",
+    };
+
     return Promise.all([
       fs.writeFile(join(__dirname, '../grammars/ts.cson'), prefix + cson.stringify(ts, null, '  ')),
       fs.writeFile(join(__dirname, '../grammars/tsx.cson'), prefix + cson.stringify(tsx, null, '  '))
