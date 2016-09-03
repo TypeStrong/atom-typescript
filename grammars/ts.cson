@@ -1018,7 +1018,8 @@ repository:
     end: "\\*/"
   "comment-line":
     name: "comment.line.ts"
-    match: "(//).*$\\n?"
+    begin: "//"
+    end: '$'
   literal:
     name: "literal.ts"
     patterns: [
