@@ -9,13 +9,13 @@ export let providerName = "typescript-hyperclick-provider";
 export let wordRegExp = /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g;
 
 export function getSuggestionForWord(textEditor: AtomCore.IEditor, text: string, range: TextBuffer.IRange) {
+    if (!TS_GRAMMARS.has(textEditor.getGrammar().scopeName)) {
+        return null;
+    }
+
     return {
         range: range,
         callback() {
-            if (!TS_GRAMMARS.has(textEditor.getGrammar().scopeName)) {
-                return null;
-            }
-
             let filePathPosition = {
               filePath: textEditor.getPath(),
               position: atomUtils.getEditorPositionForBufferPosition(textEditor, range.start)
