@@ -61,7 +61,7 @@ exports.provider = {
             }
             else {
                 var prefix = options.prefix.trim();
-                if (prefix === '' || prefix === ';') {
+                if (prefix === '' || prefix === ';' || prefix === '{') {
                     return Promise.resolve([]);
                 }
             }

@@ -143,7 +143,7 @@ export var provider: autocompleteplus.Provider = {
             else { // else in special cases for automatic triggering refuse to provide completions
                 const prefix = options.prefix.trim()
 
-                if (prefix === '' || prefix === ';') {
+                if (prefix === '' || prefix === ';' || prefix === '{') {
                     return Promise.resolve([]);
                 }
             }
