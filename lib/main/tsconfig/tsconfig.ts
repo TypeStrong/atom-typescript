@@ -68,6 +68,7 @@ interface CompilerOptions {
     removeComments?: boolean;                         // Do not emit comments in output
     rootDir?: string;
     skipDefaultLibCheck?: boolean;
+    skipLibCheck?: boolean;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
     stripInternal?: boolean;
