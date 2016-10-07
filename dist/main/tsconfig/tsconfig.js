@@ -18,6 +18,7 @@ var compilerOptionsValidation = {
     emitDecoratorMetadata: { type: types.boolean },
     forceConsistentCasingInFileNames: { type: types.boolean },
     help: { type: types.boolean },
+    importHelpers: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
     isolatedModules: { type: types.boolean },
