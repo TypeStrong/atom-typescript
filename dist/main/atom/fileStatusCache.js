@@ -1,5 +1,5 @@
 "use strict";
-var fsUtil_1 = require('../utils/fsUtil');
+var fsUtil_1 = require("../utils/fsUtil");
 ;
 var fileStatuses = {};
 function getFileStatus(filePath) {

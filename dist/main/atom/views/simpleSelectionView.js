@@ -16,14 +16,15 @@ function simpleSelectionView(options) {
     return singleton;
 }
 exports.simpleSelectionView = simpleSelectionView;
-var sp = require('atom-space-pen-views');
+var sp = require("atom-space-pen-views");
 var $ = sp.$;
 var SimpleSelectListView = (function (_super) {
     __extends(SimpleSelectListView, _super);
     function SimpleSelectListView(options) {
-        _super.call(this);
-        this.options = options;
-        this.panel = null;
+        var _this = _super.call(this) || this;
+        _this.options = options;
+        _this.panel = null;
+        return _this;
     }
     Object.defineProperty(SimpleSelectListView.prototype, "$", {
         get: function () {

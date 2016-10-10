@@ -1,8 +1,8 @@
 "use strict";
-var vm = require('vm');
-var fs = require('fs');
+var vm = require("vm");
+var fs = require("fs");
 global.stack = function () {
-    console.error((new Error()).stack);
+    console.error(new Error().stack);
 };
 function makeTsGlobal(typescriptServices) {
     var sandbox = {

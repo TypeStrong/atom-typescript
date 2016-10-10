@@ -4,10 +4,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var childprocess = require('child_process');
+var childprocess = require("child_process");
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
-var path = require('path');
+var path = require("path");
 function createId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -145,12 +145,12 @@ var RequesterResponder = (function () {
 var Parent = (function (_super) {
     __extends(Parent, _super);
     function Parent() {
-        var _this = this;
-        _super.apply(this, arguments);
-        this.node = process.execPath;
-        this.gotENOENTonSpawnNode = false;
-        this.getProcess = function () { return _this.child; };
-        this.stopped = false;
+        var _this = _super.apply(this, arguments) || this;
+        _this.node = process.execPath;
+        _this.gotENOENTonSpawnNode = false;
+        _this.getProcess = function () { return _this.child; };
+        _this.stopped = false;
+        return _this;
     }
     Parent.prototype.startWorker = function (childJsPath, terminalError, customArguments) {
         var _this = this;
@@ -220,10 +220,9 @@ exports.Parent = Parent;
 var Child = (function (_super) {
     __extends(Child, _super);
     function Child() {
-        var _this = this;
-        _super.call(this);
-        this.getProcess = function () { return process; };
-        this.keepAlive();
+        var _this = _super.call(this) || this;
+        _this.getProcess = function () { return process; };
+        _this.keepAlive();
         process.on('message', function (message) {
             if (message.request) {
                 _this.processRequest(message);
@@ -232,6 +231,7 @@ var Child = (function (_super) {
                 _this.processResponse(message);
             }
         });
+        return _this;
     }
     Child.prototype.keepAlive = function () {
         setInterval(function () {

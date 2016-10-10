@@ -1,5 +1,5 @@
 "use strict";
-var os = require('os');
+var os = require("os");
 function defaultFormatCodeOptions() {
     return {
         IndentSize: 4,

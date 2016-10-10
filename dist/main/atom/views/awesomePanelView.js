@@ -4,12 +4,12 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var view = require('./view');
+var view = require("./view");
 var $ = view.$;
 var AwesomePanelView = (function (_super) {
     __extends(AwesomePanelView, _super);
     function AwesomePanelView() {
-        _super.apply(this, arguments);
+        return _super.apply(this, arguments) || this;
     }
     AwesomePanelView.content = function () {
         var _this = this;

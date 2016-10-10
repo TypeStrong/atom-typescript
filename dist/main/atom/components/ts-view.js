@@ -8,7 +8,7 @@ var escapeHtml = require("escape-html");
 var TsView = (function (_super) {
     __extends(TsView, _super);
     function TsView() {
-        _super.apply(this, arguments);
+        return _super.apply(this, arguments) || this;
     }
     TsView.prototype.createdCallback = function () {
         var preview = escapeHtml(this.innerText);

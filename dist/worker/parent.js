@@ -1,9 +1,9 @@
 "use strict";
 var debug_1 = require("./debug");
-var childprocess = require('child_process');
+var childprocess = require("child_process");
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
-var workerLib = require('./lib/workerLib');
+var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");
 var parent = new workerLib.Parent();
 var mainPanel = require("../main/atom/views/mainPanelView");
@@ -43,7 +43,7 @@ function catchCommonErrors(func) {
         return Promise.reject(err);
     }); };
 }
-var projectService = require('../main/lang/projectService');
+var projectService = require("../main/lang/projectService");
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
 exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
@@ -79,5 +79,5 @@ exports.softReset = parent.sendToIpc(projectService.softReset);
 exports.getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 exports.createProject = parent.sendToIpc(projectService.createProject);
 exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
-var queryParent = require('./queryParent');
+var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);

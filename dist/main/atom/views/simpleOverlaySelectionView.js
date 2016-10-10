@@ -18,15 +18,16 @@ function default_1(options, editor) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
-var sp = require('atom-space-pen-views');
+var sp = require("atom-space-pen-views");
 var SimpleOverlaySelectListView = (function (_super) {
     __extends(SimpleOverlaySelectListView, _super);
     function SimpleOverlaySelectListView(options, editor) {
-        _super.call(this);
-        this.options = options;
-        this.editor = editor;
-        this.$.addClass('atomts-overlay');
-        this.filterEditorView.model.placeholderText = 'Filter list';
+        var _this = _super.call(this) || this;
+        _this.options = options;
+        _this.editor = editor;
+        _this.$.addClass('atomts-overlay');
+        _this.filterEditorView.model.placeholderText = 'Filter list';
+        return _this;
     }
     Object.defineProperty(SimpleOverlaySelectListView.prototype, "$", {
         get: function () {

@@ -1,14 +1,14 @@
 "use strict";
 var fsu = require("../utils/fsUtil");
-var fs = require('fs');
-var path = require('path');
-var os = require('os');
+var fs = require("fs");
+var path = require("path");
+var os = require("os");
 var child_process = require("child_process");
 var fuzzaldrin = require('fuzzaldrin');
 var transformer_1 = require("./transformers/transformer");
 var transformer = require("./transformers/transformer");
-var tsconfig = require('../tsconfig/tsconfig');
-var utils = require('./utils');
+var tsconfig = require("../tsconfig/tsconfig");
+var utils = require("./utils");
 var resolve = Promise.resolve.bind(Promise);
 var projectCache_1 = require("./projectCache");
 function textSpan(span) {
@@ -43,7 +43,7 @@ function quickInfo(query) {
     }
 }
 exports.quickInfo = quickInfo;
-var building = require('./modules/building');
+var building = require("./modules/building");
 function build(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);
@@ -185,7 +185,7 @@ function emitFile(query) {
     return resolve(building.emitFile(projectCache_1.getOrCreateProject(filePath), filePath));
 }
 exports.emitFile = emitFile;
-var formatting = require('./modules/formatting');
+var formatting = require("./modules/formatting");
 function formatDocument(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);

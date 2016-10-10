@@ -1,7 +1,7 @@
 "use strict";
-var mkdirp = require('mkdirp');
-var path = require('path');
-var fs = require('fs');
+var mkdirp = require("mkdirp");
+var path = require("path");
+var fs = require("fs");
 var fsUtil_1 = require("../../utils/fsUtil");
 var utils_1 = require("../utils");
 var findup = require('findup');
