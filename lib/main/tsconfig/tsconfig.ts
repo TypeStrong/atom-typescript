@@ -31,6 +31,7 @@ interface CompilerOptions {
     emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     forceConsistentCasingInFileNames?: boolean;
     help?: boolean;
+    importHelpers?: boolean;
     isolatedModules?: boolean;
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
@@ -97,6 +98,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     emitDecoratorMetadata: { type: types.boolean },
     forceConsistentCasingInFileNames: { type: types.boolean },
     help: { type: types.boolean },
+    importHelpers: { type: types.boolean },
     inlineSourceMap: { type: types.boolean },
     inlineSources: { type: types.boolean },
     isolatedModules: { type: types.boolean },
