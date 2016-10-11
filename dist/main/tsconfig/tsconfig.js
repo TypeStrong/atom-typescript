@@ -1,6 +1,6 @@
 "use strict";
 var fsu = require("../utils/fsUtil");
-var simpleValidator = require("./simpleValidator");
+var simpleValidator = require('./simpleValidator');
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
     allowJs: { type: types.boolean },
@@ -56,6 +56,7 @@ var compilerOptionsValidation = {
     removeComments: { type: types.boolean },
     rootDir: { type: types.string },
     skipDefaultLibCheck: { type: types.boolean },
+    skipLibCheck: { type: types.boolean },
     sourceMap: { type: types.boolean },
     sourceRoot: { type: types.string },
     strictNullChecks: { type: types.boolean },
@@ -64,7 +65,7 @@ var compilerOptionsValidation = {
     suppressImplicitAnyIndexErrors: { type: types.boolean },
     target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
     typeRoots: { type: types.array },
-    types: { type: types.object },
+    types: { type: types.array },
     version: { type: types.boolean },
     watch: { type: types.boolean },
     lib: { type: types.array }
@@ -84,13 +85,13 @@ function errorWithDetails(error, details) {
     error.details = details;
     return error;
 }
-var fs = require("fs");
-var path = require("path");
-var tsconfig = require("tsconfig");
-var os = require("os");
-var detectIndent = require("detect-indent");
-var detectNewline = require("detect-newline");
-var formatting = require("./formatting");
+var fs = require('fs');
+var path = require('path');
+var tsconfig = require('tsconfig');
+var os = require('os');
+var detectIndent = require('detect-indent');
+var detectNewline = require('detect-newline');
+var formatting = require('./formatting');
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
     "**/*.ts",
