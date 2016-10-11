@@ -4,27 +4,28 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var utils = require('../lang/utils');
+var utils = require("../lang/utils");
 var TokenClass = ts.TokenClass;
 global.AtomTSBaseGrammar = require(atom.config.resourcePath + "/node_modules/first-mate/lib/grammar.js");
 var TypeScriptSemanticGrammar = (function (_super) {
     __extends(TypeScriptSemanticGrammar, _super);
     function TypeScriptSemanticGrammar(registry) {
-        _super.call(this, registry, {
+        var _this = _super.call(this, registry, {
             name: "TypeScript",
             scopeName: "source.ts",
             patterns: {},
             fileTypes: ['ts', 'tst']
-        });
-        this.registry = registry;
-        this.trailingWhiteSpaceLength = 0;
-        this.classifier = ts.createClassifier();
-        this.fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
-        this.fullTripleSlashAMDNameRegEx = /^(\/\/\/\s*<amd-module\s+name\s*=\s*)('|")(.+?)\2.*?\/>/;
-        this.fullTripleSlashAMDDependencyPathRegEx = /^(\/\/\/\s*<amd-dependency\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
-        this.importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
-        this.es6importRegex = /^import.*from.*/;
-        this.todoRegex = new RegExp('(BUG|TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE)');
+        }) || this;
+        _this.registry = registry;
+        _this.trailingWhiteSpaceLength = 0;
+        _this.classifier = ts.createClassifier();
+        _this.fullTripleSlashReferencePathRegEx = /^(\/\/\/\s*<reference\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
+        _this.fullTripleSlashAMDNameRegEx = /^(\/\/\/\s*<amd-module\s+name\s*=\s*)('|")(.+?)\2.*?\/>/;
+        _this.fullTripleSlashAMDDependencyPathRegEx = /^(\/\/\/\s*<amd-dependency\s+path\s*=\s*)('|")(.+?)\2.*?\/>/;
+        _this.importRequireRegex = /^import\s*(\w*)\s*=\s*require\((?:'|")(\S*)(?:'|")\.*\)/;
+        _this.es6importRegex = /^import.*from.*/;
+        _this.todoRegex = new RegExp('(BUG|TODO|FIXME|CHANGED|XXX|IDEA|HACK|NOTE)');
+        return _this;
     }
     TypeScriptSemanticGrammar.prototype.tokenizeLine = function (line, ruleStack, firstLine) {
         if (firstLine === void 0) { firstLine = false; }

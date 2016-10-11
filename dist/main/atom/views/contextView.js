@@ -4,8 +4,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var sp = require('atom-space-pen-views');
-var mainPanelView = require('./mainPanelView');
+var sp = require("atom-space-pen-views");
+var mainPanelView = require("./mainPanelView");
 var semanticView = require("./semanticView");
 var titles = {
     togglePanel: 'Toggle TypeScript Panel',
@@ -18,8 +18,9 @@ var items = Object.keys(titles).map(function (item) { return { title: titles[ite
 var ContextView = (function (_super) {
     __extends(ContextView, _super);
     function ContextView() {
-        _super.apply(this, arguments);
-        this.panel = null;
+        var _this = _super.apply(this, arguments) || this;
+        _this.panel = null;
+        return _this;
     }
     Object.defineProperty(ContextView.prototype, "$", {
         get: function () {

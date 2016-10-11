@@ -11,7 +11,7 @@ function getError(diagnostics) {
     diagnostics.forEach(function (diagnostic) {
         var position = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
         message +=
-            ("\n" + diagnostic.file.fileName + "(" + (position.line + 1) + "," + (position.character + 1) + "): ") +
+            "\n" + diagnostic.file.fileName + "(" + (position.line + 1) + "," + (position.character + 1) + "): " +
                 ("error TS" + diagnostic.code + ": " + diagnostic.messageText);
     });
     var error = new Error(message);
@@ -129,8 +129,8 @@ function generate(options, sendMessage) {
             }
         });
         if (options.main) {
-            output.write(("declare module '" + options.name + "' {") + eol + indent);
-            output.write(("import main = require('" + options.main + "');") + eol + indent);
+            output.write("declare module '" + options.name + "' {" + eol + indent);
+            output.write("import main = require('" + options.main + "');" + eol + indent);
             output.write('export = main;' + eol);
             output.write('}' + eol);
             sendMessage("Aliased main module " + options.name + " to " + options.main);

@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var sp = require('atom-space-pen-views');
+var sp = require("atom-space-pen-views");
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
@@ -15,13 +15,13 @@ exports.dependencyURI = "ts-dependency:";
 var DependencyView = (function (_super) {
     __extends(DependencyView, _super);
     function DependencyView(filePath) {
-        var _this = this;
-        _super.call(this);
-        this.filePath = filePath;
-        this.getURI = function () { return atomUtils.uriForPath(exports.dependencyURI, _this.filePath); };
-        this.getTitle = function () { return 'TypeScript Dependencies'; };
-        this.getIconName = function () { return 'git-compare'; };
-        this.init();
+        var _this = _super.call(this) || this;
+        _this.filePath = filePath;
+        _this.getURI = function () { return atomUtils.uriForPath(exports.dependencyURI, _this.filePath); };
+        _this.getTitle = function () { return 'TypeScript Dependencies'; };
+        _this.getIconName = function () { return 'git-compare'; };
+        _this.init();
+        return _this;
     }
     DependencyView.content = function () {
         return this.div({ class: 'dependency-view' }, function () {

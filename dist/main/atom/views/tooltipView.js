@@ -4,15 +4,16 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var view = require('./view');
+var view = require("./view");
 var $ = view.$;
 var TooltipView = (function (_super) {
     __extends(TooltipView, _super);
     function TooltipView(rect) {
-        _super.call(this, rect);
-        this.rect = rect;
-        $(document.body).append(this.$);
-        this.updatePosition();
+        var _this = _super.call(this, rect) || this;
+        _this.rect = rect;
+        $(document.body).append(_this.$);
+        _this.updatePosition();
+        return _this;
     }
     TooltipView.content = function () {
         var _this = this;

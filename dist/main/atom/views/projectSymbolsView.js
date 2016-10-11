@@ -4,13 +4,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var sp = require('atom-space-pen-views');
+var sp = require("atom-space-pen-views");
 var atomUtils = require("../atomUtils");
 var ProjectSymbolsView = (function (_super) {
     __extends(ProjectSymbolsView, _super);
     function ProjectSymbolsView() {
-        _super.apply(this, arguments);
-        this.panel = null;
+        var _this = _super.apply(this, arguments) || this;
+        _this.panel = null;
+        return _this;
     }
     Object.defineProperty(ProjectSymbolsView.prototype, "$", {
         get: function () {

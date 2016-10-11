@@ -1,5 +1,5 @@
 "use strict";
-var escapeHtml = require('escape-html');
+var escapeHtml = require("escape-html");
 function create(type, comment) {
     var overlayHTML = "\n    <strong>" + escapeHtml(type) + "</strong>\n  ";
     if (comment) {

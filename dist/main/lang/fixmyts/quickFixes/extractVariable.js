@@ -79,7 +79,8 @@ function extractVariableFromArg(info, callExpression) {
             },
             newText: "var " + name + ": " + type + " = " + value + ";" + os_1.EOL + createIndent(indent),
             filePath: info.filePath
-        }];
+        }
+    ];
 }
 function isPropertyAccess(info) {
     return isValidPath(info.positionNode, [ts.SyntaxKind.Identifier,

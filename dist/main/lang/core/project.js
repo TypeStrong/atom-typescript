@@ -1,7 +1,7 @@
 "use strict";
-var fs = require('fs');
-exports.languageServiceHost = require('./languageServiceHost2');
-var tsconfig = require('../../tsconfig/tsconfig');
+var fs = require("fs");
+exports.languageServiceHost = require("./languageServiceHost2");
+var tsconfig = require("../../tsconfig/tsconfig");
 var transformerRegistry = require("../transformers/transformerRegistry");
 var Project = (function () {
     function Project(projectFile) {

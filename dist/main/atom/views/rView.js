@@ -6,16 +6,16 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var atomUtils_1 = require("../atomUtils");
 var sp = require("atom-space-pen-views");
-var React = require('react');
+var React = require("react");
 var MyComponent = (function (_super) {
     __extends(MyComponent, _super);
     function MyComponent(props) {
-        var _this = this;
-        _super.call(this, props);
-        this.state = { count: 0 };
-        this.stop = function () {
+        var _this = _super.call(this, props) || this;
+        _this.state = { count: 0 };
+        _this.stop = function () {
             clearInterval(_this.interval);
         };
+        return _this;
     }
     MyComponent.prototype.componentDidMount = function () {
         var _this = this;
@@ -24,23 +24,23 @@ var MyComponent = (function (_super) {
         });
     };
     MyComponent.prototype.render = function () {
-        return React.createElement("div", {onClick: this.stop}, 
-            "This is a test: ", 
+        return React.createElement("div", { onClick: this.stop },
+            "This is a test: ",
             this.state.count);
     };
-    MyComponent.defaultProps = { count: 0 };
     return MyComponent;
 }(React.Component));
+MyComponent.defaultProps = { count: 0 };
 var RView = (function (_super) {
     __extends(RView, _super);
     function RView(config) {
-        var _this = this;
-        _super.call(this);
-        this.config = config;
-        this.getURI = function () { return atomUtils_1.uriForPath(_this.constructor.protocol, _this.config.filePath); };
-        this.getTitle = function () { return _this.config.title; };
-        this.getIconName = function () { return _this.config.icon; };
-        React.render(React.createElement(MyComponent, {}), this.rootDomElement);
+        var _this = _super.call(this) || this;
+        _this.config = config;
+        _this.getURI = function () { return atomUtils_1.uriForPath(_this.constructor.protocol, _this.config.filePath); };
+        _this.getTitle = function () { return _this.config.title; };
+        _this.getIconName = function () { return _this.config.icon; };
+        React.render(React.createElement(MyComponent, {}), _this.rootDomElement);
+        return _this;
     }
     Object.defineProperty(RView.prototype, "rootDomElement", {
         get: function () {
@@ -60,7 +60,7 @@ var RView = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    RView.protocol = 'atomtsview:';
     return RView;
 }(sp.ScrollView));
 exports.RView = RView;
+RView.protocol = 'atomtsview:';

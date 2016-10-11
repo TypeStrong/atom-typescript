@@ -1,7 +1,7 @@
 "use strict";
-var mainPanelView = require('./views/mainPanelView');
-var lineMessageView = require('./views/lineMessageView');
-var gotoHistory = require('./gotoHistory');
+var mainPanelView = require("./views/mainPanelView");
+var lineMessageView = require("./views/lineMessageView");
+var gotoHistory = require("./gotoHistory");
 function getTitle(errorCount) {
     var title = '<span class="icon-circuit-board"></span> TypeScript Build';
     if (errorCount > 0) {

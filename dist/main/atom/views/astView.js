@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var sp = require('atom-space-pen-views');
+var sp = require("atom-space-pen-views");
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var d3 = require("d3");
@@ -13,15 +13,15 @@ exports.astURIFull = "ts-ast-full:";
 var AstView = (function (_super) {
     __extends(AstView, _super);
     function AstView(filePath, text, full) {
-        var _this = this;
-        _super.call(this);
-        this.filePath = filePath;
-        this.text = text;
-        this.full = full;
-        this.getURI = function () { return atomUtils.uriForPath(_this.full ? exports.astURIFull : exports.astURI, _this.filePath); };
-        this.getTitle = function () { return 'TypeScript AST'; };
-        this.getIconName = function () { return 'repo-forked'; };
-        this.init();
+        var _this = _super.call(this) || this;
+        _this.filePath = filePath;
+        _this.text = text;
+        _this.full = full;
+        _this.getURI = function () { return atomUtils.uriForPath(_this.full ? exports.astURIFull : exports.astURI, _this.filePath); };
+        _this.getTitle = function () { return 'TypeScript AST'; };
+        _this.getIconName = function () { return 'repo-forked'; };
+        _this.init();
+        return _this;
     }
     AstView.content = function () {
         var _this = this;

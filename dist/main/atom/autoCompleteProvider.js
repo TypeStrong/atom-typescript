@@ -1,8 +1,8 @@
 "use strict";
-var parent = require('../../worker/parent');
-var atomConfig = require('./atomConfig');
-var fs = require('fs');
-var atomUtils = require('./atomUtils');
+var parent = require("../../worker/parent");
+var atomConfig = require("./atomConfig");
+var fs = require("fs");
+var atomUtils = require("./atomUtils");
 var fuzzaldrin = require('fuzzaldrin');
 var CSON = require("season");
 var explicitlyTriggered = false;

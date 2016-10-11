@@ -1,6 +1,6 @@
 "use strict";
 var atomUtils = require("./atomUtils");
-var parent = require('../../worker/parent');
+var parent = require("../../worker/parent");
 var mainPanelView_1 = require("./views/mainPanelView");
 var fileStatusCache_1 = require("./fileStatusCache");
 function handle(event) {

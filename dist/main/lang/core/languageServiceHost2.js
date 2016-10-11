@@ -1,8 +1,8 @@
 "use strict";
-var path = require('path');
-var fs = require('fs');
-var os = require('os');
-var textBuffer = require('basarat-text-buffer');
+var path = require("path");
+var fs = require("fs");
+var os = require("os");
+var textBuffer = require("basarat-text-buffer");
 var typescriptServices_1 = require("../typescriptServices");
 function createScriptInfo(fileName, text, isOpen) {
     if (isOpen === void 0) { isOpen = false; }

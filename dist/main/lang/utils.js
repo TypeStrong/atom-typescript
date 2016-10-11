@@ -1,5 +1,5 @@
 'use strict';
-var path = require('path');
+var path = require("path");
 function mapValues(map) {
     return Object.keys(map).reduce(function (result, key) {
         result.push(map[key]);

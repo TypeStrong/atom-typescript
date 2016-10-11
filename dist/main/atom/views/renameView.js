@@ -4,14 +4,15 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var view = require('./view');
+var view = require("./view");
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
 var RenameView = (function (_super) {
     __extends(RenameView, _super);
     function RenameView() {
-        _super.apply(this, arguments);
-        this.editorAtRenameStart = null;
+        var _this = _super.apply(this, arguments) || this;
+        _this.editorAtRenameStart = null;
+        return _this;
     }
     RenameView.prototype.init = function () {
         var _this = this;
@@ -71,10 +72,10 @@ var RenameView = (function (_super) {
         this.validationMessage.hide();
         this.fileCount.html("<div>\n            Files Counts: <span class='highlight'> Already Open ( " + options.openFiles.length + " )</span> and <span class='highlight'> Currently Closed ( " + options.closedFiles.length + " ) </span>\n        </div>");
     };
-    RenameView.content = html;
     return RenameView;
 }(view.View));
 exports.RenameView = RenameView;
+RenameView.content = html;
 var panel;
 function attach() {
     exports.panelView = new RenameView({});

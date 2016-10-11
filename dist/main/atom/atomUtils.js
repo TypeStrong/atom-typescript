@@ -1,9 +1,9 @@
 "use strict";
-var path = require('path');
-var fs = require('fs');
+var path = require("path");
+var fs = require("fs");
 var fsu = require("../utils/fsUtil");
-var _atom = require('atom');
-var url = require('url');
+var _atom = require("atom");
+var url = require("url");
 function getEditorPosition(editor) {
     var bufferPos = editor.getCursorBufferPosition();
     return getEditorPositionForBufferPosition(editor, bufferPos);

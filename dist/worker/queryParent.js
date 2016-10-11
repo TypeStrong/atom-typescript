@@ -1,6 +1,6 @@
 "use strict";
 var resolve = Promise.resolve.bind(Promise);
-var tsconfig = require('../main/tsconfig/tsconfig');
+var tsconfig = require("../main/tsconfig/tsconfig");
 var atomUtils;
 var mainPanelView;
 try {

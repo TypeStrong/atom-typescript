@@ -4,9 +4,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var view = require('./view');
+var view = require("./view");
 var $ = view.$;
-var lineMessageView = require('./lineMessageView');
+var lineMessageView = require("./lineMessageView");
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
 var utils = require("../../lang/utils");
@@ -16,14 +16,15 @@ var panelHeaders = {
     build: 'Last Build Output',
     references: 'References'
 };
-var gotoHistory = require('../gotoHistory');
+var gotoHistory = require("../gotoHistory");
 var MainPanelView = (function (_super) {
     __extends(MainPanelView, _super);
     function MainPanelView() {
-        _super.apply(this, arguments);
-        this.pendingRequests = [];
-        this.expanded = false;
-        this.clearedError = true;
+        var _this = _super.apply(this, arguments) || this;
+        _this.pendingRequests = [];
+        _this.expanded = false;
+        _this.clearedError = true;
+        return _this;
     }
     MainPanelView.content = function () {
         var _this = this;

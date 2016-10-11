@@ -50,7 +50,7 @@ function createAssignment(constructorDecl, symbolName, indentSetting, filePath) 
 function createProperty(classDecl, symbolName, typeName, indentSetting, filePath) {
     var indentLevel1 = createIndent(indentSetting, 1);
     var indentLevel2 = createIndent(indentSetting, 2);
-    var newText = ("" + os_1.EOL + indentLevel1 + "_" + symbolName + ": " + typeName + ";") +
+    var newText = "" + os_1.EOL + indentLevel1 + "_" + symbolName + ": " + typeName + ";" +
         ("" + os_1.EOL + indentLevel1 + "get " + symbolName + "(): " + typeName + " {") +
         ("" + os_1.EOL + indentLevel2 + "return this._" + symbolName + ";") +
         ("" + os_1.EOL + indentLevel1 + "}");

@@ -7,7 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var atomConfig = require("../atomConfig");
 var atomUtils = require("../atomUtils");
 var sp = require("atom-space-pen-views");
-var React = require('react');
+var React = require("react");
 var parent = require("../../../worker/parent");
 var rts;
 (function (rts) {
@@ -19,13 +19,14 @@ var rts;
 var MyComponent = (function (_super) {
     __extends(MyComponent, _super);
     function MyComponent(props) {
-        _super.call(this, props);
-        this.whileRendering = {
+        var _this = _super.call(this, props) || this;
+        _this.whileRendering = {
             lastCursorLine: null
         };
-        this.state = {
+        _this.state = {
             tree: []
         };
+        return _this;
     }
     MyComponent.prototype.componentDidMount = function () {
         var _this = this;
@@ -76,9 +77,9 @@ var MyComponent = (function (_super) {
     };
     MyComponent.prototype.renderNode = function (node, indent) {
         var _this = this;
-        return React.createElement("div", {className: "node", onClick: function (event) { _this.gotoNode(node); event.stopPropagation(); }, "data-start": node.start.line, "data-end": node.end.line}, 
-            rts.indent(indent), 
-            React.createElement("span", {className: this.getIconForKind(node.kind) + ' ' + this.isSelected(node)}, node.text), 
+        return React.createElement("div", { className: "node", onClick: function (event) { _this.gotoNode(node); event.stopPropagation(); }, "data-start": node.start.line, "data-end": node.end.line },
+            rts.indent(indent),
+            React.createElement("span", { className: this.getIconForKind(node.kind) + ' ' + this.isSelected(node) }, node.text),
             node.subNodes.map(function (sn) { return _this.renderNode(sn, indent + 1); }));
     };
     MyComponent.prototype.getIconForKind = function (kind) {
@@ -103,9 +104,10 @@ var MyComponent = (function (_super) {
 var SemanticView = (function (_super) {
     __extends(SemanticView, _super);
     function SemanticView(config) {
-        _super.call(this, config);
-        this.config = config;
-        this.started = false;
+        var _this = _super.call(this, config) || this;
+        _this.config = config;
+        _this.started = false;
+        return _this;
     }
     Object.defineProperty(SemanticView.prototype, "rootDomElement", {
         get: function () {
