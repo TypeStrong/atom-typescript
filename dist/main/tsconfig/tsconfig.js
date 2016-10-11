@@ -1,6 +1,6 @@
 "use strict";
 var fsu = require("../utils/fsUtil");
-var simpleValidator = require('./simpleValidator');
+var simpleValidator = require("./simpleValidator");
 var types = simpleValidator.types;
 var compilerOptionsValidation = {
     allowJs: { type: types.boolean },
@@ -11,6 +11,7 @@ var compilerOptionsValidation = {
     charset: { type: types.string },
     codepage: { type: types.number },
     declaration: { type: types.boolean },
+    declarationDir: { type: types.string },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
     experimentalAsyncFunctions: { type: types.boolean },
@@ -85,13 +86,13 @@ function errorWithDetails(error, details) {
     error.details = details;
     return error;
 }
-var fs = require('fs');
-var path = require('path');
-var tsconfig = require('tsconfig');
-var os = require('os');
-var detectIndent = require('detect-indent');
-var detectNewline = require('detect-newline');
-var formatting = require('./formatting');
+var fs = require("fs");
+var path = require("path");
+var tsconfig = require("tsconfig");
+var os = require("os");
+var detectIndent = require("detect-indent");
+var detectNewline = require("detect-newline");
+var formatting = require("./formatting");
 var projectFileName = 'tsconfig.json';
 var defaultFilesGlob = [
     "**/*.ts",

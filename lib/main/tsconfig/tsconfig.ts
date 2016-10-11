@@ -24,6 +24,7 @@ interface CompilerOptions {
     charset?: string;
     codepage?: number;
     declaration?: boolean;
+    declarationDir?: string;
     diagnostics?: boolean;
     emitBOM?: boolean;
     experimentalAsyncFunctions?: boolean;
@@ -92,6 +93,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     charset: { type: types.string },
     codepage: { type: types.number },
     declaration: { type: types.boolean },
+    declarationDir: { type: types.string },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
     experimentalAsyncFunctions: { type: types.boolean },
