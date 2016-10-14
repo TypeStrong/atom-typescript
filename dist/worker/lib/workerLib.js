@@ -156,7 +156,7 @@ var Parent = (function (_super) {
         var _this = this;
         try {
             var spawnEnv = (process.platform === 'linux') ? Object.create(process.env) : {};
-            spawnEnv['ATOM_SHELL_INTERNAL_RUN_AS_NODE'] = '1';
+            spawnEnv['ELECTRON_RUN_AS_NODE'] = 1;
             this.child = spawn(this.node, [
                 childJsPath
             ].concat(customArguments), {

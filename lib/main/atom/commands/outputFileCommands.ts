@@ -47,7 +47,12 @@ export function register() {
                 var command = `node ${path.basename(res.jsFilePath) }`;
                 console.log(command);
 
-                exec(command, { cwd: path.dirname(res.jsFilePath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' } }, (err, stdout, stderr) => {
+                exec(command, {
+                    cwd: path.dirname(res.jsFilePath),
+                    env: {
+                        ELECTRON_RUN_AS_NODE: 1,
+                    },
+                }, (err, stdout, stderr) => {
                     console.log(stdout);
                     if (stderr.toString().trim().length) {
                         console.error(stderr);

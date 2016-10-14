@@ -40,7 +40,12 @@ function register() {
             else {
                 var command = "node " + path.basename(res.jsFilePath);
                 console.log(command);
-                child_process_1.exec(command, { cwd: path.dirname(res.jsFilePath), env: { ATOM_SHELL_INTERNAL_RUN_AS_NODE: '1' } }, function (err, stdout, stderr) {
+                child_process_1.exec(command, {
+                    cwd: path.dirname(res.jsFilePath),
+                    env: {
+                        ELECTRON_RUN_AS_NODE: 1,
+                    },
+                }, function (err, stdout, stderr) {
                     console.log(stdout);
                     if (stderr.toString().trim().length) {
                         console.error(stderr);
