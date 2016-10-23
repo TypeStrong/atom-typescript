@@ -124,7 +124,7 @@ function getTypescriptLocation() {
         return path.dirname(typescriptServices_1.typescriptServices);
     }
     else {
-        return path.dirname(require.resolve('ntypescript'));
+        return path.dirname(require.resolve('typescript'));
     }
 }
 exports.getDefaultLibFilePath = function (options) {

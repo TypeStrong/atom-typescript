@@ -209,7 +209,7 @@ function getTypescriptLocation() {
         return path.dirname(typescriptServices);
     }
     else {
-        return path.dirname(require.resolve('ntypescript'));
+        return path.dirname(require.resolve('typescript'));
     }
 }
 

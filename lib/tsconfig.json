@@ -9,7 +9,10 @@
         "preserveConstEnums": true,
         "outDir": "../dist",
         "sourceMap": false,
-        "jsx": "react"
+        "jsx": "react",
+        "types": [
+            "byots"
+        ]
     },
     "dts": {
         "name": "atom-typescript"
