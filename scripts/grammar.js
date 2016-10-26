@@ -111,7 +111,8 @@ var atomPatterns = [
 
 Promise.all([
   request('https://raw.githubusercontent.com/Microsoft/TypeScript-TmLanguage/master/TypeScript.YAML-tmLanguage'),
-  request('https://raw.githubusercontent.com/Microsoft/TypeScript-TmLanguage/master/TypeScriptReact.YAML-tmLanguage')
+  // TODO: This is using the last known full file. Need to figure out what happened upstream.
+  request('https://raw.githubusercontent.com/Microsoft/TypeScript-TmLanguage/e6b8e961b3de03fb9920942d499efbb62707588e/TypeScriptReact.YAML-tmLanguage')
 ])
   .then(function (result) {
     var name
