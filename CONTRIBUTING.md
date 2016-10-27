@@ -40,11 +40,6 @@ And use `Shift+Delete` to delete files if simple `delete` doesn't work.
 
 # Various
 
-## NTypeScript
-We use a slightly modified (functionally equivalent) build of TypeScript called NTypeScript. The main motivation behind it is easier debugging and development workflow when consuming it as an NPM package. See [readme for details](https://github.com/TypeStrong/ntypescript#ntypescript).
-
-Update the version used by Atom-TypeScript using `npm install ntypescript@latest --save --save-exact` and then do some manual testing, and then rebuild the whole project.
-
 ## Publishing
 
 * If you have only fixed bugs in a backward-compatible way (or consider your changes very minimal), run `apm publish patch`.

@@ -291,7 +291,7 @@ var typescriptEnumMap = {
     target: {
         'es3': ts.ScriptTarget.ES3,
         'es5': ts.ScriptTarget.ES5,
-        'es6': ts.ScriptTarget.ES6,
+        'es6': ts.ScriptTarget.ES2015,
         'latest': ts.ScriptTarget.Latest
     },
     module: {
@@ -300,7 +300,7 @@ var typescriptEnumMap = {
         'amd': ts.ModuleKind.AMD,
         'umd': ts.ModuleKind.UMD,
         'system': ts.ModuleKind.System,
-        'es6': ts.ModuleKind.ES6,
+        'es6': ts.ModuleKind.ES2015,
         'es2015': ts.ModuleKind.ES2015,
     },
     moduleResolution: {
