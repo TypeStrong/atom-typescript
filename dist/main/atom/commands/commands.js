@@ -288,7 +288,7 @@ function registerCommands() {
             simpleSelectionView_1.simpleSelectionView({
                 items: res.references,
                 viewForItem: function (item) {
-                    return "<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + (item.position.line + 1) + "</div>\n                        <ts-view>" + item.preview + "</ts-view>\n                    <div>";
+                    return "<div>\n                        <span>" + atom.project.relativize(item.filePath) + "</span>\n                        <div class=\"pull-right\">line: " + (item.position.line + 1) + "</div>\n                        <ts-view>" + escapeHtml(item.preview) + "</ts-view>\n                    <div>";
                 },
                 filterKey: utils.getName(function () { return res.references[0].filePath; }),
                 confirmed: function (definition) {
