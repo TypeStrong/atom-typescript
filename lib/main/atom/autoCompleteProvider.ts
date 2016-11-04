@@ -37,16 +37,6 @@ declare module autocompleteplus {
         leftLabel?: string;
         type: string;
         description?: string;
-
-        atomTS_IsReference?: {
-            relativePath: string
-        };
-        atomTS_IsImport?: {
-            relativePath: string
-        };
-        atomTS_IsES6Import?: {
-            relativePath: string
-        };
     }
 
     /** What the provider needs to implement */
@@ -78,6 +68,25 @@ interface SnippetsContianer {
     [name: string]: SnippetDescriptor;
 }
 
+function getModuleAutocompleteType(scopes: string[]): {
+  isReference: boolean,
+  isRequire: boolean, // this only matches: import hello = require("^cursor") and not require("^")
+  isImport: boolean // ES6 import: import hello from "^cursor"
+} {
+  let has = scopes.reduce((scopes, name) => {
+    scopes[name] = true
+    return scopes
+  }, {} as {[key: string]: boolean})
+
+  let isString = has['string.quoted.double.ts'] || has['string.quoted.single.ts'] || false
+
+  return {
+    isReference: has['reference.path.string.quoted'] || has['amd.path.string.quoted'] || false,
+    isRequire: has['meta.import-equals.external.ts'] && isString || false,
+    isImport: has['meta.import.ts'] && isString || false
+  }
+}
+
 export var provider: autocompleteplus.Provider = {
     selector: '.source.ts, .source.tsx',
     inclusionPriority: 3,
@@ -91,14 +100,23 @@ export var provider: autocompleteplus.Provider = {
         if (!filePath) return Promise.resolve([]);
         if (!fs.existsSync(filePath)) return Promise.resolve([]);
 
-        // If we are looking at reference or require path support file system completions
-        var pathMatchers = ['reference.path.string.quoted', 'require.path.string.quoted', 'es6import.path.string.quoted'];
-        var lastScope = options.scopeDescriptor.scopes[options.scopeDescriptor.scopes.length - 1];
+        var {isReference, isRequire, isImport} = getModuleAutocompleteType(options.scopeDescriptor.scopes)
 
         // For file path completions
-        if (pathMatchers.some(p=> lastScope === p)) {
-            return parent.getRelativePathsInProject({ filePath, prefix: options.prefix, includeExternalModules: lastScope !== 'reference.path.string.quoted' })
+        if (isReference || isRequire || isImport) {
+            return parent.getRelativePathsInProject({ filePath, prefix: options.prefix, includeExternalModules: isReference })
                 .then((resp) => {
+
+                var range = options.editor.bufferRangeForScopeAtCursor(".string.quoted")
+                var cursor = options.editor.getCursorBufferPosition()
+
+                // Check if we're in a string and if the cursor is at the end of it. Bail otherwise
+                if (!range || cursor.column !== range.end.column-1) {
+                  return []
+                }
+
+                var content = options.editor.getTextInBufferRange(range).replace(/^['"]|['"]$/g, "")
+
                 return resp.files.map(file => {
                     var relativePath = file.relativePath;
 
@@ -107,28 +125,10 @@ export var provider: autocompleteplus.Provider = {
 
                     var suggestion: autocompleteplus.Suggestion = {
                         text: suggestionText,
-                        replacementPrefix: resp.endsInPunctuation ? '' : options.prefix.trim(),
+                        replacementPrefix: content,
                         rightLabelHTML: '<span>' + file.name + '</span>',
-                        type: 'path'
+                        type: 'import'
                     };
-
-                    if (lastScope == 'reference.path.string.quoted') {
-                        suggestion.atomTS_IsReference = {
-                            relativePath: relativePath
-                        };
-                    }
-
-                    if (lastScope == 'require.path.string.quoted') {
-                        suggestion.atomTS_IsImport = {
-                            relativePath: relativePath
-                        };
-                    }
-
-                    if (lastScope == 'es6import.path.string.quoted') {
-                        suggestion.atomTS_IsES6Import = {
-                            relativePath: relativePath
-                        };
-                    }
 
                     return suggestion;
                 });
@@ -198,45 +198,4 @@ export var provider: autocompleteplus.Provider = {
             return promisedSuggestions;
         }
     },
-    onDidInsertSuggestion: (options) => {
-        if (options.suggestion.atomTS_IsReference
-            || options.suggestion.atomTS_IsImport
-            || options.suggestion.atomTS_IsES6Import) {
-
-            // '' implies we will preserve their quote character
-            var quote = (/["']/.exec(atomConfig.preferredQuoteCharacter) || [''])[0];
-
-            if (options.suggestion.atomTS_IsReference) {
-                options.editor.moveToBeginningOfLine();
-                options.editor.selectToEndOfLine();
-                options.editor.replaceSelectedText(null, function() { return '/// <reference path="' + options.suggestion.atomTS_IsReference.relativePath + '.ts"/>'; });
-            }
-            if (options.suggestion.atomTS_IsImport) {
-                options.editor.moveToBeginningOfLine();
-                options.editor.selectToEndOfLine();
-                var groups = /^(\s*)import\s*(\w*)\s*=\s*require\s*\(\s*(["'])/.exec(options.editor.getSelectedText());
-                var leadingWhiteSpace = groups[1];
-                var alias = groups[2];
-
-                // Use the option if they have a preferred. Otherwise preserve
-                quote = quote || groups[3];
-
-                options.editor.replaceSelectedText(null, function() { return `${leadingWhiteSpace}import ${alias} = require(${quote}${options.suggestion.atomTS_IsImport.relativePath}${quote});`; });
-            }
-            if (options.suggestion.atomTS_IsES6Import) {
-                var {row} = options.editor.getCursorBufferPosition();
-                var originalText = (<any>options.editor).lineTextForBufferRow(row);
-                var groups = /(.*)from\s*(["'])/.exec(originalText);
-                var beforeFrom = groups[1];
-
-                // Use the option if they have a preferred. Otherwise preserve
-                quote = quote || groups[2];
-
-                var newTextAfterFrom = `from ${quote}${options.suggestion.atomTS_IsES6Import.relativePath}${quote};`;
-                options.editor.setTextInBufferRange([[row, beforeFrom.length], [row, originalText.length]], newTextAfterFrom)
-
-            }
-            options.editor.moveToEndOfLine();
-        }
-    }
 }
