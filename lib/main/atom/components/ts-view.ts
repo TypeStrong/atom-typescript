@@ -1,13 +1,11 @@
 // Some docs
 // http://www.html5rocks.com/en/tutorials/webcomponents/customelements/ (look at lifecycle callback methods)
 
-import escapeHtml = require("escape-html");
-
 export class TsView extends HTMLElement {
     editorElement;
     editor;
     createdCallback() {
-        var preview = escapeHtml(this.innerText);
+        var preview = this.innerText;
         this.innerText = "";
 
         // Based on markdown editor
@@ -18,7 +16,7 @@ export class TsView extends HTMLElement {
         var editor = this.editor = (<any>editorElement).getModel();
         editor.getDecorations({ class: 'cursor-line', type: 'line' })[0].destroy(); // remove the default selection of a line in each editor
         editor.setText(preview);
-        var grammar = (<any>atom).grammars.grammarForScopeName("source.ts")
+        var grammar = (<any>atom).grammars.grammarForScopeName("source.tsx")
         editor.setGrammar(grammar);
         editor.setSoftWrapped(true);
 
@@ -27,7 +25,7 @@ export class TsView extends HTMLElement {
 
     // API
     text(text: string) {
-        this.editor.setText(escapeHtml(text));
+        this.editor.setText(text);
     }
 }
 
