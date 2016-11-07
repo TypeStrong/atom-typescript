@@ -11,15 +11,14 @@ function triggerAutocompletePlus() {
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
 function getModuleAutocompleteType(scopes) {
-    var has = scopes.reduce(function (scopes, name) {
-        scopes[name] = true;
-        return scopes;
-    }, {});
-    var isString = has['string.quoted.double.ts'] || has['string.quoted.single.ts'] || false;
+    function has(match) {
+        return scopes.some(function (scope) { return scope.indexOf(match) !== -1; });
+    }
+    var isString = has('string.quoted');
     return {
-        isReference: has['reference.path.string.quoted'] || has['amd.path.string.quoted'] || false,
-        isRequire: has['meta.import-equals.external.ts'] && isString || false,
-        isImport: has['meta.import.ts'] && isString || false
+        isReference: has('reference.path.string.quoted') || has('amd.path.string.quoted'),
+        isRequire: has('meta.import-equals.external') && isString,
+        isImport: has('meta.import') && isString
     };
 }
 exports.provider = {

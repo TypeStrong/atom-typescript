@@ -73,17 +73,16 @@ function getModuleAutocompleteType(scopes: string[]): {
   isRequire: boolean, // this only matches: import hello = require("^cursor") and not require("^")
   isImport: boolean // ES6 import: import hello from "^cursor"
 } {
-  let has = scopes.reduce((scopes, name) => {
-    scopes[name] = true
-    return scopes
-  }, {} as {[key: string]: boolean})
+  function has(match: string): boolean {
+    return scopes.some(scope => scope.indexOf(match) !== -1)
+  }
 
-  let isString = has['string.quoted.double.ts'] || has['string.quoted.single.ts'] || false
+  let isString = has('string.quoted')
 
   return {
-    isReference: has['reference.path.string.quoted'] || has['amd.path.string.quoted'] || false,
-    isRequire: has['meta.import-equals.external.ts'] && isString || false,
-    isImport: has['meta.import.ts'] && isString || false
+    isReference: has('reference.path.string.quoted') || has('amd.path.string.quoted'),
+    isRequire: has('meta.import-equals.external') && isString,
+    isImport: has('meta.import') && isString
   }
 }
 
