@@ -1,25 +1,18 @@
 "use strict";
-var vm = require("vm");
-var fs = require("fs");
+var path_1 = require("path");
 global.stack = function () {
     console.error(new Error().stack);
 };
-function makeTsGlobal(typescriptServices) {
-    var sandbox = {
-        ts: {},
-        console: console,
-        stack: global.stack,
-        require: require,
-        module: module,
-        process: process
-    };
-    vm.createContext(sandbox);
-    if (typescriptServices) {
-        vm.runInContext(fs.readFileSync(typescriptServices).toString(), sandbox);
+function makeTsGlobal(typescriptPath) {
+    if (typescriptPath) {
+        if (!path_1.isAbsolute(typescriptPath)) {
+            throw new Error("Path to Typescript \"" + typescriptPath + "\" is not absolute");
+        }
+        typescriptPath = typescriptPath.trim();
     }
     else {
-        sandbox.ts = require('typescript');
+        typescriptPath = "typescript";
     }
-    global.ts = sandbox.ts;
+    global.ts = require(typescriptPath);
 }
 exports.makeTsGlobal = makeTsGlobal;
