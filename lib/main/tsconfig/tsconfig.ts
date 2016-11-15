@@ -21,30 +21,29 @@ interface CompilerOptions {
     allowSyntheticDefaultImports?: boolean;
     allowUnreachableCode?: boolean;
     allowUnusedLabels?: boolean;
+    baseUrl?: string;
     charset?: string;
     codepage?: number;
     declaration?: boolean;
     declarationDir?: string;
     diagnostics?: boolean;
     emitBOM?: boolean;
+    emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     experimentalAsyncFunctions?: boolean;
     experimentalDecorators?: boolean;                 // Experimental. Needed for the next option `emitDecoratorMetadata` see : https://github.com/Microsoft/TypeScript/pull/3330
-    emitDecoratorMetadata?: boolean;                  // Experimental. Emits addition type information for this reflection API https://github.com/rbuckton/ReflectDecorators
     forceConsistentCasingInFileNames?: boolean;
     help?: boolean;
     importHelpers?: boolean;
-    isolatedModules?: boolean;
     inlineSourceMap?: boolean;
     inlineSources?: boolean;
+    isolatedModules?: boolean;
     jsx?: string;
-    locale?: string;
+    lib?: string[];
     listFiles?: boolean;
+    locale?: string;
     mapRoot?: string;                                 // Optionally Specifies the location where debugger should locate map files after deployment
     module?: string;
     moduleResolution?: string;
-    baseUrl?: string;
-    paths?: { [pattern: string]: string[] };
-    rootDirs?: string[];
     newLine?: string;
     noEmit?: boolean;
     noEmitHelpers?: boolean;
@@ -61,14 +60,16 @@ interface CompilerOptions {
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
     out?: string;                                     // Deprecated. Use outFile instead
-    outFile?: string;                                 // new name for out
     outDir?: string;                                  // Redirect output structure to this directory
+    outFile?: string;                                 // new name for out
+    paths?: { [pattern: string]: string[] };
     preserveConstEnums?: boolean;
     pretty?: boolean;                                 // Experimental
     project?: string;
     reactNamespace?: string;
     removeComments?: boolean;                         // Do not emit comments in output
     rootDir?: string;
+    rootDirs?: string[];
     skipDefaultLibCheck?: boolean;
     skipLibCheck?: boolean;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
@@ -81,7 +82,6 @@ interface CompilerOptions {
     types?: string[];
     version?: boolean;
     watch?: boolean;
-    lib?: string[];
 }
 
 var compilerOptionsValidation: simpleValidator.ValidationInfo = {
@@ -90,15 +90,16 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     allowSyntheticDefaultImports: { type: types.boolean },
     allowUnreachableCode: { type: types.boolean },
     allowUnusedLabels: { type: types.boolean },
+    baseUrl: { type: types.string },
     charset: { type: types.string },
     codepage: { type: types.number },
     declaration: { type: types.boolean },
     declarationDir: { type: types.string },
     diagnostics: { type: types.boolean },
     emitBOM: { type: types.boolean },
+    emitDecoratorMetadata: { type: types.boolean },
     experimentalAsyncFunctions: { type: types.boolean },
     experimentalDecorators: { type: types.boolean },
-    emitDecoratorMetadata: { type: types.boolean },
     forceConsistentCasingInFileNames: { type: types.boolean },
     help: { type: types.boolean },
     importHelpers: { type: types.boolean },
@@ -106,14 +107,12 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     inlineSources: { type: types.boolean },
     isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
-    locals: { type: types.string },
+    lib: { type: types.array },
     listFiles: { type: types.boolean },
+    locals: { type: types.string },
     mapRoot: { type: types.string },
     module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd', 'es6', 'es2015'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
-    baseUrl: { type: types.string },
-    paths: { type: types.object },
-    rootDirs: { type: types.object },
     newLine: { type: types.string },
     noEmit: { type: types.boolean },
     noEmitHelpers: { type: types.boolean },
@@ -121,23 +120,25 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     noErrorTruncation: { type: types.boolean },
     noFallthroughCasesInSwitch: { type: types.boolean },
     noImplicitAny: { type: types.boolean },
+    noImplicitReturns: { type: types.boolean },
     noImplicitThis: { type: types.boolean },
     noImplicitUseStrict: { type: types.boolean },
-    noImplicitReturns: { type: types.boolean },
     noLib: { type: types.boolean },
     noLibCheck: { type: types.boolean },
     noResolve: { type: types.boolean },
     noUnusedLocals: { type: types.boolean },
     noUnusedParameters: { type: types.boolean },
     out: { type: types.string },
-    outFile: { type: types.string },
     outDir: { type: types.string },
+    outFile: { type: types.string },
+    paths: { type: types.object },
     preserveConstEnums: { type: types.boolean },
     pretty: { type: types.boolean },
     project: { type: types.string },
     reactNamespace: { type: types.string },
     removeComments: { type: types.boolean },
     rootDir: { type: types.string },
+    rootDirs: { type: types.object },
     skipDefaultLibCheck: { type: types.boolean },
     skipLibCheck: { type: types.boolean },
     sourceMap: { type: types.boolean },
@@ -151,7 +152,6 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     types: { type: types.array },
     version: { type: types.boolean },
     watch: { type: types.boolean },
-    lib: { type: types.array }
 }
 var validator = new simpleValidator.SimpleValidator(compilerOptionsValidation);
 
