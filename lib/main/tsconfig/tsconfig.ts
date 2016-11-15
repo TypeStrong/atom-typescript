@@ -21,6 +21,7 @@ interface CompilerOptions {
     allowSyntheticDefaultImports?: boolean;
     allowUnreachableCode?: boolean;
     allowUnusedLabels?: boolean;
+    alwaysStrict?: boolean;
     baseUrl?: string;
     charset?: string;
     codepage?: number;
@@ -38,6 +39,7 @@ interface CompilerOptions {
     inlineSources?: boolean;
     isolatedModules?: boolean;
     jsx?: string;
+    jsxFactory?: string;
     lib?: string[];
     listFiles?: boolean;
     locale?: string;
@@ -74,10 +76,11 @@ interface CompilerOptions {
     skipLibCheck?: boolean;
     sourceMap?: boolean;                              // Generates SourceMaps (.map files)
     sourceRoot?: string;                              // Optionally specifies the location where debugger should locate TypeScript source files after deployment
+    strictNullChecks?: boolean;
     stripInternal?: boolean;
     suppressExcessPropertyErrors?: boolean;           // Optionally disable strict object literal assignment checking
     suppressImplicitAnyIndexErrors?: boolean;
-    target?: string;                                  // 'es3'|'es5' (default)|'es6'|'es2015'
+    target?: string;                                  // 'es3'|'es5'|'es6'|'es2015'|'es2016'|'es2017'|'esnext', defaults to es5
     typeRoots?: string[];
     types?: string[];
     version?: boolean;
@@ -90,6 +93,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     allowSyntheticDefaultImports: { type: types.boolean },
     allowUnreachableCode: { type: types.boolean },
     allowUnusedLabels: { type: types.boolean },
+    alwaysStrict: { type: types.boolean },
     baseUrl: { type: types.string },
     charset: { type: types.string },
     codepage: { type: types.number },
@@ -107,6 +111,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     inlineSources: { type: types.boolean },
     isolatedModules: { type: types.boolean },
     jsx: { type: types.string, validValues: ['preserve', 'react'] },
+    jsxFactory: { type: types.string },
     lib: { type: types.array },
     listFiles: { type: types.boolean },
     locals: { type: types.string },
@@ -147,7 +152,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     stripInternal: { type: types.boolean },
     suppressExcessPropertyErrors: { type: types.boolean },
     suppressImplicitAnyIndexErrors: { type: types.boolean },
-    target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015'] },
+    target: { type: types.string, validValues: ['es3', 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'esnext'] },
     typeRoots: { type: types.array },
     types: { type: types.array },
     version: { type: types.boolean },
@@ -292,7 +297,10 @@ var typescriptEnumMap = {
         'es3': ts.ScriptTarget.ES3,
         'es5': ts.ScriptTarget.ES5,
         'es6': ts.ScriptTarget.ES2015,
-        'latest': ts.ScriptTarget.Latest
+        'es2015': ts.ScriptTarget.ES2015,
+        'es2016': ts.ScriptTarget.ES2016,
+        'es2017': ts.ScriptTarget.ES2017,
+        'esnext': ts.ScriptTarget.Latest,
     },
     module: {
         'none': ts.ModuleKind.None,
