@@ -4,6 +4,7 @@ import {QuickFix} from "./quickFix";
  */
 import {AddClassMember} from "./quickFixes/addClassMember";
 import {AddClassMethod} from "./quickFixes/addClassMethod";
+import {AddImportDefaultStatement} from "./quickFixes/addImportDefaultStatement";
 import {AddImportFromStatement} from "./quickFixes/addImportFromStatement";
 import {AddImportStatement} from "./quickFixes/addImportStatement";
 import {EqualsToEquals} from "./quickFixes/equalsToEquals";
@@ -17,18 +18,19 @@ import {TypeAssertPropertyAccessToType} from "./quickFixes/typeAssertPropertyAcc
 import {ImplementInterface} from "./quickFixes/implementInterface";
 import {SingleLineCommentToJsdoc} from "./quickFixes/singleLineCommentToJsdoc";
 export var allQuickFixes: QuickFix[] = [
-    new AddClassMethod(),
-    new AddClassMember(),
-    new AddImportFromStatement(),
-    new AddImportStatement(),
-    new WrapInProperty(),
-    new EqualsToEquals(),
-    new ExtractVariable(),
-    new StringConcatToTemplate(),
-    new QuotesToQuotes(),
-    new QuoteToTemplate(),
-    new TypeAssertPropertyAccessToAny(),
-    new TypeAssertPropertyAccessToType(),
-    new ImplementInterface(),
-    new SingleLineCommentToJsdoc()
+  new AddClassMethod(),
+  new AddClassMember(),
+  new AddImportDefaultStatement(),
+  new AddImportFromStatement(),
+  new AddImportStatement(),
+  new WrapInProperty(),
+  new EqualsToEquals(),
+  new ExtractVariable(),
+  new StringConcatToTemplate(),
+  new QuotesToQuotes(),
+  new QuoteToTemplate(),
+  new TypeAssertPropertyAccessToAny(),
+  new TypeAssertPropertyAccessToType(),
+  new ImplementInterface(),
+  new SingleLineCommentToJsdoc()
 ];

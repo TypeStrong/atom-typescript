@@ -14,6 +14,11 @@ function getExternalModuleNames(program) {
     });
     return entries;
 }
+function formatImportPath(sourcePath) {
+    sourcePath = sourcePath.replace(/\.d$/, "");
+    sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
+    return sourcePath;
+}
 function getPathCompletions(query) {
     var project = query.project;
     var sourceDir = path.dirname(query.filePath);
@@ -30,7 +35,7 @@ function getPathCompletions(query) {
     filePaths.forEach(function (p) {
         files.push({
             name: path.basename(p, '.ts'),
-            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
+            relativePath: formatImportPath(tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p))),
             fullPath: p
         });
     });
