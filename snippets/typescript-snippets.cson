@@ -19,6 +19,11 @@
         'body': """
             import ${2} from "${1:path}";$3
         """
+    "import using '":
+        'prefix': 'importq'
+        'body': """
+            import ${2} from '${1:path}';$3
+        """
     'importr':
         'prefix': 'importr'
         'body': """
