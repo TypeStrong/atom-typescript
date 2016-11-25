@@ -8,6 +8,8 @@ import workerLib = require('./lib/workerLib');
 import tsconfig = require('../main/tsconfig/tsconfig');
 import * as atomConfig from "../main/atom/atomConfig";
 
+import {TypescriptServiceClient, findTSServer} from "../client/client"
+
 var parent = new workerLib.Parent();
 import * as mainPanel from "../main/atom/views/mainPanelView";
 parent.pendingRequestsChanged = (pending) => {
@@ -104,3 +106,14 @@ export var toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 // Automatically include all functions from "parentResponses" as responders
 import queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
+
+const tsserverPath = findTSServer(__dirname)
+const client = new TypescriptServiceClient(tsserverPath)
+
+client.execute("open", {file: "hello.ts", fileContent: "let x = 'hello'; x", scriptKindName: "TS"})
+client.execute("completions", {file: "hello.ts", line: 1, offset: 18, prefix: "x"}, true).then(result => {
+  console.log("completions result", result)
+  client.execute("completions", {file: "hello.ts", line: 1, offset: 18, prefix: "x"}, true).then(result => {
+    console.log("more completions", result)
+  })
+})

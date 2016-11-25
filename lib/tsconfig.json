@@ -25,6 +25,7 @@
         "!node_modules/**/*.tsx"
     ],
     "files": [
+        "./client/client.ts",
         "./globals.ts",
         "./hyperclickProvider.ts",
         "./linter.ts",

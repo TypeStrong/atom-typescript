@@ -5,6 +5,7 @@ var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");
+var client_1 = require("../client/client");
 var parent = new workerLib.Parent();
 var mainPanel = require("../main/atom/views/mainPanelView");
 parent.pendingRequestsChanged = function (pending) {
@@ -81,3 +82,12 @@ exports.createProject = parent.sendToIpc(projectService.createProject);
 exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
+var tsserverPath = client_1.findTSServer(__dirname);
+var client = new client_1.TypescriptServiceClient(tsserverPath);
+client.execute("open", { file: "hello.ts", fileContent: "let x = 'hello'; x", scriptKindName: "TS" });
+client.execute("completions", { file: "hello.ts", line: 1, offset: 18, prefix: "x" }, true).then(function (result) {
+    console.log("completions result", result);
+    client.execute("completions", { file: "hello.ts", line: 1, offset: 18, prefix: "x" }, true).then(function (result) {
+        console.log("more completions", result);
+    });
+});

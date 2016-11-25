@@ -1,5 +1,3 @@
-/// <reference path="../typings/main/ambient/node/index.d.ts"   />
-
 import * as cson from "cson"
 import * as fs from "fs"
 import * as path from "path"

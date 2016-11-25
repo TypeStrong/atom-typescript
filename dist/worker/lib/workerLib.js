@@ -165,7 +165,7 @@ var Parent = (function (_super) {
                 stdio: ['ipc']
             });
             this.child.on('error', function (err) {
-                if (err.code === "ENOENT" && err.path === _this.node) {
+                if (err["code"] === "ENOENT" && err["path"] === _this.node) {
                     _this.gotENOENTonSpawnNode = true;
                 }
                 console.log('CHILD ERR ONERROR:', err.message, err.stack, err);

@@ -246,7 +246,7 @@ export class Parent extends RequesterResponder {
             });
 
             this.child.on('error', (err) => {
-                if (err.code === "ENOENT" && err.path === this.node) {
+                if (err["code"] === "ENOENT" && err["path"] === this.node) {
                     this.gotENOENTonSpawnNode = true;
                 }
                 console.log('CHILD ERR ONERROR:', err.message, err.stack, err);
