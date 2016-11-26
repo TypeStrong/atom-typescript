@@ -207,7 +207,7 @@ function registerOpener(config) {
         var uri = uriForPath(config.uriProtocol, getCurrentPath());
         var old_pane = atom.workspace.paneForURI(uri);
         if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+            old_pane.destroyItem(old_pane.itemForURI(uri));
         }
         atom.workspace.open(uri, config.getData());
     });

@@ -1,9 +1,5 @@
 import {debugSync} from "./debug";
 
-import childprocess = require('child_process');
-var exec = childprocess.exec;
-var spawn = childprocess.spawn;
-
 import * as path from "path"
 import * as tsconfig from "tsconfig"
 

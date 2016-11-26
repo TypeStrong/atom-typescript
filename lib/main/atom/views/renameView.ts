@@ -2,7 +2,7 @@ import view = require('./view');
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
 
-interface EditorView extends JQuery {
+interface EditorViewzz extends JQuery {
     model: AtomCore.IEditor;
 }
 
@@ -21,7 +21,7 @@ interface RenameViewOptions {
 export class RenameView
     extends view.View<RenameViewOptions> {
 
-    private newNameEditor: EditorView;
+    private newNameEditor: EditorViewzz;
     private validationMessage: JQuery;
     private fileCount: JQuery;
     private title: JQuery;
@@ -83,7 +83,7 @@ export class RenameView
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveToEndOfScreenLine();
+            this.newNameEditor.model.moveCursorToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();

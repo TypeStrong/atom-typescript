@@ -175,19 +175,20 @@ export class MainPanelView extends view.View<any> {
     }
 
     softReset() {
-        var editor = atom.workspace.getActiveTextEditor();
-        var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
-            .then(() => {
-
-        });
-        if (atomUtils.onDiskAndTs(editor)) {
-            prom.then(() => {
-                atomUtils.triggerLinter();
-
-                return parent.errorsForFile({ filePath: editor.getPath() })
-            })
-                .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
-        }
+        console.log("soft reset")
+        // var editor = atom.workspace.getActiveTextEditor();
+        // var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
+        //     .then(() => {
+        //
+        // });
+        // if (atomUtils.onDiskAndTs(editor)) {
+        //     prom.then(() => {
+        //         atomUtils.triggerLinter();
+        //
+        //         return parent.errorsForFile({ filePath: editor.getPath() })
+        //     })
+        //         .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        // }
     }
 
     ///////////// Current TSconfig

@@ -1,5 +1,3 @@
-
-
 import path = require('path');
 import fs = require('fs');
 import * as fsu from "../utils/fsUtil";
@@ -246,7 +244,7 @@ export function registerOpener<T>(config: OpenerConfig<T>) {
         var uri = uriForPath(config.uriProtocol, getCurrentPath());
         var old_pane = atom.workspace.paneForURI(uri);
         if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForUri(uri));
+            old_pane.destroyItem(old_pane.itemForURI(uri));
         }
 
         atom.workspace.open(uri, config.getData());

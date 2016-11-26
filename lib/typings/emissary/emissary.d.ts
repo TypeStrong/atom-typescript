@@ -3,8 +3,6 @@
 // Definitions by: vvakame <https://github.com/vvakame/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
-/// <reference path="../mixto/mixto.d.ts" />
-
 declare module Emissary {
 	interface IEmitterStatic extends Mixto.IMixinStatic {
 		new ():IEmitter;

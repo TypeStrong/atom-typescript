@@ -1,8 +1,5 @@
 "use strict";
 var debug_1 = require("./debug");
-var childprocess = require("child_process");
-var exec = childprocess.exec;
-var spawn = childprocess.spawn;
 var tsconfig = require("tsconfig");
 var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");

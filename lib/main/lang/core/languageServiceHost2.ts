@@ -1,11 +1,12 @@
-import path = require('path');
-import utils = require('../utils');
 import fs = require('fs');
 import os = require('os')
+import path = require('path');
 import textBuffer = require('basarat-text-buffer');
+import utils = require('../utils');
 
 import tsconfig = require('../../tsconfig/tsconfig');
 import {typescriptServices} from "../typescriptServices";
+
 
 interface ScriptInfo {
     getFileName(): string;
@@ -15,7 +16,6 @@ interface ScriptInfo {
     setIsOpen(val: boolean): void;
     getEditRanges(): ts.TextChangeRange[];
     getLineStarts(): number[];
-
 
     updateContent(newContent: string): void;
     editContent(minChar: number, limChar: number, newText: string): void;
@@ -82,7 +82,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
         // console.error('initial text:',buffer.getText()==newText);
         // console.error({minChar,limChar,newText:newText.length});
         // console.error(start,end);
-        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, {normalizeLineEndings: false});
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]] as any, newText, false);
         // console.error(buffer.getText().length);
         // console.error(JSON.stringify({newText, final:buffer.getText()}));
 
@@ -107,7 +107,7 @@ function createScriptInfo(fileName: string, text: string, isOpen = false): Scrip
      * @param character charecter poisiton in the line
      */
     function getPositionFromLine(line: number, ch: number) {
-        return buffer.characterIndexForPosition([line, ch]);
+        return buffer.characterIndexForPosition([line, ch] as any);
     }
 
     /**

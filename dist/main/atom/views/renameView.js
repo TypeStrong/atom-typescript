@@ -65,7 +65,7 @@ var RenameView = (function (_super) {
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveToEndOfScreenLine();
+            this.newNameEditor.model.moveCursorToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();

@@ -25,6 +25,8 @@ export var provider = {
     lintOnFly: true, // # must be false for scope: 'project'
     lint: (textEditor: AtomCore.IEditor): Promise<LinterMessage[]> => {
 
+        console.log("lint called")
+
         // We do not support files not on disk
         if (!textEditor.buffer.file
             || !textEditor.buffer.file.path

@@ -8,7 +8,6 @@ var view = require("./view");
 var $ = view.$;
 var lineMessageView = require("./lineMessageView");
 var atomUtils = require("../atomUtils");
-var parent = require("../../../worker/parent");
 var utils = require("../../lang/utils");
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -151,17 +150,7 @@ var MainPanelView = (function (_super) {
         this.referencesBody.html('<span class="text-success"> You haven\'t searched for TypeScript references yet. </span>');
     };
     MainPanelView.prototype.softReset = function () {
-        var editor = atom.workspace.getActiveTextEditor();
-        var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
-            .then(function () {
-        });
-        if (atomUtils.onDiskAndTs(editor)) {
-            prom.then(function () {
-                atomUtils.triggerLinter();
-                return parent.errorsForFile({ filePath: editor.getPath() });
-            })
-                .then(function (resp) { return errorView.setErrors(editor.getPath(), resp.errors); });
-        }
+        console.log("soft reset");
     };
     MainPanelView.prototype.setTsconfigInUse = function (tsconfigFilePath) {
         this.fullTsconfigPath = tsconfigFilePath;

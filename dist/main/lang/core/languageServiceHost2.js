@@ -1,7 +1,7 @@
 "use strict";
-var path = require("path");
 var fs = require("fs");
 var os = require("os");
+var path = require("path");
 var textBuffer = require("basarat-text-buffer");
 var typescriptServices_1 = require("../typescriptServices");
 function createScriptInfo(fileName, text, isOpen) {
@@ -33,7 +33,7 @@ function createScriptInfo(fileName, text, isOpen) {
     function editContent(minChar, limChar, newText) {
         var start = getLineAndColForPositon(minChar);
         var end = getLineAndColForPositon(limChar);
-        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, { normalizeLineEndings: false });
+        buffer.setTextInRange([[start.line, start.col], [end.line, end.col]], newText, false);
         _lineStartIsDirty = true;
         editRanges.push({
             span: { start: minChar, length: limChar - minChar },

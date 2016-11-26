@@ -49,11 +49,6 @@ function readyToActivate() {
             var filePath = editor.getPath();
             onlyOnceStuff();
             updatePanelConfig(filePath);
-            parent.errorsForFile({ filePath: filePath })
-                .then(function (resp) {
-                mainPanelView_1.errorView.setErrors(filePath, resp.errors);
-                atomUtils.triggerLinter();
-            });
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
         }

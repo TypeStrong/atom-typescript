@@ -122,12 +122,12 @@ var TypescriptServiceClient = (function () {
     };
     return TypescriptServiceClient;
 }());
-exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     projectInfo: true,
     quickInfo: true
 };
+exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

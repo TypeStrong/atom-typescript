@@ -8,6 +8,7 @@ exports.provider = {
     scope: 'file',
     lintOnFly: true,
     lint: function (textEditor) {
+        console.log("lint called");
         if (!textEditor.buffer.file
             || !textEditor.buffer.file.path
             || !fs.existsSync(textEditor.buffer.file.path))

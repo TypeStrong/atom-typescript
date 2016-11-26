@@ -10,7 +10,7 @@ function getConfig<T>(nameLambda: () => any): T {
     return atom.config.get(packageName + '.' + getName(nameLambda));
 }
 function setConfig<T>(nameLambda: () => any, value: T): T {
-    return atom.config.set(packageName + '.' + getName(nameLambda), value);
+    return (atom.config as any).set(packageName + '.' + getName(nameLambda), value);
 }
 
 class Config {
