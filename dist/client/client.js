@@ -21,7 +21,7 @@ var TypescriptServiceClient = (function (_super) {
             if (isResponse(res)) {
                 var callback = _this.callbacks[res.request_seq];
                 if (callback) {
-                    console.log("received response in", Date.now() - callback.started, "ms");
+                    console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body);
                     delete _this.callbacks[res.request_seq];
                     if (res.success) {
                         callback.resolve(res);
@@ -40,9 +40,28 @@ var TypescriptServiceClient = (function (_super) {
         _this.serverPromise = _this.startServer();
         return _this;
     }
-    TypescriptServiceClient.prototype.execute = function (command, args, expectResponse) {
+    TypescriptServiceClient.prototype.executeChange = function (args) {
+        this.execute("change", args);
+    };
+    TypescriptServiceClient.prototype.executeClose = function (args) {
+        this.execute("close", args);
+    };
+    TypescriptServiceClient.prototype.executeCompletions = function (args) {
+        return this.execute("completions", args);
+    };
+    TypescriptServiceClient.prototype.executeOpen = function (args) {
+        this.execute("open", args);
+    };
+    TypescriptServiceClient.prototype.executeProjectInfo = function (args) {
+        return this.execute("projectInfo", args);
+    };
+    TypescriptServiceClient.prototype.executeQuickInfo = function (args) {
+        return this.execute("quickInfo", args);
+    };
+    TypescriptServiceClient.prototype.execute = function (command, args) {
         var _this = this;
         return this.serverPromise.then(function (cp) {
+            var expectResponse = !!TypescriptServiceClient.commandWithResponse[command];
             return _this.sendRequest(cp, command, args, expectResponse);
         }).catch(function (err) {
             console.log("command", command, "failed due to", err);
@@ -56,6 +75,7 @@ var TypescriptServiceClient = (function (_super) {
             command: command,
             arguments: args
         };
+        console.log("sending request", command, "with args", args);
         var resultPromise = undefined;
         if (expectResponse) {
             resultPromise = new Promise(function (resolve, reject) {
@@ -85,6 +105,11 @@ var TypescriptServiceClient = (function (_super) {
     return TypescriptServiceClient;
 }(events_1.EventEmitter));
 exports.TypescriptServiceClient = TypescriptServiceClient;
+TypescriptServiceClient.commandWithResponse = {
+    completions: true,
+    projectInfo: true,
+    quickInfo: true
+};
 function isEvent(res) {
     return res.type === "event";
 }
@@ -92,8 +117,8 @@ function isResponse(res) {
     return res.type === "response";
 }
 function findTSServer(basedir) {
-    var tsPath = resolve.sync("typescript", { basedir: basedir });
-    var tsServerPath = path.resolve(path.dirname(tsPath), "..", "bin", "tsserver");
+    var tsPath = resolve.sync("typescript/package.json", { basedir: basedir });
+    var tsServerPath = path.resolve(path.dirname(tsPath), "bin", "tsserver");
     fs.statSync(tsServerPath);
     return tsServerPath;
 }

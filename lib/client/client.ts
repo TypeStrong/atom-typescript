@@ -3,7 +3,6 @@ import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
 import * as fs from "fs"
 import * as path from "path"
-import * as protocol from "typescript/lib/protocol"
 import * as resolve from "resolve"
 import byline = require("byline")
 
@@ -35,11 +34,34 @@ export class TypescriptServiceClient extends EventEmitter {
     this.serverPromise = this.startServer()
   }
 
-  execute(command: protocol.CommandTypes.Completions, args: protocol.CompletionsRequestArgs, expectResponse: boolean): Promise<protocol.CompletionsResponse>
-  execute(command: protocol.CommandTypes.Open, args: protocol.OpenRequestArgs): void
-  execute(command: protocol.CommandTypes.Quickinfo, args: protocol.FileLocationRequestArgs, expectResponse: boolean): Promise<protocol.QuickInfoResponse>
-  execute(command: string, args, expectResponse?: boolean): Promise<any> {
+  static commandWithResponse = {
+    completions: true,
+    projectInfo: true,
+    quickInfo: true
+  }
+
+  executeChange(args: protocol.ChangeRequestArgs) {
+    this.execute("change", args)
+  }
+  executeClose(args: protocol.FileRequestArgs) {
+    this.execute("close", args)
+  }
+  executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
+    return this.execute("completions", args)
+  }
+  executeOpen(args: protocol.OpenRequestArgs) {
+    this.execute("open", args)
+  }
+  executeProjectInfo(args: protocol.ProjectInfoRequestArgs): Promise<protocol.ProjectInfoResponse> {
+    return this.execute("projectInfo", args)
+  }
+  executeQuickInfo(args: protocol.FileLocationRequestArgs): Promise<protocol.QuickInfoResponse> {
+    return this.execute("quickInfo", args)
+  }
+
+  execute(command: string, args): Promise<any> {
     return this.serverPromise.then(cp => {
+      const expectResponse = !!TypescriptServiceClient.commandWithResponse[command]
       return this.sendRequest(cp, command, args, expectResponse)
     }).catch(err => {
       console.log("command", command, "failed due to", err)
@@ -51,7 +73,7 @@ export class TypescriptServiceClient extends EventEmitter {
     if (isResponse(res)) {
       const callback = this.callbacks[res.request_seq]
       if (callback) {
-        console.log("received response in", Date.now() - callback.started, "ms")
+        console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
         delete this.callbacks[res.request_seq]
         if (res.success) {
           callback.resolve(res)
@@ -72,6 +94,8 @@ export class TypescriptServiceClient extends EventEmitter {
       command,
       arguments: args
     }
+
+    console.log("sending request", command, "with args", args)
 
     let resultPromise: Promise<protocol.Response> | undefined = undefined
 
@@ -104,7 +128,7 @@ export class TypescriptServiceClient extends EventEmitter {
 
       messageStream(cp.stdout).on("data", this.onMessage)
 
-      // We send an unknown command to verify that the server is working. 
+      // We send an unknown command to verify that the server is working.
       this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
     })
   }
@@ -120,8 +144,8 @@ function isResponse(res: protocol.Response | protocol.Event): res is protocol.Re
 
 /** Given a start directory, try to resolve tsserver executable from node_modules */
 export function findTSServer(basedir: string): string {
-  const tsPath = resolve.sync("typescript", {basedir})
-  const tsServerPath = path.resolve(path.dirname(tsPath), "..", "bin", "tsserver")
+  const tsPath = resolve.sync("typescript/package.json", {basedir})
+  const tsServerPath = path.resolve(path.dirname(tsPath), "bin", "tsserver")
 
   // This will throw if the file does not exist on the disk
   fs.statSync(tsServerPath)

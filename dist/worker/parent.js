@@ -3,6 +3,7 @@ var debug_1 = require("./debug");
 var childprocess = require("child_process");
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
+var tsconfig = require("tsconfig");
 var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");
 var client_1 = require("../client/client");
@@ -63,7 +64,6 @@ exports.getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.ge
 exports.getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 exports.getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 exports.debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
-exports.getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
 exports.getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
 exports.getSemtanticTree = parent.sendToIpc(projectService.getSemtanticTree);
 exports.getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
@@ -83,11 +83,10 @@ exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 var tsserverPath = client_1.findTSServer(__dirname);
-var client = new client_1.TypescriptServiceClient(tsserverPath);
-client.execute("open", { file: "hello.ts", fileContent: "let x = 'hello'; x", scriptKindName: "TS" });
-client.execute("completions", { file: "hello.ts", line: 1, offset: 18, prefix: "x" }, true).then(function (result) {
-    console.log("completions result", result);
-    client.execute("completions", { file: "hello.ts", line: 1, offset: 18, prefix: "x" }, true).then(function (result) {
-        console.log("more completions", result);
+exports.client = new client_1.TypescriptServiceClient(tsserverPath);
+function loadProjectConfig(sourcePath) {
+    return exports.client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(function (result) {
+        return tsconfig.load(result.body.configFileName);
     });
-});
+}
+exports.loadProjectConfig = loadProjectConfig;

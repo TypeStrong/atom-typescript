@@ -23,6 +23,7 @@ var RequesterResponder = (function () {
         this.pendingRequests = [];
         this.pendingRequestsChanged = function (pending) { return null; };
         this.sendToIpcHeart = function (data, message) {
+            console.log("sending", message, "with", data);
             if (!_this.getProcess()) {
                 console.log('PARENT ERR: no child when you tried to send :', message);
                 return Promise.reject(new Error("No worker active to recieve message: " + message));
@@ -45,6 +46,7 @@ var RequesterResponder = (function () {
                 return;
             }
             var message = parsed.message;
+            console.log("received", message, "with", parsed.data);
             var responsePromise;
             try {
                 responsePromise = _this.responders[message](parsed.data);
@@ -84,6 +86,7 @@ var RequesterResponder = (function () {
             console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
         }
         else {
+            console.log("received", parsed.message, "with", parsed.data);
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
                 console.log(parsed.error);

@@ -105,11 +105,7 @@ function readyToActivate() {
             var filePath = editor.getPath();
 
             onlyOnceStuff();
-            parent.getProjectFileDetails({filePath}).then((res)=>{
-                mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
-            }).catch(err=>{
-                mainPanelView.panelView.setTsconfigInUse('');
-            });
+            updatePanelConfig(filePath);
 
             // Refresh errors stuff on change active tab.
             // Because the fix might be in the other file
@@ -134,6 +130,8 @@ function readyToActivate() {
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
 
+        console.log("opened editor", editor.getPath())
+
         // subscribe for tooltips
         // inspiration : https://github.com/chaika2013/ide-haskell
         var editorView = $(atom.views.getView(editor));
@@ -146,11 +144,10 @@ function readyToActivate() {
             try {
                 // Only once stuff
                 onlyOnceStuff();
-                parent.getProjectFileDetails({filePath}).then((res)=>{
-                    mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
-                }).catch(err=>{
-                    mainPanelView.panelView.setTsconfigInUse('');
-                });
+
+                parent.client.executeOpen({file: filePath})
+
+                updatePanelConfig(filePath);
 
                 // We only do analysis once the file is persisted to disk
                 var onDisk = false;
@@ -165,22 +162,22 @@ function readyToActivate() {
 
                 if (onDisk) {
 
-                    // Set errors in project per file
-                    parent.updateText({ filePath: filePath, text: editor.getText() })
-                        .then(() => parent.errorsForFile({ filePath: filePath }))
-                        .then((resp) => errorView.setErrors(filePath, resp.errors));
-
-                    // Comparing potential emit to the existing js file
-                    parent.getOutputJsStatus({ filePath: filePath }).then((res) => {
-                        let status = getFileStatus(filePath);
-                        status.emitDiffers = res.emitDiffers;
-
-                        // Update status if the file compared above is currently in the active editor
-                        let ed = atom.workspace.getActiveTextEditor();
-                        if (ed && ed.getPath() === filePath) {
-                            mainPanelView.panelView.updateFileStatus(filePath);
-                        }
-                    });
+                    // // Set errors in project per file
+                    // parent.updateText({ filePath: filePath, text: editor.getText() })
+                    //     .then(() => parent.errorsForFile({ filePath: filePath }))
+                    //     .then((resp) => errorView.setErrors(filePath, resp.errors));
+                    //
+                    // // Comparing potential emit to the existing js file
+                    // parent.getOutputJsStatus({ filePath: filePath }).then((res) => {
+                    //     let status = getFileStatus(filePath);
+                    //     status.emitDiffers = res.emitDiffers;
+                    //
+                    //     // Update status if the file compared above is currently in the active editor
+                    //     let ed = atom.workspace.getActiveTextEditor();
+                    //     if (ed && ed.getPath() === filePath) {
+                    //         mainPanelView.panelView.updateFileStatus(filePath);
+                    //     }
+                    // });
                 }
 
                 // Setup additional observers on the editor
@@ -233,14 +230,14 @@ function readyToActivate() {
                     //// 20 20 "" 20 24 "aaaa"
                     // stack();
 
-                    var newText = diff.newText;
-                    var oldText = diff.oldText;
-
-                    var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
-                    var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
-
-                    // use this for faster language service host
-                    var promise = parent.editText({ filePath, start, end, newText });
+                    parent.client.executeChange({
+                      endLine: diff.oldRange.end.row,
+                      endOffset: diff.oldRange.end.column,
+                      file: editor.getPath(),
+                      line: diff.oldRange.start.row,
+                      offset: diff.oldRange.start.column,
+                      insertString: diff.newText,
+                    })
 
                     // For debugging the language service going out of sync
                     // console.log(JSON.stringify({oldText,newText}));
@@ -256,14 +253,17 @@ function readyToActivate() {
 
                 // Observe editors saving
                 var saveObserver = editor.onDidSave((event) => {
+                    console.log("saved", editor.getPath())
                     onDisk = true;
                     // If this is a saveAs event.path will be different so we should change it
                     filePath = event.path;
-                    onSaveHandler.handle({ filePath: filePath, editor: editor });
+                    // onSaveHandler.handle({ filePath: filePath, editor: editor });
                 });
 
                 // Observe editors closing
                 var destroyObserver = editor.onDidDestroy(() => {
+                    parent.client.executeClose({file: editor.getPath()})
+
                     // Clear errors in view
                     errorView.setErrors(filePath, []);
 
@@ -283,6 +283,18 @@ function readyToActivate() {
 
     // Register the commands
     commands.registerCommands();
+}
+
+/** Update the panel with the configu resolved from the given source file */
+function updatePanelConfig(file: string) {
+  parent.client.executeProjectInfo({
+    needFileNameList: false,
+    file
+  }).then(result => {
+    mainPanelView.panelView.setTsconfigInUse(result.body.configFileName)
+  }, err => {
+    mainPanelView.panelView.setTsconfigInUse('');
+  })
 }
 
 export function activate(state: PackageState) {

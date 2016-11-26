@@ -69,6 +69,9 @@ class RequesterResponder {
             console.log('PARENT ERR: No one was listening:', parsed.message, parsed.data);
         }
         else { // Alright nothing *weird* happened
+
+            console.log("received", parsed.message, "with", parsed.data)
+
             if (parsed.error) {
                 this.currentListeners[parsed.message][parsed.id].reject(parsed.error);
                 console.log(parsed.error);
@@ -90,6 +93,8 @@ class RequesterResponder {
     }
 
     private sendToIpcHeart = (data, message) => {
+
+        console.log("sending", message, "with", data)
 
         // If we don't have a child exit
         if (!this.getProcess()) {
@@ -176,6 +181,9 @@ class RequesterResponder {
             return;
         }
         var message = parsed.message;
+
+        console.log("received", message, "with", parsed.data)
+
         var responsePromise: Promise<any>;
         try {
             responsePromise = this.responders[message](parsed.data);

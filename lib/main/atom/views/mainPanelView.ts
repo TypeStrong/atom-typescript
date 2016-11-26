@@ -214,21 +214,21 @@ export class MainPanelView extends view.View<any> {
 
     ///////////// Change JS File Status
     updateFileStatus(filePath: string) {
-        parent.getProjectFileDetails({ filePath }).then(fileDetails => {
-            if (!fileDetails.project.compileOnSave) {
-                this.fileStatus.addClass("hidden");
-            } else {
-                let status = getFileStatus(filePath);
-                this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
-                if (status.emitDiffers || status.modified) {
-                    this.fileStatus.text('JS Outdated');
-                    this.fileStatus.addClass('icon-x text-error');
-                } else {
-                    this.fileStatus.text('JS Current');
-                    this.fileStatus.addClass('icon-check text-success');
-                }
-            }
-        });
+        // parent.getProjectFileDetails({ filePath }).then(fileDetails => {
+        //     if (!fileDetails.project.compileOnSave) {
+        //         this.fileStatus.addClass("hidden");
+        //     } else {
+        //         let status = getFileStatus(filePath);
+        //         this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
+        //         if (status.emitDiffers || status.modified) {
+        //             this.fileStatus.text('JS Outdated');
+        //             this.fileStatus.addClass('icon-x text-error');
+        //         } else {
+        //             this.fileStatus.text('JS Current');
+        //             this.fileStatus.addClass('icon-check text-success');
+        //         }
+        //     }
+        // });
     }
 
     ///////////// Pending Requests

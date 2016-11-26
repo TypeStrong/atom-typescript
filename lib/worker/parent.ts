@@ -4,8 +4,11 @@ import childprocess = require('child_process');
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
 
+import * as path from "path"
+import * as tsconfig from "tsconfig"
+
 import workerLib = require('./lib/workerLib');
-import tsconfig = require('../main/tsconfig/tsconfig');
+import * as protocol from "typescript/lib/protocol";
 import * as atomConfig from "../main/atom/atomConfig";
 
 import {TypescriptServiceClient, findTSServer} from "../client/client"
@@ -85,7 +88,7 @@ export var getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService
 export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
 export var debugLanguageServiceHostVersion = parent.sendToIpc(projectService.debugLanguageServiceHostVersion);
-export var getProjectFileDetails = parent.sendToIpc(projectService.getProjectFileDetails);
+
 export var getNavigationBarItems = parent.sendToIpc(projectService.getNavigationBarItems);
 export var getSemtanticTree = parent.sendToIpc(projectService.getSemtanticTree);
 export var getNavigateToItems = parent.sendToIpc(projectService.getNavigateToItems);
@@ -108,12 +111,10 @@ import queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 
 const tsserverPath = findTSServer(__dirname)
-const client = new TypescriptServiceClient(tsserverPath)
+export const client = new TypescriptServiceClient(tsserverPath)
 
-client.execute("open", {file: "hello.ts", fileContent: "let x = 'hello'; x", scriptKindName: "TS"})
-client.execute("completions", {file: "hello.ts", line: 1, offset: 18, prefix: "x"}, true).then(result => {
-  console.log("completions result", result)
-  client.execute("completions", {file: "hello.ts", line: 1, offset: 18, prefix: "x"}, true).then(result => {
-    console.log("more completions", result)
+export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
+  return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {
+    return tsconfig.load(result.body.configFileName)
   })
-})
+}
