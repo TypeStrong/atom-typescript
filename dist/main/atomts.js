@@ -65,11 +65,10 @@ function readyToActivate() {
         var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
         tooltipManager.attach(editorView, editor);
         var unsubSyntax = parent.client.on("syntaxDiag", function (diag) {
-            console.log("syntax errors", diag);
         });
         var unsubSemantic = parent.client.on("semanticDiag", function (diag) {
-            console.log("semantic errors", diag);
             if (diag.file === filePath) {
+                console.log("semantic errors", diag);
                 mainPanelView_1.errorView.setErrors(filePath, diag.diagnostics.map(function (error) {
                     var preview = editor.buffer.getTextInRange(new _atom.Range([error.start.line - 1, error.start.offset - 1], [error.end.line - 1, error.end.offset - 1]));
                     return {
@@ -115,11 +114,11 @@ function readyToActivate() {
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
                     parent.client.executeChange({
-                        endLine: diff.oldRange.end.row,
-                        endOffset: diff.oldRange.end.column,
+                        endLine: diff.oldRange.end.row + 1,
+                        endOffset: diff.oldRange.end.column + 1,
                         file: editor.getPath(),
-                        line: diff.oldRange.start.row,
-                        offset: diff.oldRange.start.column,
+                        line: diff.oldRange.start.row + 1,
+                        offset: diff.oldRange.start.column + 1,
                         insertString: diff.newText,
                     });
                 });

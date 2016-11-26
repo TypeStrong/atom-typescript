@@ -25,8 +25,6 @@ export var provider = {
     lintOnFly: true, // # must be false for scope: 'project'
     lint: (textEditor: AtomCore.IEditor): Promise<LinterMessage[]> => {
 
-        console.log("lint called")
-
         // We do not support files not on disk
         if (!textEditor.buffer.file
             || !textEditor.buffer.file.path
@@ -34,21 +32,34 @@ export var provider = {
 
         var filePath = textEditor.buffer.file.path;
 
-        return parent.errorsForFile({ filePath: filePath })
-            .then((resp) => {
-                var linterErrors: LinterMessage[] = resp.errors.map((err) => ({
+        // Trigger an error check
+        parent.client.executeGetErr({files: [filePath], delay: 50})
+
+        return new Promise((resolve, reject) => {
+
+          // Listen for a semanticDiag message for this specific file, unsub and resolve
+          const unsub = parent.client.on("semanticDiag", result => {
+            if (result.file === filePath) {
+              try {
+                unsub()
+
+                const errors: LinterMessage[] = result.diagnostics.map(diag => {
+                  return {
                     type: "Error",
                     filePath,
-                    text: err.message,
-                    range: new Range([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
-                }));
-                return linterErrors;
-            })
-            .catch((error) => {
-                /**
-                 * We catch these errors as the linter will do a full blown notification message on error
-                 */
-                return [];
-            });
+                    text: diag.text,
+                    range: new Range(
+                      [diag.start.line-1, diag.start.offset-1],
+                      [diag.end.line-1, diag.end.offset-1])
+                  }
+                })
+
+                resolve(errors)
+              } catch (error) {
+                resolve([])
+              }
+            }
+          })
+        })
     }
 }

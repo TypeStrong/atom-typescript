@@ -8,24 +8,32 @@ exports.provider = {
     scope: 'file',
     lintOnFly: true,
     lint: function (textEditor) {
-        console.log("lint called");
         if (!textEditor.buffer.file
             || !textEditor.buffer.file.path
             || !fs.existsSync(textEditor.buffer.file.path))
             return Promise.resolve([]);
         var filePath = textEditor.buffer.file.path;
-        return parent.errorsForFile({ filePath: filePath })
-            .then(function (resp) {
-            var linterErrors = resp.errors.map(function (err) { return ({
-                type: "Error",
-                filePath: filePath,
-                text: err.message,
-                range: new atom_1.Range([err.startPos.line, err.startPos.col], [err.endPos.line, err.endPos.col]),
-            }); });
-            return linterErrors;
-        })
-            .catch(function (error) {
-            return [];
+        parent.client.executeGetErr({ files: [filePath], delay: 50 });
+        return new Promise(function (resolve, reject) {
+            var unsub = parent.client.on("semanticDiag", function (result) {
+                if (result.file === filePath) {
+                    try {
+                        unsub();
+                        var errors = result.diagnostics.map(function (diag) {
+                            return {
+                                type: "Error",
+                                filePath: filePath,
+                                text: diag.text,
+                                range: new atom_1.Range([diag.start.line - 1, diag.start.offset - 1], [diag.end.line - 1, diag.end.offset - 1])
+                            };
+                        });
+                        resolve(errors);
+                    }
+                    catch (error) {
+                        resolve([]);
+                    }
+                }
+            });
         });
     }
 };

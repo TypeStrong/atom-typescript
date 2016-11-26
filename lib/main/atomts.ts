@@ -140,13 +140,13 @@ function readyToActivate() {
 
         // Listen for error events for this file and display them
         const unsubSyntax = parent.client.on("syntaxDiag", diag => {
-          console.log("syntax errors", diag)
+          // console.log("syntax errors", diag)
         })
 
         const unsubSemantic = parent.client.on("semanticDiag", diag => {
-          console.log("semantic errors", diag)
-
           if (diag.file === filePath) {
+            console.log("semantic errors", diag)
+
             errorView.setErrors(filePath, diag.diagnostics.map(error => {
               const preview = editor.buffer.getTextInRange(
                 new _atom.Range(
@@ -160,6 +160,8 @@ function readyToActivate() {
                 message: ts.flattenDiagnosticMessageText(error.text, '\n'),
                 preview
               }
+
+
             }))
           }
         })
@@ -258,11 +260,11 @@ function readyToActivate() {
                     // stack();
 
                     parent.client.executeChange({
-                      endLine: diff.oldRange.end.row,
-                      endOffset: diff.oldRange.end.column,
+                      endLine: diff.oldRange.end.row+1,
+                      endOffset: diff.oldRange.end.column+1,
                       file: editor.getPath(),
-                      line: diff.oldRange.start.row,
-                      offset: diff.oldRange.start.column,
+                      line: diff.oldRange.start.row+1,
+                      offset: diff.oldRange.start.column+1,
                       insertString: diff.newText,
                     })
 
