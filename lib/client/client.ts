@@ -6,7 +6,7 @@ import * as path from "path"
 import * as resolve from "resolve"
 import byline = require("byline")
 
-export class TypescriptServiceClient extends EventEmitter {
+export class TypescriptServiceClient {
 
   /** Map of callbacks that are waiting for responses */
   callbacks: {
@@ -15,6 +15,10 @@ export class TypescriptServiceClient extends EventEmitter {
       resolve(res)
       started: number
     }
+  } = {}
+
+  private listeners: {
+    [event: string]: ((event: any) => any)[]
   } = {}
 
   /** Path to the tsserver executable */
@@ -29,7 +33,6 @@ export class TypescriptServiceClient extends EventEmitter {
   private seq = 0
 
   constructor(tsServerPath: string) {
-    super()
     this.tsServerPath = tsServerPath
     this.serverPromise = this.startServer()
   }
@@ -48,6 +51,9 @@ export class TypescriptServiceClient extends EventEmitter {
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
     return this.execute("completions", args)
+  }
+  executeGetErr(args: protocol.GeterrRequestArgs) {
+    this.execute("geterr", args)
   }
   executeOpen(args: protocol.OpenRequestArgs) {
     this.execute("open", args)
@@ -69,6 +75,22 @@ export class TypescriptServiceClient extends EventEmitter {
     })
   }
 
+  /** Adds an event listener for tsserver events. Returns an unsubscribe function */
+  on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
+  on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
+  on(name: string, listener: (result: any) => any): Function {
+    if (this.listeners[name] === undefined) {
+      this.listeners[name] = []
+    }
+
+    this.listeners[name].push(listener)
+
+    return () => {
+      const idx = this.listeners[name].indexOf(listener)
+      this.listeners[name].splice(idx, 1)
+    }
+  }
+
   private onMessage = (res: protocol.Response | protocol.Event) => {
     if (isResponse(res)) {
       const callback = this.callbacks[res.request_seq]
@@ -83,7 +105,12 @@ export class TypescriptServiceClient extends EventEmitter {
       }
     } else if (isEvent(res)) {
       console.log("received event", res)
-      this.emit(res.event, res.body)
+      const listeners = this.listeners[res.event]
+      if (listeners) {
+        for (const listener of listeners) {
+          listener(res.body)
+        }
+      }
     }
   }
 

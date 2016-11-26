@@ -107,7 +107,6 @@
         "./main/tsconfig/tsconfig.ts",
         "./main/utils/fsUtil.ts",
         "./typescript/makeTypeScriptGlobal.ts",
-        "./typings/atom/atom.d.ts",
         "./typings/atompromise.d.ts",
         "./typings/bluebird.d.ts",
         "./typings/brackets.d.ts",

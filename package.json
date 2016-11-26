@@ -50,6 +50,7 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
+    "@types/atom": "0.0.35",
     "@types/byline": "^4.2.31",
     "@types/resolve": "0.0.4",
     "atom-package-deps": "^2.0.3",

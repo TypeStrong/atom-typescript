@@ -129,15 +129,41 @@ function readyToActivate() {
 
     // Observe editors loading
     editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+        let filePath = editor.getPath()
 
-        console.log("opened editor", editor.getPath())
+        console.log("opened editor", filePath)
 
         // subscribe for tooltips
         // inspiration : https://github.com/chaika2013/ide-haskell
-        var editorView = $(atom.views.getView(editor));
-        tooltipManager.attach(editorView, editor);
+        var editorView = $(atom.views.getView(editor))
+        tooltipManager.attach(editorView, editor)
 
-        var filePath = editor.getPath();
+        // Listen for error events for this file and display them
+        const unsubSyntax = parent.client.on("syntaxDiag", diag => {
+          console.log("syntax errors", diag)
+        })
+
+        const unsubSemantic = parent.client.on("semanticDiag", diag => {
+          console.log("semantic errors", diag)
+
+          if (diag.file === filePath) {
+            errorView.setErrors(filePath, diag.diagnostics.map(error => {
+              const preview = editor.buffer.getTextInRange(
+                new _atom.Range(
+                  [error.start.line-1, error.start.offset-1],
+                  [error.end.line-1, error.end.offset-1]))
+
+              return {
+                filePath: filePath,
+                startPos: {line: error.start.line - 1, col: error.start.offset - 1},
+                endPos: {line: error.end.line - 1, col: error.end.offset - 1},
+                message: ts.flattenDiagnosticMessageText(error.text, '\n'),
+                preview
+              }
+            }))
+          }
+        })
+
         var ext = path.extname(filePath);
         if (atomUtils.isAllowedExtension(ext)) {
             let isTst = ext === '.tst';
@@ -161,6 +187,8 @@ function readyToActivate() {
                 debugAtomTs.runDebugCode({ filePath, editor });
 
                 if (onDisk) {
+
+                    parent.client.executeGetErr({files: [filePath], delay: 100})
 
                     // // Set errors in project per file
                     // parent.updateText({ filePath: filePath, text: editor.getText() })
@@ -204,8 +232,7 @@ function readyToActivate() {
                     }
 
                     // Set errors in project per file
-                    parent.errorsForFile({ filePath: filePath })
-                        .then((resp) => errorView.setErrors(filePath, resp.errors));
+                    parent.client.executeGetErr({files: [filePath], delay: 100})
 
                     // TODO: provide function completions
                     /*var position = atomUtils.getEditorPosition(editor);
@@ -272,6 +299,9 @@ function readyToActivate() {
                     fasterChangeObserver.dispose();
                     saveObserver.dispose();
                     destroyObserver.dispose();
+
+                    unsubSemantic()
+                    unsubSyntax()
                 });
 
             } catch (ex) {
@@ -298,7 +328,7 @@ function updatePanelConfig(file: string) {
 }
 
 export function activate(state: PackageState) {
-    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate)
+    require('atom-package-deps').install('atom-typescript').then(readyToActivate)
 }
 
 export function deactivate() {
@@ -331,24 +361,24 @@ export function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }
 
-function waitForGrammarActivation(): Promise<any> {
-    let activated = false;
-    const promise = new Promise((resolve,reject) => {
-        let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
-
-            // Just so we won't attach more events than necessary
-            if (activated) return;
-            editor.observeGrammar((grammar: AtomCore.IGrammar) => {
-                if (grammar.packageName === 'atom-typescript') {
-                    activated = true;
-                    resolve({});
-                    editorWatch.dispose();
-                }
-            });
-        });
-    });
-    return promise;
-}
+// function waitForGrammarActivation(): Promise<any> {
+//     let activated = false;
+//     const promise = new Promise((resolve,reject) => {
+//         let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+//
+//             // Just so we won't attach more events than necessary
+//             if (activated) return;
+//             editor.observeGrammar((grammar: AtomCore.IGrammar) => {
+//                 if (grammar.packageName === 'atom-typescript') {
+//                     activated = true;
+//                     resolve({});
+//                     editorWatch.dispose();
+//                 }
+//             });
+//         });
+//     });
+//     return promise;
+// }
 
 import * as hyperclickProvider from "../hyperclickProvider";
 export function getHyperclickProvider() {

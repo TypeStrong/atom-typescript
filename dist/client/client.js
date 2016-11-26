@@ -5,19 +5,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var child_process_1 = require("child_process");
-var events_1 = require("events");
 var stream_1 = require("stream");
 var fs = require("fs");
 var path = require("path");
 var resolve = require("resolve");
 var byline = require("byline");
-var TypescriptServiceClient = (function (_super) {
-    __extends(TypescriptServiceClient, _super);
+var TypescriptServiceClient = (function () {
     function TypescriptServiceClient(tsServerPath) {
-        var _this = _super.call(this) || this;
-        _this.callbacks = {};
-        _this.seq = 0;
-        _this.onMessage = function (res) {
+        var _this = this;
+        this.callbacks = {};
+        this.listeners = {};
+        this.seq = 0;
+        this.onMessage = function (res) {
             if (isResponse(res)) {
                 var callback = _this.callbacks[res.request_seq];
                 if (callback) {
@@ -33,12 +32,17 @@ var TypescriptServiceClient = (function (_super) {
             }
             else if (isEvent(res)) {
                 console.log("received event", res);
-                _this.emit(res.event, res.body);
+                var listeners = _this.listeners[res.event];
+                if (listeners) {
+                    for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
+                        var listener = listeners_1[_i];
+                        listener(res.body);
+                    }
+                }
             }
         };
-        _this.tsServerPath = tsServerPath;
-        _this.serverPromise = _this.startServer();
-        return _this;
+        this.tsServerPath = tsServerPath;
+        this.serverPromise = this.startServer();
     }
     TypescriptServiceClient.prototype.executeChange = function (args) {
         this.execute("change", args);
@@ -48,6 +52,9 @@ var TypescriptServiceClient = (function (_super) {
     };
     TypescriptServiceClient.prototype.executeCompletions = function (args) {
         return this.execute("completions", args);
+    };
+    TypescriptServiceClient.prototype.executeGetErr = function (args) {
+        this.execute("geterr", args);
     };
     TypescriptServiceClient.prototype.executeOpen = function (args) {
         this.execute("open", args);
@@ -67,6 +74,17 @@ var TypescriptServiceClient = (function (_super) {
             console.log("command", command, "failed due to", err);
             throw err;
         });
+    };
+    TypescriptServiceClient.prototype.on = function (name, listener) {
+        var _this = this;
+        if (this.listeners[name] === undefined) {
+            this.listeners[name] = [];
+        }
+        this.listeners[name].push(listener);
+        return function () {
+            var idx = _this.listeners[name].indexOf(listener);
+            _this.listeners[name].splice(idx, 1);
+        };
     };
     TypescriptServiceClient.prototype.sendRequest = function (cp, command, args, expectResponse) {
         var _this = this;
@@ -103,7 +121,7 @@ var TypescriptServiceClient = (function (_super) {
         });
     };
     return TypescriptServiceClient;
-}(events_1.EventEmitter));
+}());
 exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,

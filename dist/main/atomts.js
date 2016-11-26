@@ -10,6 +10,7 @@ var tooltipManager = require("./atom/tooltipManager");
 var atomUtils = require("./atom/atomUtils");
 var commands = require("./atom/commands/commands");
 var debugAtomTs = require("./atom/debugAtomTs");
+var _atom = require("atom");
 var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require("./atom/views/documentationView");
 var renameView = require("./atom/views/renameView");
@@ -64,10 +65,28 @@ function readyToActivate() {
         }
     });
     editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        console.log("opened editor", editor.getPath());
+        var filePath = editor.getPath();
+        console.log("opened editor", filePath);
         var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
         tooltipManager.attach(editorView, editor);
-        var filePath = editor.getPath();
+        var unsubSyntax = parent.client.on("syntaxDiag", function (diag) {
+            console.log("syntax errors", diag);
+        });
+        var unsubSemantic = parent.client.on("semanticDiag", function (diag) {
+            console.log("semantic errors", diag);
+            if (diag.file === filePath) {
+                mainPanelView_1.errorView.setErrors(filePath, diag.diagnostics.map(function (error) {
+                    var preview = editor.buffer.getTextInRange(new _atom.Range([error.start.line - 1, error.start.offset - 1], [error.end.line - 1, error.end.offset - 1]));
+                    return {
+                        filePath: filePath,
+                        startPos: { line: error.start.line - 1, col: error.start.offset - 1 },
+                        endPos: { line: error.end.line - 1, col: error.end.offset - 1 },
+                        message: ts.flattenDiagnosticMessageText(error.text, '\n'),
+                        preview: preview
+                    };
+                }));
+            }
+        });
         var ext = path.extname(filePath);
         if (atomUtils.isAllowedExtension(ext)) {
             var isTst = ext === '.tst';
@@ -82,6 +101,7 @@ function readyToActivate() {
                 hideIfNotActiveOnStart();
                 debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                 if (onDisk) {
+                    parent.client.executeGetErr({ files: [filePath], delay: 100 });
                 }
                 editorSetup.setupEditor(editor);
                 var changeObserver = editor.onDidStopChanging(function () {
@@ -95,8 +115,7 @@ function readyToActivate() {
                         mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
                         return;
                     }
-                    parent.errorsForFile({ filePath: filePath })
-                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
+                    parent.client.executeGetErr({ files: [filePath], delay: 100 });
                 });
                 var buffer = editor.buffer;
                 var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
@@ -121,6 +140,8 @@ function readyToActivate() {
                     fasterChangeObserver.dispose();
                     saveObserver.dispose();
                     destroyObserver.dispose();
+                    unsubSemantic();
+                    unsubSyntax();
                 });
             }
             catch (ex) {
@@ -142,7 +163,7 @@ function updatePanelConfig(file) {
     });
 }
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate);
+    require('atom-package-deps').install('atom-typescript').then(readyToActivate);
 }
 exports.activate = activate;
 function deactivate() {
@@ -175,23 +196,6 @@ function consumeSnippets(snippetsManager) {
     atomUtils._setSnippetsManager(snippetsManager);
 }
 exports.consumeSnippets = consumeSnippets;
-function waitForGrammarActivation() {
-    var activated = false;
-    var promise = new Promise(function (resolve, reject) {
-        var editorWatch = atom.workspace.observeTextEditors(function (editor) {
-            if (activated)
-                return;
-            editor.observeGrammar(function (grammar) {
-                if (grammar.packageName === 'atom-typescript') {
-                    activated = true;
-                    resolve({});
-                    editorWatch.dispose();
-                }
-            });
-        });
-    });
-    return promise;
-}
 var hyperclickProvider = require("../hyperclickProvider");
 function getHyperclickProvider() {
     return hyperclickProvider;
