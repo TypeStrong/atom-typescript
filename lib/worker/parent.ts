@@ -11,12 +11,6 @@ import {TypescriptServiceClient, findTSServer} from "../client/client"
 
 var parent = new workerLib.Parent();
 import * as mainPanel from "../main/atom/views/mainPanelView";
-parent.pendingRequestsChanged = (pending) => {
-    // We only start once the panel view is initialized
-    if (!mainPanel.panelView) return;
-
-    mainPanel.panelView.updatePendingRequests(pending);
-};
 
 /** The only effect of debug is to really not route stuff to the child */
 if (debugSync) {
@@ -108,6 +102,13 @@ parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 
 const tsserverPath = findTSServer(__dirname)
 export const client = new TypescriptServiceClient(tsserverPath)
+
+client.on("pendingRequestsChange", pending => {
+  // We only start once the panel view is initialized
+  if (!mainPanel.panelView) return;
+
+  mainPanel.panelView.updatePendingRequests(pending);
+})
 
 export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
   return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {

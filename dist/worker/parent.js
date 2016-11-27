@@ -6,11 +6,6 @@ var atomConfig = require("../main/atom/atomConfig");
 var client_1 = require("../client/client");
 var parent = new workerLib.Parent();
 var mainPanel = require("../main/atom/views/mainPanelView");
-parent.pendingRequestsChanged = function (pending) {
-    if (!mainPanel.panelView)
-        return;
-    mainPanel.panelView.updatePendingRequests(pending);
-};
 if (debug_1.debugSync) {
     parent.sendToIpc = function (x) { return x; };
     parent.sendToIpcOnlyLast = function (x) { return x; };
@@ -81,6 +76,11 @@ var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 var tsserverPath = client_1.findTSServer(__dirname);
 exports.client = new client_1.TypescriptServiceClient(tsserverPath);
+exports.client.on("pendingRequestsChange", function (pending) {
+    if (!mainPanel.panelView)
+        return;
+    mainPanel.panelView.updatePendingRequests(pending);
+});
 function loadProjectConfig(sourcePath) {
     return exports.client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(function (result) {
         return tsconfig.load(result.body.configFileName);

@@ -13,7 +13,7 @@ exports.provider = {
             || !fs.existsSync(textEditor.buffer.file.path))
             return Promise.resolve([]);
         var filePath = textEditor.buffer.file.path;
-        parent.client.executeGetErr({ files: [filePath], delay: 50 });
+        parent.client.executeGetErr({ files: [filePath], delay: 100 });
         return new Promise(function (resolve, reject) {
             var unsub = parent.client.on("semanticDiag", function (result) {
                 if (result.file === filePath) {

@@ -28,17 +28,12 @@ var TypescriptServiceClient = (function () {
                     else {
                         callback.reject(new Error(res.message));
                     }
+                    _this.emitPendingRequests();
                 }
             }
             else if (isEvent(res)) {
                 console.log("received event", res);
-                var listeners = _this.listeners[res.event];
-                if (listeners) {
-                    for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
-                        var listener = listeners_1[_i];
-                        listener(res.body);
-                    }
-                }
+                _this.emit(res.event, res.body);
             }
         };
         this.tsServerPath = tsServerPath;
@@ -86,6 +81,22 @@ var TypescriptServiceClient = (function () {
             _this.listeners[name].splice(idx, 1);
         };
     };
+    TypescriptServiceClient.prototype.emit = function (name, data) {
+        var listeners = this.listeners[name];
+        if (listeners) {
+            for (var _i = 0, listeners_1 = listeners; _i < listeners_1.length; _i++) {
+                var listener = listeners_1[_i];
+                listener(data);
+            }
+        }
+    };
+    TypescriptServiceClient.prototype.emitPendingRequests = function () {
+        var pending = [];
+        for (var callback in this.callbacks) {
+            pending.push(this.callbacks[callback].name);
+        }
+        this.emit("pendingRequestsChange", pending);
+    };
     TypescriptServiceClient.prototype.sendRequest = function (cp, command, args, expectResponse) {
         var _this = this;
         var req = {
@@ -97,8 +108,9 @@ var TypescriptServiceClient = (function () {
         var resultPromise = undefined;
         if (expectResponse) {
             resultPromise = new Promise(function (resolve, reject) {
-                _this.callbacks[req.seq] = { resolve: resolve, reject: reject, started: Date.now() };
+                _this.callbacks[req.seq] = { name: command, resolve: resolve, reject: reject, started: Date.now() };
             });
+            this.emitPendingRequests();
         }
         cp.stdin.write(JSON.stringify(req) + "\n");
         return resultPromise;
@@ -122,12 +134,12 @@ var TypescriptServiceClient = (function () {
     };
     return TypescriptServiceClient;
 }());
+exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     projectInfo: true,
     quickInfo: true
 };
-exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

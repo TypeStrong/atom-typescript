@@ -11,6 +11,7 @@ export class TypescriptServiceClient {
   /** Map of callbacks that are waiting for responses */
   callbacks: {
     [seq: number]: {
+      name: string
       reject(res)
       resolve(res)
       started: number
@@ -21,8 +22,7 @@ export class TypescriptServiceClient {
     [event: string]: ((event: any) => any)[]
   } = {}
 
-  /** Path to the tsserver executable */
-  readonly tsServerPath: string
+  private seq = 0
 
   /** The tsserver child process */
   server: ChildProcess
@@ -30,7 +30,8 @@ export class TypescriptServiceClient {
   /** Promise that resolves when the server is ready to accept requests */
   serverPromise: Promise<any>
 
-  private seq = 0
+  /** Path to the tsserver executable */
+  readonly tsServerPath: string
 
   constructor(tsServerPath: string) {
     this.tsServerPath = tsServerPath
@@ -75,9 +76,10 @@ export class TypescriptServiceClient {
     })
   }
 
-  /** Adds an event listener for tsserver events. Returns an unsubscribe function */
-  on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
+  /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
+  on(name: "pendingRequestsChange", listener: (requests: string[]) => any): Function
   on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
+  on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
   on(name: string, listener: (result: any) => any): Function {
     if (this.listeners[name] === undefined) {
       this.listeners[name] = []
@@ -91,6 +93,25 @@ export class TypescriptServiceClient {
     }
   }
 
+  private emit(name: string, data: any) {
+    const listeners = this.listeners[name]
+    if (listeners) {
+      for (const listener of listeners) {
+        listener(data)
+      }
+    }
+  }
+
+  private emitPendingRequests() {
+    const pending = []
+
+    for (const callback in this.callbacks) {
+      pending.push(this.callbacks[callback].name)
+    }
+
+    this.emit("pendingRequestsChange", pending)
+  }
+
   private onMessage = (res: protocol.Response | protocol.Event) => {
     if (isResponse(res)) {
       const callback = this.callbacks[res.request_seq]
@@ -102,15 +123,12 @@ export class TypescriptServiceClient {
         } else {
           callback.reject(new Error(res.message))
         }
+
+        this.emitPendingRequests()
       }
     } else if (isEvent(res)) {
       console.log("received event", res)
-      const listeners = this.listeners[res.event]
-      if (listeners) {
-        for (const listener of listeners) {
-          listener(res.body)
-        }
-      }
+      this.emit(res.event, res.body)
     }
   }
 
@@ -128,8 +146,10 @@ export class TypescriptServiceClient {
 
     if (expectResponse) {
       resultPromise = new Promise((resolve, reject) => {
-        this.callbacks[req.seq] = {resolve, reject, started: Date.now()}
+        this.callbacks[req.seq] = {name: command, resolve, reject, started: Date.now()}
       })
+
+      this.emitPendingRequests()
     }
 
     cp.stdin.write(JSON.stringify(req) + "\n")

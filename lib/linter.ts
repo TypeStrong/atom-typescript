@@ -33,7 +33,7 @@ export var provider = {
         var filePath = textEditor.buffer.file.path;
 
         // Trigger an error check
-        parent.client.executeGetErr({files: [filePath], delay: 50})
+        parent.client.executeGetErr({files: [filePath], delay: 100})
 
         return new Promise((resolve, reject) => {
 
