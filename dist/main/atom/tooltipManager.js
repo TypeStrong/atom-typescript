@@ -63,21 +63,20 @@ function attach(editorView, editor) {
             bottom: e.clientY + offset
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
-        var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
-        parent.quickInfo({ filePath: filePath, position: position }).then(function (resp) {
-            if (!resp.valid) {
-                hideExpressionType();
+        parent.client.executeQuickInfo({
+            file: filePath,
+            line: bufferPt.row + 1,
+            offset: bufferPt.column + 1
+        }).then(function (_a) {
+            var _b = _a.body, displayString = _b.displayString, documentation = _b.documentation;
+            var message = "<b>" + escape(displayString) + "</b>";
+            if (documentation) {
+                message = message + ("<br/><i>" + escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
             }
-            else {
-                var message = "<b>" + escape(resp.name) + "</b>";
-                if (resp.comment) {
-                    message = message + ("<br/><i>" + escape(resp.comment).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
-                }
-                if (exprTypeTooltip) {
-                    exprTypeTooltip.updateText(message);
-                }
+            if (exprTypeTooltip) {
+                exprTypeTooltip.updateText(message);
             }
-        });
+        }, function () { });
     }
     function deactivate() {
         subscriber.unsubscribe();

@@ -325,13 +325,17 @@ export function registerCommands() {
       var editor = atom.workspace.getActiveTextEditor();
       var editorView = atom.views.getView(editor);
       var cursor = editor.getLastCursor()
-      var position = atomUtils.getEditorPositionForBufferPosition(editor, cursor.getBufferPosition());
+      var position = cursor.getBufferPosition()
       var filePath = editor.getPath();
-      parent.quickInfo({ filePath, position }).then((resp) => {
-        if (resp.valid) {
+
+      parent.client.executeQuickInfo({
+          file: filePath,
+          line: position.row+1,
+          offset: position.column+1
+      }).then(({body: {displayString, documentation}}) => {
           var decoration = editor.decorateMarker(cursor.getMarker(), {
             type: 'overlay',
-            item: createTypeOverlay(resp.name, resp.comment)
+            item: createTypeOverlay(displayString, documentation)
           });
 
           var onKeydown = (e) => {
@@ -349,8 +353,7 @@ export function registerCommands() {
           var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
           editorView.addEventListener('blur', destroyTypeOverlay);
           editorView.addEventListener('keydown', onKeydown);
-        }
-      });
+      }).catch(() => { /* ignore errors */ })
     });
 
     atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {

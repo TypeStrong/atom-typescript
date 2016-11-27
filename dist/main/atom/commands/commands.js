@@ -249,30 +249,33 @@ function registerCommands() {
         var editor = atom.workspace.getActiveTextEditor();
         var editorView = atom.views.getView(editor);
         var cursor = editor.getLastCursor();
-        var position = atomUtils.getEditorPositionForBufferPosition(editor, cursor.getBufferPosition());
+        var position = cursor.getBufferPosition();
         var filePath = editor.getPath();
-        parent.quickInfo({ filePath: filePath, position: position }).then(function (resp) {
-            if (resp.valid) {
-                var decoration = editor.decorateMarker(cursor.getMarker(), {
-                    type: 'overlay',
-                    item: typeOverlayView_1.create(resp.name, resp.comment)
-                });
-                var onKeydown = function (e) {
-                    if (e.keyCode == 27) {
-                        destroyTypeOverlay();
-                    }
-                };
-                var destroyTypeOverlay = function () {
-                    decoration.destroy();
-                    cursorListener.dispose();
-                    editorView.removeEventListener('blur', destroyTypeOverlay);
-                    editorView.removeEventListener('keydown', onKeydown);
-                };
-                var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
-                editorView.addEventListener('blur', destroyTypeOverlay);
-                editorView.addEventListener('keydown', onKeydown);
-            }
-        });
+        parent.client.executeQuickInfo({
+            file: filePath,
+            line: position.row + 1,
+            offset: position.column + 1
+        }).then(function (_a) {
+            var _b = _a.body, displayString = _b.displayString, documentation = _b.documentation;
+            var decoration = editor.decorateMarker(cursor.getMarker(), {
+                type: 'overlay',
+                item: typeOverlayView_1.create(displayString, documentation)
+            });
+            var onKeydown = function (e) {
+                if (e.keyCode == 27) {
+                    destroyTypeOverlay();
+                }
+            };
+            var destroyTypeOverlay = function () {
+                decoration.destroy();
+                cursorListener.dispose();
+                editorView.removeEventListener('blur', destroyTypeOverlay);
+                editorView.removeEventListener('keydown', onKeydown);
+            };
+            var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
+            editorView.addEventListener('blur', destroyTypeOverlay);
+            editorView.addEventListener('keydown', onKeydown);
+        }).catch(function () { });
     });
     atom.commands.add('atom-workspace', 'typescript:go-to-next', function (e) {
         gotoHistory.gotoNext();

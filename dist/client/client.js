@@ -58,7 +58,7 @@ var TypescriptServiceClient = (function () {
         return this.execute("projectInfo", args);
     };
     TypescriptServiceClient.prototype.executeQuickInfo = function (args) {
-        return this.execute("quickInfo", args);
+        return this.execute("quickinfo", args);
     };
     TypescriptServiceClient.prototype.execute = function (command, args) {
         var _this = this;
@@ -134,12 +134,12 @@ var TypescriptServiceClient = (function () {
     };
     return TypescriptServiceClient;
 }());
-exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     projectInfo: true,
-    quickInfo: true
+    quickinfo: true
 };
+exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

@@ -79,7 +79,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         if (curCharPixelPt.left >= nextCharPixelPt.left) return;
 
         // find out show position
-        var offset = (<any>editor).getLineHeightInPixels() * 0.7;
+        var offset = editor.getLineHeightInPixels() * 0.7;
         var tooltipRect = {
             left: e.clientX,
             right: e.clientX,
@@ -88,26 +88,21 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
 
-        var position = atomUtils.getEditorPositionForBufferPosition(editor, bufferPt);
-
-        // Actually make the program manager query
-        parent.quickInfo({ filePath, position }).then((resp) => {
-            if (!resp.valid) {
-                hideExpressionType();
+        parent.client.executeQuickInfo({
+            file: filePath,
+            line: bufferPt.row+1,
+            offset: bufferPt.column+1
+        }).then(({body: {displayString, documentation}}) => {
+            var message = `<b>${escape(displayString) }</b>`;
+            if (documentation) {
+                message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
             }
-            else {
-                var message = `<b>${escape(resp.name) }</b>`;
-                if (resp.comment) {
-                    message = message + `<br/><i>${escape(resp.comment).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
-                }
-                // Sorry about this "if". It's in the code I copied so I guess its there for a reason
-                if (exprTypeTooltip) {
-                    exprTypeTooltip.updateText(message);
-                }
+            // Sorry about this "if". It's in the code I copied so I guess its there for a reason
+            if (exprTypeTooltip) {
+                exprTypeTooltip.updateText(message);
             }
-        });
+        }, () => { /* ignore the errors */ })
     }
-
 
     function deactivate() {
         subscriber.unsubscribe();

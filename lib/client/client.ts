@@ -41,7 +41,7 @@ export class TypescriptServiceClient {
   static commandWithResponse = {
     completions: true,
     projectInfo: true,
-    quickInfo: true
+    quickinfo: true
   }
 
   executeChange(args: protocol.ChangeRequestArgs) {
@@ -63,7 +63,7 @@ export class TypescriptServiceClient {
     return this.execute("projectInfo", args)
   }
   executeQuickInfo(args: protocol.FileLocationRequestArgs): Promise<protocol.QuickInfoResponse> {
-    return this.execute("quickInfo", args)
+    return this.execute("quickinfo", args)
   }
 
   execute(command: string, args): Promise<any> {
