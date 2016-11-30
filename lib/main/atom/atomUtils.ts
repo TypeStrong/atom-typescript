@@ -88,10 +88,10 @@ export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath:
     var newPaths = filePaths.filter(p=> !map[p]);
     if (!newPaths.length) return Promise.resolve(map);
 
-    var promises = newPaths.map(p=> atom.workspace.open(p, {}));
+    var promises = newPaths.map(p=> atom.workspace.open(p, {}) as any); // Update Atom typings!
 
-    return Promise.all(promises).then(editors=> {
-        editors.forEach(addConsistentlyToMap);
+    return Promise.all(promises).then(editors => {
+        editors.forEach(editor => addConsistentlyToMap(editor));
 
         return map;
     });

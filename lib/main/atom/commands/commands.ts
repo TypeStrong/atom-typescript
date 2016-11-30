@@ -328,32 +328,34 @@ export function registerCommands() {
       var position = cursor.getBufferPosition()
       var filePath = editor.getPath();
 
-      parent.client.executeQuickInfo({
-          file: filePath,
-          line: position.row+1,
-          offset: position.column+1
-      }).then(({body: {displayString, documentation}}) => {
-          var decoration = editor.decorateMarker(cursor.getMarker(), {
-            type: 'overlay',
-            item: createTypeOverlay(displayString, documentation)
-          });
+      parent.clients.get(filePath).then(client => {
+        return client.executeQuickInfo({
+            file: filePath,
+            line: position.row+1,
+            offset: position.column+1
+        }).then(({body: {displayString, documentation}}) => {
+            var decoration = editor.decorateMarker(cursor.getMarker(), {
+              type: 'overlay',
+              item: createTypeOverlay(displayString, documentation)
+            });
 
-          var onKeydown = (e) => {
-            if (e.keyCode == 27) { // esc
-              destroyTypeOverlay();
-            }
-          };
-          var destroyTypeOverlay = () => {
-            decoration.destroy();
-            cursorListener.dispose();
-            editorView.removeEventListener('blur', destroyTypeOverlay);
-            editorView.removeEventListener('keydown', onKeydown);
-          };
+            var onKeydown = (e) => {
+              if (e.keyCode == 27) { // esc
+                destroyTypeOverlay();
+              }
+            };
+            var destroyTypeOverlay = () => {
+              decoration.destroy();
+              cursorListener.dispose();
+              editorView.removeEventListener('blur', destroyTypeOverlay);
+              editorView.removeEventListener('keydown', onKeydown);
+            };
 
-          var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
-          editorView.addEventListener('blur', destroyTypeOverlay);
-          editorView.addEventListener('keydown', onKeydown);
-      }).catch(() => { /* ignore errors */ })
+            var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
+            editorView.addEventListener('blur', destroyTypeOverlay);
+            editorView.addEventListener('keydown', onKeydown);
+        }).catch(() => { /* ignore errors */ })
+      })
     });
 
     atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {

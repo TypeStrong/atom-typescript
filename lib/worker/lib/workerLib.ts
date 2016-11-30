@@ -45,11 +45,11 @@ class RequesterResponder {
 
     ///////////////////////////////// REQUESTOR /////////////////////////
 
-    private currentListeners: { [message: string]: { [id: string]: PromiseDeferred<any> } } = {};
+    private currentListeners: { [message: string]: { [id: string]: any } } = {};
 
     /** Only relevant when we only want the last of this type */
     private currentLastOfType: {
-        [message: string]: { data: any; defer: PromiseDeferred<any>; }
+        [message: string]: { data: any, defer: any }
     } = {};
 
     private pendingRequests: string[] = [];

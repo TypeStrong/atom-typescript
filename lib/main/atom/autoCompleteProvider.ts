@@ -147,12 +147,13 @@ export var provider: autocompleteplus.Provider = {
                 }
             }
 
-            var promisedSuggestions = parent.client.executeCompletions({
-                file: filePath,
-                prefix: options.prefix,
-                line: options.bufferPosition.row+1,
-                offset: options.bufferPosition.column+1
-            }).then(resp => {
+            return parent.clients.get(filePath).then(client => {
+                return client.executeCompletions({
+                    file: filePath,
+                    prefix: options.prefix,
+                    line: options.bufferPosition.row+1,
+                    offset: options.bufferPosition.column+1
+              }).then(resp => {
                 console.log("prefix", options.prefix)
 
                 var completionList = resp.body;
@@ -191,9 +192,8 @@ export var provider: autocompleteplus.Provider = {
                 });
 
                 return suggestions;
-            });
-
-            return promisedSuggestions;
+              });
+            })
         }
     },
 }

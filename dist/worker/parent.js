@@ -3,7 +3,7 @@ var debug_1 = require("./debug");
 var tsconfig = require("tsconfig/dist/tsconfig");
 var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");
-var client_1 = require("../client/client");
+var clientResolver_1 = require("../client/clientResolver");
 var parent = new workerLib.Parent();
 var mainPanel = require("../main/atom/views/mainPanelView");
 if (debug_1.debugSync) {
@@ -73,15 +73,19 @@ exports.createProject = parent.sendToIpc(projectService.createProject);
 exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
-exports.client = new client_1.TypescriptServiceClient("haha", "Hehe");
-exports.client.on("pendingRequestsChange", function (pending) {
+exports.clients = new clientResolver_1.ClientResolver();
+exports.clients.on("pendingRequestsChange", function () {
     if (!mainPanel.panelView)
         return;
-    mainPanel.panelView.updatePendingRequests(pending);
+    var pending = Object.keys(exports.clients.clients)
+        .map(function (serverPath) { return exports.clients.clients[serverPath].pending; });
+    mainPanel.panelView.updatePendingRequests([].concat.apply([], pending));
 });
 function loadProjectConfig(sourcePath) {
-    return exports.client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(function (result) {
-        return tsconfig.load(result.body.configFileName);
+    return exports.clients.get(sourcePath).then(function (client) {
+        return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(function (result) {
+            return tsconfig.load(result.body.configFileName);
+        });
     });
 }
 exports.loadProjectConfig = loadProjectConfig;

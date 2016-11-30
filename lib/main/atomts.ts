@@ -128,52 +128,56 @@ function readyToActivate() {
     });
 
     // Observe editors loading
-    editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+    editorWatch = atom.workspace.observeTextEditors(async function(editor: AtomCore.IEditor) {
         let filePath = editor.getPath()
-
         console.log("opened editor", filePath)
+
+        let client = await parent.clients.get(filePath)
+        console.log("found client for editor", {filePath, client})
 
         // subscribe for tooltips
         // inspiration : https://github.com/chaika2013/ide-haskell
         var editorView = $(atom.views.getView(editor))
         tooltipManager.attach(editorView, editor)
 
-        // Listen for error events for this file and display them
-        const unsubSyntax = parent.client.on("syntaxDiag", diag => {
-          // console.log("syntax errors", diag)
-        })
-
-        const unsubSemantic = parent.client.on("semanticDiag", diag => {
-          if (diag.file === filePath) {
-            console.log("semantic errors", diag)
-
-            errorView.setErrors(filePath, diag.diagnostics.map(error => {
-              const preview = editor.buffer.getTextInRange(
-                new _atom.Range(
-                  [error.start.line-1, error.start.offset-1],
-                  [error.end.line-1, error.end.offset-1]))
-
-              return {
-                filePath: filePath,
-                startPos: {line: error.start.line - 1, col: error.start.offset - 1},
-                endPos: {line: error.end.line - 1, col: error.end.offset - 1},
-                message: ts.flattenDiagnosticMessageText(error.text, '\n'),
-                preview
-              }
-
-
-            }))
-          }
-        })
-
         var ext = path.extname(filePath);
         if (atomUtils.isAllowedExtension(ext)) {
+
+            // Listen for error events for this file and display them
+            const unsubSyntax = client.on("syntaxDiag", diag => {
+              // console.log("syntax errors", diag)
+            })
+
+            const unsubSemantic = client.on("semanticDiag", diag => {
+              if (diag.file === filePath) {
+                console.log("semantic errors", diag)
+
+                errorView.setErrors(filePath, diag.diagnostics.map(error => {
+                  const preview = editor.buffer.getTextInRange(
+                    new _atom.Range(
+                      [error.start.line-1, error.start.offset-1],
+                      [error.end.line-1, error.end.offset-1]))
+
+                  return {
+                    filePath: filePath,
+                    startPos: {line: error.start.line - 1, col: error.start.offset - 1},
+                    endPos: {line: error.end.line - 1, col: error.end.offset - 1},
+                    message: ts.flattenDiagnosticMessageText(error.text, '\n'),
+                    preview
+                  }
+
+
+                }))
+              }
+            })
+
+
             let isTst = ext === '.tst';
             try {
                 // Only once stuff
                 onlyOnceStuff();
 
-                parent.client.executeOpen({
+                client.executeOpen({
                   file: filePath,
                   fileContent: editor.getText()
                 })
@@ -193,7 +197,7 @@ function readyToActivate() {
 
                 if (onDisk) {
 
-                    parent.client.executeGetErr({files: [filePath], delay: 100})
+                    client.executeGetErr({files: [filePath], delay: 100})
 
                     // // Set errors in project per file
                     // parent.updateText({ filePath: filePath, text: editor.getText() })
@@ -237,7 +241,7 @@ function readyToActivate() {
                     }
 
                     // Set errors in project per file
-                    parent.client.executeGetErr({files: [filePath], delay: 100})
+                    client.executeGetErr({files: [filePath], delay: 100})
 
                     // TODO: provide function completions
                     /*var position = atomUtils.getEditorPosition(editor);
@@ -262,7 +266,7 @@ function readyToActivate() {
                     //// 20 20 "" 20 24 "aaaa"
                     // stack();
 
-                    parent.client.executeChange({
+                    client.executeChange({
                       endLine: diff.oldRange.end.row+1,
                       endOffset: diff.oldRange.end.column+1,
                       file: editor.getPath(),
@@ -294,7 +298,7 @@ function readyToActivate() {
 
                 // Observe editors closing
                 var destroyObserver = editor.onDidDestroy(() => {
-                    parent.client.executeClose({file: editor.getPath()})
+                    client.executeClose({file: editor.getPath()})
 
                     // Clear errors in view
                     errorView.setErrors(filePath, []);
@@ -321,14 +325,16 @@ function readyToActivate() {
 }
 
 /** Update the panel with the configu resolved from the given source file */
-function updatePanelConfig(file: string) {
-  parent.client.executeProjectInfo({
-    needFileNameList: false,
-    file
-  }).then(result => {
-    mainPanelView.panelView.setTsconfigInUse(result.body.configFileName)
-  }, err => {
-    mainPanelView.panelView.setTsconfigInUse('');
+function updatePanelConfig(filePath: string) {
+  parent.clients.get(filePath).then(client => {
+    client.executeProjectInfo({
+      needFileNameList: false,
+      file: filePath
+    }).then(result => {
+      mainPanelView.panelView.setTsconfigInUse(result.body.configFileName)
+    }, err => {
+      mainPanelView.panelView.setTsconfigInUse('');
+    })
   })
 }
 

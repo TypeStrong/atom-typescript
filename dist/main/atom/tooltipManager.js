@@ -25,6 +25,7 @@ function attach(editorView, editor) {
     if (!fs.existsSync(filePath)) {
         return;
     }
+    var clientPromise = parent.clients.get(filePath);
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
@@ -63,20 +64,22 @@ function attach(editorView, editor) {
             bottom: e.clientY + offset
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
-        parent.client.executeQuickInfo({
-            file: filePath,
-            line: bufferPt.row + 1,
-            offset: bufferPt.column + 1
-        }).then(function (_a) {
-            var _b = _a.body, displayString = _b.displayString, documentation = _b.documentation;
-            var message = "<b>" + escape(displayString) + "</b>";
-            if (documentation) {
-                message = message + ("<br/><i>" + escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
-            }
-            if (exprTypeTooltip) {
-                exprTypeTooltip.updateText(message);
-            }
-        }, function () { });
+        clientPromise.then(function (client) {
+            client.executeQuickInfo({
+                file: filePath,
+                line: bufferPt.row + 1,
+                offset: bufferPt.column + 1
+            }).then(function (_a) {
+                var _b = _a.body, displayString = _b.displayString, documentation = _b.documentation;
+                var message = "<b>" + escape(displayString) + "</b>";
+                if (documentation) {
+                    message = message + ("<br/><i>" + escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
+                }
+                if (exprTypeTooltip) {
+                    exprTypeTooltip.updateText(message);
+                }
+            }, function () { });
+        });
     }
     function deactivate() {
         subscriber.unsubscribe();

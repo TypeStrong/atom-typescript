@@ -37,6 +37,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         return;
     }
 
+    var clientPromise = parent.clients.get(filePath)
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
@@ -88,20 +89,22 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
 
-        parent.client.executeQuickInfo({
-            file: filePath,
-            line: bufferPt.row+1,
-            offset: bufferPt.column+1
-        }).then(({body: {displayString, documentation}}) => {
-            var message = `<b>${escape(displayString) }</b>`;
-            if (documentation) {
-                message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
-            }
-            // Sorry about this "if". It's in the code I copied so I guess its there for a reason
-            if (exprTypeTooltip) {
-                exprTypeTooltip.updateText(message);
-            }
-        }, () => { /* ignore the errors */ })
+        clientPromise.then(client => {
+          client.executeQuickInfo({
+              file: filePath,
+              line: bufferPt.row+1,
+              offset: bufferPt.column+1
+          }).then(({body: {displayString, documentation}}) => {
+              var message = `<b>${escape(displayString) }</b>`;
+              if (documentation) {
+                  message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
+              }
+              // Sorry about this "if". It's in the code I copied so I guess its there for a reason
+              if (exprTypeTooltip) {
+                  exprTypeTooltip.updateText(message);
+              }
+          }, () => { /* ignore the errors */ })
+        })
     }
 
     function deactivate() {

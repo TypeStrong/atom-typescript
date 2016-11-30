@@ -1,79 +1,52 @@
-import {findTypescriptServers} from "./findServer"
-import {TypescriptServiceClient} from "./client"
+import {TypescriptServiceClient as Client} from "./client"
+import * as events from "events"
 import * as fs from "fs"
 import * as path from "path"
 import * as nodeResolve from "resolve"
 
 const defaultServerPath = require.resolve("typescript/bin/tsserver")
-const defaultServerVersion = require("typescript/package.json").version
-const defaultServer = new TypescriptServiceClient(defaultServerPath, defaultServerVersion)
 
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.
  */
-export class ClientResolver {
+export class ClientResolver extends events.EventEmitter {
+
   clients: {
-    prefix: string,
-    client: TypescriptServiceClient
-  }[] = []
-
-  get(filePath: string): Promise<TypescriptServiceClient> {
-    const client = this.clients.find(client => filePath.startsWith(client.prefix))
-
-    if (client) {
-      return Promise.resolve(client.client)
+    [tsServerPath: string]: {
+      client: Client,
+      pending: string[],
     }
+  } = {}
 
-    // If we didn't find a client in the clients array, we need to resolve, start and add a new one
-    return this.resolveFrom(filePath)
-  }
-
-  private addClient(prefix: string, client: TypescriptServiceClient) {
-    const existingClient = this.clients.find(client => client.prefix === prefix)
-
-    if (existingClient) {
-      return
-    }
-
-    this.clients.push({
-      prefix,
-      client
-    })
-
-    if (!client.serverPromise) {
-      client.startServer()
-    }
-
-    // Sort the clients in the descending order of the prefix length
-    this.clients.sort((a, b) => a.prefix.length - b.prefix.length)
-  }
-
-  private resolveFrom(filePath: string): Promise<TypescriptServiceClient> {
-    const basedir = path.dirname(filePath)
-
-    return resolveLocalServer(basedir)
-      .then(tsServerPath => path.resolve(tsServerPath, "..", "..", "..", ".."))
-      .then(findTypescriptServers)
-      .then(servers => {
-        console.log("got some servers", servers)
-
-        for (const server of servers) {
-          this.addClient(server.prefix, new TypescriptServiceClient(server.binPath, server.version))
+  get(filePath: string): Promise<Client> {
+    return resolveServer(filePath)
+      .catch(() => defaultServerPath)
+      .then(serverPath => {
+        if (this.clients[serverPath]) {
+          return this.clients[serverPath].client
         }
 
-        //
-        return this.get(filePath)
+        const entry = this.clients[serverPath] = {
+          client: new Client(serverPath),
+          pending: [],
+        }
 
-    }).catch(() => {
-      // TODO: Ensure there are no nested servers under the basedir too
-      this.addClient(basedir, defaultServer)
-      return defaultServer
-    })
+        entry.client.startServer()
+
+        entry.client.on("pendingRequestsChange", pending => {
+          entry.pending = pending
+          this.emit("pendingRequestsChange")
+        })
+
+        return entry.client
+      })
   }
 }
 
-function resolveLocalServer(basedir: string): Promise<string> {
+export function resolveServer(sourcePath: string): Promise<string> {
+  const basedir = path.dirname(sourcePath)
+
   return new Promise((resolve, reject) => {
     nodeResolve("typescript/bin/tsserver", {basedir}, (err, resolvedPath) => {
       if (err) {
@@ -84,14 +57,3 @@ function resolveLocalServer(basedir: string): Promise<string> {
     })
   })
 }
-
-// /** Given a start directory, try to resolve tsserver executable from node_modules */
-// export function findTSServer(basedir: string): string {
-//   const tsPath = resolve.sync("typescript/package.json", {basedir})
-//   const tsServerPath = path.resolve(path.dirname(tsPath), "bin", "tsserver")
-//
-//   // This will throw if the file does not exist on the disk
-//   fs.statSync(tsServerPath)
-//
-//   return tsServerPath
-// }

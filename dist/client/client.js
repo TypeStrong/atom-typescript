@@ -8,7 +8,7 @@ var child_process_1 = require("child_process");
 var stream_1 = require("stream");
 var byline = require("byline");
 var TypescriptServiceClient = (function () {
-    function TypescriptServiceClient(tsServerPath, tsServerVersion) {
+    function TypescriptServiceClient(tsServerPath) {
         var _this = this;
         this.callbacks = {};
         this.listeners = {};
@@ -34,7 +34,6 @@ var TypescriptServiceClient = (function () {
             }
         };
         this.tsServerPath = tsServerPath;
-        this.tsServerVersion = tsServerVersion;
     }
     TypescriptServiceClient.prototype.executeChange = function (args) {
         this.execute("change", args);
@@ -140,12 +139,12 @@ var TypescriptServiceClient = (function () {
     };
     return TypescriptServiceClient;
 }());
-exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     projectInfo: true,
     quickinfo: true
 };
+exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

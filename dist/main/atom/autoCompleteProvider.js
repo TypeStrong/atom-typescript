@@ -65,31 +65,32 @@ exports.provider = {
                     return Promise.resolve([]);
                 }
             }
-            var promisedSuggestions = parent.client.executeCompletions({
-                file: filePath,
-                prefix: options.prefix,
-                line: options.bufferPosition.row + 1,
-                offset: options.bufferPosition.column + 1
-            }).then(function (resp) {
-                console.log("prefix", options.prefix);
-                var completionList = resp.body;
-                var suggestions = completionList.map(function (c) {
-                    var prefix = options.prefix;
-                    if (c.name && c.name.startsWith('$')) {
-                        prefix = "$" + prefix;
-                    }
-                    return {
-                        text: c.name,
-                        replacementPrefix: prefix.trim(),
-                        rightLabel: c.name,
-                        leftLabel: c.kind,
-                        type: atomUtils.kindToType(c.kind),
-                        description: null,
-                    };
+            return parent.clients.get(filePath).then(function (client) {
+                return client.executeCompletions({
+                    file: filePath,
+                    prefix: options.prefix,
+                    line: options.bufferPosition.row + 1,
+                    offset: options.bufferPosition.column + 1
+                }).then(function (resp) {
+                    console.log("prefix", options.prefix);
+                    var completionList = resp.body;
+                    var suggestions = completionList.map(function (c) {
+                        var prefix = options.prefix;
+                        if (c.name && c.name.startsWith('$')) {
+                            prefix = "$" + prefix;
+                        }
+                        return {
+                            text: c.name,
+                            replacementPrefix: prefix.trim(),
+                            rightLabel: c.name,
+                            leftLabel: c.kind,
+                            type: atomUtils.kindToType(c.kind),
+                            description: null,
+                        };
+                    });
+                    return suggestions;
                 });
-                return suggestions;
             });
-            return promisedSuggestions;
         }
     },
 };

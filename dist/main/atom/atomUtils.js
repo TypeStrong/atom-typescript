@@ -83,7 +83,7 @@ function getEditorsForAllPaths(filePaths) {
         return Promise.resolve(map);
     var promises = newPaths.map(function (p) { return atom.workspace.open(p, {}); });
     return Promise.all(promises).then(function (editors) {
-        editors.forEach(addConsistentlyToMap);
+        editors.forEach(function (editor) { return addConsistentlyToMap(editor); });
         return map;
     });
 }

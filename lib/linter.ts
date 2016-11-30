@@ -32,34 +32,36 @@ export var provider = {
 
         var filePath = textEditor.buffer.file.path;
 
-        // Trigger an error check
-        parent.client.executeGetErr({files: [filePath], delay: 100})
-
-        return new Promise((resolve, reject) => {
-
-          // Listen for a semanticDiag message for this specific file, unsub and resolve
-          const unsub = parent.client.on("semanticDiag", result => {
-            if (result.file === filePath) {
-              try {
-                unsub()
-
-                const errors: LinterMessage[] = result.diagnostics.map(diag => {
-                  return {
-                    type: "Error",
-                    filePath,
-                    text: diag.text,
-                    range: new Range(
-                      [diag.start.line-1, diag.start.offset-1],
-                      [diag.end.line-1, diag.end.offset-1])
-                  }
-                })
-
-                resolve(errors)
-              } catch (error) {
-                resolve([])
-              }
-            }
-          })
-        })
+        return Promise.resolve([])
+        
+        // // Trigger an error check
+        // parent.client.executeGetErr({files: [filePath], delay: 100})
+        //
+        // return new Promise((resolve, reject) => {
+        //
+        //   // Listen for a semanticDiag message for this specific file, unsub and resolve
+        //   const unsub = parent.client.on("semanticDiag", result => {
+        //     if (result.file === filePath) {
+        //       try {
+        //         unsub()
+        //
+        //         const errors: LinterMessage[] = result.diagnostics.map(diag => {
+        //           return {
+        //             type: "Error",
+        //             filePath,
+        //             text: diag.text,
+        //             range: new Range(
+        //               [diag.start.line-1, diag.start.offset-1],
+        //               [diag.end.line-1, diag.end.offset-1])
+        //           }
+        //         })
+        //
+        //         resolve(errors)
+        //       } catch (error) {
+        //         resolve([])
+        //       }
+        //     }
+        //   })
+        // })
     }
 }
