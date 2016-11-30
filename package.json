@@ -58,7 +58,7 @@
     "babel": "^5.6.23",
     "basarat-text-buffer": "6.0.0",
     "byline": "^5.0.0",
-    "byots": "2.2.0-dev.20161117.23.11",
+    "byots": "2.2.0-dev.20161129.23.20",
     "d3": "^3.5.5",
     "detect-indent": "^4.0.0",
     "detect-newline": "^2.1.0",
@@ -75,7 +75,7 @@
     "resolve": "1.1.7",
     "season": "^5.1.4",
     "tsconfig": "^2.2.0",
-    "typescript": "^2.2.0-dev.20161127",
+    "typescript": "2.2.0-dev.20161130",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
