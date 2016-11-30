@@ -54,7 +54,7 @@
     "atom-space-pen-views": "^2.0.4",
     "babel": "^5.6.23",
     "basarat-text-buffer": "6.0.0",
-    "byots": "2.2.0-dev.20161117.23.11",
+    "byots": "2.2.0-dev.20161129.23.20",
     "d3": "^3.5.5",
     "detect-indent": "^4.0.0",
     "detect-newline": "^2.1.0",
@@ -70,7 +70,7 @@
     "react": "^0.13.3",
     "season": "^5.1.4",
     "tsconfig": "^2.2.0",
-    "typescript": "2.2.0-dev.20161118",
+    "typescript": "2.2.0-dev.20161130",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
