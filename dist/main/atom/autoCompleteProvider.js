@@ -65,37 +65,27 @@ exports.provider = {
                     return Promise.resolve([]);
                 }
             }
-            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
-            var promisedSuggestions = parent.getCompletionsAtPosition({
-                filePath: filePath,
-                position: position,
+            var promisedSuggestions = parent.client.executeCompletions({
+                file: filePath,
                 prefix: options.prefix,
-            })
-                .then(function (resp) {
-                var completionList = resp.completions;
+                line: options.bufferPosition.row + 1,
+                offset: options.bufferPosition.column + 1
+            }).then(function (resp) {
+                console.log("prefix", options.prefix);
+                var completionList = resp.body;
                 var suggestions = completionList.map(function (c) {
-                    if (c.snippet) {
-                        return {
-                            snippet: c.snippet,
-                            replacementPrefix: '',
-                            rightLabel: 'signature',
-                            type: 'snippet',
-                        };
+                    var prefix = options.prefix;
+                    if (c.name && c.name.startsWith('$')) {
+                        prefix = "$" + prefix;
                     }
-                    else {
-                        var prefix = options.prefix;
-                        if (c.name && c.name.startsWith('$')) {
-                            prefix = "$" + prefix;
-                        }
-                        return {
-                            text: c.name,
-                            replacementPrefix: resp.endsInPunctuation ? '' : prefix.trim(),
-                            rightLabel: c.display,
-                            leftLabel: c.kind,
-                            type: atomUtils.kindToType(c.kind),
-                            description: c.comment,
-                        };
-                    }
+                    return {
+                        text: c.name,
+                        replacementPrefix: prefix.trim(),
+                        rightLabel: c.name,
+                        leftLabel: c.kind,
+                        type: atomUtils.kindToType(c.kind),
+                        description: null,
+                    };
                 });
                 return suggestions;
             });

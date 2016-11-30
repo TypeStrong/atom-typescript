@@ -173,7 +173,10 @@ function readyToActivate() {
                 // Only once stuff
                 onlyOnceStuff();
 
-                parent.client.executeOpen({file: filePath})
+                parent.client.executeOpen({
+                  file: filePath,
+                  fileContent: editor.getText()
+                })
 
                 updatePanelConfig(filePath);
 

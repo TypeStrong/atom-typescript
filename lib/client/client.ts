@@ -1,9 +1,6 @@
 import {ChildProcess, spawn} from "child_process"
 import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
-import * as fs from "fs"
-import * as path from "path"
-import * as resolve from "resolve"
 import byline = require("byline")
 
 export class TypescriptServiceClient {
@@ -30,12 +27,17 @@ export class TypescriptServiceClient {
   /** Promise that resolves when the server is ready to accept requests */
   serverPromise: Promise<any>
 
+  private serverDeferred: {resolve(), reject()}
+
   /** Path to the tsserver executable */
   readonly tsServerPath: string
 
-  constructor(tsServerPath: string) {
+  /** Version of the tsserver */
+  readonly tsServerVersion: string
+
+  constructor(tsServerPath: string, tsServerVersion: string) {
     this.tsServerPath = tsServerPath
-    this.serverPromise = this.startServer()
+    this.tsServerVersion = tsServerVersion
   }
 
   static commandWithResponse = {
@@ -157,27 +159,37 @@ export class TypescriptServiceClient {
     return resultPromise
   }
 
-  private startServer(): Promise<ChildProcess> {
-    return new Promise<ChildProcess>((resolve, reject) => {
-      console.log("starting", this.tsServerPath)
+  startServer() {
+    if (!this.serverPromise) {
+      this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
+        console.log("starting", this.tsServerPath)
 
-      const cp = spawn(this.tsServerPath, [])
+        const cp = spawn(this.tsServerPath, [])
 
-      cp.once("error", err => {
-        console.log("tsserver starting failed with", err)
-        reject(err)
+        cp.once("error", err => {
+          console.log("tsserver starting failed with", err)
+          reject(err)
+        })
+
+        cp.once("exit", code => {
+          console.log("tsserver failed to start with code", code)
+          reject({code})
+        })
+
+        messageStream(cp.stdout).on("data", this.onMessage)
+
+        // We send an unknown command to verify that the server is working.
+        this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
       })
 
-      cp.once("exit", code => {
-        console.log("tsserver failed to start with code", code)
-        reject({code})
+      return this.serverPromise.catch(error => {
+        this.serverPromise = null
+        throw error
       })
 
-      messageStream(cp.stdout).on("data", this.onMessage)
-
-      // We send an unknown command to verify that the server is working.
-      this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
-    })
+    } else {
+      throw new Error(`Server already started: ${this.tsServerPath}`)
+    }
   }
 }
 
@@ -187,17 +199,6 @@ function isEvent(res: protocol.Response | protocol.Event): res is protocol.Event
 
 function isResponse(res: protocol.Response | protocol.Event): res is protocol.Response {
   return res.type === "response"
-}
-
-/** Given a start directory, try to resolve tsserver executable from node_modules */
-export function findTSServer(basedir: string): string {
-  const tsPath = resolve.sync("typescript/package.json", {basedir})
-  const tsServerPath = path.resolve(path.dirname(tsPath), "bin", "tsserver")
-
-  // This will throw if the file does not exist on the disk
-  fs.statSync(tsServerPath)
-
-  return tsServerPath
 }
 
 function messageStream(input: Readable) {

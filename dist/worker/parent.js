@@ -1,6 +1,6 @@
 "use strict";
 var debug_1 = require("./debug");
-var tsconfig = require("tsconfig");
+var tsconfig = require("tsconfig/dist/tsconfig");
 var workerLib = require("./lib/workerLib");
 var atomConfig = require("../main/atom/atomConfig");
 var client_1 = require("../client/client");
@@ -39,7 +39,6 @@ function catchCommonErrors(func) {
 }
 var projectService = require("../main/lang/projectService");
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
-exports.quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
 exports.getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
     completions: [],
@@ -74,8 +73,7 @@ exports.createProject = parent.sendToIpc(projectService.createProject);
 exports.toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 var queryParent = require("./queryParent");
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
-var tsserverPath = client_1.findTSServer(__dirname);
-exports.client = new client_1.TypescriptServiceClient(tsserverPath);
+exports.client = new client_1.TypescriptServiceClient("haha", "Hehe");
 exports.client.on("pendingRequestsChange", function (pending) {
     if (!mainPanel.panelView)
         return;

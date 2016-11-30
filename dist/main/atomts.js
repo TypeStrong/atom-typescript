@@ -86,7 +86,10 @@ function readyToActivate() {
             var isTst = ext === '.tst';
             try {
                 onlyOnceStuff();
-                parent.client.executeOpen({ file: filePath });
+                parent.client.executeOpen({
+                    file: filePath,
+                    fileContent: editor.getText()
+                });
                 updatePanelConfig(filePath);
                 var onDisk = false;
                 if (fs.existsSync(filePath)) {

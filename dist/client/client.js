@@ -6,12 +6,9 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var child_process_1 = require("child_process");
 var stream_1 = require("stream");
-var fs = require("fs");
-var path = require("path");
-var resolve = require("resolve");
 var byline = require("byline");
 var TypescriptServiceClient = (function () {
-    function TypescriptServiceClient(tsServerPath) {
+    function TypescriptServiceClient(tsServerPath, tsServerVersion) {
         var _this = this;
         this.callbacks = {};
         this.listeners = {};
@@ -37,7 +34,7 @@ var TypescriptServiceClient = (function () {
             }
         };
         this.tsServerPath = tsServerPath;
-        this.serverPromise = this.startServer();
+        this.tsServerVersion = tsServerVersion;
     }
     TypescriptServiceClient.prototype.executeChange = function (args) {
         this.execute("change", args);
@@ -117,42 +114,44 @@ var TypescriptServiceClient = (function () {
     };
     TypescriptServiceClient.prototype.startServer = function () {
         var _this = this;
-        return new Promise(function (resolve, reject) {
-            console.log("starting", _this.tsServerPath);
-            var cp = child_process_1.spawn(_this.tsServerPath, []);
-            cp.once("error", function (err) {
-                console.log("tsserver starting failed with", err);
-                reject(err);
+        if (!this.serverPromise) {
+            this.serverPromise = new Promise(function (resolve, reject) {
+                console.log("starting", _this.tsServerPath);
+                var cp = child_process_1.spawn(_this.tsServerPath, []);
+                cp.once("error", function (err) {
+                    console.log("tsserver starting failed with", err);
+                    reject(err);
+                });
+                cp.once("exit", function (code) {
+                    console.log("tsserver failed to start with code", code);
+                    reject({ code: code });
+                });
+                messageStream(cp.stdout).on("data", _this.onMessage);
+                _this.sendRequest(cp, "ping", null, true).then(function (res) { return resolve(cp); }, function (err) { return resolve(cp); });
             });
-            cp.once("exit", function (code) {
-                console.log("tsserver failed to start with code", code);
-                reject({ code: code });
+            return this.serverPromise.catch(function (error) {
+                _this.serverPromise = null;
+                throw error;
             });
-            messageStream(cp.stdout).on("data", _this.onMessage);
-            _this.sendRequest(cp, "ping", null, true).then(function (res) { return resolve(cp); }, function (err) { return resolve(cp); });
-        });
+        }
+        else {
+            throw new Error("Server already started: " + this.tsServerPath);
+        }
     };
     return TypescriptServiceClient;
 }());
+exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     projectInfo: true,
     quickinfo: true
 };
-exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }
 function isResponse(res) {
     return res.type === "response";
 }
-function findTSServer(basedir) {
-    var tsPath = resolve.sync("typescript/package.json", { basedir: basedir });
-    var tsServerPath = path.resolve(path.dirname(tsPath), "bin", "tsserver");
-    fs.statSync(tsServerPath);
-    return tsServerPath;
-}
-exports.findTSServer = findTSServer;
 function messageStream(input) {
     return input.pipe(byline()).pipe(new MessageStream());
 }

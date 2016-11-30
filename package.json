@@ -75,7 +75,7 @@
     "resolve": "1.1.7",
     "season": "^5.1.4",
     "tsconfig": "^2.2.0",
-    "typescript": "2.2.0-dev.20161118",
+    "typescript": "^2.2.0-dev.20161127",
     "xtend": "^4.0.0"
   },
   "devDependencies": {

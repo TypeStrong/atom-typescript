@@ -147,52 +147,51 @@ export var provider: autocompleteplus.Provider = {
                 }
             }
 
-            var position = atomUtils.getEditorPositionForBufferPosition(options.editor, options.bufferPosition);
+            var promisedSuggestions = parent.client.executeCompletions({
+                file: filePath,
+                prefix: options.prefix,
+                line: options.bufferPosition.row+1,
+                offset: options.bufferPosition.column+1
+            }).then(resp => {
+                console.log("prefix", options.prefix)
 
-            var promisedSuggestions: Promise<autocompleteplus.Suggestion[]>
-                = parent.getCompletionsAtPosition({
-                    filePath: filePath,
-                    position: position,
-                    prefix: options.prefix,
-                })
-                    .then((resp) => {
+                var completionList = resp.body;
+                var suggestions: autocompleteplus.Suggestion[] = completionList.map(c => {
 
-                    var completionList = resp.completions;
-                    var suggestions = completionList.map((c): autocompleteplus.Suggestion => {
+                    // if (c.snippet) // currently only function completions are snippet
+                    // {
+                    //     return {
+                    //         snippet: c.snippet,
+                    //         replacementPrefix: '',
+                    //         rightLabel: 'signature',
+                    //         type: 'snippet',
+                    //     };
+                    // }
+                    // else {
+                        var prefix = options.prefix;
 
-                        if (c.snippet) // currently only function completions are snippet
-                        {
-                            return {
-                                snippet: c.snippet,
-                                replacementPrefix: '',
-                                rightLabel: 'signature',
-                                type: 'snippet',
-                            };
+                        // If the completion is $foo
+                        // The prefix from acp is actually only `foo`
+                        // But the var is $foo
+                        // => so we would potentially end up replacing $foo with $$foo
+                        // Fix that:
+                        if (c.name && c.name.startsWith('$')) {
+                            prefix = "$" + prefix;
                         }
-                        else {
-                            var prefix = options.prefix;
-                            // If the completion is $foo
-                            // The prefix from acp is actually only `foo`
-                            // But the var is $foo
-                            // => so we would potentially end up replacing $foo with $$foo
-                            // Fix that:
-                            if (c.name && c.name.startsWith('$')) {
-                                prefix = "$" + prefix;
-                            }
 
-                            return {
-                                text: c.name,
-                                replacementPrefix: resp.endsInPunctuation ? '' : prefix.trim(),
-                                rightLabel: c.display,
-                                leftLabel: c.kind,
-                                type: atomUtils.kindToType(c.kind),
-                                description: c.comment,
-                            };
-                        }
-                    });
-
-                    return suggestions;
+                        return {
+                            text: c.name,
+                            replacementPrefix: prefix.trim(),
+                            rightLabel: c.name,
+                            leftLabel: c.kind,
+                            type: atomUtils.kindToType(c.kind),
+                            description: null,
+                        };
+                    // }
                 });
+
+                return suggestions;
+            });
 
             return promisedSuggestions;
         }

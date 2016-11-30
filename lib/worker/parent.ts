@@ -1,13 +1,13 @@
 import {debugSync} from "./debug";
 
 import * as path from "path"
-import * as tsconfig from "tsconfig"
+import * as tsconfig from "tsconfig/dist/tsconfig"
 
 import workerLib = require('./lib/workerLib');
 import * as protocol from "typescript/lib/protocol";
 import * as atomConfig from "../main/atom/atomConfig";
 
-import {TypescriptServiceClient, findTSServer} from "../client/client"
+import {TypescriptServiceClient} from "../client/client"
 
 var parent = new workerLib.Parent();
 import * as mainPanel from "../main/atom/views/mainPanelView";
@@ -61,7 +61,6 @@ function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Re
 import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
 export var echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
-export var quickInfo = catchCommonErrors(parent.sendToIpc(projectService.quickInfo));
 export var build = catchCommonErrors(parent.sendToIpc(projectService.build));
 export var getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
     completions: [],
@@ -100,8 +99,8 @@ export var toggleBreakpoint = parent.sendToIpc(projectService.toggleBreakpoint);
 import queryParent = require('./queryParent');
 parent.registerAllFunctionsExportedFromAsResponders(queryParent);
 
-const tsserverPath = findTSServer(__dirname)
-export const client = new TypescriptServiceClient(tsserverPath)
+// const tsserverPath = findTSServer(__dirname)
+export const client = new TypescriptServiceClient("haha", "Hehe")
 
 client.on("pendingRequestsChange", pending => {
   // We only start once the panel view is initialized
