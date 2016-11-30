@@ -1,9 +1,5 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var atomConfig = require("../atomConfig");
 var atomUtils = require("../atomUtils");
 var sp = require("atom-space-pen-views");
@@ -17,7 +13,7 @@ var rts;
     rts.indent = indent;
 })(rts || (rts = {}));
 var MyComponent = (function (_super) {
-    __extends(MyComponent, _super);
+    tslib_1.__extends(MyComponent, _super);
     function MyComponent(props) {
         var _this = _super.call(this, props) || this;
         _this.whileRendering = {
@@ -102,7 +98,7 @@ var MyComponent = (function (_super) {
     return MyComponent;
 }(React.Component));
 var SemanticView = (function (_super) {
-    __extends(SemanticView, _super);
+    tslib_1.__extends(SemanticView, _super);
     function SemanticView(config) {
         var _this = _super.call(this, config) || this;
         _this.config = config;

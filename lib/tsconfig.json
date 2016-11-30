@@ -5,6 +5,7 @@
         "declaration": false,
         "lib": ["es6", "dom"],
         "noImplicitAny": false,
+        "importHelpers": true,
         "removeComments": true,
         "noLib": false,
         "preserveConstEnums": true,

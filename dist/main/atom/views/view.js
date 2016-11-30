@@ -1,12 +1,8 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var sp = require("atom-space-pen-views");
 var View = (function (_super) {
-    __extends(View, _super);
+    tslib_1.__extends(View, _super);
     function View(options) {
         var _this = _super.call(this) || this;
         _this.options = options;
@@ -29,7 +25,7 @@ var View = (function (_super) {
 exports.View = View;
 exports.$ = sp.$;
 var ScrollView = (function (_super) {
-    __extends(ScrollView, _super);
+    tslib_1.__extends(ScrollView, _super);
     function ScrollView(options) {
         var _this = _super.call(this) || this;
         _this.options = options;

@@ -1,4 +1,5 @@
 "use strict";
+var tslib_1 = require("tslib");
 var parent = require("../../worker/parent");
 var fs = require("fs");
 var atomUtils = require("./atomUtils");
@@ -27,70 +28,50 @@ exports.provider = {
     suggestionPriority: 3,
     excludeLowerPriority: false,
     getSuggestions: function (options) {
-        var filePath = options.editor.getPath();
-        if (!filePath)
-            return Promise.resolve([]);
-        if (!fs.existsSync(filePath))
-            return Promise.resolve([]);
-        var _a = getModuleAutocompleteType(options.scopeDescriptor.scopes), isReference = _a.isReference, isRequire = _a.isRequire, isImport = _a.isImport;
-        if (isReference || isRequire || isImport) {
-            return parent.getRelativePathsInProject({ filePath: filePath, prefix: options.prefix, includeExternalModules: isReference })
-                .then(function (resp) {
-                var range = options.editor.bufferRangeForScopeAtCursor(".string.quoted");
-                var cursor = options.editor.getCursorBufferPosition();
-                if (!range || cursor.column !== range.end.column - 1) {
-                    return [];
-                }
-                var content = options.editor.getTextInBufferRange(range).replace(/^['"]|['"]$/g, "");
-                return resp.files.map(function (file) {
-                    var relativePath = file.relativePath;
-                    var suggestionText = relativePath;
-                    var suggestion = {
-                        text: suggestionText,
-                        replacementPrefix: content,
-                        rightLabelHTML: '<span>' + file.name + '</span>',
-                        type: 'import'
-                    };
-                    return suggestion;
-                });
-            });
-        }
-        else {
-            if (explicitlyTriggered) {
-                explicitlyTriggered = false;
-            }
-            else {
-                var prefix = options.prefix.trim();
-                if (prefix === '' || prefix === ';' || prefix === '{') {
-                    return Promise.resolve([]);
-                }
-            }
-            return parent.clients.get(filePath).then(function (client) {
-                return client.executeCompletions({
-                    file: filePath,
-                    prefix: options.prefix,
-                    line: options.bufferPosition.row + 1,
-                    offset: options.bufferPosition.column + 1
-                }).then(function (resp) {
-                    console.log("prefix", options.prefix);
-                    var completionList = resp.body;
-                    var suggestions = completionList.map(function (c) {
-                        var prefix = options.prefix;
-                        if (c.name && c.name.startsWith('$')) {
-                            prefix = "$" + prefix;
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var filePath, client, prefix;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        filePath = options.editor.getPath();
+                        if (!filePath || !fs.existsSync(filePath))
+                            return [2 /*return*/, []];
+                        return [4 /*yield*/, parent.clients.get(filePath)];
+                    case 1:
+                        client = _a.sent();
+                        if (explicitlyTriggered) {
+                            explicitlyTriggered = false;
                         }
-                        return {
-                            text: c.name,
-                            replacementPrefix: prefix.trim(),
-                            rightLabel: c.name,
-                            leftLabel: c.kind,
-                            type: atomUtils.kindToType(c.kind),
-                            description: null,
-                        };
-                    });
-                    return suggestions;
-                });
+                        else {
+                            prefix = options.prefix.trim();
+                            if (prefix === '' || prefix === ';' || prefix === '{') {
+                                return [2 /*return*/, Promise.resolve([])];
+                            }
+                        }
+                        return [2 /*return*/, client.executeCompletions({
+                                file: filePath,
+                                prefix: options.prefix,
+                                line: options.bufferPosition.row + 1,
+                                offset: options.bufferPosition.column + 1
+                            }).then(function (resp) {
+                                console.log("prefix", options.prefix);
+                                return resp.body.map(function (c) {
+                                    var prefix = options.prefix;
+                                    if (c.name && c.name.startsWith('$')) {
+                                        prefix = "$" + prefix;
+                                    }
+                                    return {
+                                        text: c.name,
+                                        replacementPrefix: prefix === "." ? "" : prefix.trim(),
+                                        rightLabel: c.name,
+                                        leftLabel: c.kind,
+                                        type: atomUtils.kindToType(c.kind),
+                                        description: null,
+                                    };
+                                });
+                            })];
+                }
             });
-        }
+        });
     },
 };

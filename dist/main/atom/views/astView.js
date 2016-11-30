@@ -1,9 +1,5 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var sp = require("atom-space-pen-views");
 var atomUtils = require("../atomUtils");
 var parent = require("../../../worker/parent");
@@ -11,7 +7,7 @@ var d3 = require("d3");
 exports.astURI = "ts-ast:";
 exports.astURIFull = "ts-ast-full:";
 var AstView = (function (_super) {
-    __extends(AstView, _super);
+    tslib_1.__extends(AstView, _super);
     function AstView(filePath, text, full) {
         var _this = _super.call(this) || this;
         _this.filePath = filePath;

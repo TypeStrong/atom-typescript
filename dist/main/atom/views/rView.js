@@ -1,14 +1,10 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var atomUtils_1 = require("../atomUtils");
 var sp = require("atom-space-pen-views");
 var React = require("react");
 var MyComponent = (function (_super) {
-    __extends(MyComponent, _super);
+    tslib_1.__extends(MyComponent, _super);
     function MyComponent(props) {
         var _this = _super.call(this, props) || this;
         _this.state = { count: 0 };
@@ -32,7 +28,7 @@ var MyComponent = (function (_super) {
 }(React.Component));
 MyComponent.defaultProps = { count: 0 };
 var RView = (function (_super) {
-    __extends(RView, _super);
+    tslib_1.__extends(RView, _super);
     function RView(config) {
         var _this = _super.call(this) || this;
         _this.config = config;

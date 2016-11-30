@@ -1,9 +1,5 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var childprocess = require("child_process");
 var exec = childprocess.exec;
 var spawn = childprocess.spawn;
@@ -146,7 +142,7 @@ var RequesterResponder = (function () {
     return RequesterResponder;
 }());
 var Parent = (function (_super) {
-    __extends(Parent, _super);
+    tslib_1.__extends(Parent, _super);
     function Parent() {
         var _this = _super.apply(this, arguments) || this;
         _this.node = process.execPath;
@@ -221,7 +217,7 @@ var Parent = (function (_super) {
 }(RequesterResponder));
 exports.Parent = Parent;
 var Child = (function (_super) {
-    __extends(Child, _super);
+    tslib_1.__extends(Child, _super);
     function Child() {
         var _this = _super.call(this) || this;
         _this.getProcess = function () { return process; };

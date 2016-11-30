@@ -1,9 +1,5 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var singleton;
 function default_1(options, editor) {
     if (!singleton)
@@ -20,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 var sp = require("atom-space-pen-views");
 var SimpleOverlaySelectListView = (function (_super) {
-    __extends(SimpleOverlaySelectListView, _super);
+    tslib_1.__extends(SimpleOverlaySelectListView, _super);
     function SimpleOverlaySelectListView(options, editor) {
         var _this = _super.call(this) || this;
         _this.options = options;

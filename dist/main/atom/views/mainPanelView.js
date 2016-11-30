@@ -1,9 +1,5 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var tslib_1 = require("tslib");
 var view = require("./view");
 var $ = view.$;
 var lineMessageView = require("./lineMessageView");
@@ -16,7 +12,7 @@ var panelHeaders = {
 };
 var gotoHistory = require("../gotoHistory");
 var MainPanelView = (function (_super) {
-    __extends(MainPanelView, _super);
+    tslib_1.__extends(MainPanelView, _super);
     function MainPanelView() {
         var _this = _super.apply(this, arguments) || this;
         _this.pendingRequests = [];
