@@ -1,6 +1,5 @@
 "use strict";
-var immutable_1 = require("immutable");
-var TS_GRAMMARS = immutable_1.Set(["source.ts", "source.tsx"]);
+var TS_GRAMMARS = new Set(["source.ts", "source.tsx"]);
 exports.providerName = "typescript-hyperclick-provider";
 exports.wordRegExp = /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g;
 function getSuggestionForWord(textEditor, text, range) {

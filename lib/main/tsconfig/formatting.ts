@@ -5,96 +5,27 @@
  * - the defaultFormatCodeOptions function
  * - the makeFormatCodeOptions function
  */
+import {EOL} from "os"
+import * as protocol from "typescript/lib/protocol"
 
-import os = require('os');
-
-/// The following two interfaces come from typescript.d.ts but camelCased for JSON parsing
-interface EditorOptions {
-    indentSize: number;
-    tabSize: number;
-    newLineCharacter: string;
-    convertTabsToSpaces: boolean;
-}
-export interface FormatCodeOptions extends EditorOptions {
-    insertSpaceAfterCommaDelimiter: boolean;
-    insertSpaceAfterSemicolonInForStatements: boolean;
-    insertSpaceBeforeAndAfterBinaryOperators: boolean;
-    insertSpaceAfterKeywordsInControlFlowStatements: boolean;
-    insertSpaceAfterFunctionKeywordForAnonymousFunctions: boolean;
-    insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: boolean;
-    insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: boolean;
-    insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: boolean;
-    placeOpenBraceOnNewLineForFunctions: boolean;
-    placeOpenBraceOnNewLineForControlBlocks: boolean;
-}
-
-export function defaultFormatCodeOptions(): ts.FormatCodeOptions {
+export function defaultFormatCodeOptions(): protocol.FormatCodeSettings {
     return {
-        IndentSize: 4,
-        TabSize: 4,
-        NewLineCharacter: os.EOL,
-        ConvertTabsToSpaces: true,
-        IndentStyle: ts.IndentStyle.Smart,
-        InsertSpaceAfterCommaDelimiter: true,
-        InsertSpaceAfterSemicolonInForStatements: true,
-        InsertSpaceBeforeAndAfterBinaryOperators: true,
-        InsertSpaceAfterKeywordsInControlFlowStatements: true,
-        InsertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
-        InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
-        InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
-        InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: false,
-        PlaceOpenBraceOnNewLineForFunctions: false,
-        PlaceOpenBraceOnNewLineForControlBlocks: false,
+        baseIndentSize: 4,
+        indentSize: 4,
+        tabSize: 4,
+        newLineCharacter: EOL,
+        convertTabsToSpaces: true,
+        indentStyle: "Smart",
+        insertSpaceAfterCommaDelimiter: true,
+        insertSpaceAfterSemicolonInForStatements: true,
+        insertSpaceBeforeAndAfterBinaryOperators: true,
+        insertSpaceAfterKeywordsInControlFlowStatements: true,
+        insertSpaceAfterFunctionKeywordForAnonymousFunctions: false,
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis: false,
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets: false,
+        insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces: false,
+        insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces: false,
+        placeOpenBraceOnNewLineForFunctions: false,
+        placeOpenBraceOnNewLineForControlBlocks: false,
     };
-}
-
-export function makeFormatCodeOptions(config: FormatCodeOptions): ts.FormatCodeOptions {
-    var options = defaultFormatCodeOptions();
-    if (!config) {
-        return options;
-    }
-    if (typeof config.insertSpaceAfterCommaDelimiter === "boolean") {
-        options.InsertSpaceAfterCommaDelimiter = config.insertSpaceAfterCommaDelimiter;
-    }
-    if (typeof config.insertSpaceAfterSemicolonInForStatements === "boolean") {
-        options.InsertSpaceAfterSemicolonInForStatements = config.insertSpaceAfterSemicolonInForStatements;
-    }
-    if (typeof config.insertSpaceBeforeAndAfterBinaryOperators === "boolean") {
-        options.InsertSpaceBeforeAndAfterBinaryOperators = config.insertSpaceBeforeAndAfterBinaryOperators;
-    }
-    if (typeof config.insertSpaceAfterKeywordsInControlFlowStatements === "boolean") {
-        options.InsertSpaceAfterKeywordsInControlFlowStatements = config.insertSpaceAfterKeywordsInControlFlowStatements;
-    }
-    if (typeof config.insertSpaceAfterFunctionKeywordForAnonymousFunctions === "boolean") {
-        options.InsertSpaceAfterFunctionKeywordForAnonymousFunctions = config.insertSpaceAfterFunctionKeywordForAnonymousFunctions;
-    }
-    if (typeof config.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis === "boolean") {
-        options.InsertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis = config.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis;
-    }
-    if (typeof config.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets === "boolean") {
-        options.InsertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets = config.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets;
-    }
-    if (typeof config.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces === "boolean") {
-        options.InsertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces = config.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces;
-    }
-    if (typeof config.placeOpenBraceOnNewLineForFunctions === "boolean") {
-        options.PlaceOpenBraceOnNewLineForFunctions = config.placeOpenBraceOnNewLineForFunctions;
-    }
-    if (typeof config.placeOpenBraceOnNewLineForControlBlocks === "boolean") {
-        options.PlaceOpenBraceOnNewLineForControlBlocks = config.placeOpenBraceOnNewLineForControlBlocks;
-    }
-    if (typeof config.indentSize === "number") {
-        options.IndentSize = config.indentSize;
-    }
-    if (typeof config.tabSize === "number") {
-        options.TabSize = config.tabSize;
-    }
-    if (typeof config.newLineCharacter === "string") {
-        options.NewLineCharacter = config.newLineCharacter;
-    }
-    if (typeof config.convertTabsToSpaces === "boolean") {
-        options.ConvertTabsToSpaces = config.convertTabsToSpaces;
-    }
-
-    return options;
 }

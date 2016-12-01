@@ -13,9 +13,7 @@
         "outDir": "../dist",
         "sourceMap": false,
         "jsx": "react",
-        "types": [
-            "byots"
-        ]
+        "types": []
     },
     "dts": {
         "name": "atom-typescript"

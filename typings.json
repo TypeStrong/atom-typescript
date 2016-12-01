@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "source-map": "github:typings/typed-source-map#86c25e7a550d5af7a63d979625602c17cce157f6",
-    "tsconfig": "npm:tsconfig"
-  },
-  "ambientDependencies": {
-    "pathwatcher": "github:DefinitelyTyped/DefinitelyTyped/pathwatcher/pathwatcher.d.ts#aee42d3e873a332bda7ff2a77d0c5973a11cd2d3"
-  }
-}

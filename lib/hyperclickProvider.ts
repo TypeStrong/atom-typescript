@@ -1,11 +1,6 @@
-// import * as parent from "./worker/parent";
-// import * as atomUtils from "./main/atom/atomUtils";
-import {Set} from "immutable";
-
-const TS_GRAMMARS = Set<string>(["source.ts", "source.tsx"]);
+const TS_GRAMMARS = new Set(["source.ts", "source.tsx"]);
 
 export let providerName = "typescript-hyperclick-provider";
-
 export let wordRegExp = /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g;
 
 export function getSuggestionForWord(textEditor: AtomCore.IEditor, text: string, range: TextBuffer.IRange) {

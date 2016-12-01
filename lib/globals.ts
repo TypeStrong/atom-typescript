@@ -1,14 +1,3 @@
-/// <reference path="../node_modules/tsconfig/dist/tsconfig.d.ts"/>
-/// <reference path="./typings/tsd.d.ts"/>
-
-// From brackets plugin
-/// <reference path="./typings/bluebird.d.ts"/>
-/// <reference path="./typings/codemirror.d.ts"/>
-/// <reference path="./typings/brackets.d.ts"/>
-/// <reference path="./typings/mustache.d.ts"/>
-
-/// <reference path="../views/views.d.ts"/>
-
 /** Utility function to print stack trace from whereever */
 declare function stack();
 declare module NodeJS {
@@ -145,38 +134,4 @@ interface ReferenceDetails {
     filePath: string;
     position: EditorPosition
     preview: string;
-}
-
-/** Used by AST display */
-interface NodeDisplay {
-    kind: string;
-    children: NodeDisplay[];
-
-    pos: number;
-    end: number;
-
-    /** Represents how many parents it has */
-    depth: number;
-    /** If we had a flat structure this is where this item would belong */
-    nodeIndex: number;
-
-    /** Key Details I understand */
-    details?: any;
-
-    /** Best attempt serialization of original node
-    * I also remove `parent`
-    */
-    rawJson: any;
-}
-
-/** Used by Dependency display */
-interface FileDependency {
-    sourcePath: string;
-    targetPath: string;
-}
-
-/** Provided by the atom team */
-interface String {
-    startsWith(str: string): boolean;
-    endsWith(str: string): boolean;
 }

@@ -1,6 +1,7 @@
 console.log("be initializing them package")
 console.profile("atomts init")
-const start = process.hrtime()
+
+const startTime = process.hrtime()
 
 import _atom = require('atom')
 import {$} from "atom-space-pen-views"
@@ -120,7 +121,7 @@ function readyToActivate() {
                     filePath: filePath,
                     startPos: {line: error.start.line - 1, col: error.start.offset - 1},
                     endPos: {line: error.end.line - 1, col: error.end.offset - 1},
-                    message: ts.flattenDiagnosticMessageText(error.text, '\n'),
+                    message: error.text,
                     preview
                   }
 
@@ -333,4 +334,4 @@ export function getHyperclickProvider() {
 }
 
 console.profileEnd()
-console.log("init took", process.hrtime(start))
+console.log("init took", process.hrtime(startTime))

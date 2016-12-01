@@ -2,7 +2,7 @@
 var tslib_1 = require("tslib");
 console.log("be initializing them package");
 console.profile("atomts init");
-var start = process.hrtime();
+var startTime = process.hrtime();
 var _atom = require("atom");
 var atom_space_pen_views_1 = require("atom-space-pen-views");
 var mainPanelView_1 = require("./atom/views/mainPanelView");
@@ -80,7 +80,7 @@ function readyToActivate() {
                                             filePath: filePath,
                                             startPos: { line: error.start.line - 1, col: error.start.offset - 1 },
                                             endPos: { line: error.end.line - 1, col: error.end.offset - 1 },
-                                            message: ts.flattenDiagnosticMessageText(error.text, '\n'),
+                                            message: error.text,
                                             preview: preview
                                         };
                                     }));
@@ -205,4 +205,4 @@ function getHyperclickProvider() {
 }
 exports.getHyperclickProvider = getHyperclickProvider;
 console.profileEnd();
-console.log("init took", process.hrtime(start));
+console.log("init took", process.hrtime(startTime));
