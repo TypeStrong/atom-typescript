@@ -1,5 +1,5 @@
-import * as parent from "./worker/parent";
-import * as atomUtils from "./main/atom/atomUtils";
+// import * as parent from "./worker/parent";
+// import * as atomUtils from "./main/atom/atomUtils";
 import {Set} from "immutable";
 
 const TS_GRAMMARS = Set<string>(["source.ts", "source.tsx"]);
@@ -16,20 +16,20 @@ export function getSuggestionForWord(textEditor: AtomCore.IEditor, text: string,
     return {
         range: range,
         callback() {
-            let filePathPosition = {
-              filePath: textEditor.getPath(),
-              position: atomUtils.getEditorPositionForBufferPosition(textEditor, range.start)
-            };
+            // let filePathPosition = {
+            //   filePath: textEditor.getPath(),
+            //   position: atomUtils.getEditorPositionForBufferPosition(textEditor, range.start)
+            // };
 
-            parent.getDefinitionsAtPosition(filePathPosition).then((res) => {
-                if (res.definitions.length > 0) {
-                    let definition = res.definitions[0];
-                    atom.workspace.open(definition.filePath, {
-                        initialLine: definition.position.line,
-                        initialColumn: definition.position.col
-                    });
-                }
-            });
+            // parent.getDefinitionsAtPosition(filePathPosition).then((res) => {
+            //     if (res.definitions.length > 0) {
+            //         let definition = res.definitions[0];
+            //         atom.workspace.open(definition.filePath, {
+            //             initialLine: definition.position.line,
+            //             initialColumn: definition.position.col
+            //         });
+            //     }
+            // });
         }
     };
 }

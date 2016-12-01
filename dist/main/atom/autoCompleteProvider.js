@@ -9,17 +9,6 @@ function triggerAutocompletePlus() {
     explicitlyTriggered = true;
 }
 exports.triggerAutocompletePlus = triggerAutocompletePlus;
-function getModuleAutocompleteType(scopes) {
-    function has(match) {
-        return scopes.some(function (scope) { return scope.indexOf(match) !== -1; });
-    }
-    var isString = has('string.quoted');
-    return {
-        isReference: has('reference.path.string.quoted') || has('amd.path.string.quoted'),
-        isRequire: has('meta.import-equals.external') && isString,
-        isImport: has('meta.import') && isString
-    };
-}
 exports.provider = {
     selector: '.source.ts, .source.tsx',
     inclusionPriority: 3,

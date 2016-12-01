@@ -1,6 +1,5 @@
 import {TypescriptServiceClient as Client} from "./client"
 import * as events from "events"
-import * as fs from "fs"
 import * as path from "path"
 import * as nodeResolve from "resolve"
 

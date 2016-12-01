@@ -1,6 +1,5 @@
 import view = require('./view');
 var $ = view.$;
-import path = require('path');
 
 export interface ViewOptions {
     /** This is needed to support good goto next / goto previous logic

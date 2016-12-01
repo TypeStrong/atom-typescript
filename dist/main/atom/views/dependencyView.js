@@ -273,7 +273,6 @@ function renderGraph(dependencies, mainContent, display) {
 var D3Graph = (function () {
     function D3Graph(links) {
         var _this = this;
-        this.links = links;
         this.inDegLookup = {};
         this.outDegLookup = {};
         this.linkedByName = {};

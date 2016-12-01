@@ -107,6 +107,3 @@ function pixelPositionFromMouseEvent(editorView, event) {
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
 }
-function screenPositionFromMouseEvent(editorView, event) {
-    return editorView.getModel().screenPositionForPixelPosition(pixelPositionFromMouseEvent(editorView, event));
-}

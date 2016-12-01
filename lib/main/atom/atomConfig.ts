@@ -15,11 +15,6 @@ function setConfig<T>(nameLambda: () => any, value: T): T {
 
 class Config {
     schema = {
-        debugAtomTs: {
-            title: 'Debug: Atom-TypeScript. Please do not use.',
-            type: 'boolean',
-            default: false
-        },
         preferredQuoteCharacter: {
             title: 'Preferred quote character',
             type: 'string',
@@ -36,7 +31,6 @@ class Config {
             default: false
         }
     }
-    get debugAtomTs() { return getConfig<boolean>(() => this.schema.debugAtomTs) }
     get preferredQuoteCharacter() { return getConfig<string>(() => this.schema.preferredQuoteCharacter) }
     get typescriptServices() { return getConfig<string>(() => this.schema.typescriptServices) }
     get showSemanticView() { return getConfig<boolean>(() => this.schema.showSemanticView) }

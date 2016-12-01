@@ -1,6 +1,6 @@
 import {ChildProcess, spawn} from "child_process"
-import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
+import * as protocol from "typescript/lib/protocol"
 import byline = require("byline")
 
 export class TypescriptServiceClient {
@@ -26,8 +26,6 @@ export class TypescriptServiceClient {
 
   /** Promise that resolves when the server is ready to accept requests */
   serverPromise: Promise<any>
-
-  private serverDeferred: {resolve(), reject()}
 
   /** Path to the tsserver executable */
   readonly tsServerPath: string

@@ -1,11 +1,8 @@
 import view = require('./view');
-var $ = view.$;
 
 import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
-import parent = require("../../../worker/parent");
 import * as utils from "../../lang/utils";
-import { FileStatus, getFileStatus } from "../fileStatusCache";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -18,11 +15,7 @@ import gotoHistory = require('../gotoHistory');
 export class MainPanelView extends view.View<any> {
 
     private tsconfigInUse: JQuery;
-    private fileStatus: JQuery;
-    private btnFold: JQuery;
-    private btnSoftReset: JQuery;
     private summary: JQuery;
-    private heading: JQuery;
 
     private errorPanelBtn: JQuery;
     private buildPanelBtn: JQuery;
@@ -385,7 +378,6 @@ export class MainPanelView extends view.View<any> {
     setErrorSummary(summary: any) {
         var message = summary.summary,
             className = summary.className,
-            raw = summary.rawSummary || false,
             handler = summary.handler || undefined;
         // Set the new summary
         this.summary.html(message);

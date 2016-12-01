@@ -1,7 +1,6 @@
 "use strict";
 var tslib_1 = require("tslib");
 var view = require("./view");
-var $ = view.$;
 var PlainMessageView = (function (_super) {
     tslib_1.__extends(PlainMessageView, _super);
     function PlainMessageView() {

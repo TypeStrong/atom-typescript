@@ -1,7 +1,6 @@
 "use strict";
 var tslib_1 = require("tslib");
 var view = require("./view");
-var $ = view.$;
 var lineMessageView = require("./lineMessageView");
 var atomUtils = require("../atomUtils");
 var utils = require("../../lang/utils");
@@ -290,7 +289,7 @@ var MainPanelView = (function (_super) {
         this.errorBody.append(view.$);
     };
     MainPanelView.prototype.setErrorSummary = function (summary) {
-        var message = summary.summary, className = summary.className, raw = summary.rawSummary || false, handler = summary.handler || undefined;
+        var message = summary.summary, className = summary.className, handler = summary.handler || undefined;
         this.summary.html(message);
         if (className) {
             this.summary.addClass(className);

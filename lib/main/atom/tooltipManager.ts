@@ -1,8 +1,6 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-
-
 ///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
 ///ts:import=parent
@@ -133,8 +131,4 @@ function pixelPositionFromMouseEvent(editorView, event: MouseEvent) {
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
-}
-
-function screenPositionFromMouseEvent(editorView, event) {
-    return editorView.getModel().screenPositionForPixelPosition(pixelPositionFromMouseEvent(editorView, event));
 }

@@ -70,7 +70,6 @@ function createScriptInfo(fileName, text, isOpen) {
     };
 }
 function getScriptSnapShot(scriptInfo) {
-    var lineStarts = scriptInfo.getLineStarts();
     var textSnapshot = scriptInfo.getContent();
     var version = scriptInfo.getVersion();
     var editRanges = scriptInfo.getEditRanges();

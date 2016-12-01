@@ -1,120 +1,103 @@
 import parent = require("../../../worker/parent");
-import buildView = require("../buildView");
 import atomUtils = require("../atomUtils");
 import autoCompleteProvider = require("../autoCompleteProvider");
-import path = require('path');
-import documentationView = require("../views/documentationView");
-import renameView = require("../views/renameView");
+// import path = require('path');
+// import renameView = require("../views/renameView");
 import contextView = require("../views/contextView");
-import fileSymbolsView = require("../views/fileSymbolsView");
-import projectSymbolsView = require("../views/projectSymbolsView");
+// import fileSymbolsView = require("../views/fileSymbolsView");
+// import projectSymbolsView = require("../views/projectSymbolsView");
 import {create as createTypeOverlay} from "../views/typeOverlayView";
 import gotoHistory = require("../gotoHistory");
-import utils = require("../../lang/utils");
+// import utils = require("../../lang/utils");
 import {panelView} from "../views/mainPanelView";
-import * as url from "url";
-import {AstView, astURI, astURIFull} from "../views/astView";
-import {DependencyView, dependencyURI} from "../views/dependencyView";
-import {simpleSelectionView} from "../views/simpleSelectionView";
-import overlaySelectionView from "../views/simpleOverlaySelectionView";
-import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
-import escapeHtml = require('escape-html');
-import {$} from "atom-space-pen-views";
-import {getFileStatus} from "../fileStatusCache";
-import {registerJson2dtsCommands} from "./json2dtsCommands";
+// import {simpleSelectionView} from "../views/simpleSelectionView";
+// import escapeHtml = require('escape-html');
 
 // Load all the web components
 export * from "../components/componentRegistry";
 
 export function registerCommands() {
 
-    // Stuff I've split out as we have a *lot* of commands
-    registerJson2dtsCommands();
-
     // Setup custom commands NOTE: these need to be added to the keymaps
-    atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
+    // atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
+    //     if (!atomUtils.commandForTypeScript(e)) return;
 
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        var selection = editor.getSelectedBufferRange();
-        if (selection.isEmpty()) {
-            parent.formatDocument({ filePath: filePath }).then((result) => {
-                if (!result.edits.length) return;
-                editor.transact(() => {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
-        } else {
-            parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-                if (!result.edits.length) return;
-                editor.transact(() => {
-                    atomUtils.formatCode(editor, result.edits);
-                });
-            });
+    //     var editor = atom.workspace.getActiveTextEditor();
+    //     var filePath = editor.getPath();
+    //     var selection = editor.getSelectedBufferRange();
+    //     if (selection.isEmpty()) {
+    //         parent.formatDocument({ filePath: filePath }).then((result) => {
+    //             if (!result.edits.length) return;
+    //             editor.transact(() => {
+    //                 atomUtils.formatCode(editor, result.edits);
+    //             });
+    //         });
+    //     } else {
+    //         parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
+    //             if (!result.edits.length) return;
+    //             editor.transact(() => {
+    //                 atomUtils.formatCode(editor, result.edits);
+    //             });
+    //         });
 
-        }
-    });
+    //     }
+    // });
 
-    var handleGoToDeclaration = (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
+    // atom.commands.add('atom-workspace', 'typescript:go-to-declaration', (e) => {
+    //     if (!atomUtils.commandForTypeScript(e)) return;
 
-        parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(res=> {
-            var definitions = res.definitions;
-            if (!definitions || !definitions.length) {
-                atom.notifications.addInfo('AtomTS: No definition found.');
-                return;
-            }
+    //     parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(res=> {
+    //         var definitions = res.definitions;
+    //         if (!definitions || !definitions.length) {
+    //             atom.notifications.addInfo('AtomTS: No definition found.');
+    //             return;
+    //         }
 
-            // Potential future ugly hack for something (atom or TS langauge service) path handling
-            // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
+    //         // Potential future ugly hack for something (atom or TS langauge service) path handling
+    //         // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
 
-            // support multiple implementations. Else just go to first
-            if (definitions.length > 1) {
-                simpleSelectionView({
-                    items: definitions,
-                    viewForItem: (item) => {
-                        return `
-                            <span>${item.filePath}</span>
-                            <div class="pull-right">line: ${item.position.line}</div>
-                        `;
-                    },
-                    filterKey: 'filePath',
-                    confirmed: (definition) => {
-                        atom.workspace.open(definition.filePath, {
-                            initialLine: definition.position.line,
-                            initialColumn: definition.position.col
-                        });
-                    }
-                })
-            }
-            else {
-                var definition = definitions[0];
+    //         // support multiple implementations. Else just go to first
+    //         if (definitions.length > 1) {
+    //             simpleSelectionView({
+    //                 items: definitions,
+    //                 viewForItem: (item) => {
+    //                     return `
+    //                         <span>${item.filePath}</span>
+    //                         <div class="pull-right">line: ${item.position.line}</div>
+    //                     `;
+    //                 },
+    //                 filterKey: 'filePath',
+    //                 confirmed: (definition) => {
+    //                     atom.workspace.open(definition.filePath, {
+    //                         initialLine: definition.position.line,
+    //                         initialColumn: definition.position.col
+    //                     });
+    //                 }
+    //             })
+    //         }
+    //         else {
+    //             var definition = definitions[0];
 
-                atom.workspace.open(definition.filePath, {
-                    initialLine: definition.position.line,
-                    initialColumn: definition.position.col
-                });
-            }
-        });
-    };
+    //             atom.workspace.open(definition.filePath, {
+    //                 initialLine: definition.position.line,
+    //                 initialColumn: definition.position.col
+    //             });
+    //         }
+    //     });
+    // });
 
-    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
-    // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
-    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    // atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
+    //     if (!atomUtils.commandForTypeScript(e)) return;
 
-    atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
+    //     var editor = atom.workspace.getActiveTextEditor();
+    //     var filePath = editor.getPath();
 
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-
-        parent.createProject({ filePath }).then((res) => {
-            if (res.createdFilePath) {
-                atom.notifications.addSuccess(`tsconfig.json file created: <br/> ${res.createdFilePath}`);
-            }
-        });
-    });
+    //     parent.createProject({ filePath }).then((res) => {
+    //         if (res.createdFilePath) {
+    //             atom.notifications.addSuccess(`tsconfig.json file created: <br/> ${res.createdFilePath}`);
+    //         }
+    //     });
+    // });
 
     var theContextView: contextView.ContextView;
     atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
@@ -126,62 +109,59 @@ export function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
-        // Rename file
-        var editor = atom.workspace.getActiveTextEditor();
+    // atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
+    //     // Rename variable
+    //     if (true) {
+    //         parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
+    //             if (!res.canRename) {
+    //                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
+    //                 return;
+    //             }
 
-        // Rename variable
-        if (true) {
-            parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
-                if (!res.canRename) {
-                    atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
-                    return;
-                }
+    //             var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
+    //             var openPathsMap = utils.createMap(paths);
 
-                var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-                var openPathsMap = utils.createMap(paths);
+    //             let refactorPaths = Object.keys(res.locations);
+    //             let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
+    //             let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
 
-                let refactorPaths = Object.keys(res.locations);
-                let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
-                let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
-
-                renameView.panelView.renameThis({
-                    autoSelect: true,
-                    title: 'Rename Variable',
-                    text: res.displayName,
-                    openFiles: openFiles,
-                    closedFiles: closedFiles,
-                    onCancel: () => { },
-                    onValidate: (newText): string => {
-                        if (newText.replace(/\s/g, '') !== newText.trim()) {
-                            return 'The new variable must not contain a space';
-                        }
-                        if (!newText.trim()) {
-                            return 'If you want to abort : Press esc to exit'
-                        }
-                        return '';
-                    },
-                    onCommit: (newText) => {
-                        newText = newText.trim();
-                        // if file is open change in buffer
-                        // otherwise open the file and change the buffer range
-                        atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
-                            .then((editorMap) => {
-                                Object.keys(res.locations).forEach((filePath) => {
-                                    var editor = editorMap[filePath];
-                                    editor.transact(() => {
-                                        res.locations[filePath].forEach((textSpan) => {
-                                            var range = atomUtils.getRangeForTextSpan(editor, textSpan);
-                                            editor.setTextInBufferRange(range, newText);
-                                        });
-                                    })
-                                });
-                            });
-                    }
-                });
-            });
-        }
-    });
+    //             renameView.panelView.renameThis({
+    //                 autoSelect: true,
+    //                 title: 'Rename Variable',
+    //                 text: res.displayName,
+    //                 openFiles: openFiles,
+    //                 closedFiles: closedFiles,
+    //                 onCancel: () => { },
+    //                 onValidate: (newText): string => {
+    //                     if (newText.replace(/\s/g, '') !== newText.trim()) {
+    //                         return 'The new variable must not contain a space';
+    //                     }
+    //                     if (!newText.trim()) {
+    //                         return 'If you want to abort : Press esc to exit'
+    //                     }
+    //                     return '';
+    //                 },
+    //                 onCommit: (newText) => {
+    //                     newText = newText.trim();
+    //                     // if file is open change in buffer
+    //                     // otherwise open the file and change the buffer range
+    //                     atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
+    //                         .then((editorMap) => {
+    //                             Object.keys(res.locations).forEach((filePath) => {
+    //                                 var editor = editorMap[filePath];
+    //                                 editor.transact(() => {
+    //                                     res.locations[filePath].forEach((textSpan) => {
+    //                                         var range = atomUtils.getRangeForTextSpan(editor, textSpan);
+    //                                         editor.setTextInBufferRange(range, newText);
+    //                                     });
+    //                                 })
+    //                             });
+    //                         });
+    //                 }
+    //             });
+    //         });
+    //     }
+    // });
 
     atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {
       var editor = atom.workspace.getActiveTextEditor();
@@ -227,127 +207,68 @@ export function registerCommands() {
         gotoHistory.gotoPrevious();
     });
 
-    atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
+    // atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
+    //     if (!atomUtils.commandForTypeScript(e)) return;
 
-        parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
-            panelView.setReferences(res.references);
+    //     parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
+    //         panelView.setReferences(res.references);
 
-            simpleSelectionView({
-                items: res.references,
-                viewForItem: (item) => {
-                    return `<div>
-                        <span>${atom.project.relativize(item.filePath) }</span>
-                        <div class="pull-right">line: ${item.position.line + 1}</div>
-                        <ts-view>${escapeHtml(item.preview)}</ts-view>
-                    <div>`;
-                },
-                filterKey: utils.getName(() => res.references[0].filePath),
-                confirmed: (definition) => {
-                    atom.workspace.open(definition.filePath, {
-                        initialLine: definition.position.line,
-                        initialColumn: definition.position.col
-                    });
-                }
-            })
-        });
-    });
+    //         simpleSelectionView({
+    //             items: res.references,
+    //             viewForItem: (item) => {
+    //                 return `<div>
+    //                     <span>${atom.project.relativize(item.filePath) }</span>
+    //                     <div class="pull-right">line: ${item.position.line + 1}</div>
+    //                     <ts-view>${escapeHtml(item.preview)}</ts-view>
+    //                 <div>`;
+    //             },
+    //             filterKey: utils.getName(() => res.references[0].filePath),
+    //             confirmed: (definition) => {
+    //                 atom.workspace.open(definition.filePath, {
+    //                     initialLine: definition.position.line,
+    //                     initialColumn: definition.position.col
+    //                 });
+    //             }
+    //         })
+    //     });
+    // });
 
     // I've needed to debounce this as it gets called multiple times for some reason
     // Has to do with how we override toggle-file-symbols
-    var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
-    var showFileSymbols = utils.debounce((filePath: string) => {
-        if (!theFileSymbolsView) theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
+    // var theFileSymbolsView: fileSymbolsView.FileSymbolsView;
+    // var showFileSymbols = utils.debounce((filePath: string) => {
+    //     if (!theFileSymbolsView) theFileSymbolsView = new fileSymbolsView.FileSymbolsView();
 
-        parent.getNavigationBarItems({ filePath }).then((res) => {
-            theFileSymbolsView.setNavBarItems(res.items, filePath);
-            theFileSymbolsView.show();
-        });
+    //     parent.getNavigationBarItems({ filePath }).then((res) => {
+    //         theFileSymbolsView.setNavBarItems(res.items, filePath);
+    //         theFileSymbolsView.show();
+    //     });
 
-    }, 400);
+    // }, 400);
 
     // We support symbols view as well
-    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-file-symbols',
-        (e) => {
-            var editor = atom.workspace.getActiveTextEditor();
-            if (!editor) return false;
-            if (path.extname(editor.getPath()) !== '.ts' && path.extname(editor.getPath()) !== '.tsx') return false;
+    // atom.commands.add('atom-text-editor', 'symbols-view:toggle-file-symbols', (e) => {
+    //     var editor = atom.workspace.getActiveTextEditor();
+    //     if (!editor) return false;
+    //     if (path.extname(editor.getPath()) !== '.ts' && path.extname(editor.getPath()) !== '.tsx') return false;
 
 
-            // Abort it for others
-            e.abortKeyBinding();
-            var filePath = editor.getPath();
-            showFileSymbols(filePath);
-        });
-
-
+    //     // Abort it for others
+    //     e.abortKeyBinding();
+    //     var filePath = editor.getPath();
+    //     showFileSymbols(filePath);
+    // });
 
     // We support project level symbols
-    var theProjectSymbolsView: projectSymbolsView.ProjectSymbolsView;
-    var showProjectSymbols = utils.debounce((filePath: string) => {
-        if (!theProjectSymbolsView) theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
+    // var theProjectSymbolsView: projectSymbolsView.ProjectSymbolsView;
+    // var showProjectSymbols = utils.debounce((filePath: string) => {
+    //     if (!theProjectSymbolsView) theProjectSymbolsView = new projectSymbolsView.ProjectSymbolsView();
 
-        parent.getNavigateToItems({ filePath }).then((res) => {
-            theProjectSymbolsView.setNavBarItems(res.items);
-            theProjectSymbolsView.show();
-        });
-    }, 400);
-    atom.commands.add('atom-text-editor', 'symbols-view:toggle-project-symbols',
-        (e) => {
-            var editor = atom.workspace.getActiveTextEditor();
-            if (!editor) return false;
-            if (path.extname(editor.getPath()) !== '.ts') return false;
-
-
-            // Abort it for others
-            e.abortKeyBinding();
-            var filePath = editor.getPath();
-            showProjectSymbols(filePath);
-        });
-
-    atomUtils.registerOpener({
-        commandSelector: 'atom-text-editor',
-        commandName: 'typescript:ast',
-        uriProtocol: astURI,
-        getData: () => {
-            return {
-                text: atom.workspace.getActiveTextEditor().getText(),
-                filePath: atomUtils.getCurrentPath()
-            };
-        },
-        onOpen: (data) => {
-            return new AstView(data.filePath, data.text, false);
-        }
-    });
-
-    atomUtils.registerOpener({
-        commandSelector: 'atom-text-editor',
-        commandName: 'typescript:ast-full',
-        uriProtocol: astURIFull,
-        getData: () => {
-            return {
-                text: atom.workspace.getActiveTextEditor().getText(),
-                filePath: atomUtils.getCurrentPath()
-            };
-        },
-        onOpen: (data) => {
-            return new AstView(data.filePath, data.text, true);
-        }
-    });
-
-    atomUtils.registerOpener({
-        commandSelector: 'atom-workspace',
-        commandName: 'typescript:dependency-view',
-        uriProtocol: dependencyURI,
-        getData: () => {
-            return {
-                filePath: atomUtils.getCurrentPath()
-            };
-        },
-        onOpen: (data) => {
-            return new DependencyView(data.filePath);
-        }
-    });
+    //     parent.getNavigateToItems({ filePath }).then((res) => {
+    //         theProjectSymbolsView.setNavBarItems(res.items);
+    //         theProjectSymbolsView.show();
+    //     });
+    // }, 400);
 
     atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;

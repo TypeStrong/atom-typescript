@@ -1,6 +1,4 @@
 import view = require('./view');
-var $ = view.$;
-import path = require('path');
 
 export interface ViewOptions {
     /** your message to the people */

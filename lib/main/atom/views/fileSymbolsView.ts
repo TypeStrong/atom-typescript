@@ -1,9 +1,7 @@
 import sp = require('atom-space-pen-views');
-import mainPanelView = require('./mainPanelView');
 import atomUtils = require("../atomUtils");
 
-
-/** 
+/**
  * https://github.com/atom/atom-space-pen-views
  */
 export class FileSymbolsView extends sp.SelectListView {
@@ -32,7 +30,7 @@ export class FileSymbolsView extends sp.SelectListView {
             </li>
         `;
     }
-    
+
     /** override */
     confirmed(item: NavigationBarItem) {
         atom.workspace.open(this.filePath, {

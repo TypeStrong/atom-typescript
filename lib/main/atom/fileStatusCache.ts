@@ -2,7 +2,6 @@
  * We keep an in memory cache of certain knowledge points regarding a few file paths
  * This file maintains that
  */
-import * as path from 'path';
 import {consistentPath} from '../utils/fsUtil';
 
 export interface FileStatus {

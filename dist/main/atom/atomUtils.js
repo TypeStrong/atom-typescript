@@ -89,7 +89,6 @@ function getEditorsForAllPaths(filePaths) {
 }
 exports.getEditorsForAllPaths = getEditorsForAllPaths;
 function getRangeForTextSpan(editor, ts) {
-    var buffer = editor.buffer;
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
     var range = new _atom.Range(start, end);

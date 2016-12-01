@@ -2,7 +2,6 @@ import path = require('path');
 import fs = require('fs');
 import * as fsu from "../utils/fsUtil";
 import _atom = require('atom');
-import tsconfig = require('../tsconfig/tsconfig');
 import url = require('url');
 
 // Optimized version where we do not ask this of the languageServiceHost
@@ -98,7 +97,6 @@ export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath:
 }
 
 export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: number; length: number }): TextBuffer.IRange {
-    var buffer = editor.buffer;
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
     var range = new _atom.Range(start, end);

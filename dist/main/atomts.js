@@ -3,26 +3,22 @@ var tslib_1 = require("tslib");
 console.log("be initializing them package");
 console.profile("atomts init");
 var start = process.hrtime();
-var atomConfig = require("./atom/atomConfig");
-var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
-makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
-var path = require("path");
-var fs = require("fs");
-var _ = require("lodash");
-var mainPanelView_1 = require("./atom/views/mainPanelView");
-var autoCompleteProvider = require("./atom/autoCompleteProvider");
-var tooltipManager = require("./atom/tooltipManager");
-var atomUtils = require("./atom/atomUtils");
-var commands = require("./atom/commands/commands");
-var debugAtomTs = require("./atom/debugAtomTs");
 var _atom = require("atom");
 var atom_space_pen_views_1 = require("atom-space-pen-views");
-var documentationView = require("./atom/views/documentationView");
-var renameView = require("./atom/views/renameView");
-var mainPanelView = require("./atom/views/mainPanelView");
+var mainPanelView_1 = require("./atom/views/mainPanelView");
 var fileStatusCache_1 = require("./atom/fileStatusCache");
-var editorSetup = require("./atom/editorSetup");
-var statusBar;
+var _ = require("lodash");
+var hyperclickProvider = require("../hyperclickProvider");
+var atomConfig = require("./atom/atomConfig");
+var atomUtils = require("./atom/atomUtils");
+var autoCompleteProvider = require("./atom/autoCompleteProvider");
+var commands = require("./atom/commands/commands");
+var documentationView = require("./atom/views/documentationView");
+var fs = require("fs");
+var mainPanelView = require("./atom/views/mainPanelView");
+var path = require("path");
+var renameView = require("./atom/views/renameView");
+var tooltipManager = require("./atom/tooltipManager");
 var statusBarMessage;
 var editorWatch;
 var autoCompleteWatch;
@@ -59,7 +55,7 @@ function readyToActivate() {
     });
     editorWatch = atom.workspace.observeTextEditors(function (editor) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var filePath, client, editorView, ext, unsubSyntax_1, unsubSemantic_1, isTst, onDisk, changeObserver, buffer, fasterChangeObserver, saveObserver, destroyObserver;
+            var filePath, client, editorView, ext, unsubSyntax_1, unsubSemantic_1, onDisk, changeObserver, fasterChangeObserver, saveObserver, destroyObserver;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -90,7 +86,6 @@ function readyToActivate() {
                                     }));
                                 }
                             });
-                            isTst = ext === '.tst';
                             try {
                                 attachViews();
                                 client.executeOpen({
@@ -103,11 +98,9 @@ function readyToActivate() {
                                     onDisk = true;
                                 }
                                 hideIfNotActiveOnStart();
-                                debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
                                 if (onDisk) {
                                     client.executeGetErr({ files: [filePath], delay: 100 });
                                 }
-                                editorSetup.setupEditor(editor);
                                 changeObserver = editor.onDidStopChanging(function () {
                                     if (editor === atom.workspace.getActiveTextEditor()) {
                                         var status_1 = fileStatusCache_1.getFileStatus(filePath);
@@ -121,7 +114,6 @@ function readyToActivate() {
                                     }
                                     client.executeGetErr({ files: [filePath], delay: 100 });
                                 });
-                                buffer = editor.buffer;
                                 fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
                                     client.executeChange({
                                         endLine: diff.oldRange.end.row + 1,
@@ -180,6 +172,7 @@ function activate(state) {
             console.log("observed grammar", grammar);
         });
     });
+    require('atom-package-deps').install('atom-typescript').then(readyToActivate);
 }
 exports.activate = activate;
 function deactivate() {
@@ -189,16 +182,12 @@ function deactivate() {
         editorWatch.dispose();
     if (autoCompleteWatch)
         autoCompleteWatch.dispose();
-    parent.stopWorker();
 }
 exports.deactivate = deactivate;
 function serialize() {
     return {};
 }
 exports.serialize = serialize;
-function deserialize() {
-}
-exports.deserialize = deserialize;
 function consumeLinter(registry) {
     console.log("consume this");
     linter = registry.register({
@@ -211,7 +200,6 @@ function provide() {
     return [autoCompleteProvider.provider];
 }
 exports.provide = provide;
-var hyperclickProvider = require("../hyperclickProvider");
 function getHyperclickProvider() {
     return hyperclickProvider;
 }

@@ -1,11 +1,6 @@
 "use strict";
-var fsu = require("../utils/fsUtil");
 var path = require("path");
-var os = require("os");
-var fuzzaldrin = require('fuzzaldrin');
-var transformer = require("./transformers/transformer");
 var tsconfig = require("../tsconfig/tsconfig");
-var utils = require("./utils");
 var resolve = Promise.resolve.bind(Promise);
 var projectCache_1 = require("./projectCache");
 function textSpan(span) {
@@ -40,78 +35,6 @@ function quickInfo(query) {
     }
 }
 exports.quickInfo = quickInfo;
-function getCompletionsAtPosition(query) {
-    projectCache_1.consistentPath(query);
-    var filePath = query.filePath, position = query.position, prefix = query.prefix;
-    var project = projectCache_1.getOrCreateProject(filePath);
-    filePath = transformer.getPseudoFilePath(filePath);
-    var completions = project.languageService.getCompletionsAtPosition(filePath, position);
-    var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
-    var endsInPunctuation = utils.prefixEndsInPunctuation(prefix);
-    if (prefix.length && !endsInPunctuation) {
-        completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
-    }
-    var maxSuggestions = 50;
-    var maxDocComments = 10;
-    if (completionList.length > maxSuggestions)
-        completionList = completionList.slice(0, maxSuggestions);
-    function docComment(c) {
-        var completionDetails = project.languageService.getCompletionEntryDetails(filePath, position, c.name);
-        var display;
-        if (c.kind == "method" || c.kind == "function" || c.kind == "property") {
-            var parts = completionDetails.displayParts || [];
-            if (parts.length > 3) {
-                parts = parts.splice(3);
-            }
-            display = ts.displayPartsToString(parts);
-        }
-        else {
-            display = '';
-        }
-        var comment = (display ? display + '\n' : '') + ts.displayPartsToString(completionDetails.documentation || []);
-        return { display: display, comment: comment };
-    }
-    var completionsToReturn = completionList.map(function (c, index) {
-        if (index < maxDocComments) {
-            var details = docComment(c);
-        }
-        else {
-            details = {
-                display: '',
-                comment: ''
-            };
-        }
-        return {
-            name: c.name,
-            kind: c.kind,
-            comment: details.comment,
-            display: details.display
-        };
-    });
-    if (query.prefix == '(') {
-        var signatures = project.languageService.getSignatureHelpItems(query.filePath, query.position);
-        if (signatures && signatures.items) {
-            signatures.items.forEach(function (item) {
-                var snippet = item.parameters.map(function (p, i) {
-                    var display = '${' + (i + 1) + ':' + ts.displayPartsToString(p.displayParts) + '}';
-                    if (i === signatures.argumentIndex) {
-                        return display;
-                    }
-                    return display;
-                }).join(ts.displayPartsToString(item.separatorDisplayParts));
-                var label = ts.displayPartsToString(item.prefixDisplayParts)
-                    + snippet
-                    + ts.displayPartsToString(item.suffixDisplayParts);
-                completionsToReturn.unshift({ snippet: snippet });
-            });
-        }
-    }
-    return resolve({
-        completions: completionsToReturn,
-        endsInPunctuation: endsInPunctuation
-    });
-}
-exports.getCompletionsAtPosition = getCompletionsAtPosition;
 function getSignatureHelps(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -153,34 +76,6 @@ function getDefinitionsAtPosition(query) {
     });
 }
 exports.getDefinitionsAtPosition = getDefinitionsAtPosition;
-function updateText(query) {
-    projectCache_1.consistentPath(query);
-    var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    lsh.updateScript(filePath, query.text);
-    return resolve({});
-}
-exports.updateText = updateText;
-function editText(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    if (project.includesSourceFile(query.filePath)) {
-        var lsh = project.languageServiceHost;
-        var filePath = transformer.getPseudoFilePath(query.filePath);
-        lsh.editScript(filePath, query.start, query.end, query.newText);
-    }
-    return resolve({});
-}
-exports.editText = editText;
-function getDiagnositcsByFilePath(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var diagnostics = project.languageService.getSyntacticDiagnostics(query.filePath);
-    if (diagnostics.length === 0) {
-        diagnostics = project.languageService.getSemanticDiagnostics(query.filePath);
-    }
-    return diagnostics;
-}
 function getRenameInfo(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -298,7 +193,6 @@ exports.getSemtanticTree = getSemtanticTree;
 function getNavigateToItems(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
-    var languageService = project.languageService;
     var getNodeKind = ts.getNodeKind;
     function getDeclarationName(declaration) {
         var result = getTextOfIdentifierOrLiteral(declaration.name);
@@ -359,10 +253,6 @@ function getReferences(query) {
 }
 exports.getReferences = getReferences;
 var getPathCompletions_1 = require("./modules/getPathCompletions");
-function filePathWithoutExtension(query) {
-    var base = path.basename(query, '.ts');
-    return path.dirname(query) + '/' + base;
-}
 function getRelativePathsInProject(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -408,89 +298,6 @@ function getDependencies(query) {
     return resolve({ links: links });
 }
 exports.getDependencies = getDependencies;
-var qf = require("./fixmyts/quickFix");
-var quickFixRegistry_1 = require("./fixmyts/quickFixRegistry");
-function getInfoForQuickFixAnalysis(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText, fileErrors, positionErrors, positionErrorMessages, positionNode;
-    if (project.includesSourceFile(query.filePath)) {
-        sourceFileText = sourceFile.getFullText();
-        fileErrors = getDiagnositcsByFilePath(query);
-        positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
-        positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
-        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
-    }
-    else {
-        sourceFileText = "";
-        fileErrors = [];
-        positionErrors = [];
-        positionErrorMessages = [];
-        positionNode = undefined;
-    }
-    var service = project.languageService;
-    var typeChecker = program.getTypeChecker();
-    return {
-        project: project,
-        program: program,
-        sourceFile: sourceFile,
-        sourceFileText: sourceFileText,
-        fileErrors: fileErrors,
-        positionErrors: positionErrors,
-        positionErrorMessages: positionErrorMessages,
-        position: query.position,
-        positionNode: positionNode,
-        service: service,
-        typeChecker: typeChecker,
-        filePath: query.filePath
-    };
-}
-function getQuickFixes(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    if (!project.includesSourceFile(query.filePath)) {
-        return resolve({ fixes: [] });
-    }
-    var info = getInfoForQuickFixAnalysis(query);
-    var fixes = quickFixRegistry_1.allQuickFixes
-        .map(function (x) {
-        var canProvide = x.canProvideFix(info);
-        if (!canProvide)
-            return;
-        else
-            return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
-    })
-        .filter(function (x) { return !!x; });
-    return resolve({ fixes: fixes });
-}
-exports.getQuickFixes = getQuickFixes;
-function applyQuickFix(query) {
-    projectCache_1.consistentPath(query);
-    var fix = quickFixRegistry_1.allQuickFixes.filter(function (x) { return x.key == query.key; })[0];
-    var info = getInfoForQuickFixAnalysis(query);
-    var res = fix.provideFix(info);
-    var refactorings = qf.getRefactoringsByFilePath(res);
-    return resolve({ refactorings: refactorings });
-}
-exports.applyQuickFix = applyQuickFix;
-function softReset(query) {
-    console.log("Resetting..");
-    projectCache_1.resetCache(query);
-    return resolve({});
-}
-exports.softReset = softReset;
-var moveFiles = require("./modules/moveFiles");
-function getRenameFilesRefactorings(query) {
-    query.oldPath = fsu.consistentPath(query.oldPath);
-    query.newPath = fsu.consistentPath(query.newPath);
-    var project = projectCache_1.getOrCreateProject(query.oldPath);
-    var res = moveFiles.getRenameFilesRefactorings(project.languageService.getProgram(), query.oldPath, query.newPath);
-    var refactorings = qf.getRefactoringsByFilePath(res);
-    return resolve({ refactorings: refactorings });
-}
-exports.getRenameFilesRefactorings = getRenameFilesRefactorings;
 function createProject(query) {
     projectCache_1.consistentPath(query);
     var projectFile = tsconfig.createProjectRootSync(query.filePath);
@@ -498,50 +305,3 @@ function createProject(query) {
     return resolve({ createdFilePath: projectFile.projectFilePath });
 }
 exports.createProject = createProject;
-function toggleBreakpoint(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText = sourceFile.getFullText();
-    var positionNode = ts.getTokenAtPosition(sourceFile, query.position);
-    var refactoring;
-    if (positionNode.kind != ts.SyntaxKind.DebuggerKeyword && positionNode.getFullStart() > 0) {
-        var previousNode = ts.getTokenAtPosition(sourceFile, positionNode.getFullStart() - 1);
-        if (previousNode.kind == ts.SyntaxKind.DebuggerStatement) {
-            positionNode = previousNode;
-        }
-        if (previousNode.parent && previousNode.parent.kind == ts.SyntaxKind.DebuggerStatement) {
-            positionNode = previousNode.parent;
-        }
-    }
-    if (positionNode.kind == ts.SyntaxKind.DebuggerKeyword || positionNode.kind == ts.SyntaxKind.DebuggerStatement) {
-        var start = positionNode.getFullStart();
-        var end = start + positionNode.getFullWidth();
-        while (end < sourceFileText.length && sourceFileText[end] == ';') {
-            end = end + 1;
-        }
-        refactoring = {
-            filePath: query.filePath,
-            span: {
-                start: start,
-                length: end - start
-            },
-            newText: ''
-        };
-    }
-    else {
-        var toInsert = 'debugger;';
-        refactoring = {
-            filePath: query.filePath,
-            span: {
-                start: positionNode.getFullStart(),
-                length: 0
-            },
-            newText: toInsert
-        };
-    }
-    var refactorings = qf.getRefactoringsByFilePath(refactoring ? [refactoring] : []);
-    return resolve({ refactorings: refactorings });
-}
-exports.toggleBreakpoint = toggleBreakpoint;

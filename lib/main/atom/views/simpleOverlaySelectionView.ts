@@ -32,7 +32,6 @@ export default function <T>(options: SelectListViewOptions<T>, editor: AtomCore.
  */
 
 import sp = require('atom-space-pen-views');
-import * as atomUtils from "../atomUtils";
 
 export class SimpleOverlaySelectListView<T> extends sp.SelectListView {
 

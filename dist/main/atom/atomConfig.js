@@ -10,11 +10,6 @@ function setConfig(nameLambda, value) {
 var Config = (function () {
     function Config() {
         this.schema = {
-            debugAtomTs: {
-                title: 'Debug: Atom-TypeScript. Please do not use.',
-                type: 'boolean',
-                default: false
-            },
             preferredQuoteCharacter: {
                 title: 'Preferred quote character',
                 type: 'string',
@@ -32,14 +27,6 @@ var Config = (function () {
             }
         };
     }
-    Object.defineProperty(Config.prototype, "debugAtomTs", {
-        get: function () {
-            var _this = this;
-            return getConfig(function () { return _this.schema.debugAtomTs; });
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Config.prototype, "preferredQuoteCharacter", {
         get: function () {
             var _this = this;

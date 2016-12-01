@@ -2,44 +2,24 @@ console.log("be initializing them package")
 console.profile("atomts init")
 const start = process.hrtime()
 
-import atomConfig = require('./atom/atomConfig');
-import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
-makeTsGlobal(atomConfig.typescriptServices);
-
-import path = require('path');
-import fs = require('fs');
-import os = require('os');
+import _atom = require('atom')
+import {$} from "atom-space-pen-views"
+import {errorView} from "./atom/views/mainPanelView"
+import {getFileStatus} from "./atom/fileStatusCache"
 import * as _ from "lodash"
-
-import {errorView} from "./atom/views/mainPanelView";
-
-///ts:import=autoCompleteProvider
-import autoCompleteProvider = require('./atom/autoCompleteProvider'); ///ts:import:generated
-///ts:import=tooltipManager
-import tooltipManager = require('./atom/tooltipManager'); ///ts:import:generated
-///ts:import=signatureProvider
-import signatureProvider = require('./atom/signatureProvider'); ///ts:import:generated
-///ts:import=atomUtils
-import atomUtils = require('./atom/atomUtils'); ///ts:import:generated
-import commands = require("./atom/commands/commands");
-///ts:import=onSaveHandler
-import onSaveHandler = require('./atom/onSaveHandler'); ///ts:import:generated
-///ts:import=debugAtomTs
-import debugAtomTs = require('./atom/debugAtomTs'); ///ts:import:generated
-///ts:import=typescriptGrammar
-import typescriptGrammar = require('./atom/typescriptGrammar'); ///ts:import:generated
-import _atom = require('atom');
-import {$} from "atom-space-pen-views";
-
-import documentationView = require('./atom/views/documentationView');
-import renameView = require('./atom/views/renameView');
-import mainPanelView = require("./atom/views/mainPanelView");
-import {getFileStatus} from "./atom/fileStatusCache";
-
-import editorSetup = require("./atom/editorSetup");
+import * as hyperclickProvider from "../hyperclickProvider"
+import atomConfig = require('./atom/atomConfig')
+import atomUtils = require('./atom/atomUtils')
+import autoCompleteProvider = require('./atom/autoCompleteProvider')
+import commands = require("./atom/commands/commands")
+import documentationView = require('./atom/views/documentationView')
+import fs = require('fs')
+import mainPanelView = require("./atom/views/mainPanelView")
+import path = require('path')
+import renameView = require('./atom/views/renameView')
+import tooltipManager = require('./atom/tooltipManager')
 
 // globals
-var statusBar;
 var statusBarMessage;
 var editorWatch: AtomCore.Disposable;
 var autoCompleteWatch: AtomCore.Disposable;
@@ -150,7 +130,6 @@ function readyToActivate() {
             })
 
 
-            let isTst = ext === '.tst';
             try {
                 // Only once stuff
                 attachViews()
@@ -170,8 +149,6 @@ function readyToActivate() {
 
                 // Setup the TS reporter:
                 hideIfNotActiveOnStart();
-
-                debugAtomTs.runDebugCode({ filePath, editor });
 
                 if (onDisk) {
 
@@ -194,9 +171,6 @@ function readyToActivate() {
                     //     }
                     // });
                 }
-
-                // Setup additional observers on the editor
-                editorSetup.setupEditor(editor);
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {
@@ -232,7 +206,6 @@ function readyToActivate() {
 
                 });
 
-                var buffer = editor.buffer;
                 var fasterChangeObserver: AtomCore.Disposable = (<any>editor.buffer).onDidChange((diff: { oldRange: TextBuffer.IRange; newRange: TextBuffer.IRange; oldText: string; newText: string }) => {
 
                     //// For debugging
@@ -327,23 +300,17 @@ export function activate(state: PackageState) {
         })
     })
 
-    // require('atom-package-deps').install('atom-typescript').then(readyToActivate)
+    require('atom-package-deps').install('atom-typescript').then(readyToActivate)
 }
 
 export function deactivate() {
     if (statusBarMessage) statusBarMessage.destroy();
     if (editorWatch) editorWatch.dispose();
     if (autoCompleteWatch) autoCompleteWatch.dispose();
-
-    parent.stopWorker();
 }
 
 export function serialize(): PackageState {
     return {};
-}
-
-export function deserialize() {
-    /* do any tear down here */
 }
 
 export function consumeLinter(registry: LinterRegistry) {
@@ -361,7 +328,6 @@ export function provide() {
     return [autoCompleteProvider.provider];
 }
 
-import * as hyperclickProvider from "../hyperclickProvider";
 export function getHyperclickProvider() {
   return hyperclickProvider;
 }

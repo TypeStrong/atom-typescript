@@ -1,7 +1,6 @@
 
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 
-import atomConfig = require('./atomConfig')
 import atomUtils = require('./atomUtils')
 import fs = require('fs')
 import parent = require('../../worker/parent')
@@ -49,33 +48,6 @@ export function triggerAutocompletePlus() {
         atom.views.getView(atom.workspace.getActiveTextEditor()),
         'autocomplete-plus:activate');
     explicitlyTriggered = true;
-}
-
-// the structure stored in the CSON snippet file
-interface SnippetDescriptor {
-    prefix: string;
-    body: string;
-}
-interface SnippetsContianer {
-    [name: string]: SnippetDescriptor;
-}
-
-function getModuleAutocompleteType(scopes: string[]): {
-  isReference: boolean,
-  isRequire: boolean, // this only matches: import hello = require("^cursor") and not require("^")
-  isImport: boolean // ES6 import: import hello from "^cursor"
-} {
-  function has(match: string): boolean {
-    return scopes.some(scope => scope.indexOf(match) !== -1)
-  }
-
-  let isString = has('string.quoted')
-
-  return {
-    isReference: has('reference.path.string.quoted') || has('amd.path.string.quoted'),
-    isRequire: has('meta.import-equals.external') && isString,
-    isImport: has('meta.import') && isString
-  }
 }
 
 export var provider: autocompleteplus.Provider = {
