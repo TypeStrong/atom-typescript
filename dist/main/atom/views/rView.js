@@ -62,5 +62,5 @@ var RView = (function (_super) {
     });
     return RView;
 }(sp.ScrollView));
-exports.RView = RView;
 RView.protocol = 'atomtsview:';
+exports.RView = RView;
