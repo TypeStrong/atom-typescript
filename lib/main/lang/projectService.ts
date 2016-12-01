@@ -91,76 +91,6 @@ export function quickInfo(query: QuickInfoQuery): Promise<QuickInfoResponse> {
     }
 }
 
-export interface BuildQuery extends FilePathQuery { }
-export interface BuildResponse {
-    tsFilesWithInvalidEmit: string[];
-    tsFilesWithValidEmit: string[];
-    buildOutput: BuildOutput;
-}
-import building = require('./modules/building');
-export function build(query: BuildQuery): Promise<BuildResponse> {
-    consistentPath(query);
-    var proj = getOrCreateProject(query.filePath);
-
-    let filesToEmit = proj.projectFile.project.files.filter(fte => !fte.toLowerCase().endsWith('.json'));
-    /** I am assuming there was at least one file. How else would we even get here? */
-    filesToEmit = proj.projectFile.project.compilerOptions.outFile ? [filesToEmit[0]] : filesToEmit;
-
-    let totalCount = filesToEmit.length;
-    var builtCount = 0;
-    var errorCount = 0;
-    let outputs: EmitOutput[] = filesToEmit.map((filePath) => {
-        var output = building.emitFile(proj, filePath);
-        builtCount++;
-        errorCount = errorCount + output.errors.length;
-        queryParent.buildUpdate({
-            totalCount,
-            builtCount,
-            errorCount,
-            firstError: errorCount && !(errorCount - output.errors.length),
-            filePath,
-            errorsInFile: output.errors
-        });
-        return output;
-    });
-
-    // Also optionally emit a root dts:
-    building.emitDts(proj);
-
-    // If there is a post build script to run ... run it
-    if (proj.projectFile.project.scripts
-        && proj.projectFile.project.scripts.postbuild) {
-        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, (err, stdout, stderr) => {
-            if (err) {
-                console.error('postbuild failed!');
-                console.error(proj.projectFile.project.scripts.postbuild);
-                console.error(stderr);
-            }
-        });
-    }
-
-    let tsFilesWithInvalidEmit = outputs
-        .filter((o) => o.emitError)
-        .map((o) => o.sourceFileName);
-    let tsFilesWithValidEmit = outputs
-        .filter((o) => !o.emitError)
-        .map((o) => o.sourceFileName);
-
-    return resolve({
-        tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
-        tsFilesWithValidEmit: tsFilesWithValidEmit,
-        buildOutput: {
-            outputs: outputs,
-            counts: {
-                inputFiles: proj.projectFile.project.files.length,
-                outputFiles: utils.selectMany(outputs.map((out) => out.outputFiles)).length,
-                errors: errorCount,
-                emitErrors: outputs.filter(out => out.emitError).length
-            }
-        }
-    });
-}
-
 export interface GetCompletionsAtPositionQuery extends FilePathPositionQuery {
     prefix: string;
 }
@@ -291,14 +221,6 @@ export function getSignatureHelps(query: GetSignatureHelpQuery): Promise<GetSign
     return <any>signatureHelpItems.items;
 }
 
-export interface EmitFileQuery extends FilePathQuery { }
-export interface EmitFileResponse extends EmitOutput { }
-export function emitFile(query: EmitFileQuery): Promise<EmitFileResponse> {
-    consistentPath(query);
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    return resolve(building.emitFile(getOrCreateProject(filePath), filePath));
-}
-
 import formatting = require('./modules/formatting');
 export interface FormatDocumentQuery extends FilePathQuery {
 }
@@ -389,50 +311,6 @@ function getDiagnositcsByFilePath(query: FilePathQuery) {
         diagnostics = project.languageService.getSemanticDiagnostics(query.filePath);
     }
     return diagnostics;
-}
-
-export function errorsForFile(query: FilePathQuery): Promise<{
-    errors: CodeError[]
-}> {
-    consistentPath(query);
-    let project: project.Project;
-
-    try {
-        project = getOrCreateProject(query.filePath);
-    } catch (ex) {
-        return resolve({ errors: [] });
-    }
-
-    // for file path errors in transformer
-    if (isTransformerFile(query.filePath)) {
-        let filePath = transformer.getPseudoFilePath(query.filePath);
-        let errors = getDiagnositcsByFilePath({ filePath }).map(building.diagnosticToTSError);
-        errors.forEach(error => {
-            error.filePath = query.filePath;
-        });
-        return resolve({ errors: errors });
-    }
-    else {
-        let result: CodeError[];
-
-        if (project.includesSourceFile(query.filePath)) {
-            result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
-        } else {
-            result = notInContextResult(query.filePath);
-        }
-
-        return resolve({ errors: result });
-    }
-}
-
-function notInContextResult(fileName: string) {
-    return [{
-        filePath: fileName,
-        startPos: { line: 0, col: 0 },
-        endPos: { line: 0, col: 0 },
-        message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
-        preview: ""
-    }];
 }
 
 export interface GetRenameInfoQuery extends FilePathPositionQuery { }
@@ -902,64 +780,11 @@ export function applyQuickFix(query: ApplyQuickFixQuery): Promise<ApplyQuickFixR
     return resolve({ refactorings });
 }
 
-
-/**
- * Get Output for possible use elsewhere
- */
-interface GetOutputResponse {
-    output: ts.EmitOutput;
-}
-import {getRawOutput} from "./modules/building";
-export function getOutput(query: FilePathQuery): Promise<GetOutputResponse> {
-    consistentPath(query);
-    var project = getOrCreateProject(query.filePath);
-    return resolve({ output: getRawOutput(project, query.filePath) });
-}
-interface GetOutputJsResponse {
-    jsFilePath?: string;
-}
-export function getOutputJs(query: FilePathQuery): Promise<GetOutputJsResponse> {
-    consistentPath(query);
-
-    var project = getOrCreateProject(query.filePath);
-    var output = getRawOutput(project, query.filePath);
-    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx")[0];
-
-    if (!jsFile || output.emitSkipped) {
-        return resolve({});
-    } else {
-        return resolve({ jsFilePath: jsFile.name });
-    }
-}
-interface GetOutputJsStatusResponse {
-    /** true if *no emit* or *emit is as desired* */
-    emitDiffers: boolean;
-}
-export function getOutputJsStatus(query: FilePathQuery): Promise<GetOutputJsStatusResponse> {
-    consistentPath(query);
-    var project = getOrCreateProject(query.filePath);
-    var output = getRawOutput(project, query.filePath);
-    if (output.emitSkipped) {
-        if (output.outputFiles && output.outputFiles.length === 1) {
-            if (output.outputFiles[0].text === building.Not_In_Context) {
-                return resolve({ emitDiffers: false });
-            }
-        }
-        return resolve({ emitDiffers: true });
-    }
-    var jsFile = output.outputFiles.filter(x=> path.extname(x.name) == ".js")[0];
-    if (!jsFile) {
-        return resolve({ emitDiffers: false });
-    } else {
-        var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
-        return resolve({ emitDiffers });
-    }
-}
-
 /**
  * Reset all that we know about the file system
  */
 export function softReset(query: SoftResetQuery): Promise<{}> {
+    console.log("Resetting..")
     resetCache(query);
     return resolve({});
 }

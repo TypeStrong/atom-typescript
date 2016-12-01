@@ -1,10 +1,8 @@
 "use strict";
 var tslib_1 = require("tslib");
-var parent = require("../../worker/parent");
-var fs = require("fs");
 var atomUtils = require("./atomUtils");
-var fuzzaldrin = require('fuzzaldrin');
-var CSON = require("season");
+var fs = require("fs");
+var parent = require("../../worker/parent");
 var explicitlyTriggered = false;
 function triggerAutocompletePlus() {
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');

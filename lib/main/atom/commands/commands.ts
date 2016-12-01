@@ -17,16 +17,11 @@ import {AstView, astURI, astURIFull} from "../views/astView";
 import {DependencyView, dependencyURI} from "../views/dependencyView";
 import {simpleSelectionView} from "../views/simpleSelectionView";
 import overlaySelectionView from "../views/simpleOverlaySelectionView";
-import * as outputFileCommands from "./outputFileCommands";
-import {registerRenameHandling} from "./moveFilesHandling";
 import {RefactoringsByFilePath} from "../../lang/fixmyts/quickFix";
 import escapeHtml = require('escape-html');
-import * as rView from "../views/rView";
 import {$} from "atom-space-pen-views";
-import {registerReactCommands} from "./reactCommands";
 import {getFileStatus} from "../fileStatusCache";
 import {registerJson2dtsCommands} from "./json2dtsCommands";
-import * as semanticView from "../views/semanticView";
 
 // Load all the web components
 export * from "../components/componentRegistry";
@@ -34,9 +29,6 @@ export * from "../components/componentRegistry";
 export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
-    outputFileCommands.register();
-    registerRenameHandling();
-    registerReactCommands();
     registerJson2dtsCommands();
 
     // Setup custom commands NOTE: these need to be added to the keymaps
@@ -62,33 +54,6 @@ export function registerCommands() {
             });
 
         }
-    });
-    atom.commands.add('atom-workspace', 'typescript:build', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-
-        atom.notifications.addInfo('Building');
-
-        parent.build({ filePath: filePath }).then((resp) => {
-            buildView.setBuildOutput(resp.buildOutput);
-
-            resp.tsFilesWithValidEmit.forEach((tsFile) => {
-                let status = getFileStatus(tsFile);
-                status.emitDiffers = false;
-            });
-
-            // Emit never fails with an emit error, so it's probably always gonna be an empty array
-            // It's here just in case something changes in TypeScript compiler
-            resp.tsFilesWithInvalidEmit.forEach((tsFile) => {
-                let status = getFileStatus(tsFile);
-                status.emitDiffers = true;
-            });
-
-            // Update the status of the file in the current editor
-            panelView.updateFileStatus(filePath);
-        });
     });
 
     var handleGoToDeclaration = (e) => {
@@ -159,12 +124,6 @@ export function registerCommands() {
 
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
         autoCompleteProvider.triggerAutocompletePlus();
-    });
-
-    atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        semanticView.toggle();
     });
 
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
@@ -346,7 +305,6 @@ export function registerCommands() {
             showProjectSymbols(filePath);
         });
 
-
     atomUtils.registerOpener({
         commandSelector: 'atom-text-editor',
         commandName: 'typescript:ast',
@@ -390,18 +348,6 @@ export function registerCommands() {
             return new DependencyView(data.filePath);
         }
     });
-
-    atomUtils.registerOpener({
-        commandSelector: 'atom-workspace',
-        commandName: 'typescript:testing-r-view',
-        uriProtocol: rView.RView.protocol,
-        getData: () => { return atomUtils.getFilePath() },
-        onOpen: (data) => new rView.RView({
-            icon: 'repo-forked',
-            title: 'React View',
-            filePath: data.filePath,
-        }),
-    })
 
     atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;

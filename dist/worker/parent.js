@@ -39,18 +39,15 @@ function catchCommonErrors(func) {
 }
 var projectService = require("../main/lang/projectService");
 exports.echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
-exports.build = catchCommonErrors(parent.sendToIpc(projectService.build));
 exports.getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
     completions: [],
     endsInPunctuation: false
 });
-exports.emitFile = catchCommonErrors(parent.sendToIpc(projectService.emitFile));
 exports.formatDocument = catchCommonErrors(parent.sendToIpc(projectService.formatDocument));
 exports.formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));
 exports.getDefinitionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getDefinitionsAtPosition));
 exports.updateText = catchCommonErrors(parent.sendToIpc(projectService.updateText));
 exports.editText = catchCommonErrors(parent.sendToIpc(projectService.editText));
-exports.errorsForFile = catchCommonErrors(parent.sendToIpc(projectService.errorsForFile));
 exports.getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.getSignatureHelps));
 exports.getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 exports.getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
@@ -64,9 +61,6 @@ exports.getASTFull = parent.sendToIpc(projectService.getASTFull);
 exports.getDependencies = parent.sendToIpc(projectService.getDependencies);
 exports.getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 exports.applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
-exports.getOutput = parent.sendToIpc(projectService.getOutput);
-exports.getOutputJs = parent.sendToIpc(projectService.getOutputJs);
-exports.getOutputJsStatus = parent.sendToIpc(projectService.getOutputJsStatus);
 exports.softReset = parent.sendToIpc(projectService.softReset);
 exports.getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 exports.createProject = parent.sendToIpc(projectService.createProject);

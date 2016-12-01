@@ -1,4 +1,5 @@
 console.log("be initializing them package")
+console.profile("atomts init")
 const start = process.hrtime()
 
 import atomConfig = require('./atom/atomConfig');
@@ -8,6 +9,7 @@ makeTsGlobal(atomConfig.typescriptServices);
 import path = require('path');
 import fs = require('fs');
 import os = require('os');
+import * as _ from "lodash"
 
 import {errorView} from "./atom/views/mainPanelView";
 
@@ -32,7 +34,6 @@ import {$} from "atom-space-pen-views";
 import documentationView = require('./atom/views/documentationView');
 import renameView = require('./atom/views/renameView');
 import mainPanelView = require("./atom/views/mainPanelView");
-import * as semanticView from "./atom/views/semanticView";
 import {getFileStatus} from "./atom/fileStatusCache";
 
 import editorSetup = require("./atom/editorSetup");
@@ -43,14 +44,17 @@ var statusBarMessage;
 var editorWatch: AtomCore.Disposable;
 var autoCompleteWatch: AtomCore.Disposable;
 
-export interface PackageState {
-}
+export interface PackageState {}
 
 import parent = require('../worker/parent');
 
 // Export config
 export var config = atomConfig.schema;
 import {debounce} from "./lang/utils";
+
+import {LinterRegistry, Linter} from "../linter"
+
+let linter: Linter
 
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
@@ -60,12 +64,7 @@ var hideIfNotActiveOnStart = debounce(() => {
     }
 }, 100);
 
-
-var __onlyOnce = false;
-function onlyOnceStuff() {
-    if (__onlyOnce) return;
-    else __onlyOnce = true;
-
+const attachViews = _.once(() => {
     mainPanelView.attach();
 
     // Add the documentation view
@@ -73,41 +72,17 @@ function onlyOnceStuff() {
 
     // Add the rename view
     renameView.attach();
-
-    semanticView.attach();
-}
+})
 
 /** only called once we have our dependencies */
 function readyToActivate() {
-
-    // Start a ts worker
-    parent.startWorker();
-
-    // Load our custom code based grammar
-    // TODO: fix https://github.com/atom/atom/pull/6757
-    // (<any>atom).grammars.addGrammar(new typescriptGrammar.TypeScriptSemanticGrammar((<any>atom).grammars));
-
-    // Streaming tests
-    /*for (var i = 0; i < 100; i++) {
-        (() => {
-            var index = i;
-            var repeat = index.toString() + ' ';
-            var message = '';
-            for (var j = 0; j < 100; j++) {
-                message = message + repeat;
-            }
-            parent.echo({ echo: 'awesome ' + message, num: i }).then((res) => {
-                console.log('index: ' + index, res);
-            });
-        })();
-    }*/
 
     // Observe changed active editor
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
 
-            onlyOnceStuff();
+            attachViews()
             updatePanelConfig(filePath);
 
             // // Refresh errors stuff on change active tab.
@@ -178,7 +153,7 @@ function readyToActivate() {
             let isTst = ext === '.tst';
             try {
                 // Only once stuff
-                onlyOnceStuff();
+                attachViews()
 
                 client.executeOpen({
                   file: filePath,
@@ -371,14 +346,19 @@ export function deserialize() {
     /* do any tear down here */
 }
 
+export function consumeLinter(registry: LinterRegistry) {
+    console.log("consume this")
+
+    linter = registry.register({
+        name: "Typescript"
+    })
+
+    console.log("got linter", linter)
+}
+
 // Registering an autocomplete provider
 export function provide() {
     return [autoCompleteProvider.provider];
-}
-
-import * as linter from "../linter";
-export function provideLinter() {
-    return linter.provider;
 }
 
 import * as hyperclickProvider from "../hyperclickProvider";
@@ -386,4 +366,5 @@ export function getHyperclickProvider() {
   return hyperclickProvider;
 }
 
+console.profileEnd()
 console.log("init took", process.hrtime(start))

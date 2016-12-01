@@ -62,18 +62,15 @@ function catchCommonErrors<Query, Response>(func: workerLib.QRFunction<Query, Re
 import projectService = require('../main/lang/projectService'); ///ts:import:generated
 
 export var echo = catchCommonErrors(parent.sendToIpc(projectService.echo));
-export var build = catchCommonErrors(parent.sendToIpc(projectService.build));
 export var getCompletionsAtPosition = parent.sendToIpcOnlyLast(projectService.getCompletionsAtPosition, {
     completions: [],
     endsInPunctuation: false
 });
-export var emitFile = catchCommonErrors(parent.sendToIpc(projectService.emitFile));
 export var formatDocument = catchCommonErrors(parent.sendToIpc(projectService.formatDocument));
 export var formatDocumentRange = catchCommonErrors(parent.sendToIpc(projectService.formatDocumentRange));
 export var getDefinitionsAtPosition = catchCommonErrors(parent.sendToIpc(projectService.getDefinitionsAtPosition));
 export var updateText = catchCommonErrors(parent.sendToIpc(projectService.updateText));
 export var editText = catchCommonErrors(parent.sendToIpc(projectService.editText));
-export var errorsForFile = catchCommonErrors(parent.sendToIpc(projectService.errorsForFile));
 export var getSignatureHelps = catchCommonErrors(parent.sendToIpc(projectService.getSignatureHelps));
 export var getRenameInfo = catchCommonErrors(parent.sendToIpc(projectService.getRenameInfo));
 export var getRelativePathsInProject = catchCommonErrors(parent.sendToIpc(projectService.getRelativePathsInProject));
@@ -88,9 +85,6 @@ export var getASTFull = parent.sendToIpc(projectService.getASTFull);
 export var getDependencies = parent.sendToIpc(projectService.getDependencies);
 export var getQuickFixes = parent.sendToIpc(projectService.getQuickFixes);
 export var applyQuickFix = parent.sendToIpc(projectService.applyQuickFix);
-export var getOutput = parent.sendToIpc(projectService.getOutput);
-export var getOutputJs = parent.sendToIpc(projectService.getOutputJs);
-export var getOutputJsStatus = parent.sendToIpc(projectService.getOutputJsStatus);
 export var softReset = parent.sendToIpc(projectService.softReset);
 export var getRenameFilesRefactorings = parent.sendToIpc(projectService.getRenameFilesRefactorings);
 export var createProject = parent.sendToIpc(projectService.createProject);

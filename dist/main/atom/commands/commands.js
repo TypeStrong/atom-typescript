@@ -3,7 +3,6 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 var parent = require("../../../worker/parent");
-var buildView = require("../buildView");
 var atomUtils = require("../atomUtils");
 var autoCompleteProvider = require("../autoCompleteProvider");
 var path = require("path");
@@ -18,19 +17,10 @@ var mainPanelView_1 = require("../views/mainPanelView");
 var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
-var outputFileCommands = require("./outputFileCommands");
-var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require("escape-html");
-var rView = require("../views/rView");
-var reactCommands_1 = require("./reactCommands");
-var fileStatusCache_1 = require("../fileStatusCache");
 var json2dtsCommands_1 = require("./json2dtsCommands");
-var semanticView = require("../views/semanticView");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
-    outputFileCommands.register();
-    moveFilesHandling_1.registerRenameHandling();
-    reactCommands_1.registerReactCommands();
     json2dtsCommands_1.registerJson2dtsCommands();
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -56,25 +46,6 @@ function registerCommands() {
                 });
             });
         }
-    });
-    atom.commands.add('atom-workspace', 'typescript:build', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        var editor = atom.workspace.getActiveTextEditor();
-        var filePath = editor.getPath();
-        atom.notifications.addInfo('Building');
-        parent.build({ filePath: filePath }).then(function (resp) {
-            buildView.setBuildOutput(resp.buildOutput);
-            resp.tsFilesWithValidEmit.forEach(function (tsFile) {
-                var status = fileStatusCache_1.getFileStatus(tsFile);
-                status.emitDiffers = false;
-            });
-            resp.tsFilesWithInvalidEmit.forEach(function (tsFile) {
-                var status = fileStatusCache_1.getFileStatus(tsFile);
-                status.emitDiffers = true;
-            });
-            mainPanelView_1.panelView.updateFileStatus(filePath);
-        });
     });
     var handleGoToDeclaration = function (e) {
         if (!atomUtils.commandForTypeScript(e))
@@ -130,11 +101,6 @@ function registerCommands() {
     });
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
-    });
-    atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        semanticView.toggle();
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
         var editor = atom.workspace.getActiveTextEditor();
@@ -322,17 +288,6 @@ function registerCommands() {
         onOpen: function (data) {
             return new dependencyView_1.DependencyView(data.filePath);
         }
-    });
-    atomUtils.registerOpener({
-        commandSelector: 'atom-workspace',
-        commandName: 'typescript:testing-r-view',
-        uriProtocol: rView.RView.protocol,
-        getData: function () { return atomUtils.getFilePath(); },
-        onOpen: function (data) { return new rView.RView({
-            icon: 'repo-forked',
-            title: 'React View',
-            filePath: data.filePath,
-        }); },
     });
     atom.commands.add('atom-workspace', 'typescript:sync', function (e) {
         if (!atomUtils.commandForTypeScript(e))

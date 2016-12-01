@@ -1,11 +1,8 @@
 "use strict";
 var fsu = require("../utils/fsUtil");
-var fs = require("fs");
 var path = require("path");
 var os = require("os");
-var child_process = require("child_process");
 var fuzzaldrin = require('fuzzaldrin');
-var transformer_1 = require("./transformers/transformer");
 var transformer = require("./transformers/transformer");
 var tsconfig = require("../tsconfig/tsconfig");
 var utils = require("./utils");
@@ -43,61 +40,6 @@ function quickInfo(query) {
     }
 }
 exports.quickInfo = quickInfo;
-var building = require("./modules/building");
-function build(query) {
-    projectCache_1.consistentPath(query);
-    var proj = projectCache_1.getOrCreateProject(query.filePath);
-    var filesToEmit = proj.projectFile.project.files.filter(function (fte) { return !fte.toLowerCase().endsWith('.json'); });
-    filesToEmit = proj.projectFile.project.compilerOptions.outFile ? [filesToEmit[0]] : filesToEmit;
-    var totalCount = filesToEmit.length;
-    var builtCount = 0;
-    var errorCount = 0;
-    var outputs = filesToEmit.map(function (filePath) {
-        var output = building.emitFile(proj, filePath);
-        builtCount++;
-        errorCount = errorCount + output.errors.length;
-        projectCache_1.queryParent.buildUpdate({
-            totalCount: totalCount,
-            builtCount: builtCount,
-            errorCount: errorCount,
-            firstError: errorCount && !(errorCount - output.errors.length),
-            filePath: filePath,
-            errorsInFile: output.errors
-        });
-        return output;
-    });
-    building.emitDts(proj);
-    if (proj.projectFile.project.scripts
-        && proj.projectFile.project.scripts.postbuild) {
-        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, function (err, stdout, stderr) {
-            if (err) {
-                console.error('postbuild failed!');
-                console.error(proj.projectFile.project.scripts.postbuild);
-                console.error(stderr);
-            }
-        });
-    }
-    var tsFilesWithInvalidEmit = outputs
-        .filter(function (o) { return o.emitError; })
-        .map(function (o) { return o.sourceFileName; });
-    var tsFilesWithValidEmit = outputs
-        .filter(function (o) { return !o.emitError; })
-        .map(function (o) { return o.sourceFileName; });
-    return resolve({
-        tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
-        tsFilesWithValidEmit: tsFilesWithValidEmit,
-        buildOutput: {
-            outputs: outputs,
-            counts: {
-                inputFiles: proj.projectFile.project.files.length,
-                outputFiles: utils.selectMany(outputs.map(function (out) { return out.outputFiles; })).length,
-                errors: errorCount,
-                emitErrors: outputs.filter(function (out) { return out.emitError; }).length
-            }
-        }
-    });
-}
-exports.build = build;
 function getCompletionsAtPosition(query) {
     projectCache_1.consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
@@ -179,12 +121,6 @@ function getSignatureHelps(query) {
     return signatureHelpItems.items;
 }
 exports.getSignatureHelps = getSignatureHelps;
-function emitFile(query) {
-    projectCache_1.consistentPath(query);
-    var filePath = transformer.getPseudoFilePath(query.filePath);
-    return resolve(building.emitFile(projectCache_1.getOrCreateProject(filePath), filePath));
-}
-exports.emitFile = emitFile;
 var formatting = require("./modules/formatting");
 function formatDocument(query) {
     projectCache_1.consistentPath(query);
@@ -244,44 +180,6 @@ function getDiagnositcsByFilePath(query) {
         diagnostics = project.languageService.getSemanticDiagnostics(query.filePath);
     }
     return diagnostics;
-}
-function errorsForFile(query) {
-    projectCache_1.consistentPath(query);
-    var project;
-    try {
-        project = projectCache_1.getOrCreateProject(query.filePath);
-    }
-    catch (ex) {
-        return resolve({ errors: [] });
-    }
-    if (transformer_1.isTransformerFile(query.filePath)) {
-        var filePath = transformer.getPseudoFilePath(query.filePath);
-        var errors = getDiagnositcsByFilePath({ filePath: filePath }).map(building.diagnosticToTSError);
-        errors.forEach(function (error) {
-            error.filePath = query.filePath;
-        });
-        return resolve({ errors: errors });
-    }
-    else {
-        var result = void 0;
-        if (project.includesSourceFile(query.filePath)) {
-            result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
-        }
-        else {
-            result = notInContextResult(query.filePath);
-        }
-        return resolve({ errors: result });
-    }
-}
-exports.errorsForFile = errorsForFile;
-function notInContextResult(fileName) {
-    return [{
-            filePath: fileName,
-            startPos: { line: 0, col: 0 },
-            endPos: { line: 0, col: 0 },
-            message: "The file \"" + fileName + "\" is not included in the TypeScript compilation context.  If this is not intended, please check the \"files\" or \"filesGlob\" section of your tsconfig.json file.",
-            preview: ""
-        }];
 }
 function getRenameInfo(query) {
     projectCache_1.consistentPath(query);
@@ -577,49 +475,8 @@ function applyQuickFix(query) {
     return resolve({ refactorings: refactorings });
 }
 exports.applyQuickFix = applyQuickFix;
-var building_1 = require("./modules/building");
-function getOutput(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    return resolve({ output: building_1.getRawOutput(project, query.filePath) });
-}
-exports.getOutput = getOutput;
-function getOutputJs(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var output = building_1.getRawOutput(project, query.filePath);
-    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx"; })[0];
-    if (!jsFile || output.emitSkipped) {
-        return resolve({});
-    }
-    else {
-        return resolve({ jsFilePath: jsFile.name });
-    }
-}
-exports.getOutputJs = getOutputJs;
-function getOutputJsStatus(query) {
-    projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var output = building_1.getRawOutput(project, query.filePath);
-    if (output.emitSkipped) {
-        if (output.outputFiles && output.outputFiles.length === 1) {
-            if (output.outputFiles[0].text === building.Not_In_Context) {
-                return resolve({ emitDiffers: false });
-            }
-        }
-        return resolve({ emitDiffers: true });
-    }
-    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
-    if (!jsFile) {
-        return resolve({ emitDiffers: false });
-    }
-    else {
-        var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
-        return resolve({ emitDiffers: emitDiffers });
-    }
-}
-exports.getOutputJsStatus = getOutputJsStatus;
 function softReset(query) {
+    console.log("Resetting..");
     projectCache_1.resetCache(query);
     return resolve({});
 }

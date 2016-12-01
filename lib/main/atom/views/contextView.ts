@@ -1,6 +1,5 @@
 import sp = require('atom-space-pen-views');
 import mainPanelView = require('./mainPanelView');
-import * as semanticView from "./semanticView";
 
 interface ContextViewItem {
     title: string;
@@ -11,7 +10,6 @@ var titles = {
     tabErrors: 'Tab: Errors in Open Files',
     tabLastBuild: 'Tab: Last Build Output',
     tabReferences: 'Tab: Find References',
-    fileSemantics: 'Toggle: File Semantics',
 }
 
 var items = Object.keys(titles).map(item=> { return { title: titles[item] } });
@@ -45,9 +43,6 @@ export class ContextView extends sp.SelectListView {
         }
         if (item.title == titles.tabReferences) {
             mainPanelView.panelView.referencesPanelSelected();
-        }
-        if (item.title == titles.fileSemantics){
-            semanticView.toggle();
         }
 
         this.hide();

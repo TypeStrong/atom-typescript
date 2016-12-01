@@ -15,9 +15,9 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Reviews
 *Featured on the TypeScript home page under tools http://www.typescriptlang.org/* and [demoed by **Anders Hejlsberg**](https://twitter.com/schwarty/status/593858817894404096).
 
-"I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)  
-"And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)  
-"It's a thing of beauty - they had me at '*Type information on hover*'. Discovering  `tsconfig.json` support as well was just an enormous bonus." [John Reilly](https://twitter.com/johnny_reilly)  
+"I was shocked at how good it felt to poke around on the compiler with it." [Jonathan Turner](https://twitter.com/jntrnr)
+"And guess what, it worked perfectly. Like everything else! Faster than Visual Studio!" [Daniel Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker)
+"It's a thing of beauty - they had me at '*Type information on hover*'. Discovering  `tsconfig.json` support as well was just an enormous bonus." [John Reilly](https://twitter.com/johnny_reilly)
 "This may be your best option for editing TypeScript at the moment - very nice!" [Rasmus Schultz](https://twitter.com/mindplaydk)
 
 [*Add yours!*](https://github.com/TypeStrong/atom-typescript/issues/66)
@@ -30,7 +30,6 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 * Project Context Support (`tsconfig.json`)
 * Project Build Support
 * `package.json` Support
-* React Support
 * Format code (configurable to be on save)
 * Goto Declaration
 * Find References
@@ -93,8 +92,6 @@ Shortcut: `F6`. If there are any errors they are shown as well.
 
 ## NPM Module Support
 We have a sample NPM module : https://github.com/basarat/ts-npm-module  (trick : in tsconfig have `"declaration" : true` an in package.json have a `typings` field pointing to the `main` file) and its usage is demoed in https://github.com/basarat/ts-npm-module-consume.
-
-## React Support
 
 ### Configuration tips
 

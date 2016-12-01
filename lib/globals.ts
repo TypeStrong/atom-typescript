@@ -38,11 +38,6 @@ declare module 'detect-newline' {
     export = detectNewline;
 }
 
-declare module 'xtend' {
-    function extend <T, U> (dest: T, src: U): T & U;
-    export = extend;
-}
-
 declare module 'atom-space-pen-views' {
     import atom = require('atom');
     export class SelectListView extends atom.SelectListView { }

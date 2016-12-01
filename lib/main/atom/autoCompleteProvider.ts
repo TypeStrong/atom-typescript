@@ -1,18 +1,10 @@
-/// <reference path='../../globals'/>
 
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 
-///ts:import=parent
-import parent = require('../../worker/parent'); ///ts:import:generated
-///ts:import=atomConfig
-import atomConfig = require('./atomConfig'); ///ts:import:generated
-import fs = require('fs');
-///ts:import=atomUtils
-import atomUtils = require('./atomUtils'); ///ts:import:generated
-import escape = require('escape-html');
-
-var fuzzaldrin = require('fuzzaldrin');
-var CSON = require("season");
+import atomConfig = require('./atomConfig')
+import atomUtils = require('./atomUtils')
+import fs = require('fs')
+import parent = require('../../worker/parent')
 
 declare module autocompleteplus {
     /** What gets passed into the handler */

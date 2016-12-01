@@ -1,12 +1,14 @@
 "use strict";
 var tslib_1 = require("tslib");
 console.log("be initializing them package");
+console.profile("atomts init");
 var start = process.hrtime();
 var atomConfig = require("./atom/atomConfig");
 var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
 makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
 var path = require("path");
 var fs = require("fs");
+var _ = require("lodash");
 var mainPanelView_1 = require("./atom/views/mainPanelView");
 var autoCompleteProvider = require("./atom/autoCompleteProvider");
 var tooltipManager = require("./atom/tooltipManager");
@@ -18,7 +20,6 @@ var atom_space_pen_views_1 = require("atom-space-pen-views");
 var documentationView = require("./atom/views/documentationView");
 var renameView = require("./atom/views/renameView");
 var mainPanelView = require("./atom/views/mainPanelView");
-var semanticView = require("./atom/views/semanticView");
 var fileStatusCache_1 = require("./atom/fileStatusCache");
 var editorSetup = require("./atom/editorSetup");
 var statusBar;
@@ -28,29 +29,23 @@ var autoCompleteWatch;
 var parent = require("../worker/parent");
 exports.config = atomConfig.schema;
 var utils_1 = require("./lang/utils");
+var linter;
 var hideIfNotActiveOnStart = utils_1.debounce(function () {
     var editor = atom.workspace.getActiveTextEditor();
     if (!atomUtils.onDiskAndTsRelated(editor)) {
         mainPanelView.hide();
     }
 }, 100);
-var __onlyOnce = false;
-function onlyOnceStuff() {
-    if (__onlyOnce)
-        return;
-    else
-        __onlyOnce = true;
+var attachViews = _.once(function () {
     mainPanelView.attach();
     documentationView.attach();
     renameView.attach();
-    semanticView.attach();
-}
+});
 function readyToActivate() {
-    parent.startWorker();
     atom.workspace.onDidChangeActivePaneItem(function (editor) {
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
-            onlyOnceStuff();
+            attachViews();
             updatePanelConfig(filePath);
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
@@ -97,7 +92,7 @@ function readyToActivate() {
                             });
                             isTst = ext === '.tst';
                             try {
-                                onlyOnceStuff();
+                                attachViews();
                                 client.executeOpen({
                                     file: filePath,
                                     fileContent: editor.getText()
@@ -204,18 +199,22 @@ exports.serialize = serialize;
 function deserialize() {
 }
 exports.deserialize = deserialize;
+function consumeLinter(registry) {
+    console.log("consume this");
+    linter = registry.register({
+        name: "Typescript"
+    });
+    console.log("got linter", linter);
+}
+exports.consumeLinter = consumeLinter;
 function provide() {
     return [autoCompleteProvider.provider];
 }
 exports.provide = provide;
-var linter = require("../linter");
-function provideLinter() {
-    return linter.provider;
-}
-exports.provideLinter = provideLinter;
 var hyperclickProvider = require("../hyperclickProvider");
 function getHyperclickProvider() {
     return hyperclickProvider;
 }
 exports.getHyperclickProvider = getHyperclickProvider;
+console.profileEnd();
 console.log("init took", process.hrtime(start));

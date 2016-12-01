@@ -257,7 +257,6 @@ import tsconfig = require('tsconfig');
 import os = require('os');
 import detectIndent = require('detect-indent');
 import detectNewline = require('detect-newline');
-import extend = require('xtend');
 import formatting = require('./formatting');
 
 var projectFileName = 'tsconfig.json';
