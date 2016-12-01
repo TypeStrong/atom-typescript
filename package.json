@@ -5,8 +5,9 @@
   "bin": {
     "atbuild": "./dist/main/bin/atbuild"
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
+  "activationHooks": ["atom-typescript:grammar-used"],
   "scripts": {
     "build": "ts-node scripts/grammar.ts",
     "test": "tsc -p ./lib && tsc --noEmit -p ./scripts",
@@ -30,13 +31,6 @@
     "hyperclick.provider": {
       "versions": {
         "0.0.0": "getHyperclickProvider"
-      }
-    }
-  },
-  "consumedServices": {
-    "snippets": {
-      "versions": {
-        "0.1.0": "consumeSnippets"
       }
     }
   },

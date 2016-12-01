@@ -39,36 +39,6 @@ export function registerCommands() {
     registerReactCommands();
     registerJson2dtsCommands();
 
-    function applyRefactorings(refactorings: RefactoringsByFilePath) {
-        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-        var openPathsMap = utils.createMap(paths);
-
-        let refactorPaths = Object.keys(refactorings);
-        let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
-        let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
-
-        // if file is open change in buffer
-        // otherwise open the file and change the buffer range
-        atomUtils.getEditorsForAllPaths(refactorPaths)
-            .then((editorMap) => {
-                refactorPaths.forEach((filePath) => {
-                    var editor = editorMap[filePath];
-                    editor.transact(() => {
-                        refactorings[filePath].forEach((refactoring) => {
-                            var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                            if (!refactoring.isNewTextSnippet) {
-                                editor.setTextInBufferRange(range, refactoring.newText);
-                            } else {
-                                let cursor = editor.getCursors()[0];
-                                (<any>cursor).selection.setBufferRange(range);
-                                atomUtils.insertSnippet(refactoring.newText, editor, cursor);
-                            }
-                        });
-                    })
-                });
-            });
-    }
-
     // Setup custom commands NOTE: these need to be added to the keymaps
     atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
@@ -191,37 +161,6 @@ export function registerCommands() {
         autoCompleteProvider.triggerAutocompletePlus();
     });
 
-    atom.commands.add('atom-workspace', 'typescript:bas-development-testing', (e) => {
-        // documentationView.docView.hide();
-        // documentationView.docView.autoPosition();
-        // documentationView.testDocumentationView();
-        // parent.debugLanguageServiceHostVersion({ filePath: atom.workspace.getActiveEditor().getPath() })
-        //     .then((res) => {
-        //     console.log(res.text.length);
-        //     // console.log(JSON.stringify({txt:res.text}))
-        // });
-
-        // atom.commands.dispatch
-        //     atom.views.getView(atom.workspace.getActiveTextEditor()),
-        //     'typescript:dependency-view');
-        //
-        /*atom.commands.dispatch(
-            atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:testing-r-view');*/
-
-        // atom.commands.dispatch(
-        //     atom.views.getView(atom.workspace.getActiveTextEditor()),
-        //     'typescript:toggle-semantic-view');
-
-        atom.commands.dispatch(
-            atom.views.getView(atom.workspace.getActiveTextEditor()),
-            'typescript:dependency-view');
-
-        // parent.getAST({ filePath: atom.workspace.getActiveEditor().getPath() }).then((res) => {
-        //     console.log(res.root);
-        // });
-    });
-
     atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
@@ -231,45 +170,9 @@ export function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
         // Rename file
         var editor = atom.workspace.getActiveTextEditor();
-        var matched = atomUtils.editorInTheseScopes([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
-        if (matched) {
-            let relativePath = editor.getTextInRange(editor.bufferRangeForScopeAtCursor(matched)).replace(/['"]+/g, '');
-            if (!utils.pathIsRelative(relativePath)) {
-                atom.notifications.addInfo('AtomTS: Can only rename external modules if they are relative files!');
-                return;
-            }
-
-            let completePath = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
-
-            // TODO: Actually rename the file
-
-            renameView.panelView.renameThis({
-                autoSelect: false,
-                title: 'Rename File',
-                text: completePath,
-                openFiles: [],
-                closedFiles: [],
-                onCancel: () => { },
-                onValidate: (newText): string => {
-                    if (!newText.trim()) {
-                        return 'If you want to abort : Press esc to exit'
-                    }
-                    return '';
-                },
-                onCommit: (newText) => {
-                    newText = newText.trim();
-
-                    parent.getRenameFilesRefactorings({ oldPath: completePath, newPath: newText })
-                        .then((res) => {
-                            applyRefactorings(res.refactorings);
-                        });
-                }
-            });
-            atom.notifications.addInfo('AtomTS: File rename comming soon!');
-        }
 
         // Rename variable
-        else {
+        if (true) {
             parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
                 if (!res.canRename) {
                     atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
@@ -430,7 +333,7 @@ export function registerCommands() {
             theProjectSymbolsView.show();
         });
     }, 400);
-    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-project-symbols',
+    atom.commands.add('atom-text-editor', 'symbols-view:toggle-project-symbols',
         (e) => {
             var editor = atom.workspace.getActiveTextEditor();
             if (!editor) return false;
@@ -488,38 +391,6 @@ export function registerCommands() {
         }
     });
 
-    atom.commands.add('atom-text-editor', 'typescript:quick-fix', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        var editor = atomUtils.getActiveEditor();
-        var query = atomUtils.getFilePathPosition();
-
-        parent.getQuickFixes(query).then((result) => {
-            if (!result.fixes.length) {
-                atom.notifications.addInfo('AtomTS: No QuickFixes for current cursor position');
-                return;
-            }
-
-            overlaySelectionView({
-                items: result.fixes,
-                viewForItem: (item) => {
-                    return `<div>
-                        ${item.isNewTextSnippet ? '<span class="icon-move-right"></span>' : ''}
-                        ${escapeHtml(item.display) }
-                    </div>`;
-                },
-                filterKey: 'display',
-                confirmed: (item) => {
-                    // NOTE: we can special case UI's here if we want.
-
-                    parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then((res) => {
-                        applyRefactorings(res.refactorings);
-                    });
-                }
-            }, editor);
-        });
-    });
-
     atomUtils.registerOpener({
         commandSelector: 'atom-workspace',
         commandName: 'typescript:testing-r-view',
@@ -537,45 +408,5 @@ export function registerCommands() {
 
         panelView.softReset();
     });
-
-    atom.commands.add('atom-text-editor', 'typescript:toggle-breakpoint', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
-
-        parent.toggleBreakpoint(atomUtils.getFilePathPosition()).then((res) => {
-            applyRefactorings(res.refactorings);
-        });
-    });
-    /// Register autocomplete commands to show documentations
-    /*atom.packages.activatePackage('autocomplete-plus').then(() => {
-        var autocompletePlus = apd.require('autocomplete-plus');
-        var maxIndex = 10;
-        var currentSuggestionIndex = 0;
-        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-cancel',() => {
-            console.log('cancel');
-            documentationView.docView.hide();
-            currentSuggestionIndex = 0;
-        });
-
-        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-select-next',() => {
-            console.log('next');
-            var length = autocompletePlus.autocompleteManager.suggestionList.items.length
-            if (++currentSuggestionIndex >= maxIndex) {
-                currentSuggestionIndex = 0;
-            }
-            documentationView.docView.show();
-            documentationView.docView.autoPosition(); // TODO: only first time
-        });
-
-        autocompletePlus.autocompleteManager.suggestionList.emitter.on('did-select-previous',() => {
-            console.log('previous');
-            var length = autocompletePlus.autocompleteManager.suggestionList.items.length
-            if (--currentSuggestionIndex < 0) {
-                currentSuggestionIndex = maxIndex - 1;
-            };
-            documentationView.docView.show();
-        });
-    }).catch((err) => {
-        console.error(err);
-    });*/
 
 }

@@ -1,5 +1,7 @@
 "use strict";
 var tslib_1 = require("tslib");
+console.log("be initializing them package");
+var start = process.hrtime();
 var atomConfig = require("./atom/atomConfig");
 var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
 makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
@@ -176,7 +178,13 @@ function updatePanelConfig(filePath) {
     });
 }
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript').then(readyToActivate);
+    console.log("activating them package", state);
+    atom.workspace.observeTextEditors(function (editor) {
+        console.log("opened editor", editor);
+        editor.observeGrammar(function (grammar) {
+            console.log("observed grammar", grammar);
+        });
+    });
 }
 exports.activate = activate;
 function deactivate() {
@@ -205,12 +213,9 @@ function provideLinter() {
     return linter.provider;
 }
 exports.provideLinter = provideLinter;
-function consumeSnippets(snippetsManager) {
-    atomUtils._setSnippetsManager(snippetsManager);
-}
-exports.consumeSnippets = consumeSnippets;
 var hyperclickProvider = require("../hyperclickProvider");
 function getHyperclickProvider() {
     return hyperclickProvider;
 }
 exports.getHyperclickProvider = getHyperclickProvider;
+console.log("init took", process.hrtime(start));

@@ -296,18 +296,3 @@ export function openFile(filePath: string, position: { line?: number; col?: numb
     }
     atom.workspace.open(filePath, config);
 }
-
-/************
- * Snippets *
- ************/
-var _snippetsManager;
-export function _setSnippetsManager(snippetsManager) {
-    _snippetsManager = snippetsManager;
-}
-export function insertSnippet(snippet: string, editor: AtomCore.IEditor, cursor: AtomCore.ICursor) {
-    if (_snippetsManager) {
-        _snippetsManager.insertSnippet(snippet, editor, cursor);
-    } else {
-        console.error('Why no snippet manager?');
-    }
-}

@@ -18,7 +18,6 @@ var mainPanelView_1 = require("../views/mainPanelView");
 var astView_1 = require("../views/astView");
 var dependencyView_1 = require("../views/dependencyView");
 var simpleSelectionView_1 = require("../views/simpleSelectionView");
-var simpleOverlaySelectionView_1 = require("../views/simpleOverlaySelectionView");
 var outputFileCommands = require("./outputFileCommands");
 var moveFilesHandling_1 = require("./moveFilesHandling");
 var escapeHtml = require("escape-html");
@@ -33,32 +32,6 @@ function registerCommands() {
     moveFilesHandling_1.registerRenameHandling();
     reactCommands_1.registerReactCommands();
     json2dtsCommands_1.registerJson2dtsCommands();
-    function applyRefactorings(refactorings) {
-        var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-        var openPathsMap = utils.createMap(paths);
-        var refactorPaths = Object.keys(refactorings);
-        var openFiles = refactorPaths.filter(function (p) { return openPathsMap[p]; });
-        var closedFiles = refactorPaths.filter(function (p) { return !openPathsMap[p]; });
-        atomUtils.getEditorsForAllPaths(refactorPaths)
-            .then(function (editorMap) {
-            refactorPaths.forEach(function (filePath) {
-                var editor = editorMap[filePath];
-                editor.transact(function () {
-                    refactorings[filePath].forEach(function (refactoring) {
-                        var range = atomUtils.getRangeForTextSpan(editor, refactoring.span);
-                        if (!refactoring.isNewTextSnippet) {
-                            editor.setTextInBufferRange(range, refactoring.newText);
-                        }
-                        else {
-                            var cursor = editor.getCursors()[0];
-                            cursor.selection.setBufferRange(range);
-                            atomUtils.insertSnippet(refactoring.newText, editor, cursor);
-                        }
-                    });
-                });
-            });
-        });
-    }
     atom.commands.add('atom-text-editor', 'typescript:format-code', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
@@ -158,9 +131,6 @@ function registerCommands() {
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', function (e) {
         autoCompleteProvider.triggerAutocompletePlus();
     });
-    atom.commands.add('atom-workspace', 'typescript:bas-development-testing', function (e) {
-        atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'typescript:dependency-view');
-    });
     atom.commands.add('atom-workspace', 'typescript:toggle-semantic-view', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
@@ -168,38 +138,7 @@ function registerCommands() {
     });
     atom.commands.add('atom-text-editor', 'typescript:rename-refactor', function (e) {
         var editor = atom.workspace.getActiveTextEditor();
-        var matched = atomUtils.editorInTheseScopes([atomUtils.knownScopes.es6import, atomUtils.knownScopes.require]);
-        if (matched) {
-            var relativePath = editor.getTextInRange(editor.bufferRangeForScopeAtCursor(matched)).replace(/['"]+/g, '');
-            if (!utils.pathIsRelative(relativePath)) {
-                atom.notifications.addInfo('AtomTS: Can only rename external modules if they are relative files!');
-                return;
-            }
-            var completePath_1 = path.resolve(path.dirname(atomUtils.getCurrentPath()), relativePath) + '.ts';
-            renameView.panelView.renameThis({
-                autoSelect: false,
-                title: 'Rename File',
-                text: completePath_1,
-                openFiles: [],
-                closedFiles: [],
-                onCancel: function () { },
-                onValidate: function (newText) {
-                    if (!newText.trim()) {
-                        return 'If you want to abort : Press esc to exit';
-                    }
-                    return '';
-                },
-                onCommit: function (newText) {
-                    newText = newText.trim();
-                    parent.getRenameFilesRefactorings({ oldPath: completePath_1, newPath: newText })
-                        .then(function (res) {
-                        applyRefactorings(res.refactorings);
-                    });
-                }
-            });
-            atom.notifications.addInfo('AtomTS: File rename comming soon!');
-        }
-        else {
+        if (true) {
             parent.getRenameInfo(atomUtils.getFilePathPosition()).then(function (res) {
                 if (!res.canRename) {
                     atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
@@ -333,7 +272,7 @@ function registerCommands() {
             theProjectSymbolsView.show();
         });
     }, 400);
-    atom.commands.add('.platform-linux atom-text-editor, .platform-darwin atom-text-editor,.platform-win32 atom-text-editor', 'symbols-view:toggle-project-symbols', function (e) {
+    atom.commands.add('atom-text-editor', 'symbols-view:toggle-project-symbols', function (e) {
         var editor = atom.workspace.getActiveTextEditor();
         if (!editor)
             return false;
@@ -384,30 +323,6 @@ function registerCommands() {
             return new dependencyView_1.DependencyView(data.filePath);
         }
     });
-    atom.commands.add('atom-text-editor', 'typescript:quick-fix', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        var editor = atomUtils.getActiveEditor();
-        var query = atomUtils.getFilePathPosition();
-        parent.getQuickFixes(query).then(function (result) {
-            if (!result.fixes.length) {
-                atom.notifications.addInfo('AtomTS: No QuickFixes for current cursor position');
-                return;
-            }
-            simpleOverlaySelectionView_1.default({
-                items: result.fixes,
-                viewForItem: function (item) {
-                    return "<div>\n                        " + (item.isNewTextSnippet ? '<span class="icon-move-right"></span>' : '') + "\n                        " + escapeHtml(item.display) + "\n                    </div>";
-                },
-                filterKey: 'display',
-                confirmed: function (item) {
-                    parent.applyQuickFix({ key: item.key, filePath: query.filePath, position: query.position }).then(function (res) {
-                        applyRefactorings(res.refactorings);
-                    });
-                }
-            }, editor);
-        });
-    });
     atomUtils.registerOpener({
         commandSelector: 'atom-workspace',
         commandName: 'typescript:testing-r-view',
@@ -423,13 +338,6 @@ function registerCommands() {
         if (!atomUtils.commandForTypeScript(e))
             return;
         mainPanelView_1.panelView.softReset();
-    });
-    atom.commands.add('atom-text-editor', 'typescript:toggle-breakpoint', function (e) {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        parent.toggleBreakpoint(atomUtils.getFilePathPosition()).then(function (res) {
-            applyRefactorings(res.refactorings);
-        });
     });
 }
 exports.registerCommands = registerCommands;

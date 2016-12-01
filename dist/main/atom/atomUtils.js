@@ -246,17 +246,3 @@ function openFile(filePath, position) {
     atom.workspace.open(filePath, config);
 }
 exports.openFile = openFile;
-var _snippetsManager;
-function _setSnippetsManager(snippetsManager) {
-    _snippetsManager = snippetsManager;
-}
-exports._setSnippetsManager = _setSnippetsManager;
-function insertSnippet(snippet, editor, cursor) {
-    if (_snippetsManager) {
-        _snippetsManager.insertSnippet(snippet, editor, cursor);
-    }
-    else {
-        console.error('Why no snippet manager?');
-    }
-}
-exports.insertSnippet = insertSnippet;

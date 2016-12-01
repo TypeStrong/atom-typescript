@@ -1,3 +1,6 @@
+console.log("be initializing them package")
+const start = process.hrtime()
+
 import atomConfig = require('./atom/atomConfig');
 import {makeTsGlobal} from "../typescript/makeTypeScriptGlobal";
 makeTsGlobal(atomConfig.typescriptServices);
@@ -339,7 +342,17 @@ function updatePanelConfig(filePath: string) {
 }
 
 export function activate(state: PackageState) {
-    require('atom-package-deps').install('atom-typescript').then(readyToActivate)
+    console.log("activating them package", state)
+
+    atom.workspace.observeTextEditors(function(editor){
+        console.log("opened editor", editor)
+
+        editor.observeGrammar(function(grammar) {
+            console.log("observed grammar", grammar)
+        })
+    })
+
+    // require('atom-package-deps').install('atom-typescript').then(readyToActivate)
 }
 
 export function deactivate() {
@@ -368,30 +381,9 @@ export function provideLinter() {
     return linter.provider;
 }
 
-export function consumeSnippets(snippetsManager) {
-    atomUtils._setSnippetsManager(snippetsManager);
-}
-
-// function waitForGrammarActivation(): Promise<any> {
-//     let activated = false;
-//     const promise = new Promise((resolve,reject) => {
-//         let editorWatch = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
-//
-//             // Just so we won't attach more events than necessary
-//             if (activated) return;
-//             editor.observeGrammar((grammar: AtomCore.IGrammar) => {
-//                 if (grammar.packageName === 'atom-typescript') {
-//                     activated = true;
-//                     resolve({});
-//                     editorWatch.dispose();
-//                 }
-//             });
-//         });
-//     });
-//     return promise;
-// }
-
 import * as hyperclickProvider from "../hyperclickProvider";
 export function getHyperclickProvider() {
   return hyperclickProvider;
 }
+
+console.log("init took", process.hrtime(start))
