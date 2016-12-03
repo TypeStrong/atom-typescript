@@ -1,28 +1,24 @@
 "use strict";
-var tslib_1 = require("tslib");
-var view = require("./view");
+const view = require("./view");
 var $ = view.$;
-var TooltipView = (function (_super) {
-    tslib_1.__extends(TooltipView, _super);
-    function TooltipView(rect) {
-        var _this = _super.call(this, rect) || this;
-        _this.rect = rect;
-        $(document.body).append(_this.$);
-        _this.updatePosition();
-        return _this;
+class TooltipView extends view.View {
+    constructor(rect) {
+        super(rect);
+        this.rect = rect;
+        $(document.body).append(this.$);
+        this.updatePosition();
     }
-    TooltipView.content = function () {
-        var _this = this;
-        return this.div({ class: 'atom-typescript-tooltip tooltip' }, function () {
-            _this.div({ class: 'tooltip-inner', outlet: 'inner' });
+    static content() {
+        return this.div({ class: 'atom-typescript-tooltip tooltip' }, () => {
+            this.div({ class: 'tooltip-inner', outlet: 'inner' });
         });
-    };
-    TooltipView.prototype.updateText = function (text) {
+    }
+    updateText(text) {
         this.inner.html(text);
         this.updatePosition();
         this.$.fadeTo(300, 1);
-    };
-    TooltipView.prototype.updatePosition = function () {
+    }
+    updatePosition() {
         var offset = 10;
         var left = this.rect.right;
         var top = this.rect.bottom;
@@ -37,8 +33,7 @@ var TooltipView = (function (_super) {
         if (top + this.$[0].offsetHeight >= $(document.body).height()) {
             top = this.rect.top - this.$[0].offsetHeight;
         }
-        this.$.css({ left: left, top: top, right: right });
-    };
-    return TooltipView;
-}(view.View));
+        this.$.css({ left, top, right });
+    }
+}
 exports.TooltipView = TooltipView;

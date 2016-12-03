@@ -3,13 +3,9 @@ function consistentPath(filePath) {
     return filePath.split('\\').join('/');
 }
 exports.consistentPath = consistentPath;
-var path = require("path");
-function resolve() {
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    return consistentPath(path.resolve.apply(path, args));
+const path = require("path");
+function resolve(...args) {
+    return consistentPath(path.resolve(...args));
 }
 exports.resolve = resolve;
 function isExt(path, ext) {

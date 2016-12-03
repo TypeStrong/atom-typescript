@@ -1,9 +1,9 @@
 "use strict";
-var path = require("path");
-var fs = require("fs");
-var fsu = require("../utils/fsUtil");
-var _atom = require("atom");
-var url = require("url");
+const path = require("path");
+const fs = require("fs");
+const fsu = require("../utils/fsUtil");
+const _atom = require("atom");
+const url = require("url");
 function getEditorPosition(editor) {
     var bufferPos = editor.getCursorBufferPosition();
     return getEditorPositionForBufferPosition(editor, bufferPos);
@@ -62,28 +62,28 @@ function getFilePathPosition() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();
     var position = getEditorPosition(editor);
-    return { filePath: filePath, position: position };
+    return { filePath, position };
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getFilePath() {
     var editor = atom.workspace.getActiveTextEditor();
     var filePath = editor.getPath();
-    return { filePath: filePath };
+    return { filePath };
 }
 exports.getFilePath = getFilePath;
 function getEditorsForAllPaths(filePaths) {
     var map = {};
-    var activeEditors = atom.workspace.getTextEditors().filter(function (editor) { return !!editor.getPath(); });
+    var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath());
     function addConsistentlyToMap(editor) {
         map[fsu.consistentPath(editor.getPath())] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
-    var newPaths = filePaths.filter(function (p) { return !map[p]; });
+    var newPaths = filePaths.filter(p => !map[p]);
     if (!newPaths.length)
         return Promise.resolve(map);
-    var promises = newPaths.map(function (p) { return atom.workspace.open(p, {}); });
-    return Promise.all(promises).then(function (editors) {
-        editors.forEach(function (editor) { return addConsistentlyToMap(editor); });
+    var promises = newPaths.map(p => atom.workspace.open(p, {}));
+    return Promise.all(promises).then(editors => {
+        editors.forEach(editor => addConsistentlyToMap(editor));
         return map;
     });
 }
@@ -97,24 +97,24 @@ function getRangeForTextSpan(editor, ts) {
 exports.getRangeForTextSpan = getRangeForTextSpan;
 function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
-        .filter(function (editor) { return !!editor.getPath(); })
-        .filter(function (editor) { return (path.extname(editor.getPath()) === '.ts'); });
+        .filter(editor => !!editor.getPath())
+        .filter(editor => (path.extname(editor.getPath()) === '.ts'));
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(function (e) { return fsu.consistentPath(e.getPath()); });
+    return getTypeScriptEditorsWithPaths().map(e => fsu.consistentPath(e.getPath()));
 }
 exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
     var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
-    setTimeout(function () {
+    setTimeout(() => {
         notification.dismiss();
     }, 800);
 }
 exports.quickNotifySuccess = quickNotifySuccess;
 function quickNotifyWarning(htmlMessage) {
     var notification = atom.notifications.addWarning(htmlMessage, { dismissable: true });
-    setTimeout(function () {
+    setTimeout(() => {
         notification.dismiss();
     }, 800);
 }
@@ -185,7 +185,7 @@ function editorInTheseScopes(matches) {
     var editor = atom.workspace.getActiveTextEditor();
     var scopes = editor.getLastCursor().getScopeDescriptor().scopes;
     var lastScope = scopes[scopes.length - 1];
-    if (matches.some(function (p) { return lastScope === p; }))
+    if (matches.some(p => lastScope === p))
         return lastScope;
     else
         return '';
@@ -200,7 +200,7 @@ function uriForPath(uriProtocol, filePath) {
 }
 exports.uriForPath = uriForPath;
 function registerOpener(config) {
-    atom.commands.add(config.commandSelector, config.commandName, function (e) {
+    atom.commands.add(config.commandSelector, config.commandName, (e) => {
         if (!commandForTypeScript(e))
             return;
         var uri = uriForPath(config.uriProtocol, getCurrentPath());
@@ -212,7 +212,7 @@ function registerOpener(config) {
     });
     atom.workspace.addOpener(function (uri, data) {
         try {
-            var protocol = url.parse(uri).protocol;
+            var { protocol } = url.parse(uri);
         }
         catch (error) {
             return;
@@ -233,8 +233,7 @@ function getFilePathRelativeToAtomProject(filePath) {
     return '~' + atom.project.relativize(filePath);
 }
 exports.getFilePathRelativeToAtomProject = getFilePathRelativeToAtomProject;
-function openFile(filePath, position) {
-    if (position === void 0) { position = {}; }
+function openFile(filePath, position = {}) {
     var config = {};
     if (position.line) {
         config.initialLine = position.line - 1;

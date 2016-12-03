@@ -1,5 +1,4 @@
 "use strict";
-var tslib_1 = require("tslib");
 var singleton;
 function simpleSelectionView(options) {
     if (!singleton)
@@ -12,57 +11,52 @@ function simpleSelectionView(options) {
     return singleton;
 }
 exports.simpleSelectionView = simpleSelectionView;
-var sp = require("atom-space-pen-views");
+const sp = require("atom-space-pen-views");
 var $ = sp.$;
-var SimpleSelectListView = (function (_super) {
-    tslib_1.__extends(SimpleSelectListView, _super);
-    function SimpleSelectListView(options) {
-        var _this = _super.call(this) || this;
-        _this.options = options;
-        _this.panel = null;
-        return _this;
+class SimpleSelectListView extends sp.SelectListView {
+    constructor(options) {
+        super();
+        this.options = options;
+        this.panel = null;
     }
-    Object.defineProperty(SimpleSelectListView.prototype, "$", {
-        get: function () {
-            return this;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    SimpleSelectListView.prototype.setItems = function () {
-        _super.prototype.setItems.call(this, this.options.items);
-    };
-    SimpleSelectListView.prototype.viewForItem = function (item) {
+    get $() {
+        return this;
+    }
+    setItems() {
+        super.setItems(this.options.items);
+    }
+    viewForItem(item) {
         var view = this.options.viewForItem(item);
         if (typeof view === "string") {
-            return "<li>\n                " + view + "\n            </li>";
+            return `<li>
+                ${view}
+            </li>`;
         }
         else {
             return $('<li></li>').append(view);
         }
         ;
-    };
-    SimpleSelectListView.prototype.confirmed = function (item) {
+    }
+    confirmed(item) {
         this.options.confirmed(item);
         this.hide();
-    };
-    SimpleSelectListView.prototype.getFilterKey = function () {
+    }
+    getFilterKey() {
         return this.options.filterKey;
-    };
-    SimpleSelectListView.prototype.show = function () {
+    }
+    show() {
         this.storeFocusedElement();
         if (!this.panel)
             this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show();
         this.focusFilterEditor();
-    };
-    SimpleSelectListView.prototype.hide = function () {
+    }
+    hide() {
         this.panel.hide();
         this.restoreFocus();
-    };
-    SimpleSelectListView.prototype.cancelled = function () {
+    }
+    cancelled() {
         this.hide();
-    };
-    return SimpleSelectListView;
-}(sp.SelectListView));
+    }
+}
 exports.SimpleSelectListView = SimpleSelectListView;

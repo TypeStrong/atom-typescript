@@ -1,14 +1,14 @@
 "use strict";
-var atomUtils = require("./atomUtils");
-var parent = require("../../worker/parent");
-var path = require("path");
-var fs = require("fs");
-var emissary = require("emissary");
+const atomUtils = require("./atomUtils");
+const atomts_1 = require("../atomts");
+const path = require("path");
+const fs = require("fs");
+const emissary = require("emissary");
 var Subscriber = emissary.Subscriber;
-var tooltipView = require("./views/tooltipView");
+const tooltipView = require("./views/tooltipView");
 var TooltipView = tooltipView.TooltipView;
-var atom_space_pen_views_1 = require("atom-space-pen-views");
-var escape = require("escape-html");
+const atom_space_pen_views_1 = require("atom-space-pen-views");
+const escape = require("escape-html");
 function getFromShadowDom(element, selector) {
     var el = element[0];
     var found = el.rootElement.querySelectorAll(selector);
@@ -25,13 +25,13 @@ function attach(editorView, editor) {
     if (!fs.existsSync(filePath)) {
         return;
     }
-    var clientPromise = parent.clients.get(filePath);
+    var clientPromise = atomts_1.clientResolver.get(filePath);
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip = null;
     var lastExprTypeBufferPt;
-    subscriber.subscribe(scroll, 'mousemove', function (e) {
+    subscriber.subscribe(scroll, 'mousemove', (e) => {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
@@ -39,11 +39,11 @@ function attach(editorView, editor) {
             return;
         lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
-        exprTypeTimeout = setTimeout(function () { return showExpressionType(e); }, 100);
+        exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', function (e) { return clearExprTypeTimeout(); });
-    subscriber.subscribe(scroll, 'keydown', function (e) { return clearExprTypeTimeout(); });
-    editor.onDidDestroy(function () { return deactivate(); });
+    subscriber.subscribe(scroll, 'mouseout', (e) => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
+    editor.onDidDestroy(() => deactivate());
     function showExpressionType(e) {
         if (exprTypeTooltip)
             return;
@@ -64,21 +64,18 @@ function attach(editorView, editor) {
             bottom: e.clientY + offset
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
-        clientPromise.then(function (client) {
+        clientPromise.then(client => {
             client.executeQuickInfo({
                 file: filePath,
                 line: bufferPt.row + 1,
                 offset: bufferPt.column + 1
-            }).then(function (_a) {
-                var _b = _a.body, displayString = _b.displayString, documentation = _b.documentation;
-                var message = "<b>" + escape(displayString) + "</b>";
+            }).then(({ body: { displayString, documentation } }) => {
+                var message = `<b>${escape(displayString)}</b>`;
                 if (documentation) {
-                    message = message + ("<br/><i>" + escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') + "</i>");
+                    message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />')}</i>`;
                 }
-                if (exprTypeTooltip) {
-                    exprTypeTooltip.updateText(message);
-                }
-            }, function () { });
+                exprTypeTooltip.updateText(message);
+            }, () => { });
         });
     }
     function deactivate() {

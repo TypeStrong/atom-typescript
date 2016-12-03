@@ -1,44 +1,54 @@
 "use strict";
-var tslib_1 = require("tslib");
-var client_1 = require("./client");
-var events = require("events");
-var path = require("path");
-var nodeResolve = require("resolve");
-var defaultServerPath = require.resolve("typescript/bin/tsserver");
-var ClientResolver = (function (_super) {
-    tslib_1.__extends(ClientResolver, _super);
-    function ClientResolver() {
-        var _this = _super.apply(this, arguments) || this;
-        _this.clients = {};
-        return _this;
+const tslib_1 = require("tslib");
+const client_1 = require("./client");
+const events = require("events");
+const path = require("path");
+const nodeResolve = require("resolve");
+const defaultServerPath = require.resolve("typescript/bin/tsserver");
+class ClientResolver extends events.EventEmitter {
+    constructor() {
+        super(...arguments);
+        this.clients = {};
     }
-    ClientResolver.prototype.get = function (filePath) {
-        var _this = this;
+    on(event, callback) {
+        return super.on(event, callback);
+    }
+    get(filePath) {
         return resolveServer(filePath)
-            .catch(function () { return defaultServerPath; })
-            .then(function (serverPath) {
-            if (_this.clients[serverPath]) {
-                return _this.clients[serverPath].client;
+            .catch(() => defaultServerPath)
+            .then(serverPath => {
+            if (this.clients[serverPath]) {
+                return this.clients[serverPath].client;
             }
-            var entry = _this.clients[serverPath] = {
+            const entry = this.clients[serverPath] = {
                 client: new client_1.TypescriptServiceClient(serverPath),
                 pending: [],
             };
             entry.client.startServer();
-            entry.client.on("pendingRequestsChange", function (pending) {
+            entry.client.on("pendingRequestsChange", pending => {
                 entry.pending = pending;
-                _this.emit("pendingRequestsChange");
+                this.emit("pendingRequestsChange");
             });
+            const diagnosticHandler = (type, result) => {
+                this.emit("diagnostics", {
+                    type,
+                    serverPath,
+                    filePath: result.file,
+                    diagnostics: result.diagnostics
+                });
+            };
+            entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"));
+            entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"));
+            entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"));
             return entry.client;
         });
-    };
-    return ClientResolver;
-}(events.EventEmitter));
+    }
+}
 exports.ClientResolver = ClientResolver;
 function resolveServer(sourcePath) {
-    var basedir = path.dirname(sourcePath);
-    return new Promise(function (resolve, reject) {
-        nodeResolve("typescript/bin/tsserver", { basedir: basedir }, function (err, resolvedPath) {
+    const basedir = path.dirname(sourcePath);
+    return new Promise((resolve, reject) => {
+        nodeResolve("typescript/bin/tsserver", { basedir }, (err, resolvedPath) => {
             if (err) {
                 reject(err);
             }

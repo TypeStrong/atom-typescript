@@ -52,6 +52,9 @@ export class TypescriptServiceClient {
   executeGetErr(args: protocol.GeterrRequestArgs) {
     this.execute("geterr", args)
   }
+  executeGetErrForProject(args: protocol.GeterrForProjectRequestArgs) {
+    this.execute("geterrForProject", args)
+  }
   executeOpen(args: protocol.OpenRequestArgs) {
     this.execute("open", args)
   }
@@ -73,6 +76,7 @@ export class TypescriptServiceClient {
   }
 
   /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
+  on(name: "configFileDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
   on(name: "pendingRequestsChange", listener: (requests: string[]) => any): Function
   on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
   on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function

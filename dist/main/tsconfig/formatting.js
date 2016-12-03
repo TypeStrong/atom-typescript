@@ -1,5 +1,5 @@
 "use strict";
-var os_1 = require("os");
+const os_1 = require("os");
 function defaultFormatCodeOptions() {
     return {
         baseIndentSize: 4,

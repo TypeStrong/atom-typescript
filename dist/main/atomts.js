@@ -1,180 +1,159 @@
 "use strict";
-var tslib_1 = require("tslib");
+const tslib_1 = require("tslib");
 console.log("be initializing them package");
 console.profile("atomts init");
-var startTime = process.hrtime();
-var _atom = require("atom");
-var atom_space_pen_views_1 = require("atom-space-pen-views");
-var mainPanelView_1 = require("./atom/views/mainPanelView");
-var fileStatusCache_1 = require("./atom/fileStatusCache");
-var _ = require("lodash");
-var hyperclickProvider = require("../hyperclickProvider");
-var atomConfig = require("./atom/atomConfig");
-var atomUtils = require("./atom/atomUtils");
-var autoCompleteProvider = require("./atom/autoCompleteProvider");
-var commands = require("./atom/commands/commands");
-var documentationView = require("./atom/views/documentationView");
-var fs = require("fs");
-var mainPanelView = require("./atom/views/mainPanelView");
-var path = require("path");
-var renameView = require("./atom/views/renameView");
-var tooltipManager = require("./atom/tooltipManager");
-var statusBarMessage;
-var editorWatch;
-var autoCompleteWatch;
-var parent = require("../worker/parent");
+const startTime = process.hrtime();
+const atom_space_pen_views_1 = require("atom-space-pen-views");
+const lodash_1 = require("lodash");
+const clientResolver_1 = require("../client/clientResolver");
+const fileStatusCache_1 = require("./atom/fileStatusCache");
+const atomConfig = require("./atom/atomConfig");
+const atomUtils = require("./atom/atomUtils");
+const autoCompleteProvider = require("./atom/autoCompleteProvider");
+const commands = require("./atom/commands/commands");
+const fs = require("fs");
+const hyperclickProvider = require("../hyperclickProvider");
+const mainPanel = require("../main/atom/views/mainPanelView");
+const mainPanelView = require("./atom/views/mainPanelView");
+const path = require("path");
+const renameView = require("./atom/views/renameView");
+const tooltipManager = require("./atom/tooltipManager");
+const tsconfig = require("tsconfig/dist/tsconfig");
+const error_pusher_1 = require("./error_pusher");
+exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
-var utils_1 = require("./lang/utils");
-var linter;
-var hideIfNotActiveOnStart = utils_1.debounce(function () {
+let linter;
+let errorPusher;
+let statusBarMessage;
+let editorWatch;
+let autoCompleteWatch;
+exports.clientResolver.on("pendingRequestsChange", () => {
+    if (!mainPanel.panelView)
+        return;
+    const pending = Object.keys(exports.clientResolver.clients)
+        .map(serverPath => exports.clientResolver.clients[serverPath].pending);
+    mainPanel.panelView.updatePendingRequests([].concat.apply([], pending));
+});
+var hideIfNotActiveOnStart = lodash_1.debounce(() => {
     var editor = atom.workspace.getActiveTextEditor();
     if (!atomUtils.onDiskAndTsRelated(editor)) {
         mainPanelView.hide();
     }
 }, 100);
-var attachViews = _.once(function () {
-    mainPanelView.attach();
-    documentationView.attach();
-    renameView.attach();
-});
-function readyToActivate() {
-    atom.workspace.onDidChangeActivePaneItem(function (editor) {
-        if (atomUtils.onDiskAndTs(editor)) {
-            var filePath = editor.getPath();
-            attachViews();
-            updatePanelConfig(filePath);
-            mainPanelView.panelView.updateFileStatus(filePath);
-            mainPanelView.show();
+function activate(state) {
+    console.log("activating them package", state);
+    require('atom-package-deps').install('atom-typescript').then(() => {
+        if (linter) {
+            errorPusher = new error_pusher_1.ErrorPusher(linter);
+            exports.clientResolver.on("diagnostics", ({ type, serverPath, filePath, diagnostics }) => {
+                errorPusher.addErrors(type + serverPath, filePath, diagnostics);
+            });
         }
-        else if (atomUtils.onDiskAndTsRelated(editor)) {
-            mainPanelView.show();
-        }
-        else {
-            mainPanelView.hide();
-        }
-    });
-    editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var filePath, client, editorView, ext, unsubSyntax_1, unsubSemantic_1, onDisk, changeObserver, fasterChangeObserver, saveObserver, destroyObserver;
-            return tslib_1.__generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        filePath = editor.getPath();
-                        console.log("opened editor", filePath);
-                        return [4 /*yield*/, parent.clients.get(filePath)];
-                    case 1:
-                        client = _a.sent();
-                        console.log("found client for editor", { filePath: filePath, client: client });
-                        editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
-                        tooltipManager.attach(editorView, editor);
-                        ext = path.extname(filePath);
-                        if (atomUtils.isAllowedExtension(ext)) {
-                            unsubSyntax_1 = client.on("syntaxDiag", function (diag) {
-                            });
-                            unsubSemantic_1 = client.on("semanticDiag", function (diag) {
-                                if (diag.file === filePath) {
-                                    console.log("semantic errors", diag);
-                                    mainPanelView_1.errorView.setErrors(filePath, diag.diagnostics.map(function (error) {
-                                        var preview = editor.buffer.getTextInRange(new _atom.Range([error.start.line - 1, error.start.offset - 1], [error.end.line - 1, error.end.offset - 1]));
-                                        return {
-                                            filePath: filePath,
-                                            startPos: { line: error.start.line - 1, col: error.start.offset - 1 },
-                                            endPos: { line: error.end.line - 1, col: error.end.offset - 1 },
-                                            message: error.text,
-                                            preview: preview
-                                        };
-                                    }));
-                                }
-                            });
-                            try {
-                                attachViews();
-                                client.executeOpen({
-                                    file: filePath,
-                                    fileContent: editor.getText()
-                                });
-                                updatePanelConfig(filePath);
-                                onDisk = false;
-                                if (fs.existsSync(filePath)) {
-                                    onDisk = true;
-                                }
-                                hideIfNotActiveOnStart();
-                                if (onDisk) {
-                                    client.executeGetErr({ files: [filePath], delay: 100 });
-                                }
-                                changeObserver = editor.onDidStopChanging(function () {
-                                    if (editor === atom.workspace.getActiveTextEditor()) {
-                                        var status_1 = fileStatusCache_1.getFileStatus(filePath);
-                                        status_1.modified = editor.isModified();
-                                        mainPanelView.panelView.updateFileStatus(filePath);
-                                    }
-                                    if (!onDisk) {
-                                        var root = { line: 0, col: 0 };
-                                        mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
-                                        return;
-                                    }
-                                    client.executeGetErr({ files: [filePath], delay: 100 });
-                                });
-                                fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
-                                    client.executeChange({
-                                        endLine: diff.oldRange.end.row + 1,
-                                        endOffset: diff.oldRange.end.column + 1,
-                                        file: editor.getPath(),
-                                        line: diff.oldRange.start.row + 1,
-                                        offset: diff.oldRange.start.column + 1,
-                                        insertString: diff.newText,
-                                    });
-                                });
-                                saveObserver = editor.onDidSave(function (event) {
-                                    console.log("saved", editor.getPath());
-                                    onDisk = true;
-                                    filePath = event.path;
-                                });
-                                destroyObserver = editor.onDidDestroy(function () {
-                                    client.executeClose({ file: editor.getPath() });
-                                    mainPanelView_1.errorView.setErrors(filePath, []);
-                                    changeObserver.dispose();
-                                    fasterChangeObserver.dispose();
-                                    saveObserver.dispose();
-                                    destroyObserver.dispose();
-                                    unsubSemantic_1();
-                                    unsubSyntax_1();
-                                });
-                            }
-                            catch (ex) {
-                                console.error('Solve this in atom-typescript', ex);
-                                throw ex;
-                            }
+        mainPanelView.attach();
+        renameView.attach();
+        atom.workspace.onDidChangeActivePaneItem((editor) => {
+            console.log("did change active panel", editor);
+            if (atomUtils.onDiskAndTs(editor)) {
+                var filePath = editor.getPath();
+                updatePanelConfig(filePath);
+                mainPanelView.panelView.updateFileStatus(filePath);
+                mainPanelView.show();
+            }
+            else if (atomUtils.onDiskAndTsRelated(editor)) {
+                mainPanelView.show();
+            }
+            else {
+                mainPanelView.hide();
+            }
+        });
+        editorWatch = atom.workspace.observeTextEditors(function (editor) {
+            return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                let filePath = editor.getPath();
+                console.log("opened editor", filePath);
+                let client = yield exports.clientResolver.get(filePath);
+                console.log("found client for editor", { filePath, client });
+                var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
+                tooltipManager.attach(editorView, editor);
+                var ext = path.extname(filePath);
+                if (atomUtils.isAllowedExtension(ext)) {
+                    try {
+                        client.executeOpen({
+                            file: filePath,
+                            fileContent: editor.getText()
+                        });
+                        updatePanelConfig(filePath);
+                        var onDisk = false;
+                        if (fs.existsSync(filePath)) {
+                            onDisk = true;
                         }
-                        return [2 /*return*/];
+                        hideIfNotActiveOnStart();
+                        if (onDisk) {
+                            client.executeGetErr({ files: [filePath], delay: 100 });
+                        }
+                        var changeObserver = editor.onDidStopChanging(() => {
+                            if (editor === atom.workspace.getActiveTextEditor()) {
+                                let status = fileStatusCache_1.getFileStatus(filePath);
+                                status.modified = editor.isModified();
+                                mainPanelView.panelView.updateFileStatus(filePath);
+                            }
+                            if (!onDisk) {
+                                console.log("file is not on disk..");
+                                return;
+                            }
+                            client.executeGetErr({ files: [filePath], delay: 100 });
+                        });
+                        var fasterChangeObserver = editor.buffer.onDidChange((diff) => {
+                            client.executeChange({
+                                endLine: diff.oldRange.end.row + 1,
+                                endOffset: diff.oldRange.end.column + 1,
+                                file: editor.getPath(),
+                                line: diff.oldRange.start.row + 1,
+                                offset: diff.oldRange.start.column + 1,
+                                insertString: diff.newText,
+                            });
+                        });
+                        var saveObserver = editor.onDidSave(function (event) {
+                            return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                                console.log("saved", editor.getPath());
+                                onDisk = true;
+                                if (filePath !== event.path) {
+                                    console.log("file path changed to", event.path);
+                                    client = yield exports.clientResolver.get(event.path);
+                                }
+                                filePath = event.path;
+                            });
+                        });
+                        var destroyObserver = editor.onDidDestroy(() => {
+                            client.executeClose({ file: editor.getPath() });
+                            changeObserver.dispose();
+                            fasterChangeObserver.dispose();
+                            saveObserver.dispose();
+                            destroyObserver.dispose();
+                        });
+                    }
+                    catch (ex) {
+                        console.error('Solve this in atom-typescript', ex);
+                        throw ex;
+                    }
                 }
             });
         });
+        commands.registerCommands();
     });
-    commands.registerCommands();
 }
+exports.activate = activate;
 function updatePanelConfig(filePath) {
-    parent.clients.get(filePath).then(function (client) {
+    exports.clientResolver.get(filePath).then(client => {
         client.executeProjectInfo({
             needFileNameList: false,
             file: filePath
-        }).then(function (result) {
+        }).then(result => {
             mainPanelView.panelView.setTsconfigInUse(result.body.configFileName);
-        }, function (err) {
+        }, err => {
             mainPanelView.panelView.setTsconfigInUse('');
         });
     });
 }
-function activate(state) {
-    console.log("activating them package", state);
-    atom.workspace.observeTextEditors(function (editor) {
-        console.log("opened editor", editor);
-        editor.observeGrammar(function (grammar) {
-            console.log("observed grammar", grammar);
-        });
-    });
-    require('atom-package-deps').install('atom-typescript').then(readyToActivate);
-}
-exports.activate = activate;
 function deactivate() {
     if (statusBarMessage)
         statusBarMessage.destroy();
@@ -189,11 +168,11 @@ function serialize() {
 }
 exports.serialize = serialize;
 function consumeLinter(registry) {
-    console.log("consume this");
+    console.log("consume linter");
     linter = registry.register({
-        name: "Typescript"
+        name: ""
     });
-    console.log("got linter", linter);
+    console.log("linter is", linter);
 }
 exports.consumeLinter = consumeLinter;
 function provide() {
@@ -204,5 +183,13 @@ function getHyperclickProvider() {
     return hyperclickProvider;
 }
 exports.getHyperclickProvider = getHyperclickProvider;
+function loadProjectConfig(sourcePath) {
+    return exports.clientResolver.get(sourcePath).then(client => {
+        return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
+            return tsconfig.load(result.body.configFileName);
+        });
+    });
+}
+exports.loadProjectConfig = loadProjectConfig;
 console.profileEnd();
 console.log("init took", process.hrtime(startTime));

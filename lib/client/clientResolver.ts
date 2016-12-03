@@ -2,6 +2,16 @@ import {TypescriptServiceClient as Client} from "./client"
 import * as events from "events"
 import * as path from "path"
 import * as nodeResolve from "resolve"
+import {Diagnostic, DiagnosticEventBody} from "typescript/lib/protocol"
+
+type DiagnosticTypes = "configFileDiag" | "semanticDiag" | "syntaxDiag"
+
+interface DiagnosticsPayload {
+  diagnostics: Diagnostic[]
+  filePath: string,
+  serverPath: string,
+  type: DiagnosticTypes,
+}
 
 const defaultServerPath = require.resolve("typescript/bin/tsserver")
 
@@ -17,6 +27,13 @@ export class ClientResolver extends events.EventEmitter {
       pending: string[],
     }
   } = {}
+
+  // This is just here so Typescript can infer the types of the callbacks when using "on" method
+  on(event: "diagnostics", callback: (result: DiagnosticsPayload) => any): this
+  on(event: "pendingRequestsChange", callback: Function): this
+  on(event: string, callback: Function): this {
+    return super.on(event, callback)
+  }
 
   get(filePath: string): Promise<Client> {
     return resolveServer(filePath)
@@ -37,6 +54,19 @@ export class ClientResolver extends events.EventEmitter {
           entry.pending = pending
           this.emit("pendingRequestsChange")
         })
+
+        const diagnosticHandler = (type: string, result: DiagnosticEventBody) => {
+          this.emit("diagnostics", {
+            type,
+            serverPath,
+            filePath: result.file,
+            diagnostics: result.diagnostics
+          })
+        }
+
+        entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"))
+        entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"))
+        entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"))
 
         return entry.client
       })

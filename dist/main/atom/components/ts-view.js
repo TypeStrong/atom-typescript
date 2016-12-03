@@ -1,11 +1,6 @@
 "use strict";
-var tslib_1 = require("tslib");
-var TsView = (function (_super) {
-    tslib_1.__extends(TsView, _super);
-    function TsView() {
-        return _super.apply(this, arguments) || this;
-    }
-    TsView.prototype.createdCallback = function () {
+class TsView extends HTMLElement {
+    createdCallback() {
         var preview = this.innerText;
         this.innerText = "";
         var editorElement = this.editorElement = document.createElement('atom-text-editor');
@@ -18,11 +13,10 @@ var TsView = (function (_super) {
         editor.setGrammar(grammar);
         editor.setSoftWrapped(true);
         this.appendChild(editorElement);
-    };
-    TsView.prototype.text = function (text) {
+    }
+    text(text) {
         this.editor.setText(text);
-    };
-    return TsView;
-}(HTMLElement));
+    }
+}
 exports.TsView = TsView;
 document.registerElement('ts-view', TsView);

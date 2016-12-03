@@ -1,7 +1,7 @@
 "use strict";
-var fsUtil_1 = require("../utils/fsUtil");
+const fsUtil_1 = require("../utils/fsUtil");
 ;
-var fileStatuses = {};
+let fileStatuses = {};
 function getFileStatus(filePath) {
     filePath = fsUtil_1.consistentPath(filePath);
     if (!fileStatuses[filePath]) {

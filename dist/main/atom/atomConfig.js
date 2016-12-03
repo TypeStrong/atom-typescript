@@ -1,5 +1,5 @@
 "use strict";
-var utils_1 = require("../lang/utils");
+const utils_1 = require("../lang/utils");
 var packageName = 'atom-typescript';
 function getConfig(nameLambda) {
     return atom.config.get(packageName + '.' + utils_1.getName(nameLambda));
@@ -7,8 +7,8 @@ function getConfig(nameLambda) {
 function setConfig(nameLambda, value) {
     return atom.config.set(packageName + '.' + utils_1.getName(nameLambda), value);
 }
-var Config = (function () {
-    function Config() {
+class Config {
+    constructor() {
         this.schema = {
             preferredQuoteCharacter: {
                 title: 'Preferred quote character',
@@ -27,35 +27,10 @@ var Config = (function () {
             }
         };
     }
-    Object.defineProperty(Config.prototype, "preferredQuoteCharacter", {
-        get: function () {
-            var _this = this;
-            return getConfig(function () { return _this.schema.preferredQuoteCharacter; });
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Config.prototype, "typescriptServices", {
-        get: function () {
-            var _this = this;
-            return getConfig(function () { return _this.schema.typescriptServices; });
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Config.prototype, "showSemanticView", {
-        get: function () {
-            var _this = this;
-            return getConfig(function () { return _this.schema.showSemanticView; });
-        },
-        set: function (value) {
-            var _this = this;
-            setConfig(function () { return _this.schema.showSemanticView; }, value);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return Config;
-}());
+    get preferredQuoteCharacter() { return getConfig(() => this.schema.preferredQuoteCharacter); }
+    get typescriptServices() { return getConfig(() => this.schema.typescriptServices); }
+    get showSemanticView() { return getConfig(() => this.schema.showSemanticView); }
+    set showSemanticView(value) { setConfig(() => this.schema.showSemanticView, value); }
+}
 var config = new Config();
 module.exports = config;

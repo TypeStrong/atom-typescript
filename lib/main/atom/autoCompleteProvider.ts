@@ -3,7 +3,7 @@
 
 import atomUtils = require('./atomUtils')
 import fs = require('fs')
-import parent = require('../../worker/parent')
+import {clientResolver} from "../atomts"
 
 declare module autocompleteplus {
     /** What gets passed into the handler */
@@ -63,7 +63,7 @@ export var provider: autocompleteplus.Provider = {
         if (!filePath || !fs.existsSync(filePath))
           return [];
 
-        const client = await parent.clients.get(filePath)
+        const client = await clientResolver.get(filePath)
 
         // var {isReference, isRequire, isImport} = getModuleAutocompleteType(options.scopeDescriptor.scopes)
         //
@@ -153,6 +153,6 @@ export var provider: autocompleteplus.Provider = {
                     };
                 // }
               });
-          });
+          }).catch(() => [])
     },
 }

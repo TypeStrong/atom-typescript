@@ -1,11 +1,18 @@
 "use strict";
-var escapeHtml = require("escape-html");
+const escapeHtml = require("escape-html");
 function create(type, comment) {
-    var overlayHTML = "\n    <strong>" + escapeHtml(type) + "</strong>\n  ";
+    let overlayHTML = `
+    <strong>${escapeHtml(type)}</strong>
+  `;
     if (comment) {
-        overlayHTML += "\n      <br/>\n      <div class='comment'>\n        " + escapeHtml(comment).replace(/(?:\r\n|\r|\n)/g, '<br/>') + "\n      </div>\n    ";
+        overlayHTML += `
+      <br/>
+      <div class='comment'>
+        ${escapeHtml(comment).replace(/(?:\r\n|\r|\n)/g, '<br/>')}
+      </div>
+    `;
     }
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.className = 'atomts-show-type-view';
     overlay.innerHTML = overlayHTML;
     return overlay;

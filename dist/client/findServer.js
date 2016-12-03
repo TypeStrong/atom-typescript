@@ -1,32 +1,31 @@
 "use strict";
-var fs = require("fs");
-var path = require("path");
+const fs = require("fs");
+const path = require("path");
 function findTypescriptServers(root) {
-    var results = [];
+    const results = [];
     if (!path.isAbsolute(root)) {
         throw new Error("Argument should be an absolute path");
     }
-    return new Promise(function (resolve) {
-        walk(root, function () {
+    return new Promise(resolve => {
+        walk(root, () => {
             resolve(results);
         });
     });
     function walk(dir, done) {
-        fs.readdir(dir, function (err, files) {
+        fs.readdir(dir, (err, files) => {
             if (err || files.length === 0)
                 return done();
-            var doneEntry = after(files.length, function () {
+            const doneEntry = after(files.length, () => {
                 done();
             });
-            for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-                var entry = files_1[_i];
+            for (const entry of files) {
                 if (entry === "node_modules") {
-                    fs.stat(path.join(dir, entry, "typescript"), function (err) {
+                    fs.stat(path.join(dir, entry, "typescript"), err => {
                         if (err) {
                             doneEntry();
                         }
                         else {
-                            getServerInfo(dir, function (err, info) {
+                            getServerInfo(dir, (err, info) => {
                                 if (info)
                                     results.push(info);
                                 doneEntry();
@@ -46,20 +45,20 @@ function findTypescriptServers(root) {
 }
 exports.findTypescriptServers = findTypescriptServers;
 function getServerInfo(prefix, callback) {
-    var tsDir = path.join(prefix, "node_modules", "typescript");
-    fs.readFile(path.join(tsDir, "package.json"), "utf8", function (err, pkg) {
+    const tsDir = path.join(prefix, "node_modules", "typescript");
+    fs.readFile(path.join(tsDir, "package.json"), "utf8", (err, pkg) => {
         if (err)
             return callback(err, null);
         try {
-            var version_1 = JSON.parse(pkg).version;
-            var tsServerPath_1 = path.join(tsDir, "bin", "tsserver");
-            fs.stat(tsServerPath_1, function (err, stat) {
+            const version = JSON.parse(pkg).version;
+            const tsServerPath = path.join(tsDir, "bin", "tsserver");
+            fs.stat(tsServerPath, (err, stat) => {
                 if (err)
                     return callback(err, null);
                 callback(null, {
-                    binPath: tsServerPath_1,
-                    prefix: prefix,
-                    version: version_1
+                    binPath: tsServerPath,
+                    prefix,
+                    version
                 });
             });
         }
@@ -69,7 +68,7 @@ function getServerInfo(prefix, callback) {
     });
 }
 function after(count, callback) {
-    var called = 0;
+    let called = 0;
     return function () {
         called++;
         if (called >= count) {

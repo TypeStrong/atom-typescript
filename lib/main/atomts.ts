@@ -3,39 +3,45 @@ console.profile("atomts init")
 
 const startTime = process.hrtime()
 
-import _atom = require('atom')
 import {$} from "atom-space-pen-views"
-import {errorView} from "./atom/views/mainPanelView"
+import {debounce} from "lodash"
+import {ClientResolver} from "../client/clientResolver"
 import {getFileStatus} from "./atom/fileStatusCache"
-import * as _ from "lodash"
+import * as atomConfig from './atom/atomConfig'
+import * as atomUtils from './atom/atomUtils'
+import * as autoCompleteProvider from './atom/autoCompleteProvider'
+import * as commands from "./atom/commands/commands"
+import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
-import atomConfig = require('./atom/atomConfig')
-import atomUtils = require('./atom/atomUtils')
-import autoCompleteProvider = require('./atom/autoCompleteProvider')
-import commands = require("./atom/commands/commands")
-import documentationView = require('./atom/views/documentationView')
-import fs = require('fs')
-import mainPanelView = require("./atom/views/mainPanelView")
-import path = require('path')
-import renameView = require('./atom/views/renameView')
-import tooltipManager = require('./atom/tooltipManager')
+import * as mainPanel from "../main/atom/views/mainPanelView"
+import * as mainPanelView from "./atom/views/mainPanelView"
+import * as path from 'path'
+import * as renameView from './atom/views/renameView'
+import * as tooltipManager from './atom/tooltipManager'
+import * as tsconfig from "tsconfig/dist/tsconfig"
+import {LinterRegistry, Linter} from "../typings/linter"
+import {ErrorPusher} from "./error_pusher"
 
 // globals
-var statusBarMessage;
-var editorWatch: AtomCore.Disposable;
-var autoCompleteWatch: AtomCore.Disposable;
-
-export interface PackageState {}
-
-import parent = require('../worker/parent');
-
-// Export config
-export var config = atomConfig.schema;
-import {debounce} from "./lang/utils";
-
-import {LinterRegistry, Linter} from "../linter"
-
+export const clientResolver = new ClientResolver()
+export const config = atomConfig.schema
 let linter: Linter
+let errorPusher: ErrorPusher
+let statusBarMessage
+let editorWatch: AtomCore.Disposable
+let autoCompleteWatch: AtomCore.Disposable
+
+interface PackageState {}
+
+clientResolver.on("pendingRequestsChange", () => {
+  // We only start once the panel view is initialized
+  if (!mainPanel.panelView) return;
+
+  const pending = Object.keys(clientResolver.clients)
+    .map(serverPath => clientResolver.clients[serverPath].pending)
+
+  mainPanel.panelView.updatePendingRequests([].concat.apply([], pending))
+})
 
 var hideIfNotActiveOnStart = debounce(() => {
     // Only show if this editor is active:
@@ -45,35 +51,32 @@ var hideIfNotActiveOnStart = debounce(() => {
     }
 }, 100);
 
-const attachViews = _.once(() => {
-    mainPanelView.attach();
+export function activate(state: PackageState) {
+    console.log("activating them package", state)
 
-    // Add the documentation view
-    documentationView.attach();
+    require('atom-package-deps').install('atom-typescript').then(() => {
+
+    if (linter) {
+      errorPusher = new ErrorPusher(linter)
+
+      clientResolver.on("diagnostics", ({type, serverPath, filePath, diagnostics}) => {
+        errorPusher.addErrors(type + serverPath, filePath, diagnostics)
+      })
+    }
+
+    mainPanelView.attach();
 
     // Add the rename view
     renameView.attach();
-})
-
-/** only called once we have our dependencies */
-function readyToActivate() {
 
     // Observe changed active editor
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
+        console.log("did change active panel", editor)
+
         if (atomUtils.onDiskAndTs(editor)) {
             var filePath = editor.getPath();
 
-            attachViews()
             updatePanelConfig(filePath);
-
-            // // Refresh errors stuff on change active tab.
-            // // Because the fix might be in the other file
-            // // or the other file might have made this file have an error
-            // parent.errorsForFile({ filePath: filePath })
-            //     .then((resp) => {
-            //         errorView.setErrors(filePath, resp.errors)
-            //         atomUtils.triggerLinter();
-            //     });
 
             mainPanelView.panelView.updateFileStatus(filePath);
             mainPanelView.show();
@@ -91,7 +94,7 @@ function readyToActivate() {
         let filePath = editor.getPath()
         console.log("opened editor", filePath)
 
-        let client = await parent.clients.get(filePath)
+        let client = await clientResolver.get(filePath)
         console.log("found client for editor", {filePath, client})
 
         // subscribe for tooltips
@@ -101,40 +104,7 @@ function readyToActivate() {
 
         var ext = path.extname(filePath);
         if (atomUtils.isAllowedExtension(ext)) {
-
-            // Listen for error events for this file and display them
-            const unsubSyntax = client.on("syntaxDiag", diag => {
-              // console.log("syntax errors", diag)
-            })
-
-            const unsubSemantic = client.on("semanticDiag", diag => {
-              if (diag.file === filePath) {
-                console.log("semantic errors", diag)
-
-                errorView.setErrors(filePath, diag.diagnostics.map(error => {
-                  const preview = editor.buffer.getTextInRange(
-                    new _atom.Range(
-                      [error.start.line-1, error.start.offset-1],
-                      [error.end.line-1, error.end.offset-1]))
-
-                  return {
-                    filePath: filePath,
-                    startPos: {line: error.start.line - 1, col: error.start.offset - 1},
-                    endPos: {line: error.end.line - 1, col: error.end.offset - 1},
-                    message: error.text,
-                    preview
-                  }
-
-
-                }))
-              }
-            })
-
-
             try {
-                // Only once stuff
-                attachViews()
-
                 client.executeOpen({
                   file: filePath,
                   fileContent: editor.getText()
@@ -186,11 +156,8 @@ function readyToActivate() {
 
                     // If the file isn't saved and we just show an error to guide the user
                     if (!onDisk) {
-                        var root = { line: 0, col: 0 };
-                        errorView.setErrors(filePath,
-                            [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]
-                            );
-                        return;
+                        console.log("file is not on disk..")
+                        return
                     }
 
                     // Set errors in project per file
@@ -240,20 +207,23 @@ function readyToActivate() {
                 });
 
                 // Observe editors saving
-                var saveObserver = editor.onDidSave((event) => {
+                var saveObserver = editor.onDidSave(async function(event) {
                     console.log("saved", editor.getPath())
-                    onDisk = true;
+
+                    onDisk = true
                     // If this is a saveAs event.path will be different so we should change it
-                    filePath = event.path;
-                    // onSaveHandler.handle({ filePath: filePath, editor: editor });
+
+                    if (filePath !== event.path) {
+                      console.log("file path changed to", event.path)
+                      client = await clientResolver.get(event.path)
+                    }
+
+                    filePath = event.path
                 });
 
                 // Observe editors closing
                 var destroyObserver = editor.onDidDestroy(() => {
                     client.executeClose({file: editor.getPath()})
-
-                    // Clear errors in view
-                    errorView.setErrors(filePath, []);
 
                     // Clear editor observers
                     changeObserver.dispose();
@@ -261,8 +231,6 @@ function readyToActivate() {
                     saveObserver.dispose();
                     destroyObserver.dispose();
 
-                    unsubSemantic()
-                    unsubSyntax()
                 });
 
             } catch (ex) {
@@ -274,11 +242,13 @@ function readyToActivate() {
 
     // Register the commands
     commands.registerCommands();
+
+    })
 }
 
 /** Update the panel with the configu resolved from the given source file */
 function updatePanelConfig(filePath: string) {
-  parent.clients.get(filePath).then(client => {
+  clientResolver.get(filePath).then(client => {
     client.executeProjectInfo({
       needFileNameList: false,
       file: filePath
@@ -288,20 +258,6 @@ function updatePanelConfig(filePath: string) {
       mainPanelView.panelView.setTsconfigInUse('');
     })
   })
-}
-
-export function activate(state: PackageState) {
-    console.log("activating them package", state)
-
-    atom.workspace.observeTextEditors(function(editor){
-        console.log("opened editor", editor)
-
-        editor.observeGrammar(function(grammar) {
-            console.log("observed grammar", grammar)
-        })
-    })
-
-    require('atom-package-deps').install('atom-typescript').then(readyToActivate)
 }
 
 export function deactivate() {
@@ -315,13 +271,13 @@ export function serialize(): PackageState {
 }
 
 export function consumeLinter(registry: LinterRegistry) {
-    console.log("consume this")
+    console.log("consume linter")
 
     linter = registry.register({
-        name: "Typescript"
+      name: ""
     })
 
-    console.log("got linter", linter)
+    console.log("linter is", linter)
 }
 
 // Registering an autocomplete provider
@@ -331,6 +287,14 @@ export function provide() {
 
 export function getHyperclickProvider() {
   return hyperclickProvider;
+}
+
+export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
+  return clientResolver.get(sourcePath).then(client => {
+    return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {
+      return tsconfig.load(result.body.configFileName)
+    })
+  })
 }
 
 console.profileEnd()

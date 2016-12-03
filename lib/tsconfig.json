@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "module": "commonjs",
         "declaration": false,
         "lib": ["es6", "dom"],
@@ -14,9 +14,6 @@
         "sourceMap": false,
         "jsx": "react",
         "types": []
-    },
-    "dts": {
-        "name": "atom-typescript"
     },
     "atom": {
         "formatOnSave": false

@@ -1,5 +1,5 @@
 "use strict";
-var TS_GRAMMARS = new Set(["source.ts", "source.tsx"]);
+const TS_GRAMMARS = new Set(["source.ts", "source.tsx"]);
 exports.providerName = "typescript-hyperclick-provider";
 exports.wordRegExp = /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g;
 function getSuggestionForWord(textEditor, text, range) {
@@ -8,7 +8,7 @@ function getSuggestionForWord(textEditor, text, range) {
     }
     return {
         range: range,
-        callback: function () {
+        callback() {
         }
     };
 }

@@ -1,4 +1,4 @@
-import parent = require("../../../worker/parent");
+import {clientResolver} from "../../atomts"
 import atomUtils = require("../atomUtils");
 import autoCompleteProvider = require("../autoCompleteProvider");
 // import path = require('path');
@@ -170,7 +170,7 @@ export function registerCommands() {
       var position = cursor.getBufferPosition()
       var filePath = editor.getPath();
 
-      parent.clients.get(filePath).then(client => {
+      clientResolver.get(filePath).then(client => {
         return client.executeQuickInfo({
             file: filePath,
             line: position.row+1,

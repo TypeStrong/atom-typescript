@@ -2,7 +2,6 @@ import view = require('./view');
 
 import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
-import * as utils from "../../lang/utils";
 
 var panelHeaders = {
     error: 'Errors In Open Files',
@@ -502,70 +501,4 @@ export function show() {
 export function hide() {
     if (!panelView) return;
     panelView.$.hide();
-}
-
-
-export module errorView {
-    const MAX_ERRORS = 50;
-
-    var filePathErrors: utils.Dict<CodeError[]> = new utils.Dict<any[]>();
-
-    export var setErrors = (filePath: string, errorsForFile: CodeError[]) => {
-        if (!panelView || !panelView.clearError) {
-          // if not initialized, just quit; might happen when atom is first opened.
-          return;
-        }
-
-        if (!errorsForFile.length) {
-          filePathErrors.clearValue(filePath);
-        } else {
-          // Currently we are limiting errors
-          // Too many errors crashes our display
-          if (errorsForFile.length > MAX_ERRORS) {
-            errorsForFile = errorsForFile.slice(0, MAX_ERRORS);
-          }
-
-          filePathErrors.setValue(filePath, errorsForFile)
-        }
-
-        // TODO: this needs to be optimized at some point
-        panelView.clearError();
-
-        var fileErrorCount = filePathErrors.keys().length;
-
-        // Update the errors list for goto history
-        gotoHistory.errorsInOpenFiles.members = [];
-
-        if (!fileErrorCount) {
-            panelView.setErrorPanelErrorCount(0, 0);
-        }
-        else {
-            var totalErrorCount = 0;
-            for (var path in filePathErrors.table) {
-                filePathErrors.getValue(path).forEach((error: CodeError) => {
-                    totalErrorCount++;
-                    panelView.addError(new lineMessageView.LineMessageView({
-                        goToLine: (filePath, line, col) => gotoHistory.gotoLine(filePath, line, col, gotoHistory.errorsInOpenFiles),
-                        message: error.message,
-                        line: error.startPos.line + 1,
-                        col: error.startPos.col,
-                        file: error.filePath,
-                        preview: error.preview
-                    }));
-                    // Update the errors list for goto history
-                    gotoHistory.errorsInOpenFiles.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
-                });
-            }
-            panelView.setErrorPanelErrorCount(fileErrorCount, totalErrorCount);
-        }
-    };
-
-    export function showEmittedMessage(output: EmitOutput) {
-        if (output.emitError) {
-            atom.notifications.addError('TS Emit Failed');
-        } else if (!output.success) {
-            atomUtils.quickNotifyWarning('Compile failed but emit succeeded<br/>' + output.outputFiles.join('<br/>'));
-        }
-    }
-
 }

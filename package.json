@@ -4,7 +4,9 @@
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
-  "activationHooks": ["atom-typescript:grammar-used"],
+  "activationHooks": [
+    "atom-typescript:grammar-used"
+  ],
   "scripts": {
     "build": "ts-node scripts/grammar.ts",
     "test": "tsc -p ./lib && tsc --noEmit -p ./scripts"
@@ -44,6 +46,7 @@
   "dependencies": {
     "@types/atom": "0.0.35",
     "@types/byline": "^4.2.31",
+    "@types/lodash": "4.14.41",
     "@types/resolve": "0.0.4",
     "atom-package-deps": "^2.0.3",
     "atom-space-pen-views": "^2.0.4",

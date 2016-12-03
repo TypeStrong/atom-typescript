@@ -1,10 +1,8 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-///ts:import=atomUtils
 import atomUtils = require('./atomUtils'); ///ts:import:generated
-///ts:import=parent
-import parent = require('../../worker/parent'); ///ts:import:generated
+import {clientResolver} from "../atomts"
 
 import path = require('path');
 import fs = require('fs');
@@ -35,7 +33,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         return;
     }
 
-    var clientPromise = parent.clients.get(filePath)
+    var clientPromise = clientResolver.get(filePath)
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
@@ -97,10 +95,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
               if (documentation) {
                   message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
               }
-              // Sorry about this "if". It's in the code I copied so I guess its there for a reason
-              if (exprTypeTooltip) {
-                  exprTypeTooltip.updateText(message);
-              }
+              exprTypeTooltip.updateText(message);
           }, () => { /* ignore the errors */ })
         })
     }

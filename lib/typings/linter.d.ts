@@ -1,6 +1,6 @@
 export interface Linter {
     deleteMessages()
-    sendMessages(messages: LinterMessage[])
+    setMessages(messages: LinterMessage[])
     dispose()
 }
 
