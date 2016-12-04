@@ -38,7 +38,8 @@ export class TypescriptServiceClient {
     completions: true,
     occurrences: true,
     projectInfo: true,
-    quickinfo: true
+    quickinfo: true,
+    reload: true,
   }
 
   executeChange(args: protocol.ChangeRequestArgs) {
@@ -67,6 +68,9 @@ export class TypescriptServiceClient {
   }
   executeQuickInfo(args: protocol.FileLocationRequestArgs): Promise<protocol.QuickInfoResponse> {
     return this.execute("quickinfo", args)
+  }
+  executeReload(args: protocol.ReloadRequestArgs): Promise<protocol.ReloadResponse> {
+    return this.execute("reload", args)
   }
 
   execute(command: string, args): Promise<any> {

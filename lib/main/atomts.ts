@@ -64,7 +64,7 @@ export function activate(state: PackageState) {
 
       const panes: TypescriptEditorPane[] = []
 
-      const checkErrors = debounce((pane: TypescriptEditorPane) => {
+      const onSave = debounce((pane: TypescriptEditorPane) => {
         console.log("checking errors for all panes for", pane.filePath)
 
         const files = panes
@@ -78,7 +78,7 @@ export function activate(state: PackageState) {
 
       subscriptions.add(atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
         panes.push(new TypescriptEditorPane(editor, {
-          checkErrors
+          onSave
         }))
       }))
 

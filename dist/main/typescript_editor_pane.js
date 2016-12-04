@@ -18,6 +18,12 @@ class TypescriptEditorPane {
             this.activeAt = Date.now();
             if (this.isTypescript && this.filePath) {
                 mainPanelView.show();
+                if (this.client) {
+                    this.client.executeGetErr({
+                        files: [this.filePath],
+                        delay: 100
+                    });
+                }
             }
         };
         this.onDeactivated = () => {
@@ -64,14 +70,21 @@ class TypescriptEditorPane {
                 console.log("file path changed to", event.path);
                 this.client = yield atomts_1.clientResolver.get(event.path);
                 this.filePath = event.path;
+                this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
+            }
+            if (this.onSave) {
+                this.onSave(this);
             }
         });
         this.onDidStopChanging = () => {
-            if ((this.isTypescript && this.filePath) || this.isTSConfig) {
-                this.checkErrors(this);
+            if (this.isTypescript && this.filePath) {
+                this.client.executeGetErr({
+                    files: [this.filePath],
+                    delay: 100
+                });
             }
         };
-        this.checkErrors = opts.checkErrors;
+        this.onSave = opts.onSave;
         this.editor = editor;
         this.filePath = editor.getPath();
         this.isTypescript = isTypescriptGrammar(editor.getGrammar());
@@ -93,7 +106,10 @@ class TypescriptEditorPane {
                     file: this.filePath,
                     fileContent: this.editor.getText()
                 });
-                this.checkErrors(this);
+                this.client.executeGetErr({
+                    files: [this.filePath],
+                    delay: 100
+                });
                 this.isOpen = true;
                 this.updatePanelConfig();
             }

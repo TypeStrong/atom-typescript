@@ -57,6 +57,9 @@ class TypescriptServiceClient {
     executeQuickInfo(args) {
         return this.execute("quickinfo", args);
     }
+    executeReload(args) {
+        return this.execute("reload", args);
+    }
     execute(command, args) {
         return this.serverPromise.then(cp => {
             const expectResponse = !!TypescriptServiceClient.commandWithResponse[command];
@@ -139,7 +142,8 @@ TypescriptServiceClient.commandWithResponse = {
     completions: true,
     occurrences: true,
     projectInfo: true,
-    quickinfo: true
+    quickinfo: true,
+    reload: true,
 };
 function isEvent(res) {
     return res.type === "event";

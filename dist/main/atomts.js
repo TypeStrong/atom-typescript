@@ -40,7 +40,7 @@ function activate(state) {
         renameView.attach();
         commands.registerCommands();
         const panes = [];
-        const checkErrors = lodash_1.debounce((pane) => {
+        const onSave = lodash_1.debounce((pane) => {
             console.log("checking errors for all panes for", pane.filePath);
             const files = panes
                 .sort((a, b) => a.activeAt - b.activeAt)
@@ -50,7 +50,7 @@ function activate(state) {
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescript_editor_pane_1.TypescriptEditorPane(editor, {
-                checkErrors
+                onSave
             }));
         }));
         let activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());

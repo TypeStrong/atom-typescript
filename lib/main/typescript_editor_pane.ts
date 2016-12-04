@@ -15,13 +15,13 @@ type onChangeObserver = (diff: {
 }) => any
 
 interface PaneOptions {
-  checkErrors: (pane: TypescriptEditorPane) => any
+  onSave: (pane: TypescriptEditorPane) => any
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
   activeAt: number
 
-  checkErrors: (pane: TypescriptEditorPane) => any
+  onSave: (pane: TypescriptEditorPane) => any
   client: TypescriptServiceClient
   filePath: string
 
@@ -35,7 +35,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   readonly subscriptions = new CompositeDisposable()
 
   constructor(editor: AtomCore.IEditor, opts: PaneOptions) {
-    this.checkErrors = opts.checkErrors
+    this.onSave = opts.onSave
     this.editor = editor
     this.filePath = editor.getPath()
 
@@ -65,7 +65,10 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
           fileContent: this.editor.getText()
         })
 
-        this.checkErrors(this)
+        this.client.executeGetErr({
+          files: [this.filePath],
+          delay: 100
+        })
 
         this.isOpen = true
         this.updatePanelConfig()
@@ -88,6 +91,14 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
     if (this.isTypescript && this.filePath) {
       mainPanelView.show()
+
+      if (this.client) {
+        // The first activation might happen before we even have a client
+        this.client.executeGetErr({
+          files: [this.filePath],
+          delay: 100
+        })
+      }
     }
   }
 
@@ -143,12 +154,20 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       console.log("file path changed to", event.path)
       this.client = await clientResolver.get(event.path)
       this.filePath = event.path
+      this.isTSConfig = basename(this.filePath) === "tsconfig.json"
+    }
+
+    if (this.onSave) {
+      this.onSave(this)
     }
   }
 
   onDidStopChanging = () => {
-    if ((this.isTypescript && this.filePath) || this.isTSConfig) {
-      this.checkErrors(this)
+    if (this.isTypescript && this.filePath) {
+      this.client.executeGetErr({
+        files: [this.filePath],
+        delay: 100
+      })
     }
   }
 
