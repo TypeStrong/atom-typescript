@@ -19,6 +19,7 @@ const path = require("path");
 const renameView = require("./atom/views/renameView");
 const tooltipManager = require("./atom/tooltipManager");
 const tsconfig = require("tsconfig/dist/tsconfig");
+const tsUtil_1 = require("./utils/tsUtil");
 const error_pusher_1 = require("./error_pusher");
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
@@ -90,6 +91,27 @@ function activate(state) {
                         if (onDisk) {
                             client.executeGetErr({ files: [filePath], delay: 100 });
                         }
+                        const markers = [];
+                        editor.onDidChangeCursorPosition(() => {
+                            for (const marker of markers) {
+                                marker.destroy();
+                            }
+                            const pos = editor.getLastCursor().getBufferPosition();
+                            client.executeOccurances({
+                                file: filePath,
+                                line: pos.row + 1,
+                                offset: pos.column + 1
+                            }).then(result => {
+                                for (const ref of result.body) {
+                                    const marker = editor.markBufferRange(tsUtil_1.spanToRange(ref));
+                                    editor.decorateMarker(marker, {
+                                        type: "highlight",
+                                        class: "atom-typescript-occurrence"
+                                    });
+                                    markers.push(marker);
+                                }
+                            }).catch(() => null);
+                        });
                         var changeObserver = editor.onDidStopChanging(() => {
                             if (editor === atom.workspace.getActiveTextEditor()) {
                                 let status = fileStatusCache_1.getFileStatus(filePath);

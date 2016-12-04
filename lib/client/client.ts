@@ -36,6 +36,7 @@ export class TypescriptServiceClient {
 
   static commandWithResponse = {
     completions: true,
+    occurrences: true,
     projectInfo: true,
     quickinfo: true
   }
@@ -54,6 +55,9 @@ export class TypescriptServiceClient {
   }
   executeGetErrForProject(args: protocol.GeterrForProjectRequestArgs) {
     this.execute("geterrForProject", args)
+  }
+  executeOccurances(args: protocol.FileLocationRequestArgs): Promise<protocol.OccurrencesResponse> {
+    return this.execute("occurrences", args)
   }
   executeOpen(args: protocol.OpenRequestArgs) {
     this.execute("open", args)

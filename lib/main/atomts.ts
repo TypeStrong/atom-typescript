@@ -19,6 +19,7 @@ import * as path from 'path'
 import * as renameView from './atom/views/renameView'
 import * as tooltipManager from './atom/tooltipManager'
 import * as tsconfig from "tsconfig/dist/tsconfig"
+import {spanToRange} from "./utils/tsUtil"
 import {LinterRegistry, Linter} from "../typings/linter"
 import {ErrorPusher} from "./error_pusher"
 
@@ -142,6 +143,31 @@ export function activate(state: PackageState) {
                     //     }
                     // });
                 }
+
+                const markers: AtomCore.IDisplayBufferMarker[] = []
+
+                editor.onDidChangeCursorPosition(() => {
+                  for (const marker of markers) {
+                    marker.destroy()
+                  }
+
+                  const pos = editor.getLastCursor().getBufferPosition()
+
+                  client.executeOccurances({
+                    file: filePath,
+                    line: pos.row+1,
+                    offset: pos.column+1
+                  }).then(result => {
+                    for (const ref of result.body) {
+                      const marker = editor.markBufferRange(spanToRange(ref))
+                      editor.decorateMarker(marker as any, {
+                        type: "highlight",
+                        class: "atom-typescript-occurrence"
+                      })
+                      markers.push(marker)
+                    }
+                  }).catch(() => null)
+                })
 
                 // Observe editors changing
                 var changeObserver = editor.onDidStopChanging(() => {

@@ -45,6 +45,9 @@ class TypescriptServiceClient {
     executeGetErrForProject(args) {
         this.execute("geterrForProject", args);
     }
+    executeOccurances(args) {
+        return this.execute("occurrences", args);
+    }
     executeOpen(args) {
         this.execute("open", args);
     }
@@ -134,6 +137,7 @@ class TypescriptServiceClient {
 exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
+    occurrences: true,
     projectInfo: true,
     quickinfo: true
 };
