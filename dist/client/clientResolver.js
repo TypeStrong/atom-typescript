@@ -33,7 +33,7 @@ class ClientResolver extends events.EventEmitter {
                 this.emit("diagnostics", {
                     type,
                     serverPath,
-                    filePath: result.file,
+                    filePath: isConfDiagBody(result) ? result.configFile : result.file,
                     diagnostics: result.diagnostics
                 });
             };
@@ -59,3 +59,6 @@ function resolveServer(sourcePath) {
     });
 }
 exports.resolveServer = resolveServer;
+function isConfDiagBody(body) {
+    return body && body.triggerFile && body.configFile;
+}

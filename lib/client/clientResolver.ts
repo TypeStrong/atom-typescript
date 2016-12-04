@@ -2,7 +2,7 @@ import {TypescriptServiceClient as Client} from "./client"
 import * as events from "events"
 import * as path from "path"
 import * as nodeResolve from "resolve"
-import {Diagnostic, DiagnosticEventBody} from "typescript/lib/protocol"
+import {Diagnostic, DiagnosticEventBody, ConfigFileDiagnosticEventBody} from "typescript/lib/protocol"
 
 type DiagnosticTypes = "configFileDiag" | "semanticDiag" | "syntaxDiag"
 
@@ -55,11 +55,11 @@ export class ClientResolver extends events.EventEmitter {
           this.emit("pendingRequestsChange")
         })
 
-        const diagnosticHandler = (type: string, result: DiagnosticEventBody) => {
+        const diagnosticHandler = (type: string, result: DiagnosticEventBody | ConfigFileDiagnosticEventBody) => {
           this.emit("diagnostics", {
             type,
             serverPath,
-            filePath: result.file,
+            filePath: isConfDiagBody(result) ? result.configFile : result.file,
             diagnostics: result.diagnostics
           })
         }
@@ -85,4 +85,8 @@ export function resolveServer(sourcePath: string): Promise<string> {
       }
     })
   })
+}
+
+function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {
+  return body && body.triggerFile && body.configFile
 }

@@ -5,13 +5,8 @@ import {locationsToRange} from "./utils/tsUtil"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
-  linter: Linter
-
+  private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
-
-  constructor(linter: Linter) {
-    this.linter = linter
-  }
 
   /** Add errors. Previous errors with the same prefix and filePath are going to be replaced */
   addErrors(prefix: string, filePath: string, errors: Diagnostic[]) {
@@ -28,7 +23,14 @@ export class ErrorPusher {
 
   /** Clear all errors */
   clear() {
-    console.log("clearing errors")
+    if (this.linter) {
+      this.linter.deleteMessages()
+    }
+  }
+
+  setLinter(linter: Linter) {
+    this.linter = linter
+    this.pushErrors()
   }
 
   private pushErrors = debounce(() => {
@@ -47,11 +49,9 @@ export class ErrorPusher {
       }
     }
 
-    this.linter.setMessages(errors)
+    if (this.linter) {
+      this.linter.setMessages(errors)
+    }
 
   }, 100)
 }
-
-// function rangeFromTS(start: protocol.): atom.Range {
-//
-// }

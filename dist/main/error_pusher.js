@@ -2,7 +2,7 @@
 const lodash_1 = require("lodash");
 const tsUtil_1 = require("./utils/tsUtil");
 class ErrorPusher {
-    constructor(linter) {
+    constructor() {
         this.errors = new Map();
         this.pushErrors = lodash_1.debounce(() => {
             const errors = [];
@@ -18,9 +18,10 @@ class ErrorPusher {
                     }
                 }
             }
-            this.linter.setMessages(errors);
+            if (this.linter) {
+                this.linter.setMessages(errors);
+            }
         }, 100);
-        this.linter = linter;
     }
     addErrors(prefix, filePath, errors) {
         let prefixed = this.errors.get(prefix);
@@ -32,7 +33,13 @@ class ErrorPusher {
         this.pushErrors();
     }
     clear() {
-        console.log("clearing errors");
+        if (this.linter) {
+            this.linter.deleteMessages();
+        }
+    }
+    setLinter(linter) {
+        this.linter = linter;
+        this.pushErrors();
     }
 }
 exports.ErrorPusher = ErrorPusher;
