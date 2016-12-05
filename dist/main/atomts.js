@@ -48,6 +48,12 @@ function activate(state) {
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescript_editor_pane_1.TypescriptEditorPane(editor, {
                 mainPanel,
+                onDispose(pane) {
+                    if (activePane === pane) {
+                        activePane = null;
+                    }
+                    panes.splice(panes.indexOf(pane), 1);
+                },
                 onSave
             }));
         }));

@@ -1,4 +1,5 @@
 "use strict";
+const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const stream_1 = require("stream");
 const byline = require("byline");
@@ -34,6 +35,12 @@ class TypescriptServiceClient {
     }
     executeClose(args) {
         this.execute("close", args);
+    }
+    executeCompileOnSaveAffectedFileList(args) {
+        return this.execute("compileOnSaveAffectedFileList", args);
+    }
+    executeCompileOnSaveEmitFile(args) {
+        return this.execute("compileOnSaveEmitFile", args);
     }
     executeCompletions(args) {
         return this.execute("completions", args);
@@ -136,14 +143,16 @@ class TypescriptServiceClient {
         }
     }
 }
+exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
+    compileOnSaveAffectedFileList: true,
+    compileOnSaveEmitFile: true,
     completions: true,
     occurrences: true,
     projectInfo: true,
     quickinfo: true,
     reload: true,
 };
-exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

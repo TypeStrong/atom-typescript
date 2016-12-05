@@ -8,13 +8,16 @@ const tsUtil_1 = require("./utils/tsUtil");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
     constructor(editor, opts) {
-        this.isTypescript = false;
+        this.configFile = "";
+        this.isActive = false;
         this.isTSConfig = false;
+        this.isTypescript = false;
         this.isOpen = false;
         this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
         this.onActivated = () => {
             this.activeAt = Date.now();
+            this.isActive = true;
             if (this.isTypescript && this.filePath) {
                 this.mainPanel.show();
                 if (this.client) {
@@ -24,8 +27,10 @@ class TypescriptEditorPane {
                     });
                 }
             }
+            this.mainPanel.view.setTsconfigInUse(this.configFile);
         };
         this.onDeactivated = () => {
+            this.isActive = false;
             this.mainPanel.hide();
         };
         this.onDidChange = diff => {
@@ -74,6 +79,14 @@ class TypescriptEditorPane {
             if (this.onSave) {
                 this.onSave(this);
             }
+            const result = yield this.client.executeCompileOnSaveAffectedFileList({
+                file: this.filePath
+            });
+            for (const project of result.body) {
+                for (const file of project.fileNames) {
+                    this.client.executeCompileOnSaveEmitFile({ file });
+                }
+            }
         });
         this.onDidStopChanging = () => {
             if (this.isTypescript && this.filePath) {
@@ -111,36 +124,29 @@ class TypescriptEditorPane {
                     delay: 100
                 });
                 this.isOpen = true;
-                this.updatePanelConfig();
+                this.client.executeProjectInfo({
+                    needFileNameList: false,
+                    file: this.filePath
+                }).then(result => {
+                    this.configFile = result.body.configFileName;
+                    if (this.isActive) {
+                        this.mainPanel.view.setTsconfigInUse(this.configFile);
+                    }
+                }, error => null);
             }
         });
         this.setupTooltipView();
     }
     dispose() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.subscriptions.dispose();
-            if (this.isOpen) {
-                this.client.executeClose({ file: this.filePath });
-            }
-        });
+        this.subscriptions.dispose();
+        if (this.isOpen) {
+            this.client.executeClose({ file: this.filePath });
+        }
+        this.onDispose(this);
     }
     setupTooltipView() {
         const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));
         tooltipManager.attach(editorView, this.editor);
-    }
-    updatePanelConfig() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let configPath = "";
-            try {
-                const result = yield this.client.executeProjectInfo({
-                    needFileNameList: false,
-                    file: this.filePath
-                });
-                configPath = result.body.configFileName;
-            }
-            catch (error) { }
-            this.mainPanel.view.setTsconfigInUse(configPath);
-        });
     }
 }
 exports.TypescriptEditorPane = TypescriptEditorPane;

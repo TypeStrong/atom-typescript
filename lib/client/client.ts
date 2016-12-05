@@ -35,6 +35,8 @@ export class TypescriptServiceClient {
   }
 
   static commandWithResponse = {
+    compileOnSaveAffectedFileList: true,
+    compileOnSaveEmitFile: true,
     completions: true,
     occurrences: true,
     projectInfo: true,
@@ -47,6 +49,12 @@ export class TypescriptServiceClient {
   }
   executeClose(args: protocol.FileRequestArgs) {
     this.execute("close", args)
+  }
+  executeCompileOnSaveAffectedFileList(args: protocol.FileRequestArgs): Promise<protocol.CompileOnSaveAffectedFileListResponse> {
+    return this.execute("compileOnSaveAffectedFileList", args)
+  }
+  executeCompileOnSaveEmitFile(args: protocol.CompileOnSaveEmitFileRequestArgs): Promise<protocol.Response & {body: boolean}> {
+    return this.execute("compileOnSaveEmitFile", args)
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
     return this.execute("completions", args)

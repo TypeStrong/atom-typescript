@@ -76,6 +76,13 @@ export function activate(state: PackageState) {
       subscriptions.add(atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
         panes.push(new TypescriptEditorPane(editor, {
           mainPanel,
+          onDispose(pane) {
+            if (activePane === pane) {
+              activePane = null
+            }
+
+            panes.splice(panes.indexOf(pane), 1)
+          },
           onSave
         }))
       }))
