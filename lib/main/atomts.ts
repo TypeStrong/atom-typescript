@@ -17,33 +17,33 @@ import * as autoCompleteProvider from './atom/autoCompleteProvider'
 import * as commands from "./atom/commands/commands"
 // import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
-import * as mainPanel from "../main/atom/views/mainPanelView"
-import * as mainPanelView from "./atom/views/mainPanelView"
+import {attach as attachMainPanel} from "./atom/views/mainPanelView"
 // import * as path from 'path'
 import * as renameView from './atom/views/renameView'
 import * as tsconfig from "tsconfig/dist/tsconfig"
 
 // globals
+const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
 export const config = atomConfig.schema
 let linter: Linter
-const errorPusher = new ErrorPusher()
-const subscriptions = new CompositeDisposable()
 
 interface PackageState {}
 
-clientResolver.on("pendingRequestsChange", () => {
-  // We only start once the panel view is initialized
-  if (!mainPanel.panelView) return;
-
-  const pending = Object.keys(clientResolver.clients)
-    .map(serverPath => clientResolver.clients[serverPath].pending)
-
-  mainPanel.panelView.updatePendingRequests([].concat.apply([], pending))
-})
-
 export function activate(state: PackageState) {
     require('atom-package-deps').install('atom-typescript').then(() => {
+
+      const mainPanel = attachMainPanel()
+      const errorPusher = new ErrorPusher()
+
+      mainPanel.hide()
+
+      clientResolver.on("pendingRequestsChange", () => {
+        const pending = Object.keys(clientResolver.clients)
+          .map(serverPath => clientResolver.clients[serverPath].pending)
+
+        mainPanel.view.updatePendingRequests([].concat.apply([], pending))
+      })
 
       if (linter) {
         errorPusher.setLinter(linter)
@@ -52,9 +52,6 @@ export function activate(state: PackageState) {
           errorPusher.addErrors(type + serverPath, filePath, diagnostics)
         })
       }
-
-      mainPanelView.attach()
-      mainPanelView.hide()
 
       // Add the rename view
       renameView.attach()
@@ -78,6 +75,7 @@ export function activate(state: PackageState) {
 
       subscriptions.add(atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
         panes.push(new TypescriptEditorPane(editor, {
+          mainPanel,
           onSave
         }))
       }))

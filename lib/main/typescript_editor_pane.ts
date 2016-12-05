@@ -1,11 +1,11 @@
 import {$} from "atom-space-pen-views"
-import {CompositeDisposable} from "atom"
+import {basename} from "path"
 import {clientResolver} from "./atomts"
+import {CompositeDisposable} from "atom"
+import {MainPanel} from "./atom/views/mainPanelView"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
-import {basename} from "path"
 import * as tooltipManager from './atom/tooltipManager'
-import * as mainPanelView from "./atom/views/mainPanelView"
 
 type onChangeObserver = (diff: {
   oldRange: TextBuffer.IRange
@@ -15,6 +15,7 @@ type onChangeObserver = (diff: {
 }) => any
 
 interface PaneOptions {
+  mainPanel: MainPanel
   onSave: (pane: TypescriptEditorPane) => any
 }
 
@@ -28,6 +29,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   isTypescript = false
   isTSConfig = false
 
+  mainPanel: MainPanel
+
   private isOpen = false
 
   readonly occurrenceMarkers: AtomCore.IDisplayBufferMarker[] = []
@@ -36,6 +39,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   constructor(editor: AtomCore.IEditor, opts: PaneOptions) {
     this.onSave = opts.onSave
+    this.mainPanel = opts.mainPanel
     this.editor = editor
     this.filePath = editor.getPath()
 
@@ -90,7 +94,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.activeAt = Date.now()
 
     if (this.isTypescript && this.filePath) {
-      mainPanelView.show()
+      this.mainPanel.show()
 
       if (this.client) {
         // The first activation might happen before we even have a client
@@ -103,7 +107,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onDeactivated = () => {
-    mainPanelView.hide()
+    this.mainPanel.hide()
   }
 
   onDidChange: onChangeObserver = diff => {
@@ -188,7 +192,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       configPath = result.body.configFileName
     } catch (error) {}
 
-    mainPanelView.panelView.setTsconfigInUse(configPath)
+    this.mainPanel.view.setTsconfigInUse(configPath)
   }
 }
 

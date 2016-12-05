@@ -3,8 +3,7 @@ const tslib_1 = require("tslib");
 const view = require("./view");
 const lineMessageView = require("./lineMessageView");
 const atomUtils = require("../atomUtils");
-var panelHeaders = {
-    error: 'Errors In Open Files',
+const panelHeaders = {
     build: 'Last Build Output',
     references: 'References'
 };
@@ -14,7 +13,6 @@ class MainPanelView extends view.View {
         super(...arguments);
         this.pendingRequests = [];
         this.expanded = false;
-        this.clearedError = true;
     }
     static content() {
         var btn = (view, text, className = '') => this.button({
@@ -46,8 +44,7 @@ class MainPanelView extends view.View {
                         class: 'btn-group',
                         style: 'margin-left: 6px; flex: 1 0 auto'
                     }, () => {
-                        btn('error', panelHeaders.error, 'selected');
-                        btn('build', panelHeaders.build);
+                        btn('build', panelHeaders.build, 'selected');
                         btn('references', panelHeaders.references);
                     });
                 });
@@ -115,11 +112,6 @@ class MainPanelView extends view.View {
                 });
                 this.div({
                     class: 'panel-body atomts-panel-body',
-                    outlet: 'errorBody',
-                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
-                });
-                this.div({
-                    class: 'panel-body atomts-panel-body',
                     outlet: 'buildBody',
                     style: 'overflow-y: auto; flex: 1 0 100%; display: none'
                 });
@@ -175,13 +167,6 @@ class MainPanelView extends view.View {
             this.sectionPending.animate({ opacity: 0 }, 200);
         }
     }
-    errorPanelSelectedClick() {
-        this.toggleIfThisIsntSelected(this.errorPanelBtn);
-        this.errorPanelSelected();
-    }
-    errorPanelSelected() {
-        this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);
-    }
     buildPanelSelectedClick() {
         this.toggleIfThisIsntSelected(this.buildPanelBtn);
         this.buildPanelSelected();
@@ -202,8 +187,8 @@ class MainPanelView extends view.View {
         }
     }
     selectPanel(btn, body, activeList) {
-        var buttons = [this.errorPanelBtn, this.buildPanelBtn, this.referencesPanelBtn];
-        var bodies = [this.errorBody, this.buildBody, this.referencesBody];
+        var buttons = [this.buildPanelBtn, this.referencesPanelBtn];
+        var bodies = [this.buildBody, this.referencesBody];
         buttons.forEach(b => {
             if (b !== btn)
                 b.removeClass('selected');
@@ -226,9 +211,6 @@ class MainPanelView extends view.View {
         gotoHistory.activeList.lastPosition = null;
     }
     setActivePanel() {
-        if (this.errorPanelBtn.hasClass('selected')) {
-            this.errorPanelSelected();
-        }
         if (this.buildPanelBtn.hasClass('selected')) {
             this.buildPanelSelected();
         }
@@ -265,48 +247,6 @@ class MainPanelView extends view.View {
             this.referencesBody.append(view.$);
             gotoHistory.referencesOutput.members.push({ filePath: ref.filePath, line: ref.position.line + 1, col: ref.position.col });
         }
-    }
-    clearError() {
-        this.clearedError = true;
-        this.clearSummary();
-        this.errorBody.empty();
-    }
-    addError(view) {
-        if (this.clearedError && view.getSummary) {
-            this.setErrorSummary(view.getSummary());
-        }
-        this.clearedError = false;
-        this.errorBody.append(view.$);
-    }
-    setErrorSummary(summary) {
-        var message = summary.summary, className = summary.className, handler = summary.handler || undefined;
-        this.summary.html(message);
-        if (className) {
-            this.summary.addClass(className);
-        }
-        if (handler) {
-            handler(this.summary);
-        }
-    }
-    clearSummary() {
-        this.summary.html('');
-        this.summary.off();
-    }
-    setErrorPanelErrorCount(fileErrorCount, totalErrorCount) {
-        var title = `${panelHeaders.error} ( <span class="text-success">No Errors</span> )`;
-        if (totalErrorCount > 0) {
-            title = `${panelHeaders.error} (
-                <span class="text-highlight" style="font-weight: bold"> ${fileErrorCount} </span>
-                <span class="text-error" style="font-weight: bold;"> file${fileErrorCount === 1 ? "" : "s"} </span>
-                <span class="text-highlight" style="font-weight: bold"> ${totalErrorCount} </span>
-                <span class="text-error" style="font-weight: bold;"> error${totalErrorCount === 1 ? "" : "s"} </span>
-            )`;
-        }
-        else {
-            this.clearSummary();
-            this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
-        }
-        this.errorPanelBtn.html(title);
     }
     setBuildPanelCount(errorCount, inProgressBuild = false) {
         var titleMain = inProgressBuild ? "Build Progress" : panelHeaders.build;
@@ -363,24 +303,13 @@ class MainPanelView extends view.View {
     }
 }
 exports.MainPanelView = MainPanelView;
-var panel;
 function attach() {
-    if (exports.panelView)
-        return;
-    exports.panelView = new MainPanelView({});
-    panel = atom.workspace.addBottomPanel({ item: exports.panelView, priority: 1000, visible: true });
-    exports.panelView.setErrorPanelErrorCount(0, 0);
+    const view = new MainPanelView({});
+    atom.workspace.addBottomPanel({ item: view, priority: 1000, visible: true });
+    return {
+        show() { view.$.show(); },
+        hide() { view.$.hide(); },
+        view
+    };
 }
 exports.attach = attach;
-function show() {
-    if (!exports.panelView)
-        return;
-    exports.panelView.$.show();
-}
-exports.show = show;
-function hide() {
-    if (!exports.panelView)
-        return;
-    exports.panelView.$.hide();
-}
-exports.hide = hide;

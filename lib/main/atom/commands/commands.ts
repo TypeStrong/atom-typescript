@@ -1,15 +1,13 @@
 import {clientResolver} from "../../atomts"
-import atomUtils = require("../atomUtils");
+// import atomUtils = require("../atomUtils");
 import autoCompleteProvider = require("../autoCompleteProvider");
 // import path = require('path');
 // import renameView = require("../views/renameView");
-import contextView = require("../views/contextView");
 // import fileSymbolsView = require("../views/fileSymbolsView");
 // import projectSymbolsView = require("../views/projectSymbolsView");
 import {create as createTypeOverlay} from "../views/typeOverlayView";
 import gotoHistory = require("../gotoHistory");
 // import utils = require("../../lang/utils");
-import {panelView} from "../views/mainPanelView";
 // import {simpleSelectionView} from "../views/simpleSelectionView";
 // import escapeHtml = require('escape-html');
 
@@ -98,12 +96,6 @@ export function registerCommands() {
     //         }
     //     });
     // });
-
-    var theContextView: contextView.ContextView;
-    atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
-        if (!theContextView) theContextView = new contextView.ContextView();
-        theContextView.show();
-    });
 
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
         autoCompleteProvider.triggerAutocompletePlus();
@@ -271,9 +263,10 @@ export function registerCommands() {
     // }, 400);
 
     atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
-        if (!atomUtils.commandForTypeScript(e)) return;
+        console.log("typescript:sync trigerred")
 
-        panelView.softReset();
+        // if (!atomUtils.commandForTypeScript(e)) return;
+        // panelView.softReset();
     });
 
 }

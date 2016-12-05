@@ -1,5 +1,4 @@
 "use strict";
-const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const stream_1 = require("stream");
 const byline = require("byline");
@@ -137,7 +136,6 @@ class TypescriptServiceClient {
         }
     }
 }
-exports.TypescriptServiceClient = TypescriptServiceClient;
 TypescriptServiceClient.commandWithResponse = {
     completions: true,
     occurrences: true,
@@ -145,6 +143,7 @@ TypescriptServiceClient.commandWithResponse = {
     quickinfo: true,
     reload: true,
 };
+exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
 }

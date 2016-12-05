@@ -3,20 +3,11 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 const atomts_1 = require("../../atomts");
-const atomUtils = require("../atomUtils");
 const autoCompleteProvider = require("../autoCompleteProvider");
-const contextView = require("../views/contextView");
 const typeOverlayView_1 = require("../views/typeOverlayView");
 const gotoHistory = require("../gotoHistory");
-const mainPanelView_1 = require("../views/mainPanelView");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
-    var theContextView;
-    atom.commands.add('atom-text-editor', 'typescript:context-actions', (e) => {
-        if (!theContextView)
-            theContextView = new contextView.ContextView();
-        theContextView.show();
-    });
     atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
         autoCompleteProvider.triggerAutocompletePlus();
     });
@@ -60,9 +51,7 @@ function registerCommands() {
         gotoHistory.gotoPrevious();
     });
     atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
-        if (!atomUtils.commandForTypeScript(e))
-            return;
-        mainPanelView_1.panelView.softReset();
+        console.log("typescript:sync trigerred");
     });
 }
 exports.registerCommands = registerCommands;

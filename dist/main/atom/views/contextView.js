@@ -1,4 +1,5 @@
 "use strict";
+const tslib_1 = require("tslib");
 const sp = require("atom-space-pen-views");
 const mainPanelView = require("./mainPanelView");
 var titles = {
@@ -23,9 +24,6 @@ class ContextView extends sp.SelectListView {
     confirmed(item) {
         if (item.title == titles.togglePanel) {
             mainPanelView.panelView.toggle();
-        }
-        if (item.title == titles.tabErrors) {
-            mainPanelView.panelView.errorPanelSelected();
         }
         if (item.title == titles.tabLastBuild) {
             mainPanelView.panelView.buildPanelSelected();

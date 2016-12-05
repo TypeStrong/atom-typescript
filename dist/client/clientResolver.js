@@ -1,5 +1,4 @@
 "use strict";
-const tslib_1 = require("tslib");
 const client_1 = require("./client");
 const events = require("events");
 const path = require("path");

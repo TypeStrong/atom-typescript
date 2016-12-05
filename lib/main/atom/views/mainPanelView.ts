@@ -3,8 +3,7 @@ import view = require('./view');
 import lineMessageView = require('./lineMessageView');
 import atomUtils = require("../atomUtils");
 
-var panelHeaders = {
-    error: 'Errors In Open Files',
+const panelHeaders = {
     build: 'Last Build Output',
     references: 'References'
 }
@@ -14,12 +13,9 @@ import gotoHistory = require('../gotoHistory');
 export class MainPanelView extends view.View<any> {
 
     private tsconfigInUse: JQuery;
-    private summary: JQuery;
 
-    private errorPanelBtn: JQuery;
     private buildPanelBtn: JQuery;
     private referencesPanelBtn: JQuery;
-    private errorBody: JQuery;
     private buildBody: JQuery;
     private referencesBody: JQuery;
 
@@ -62,8 +58,7 @@ export class MainPanelView extends view.View<any> {
                         class: 'btn-group',
                         style: 'margin-left: 6px; flex: 1 0 auto'
                     }, () => {
-                        btn('error', panelHeaders.error, 'selected')
-                        btn('build', panelHeaders.build)
+                        btn('build', panelHeaders.build, 'selected')
                         btn('references', panelHeaders.references)
                     });
                 });
@@ -138,11 +133,6 @@ export class MainPanelView extends view.View<any> {
                     });
                 });
 
-                this.div({
-                    class: 'panel-body atomts-panel-body',
-                    outlet: 'errorBody',
-                    style: 'overflow-y: auto; flex: 1 0 100%; display: none'
-                });
                 this.div({
                     class: 'panel-body atomts-panel-body',
                     outlet: 'buildBody',
@@ -241,15 +231,6 @@ export class MainPanelView extends view.View<any> {
         }
     }
 
-    ///// Panel selection
-    errorPanelSelectedClick() {
-        this.toggleIfThisIsntSelected(this.errorPanelBtn);
-        this.errorPanelSelected();
-    }
-    errorPanelSelected() {
-        this.selectPanel(this.errorPanelBtn, this.errorBody, gotoHistory.errorsInOpenFiles);
-    }
-
     buildPanelSelectedClick() {
         this.toggleIfThisIsntSelected(this.buildPanelBtn);
         this.buildPanelSelected();
@@ -273,8 +254,8 @@ export class MainPanelView extends view.View<any> {
     }
 
     private selectPanel(btn: JQuery, body: JQuery, activeList: TabWithGotoPositions) {
-        var buttons = [this.errorPanelBtn, this.buildPanelBtn, this.referencesPanelBtn];
-        var bodies = [this.errorBody, this.buildBody, this.referencesBody];
+        var buttons = [this.buildPanelBtn, this.referencesPanelBtn];
+        var bodies = [this.buildBody, this.referencesBody];
 
         buttons.forEach(b=> {
             if (b !== btn)
@@ -300,9 +281,6 @@ export class MainPanelView extends view.View<any> {
     }
 
     private setActivePanel() {
-        if (this.errorPanelBtn.hasClass('selected')) {
-            this.errorPanelSelected();
-        }
         if (this.buildPanelBtn.hasClass('selected')) {
             this.buildPanelSelected();
         }
@@ -352,64 +330,6 @@ export class MainPanelView extends view.View<any> {
             // Update the list for goto history
             gotoHistory.referencesOutput.members.push({ filePath: ref.filePath, line: ref.position.line + 1, col: ref.position.col });
         }
-    }
-
-    ///////////// ERROR
-    private clearedError = true;
-    clearError() {
-        this.clearedError = true;
-        this.clearSummary();
-        this.errorBody.empty();
-    }
-
-    addError(view: lineMessageView.LineMessageView) {
-        if (this.clearedError && view.getSummary) {
-            // This is the first message, so use it to
-            // set the summary
-            this.setErrorSummary(view.getSummary());
-        }
-        this.clearedError = false;
-
-        this.errorBody.append(view.$);
-    }
-
-    /*TODO: Type this*/
-    setErrorSummary(summary: any) {
-        var message = summary.summary,
-            className = summary.className,
-            handler = summary.handler || undefined;
-        // Set the new summary
-        this.summary.html(message);
-
-        if (className) {
-            this.summary.addClass(className);
-        }
-        if (handler) {
-            handler(this.summary);
-        }
-    }
-
-    clearSummary() {
-        this.summary.html('');
-        this.summary.off();
-    }
-
-    setErrorPanelErrorCount(fileErrorCount: number, totalErrorCount: number) {
-        var title = `${panelHeaders.error} ( <span class="text-success">No Errors</span> )`;
-        if (totalErrorCount > 0) {
-            title = `${panelHeaders.error} (
-                <span class="text-highlight" style="font-weight: bold"> ${fileErrorCount} </span>
-                <span class="text-error" style="font-weight: bold;"> file${fileErrorCount === 1 ? "" : "s"} </span>
-                <span class="text-highlight" style="font-weight: bold"> ${totalErrorCount} </span>
-                <span class="text-error" style="font-weight: bold;"> error${totalErrorCount === 1 ? "" : "s"} </span>
-            )`;
-        }
-        else {
-            this.clearSummary();
-            this.errorBody.html('<span class="text-success">No errors in open files \u2665</span>');
-        }
-
-        this.errorPanelBtn.html(title);
     }
 
     ///////////////////// BUILD
@@ -481,24 +401,20 @@ export class MainPanelView extends view.View<any> {
     }
 }
 
-export var panelView: MainPanelView;
-var panel: AtomCore.Panel;
-export function attach() {
-
-    // Only attach once
-    if (panelView) return;
-
-    panelView = new MainPanelView({});
-    panel = atom.workspace.addBottomPanel({ item: panelView, priority: 1000, visible: true });
-    panelView.setErrorPanelErrorCount(0, 0);
+export interface MainPanel {
+  show()
+  hide()
+  view: MainPanelView
 }
 
-export function show() {
-    if (!panelView) return;
-    panelView.$.show();
-}
+export function attach(): MainPanel {
+  const view = new MainPanelView({})
 
-export function hide() {
-    if (!panelView) return;
-    panelView.$.hide();
+  atom.workspace.addBottomPanel({ item: view, priority: 1000, visible: true })
+
+  return {
+    show() { view.$.show() },
+    hide() { view.$.hide() },
+    view
+  }
 }

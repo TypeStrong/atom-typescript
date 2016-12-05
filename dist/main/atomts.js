@@ -11,32 +11,29 @@ const atomConfig = require("./atom/atomConfig");
 const autoCompleteProvider = require("./atom/autoCompleteProvider");
 const commands = require("./atom/commands/commands");
 const hyperclickProvider = require("../hyperclickProvider");
-const mainPanel = require("../main/atom/views/mainPanelView");
-const mainPanelView = require("./atom/views/mainPanelView");
+const mainPanelView_1 = require("./atom/views/mainPanelView");
 const renameView = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
+const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
 let linter;
-const errorPusher = new error_pusher_1.ErrorPusher();
-const subscriptions = new atom_1.CompositeDisposable();
-exports.clientResolver.on("pendingRequestsChange", () => {
-    if (!mainPanel.panelView)
-        return;
-    const pending = Object.keys(exports.clientResolver.clients)
-        .map(serverPath => exports.clientResolver.clients[serverPath].pending);
-    mainPanel.panelView.updatePendingRequests([].concat.apply([], pending));
-});
 function activate(state) {
     require('atom-package-deps').install('atom-typescript').then(() => {
+        const mainPanel = mainPanelView_1.attach();
+        const errorPusher = new error_pusher_1.ErrorPusher();
+        mainPanel.hide();
+        exports.clientResolver.on("pendingRequestsChange", () => {
+            const pending = Object.keys(exports.clientResolver.clients)
+                .map(serverPath => exports.clientResolver.clients[serverPath].pending);
+            mainPanel.view.updatePendingRequests([].concat.apply([], pending));
+        });
         if (linter) {
             errorPusher.setLinter(linter);
             exports.clientResolver.on("diagnostics", ({ type, serverPath, filePath, diagnostics }) => {
                 errorPusher.addErrors(type + serverPath, filePath, diagnostics);
             });
         }
-        mainPanelView.attach();
-        mainPanelView.hide();
         renameView.attach();
         commands.registerCommands();
         const panes = [];
@@ -50,6 +47,7 @@ function activate(state) {
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescript_editor_pane_1.TypescriptEditorPane(editor, {
+                mainPanel,
                 onSave
             }));
         }));

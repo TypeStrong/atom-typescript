@@ -1,12 +1,11 @@
 "use strict";
 const tslib_1 = require("tslib");
 const atom_space_pen_views_1 = require("atom-space-pen-views");
-const atom_1 = require("atom");
-const atomts_1 = require("./atomts");
-const tsUtil_1 = require("./utils/tsUtil");
 const path_1 = require("path");
+const atomts_1 = require("./atomts");
+const atom_1 = require("atom");
+const tsUtil_1 = require("./utils/tsUtil");
 const tooltipManager = require("./atom/tooltipManager");
-const mainPanelView = require("./atom/views/mainPanelView");
 class TypescriptEditorPane {
     constructor(editor, opts) {
         this.isTypescript = false;
@@ -17,7 +16,7 @@ class TypescriptEditorPane {
         this.onActivated = () => {
             this.activeAt = Date.now();
             if (this.isTypescript && this.filePath) {
-                mainPanelView.show();
+                this.mainPanel.show();
                 if (this.client) {
                     this.client.executeGetErr({
                         files: [this.filePath],
@@ -27,7 +26,7 @@ class TypescriptEditorPane {
             }
         };
         this.onDeactivated = () => {
-            mainPanelView.hide();
+            this.mainPanel.hide();
         };
         this.onDidChange = diff => {
             if (this.isOpen) {
@@ -85,6 +84,7 @@ class TypescriptEditorPane {
             }
         };
         this.onSave = opts.onSave;
+        this.mainPanel = opts.mainPanel;
         this.editor = editor;
         this.filePath = editor.getPath();
         this.isTypescript = isTypescriptGrammar(editor.getGrammar());
@@ -139,7 +139,7 @@ class TypescriptEditorPane {
                 configPath = result.body.configFileName;
             }
             catch (error) { }
-            mainPanelView.panelView.setTsconfigInUse(configPath);
+            this.mainPanel.view.setTsconfigInUse(configPath);
         });
     }
 }
