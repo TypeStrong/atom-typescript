@@ -2,7 +2,6 @@ import {$} from "atom-space-pen-views"
 import {basename} from "path"
 import {clientResolver} from "./atomts"
 import {CompositeDisposable} from "atom"
-import {MainPanel} from "./atom/views/mainPanelView"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
 import * as tooltipManager from './atom/tooltipManager'
@@ -15,21 +14,20 @@ type onChangeObserver = (diff: {
 }) => any
 
 interface PaneOptions {
-  mainPanel: MainPanel
+  onDispose: (pane: TypescriptEditorPane) => any
   onSave: (pane: TypescriptEditorPane) => any
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
   activeAt: number
-
-  onSave: (pane: TypescriptEditorPane) => any
   client: TypescriptServiceClient
+  configFile: string = ""
   filePath: string
-
-  isTypescript = false
+  isActive = false
   isTSConfig = false
-
-  mainPanel: MainPanel
+  isTypescript = false
+  onDispose: (pane: TypescriptEditorPane) => any
+  onSave: (pane: TypescriptEditorPane) => any
 
   private isOpen = false
 
@@ -39,7 +37,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   constructor(editor: AtomCore.IEditor, opts: PaneOptions) {
     this.onSave = opts.onSave
-    this.mainPanel = opts.mainPanel
     this.editor = editor
     this.filePath = editor.getPath()
 
@@ -75,26 +72,39 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         })
 
         this.isOpen = true
-        this.updatePanelConfig()
+
+        this.client.executeProjectInfo({
+          needFileNameList: false,
+          file: this.filePath
+        }).then(result => {
+          this.configFile = result.body.configFileName
+
+          if (this.isActive) {
+            // this.mainPanel.view.setTsconfigInUse(this.configFile)
+          }
+        }, error => null)
       }
     })
 
     this.setupTooltipView()
   }
 
-  async dispose() {
+  dispose() {
     this.subscriptions.dispose()
 
     if (this.isOpen) {
       this.client.executeClose({file: this.filePath})
     }
+
+    this.onDispose(this)
   }
 
   onActivated = () => {
     this.activeAt = Date.now()
+    this.isActive = true
 
     if (this.isTypescript && this.filePath) {
-      this.mainPanel.show()
+      // this.mainPanel.show()
 
       if (this.client) {
         // The first activation might happen before we even have a client
@@ -104,10 +114,13 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         })
       }
     }
+
+    // this.mainPanel.view.setTsconfigInUse(this.configFile)
   }
 
   onDeactivated = () => {
-    this.mainPanel.hide()
+    this.isActive = false
+    // this.mainPanel.hide()
   }
 
   onDidChange: onChangeObserver = diff => {
@@ -152,7 +165,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   onDidSave = async event => {
     // Observe editors saving
-    console.log("saved", this.editor.getPath())
+    console.log("saved", this.filePath)
 
     if (this.filePath !== event.path) {
       console.log("file path changed to", event.path)
@@ -164,9 +177,20 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     if (this.onSave) {
       this.onSave(this)
     }
+
+    const result = await this.client.executeCompileOnSaveAffectedFileList({
+      file: this.filePath
+    })
+
+    for (const project of result.body) {
+      for (const file of project.fileNames) {
+        this.client.executeCompileOnSaveEmitFile({file})
+      }
+    }
   }
 
   onDidStopChanging = () => {
+    console.log("did stop changing", this.filePath)
     if (this.isTypescript && this.filePath) {
       this.client.executeGetErr({
         files: [this.filePath],
@@ -180,19 +204,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     // inspiration : https://github.com/chaika2013/ide-haskell
     const editorView = $(atom.views.getView(this.editor))
     tooltipManager.attach(editorView, this.editor)
-  }
-
-  async updatePanelConfig() {
-    let configPath = ""
-    try {
-      const result = await this.client.executeProjectInfo({
-        needFileNameList: false,
-        file: this.filePath
-      })
-      configPath = result.body.configFileName
-    } catch (error) {}
-
-    this.mainPanel.view.setTsconfigInUse(configPath)
   }
 }
 

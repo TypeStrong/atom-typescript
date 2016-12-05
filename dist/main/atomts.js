@@ -7,27 +7,32 @@ const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const error_pusher_1 = require("./error_pusher");
 const typescript_editor_pane_1 = require("./typescript_editor_pane");
+const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
 const autoCompleteProvider = require("./atom/autoCompleteProvider");
 const commands = require("./atom/commands/commands");
 const hyperclickProvider = require("../hyperclickProvider");
-const mainPanelView_1 = require("./atom/views/mainPanelView");
 const renameView = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
 let linter;
+let statusBar;
 function activate(state) {
     require('atom-package-deps').install('atom-typescript').then(() => {
-        const mainPanel = mainPanelView_1.attach();
-        const errorPusher = new error_pusher_1.ErrorPusher();
-        mainPanel.hide();
-        exports.clientResolver.on("pendingRequestsChange", () => {
-            const pending = Object.keys(exports.clientResolver.clients)
-                .map(serverPath => exports.clientResolver.clients[serverPath].pending);
-            mainPanel.view.updatePendingRequests([].concat.apply([], pending));
+        let statusPriority = 100;
+        for (const panel of statusBar.getRightTiles()) {
+            if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+                statusPriority = panel.getPriority() - 1;
+            }
+        }
+        const statusPanel = statusPanel_1.StatusPanel.create();
+        statusBar.addRightTile({
+            item: statusPanel,
+            priority: statusPriority
         });
+        const errorPusher = new error_pusher_1.ErrorPusher();
         if (linter) {
             errorPusher.setLinter(linter);
             exports.clientResolver.on("diagnostics", ({ type, serverPath, filePath, diagnostics }) => {
@@ -47,7 +52,6 @@ function activate(state) {
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescript_editor_pane_1.TypescriptEditorPane(editor, {
-                mainPanel,
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = null;
@@ -93,6 +97,10 @@ function consumeLinter(registry) {
     console.log("linter is", linter);
 }
 exports.consumeLinter = consumeLinter;
+function consumeStatusBar(_statusBar) {
+    statusBar = _statusBar;
+}
+exports.consumeStatusBar = consumeStatusBar;
 function provide() {
     return [autoCompleteProvider.provider];
 }

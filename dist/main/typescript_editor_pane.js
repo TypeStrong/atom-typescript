@@ -19,7 +19,6 @@ class TypescriptEditorPane {
             this.activeAt = Date.now();
             this.isActive = true;
             if (this.isTypescript && this.filePath) {
-                this.mainPanel.show();
                 if (this.client) {
                     this.client.executeGetErr({
                         files: [this.filePath],
@@ -27,11 +26,9 @@ class TypescriptEditorPane {
                     });
                 }
             }
-            this.mainPanel.view.setTsconfigInUse(this.configFile);
         };
         this.onDeactivated = () => {
             this.isActive = false;
-            this.mainPanel.hide();
         };
         this.onDidChange = diff => {
             if (this.isOpen) {
@@ -69,7 +66,7 @@ class TypescriptEditorPane {
             }).catch(() => null);
         };
         this.onDidSave = (event) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            console.log("saved", this.editor.getPath());
+            console.log("saved", this.filePath);
             if (this.filePath !== event.path) {
                 console.log("file path changed to", event.path);
                 this.client = yield atomts_1.clientResolver.get(event.path);
@@ -89,6 +86,7 @@ class TypescriptEditorPane {
             }
         });
         this.onDidStopChanging = () => {
+            console.log("did stop changing", this.filePath);
             if (this.isTypescript && this.filePath) {
                 this.client.executeGetErr({
                     files: [this.filePath],
@@ -97,7 +95,6 @@ class TypescriptEditorPane {
             }
         };
         this.onSave = opts.onSave;
-        this.mainPanel = opts.mainPanel;
         this.editor = editor;
         this.filePath = editor.getPath();
         this.isTypescript = isTypescriptGrammar(editor.getGrammar());
@@ -130,7 +127,6 @@ class TypescriptEditorPane {
                 }).then(result => {
                     this.configFile = result.body.configFileName;
                     if (this.isActive) {
-                        this.mainPanel.view.setTsconfigInUse(this.configFile);
                     }
                 }, error => null);
             }

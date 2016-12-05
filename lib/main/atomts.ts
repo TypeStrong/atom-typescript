@@ -10,14 +10,15 @@ import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./error_pusher"
 import {LinterRegistry, Linter} from "../typings/linter"
+import {StatusBar} from "../typings/status_bar"
 import {TypescriptEditorPane} from "./typescript_editor_pane"
+import {StatusPanel} from "./atom/components/statusPanel"
 import * as atomConfig from './atom/atomConfig'
 // import * as atomUtils from './atom/atomUtils'
 import * as autoCompleteProvider from './atom/autoCompleteProvider'
 import * as commands from "./atom/commands/commands"
 // import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
-import {attach as attachMainPanel} from "./atom/views/mainPanelView"
 // import * as path from 'path'
 import * as renameView from './atom/views/renameView'
 import * as tsconfig from "tsconfig/dist/tsconfig"
@@ -26,24 +27,37 @@ import * as tsconfig from "tsconfig/dist/tsconfig"
 const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
 export const config = atomConfig.schema
+
 let linter: Linter
+let statusBar: StatusBar
 
 interface PackageState {}
 
 export function activate(state: PackageState) {
     require('atom-package-deps').install('atom-typescript').then(() => {
 
-      const mainPanel = attachMainPanel()
+      let statusPriority = 100
+      for (const panel of statusBar.getRightTiles()) {
+        if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+          statusPriority = panel.getPriority() - 1
+        }
+      }
+
+      const statusPanel = StatusPanel.create()
+
+      statusBar.addRightTile({
+        item: statusPanel,
+        priority: statusPriority
+      })
+
       const errorPusher = new ErrorPusher()
 
-      mainPanel.hide()
-
-      clientResolver.on("pendingRequestsChange", () => {
-        const pending = Object.keys(clientResolver.clients)
-          .map(serverPath => clientResolver.clients[serverPath].pending)
-
-        mainPanel.view.updatePendingRequests([].concat.apply([], pending))
-      })
+      // clientResolver.on("pendingRequestsChange", () => {
+      //   const pending = Object.keys(clientResolver.clients)
+      //     .map(serverPath => clientResolver.clients[serverPath].pending)
+      //
+      //   mainPanel.view.updatePendingRequests([].concat.apply([], pending))
+      // })
 
       if (linter) {
         errorPusher.setLinter(linter)
@@ -75,7 +89,6 @@ export function activate(state: PackageState) {
 
       subscriptions.add(atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
         panes.push(new TypescriptEditorPane(editor, {
-          mainPanel,
           onDispose(pane) {
             if (activePane === pane) {
               activePane = null
@@ -127,6 +140,10 @@ export function consumeLinter(registry: LinterRegistry) {
     })
 
     console.log("linter is", linter)
+}
+
+export function consumeStatusBar(_statusBar) {
+  statusBar = _statusBar
 }
 
 // Registering an autocomplete provider
