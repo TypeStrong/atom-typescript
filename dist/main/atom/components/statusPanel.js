@@ -1,6 +1,7 @@
 "use strict";
-const tslib_1 = require("tslib");
 const dom = require("../../utils/dom");
+let span = dom.createElement("span", { ref: el => console.log("el be", el) });
+console.log("x", span);
 class StatusPanel extends HTMLElement {
     createdCallback() {
         this.appendChild(dom.createElement("div", { className: "inline-block ts-status-version" }, "2.2.0-15072987"));

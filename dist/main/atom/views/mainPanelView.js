@@ -1,5 +1,4 @@
 "use strict";
-const tslib_1 = require("tslib");
 const view = require("./view");
 const lineMessageView = require("./lineMessageView");
 const atomUtils = require("../atomUtils");

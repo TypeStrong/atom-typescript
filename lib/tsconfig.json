@@ -13,8 +13,8 @@
         "outDir": "../dist",
         "sourceMap": false,
         "jsx": "react",
-        "reactNamespace": "dom",
-        "types": ["react"]
+        "types": ["react"],
+        "reactNamespace": "dom"
     },
     "atom": {
         "formatOnSave": false

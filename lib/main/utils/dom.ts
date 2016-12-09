@@ -5,7 +5,7 @@ interface Props {
 // A createElement function that matches the signature of React.createElements, but synchronously
 // creates DOM elements. Useful to quickly create DOM nodes when used with JSX and reactNamespace
 // compiler option.
-export function createElement(name: string, props: Props, ...children) {
+export function createElement(name: string, props: Props, ...children): string {
   if (typeof name !== "string") {
     throw new Error("String tag name expected")
   }
@@ -64,5 +64,5 @@ export function createElement(name: string, props: Props, ...children) {
   if (ref) {
     ref(element)
   }
-  return element
+  return element as any
 }

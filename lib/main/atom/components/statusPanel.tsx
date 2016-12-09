@@ -1,5 +1,16 @@
 import * as dom from "../../utils/dom"
 
+declare global {
+  namespace JSX {
+    interface Element extends HTMLElement {}
+  }
+}
+
+let span = <span ref={ el => console.log("el be", el) }></span>
+
+
+console.log("x", span)
+
 export class StatusPanel extends HTMLElement {
   createdCallback() {
     this.appendChild(<div className="inline-block ts-status-version">2.2.0-15072987</div>)
