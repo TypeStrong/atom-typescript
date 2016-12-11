@@ -116,7 +116,7 @@ var compilerOptionsValidation: simpleValidator.ValidationInfo = {
     listFiles: { type: types.boolean },
     locals: { type: types.string },
     mapRoot: { type: types.string },
-    module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd', 'es6', 'es2015'] },
+    module: { type: types.string, validValues: ['commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'none'] },
     moduleResolution: { type: types.string, validValues: ['classic', 'node'] },
     newLine: { type: types.string },
     noEmit: { type: types.boolean },
