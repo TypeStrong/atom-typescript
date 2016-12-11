@@ -248,7 +248,7 @@ var LanguageServiceHost = (function () {
             if (script) {
                 return getScriptSnapShot(script);
             }
-            else if (fs.existsSync(fileName)) {
+            else if (_this.fileExists(fileName)) {
                 _this.config.project.files.push(fileName);
                 _this.addScript(fileName);
                 return _this.getScriptSnapshot(fileName);
@@ -259,6 +259,15 @@ var LanguageServiceHost = (function () {
             return _this.config.projectFileDirectory;
         };
         this.getDefaultLibFileName = ts.getDefaultLibFileName;
+        this.fileExists = function (path) {
+            try {
+                var stat = fs.statSync(path);
+                return stat.isFile();
+            }
+            catch (error) {
+                return false;
+            }
+        };
         if (!config.project.compilerOptions.noLib && !config.project.compilerOptions.lib) {
             this.addScript(exports.getDefaultLibFilePath(config.project.compilerOptions));
         }

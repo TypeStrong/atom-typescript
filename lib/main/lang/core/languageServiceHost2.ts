@@ -378,7 +378,7 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
             return getScriptSnapShot(script);
         }
         // This script should be a part of the project if it exists
-        else if(fs.existsSync(fileName)){
+        else if(this.fileExists(fileName)){
             this.config.project.files.push(fileName);
             this.addScript(fileName);
             return this.getScriptSnapshot(fileName);
@@ -389,4 +389,13 @@ export class LanguageServiceHost implements ts.LanguageServiceHost {
         return this.config.projectFileDirectory;
     }
     getDefaultLibFileName = ts.getDefaultLibFileName;
+
+    fileExists = (path: string) => {
+        try {
+            const stat = fs.statSync(path)
+            return stat.isFile()
+        } catch (error) {
+            return false
+        }
+    }
 }
