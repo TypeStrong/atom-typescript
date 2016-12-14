@@ -6,79 +6,79 @@ var fuzzaldrin: { filter: (list: any[], prefix: string, property?: { key: string
 
 /** From https://github.com/Microsoft/TypeScript/pull/2173/files */
 function getExternalModuleNames(program: ts.Program): string[] {
-  var entries: string[] = [];
+    var entries: string[] = [];
 
-  program.getSourceFiles().forEach(sourceFile => {
+    program.getSourceFiles().forEach(sourceFile => {
 
-    // Look for ambient external module declarations
-    ts.forEachChild(sourceFile, child => {
-      if (child.kind === ts.SyntaxKind.ModuleDeclaration && (<ts.ModuleDeclaration>child).name.kind === ts.SyntaxKind.StringLiteral) {
-        entries.push((<ts.ModuleDeclaration>child).name.text);
-      }
+        // Look for ambient external module declarations
+        ts.forEachChild(sourceFile, child => {
+            if (child.kind === ts.SyntaxKind.ModuleDeclaration && (<ts.ModuleDeclaration>child).name.kind === ts.SyntaxKind.StringLiteral) {
+                entries.push((<ts.ModuleDeclaration>child).name.text);
+            }
+        });
     });
-  });
 
-  return entries;
+    return entries;
 }
 
 function formatImportPath(sourcePath: string): string {
-  sourcePath = sourcePath.replace(/\.d$/, ""); // tsconfig.removeExt can convert d.ts file path into the filepath end with `.d`;
-  sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
-  return sourcePath;
+    sourcePath = sourcePath.replace(/\.d$/, ""); // tsconfig.removeExt can convert d.ts file path into the filepath end with `.d`;
+    sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
+    return sourcePath;
 }
 
 export interface GetRelativePathsInProjectResponse {
-  files: {
-    name: string;
-    relativePath: string;
-    fullPath: string;
-  }[];
-  endsInPunctuation: boolean;
+    files: {
+        name: string;
+        relativePath: string;
+        fullPath: string;
+    }[];
+    endsInPunctuation: boolean;
 }
 
 export interface GetPathCompletions {
-  project: Project;
-  filePath: string;
-  prefix: string;
-  includeExternalModules: boolean;
+    project: Project;
+    filePath: string;
+    prefix: string;
+    includeExternalModules: boolean;
 }
 
 export function getPathCompletions(query: GetPathCompletions): GetRelativePathsInProjectResponse {
-  var project = query.project;
-  var sourceDir = path.dirname(query.filePath);
-  var filePaths = project.projectFile.project.files.filter(p => p !== query.filePath);
-  var files: {
-    name: string;
-    relativePath: string;
-    fullPath: string;
-  }[] = [];
+    var project = query.project;
+    var sourceDir = path.dirname(query.filePath);
+    var filePaths = project.projectFile.project.files.filter(p => p !== query.filePath);
+    var files: {
+        name: string;
+        relativePath: string;
+        fullPath: string;
+    }[] = [];
 
-  if (query.includeExternalModules) {
-    var externalModules = getExternalModuleNames(project.languageService.getProgram());
-    externalModules.forEach(e => files.push({
-      name: `${e}`,
-      relativePath: e,
-      fullPath: e
-    }));
-  }
+    if (query.includeExternalModules) {
+        var externalModules = getExternalModuleNames(project.languageService.getProgram());
+        externalModules.forEach(e => files.push({
+            name: `${e}`,
+            relativePath: e,
+            fullPath: e
+        }));
+    }
 
-  filePaths.forEach(p => {
-    files.push({
-      name: path.basename(p, '.ts'),
-      relativePath: formatImportPath(tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p))),
-      fullPath: p
+    filePaths.forEach(p => {
+        files.push({
+            name: path.basename(p, '.ts'),
+            relativePath: formatImportPath(tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p))),
+            fullPath: p
+        });
     });
-  });
 
-  var endsInPunctuation: boolean = utils.prefixEndsInPunctuation(query.prefix);
+    var endsInPunctuation: boolean = utils.prefixEndsInPunctuation(query.prefix);
 
-  if (!endsInPunctuation)
-    files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
+    if (!endsInPunctuation)
+        files = fuzzaldrin.filter(files, query.prefix, { key: 'name' });
 
-  var response: GetRelativePathsInProjectResponse = {
-    files: files,
-    endsInPunctuation: endsInPunctuation
-  };
+    var response: GetRelativePathsInProjectResponse = {
+        files: files,
+        endsInPunctuation: endsInPunctuation
+    };
 
-  return response;
+    return response;
 }

@@ -37,7 +37,7 @@ export class AddImportStatement implements QuickFix {
     key = AddImportStatement.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
-        var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
+        var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
         var matches = getIdentifierAndFileNames(relevantError, info.project);
@@ -48,7 +48,7 @@ export class AddImportStatement implements QuickFix {
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
-        var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
+        var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
         var identifier = <ts.Identifier>info.positionNode;
 
         var identifierName = identifier.text;
@@ -81,4 +81,5 @@ export class AddImportStatement implements QuickFix {
 
         return refactorings;
     }
+}
 }
