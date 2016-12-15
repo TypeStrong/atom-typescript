@@ -1,6 +1,7 @@
 "use strict";
 var addClassMember_1 = require("./quickFixes/addClassMember");
 var addClassMethod_1 = require("./quickFixes/addClassMethod");
+var addImportDefaultStatement_1 = require("./quickFixes/addImportDefaultStatement");
 var addImportFromStatement_1 = require("./quickFixes/addImportFromStatement");
 var addImportStatement_1 = require("./quickFixes/addImportStatement");
 var equalsToEquals_1 = require("./quickFixes/equalsToEquals");
@@ -16,6 +17,7 @@ var singleLineCommentToJsdoc_1 = require("./quickFixes/singleLineCommentToJsdoc"
 exports.allQuickFixes = [
     new addClassMethod_1.AddClassMethod(),
     new addClassMember_1.AddClassMember(),
+    new addImportDefaultStatement_1.AddImportDefaultStatement(),
     new addImportFromStatement_1.AddImportFromStatement(),
     new addImportStatement_1.AddImportStatement(),
     new wrapInProperty_1.WrapInProperty(),

@@ -21,6 +21,12 @@ function getExternalModuleNames(program: ts.Program): string[] {
     return entries;
 }
 
+function formatImportPath(sourcePath: string): string {
+    sourcePath = sourcePath.replace(/\.d$/, ""); // tsconfig.removeExt can convert d.ts file path into the filepath end with `.d`;
+    sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
+    return sourcePath;
+}
+
 export interface GetRelativePathsInProjectResponse {
     files: {
         name: string;
@@ -40,7 +46,7 @@ export interface GetPathCompletions {
 export function getPathCompletions(query: GetPathCompletions): GetRelativePathsInProjectResponse {
     var project = query.project;
     var sourceDir = path.dirname(query.filePath);
-    var filePaths = project.projectFile.project.files.filter(p=> p !== query.filePath);
+    var filePaths = project.projectFile.project.files.filter(p => p !== query.filePath);
     var files: {
         name: string;
         relativePath: string;
@@ -49,17 +55,17 @@ export function getPathCompletions(query: GetPathCompletions): GetRelativePathsI
 
     if (query.includeExternalModules) {
         var externalModules = getExternalModuleNames(project.languageService.getProgram());
-        externalModules.forEach(e=> files.push({
+        externalModules.forEach(e => files.push({
             name: `${e}`,
             relativePath: e,
             fullPath: e
         }));
     }
 
-    filePaths.forEach(p=> {
+    filePaths.forEach(p => {
         files.push({
             name: path.basename(p, '.ts'),
-            relativePath: tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p)),
+            relativePath: formatImportPath(tsconfig.removeExt(tsconfig.makeRelativePath(sourceDir, p))),
             fullPath: p
         });
     });

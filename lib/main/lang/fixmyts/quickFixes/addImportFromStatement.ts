@@ -37,23 +37,21 @@ export class AddImportFromStatement implements QuickFix {
     key = AddImportFromStatement.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
-        var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
+        var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
         if (!relevantError) return;
         if (info.positionNode.kind !== ts.SyntaxKind.Identifier) return;
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches) return;
-
         var { identifierName, file} = matches;
         return file ? { display: `import {${identifierName}} from \"${file}\"` } : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
-        var relevantError = info.positionErrors.filter(x=> x.code == 2304)[0];
+        var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
         var identifier = <ts.Identifier>info.positionNode;
 
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, info.project);
-
         // Add stuff at the top of the file
         let refactorings: Refactoring[] = [{
             span: {
