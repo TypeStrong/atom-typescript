@@ -82,4 +82,3 @@ export class AddImportStatement implements QuickFix {
         return refactorings;
     }
 }
-}
