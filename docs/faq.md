@@ -1,5 +1,8 @@
 # FAQ
 
+## Declaration packages (@types) are not loaded
+Declaration packages, such as those installed via @types on npm, must be declared in the tsconfig.json "types" field. While Typescript's compiler automatically includes them when no "types" field is given, atom-typescript does not. This will hopefully be fixed soon (see #1054).
+
 ## Syntax Highlighting is bad
 
 For grammar issues go here : https://github.com/Microsoft/TypeScript-TmLanguage/issues and link back to us if you want us to pull from upstream 🌹.
