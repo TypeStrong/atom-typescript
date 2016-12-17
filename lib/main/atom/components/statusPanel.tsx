@@ -15,6 +15,7 @@ export class StatusPanel extends HTMLElement {
 
   private configPath: string
   private pendingRequests: string[]
+  private pendingTimeout: any
 
   createdCallback() {
     const nodes = [
@@ -46,7 +47,7 @@ export class StatusPanel extends HTMLElement {
     }
 
     this.setVersion(null)
-    this.setPending([])
+    this.setPending([], true)
     this.setTsConfigPath(null)
   }
 
@@ -92,7 +93,7 @@ export class StatusPanel extends HTMLElement {
     }
   }
 
-  setPending(pending: string[]) {
+  private _setPending(pending: string[]) {
     this.pendingRequests = pending
 
     if (pending.length) {
@@ -101,6 +102,12 @@ export class StatusPanel extends HTMLElement {
     } else {
       this.pendingContainer.classList.add("hide")
     }
+  }
+
+  setPending(pending: string[], immediate = false) {
+    const timeout = immediate ? 0 : 100
+    clearTimeout(this.pendingTimeout)
+    this.pendingTimeout = setTimeout(() => this._setPending(pending), timeout)
   }
 
   showPendingRequests() {

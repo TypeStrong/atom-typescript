@@ -21,7 +21,7 @@ class StatusPanel extends HTMLElement {
             this.appendChild(node);
         }
         this.setVersion(null);
-        this.setPending([]);
+        this.setPending([], true);
         this.setTsConfigPath(null);
     }
     attachedCallback() {
@@ -61,7 +61,7 @@ class StatusPanel extends HTMLElement {
             this.version.classList.add("hide");
         }
     }
-    setPending(pending) {
+    _setPending(pending) {
         this.pendingRequests = pending;
         if (pending.length) {
             this.pendingContainer.classList.remove("hide");
@@ -70,6 +70,11 @@ class StatusPanel extends HTMLElement {
         else {
             this.pendingContainer.classList.add("hide");
         }
+    }
+    setPending(pending, immediate = false) {
+        const timeout = immediate ? 0 : 100;
+        clearTimeout(this.pendingTimeout);
+        this.pendingTimeout = setTimeout(() => this._setPending(pending), timeout);
     }
     showPendingRequests() {
         if (this.pendingRequests) {
