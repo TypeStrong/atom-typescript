@@ -15,7 +15,9 @@ class StatusPanel extends HTMLElement {
             dom.createElement("a", { ref: el => this.configPathContainer = el, className: "inline-block", href: "", onClick: evt => {
                     evt.preventDefault();
                     this.openConfigPath();
-                } })
+                } }),
+            dom.createElement("div", { ref: el => this.statusContainer = el, className: "inline-block" },
+                dom.createElement("span", { ref: el => this.statusText = el }))
         ];
         for (const node of nodes) {
             this.appendChild(node);
@@ -23,6 +25,7 @@ class StatusPanel extends HTMLElement {
         this.setVersion(null);
         this.setPending([], true);
         this.setTsConfigPath(null);
+        this.setBuildStatus(null);
     }
     attachedCallback() {
         console.log("attached");
@@ -39,6 +42,25 @@ class StatusPanel extends HTMLElement {
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
+        }
+    }
+    setBuildStatus(status) {
+        const container = this.statusText;
+        if (status) {
+            if (status.success) {
+                container.classList.remove("highlight-error");
+                container.classList.add("highlight-success");
+                container.textContent = "Emit Success";
+            }
+            else {
+                container.classList.add("highlight-error");
+                container.classList.remove("highlight-success");
+                container.textContent = "Emit Failed";
+            }
+            this.statusContainer.classList.remove("hide");
+        }
+        else {
+            this.statusContainer.classList.add("hide");
         }
     }
     setTsConfigPath(configPath) {

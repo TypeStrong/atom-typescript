@@ -11,6 +11,8 @@ export class StatusPanel extends HTMLElement {
   private pendingCounter: HTMLElement
   private pendingSpinner: HTMLElement
   private configPathContainer: HTMLElement
+  private statusContainer: HTMLElement
+  private statusText: HTMLElement
   private version: HTMLElement
 
   private configPath: string
@@ -39,7 +41,11 @@ export class StatusPanel extends HTMLElement {
         onClick={ evt => {
           evt.preventDefault()
           this.openConfigPath()
-        }}/>
+        }}/>,
+      <div ref={ el => this.statusContainer = el }
+        className="inline-block">
+        <span ref={ el => this.statusText = el } />
+      </div>
     ]
 
     for (const node of nodes) {
@@ -49,6 +55,7 @@ export class StatusPanel extends HTMLElement {
     this.setVersion(null)
     this.setPending([], true)
     this.setTsConfigPath(null)
+    this.setBuildStatus(null)
   }
 
   attachedCallback() {
@@ -68,6 +75,24 @@ export class StatusPanel extends HTMLElement {
       openFile(this.configPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
+    }
+  }
+
+  setBuildStatus(status: {success: boolean}) {
+    const container = this.statusText
+    if (status) {
+      if (status.success) {
+        container.classList.remove("highlight-error")
+        container.classList.add("highlight-success")
+        container.textContent = "Emit Success"
+      } else {
+        container.classList.add("highlight-error")
+        container.classList.remove("highlight-success")
+        container.textContent = "Emit Failed"
+      }
+      this.statusContainer.classList.remove("hide")
+    } else {
+      this.statusContainer.classList.add("hide")
     }
   }
 

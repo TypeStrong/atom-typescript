@@ -18,5 +18,6 @@
     },
     "atom": {
         "formatOnSave": false
-    }
+    },
+    "compileOnSave": true
 }

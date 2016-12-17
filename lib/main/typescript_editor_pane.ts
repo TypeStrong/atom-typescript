@@ -2,6 +2,7 @@ import {$} from "atom-space-pen-views"
 import {basename} from "path"
 import {clientResolver} from "./atomts"
 import {CompositeDisposable} from "atom"
+import {flatten} from "lodash"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
 import {StatusPanel} from "./atom/components/statusPanel"
@@ -58,6 +59,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
       this.subscriptions.add(editor.onDidSave(this.onDidSave))
       this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging))
+      this.subscriptions.add(editor.onDidDestroy(this.onDidDestroy))
 
       if (this.isActive) {
         this.opts.statusPanel.setVersion(this.client.version)
@@ -130,6 +132,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   onDidChange: onChangeObserver = diff => {
     if (this.isOpen) {
+      this.opts.statusPanel.setBuildStatus(null)
+
       this.client.executeChange({
         endLine: diff.oldRange.end.row+1,
         endOffset: diff.oldRange.end.column+1,
@@ -168,6 +172,10 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }).catch(() => null)
   }
 
+  onDidDestroy = () => {
+    this.dispose()
+  }
+
   onDidSave = async event => {
     // Observe editors saving
     console.log("saved", this.filePath)
@@ -187,10 +195,33 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       file: this.filePath
     })
 
-    for (const project of result.body) {
-      for (const file of project.fileNames) {
-        this.client.executeCompileOnSaveEmitFile({file})
+    this.opts.statusPanel.setBuildStatus(null)
+
+    console.log("Compile on Saving...")
+    const fileNames = flatten(result.body.map(project => project.fileNames))
+
+    if (fileNames.length === 0) {
+      return
+    }
+
+    try {
+      const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({file}))
+      const saved = await Promise.all(promises)
+
+      if (!saved.every(res => res.body)) {
+        throw new Error("Some files failed to emit")
       }
+
+      console.log("Saved....", saved)
+      this.opts.statusPanel.setBuildStatus({
+        success: true
+      })
+
+    } catch (error) {
+      console.error("Save failed with error", error)
+      this.opts.statusPanel.setBuildStatus({
+        success: false
+      })
     }
   }
 

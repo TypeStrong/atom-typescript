@@ -4,6 +4,7 @@ const atom_space_pen_views_1 = require("atom-space-pen-views");
 const path_1 = require("path");
 const atomts_1 = require("./atomts");
 const atom_1 = require("atom");
+const lodash_1 = require("lodash");
 const tsUtil_1 = require("./utils/tsUtil");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
@@ -34,6 +35,7 @@ class TypescriptEditorPane {
         };
         this.onDidChange = diff => {
             if (this.isOpen) {
+                this.opts.statusPanel.setBuildStatus(null);
                 this.client.executeChange({
                     endLine: diff.oldRange.end.row + 1,
                     endOffset: diff.oldRange.end.column + 1,
@@ -67,6 +69,9 @@ class TypescriptEditorPane {
                 }
             }).catch(() => null);
         };
+        this.onDidDestroy = () => {
+            this.dispose();
+        };
         this.onDidSave = (event) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             console.log("saved", this.filePath);
             if (this.filePath !== event.path) {
@@ -81,10 +86,28 @@ class TypescriptEditorPane {
             const result = yield this.client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath
             });
-            for (const project of result.body) {
-                for (const file of project.fileNames) {
-                    this.client.executeCompileOnSaveEmitFile({ file });
+            this.opts.statusPanel.setBuildStatus(null);
+            console.log("Compile on Saving...");
+            const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
+            if (fileNames.length === 0) {
+                return;
+            }
+            try {
+                const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({ file }));
+                const saved = yield Promise.all(promises);
+                if (!saved.every(res => res.body)) {
+                    throw new Error("Some files failed to emit");
                 }
+                console.log("Saved....", saved);
+                this.opts.statusPanel.setBuildStatus({
+                    success: true
+                });
+            }
+            catch (error) {
+                console.error("Save failed with error", error);
+                this.opts.statusPanel.setBuildStatus({
+                    success: false
+                });
             }
         });
         this.onDidStopChanging = () => {
@@ -112,6 +135,7 @@ class TypescriptEditorPane {
             this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
             this.subscriptions.add(editor.onDidSave(this.onDidSave));
             this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging));
+            this.subscriptions.add(editor.onDidDestroy(this.onDidDestroy));
             if (this.isActive) {
                 this.opts.statusPanel.setVersion(this.client.version);
             }
