@@ -3,7 +3,7 @@ const child_process_1 = require("child_process");
 const stream_1 = require("stream");
 const byline = require("byline");
 class TypescriptServiceClient {
-    constructor(tsServerPath) {
+    constructor(tsServerPath, version) {
         this.callbacks = {};
         this.listeners = {};
         this.seq = 0;
@@ -28,6 +28,7 @@ class TypescriptServiceClient {
             }
         };
         this.tsServerPath = tsServerPath;
+        this.version = version;
     }
     executeChange(args) {
         this.execute("change", args);

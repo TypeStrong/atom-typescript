@@ -24,8 +24,10 @@ class TypescriptEditorPane {
                         files: [this.filePath],
                         delay: 100
                     });
+                    this.opts.statusPanel.setVersion(this.client.version);
                 }
             }
+            this.opts.statusPanel.setTsConfigPath(this.configFile);
         };
         this.onDeactivated = () => {
             this.isActive = false;
@@ -73,8 +75,8 @@ class TypescriptEditorPane {
                 this.filePath = event.path;
                 this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
             }
-            if (this.onSave) {
-                this.onSave(this);
+            if (this.opts.onSave) {
+                this.opts.onSave(this);
             }
             const result = yield this.client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath
@@ -94,9 +96,9 @@ class TypescriptEditorPane {
                 });
             }
         };
-        this.onSave = opts.onSave;
         this.editor = editor;
         this.filePath = editor.getPath();
+        this.opts = opts;
         this.isTypescript = isTypescriptGrammar(editor.getGrammar());
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
             this.isTypescript = isTypescriptGrammar(grammar);
@@ -104,13 +106,15 @@ class TypescriptEditorPane {
         if (this.filePath) {
             this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
         }
-        console.log("opened", this.filePath);
         atomts_1.clientResolver.get(this.filePath).then(client => {
             this.client = client;
             this.subscriptions.add(editor.buffer.onDidChange(this.onDidChange));
             this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
             this.subscriptions.add(editor.onDidSave(this.onDidSave));
             this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging));
+            if (this.isActive) {
+                this.opts.statusPanel.setVersion(this.client.version);
+            }
             if (this.isTypescript && this.filePath) {
                 this.client.executeOpen({
                     file: this.filePath,
@@ -127,6 +131,7 @@ class TypescriptEditorPane {
                 }).then(result => {
                     this.configFile = result.body.configFileName;
                     if (this.isActive) {
+                        this.opts.statusPanel.setTsConfigPath(this.configFile);
                     }
                 }, error => null);
             }
@@ -138,7 +143,7 @@ class TypescriptEditorPane {
         if (this.isOpen) {
             this.client.executeClose({ file: this.filePath });
         }
-        this.onDispose(this);
+        this.opts.onDispose(this);
     }
     setupTooltipView() {
         const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));

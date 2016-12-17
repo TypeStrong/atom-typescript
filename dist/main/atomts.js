@@ -14,6 +14,7 @@ const commands = require("./atom/commands/commands");
 const hyperclickProvider = require("../hyperclickProvider");
 const renameView = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
+const lodash_2 = require("lodash");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
@@ -32,7 +33,12 @@ function activate(state) {
             item: statusPanel,
             priority: statusPriority
         });
+        subscriptions.add(statusPanel);
         const errorPusher = new error_pusher_1.ErrorPusher();
+        exports.clientResolver.on("pendingRequestsChange", () => {
+            const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
+            statusPanel.setPending(pending);
+        });
         if (linter) {
             errorPusher.setLinter(linter);
             exports.clientResolver.on("diagnostics", ({ type, serverPath, filePath, diagnostics }) => {
@@ -58,7 +64,8 @@ function activate(state) {
                     }
                     panes.splice(panes.indexOf(pane), 1);
                 },
-                onSave
+                onSave,
+                statusPanel,
             }));
         }));
         let activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());

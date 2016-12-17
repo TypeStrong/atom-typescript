@@ -29,9 +29,11 @@ export class TypescriptServiceClient {
 
   /** Path to the tsserver executable */
   readonly tsServerPath: string
+  readonly version: string
 
-  constructor(tsServerPath: string) {
+  constructor(tsServerPath: string, version) {
     this.tsServerPath = tsServerPath
+    this.version = version
   }
 
   static commandWithResponse = {

@@ -4,6 +4,7 @@ import {clientResolver} from "./atomts"
 import {CompositeDisposable} from "atom"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
+import {StatusPanel} from "./atom/components/statusPanel"
 import * as tooltipManager from './atom/tooltipManager'
 
 type onChangeObserver = (diff: {
@@ -16,6 +17,7 @@ type onChangeObserver = (diff: {
 interface PaneOptions {
   onDispose: (pane: TypescriptEditorPane) => any
   onSave: (pane: TypescriptEditorPane) => any
+  statusPanel: StatusPanel
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
@@ -26,9 +28,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   isActive = false
   isTSConfig = false
   isTypescript = false
-  onDispose: (pane: TypescriptEditorPane) => any
-  onSave: (pane: TypescriptEditorPane) => any
 
+  private opts: PaneOptions
   private isOpen = false
 
   readonly occurrenceMarkers: AtomCore.IDisplayBufferMarker[] = []
@@ -36,9 +37,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   readonly subscriptions = new CompositeDisposable()
 
   constructor(editor: AtomCore.IEditor, opts: PaneOptions) {
-    this.onSave = opts.onSave
     this.editor = editor
     this.filePath = editor.getPath()
+    this.opts = opts
 
     this.isTypescript = isTypescriptGrammar(editor.getGrammar())
 
@@ -50,8 +51,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.isTSConfig = basename(this.filePath) === "tsconfig.json"
     }
 
-    console.log("opened", this.filePath)
-
     clientResolver.get(this.filePath).then(client => {
       this.client = client
 
@@ -59,6 +58,10 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
       this.subscriptions.add(editor.onDidSave(this.onDidSave))
       this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging))
+
+      if (this.isActive) {
+        this.opts.statusPanel.setVersion(this.client.version)
+      }
 
       if (this.isTypescript && this.filePath) {
         this.client.executeOpen({
@@ -80,7 +83,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
           this.configFile = result.body.configFileName
 
           if (this.isActive) {
-            // this.mainPanel.view.setTsconfigInUse(this.configFile)
+            this.opts.statusPanel.setTsConfigPath(this.configFile)
           }
         }, error => null)
       }
@@ -96,7 +99,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.client.executeClose({file: this.filePath})
     }
 
-    this.onDispose(this)
+    this.opts.onDispose(this)
   }
 
   onActivated = () => {
@@ -112,10 +115,12 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
           files: [this.filePath],
           delay: 100
         })
+
+        this.opts.statusPanel.setVersion(this.client.version)
       }
     }
 
-    // this.mainPanel.view.setTsconfigInUse(this.configFile)
+    this.opts.statusPanel.setTsConfigPath(this.configFile)
   }
 
   onDeactivated = () => {
@@ -174,8 +179,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.isTSConfig = basename(this.filePath) === "tsconfig.json"
     }
 
-    if (this.onSave) {
-      this.onSave(this)
+    if (this.opts.onSave) {
+      this.opts.onSave(this)
     }
 
     const result = await this.client.executeCompileOnSaveAffectedFileList({

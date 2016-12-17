@@ -2,8 +2,11 @@
 const client_1 = require("./client");
 const events = require("events");
 const path = require("path");
-const nodeResolve = require("resolve");
-const defaultServerPath = require.resolve("typescript/bin/tsserver");
+const resolve_1 = require("resolve");
+const defaultServer = {
+    serverPath: require.resolve("typescript/bin/tsserver"),
+    version: require("typescript").version
+};
 class ClientResolver extends events.EventEmitter {
     constructor() {
         super(...arguments);
@@ -14,13 +17,13 @@ class ClientResolver extends events.EventEmitter {
     }
     get(filePath) {
         return resolveServer(filePath)
-            .catch(() => defaultServerPath)
-            .then(serverPath => {
+            .catch(() => defaultServer)
+            .then(({ serverPath, version }) => {
             if (this.clients[serverPath]) {
                 return this.clients[serverPath].client;
             }
             const entry = this.clients[serverPath] = {
-                client: new client_1.TypescriptServiceClient(serverPath),
+                client: new client_1.TypescriptServiceClient(serverPath, version),
                 pending: [],
             };
             entry.client.startServer();
@@ -46,15 +49,14 @@ class ClientResolver extends events.EventEmitter {
 exports.ClientResolver = ClientResolver;
 function resolveServer(sourcePath) {
     const basedir = path.dirname(sourcePath);
-    return new Promise((resolve, reject) => {
-        nodeResolve("typescript/bin/tsserver", { basedir }, (err, resolvedPath) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(resolvedPath);
-            }
-        });
+    return Promise.resolve().then(() => {
+        const resolvedPath = resolve_1.sync("typescript/bin/tsserver", { basedir });
+        const packagePath = path.resolve(resolvedPath, "../../package.json");
+        const version = require(packagePath).version;
+        return {
+            version,
+            serverPath: resolvedPath
+        };
     });
 }
 exports.resolveServer = resolveServer;

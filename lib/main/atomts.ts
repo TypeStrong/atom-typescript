@@ -22,6 +22,7 @@ import * as hyperclickProvider from "../hyperclickProvider"
 // import * as path from 'path'
 import * as renameView from './atom/views/renameView'
 import * as tsconfig from "tsconfig/dist/tsconfig"
+import {flatten, values} from "lodash"
 
 // globals
 const subscriptions = new CompositeDisposable()
@@ -50,14 +51,14 @@ export function activate(state: PackageState) {
         priority: statusPriority
       })
 
+      subscriptions.add(statusPanel)
+
       const errorPusher = new ErrorPusher()
 
-      // clientResolver.on("pendingRequestsChange", () => {
-      //   const pending = Object.keys(clientResolver.clients)
-      //     .map(serverPath => clientResolver.clients[serverPath].pending)
-      //
-      //   mainPanel.view.updatePendingRequests([].concat.apply([], pending))
-      // })
+      clientResolver.on("pendingRequestsChange", () => {
+        const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
+        statusPanel.setPending(pending)
+      })
 
       if (linter) {
         errorPusher.setLinter(linter)
@@ -96,7 +97,8 @@ export function activate(state: PackageState) {
 
             panes.splice(panes.indexOf(pane), 1)
           },
-          onSave
+          onSave,
+          statusPanel,
         }))
       }))
 

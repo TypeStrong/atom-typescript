@@ -1,7 +1,7 @@
 import {TypescriptServiceClient as Client} from "./client"
 import * as events from "events"
 import * as path from "path"
-import * as nodeResolve from "resolve"
+import {sync as resolveSync} from "resolve"
 import {Diagnostic, DiagnosticEventBody, ConfigFileDiagnosticEventBody} from "typescript/lib/protocol"
 
 type DiagnosticTypes = "configFileDiag" | "semanticDiag" | "syntaxDiag"
@@ -13,7 +13,15 @@ interface DiagnosticsPayload {
   type: DiagnosticTypes,
 }
 
-const defaultServerPath = require.resolve("typescript/bin/tsserver")
+interface Server {
+  version: string
+  serverPath: string
+}
+
+const defaultServer: Server = {
+  serverPath: require.resolve("typescript/bin/tsserver"),
+  version: require("typescript").version
+}
 
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
@@ -37,14 +45,14 @@ export class ClientResolver extends events.EventEmitter {
 
   get(filePath: string): Promise<Client> {
     return resolveServer(filePath)
-      .catch(() => defaultServerPath)
-      .then(serverPath => {
+      .catch(() => defaultServer)
+      .then(({serverPath, version}) => {
         if (this.clients[serverPath]) {
           return this.clients[serverPath].client
         }
 
         const entry = this.clients[serverPath] = {
-          client: new Client(serverPath),
+          client: new Client(serverPath, version),
           pending: [],
         }
 
@@ -73,17 +81,18 @@ export class ClientResolver extends events.EventEmitter {
   }
 }
 
-export function resolveServer(sourcePath: string): Promise<string> {
+export function resolveServer(sourcePath: string): Promise<Server> {
   const basedir = path.dirname(sourcePath)
 
-  return new Promise((resolve, reject) => {
-    nodeResolve("typescript/bin/tsserver", {basedir}, (err, resolvedPath) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(resolvedPath)
-      }
-    })
+  return Promise.resolve().then(() => {
+    const resolvedPath = resolveSync("typescript/bin/tsserver", {basedir})
+    const packagePath = path.resolve(resolvedPath, "../../package.json")
+    const version = require(packagePath).version
+
+    return {
+      version,
+      serverPath: resolvedPath
+    }
   })
 }
 
