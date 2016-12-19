@@ -34,6 +34,7 @@ class TypescriptEditorPane {
             this.isActive = false;
         };
         this.onDidChange = diff => {
+            this.changedAt = Date.now();
             if (this.isOpen) {
                 this.opts.statusPanel.setBuildStatus(null);
                 this.client.executeChange({
@@ -46,12 +47,12 @@ class TypescriptEditorPane {
                 });
             }
         };
-        this.onDidChangeCursorPosition = () => {
+        this.onDidChangeCursorPosition = lodash_1.debounce(() => {
             if (!this.isTypescript) {
                 return;
             }
-            for (const marker of this.occurrenceMarkers) {
-                marker.destroy();
+            if ((Date.now() - this.changedAt) < 100) {
+                return;
             }
             const pos = this.editor.getLastCursor().getBufferPosition();
             this.client.executeOccurances({
@@ -59,6 +60,7 @@ class TypescriptEditorPane {
                 line: pos.row + 1,
                 offset: pos.column + 1
             }).then(result => {
+                this.clearOccurrenceMarkers();
                 for (const ref of result.body) {
                     const marker = this.editor.markBufferRange(tsUtil_1.spanToRange(ref));
                     this.editor.decorateMarker(marker, {
@@ -67,8 +69,8 @@ class TypescriptEditorPane {
                     });
                     this.occurrenceMarkers.push(marker);
                 }
-            }).catch(() => null);
-        };
+            }).catch(() => this.clearOccurrenceMarkers());
+        }, 100);
         this.onDidDestroy = () => {
             this.dispose();
         };
@@ -168,6 +170,11 @@ class TypescriptEditorPane {
             this.client.executeClose({ file: this.filePath });
         }
         this.opts.onDispose(this);
+    }
+    clearOccurrenceMarkers() {
+        for (const marker of this.occurrenceMarkers) {
+            marker.destroy();
+        }
     }
     setupTooltipView() {
         const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));

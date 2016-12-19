@@ -2,7 +2,7 @@ import {$} from "atom-space-pen-views"
 import {basename} from "path"
 import {clientResolver} from "./atomts"
 import {CompositeDisposable} from "atom"
-import {flatten} from "lodash"
+import {debounce, flatten} from "lodash"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
 import {StatusPanel} from "./atom/components/statusPanel"
@@ -22,6 +22,7 @@ interface PaneOptions {
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
+  changedAt: number
   activeAt: number
   client: TypescriptServiceClient
   configFile: string = ""
@@ -131,6 +132,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onDidChange: onChangeObserver = diff => {
+    this.changedAt = Date.now()
+
     if (this.isOpen) {
       this.opts.statusPanel.setBuildStatus(null)
 
@@ -145,13 +148,20 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }
   }
 
-  onDidChangeCursorPosition = () => {
+  clearOccurrenceMarkers() {
+    for (const marker of this.occurrenceMarkers) {
+      marker.destroy()
+    }
+  }
+
+  onDidChangeCursorPosition = debounce(() => {
     if (!this.isTypescript) {
       return
     }
 
-    for (const marker of this.occurrenceMarkers) {
-      marker.destroy()
+    // Don't update the highlights if the cursor is moving because of the changes to the buffer
+    if ((Date.now() - this.changedAt) < 100) {
+      return
     }
 
     const pos = this.editor.getLastCursor().getBufferPosition()
@@ -161,6 +171,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       line: pos.row+1,
       offset: pos.column+1
     }).then(result => {
+      this.clearOccurrenceMarkers()
+
       for (const ref of result.body) {
         const marker = this.editor.markBufferRange(spanToRange(ref))
         this.editor.decorateMarker(marker as any, {
@@ -169,8 +181,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         })
         this.occurrenceMarkers.push(marker)
       }
-    }).catch(() => null)
-  }
+    }).catch(() => this.clearOccurrenceMarkers())
+  }, 100)
 
   onDidDestroy = () => {
     this.dispose()
