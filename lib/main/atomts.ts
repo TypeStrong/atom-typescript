@@ -15,7 +15,7 @@ import {TypescriptEditorPane} from "./typescript_editor_pane"
 import {StatusPanel} from "./atom/components/statusPanel"
 import * as atomConfig from './atom/atomConfig'
 // import * as atomUtils from './atom/atomUtils'
-import * as autoCompleteProvider from './atom/autoCompleteProvider'
+import {AutocompleteProvider} from './atom/autoCompleteProvider'
 import * as commands from "./atom/commands/commands"
 // import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
@@ -150,7 +150,9 @@ export function consumeStatusBar(_statusBar) {
 
 // Registering an autocomplete provider
 export function provide() {
-    return [autoCompleteProvider.provider];
+  return [
+    new AutocompleteProvider(clientResolver),
+  ]
 }
 
 export function getHyperclickProvider() {

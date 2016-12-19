@@ -3,14 +3,10 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 const atomts_1 = require("../../atomts");
-const autoCompleteProvider = require("../autoCompleteProvider");
 const typeOverlayView_1 = require("../views/typeOverlayView");
 const gotoHistory = require("../gotoHistory");
 __export(require("../components/componentRegistry"));
 function registerCommands() {
-    atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
-        autoCompleteProvider.triggerAutocompletePlus();
-    });
     atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {
         var editor = atom.workspace.getActiveTextEditor();
         var editorView = atom.views.getView(editor);

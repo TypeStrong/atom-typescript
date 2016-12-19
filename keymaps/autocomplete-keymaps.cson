@@ -1,3 +1,0 @@
-'atom-text-editor[data-grammar^="source ts"]':
-  'ctrl-space': 'typescript:autocomplete'
-  'cmd-space': 'typescript:autocomplete'

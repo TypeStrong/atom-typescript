@@ -1,56 +1,83 @@
 "use strict";
 const tslib_1 = require("tslib");
-const atomUtils = require("./atomUtils");
-const fs = require("fs");
-const atomts_1 = require("../atomts");
-var explicitlyTriggered = false;
-function triggerAutocompletePlus() {
-    atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'autocomplete-plus:activate');
-    explicitlyTriggered = true;
-}
-exports.triggerAutocompletePlus = triggerAutocompletePlus;
-exports.provider = {
-    selector: '.source.ts, .source.tsx',
-    inclusionPriority: 3,
-    suggestionPriority: 3,
-    excludeLowerPriority: false,
-    getSuggestions: function (options) {
+const atomUtils_1 = require("./atomUtils");
+const fuzzaldrin = require("fuzzaldrin");
+class AutocompleteProvider {
+    constructor(clientResolver) {
+        this.selector = ".source.ts, .source.tsx";
+        this.inclusionPriority = 3;
+        this.suggestionPriority = 3;
+        this.excludeLowerPriority = false;
+        this.clientResolver = clientResolver;
+    }
+    getSuggestionsWithCache(prefix, location) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const filePath = options.editor.getPath();
-            if (!filePath || !fs.existsSync(filePath))
-                return [];
-            const client = yield atomts_1.clientResolver.get(filePath);
-            if (explicitlyTriggered) {
-                explicitlyTriggered = false;
-            }
-            else {
-                const prefix = options.prefix.trim();
-                if (prefix === '' || prefix === ';' || prefix === '{') {
-                    return Promise.resolve([]);
+            if (this.lastSuggestions) {
+                const lastLoc = this.lastSuggestions.location;
+                const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
+                const thisCol = getNormalizedCol(prefix, location.offset);
+                if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+                    return this.lastSuggestions.suggestions;
                 }
             }
-            return client.executeCompletions({
-                file: filePath,
-                prefix: options.prefix,
-                line: options.bufferPosition.row + 1,
-                offset: options.bufferPosition.column + 1
-            }).then(resp => {
-                console.log("prefix", options.prefix);
-                return resp.body.map(c => {
-                    var prefix = options.prefix;
-                    if (c.name && c.name.startsWith('$')) {
-                        prefix = "$" + prefix;
-                    }
-                    return {
-                        text: c.name,
-                        replacementPrefix: prefix === "." ? "" : prefix.trim(),
-                        rightLabel: c.name,
-                        leftLabel: c.kind,
-                        type: atomUtils.kindToType(c.kind),
-                        description: null,
-                    };
-                });
-            }).catch(() => []);
+            const client = yield this.clientResolver.get(location.file);
+            const completions = yield client.executeCompletions(tslib_1.__assign({ prefix }, location));
+            const suggestions = completions.body.map(entry => ({
+                text: entry.name,
+                leftLabel: entry.kind,
+                type: atomUtils_1.kindToType(entry.kind),
+            }));
+            this.lastSuggestions = {
+                client,
+                location,
+                prefix,
+                suggestions,
+            };
+            return suggestions;
         });
-    },
-};
+    }
+    getSuggestions(opts) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const location = getLocationQuery(opts);
+            const { prefix } = opts;
+            console.warn(JSON.stringify(prefix));
+            if (!location.file) {
+                return [];
+            }
+            let suggestions = yield this.getSuggestionsWithCache(prefix, location);
+            const alphaPrefix = prefix.replace(/\W/g, "");
+            if (alphaPrefix !== "") {
+                suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, { key: "text" });
+            }
+            this.getAdditionalDetails(suggestions.slice(0, 15), location);
+            return suggestions;
+        });
+    }
+    getAdditionalDetails(suggestions, location) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (suggestions.some(s => !s.details)) {
+                const details = yield this.lastSuggestions.client.executeCompletionDetails(tslib_1.__assign({ entryNames: suggestions.map(s => s.text) }, location));
+                details.body.forEach((detail, i) => {
+                    const suggestion = suggestions[i];
+                    suggestion.details = detail;
+                    suggestion.rightLabel = detail.displayParts.map(d => d.text).join("");
+                    if (detail.documentation) {
+                        suggestion.description = detail.documentation.map(d => d.text).join(" ");
+                    }
+                });
+            }
+        });
+    }
+}
+exports.AutocompleteProvider = AutocompleteProvider;
+function getNormalizedCol(prefix, col) {
+    const length = prefix === "." ? 0 : prefix.length;
+    return col - length;
+}
+function getLocationQuery(opts) {
+    return {
+        file: opts.editor.getPath(),
+        line: opts.bufferPosition.row + 1,
+        offset: opts.bufferPosition.column + 1
+    };
+}

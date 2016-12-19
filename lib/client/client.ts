@@ -39,6 +39,7 @@ export class TypescriptServiceClient {
   static commandWithResponse = {
     compileOnSaveAffectedFileList: true,
     compileOnSaveEmitFile: true,
+    completionEntryDetails: true,
     completions: true,
     occurrences: true,
     projectInfo: true,
@@ -60,6 +61,9 @@ export class TypescriptServiceClient {
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
     return this.execute("completions", args)
+  }
+  executeCompletionDetails(args: protocol.CompletionDetailsRequestArgs): Promise<protocol.CompletionDetailsResponse> {
+    return this.execute("completionEntryDetails", args)
   }
   executeGetErr(args: protocol.GeterrRequestArgs) {
     this.execute("geterr", args)

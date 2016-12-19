@@ -141,6 +141,8 @@ function kindToColor(kind) {
 exports.kindToColor = kindToColor;
 function kindToType(kind) {
     switch (kind) {
+        case 'const':
+            return 'constant';
         case 'interface':
             return 'type';
         case 'identifier':
@@ -149,6 +151,7 @@ function kindToType(kind) {
             return 'function';
         case 'local var':
             return 'variable';
+        case 'let':
         case 'var':
         case 'parameter':
             return 'variable';

@@ -27,12 +27,6 @@ class StatusPanel extends HTMLElement {
         this.setTsConfigPath(null);
         this.setBuildStatus(null);
     }
-    attachedCallback() {
-        console.log("attached");
-    }
-    attributeChangedCallback() {
-        console.log("attrs changed", arguments);
-    }
     dispose() {
         this.remove();
     }

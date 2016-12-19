@@ -1,6 +1,5 @@
 import {clientResolver} from "../../atomts"
 // import atomUtils = require("../atomUtils");
-import autoCompleteProvider = require("../autoCompleteProvider");
 // import path = require('path');
 // import renameView = require("../views/renameView");
 // import fileSymbolsView = require("../views/fileSymbolsView");
@@ -96,10 +95,6 @@ export function registerCommands() {
     //         }
     //     });
     // });
-
-    atom.commands.add('atom-text-editor', 'typescript:autocomplete', (e) => {
-        autoCompleteProvider.triggerAutocompletePlus();
-    });
 
     // atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
     //     // Rename variable

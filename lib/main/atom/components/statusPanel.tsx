@@ -58,14 +58,6 @@ export class StatusPanel extends HTMLElement {
     this.setBuildStatus(null)
   }
 
-  attachedCallback() {
-    console.log("attached")
-  }
-
-  attributeChangedCallback() {
-    console.log("attrs changed", arguments)
-  }
-
   dispose() {
     this.remove()
   }

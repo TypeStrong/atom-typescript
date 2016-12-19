@@ -9,7 +9,7 @@ const error_pusher_1 = require("./error_pusher");
 const typescript_editor_pane_1 = require("./typescript_editor_pane");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
-const autoCompleteProvider = require("./atom/autoCompleteProvider");
+const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const commands = require("./atom/commands/commands");
 const hyperclickProvider = require("../hyperclickProvider");
 const renameView = require("./atom/views/renameView");
@@ -109,7 +109,9 @@ function consumeStatusBar(_statusBar) {
 }
 exports.consumeStatusBar = consumeStatusBar;
 function provide() {
-    return [autoCompleteProvider.provider];
+    return [
+        new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver),
+    ];
 }
 exports.provide = provide;
 function getHyperclickProvider() {
