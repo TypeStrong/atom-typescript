@@ -52,7 +52,6 @@
     "@types/atom": "0.0.35",
     "@types/byline": "^4.2.31",
     "@types/lodash": "4.14.41",
-    "@types/react": "0.14.52",
     "@types/resolve": "0.0.4",
     "atom-package-deps": "^2.0.3",
     "atom-space-pen-views": "^2.0.4",
