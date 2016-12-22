@@ -9,7 +9,7 @@ type SuggestionWithDetails = Suggestion & {details?}
 
 export class AutocompleteProvider implements Provider {
   selector = ".source.ts, .source.tsx"
-  disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx"
+  disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx, .comment.line.double-slash.ts, .comment.line.double-slash.tsx"
 
   inclusionPriority = 3
   suggestionPriority = 3

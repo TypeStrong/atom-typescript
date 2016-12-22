@@ -154,16 +154,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }
   }
 
-  onDidChangeCursorPosition = debounce(() => {
-    if (!this.isTypescript) {
-      return
-    }
-
-    // Don't update the highlights if the cursor is moving because of the changes to the buffer
-    if ((Date.now() - this.changedAt) < 100) {
-      return
-    }
-
+  updateMarkers = debounce(() => {
     const pos = this.editor.getLastCursor().getBufferPosition()
 
     this.client.executeOccurances({
@@ -183,6 +174,19 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       }
     }).catch(() => this.clearOccurrenceMarkers())
   }, 100)
+
+  onDidChangeCursorPosition = ({textChanged}) => {
+    if (!this.isTypescript) {
+      return
+    }
+
+    if (textChanged) {
+      this.clearOccurrenceMarkers()
+      return
+    }
+
+    this.updateMarkers()
+  }
 
   onDidDestroy = () => {
     this.dispose()

@@ -5,7 +5,7 @@ const fuzzaldrin = require("fuzzaldrin");
 class AutocompleteProvider {
     constructor(clientResolver) {
         this.selector = ".source.ts, .source.tsx";
-        this.disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx";
+        this.disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx, .comment.line.double-slash.ts, .comment.line.double-slash.tsx";
         this.inclusionPriority = 3;
         this.suggestionPriority = 3;
         this.excludeLowerPriority = false;

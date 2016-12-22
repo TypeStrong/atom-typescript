@@ -47,13 +47,7 @@ class TypescriptEditorPane {
                 });
             }
         };
-        this.onDidChangeCursorPosition = lodash_1.debounce(() => {
-            if (!this.isTypescript) {
-                return;
-            }
-            if ((Date.now() - this.changedAt) < 100) {
-                return;
-            }
+        this.updateMarkers = lodash_1.debounce(() => {
             const pos = this.editor.getLastCursor().getBufferPosition();
             this.client.executeOccurances({
                 file: this.filePath,
@@ -71,6 +65,16 @@ class TypescriptEditorPane {
                 }
             }).catch(() => this.clearOccurrenceMarkers());
         }, 100);
+        this.onDidChangeCursorPosition = ({ textChanged }) => {
+            if (!this.isTypescript) {
+                return;
+            }
+            if (textChanged) {
+                this.clearOccurrenceMarkers();
+                return;
+            }
+            this.updateMarkers();
+        };
         this.onDidDestroy = () => {
             this.dispose();
         };
