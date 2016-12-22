@@ -45,6 +45,7 @@ export class TypescriptServiceClient {
     occurrences: true,
     projectInfo: true,
     quickinfo: true,
+    references: true,
     reload: true,
   }
 
@@ -87,8 +88,14 @@ export class TypescriptServiceClient {
   executeQuickInfo(args: protocol.FileLocationRequestArgs): Promise<protocol.QuickInfoResponse> {
     return this.execute("quickinfo", args)
   }
+  executeReferences(args: protocol.FileLocationRequestArgs): Promise<protocol.ReferencesResponse> {
+    return this.execute("references", args)
+  }
   executeReload(args: protocol.ReloadRequestArgs): Promise<protocol.ReloadResponse> {
     return this.execute("reload", args)
+  }
+  executeSaveTo(args: protocol.SavetoRequestArgs) {
+    return this.execute("saveto", args)
   }
 
   execute(command: string, args): Promise<any> {

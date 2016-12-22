@@ -111,14 +111,12 @@ class TypescriptEditorPane {
                         this.opts.statusPanel.setBuildStatus(null);
                     }
                     for (const change of changes) {
-                        this.client.executeChange({
-                            endLine: change.start.row + change.oldExtent.row + 1,
-                            endOffset: change.start.column + change.oldExtent.column + 1,
-                            file: this.filePath,
-                            line: change.start.row + 1,
-                            offset: change.start.column + 1,
-                            insertString: change.newText,
-                        });
+                        const { start, oldExtent, newText } = change;
+                        const end = {
+                            endLine: start.row + oldExtent.row + 1,
+                            endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1
+                        };
+                        this.client.executeChange(tslib_1.__assign({}, end, { file: this.filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
                     }
                 }
                 this.client.executeGetErr({

@@ -69,8 +69,14 @@ class TypescriptServiceClient {
     executeQuickInfo(args) {
         return this.execute("quickinfo", args);
     }
+    executeReferences(args) {
+        return this.execute("references", args);
+    }
     executeReload(args) {
         return this.execute("reload", args);
+    }
+    executeSaveTo(args) {
+        return this.execute("saveto", args);
     }
     execute(command, args) {
         return this.serverPromise.then(cp => {
@@ -158,6 +164,7 @@ TypescriptServiceClient.commandWithResponse = {
     occurrences: true,
     projectInfo: true,
     quickinfo: true,
+    references: true,
     reload: true,
 };
 exports.TypescriptServiceClient = TypescriptServiceClient;

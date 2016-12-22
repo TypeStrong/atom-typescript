@@ -1,5 +1,7 @@
 "use strict";
 const registry_1 = require("./registry");
+require("./checkAllFiles");
+require("./findReferences");
 require("./goToDeclaration");
 function registerCommands(deps) {
     for (const [name, command] of registry_1.commands) {

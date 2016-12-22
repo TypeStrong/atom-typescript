@@ -48,7 +48,8 @@ class AutocompleteProvider {
                 suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, { key: "text" });
             }
             this.getAdditionalDetails(suggestions.slice(0, 15), location);
-            return suggestions.map(suggestion => (tslib_1.__assign({ replacementPrefix: getReplacementPrefix(prefix, suggestion.text) }, suggestion)));
+            const trimmed = prefix.trim();
+            return suggestions.map(suggestion => (tslib_1.__assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
         });
     }
     getAdditionalDetails(suggestions, location) {
@@ -68,8 +69,8 @@ class AutocompleteProvider {
     }
 }
 exports.AutocompleteProvider = AutocompleteProvider;
-function getReplacementPrefix(prefix, replacement) {
-    if (prefix === ".") {
+function getReplacementPrefix(prefix, trimmed, replacement) {
+    if (trimmed === "." || trimmed === "{") {
         return "";
     }
     else if (replacement.startsWith("$")) {

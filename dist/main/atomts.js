@@ -16,6 +16,7 @@ const lodash_2 = require("lodash");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
+require("./atom/components");
 let linter;
 let statusBar;
 function activate(state) {
