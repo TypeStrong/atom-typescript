@@ -96,8 +96,10 @@ export class AutocompleteProvider implements Provider {
     // Get additional details for the first few suggestions, but don't wait for it to complete
     this.getAdditionalDetails(suggestions.slice(0, 15), location)
 
+    const trimmed = prefix.trim()
+
     return suggestions.map(suggestion => ({
-      replacementPrefix: getReplacementPrefix(prefix, suggestion.text),
+      replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text),
       ...suggestion
     }))
   }
@@ -123,9 +125,9 @@ export class AutocompleteProvider implements Provider {
   }
 }
 
-// If prefix is ".", don't replace anything, just insert the completion, replace it otherwise.
-function getReplacementPrefix(prefix: string, replacement: string): string {
-  if (prefix === ".") {
+// Decide what needs to be replaced in the editor buffer when inserting the completion
+function getReplacementPrefix(prefix: string, trimmed: string, replacement: string): string {
+  if (trimmed === "." || trimmed === "{") {
     return ""
   } else if (replacement.startsWith("$")) {
     return "$" + prefix

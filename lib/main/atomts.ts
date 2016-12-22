@@ -24,6 +24,9 @@ const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
 export const config = atomConfig.schema
 
+// Register all custom components
+import "./atom/components"
+
 let linter: Linter
 let statusBar: StatusBar
 

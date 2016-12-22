@@ -15,6 +15,8 @@
 import {commands, Dependencies} from "./registry"
 
 // Import all of the command files for their side effects
+import "./checkAllFiles"
+import "./findReferences"
 import "./goToDeclaration"
 
 export function registerCommands(deps: Dependencies) {
@@ -157,31 +159,6 @@ export function registerCommands(deps: Dependencies) {
     // });
     // atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
     //     gotoHistory.gotoPrevious();
-    // });
-
-    // atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
-    //     if (!atomUtils.commandForTypeScript(e)) return;
-    //
-    //     parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
-    //
-    //         simpleSelectionView({
-    //             items: res.references,
-    //             viewForItem: (item) => {
-    //                 return `<div>
-    //                     <span>${atom.project.relativize(item.filePath) }</span>
-    //                     <div class="pull-right">line: ${item.position.line + 1}</div>
-    //                     <ts-view>${escapeHtml(item.preview)}</ts-view>
-    //                 <div>`;
-    //             },
-    //             filterKey: utils.getName(() => res.references[0].filePath),
-    //             confirmed: (definition) => {
-    //                 atom.workspace.open(definition.filePath, {
-    //                     initialLine: definition.position.line,
-    //                     initialColumn: definition.position.col
-    //                 });
-    //             }
-    //         })
-    //     });
     // });
 
     // I've needed to debounce this as it gets called multiple times for some reason
