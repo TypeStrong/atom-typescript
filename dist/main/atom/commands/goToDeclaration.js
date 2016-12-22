@@ -9,7 +9,7 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
             return;
         }
         const location = atomUtils_1.getFilePathPosition();
-        const client = yield deps.clientResolver.get(location.file);
+        const client = yield deps.getClient(location.file);
         const result = yield client.executeDefinition(location);
         if (result.body.length > 1) {
             simpleSelectionView_1.simpleSelectionView({

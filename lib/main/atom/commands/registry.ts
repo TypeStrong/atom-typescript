@@ -1,7 +1,7 @@
-import {ClientResolver} from "../../../client/clientResolver"
+import {TypescriptServiceClient} from "../../../client/client"
 
 export interface Dependencies {
-  clientResolver: ClientResolver
+  getClient(filePath: string): Promise<TypescriptServiceClient>
 }
 
 export interface CommandConstructor {

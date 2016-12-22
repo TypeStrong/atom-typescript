@@ -211,7 +211,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         throw new Error("Some files failed to emit")
       }
 
-      console.log("Saved....", saved)
       this.opts.statusPanel.setBuildStatus({
         success: true
       })
@@ -227,7 +226,11 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   onDidStopChanging = ({changes}) => {
     if (this.isTypescript && this.filePath) {
       if (this.isOpen) {
-        this.opts.statusPanel.setBuildStatus(null)
+
+        if (changes.length !== 0) {
+          this.opts.statusPanel.setBuildStatus(null)
+        }
+
         for (const change of changes) {
           this.client.executeChange({
             endLine: change.start.row + change.oldExtent.row + 1,

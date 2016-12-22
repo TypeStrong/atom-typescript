@@ -1,8 +1,3 @@
-console.log("be initializing them package")
-console.profile("atomts init")
-
-const startTime = process.hrtime()
-
 // import {getFileStatus} from "./atom/fileStatusCache"
 // import {$} from "atom-space-pen-views"
 import {ClientResolver} from "../client/clientResolver"
@@ -72,7 +67,17 @@ export function activate(state: PackageState) {
       renameView.attach()
 
       // Register the commands
-      commands.registerCommands({clientResolver})
+      commands.registerCommands({
+        async getClient(filePath: string) {
+          for (const pane of panes) {
+            if (pane.filePath === filePath) {
+              return pane.client
+            }
+          }
+
+          return clientResolver.get(filePath)
+        }
+      })
 
       const panes: TypescriptEditorPane[] = []
 
@@ -166,6 +171,3 @@ export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig
     })
   })
 }
-
-console.profileEnd()
-console.log("init took", process.hrtime(startTime))

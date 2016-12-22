@@ -9,7 +9,7 @@ commands.set("typescript:go-to-declaration", deps => {
     }
 
     const location = getFilePathPosition()
-    const client = await deps.clientResolver.get(location.file)
+    const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
 
     if (result.body.length > 1) {

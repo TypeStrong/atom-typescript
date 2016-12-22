@@ -93,7 +93,6 @@ class TypescriptEditorPane {
                 if (!saved.every(res => res.body)) {
                     throw new Error("Some files failed to emit");
                 }
-                console.log("Saved....", saved);
                 this.opts.statusPanel.setBuildStatus({
                     success: true
                 });
@@ -108,7 +107,9 @@ class TypescriptEditorPane {
         this.onDidStopChanging = ({ changes }) => {
             if (this.isTypescript && this.filePath) {
                 if (this.isOpen) {
-                    this.opts.statusPanel.setBuildStatus(null);
+                    if (changes.length !== 0) {
+                        this.opts.statusPanel.setBuildStatus(null);
+                    }
                     for (const change of changes) {
                         this.client.executeChange({
                             endLine: change.start.row + change.oldExtent.row + 1,

@@ -39,15 +39,19 @@ export class AutocompleteProvider implements Provider {
     prefix: string,
     location: FileLocationQuery
   ): Promise<SuggestionWithDetails[]> {
-    if (this.lastSuggestions) {
-      const lastLoc = this.lastSuggestions.location
-      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
-      const thisCol = getNormalizedCol(prefix, location.offset)
-
-      if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
-        return this.lastSuggestions.suggestions
-      }
-    }
+    // NOTE: While typing this can get out of sync with what tsserver would return so find a better
+    // way to reuse the completions.
+    // if (this.lastSuggestions) {
+    //   const lastLoc = this.lastSuggestions.location
+    //   const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
+    //   const thisCol = getNormalizedCol(prefix, location.offset)
+    //
+    //   if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+    //     if (this.lastSuggestions.suggestions.length !== 0) {
+    //       return this.lastSuggestions.suggestions
+    //     }
+    //   }
+    // }
 
     const client = await this.clientResolver.get(location.file)
     const completions = await client.executeCompletions({prefix, ...location})
@@ -71,6 +75,8 @@ export class AutocompleteProvider implements Provider {
   async getSuggestions(opts: RequestOptions): Promise<Suggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
+
+    console.log("autocomplete", {prefix, location})
 
     if (!location.file) {
       return []
@@ -130,10 +136,10 @@ function getReplacementPrefix(prefix: string, replacement: string): string {
 
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."
-function getNormalizedCol(prefix: string, col: number): number {
-  const length = prefix === "." ? 0 : prefix.length
-  return col - length
-}
+// function getNormalizedCol(prefix: string, col: number): number {
+//   const length = prefix === "." ? 0 : prefix.length
+//   return col - length
+// }
 
 function getLocationQuery(opts: RequestOptions): FileLocationQuery {
   return {

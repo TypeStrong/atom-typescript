@@ -39,6 +39,7 @@ class StatusPanel extends HTMLElement {
         }
     }
     setBuildStatus(status) {
+        console.log("setting build status", status);
         const container = this.statusText;
         if (status) {
             if (status.success) {

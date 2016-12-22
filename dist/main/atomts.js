@@ -1,7 +1,5 @@
 "use strict";
-console.log("be initializing them package");
-console.profile("atomts init");
-const startTime = process.hrtime();
+const tslib_1 = require("tslib");
 const clientResolver_1 = require("../client/clientResolver");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
@@ -46,7 +44,18 @@ function activate(state) {
             });
         }
         renameView.attach();
-        commands.registerCommands({ clientResolver: exports.clientResolver });
+        commands.registerCommands({
+            getClient(filePath) {
+                return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                    for (const pane of panes) {
+                        if (pane.filePath === filePath) {
+                            return pane.client;
+                        }
+                    }
+                    return exports.clientResolver.get(filePath);
+                });
+            }
+        });
         const panes = [];
         const onSave = lodash_1.debounce((pane) => {
             console.log("checking errors for all panes for", pane.filePath);
@@ -126,5 +135,3 @@ function loadProjectConfig(sourcePath) {
     });
 }
 exports.loadProjectConfig = loadProjectConfig;
-console.profileEnd();
-console.log("init took", process.hrtime(startTime));

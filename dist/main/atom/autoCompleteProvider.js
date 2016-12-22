@@ -13,14 +13,6 @@ class AutocompleteProvider {
     }
     getSuggestionsWithCache(prefix, location) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this.lastSuggestions) {
-                const lastLoc = this.lastSuggestions.location;
-                const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
-                const thisCol = getNormalizedCol(prefix, location.offset);
-                if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
-                    return this.lastSuggestions.suggestions;
-                }
-            }
             const client = yield this.clientResolver.get(location.file);
             const completions = yield client.executeCompletions(tslib_1.__assign({ prefix }, location));
             const suggestions = completions.body.map(entry => ({
@@ -41,6 +33,7 @@ class AutocompleteProvider {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
             const { prefix } = opts;
+            console.log("autocomplete", { prefix, location });
             if (!location.file) {
                 return [];
             }
@@ -85,10 +78,6 @@ function getReplacementPrefix(prefix, replacement) {
     else {
         return prefix;
     }
-}
-function getNormalizedCol(prefix, col) {
-    const length = prefix === "." ? 0 : prefix.length;
-    return col - length;
 }
 function getLocationQuery(opts) {
     return {
