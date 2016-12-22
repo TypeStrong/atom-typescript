@@ -134,11 +134,11 @@ export class StatusPanel extends HTMLElement {
   }
 
   show() {
-    this.style.display = "block"
+    this.classList.remove("hide")
   }
 
   hide() {
-    this.style.display = "none"
+    this.classList.add("hide")
   }
 
   static create() {

@@ -4,16 +4,22 @@ import * as fsu from "../utils/fsUtil";
 import _atom = require('atom');
 import url = require('url');
 
-// Optimized version where we do not ask this of the languageServiceHost
-export function getEditorPosition(editor: AtomCore.IEditor): number {
-    var bufferPos = editor.getCursorBufferPosition();
-    return getEditorPositionForBufferPosition(editor, bufferPos);
+export interface LocationQuery {
+  line: number
+  offset: number
 }
 
-// Further optimized if you already have the bufferPos
-export function getEditorPositionForBufferPosition(editor: AtomCore.IEditor, bufferPos: TextBuffer.IPoint): number {
-    var buffer = editor.getBuffer();
-    return buffer.characterIndexForPosition(bufferPos);
+export interface FileLocationQuery extends LocationQuery {
+  file: string
+}
+
+// Return line/offset position in the editor using 1-indexed coordinates
+export function getEditorPosition(editor: AtomCore.IEditor): LocationQuery {
+    const pos = editor.getCursorBufferPosition()
+    return {
+      line: pos.row + 1,
+      offset: pos.column + 1
+    }
 }
 
 export function isAllowedExtension(ext: string) {
@@ -60,11 +66,12 @@ export function onDiskAndTsRelated(editor: AtomCore.IEditor) {
     return false;
 }
 
-export function getFilePathPosition(): { filePath: string; position: number } {
-    var editor = atom.workspace.getActiveTextEditor();
-    var filePath = editor.getPath();
-    var position = getEditorPosition(editor);
-    return { filePath, position };
+export function getFilePathPosition(): FileLocationQuery {
+    const editor = atom.workspace.getActiveTextEditor()
+    return {
+      file: editor.getPath(),
+      ...getEditorPosition(editor)
+    }
 }
 
 export function getFilePath(): { filePath: string; } {
