@@ -1,19 +1,27 @@
-import {clientResolver} from "../../atomts"
 // import atomUtils = require("../atomUtils");
 // import path = require('path');
 // import renameView = require("../views/renameView");
 // import fileSymbolsView = require("../views/fileSymbolsView");
 // import projectSymbolsView = require("../views/projectSymbolsView");
-import {create as createTypeOverlay} from "../views/typeOverlayView";
-import gotoHistory = require("../gotoHistory");
+// import {create as createTypeOverlay} from "../views/typeOverlayView";
+// import gotoHistory = require("../gotoHistory");
 // import utils = require("../../lang/utils");
 // import {simpleSelectionView} from "../views/simpleSelectionView";
 // import escapeHtml = require('escape-html');
 
 // Load all the web components
-export * from "../components/componentRegistry";
+// export * from "../components/componentRegistry";
 
-export function registerCommands() {
+import {commands, Dependencies} from "./registry"
+
+// Import all of the command files for their side effects
+import "./goToDeclaration"
+
+export function registerCommands(deps: Dependencies) {
+
+  for (const [name, command] of commands) {
+    atom.commands.add("atom-workspace", name, command(deps))
+  }
 
     // Setup custom commands NOTE: these need to be added to the keymaps
     // atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
@@ -38,49 +46,6 @@ export function registerCommands() {
     //         });
 
     //     }
-    // });
-
-    // atom.commands.add('atom-workspace', 'typescript:go-to-declaration', (e) => {
-    //     if (!atomUtils.commandForTypeScript(e)) return;
-
-    //     parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(res=> {
-    //         var definitions = res.definitions;
-    //         if (!definitions || !definitions.length) {
-    //             atom.notifications.addInfo('AtomTS: No definition found.');
-    //             return;
-    //         }
-
-    //         // Potential future ugly hack for something (atom or TS langauge service) path handling
-    //         // definitions.forEach((def)=> def.fileName.replace('/',path.sep));
-
-    //         // support multiple implementations. Else just go to first
-    //         if (definitions.length > 1) {
-    //             simpleSelectionView({
-    //                 items: definitions,
-    //                 viewForItem: (item) => {
-    //                     return `
-    //                         <span>${item.filePath}</span>
-    //                         <div class="pull-right">line: ${item.position.line}</div>
-    //                     `;
-    //                 },
-    //                 filterKey: 'filePath',
-    //                 confirmed: (definition) => {
-    //                     atom.workspace.open(definition.filePath, {
-    //                         initialLine: definition.position.line,
-    //                         initialColumn: definition.position.col
-    //                     });
-    //                 }
-    //             })
-    //         }
-    //         else {
-    //             var definition = definitions[0];
-
-    //             atom.workspace.open(definition.filePath, {
-    //                 initialLine: definition.position.line,
-    //                 initialColumn: definition.position.col
-    //             });
-    //         }
-    //     });
     // });
 
     // atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
@@ -150,56 +115,55 @@ export function registerCommands() {
     //     }
     // });
 
-    atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {
-      var editor = atom.workspace.getActiveTextEditor();
-      var editorView = atom.views.getView(editor);
-      var cursor = editor.getLastCursor()
-      var position = cursor.getBufferPosition()
-      var filePath = editor.getPath();
-
-      clientResolver.get(filePath).then(client => {
-        return client.executeQuickInfo({
-            file: filePath,
-            line: position.row+1,
-            offset: position.column+1
-        }).then(({body: {displayString, documentation}}) => {
-            var decoration = editor.decorateMarker(cursor.getMarker(), {
-              type: 'overlay',
-              item: createTypeOverlay(displayString, documentation)
-            });
-
-            var onKeydown = (e) => {
-              if (e.keyCode == 27) { // esc
-                destroyTypeOverlay();
-              }
-            };
-            var destroyTypeOverlay = () => {
-              decoration.destroy();
-              cursorListener.dispose();
-              editorView.removeEventListener('blur', destroyTypeOverlay);
-              editorView.removeEventListener('keydown', onKeydown);
-            };
-
-            var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
-            editorView.addEventListener('blur', destroyTypeOverlay);
-            editorView.addEventListener('keydown', onKeydown);
-        }).catch(() => { /* ignore errors */ })
-      })
-    });
-
-    atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {
-        gotoHistory.gotoNext();
-    });
-    atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
-        gotoHistory.gotoPrevious();
-    });
+    // atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {
+    //   var editor = atom.workspace.getActiveTextEditor();
+    //   var editorView = atom.views.getView(editor);
+    //   var cursor = editor.getLastCursor()
+    //   var position = cursor.getBufferPosition()
+    //   var filePath = editor.getPath();
+    //
+    //   clientResolver.get(filePath).then(client => {
+    //     return client.executeQuickInfo({
+    //         file: filePath,
+    //         line: position.row+1,
+    //         offset: position.column+1
+    //     }).then(({body: {displayString, documentation}}) => {
+    //         var decoration = editor.decorateMarker(cursor.getMarker(), {
+    //           type: 'overlay',
+    //           item: createTypeOverlay(displayString, documentation)
+    //         });
+    //
+    //         var onKeydown = (e) => {
+    //           if (e.keyCode == 27) { // esc
+    //             destroyTypeOverlay();
+    //           }
+    //         };
+    //         var destroyTypeOverlay = () => {
+    //           decoration.destroy();
+    //           cursorListener.dispose();
+    //           editorView.removeEventListener('blur', destroyTypeOverlay);
+    //           editorView.removeEventListener('keydown', onKeydown);
+    //         };
+    //
+    //         var cursorListener = editor.onDidChangeCursorPosition(destroyTypeOverlay);
+    //         editorView.addEventListener('blur', destroyTypeOverlay);
+    //         editorView.addEventListener('keydown', onKeydown);
+    //     }).catch(() => { /* ignore errors */ })
+    //   })
+    // });
+    //
+    // atom.commands.add('atom-workspace', 'typescript:go-to-next', (e) => {
+    //     gotoHistory.gotoNext();
+    // });
+    // atom.commands.add('atom-workspace', 'typescript:go-to-previous', (e) => {
+    //     gotoHistory.gotoPrevious();
+    // });
 
     // atom.commands.add('atom-workspace', 'typescript:find-references', (e) => {
     //     if (!atomUtils.commandForTypeScript(e)) return;
-
+    //
     //     parent.getReferences(atomUtils.getFilePathPosition()).then(res=> {
-    //         panelView.setReferences(res.references);
-
+    //
     //         simpleSelectionView({
     //             items: res.references,
     //             viewForItem: (item) => {

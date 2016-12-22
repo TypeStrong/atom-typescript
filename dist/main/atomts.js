@@ -46,7 +46,7 @@ function activate(state) {
             });
         }
         renameView.attach();
-        commands.registerCommands();
+        commands.registerCommands({ clientResolver: exports.clientResolver });
         const panes = [];
         const onSave = lodash_1.debounce((pane) => {
             console.log("checking errors for all panes for", pane.filePath);

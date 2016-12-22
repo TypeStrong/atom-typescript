@@ -41,6 +41,7 @@ export class TypescriptServiceClient {
     compileOnSaveEmitFile: true,
     completionEntryDetails: true,
     completions: true,
+    definition: true,
     occurrences: true,
     projectInfo: true,
     quickinfo: true,
@@ -64,6 +65,9 @@ export class TypescriptServiceClient {
   }
   executeCompletionDetails(args: protocol.CompletionDetailsRequestArgs): Promise<protocol.CompletionDetailsResponse> {
     return this.execute("completionEntryDetails", args)
+  }
+  executeDefinition(args: protocol.FileLocationRequestArgs): Promise<protocol.DefinitionResponse> {
+    return this.execute("definition", args)
   }
   executeGetErr(args: protocol.GeterrRequestArgs) {
     this.execute("geterr", args)

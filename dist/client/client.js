@@ -48,6 +48,9 @@ class TypescriptServiceClient {
     executeCompletionDetails(args) {
         return this.execute("completionEntryDetails", args);
     }
+    executeDefinition(args) {
+        return this.execute("definition", args);
+    }
     executeGetErr(args) {
         this.execute("geterr", args);
     }
@@ -151,6 +154,7 @@ TypescriptServiceClient.commandWithResponse = {
     compileOnSaveEmitFile: true,
     completionEntryDetails: true,
     completions: true,
+    definition: true,
     occurrences: true,
     projectInfo: true,
     quickinfo: true,

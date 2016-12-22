@@ -197,7 +197,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
     this.opts.statusPanel.setBuildStatus(null)
 
-    console.log("Compile on Saving...")
     const fileNames = flatten(result.body.map(project => project.fileNames))
 
     if (fileNames.length === 0) {

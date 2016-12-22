@@ -1,19 +1,18 @@
 "use strict";
+const tslib_1 = require("tslib");
 const path = require("path");
 const fs = require("fs");
 const fsu = require("../utils/fsUtil");
 const _atom = require("atom");
 const url = require("url");
 function getEditorPosition(editor) {
-    var bufferPos = editor.getCursorBufferPosition();
-    return getEditorPositionForBufferPosition(editor, bufferPos);
+    const pos = editor.getCursorBufferPosition();
+    return {
+        line: pos.row + 1,
+        offset: pos.column + 1
+    };
 }
 exports.getEditorPosition = getEditorPosition;
-function getEditorPositionForBufferPosition(editor, bufferPos) {
-    var buffer = editor.getBuffer();
-    return buffer.characterIndexForPosition(bufferPos);
-}
-exports.getEditorPositionForBufferPosition = getEditorPositionForBufferPosition;
 function isAllowedExtension(ext) {
     return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
 }
@@ -59,10 +58,8 @@ function onDiskAndTsRelated(editor) {
 }
 exports.onDiskAndTsRelated = onDiskAndTsRelated;
 function getFilePathPosition() {
-    var editor = atom.workspace.getActiveTextEditor();
-    var filePath = editor.getPath();
-    var position = getEditorPosition(editor);
-    return { filePath, position };
+    const editor = atom.workspace.getActiveTextEditor();
+    return tslib_1.__assign({ file: editor.getPath() }, getEditorPosition(editor));
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getFilePath() {

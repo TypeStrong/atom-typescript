@@ -72,7 +72,7 @@ export function activate(state: PackageState) {
       renameView.attach()
 
       // Register the commands
-      commands.registerCommands()
+      commands.registerCommands({clientResolver})
 
       const panes: TypescriptEditorPane[] = []
 

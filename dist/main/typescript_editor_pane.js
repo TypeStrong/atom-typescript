@@ -20,6 +20,7 @@ class TypescriptEditorPane {
             this.activeAt = Date.now();
             this.isActive = true;
             if (this.isTypescript && this.filePath) {
+                this.opts.statusPanel.show();
                 if (this.client) {
                     this.client.executeGetErr({
                         files: [this.filePath],
@@ -32,20 +33,10 @@ class TypescriptEditorPane {
         };
         this.onDeactivated = () => {
             this.isActive = false;
+            this.opts.statusPanel.hide();
         };
         this.onDidChange = diff => {
             this.changedAt = Date.now();
-            if (this.isOpen) {
-                this.opts.statusPanel.setBuildStatus(null);
-                this.client.executeChange({
-                    endLine: diff.oldRange.end.row + 1,
-                    endOffset: diff.oldRange.end.column + 1,
-                    file: this.editor.getPath(),
-                    line: diff.oldRange.start.row + 1,
-                    offset: diff.oldRange.start.column + 1,
-                    insertString: diff.newText,
-                });
-            }
         };
         this.updateMarkers = lodash_1.debounce(() => {
             const pos = this.editor.getLastCursor().getBufferPosition();
@@ -79,7 +70,6 @@ class TypescriptEditorPane {
             this.dispose();
         };
         this.onDidSave = (event) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            console.log("saved", this.filePath);
             if (this.filePath !== event.path) {
                 console.log("file path changed to", event.path);
                 this.client = yield atomts_1.clientResolver.get(event.path);
@@ -93,7 +83,6 @@ class TypescriptEditorPane {
                 file: this.filePath
             });
             this.opts.statusPanel.setBuildStatus(null);
-            console.log("Compile on Saving...");
             const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
             if (fileNames.length === 0) {
                 return;
@@ -116,9 +105,21 @@ class TypescriptEditorPane {
                 });
             }
         });
-        this.onDidStopChanging = () => {
-            console.log("did stop changing", this.filePath);
+        this.onDidStopChanging = ({ changes }) => {
             if (this.isTypescript && this.filePath) {
+                if (this.isOpen) {
+                    this.opts.statusPanel.setBuildStatus(null);
+                    for (const change of changes) {
+                        this.client.executeChange({
+                            endLine: change.start.row + change.oldExtent.row + 1,
+                            endOffset: change.start.column + change.oldExtent.column + 1,
+                            file: this.filePath,
+                            line: change.start.row + 1,
+                            offset: change.start.column + 1,
+                            insertString: change.newText,
+                        });
+                    }
+                }
                 this.client.executeGetErr({
                     files: [this.filePath],
                     delay: 100
