@@ -1,20 +1,16 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {kindToType} from "./atomUtils"
+import {kindToType, FileLocationQuery} from "./atomUtils"
 import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
 import {TypescriptServiceClient} from "../../client/client"
 import * as fuzzaldrin from "fuzzaldrin"
-
-type FileLocationQuery = {
-  file: string
-  line: number
-  offset: number
-}
 
 type SuggestionWithDetails = Suggestion & {details?}
 
 export class AutocompleteProvider implements Provider {
   selector = ".source.ts, .source.tsx"
+  disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx"
+
   inclusionPriority = 3
   suggestionPriority = 3
   excludeLowerPriority = false
@@ -76,13 +72,15 @@ export class AutocompleteProvider implements Provider {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
-    console.warn(JSON.stringify(prefix))
-
     if (!location.file) {
       return []
     }
 
-    let suggestions = await this.getSuggestionsWithCache(prefix, location)
+    try {
+      var suggestions = await this.getSuggestionsWithCache(prefix, location)
+    } catch (error) {
+      return []
+    }
 
     const alphaPrefix = prefix.replace(/\W/g, "")
     if (alphaPrefix !== "") {
@@ -92,7 +90,10 @@ export class AutocompleteProvider implements Provider {
     // Get additional details for the first few suggestions, but don't wait for it to complete
     this.getAdditionalDetails(suggestions.slice(0, 15), location)
 
-    return suggestions
+    return suggestions.map(suggestion => ({
+      replacementPrefix: getReplacementPrefix(prefix, suggestion.text),
+      ...suggestion
+    }))
   }
 
   async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
@@ -116,6 +117,17 @@ export class AutocompleteProvider implements Provider {
   }
 }
 
+// If prefix is ".", don't replace anything, just insert the completion, replace it otherwise.
+function getReplacementPrefix(prefix: string, replacement: string): string {
+  if (prefix === ".") {
+    return ""
+  } else if (replacement.startsWith("$")) {
+    return "$" + prefix
+  } else {
+    return prefix
+  }
+}
+
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."
 function getNormalizedCol(prefix: string, col: number): number {
@@ -130,110 +142,3 @@ function getLocationQuery(opts: RequestOptions): FileLocationQuery {
     offset: opts.bufferPosition.column+1
   }
 }
-
-// export var provider: autocompleteplus.Provider = {
-//     selector: '.source.ts, .source.tsx',
-//     inclusionPriority: 3,
-//     suggestionPriority: 3,
-//     excludeLowerPriority: false,
-//     getSuggestions: async function (options: autocompleteplus.RequestOptions): Promise<autocompleteplus.Suggestion[]> {
-//
-//         const filePath = options.editor.getPath()
-//
-//         // We refuse to work on files that are not on disk.
-//         if (!filePath || !fs.existsSync(filePath))
-//           return [];
-//
-//         const client = await clientResolver.get(filePath)
-//
-//         // var {isReference, isRequire, isImport} = getModuleAutocompleteType(options.scopeDescriptor.scopes)
-//         //
-//         // // For file path completions
-//         // if (isReference || isRequire || isImport) {
-//         //     return parent.getRelativePathsInProject({ filePath, prefix: options.prefix, includeExternalModules: isReference })
-//         //         .then((resp) => {
-//         //
-//         //         var range = options.editor.bufferRangeForScopeAtCursor(".string.quoted")
-//         //         var cursor = options.editor.getCursorBufferPosition()
-//         //
-//         //         // Check if we're in a string and if the cursor is at the end of it. Bail otherwise
-//         //         if (!range || cursor.column !== range.end.column-1) {
-//         //           return []
-//         //         }
-//         //
-//         //         var content = options.editor.getTextInBufferRange(range).replace(/^['"]|['"]$/g, "")
-//         //
-//         //         return resp.files.map(file => {
-//         //             var relativePath = file.relativePath;
-//         //
-//         //             /** Optionally customize this in future */
-//         //             var suggestionText = relativePath;
-//         //
-//         //             var suggestion: autocompleteplus.Suggestion = {
-//         //                 text: suggestionText,
-//         //                 replacementPrefix: content,
-//         //                 rightLabelHTML: '<span>' + file.name + '</span>',
-//         //                 type: 'import'
-//         //             };
-//         //
-//         //             return suggestion;
-//         //         });
-//         //     });
-//         // }
-//         // else {
-//
-//             // if explicitly triggered reset the explicit nature
-//         if (explicitlyTriggered) {
-//             explicitlyTriggered = false;
-//         }
-//         else { // else in special cases for automatic triggering refuse to provide completions
-//             const prefix = options.prefix.trim()
-//
-//             if (prefix === '' || prefix === ';' || prefix === '{') {
-//                 return Promise.resolve([]);
-//             }
-//         }
-//
-//         return client.executeCompletions({
-//             file: filePath,
-//             prefix: options.prefix,
-//             line: options.bufferPosition.row+1,
-//             offset: options.bufferPosition.column+1
-//         }).then(resp => {
-//             console.log("prefix", options.prefix)
-//             return resp.body.map(c => {
-//
-//                 // if (c.snippet) // currently only function completions are snippet
-//                 // {
-//                 //     return {
-//                 //         snippet: c.snippet,
-//                 //         replacementPrefix: '',
-//                 //         rightLabel: 'signature',
-//                 //         type: 'snippet',
-//                 //     };
-//                 // }
-//                 // else {
-//                     var prefix = options.prefix;
-//
-//                     // If the completion is $foo
-//                     // The prefix from acp is actually only `foo`
-//                     // But the var is $foo
-//                     // => so we would potentially end up replacing $foo with $$foo
-//                     // Fix that:
-//                     if (c.name && c.name.startsWith('$')) {
-//                         prefix = "$" + prefix;
-//                     }
-//
-//                     return {
-//                         text: c.name,
-//                         replacementPrefix: prefix === "." ? "" : prefix.trim(),
-//                         rightLabel: c.name,
-//                         leftLabel: c.kind,
-//                         type: atomUtils.kindToType(c.kind),
-//                         description: null,
-//                     };
-//                 // }
-//               });
-//           }).catch(() => [])
-//     },
-// }

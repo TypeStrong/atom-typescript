@@ -5,6 +5,7 @@ const fuzzaldrin = require("fuzzaldrin");
 class AutocompleteProvider {
     constructor(clientResolver) {
         this.selector = ".source.ts, .source.tsx";
+        this.disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx";
         this.inclusionPriority = 3;
         this.suggestionPriority = 3;
         this.excludeLowerPriority = false;
@@ -40,17 +41,21 @@ class AutocompleteProvider {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
             const { prefix } = opts;
-            console.warn(JSON.stringify(prefix));
             if (!location.file) {
                 return [];
             }
-            let suggestions = yield this.getSuggestionsWithCache(prefix, location);
+            try {
+                var suggestions = yield this.getSuggestionsWithCache(prefix, location);
+            }
+            catch (error) {
+                return [];
+            }
             const alphaPrefix = prefix.replace(/\W/g, "");
             if (alphaPrefix !== "") {
                 suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, { key: "text" });
             }
             this.getAdditionalDetails(suggestions.slice(0, 15), location);
-            return suggestions;
+            return suggestions.map(suggestion => (tslib_1.__assign({ replacementPrefix: getReplacementPrefix(prefix, suggestion.text) }, suggestion)));
         });
     }
     getAdditionalDetails(suggestions, location) {
@@ -70,6 +75,17 @@ class AutocompleteProvider {
     }
 }
 exports.AutocompleteProvider = AutocompleteProvider;
+function getReplacementPrefix(prefix, replacement) {
+    if (prefix === ".") {
+        return "";
+    }
+    else if (replacement.startsWith("$")) {
+        return "$" + prefix;
+    }
+    else {
+        return prefix;
+    }
+}
 function getNormalizedCol(prefix, col) {
     const length = prefix === "." ? 0 : prefix.length;
     return col - length;
