@@ -8,7 +8,6 @@ const typescript_editor_pane_1 = require("./typescript_editor_pane");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-const commands = require("./atom/commands/commands");
 const hyperclickProvider = require("../hyperclickProvider");
 const renameView = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
@@ -17,6 +16,7 @@ const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
 require("./atom/components");
+const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
 function activate(state) {
@@ -40,12 +40,15 @@ function activate(state) {
         });
         if (linter) {
             errorPusher.setLinter(linter);
-            exports.clientResolver.on("diagnostics", ({ type, serverPath, filePath, diagnostics }) => {
-                errorPusher.addErrors(type + serverPath, filePath, diagnostics);
+            exports.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+                errorPusher.setErrors(type, filePath, diagnostics);
             });
         }
         renameView.attach();
-        commands.registerCommands({
+        commands_1.registerCommands({
+            clearErrors() {
+                errorPusher.clear();
+            },
             getClient(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     for (const pane of panes) {
@@ -55,7 +58,8 @@ function activate(state) {
                     }
                     return exports.clientResolver.get(filePath);
                 });
-            }
+            },
+            statusPanel,
         });
         const panes = [];
         const onSave = lodash_1.debounce((pane) => {
@@ -73,6 +77,9 @@ function activate(state) {
                         activePane = null;
                     }
                     panes.splice(panes.indexOf(pane), 1);
+                    console.log("closing", pane.filePath);
+                    errorPusher.setErrors("syntaxDiag", pane.filePath, []);
+                    errorPusher.setErrors("semanticDiag", pane.filePath, []);
                 },
                 onSave,
                 statusPanel,

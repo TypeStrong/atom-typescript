@@ -11,6 +11,7 @@ export class StatusPanel extends HTMLElement {
   private pendingCounter: HTMLElement
   private pendingSpinner: HTMLElement
   private configPathContainer: HTMLElement
+  private progress: HTMLProgressElement
   private statusContainer: HTMLElement
   private statusText: HTMLElement
   private version: HTMLElement
@@ -45,7 +46,10 @@ export class StatusPanel extends HTMLElement {
       <div ref={ el => this.statusContainer = el }
         className="inline-block">
         <span ref={ el => this.statusText = el } />
-      </div>
+      </div>,
+      <progress ref={ el => this.progress = el }
+        style={{ verticalAlign: "baseline" }}
+        className='inline-block' />
     ]
 
     for (const node of nodes) {
@@ -56,6 +60,7 @@ export class StatusPanel extends HTMLElement {
     this.setPending([], true)
     this.setTsConfigPath(null)
     this.setBuildStatus(null)
+    this.setProgress(null)
   }
 
   dispose() {
@@ -85,6 +90,16 @@ export class StatusPanel extends HTMLElement {
       this.statusContainer.classList.remove("hide")
     } else {
       this.statusContainer.classList.add("hide")
+    }
+  }
+
+  setProgress(progress?: {max: number, value: number}) {
+    if (progress) {
+      this.progress.max = progress.max
+      this.progress.value = progress.value
+      this.progress.classList.remove("hide")
+    } else {
+      this.progress.classList.add("hide")
     }
   }
 

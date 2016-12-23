@@ -17,7 +17,8 @@ class StatusPanel extends HTMLElement {
                     this.openConfigPath();
                 } }),
             dom.createElement("div", { ref: el => this.statusContainer = el, className: "inline-block" },
-                dom.createElement("span", { ref: el => this.statusText = el }))
+                dom.createElement("span", { ref: el => this.statusText = el })),
+            dom.createElement("progress", { ref: el => this.progress = el, style: { verticalAlign: "baseline" }, className: 'inline-block' })
         ];
         for (const node of nodes) {
             this.appendChild(node);
@@ -26,6 +27,7 @@ class StatusPanel extends HTMLElement {
         this.setPending([], true);
         this.setTsConfigPath(null);
         this.setBuildStatus(null);
+        this.setProgress(null);
     }
     dispose() {
         this.remove();
@@ -39,7 +41,6 @@ class StatusPanel extends HTMLElement {
         }
     }
     setBuildStatus(status) {
-        console.log("setting build status", status);
         const container = this.statusText;
         if (status) {
             if (status.success) {
@@ -56,6 +57,16 @@ class StatusPanel extends HTMLElement {
         }
         else {
             this.statusContainer.classList.add("hide");
+        }
+    }
+    setProgress(progress) {
+        if (progress) {
+            this.progress.max = progress.max;
+            this.progress.value = progress.value;
+            this.progress.classList.remove("hide");
+        }
+        else {
+            this.progress.classList.add("hide");
         }
     }
     setTsConfigPath(configPath) {

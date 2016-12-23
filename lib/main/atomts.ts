@@ -11,7 +11,6 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import * as atomConfig from './atom/atomConfig'
 // import * as atomUtils from './atom/atomUtils'
 import {AutocompleteProvider} from './atom/autoCompleteProvider'
-import * as commands from "./atom/commands/commands"
 // import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
 // import * as path from 'path'
@@ -26,6 +25,7 @@ export const config = atomConfig.schema
 
 // Register all custom components
 import "./atom/components"
+import {registerCommands} from "./atom/commands"
 
 let linter: Linter
 let statusBar: StatusBar
@@ -61,8 +61,8 @@ export function activate(state: PackageState) {
       if (linter) {
         errorPusher.setLinter(linter)
 
-        clientResolver.on("diagnostics", ({type, serverPath, filePath, diagnostics}) => {
-          errorPusher.addErrors(type + serverPath, filePath, diagnostics)
+        clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+          errorPusher.setErrors(type, filePath, diagnostics)
         })
       }
 
@@ -70,7 +70,10 @@ export function activate(state: PackageState) {
       renameView.attach()
 
       // Register the commands
-      commands.registerCommands({
+      registerCommands({
+        clearErrors() {
+          errorPusher.clear()
+        },
         async getClient(filePath: string) {
           for (const pane of panes) {
             if (pane.filePath === filePath) {
@@ -79,7 +82,8 @@ export function activate(state: PackageState) {
           }
 
           return clientResolver.get(filePath)
-        }
+        },
+        statusPanel,
       })
 
       const panes: TypescriptEditorPane[] = []
@@ -104,6 +108,10 @@ export function activate(state: PackageState) {
             }
 
             panes.splice(panes.indexOf(pane), 1)
+
+            // Clear errors if any from this pane
+            errorPusher.setErrors("syntaxDiag", pane.filePath, [])
+            errorPusher.setErrors("semanticDiag", pane.filePath, [])
           },
           onSave,
           statusPanel,

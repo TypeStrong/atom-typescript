@@ -23,7 +23,7 @@ class ErrorPusher {
             }
         }, 100);
     }
-    addErrors(prefix, filePath, errors) {
+    setErrors(prefix, filePath, errors) {
         let prefixed = this.errors.get(prefix);
         if (!prefixed) {
             prefixed = new Map();

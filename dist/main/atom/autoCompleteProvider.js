@@ -70,7 +70,7 @@ class AutocompleteProvider {
 }
 exports.AutocompleteProvider = AutocompleteProvider;
 function getReplacementPrefix(prefix, trimmed, replacement) {
-    if (trimmed === "." || trimmed === "{") {
+    if (trimmed === "." || trimmed === "{" || prefix === " ") {
         return "";
     }
     else if (replacement.startsWith("$")) {

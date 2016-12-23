@@ -127,7 +127,7 @@ export class AutocompleteProvider implements Provider {
 
 // Decide what needs to be replaced in the editor buffer when inserting the completion
 function getReplacementPrefix(prefix: string, trimmed: string, replacement: string): string {
-  if (trimmed === "." || trimmed === "{") {
+  if (trimmed === "." || trimmed === "{" || prefix === " ") {
     return ""
   } else if (replacement.startsWith("$")) {
     return "$" + prefix

@@ -8,8 +8,8 @@ export class ErrorPusher {
   private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
 
-  /** Add errors. Previous errors with the same prefix and filePath are going to be replaced */
-  addErrors(prefix: string, filePath: string, errors: Diagnostic[]) {
+  /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
+  setErrors(prefix: string, filePath: string, errors: Diagnostic[]) {
     let prefixed = this.errors.get(prefix)
     if (!prefixed) {
       prefixed = new Map()
@@ -52,6 +52,5 @@ export class ErrorPusher {
     if (this.linter) {
       this.linter.setMessages(errors)
     }
-
   }, 100)
 }

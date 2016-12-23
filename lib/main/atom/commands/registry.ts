@@ -1,7 +1,10 @@
 import {TypescriptServiceClient} from "../../../client/client"
+import {StatusPanel} from "../../atom/components/statusPanel"
 
 export interface Dependencies {
+  clearErrors()
   getClient(filePath: string): Promise<TypescriptServiceClient>
+  statusPanel: StatusPanel
 }
 
 export interface CommandConstructor {
