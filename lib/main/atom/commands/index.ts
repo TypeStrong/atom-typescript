@@ -15,6 +15,7 @@
 import {commands, Dependencies} from "./registry"
 
 // Import all of the command files for their side effects
+import "./build"
 import "./checkAllFiles"
 import "./clearErrors"
 import "./findReferences"

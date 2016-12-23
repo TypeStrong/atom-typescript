@@ -1,5 +1,6 @@
 "use strict";
 const registry_1 = require("./registry");
+require("./build");
 require("./checkAllFiles");
 require("./clearErrors");
 require("./findReferences");

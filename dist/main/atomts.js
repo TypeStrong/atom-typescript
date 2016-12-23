@@ -77,7 +77,6 @@ function activate(state) {
                         activePane = null;
                     }
                     panes.splice(panes.indexOf(pane), 1);
-                    console.log("closing", pane.filePath);
                     errorPusher.setErrors("syntaxDiag", pane.filePath, []);
                     errorPusher.setErrors("semanticDiag", pane.filePath, []);
                 },
