@@ -3,10 +3,10 @@
 import {ClientResolver} from "../client/clientResolver"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
-import {ErrorPusher} from "./error_pusher"
+import {ErrorPusher} from "./errorPusher"
 import {LinterRegistry, Linter} from "../typings/linter"
 import {StatusBar} from "../typings/status_bar"
-import {TypescriptEditorPane} from "./typescript_editor_pane"
+import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {StatusPanel} from "./atom/components/statusPanel"
 import * as atomConfig from './atom/atomConfig'
 // import * as atomUtils from './atom/atomUtils'

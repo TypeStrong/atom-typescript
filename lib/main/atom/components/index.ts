@@ -1,1 +1,1 @@
-export * from "./ts-view";
+export * from "./tsView";

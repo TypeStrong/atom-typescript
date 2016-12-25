@@ -3,8 +3,8 @@ const tslib_1 = require("tslib");
 const clientResolver_1 = require("../client/clientResolver");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
-const error_pusher_1 = require("./error_pusher");
-const typescript_editor_pane_1 = require("./typescript_editor_pane");
+const errorPusher_1 = require("./errorPusher");
+const typescriptEditorPane_1 = require("./typescriptEditorPane");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
@@ -35,7 +35,7 @@ function activate(state) {
             priority: statusPriority
         });
         subscriptions.add(statusPanel);
-        const errorPusher = new error_pusher_1.ErrorPusher();
+        const errorPusher = new errorPusher_1.ErrorPusher();
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
@@ -96,7 +96,7 @@ function activate(state) {
             pane.client.executeGetErr({ files, delay: 100 });
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
-            panes.push(new typescript_editor_pane_1.TypescriptEditorPane(editor, {
+            panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = null;
