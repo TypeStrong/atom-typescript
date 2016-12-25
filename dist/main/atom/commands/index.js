@@ -5,6 +5,7 @@ require("./checkAllFiles");
 require("./clearErrors");
 require("./findReferences");
 require("./goToDeclaration");
+require("./renameRefactor");
 function registerCommands(deps) {
     for (const [name, command] of registry_1.commands) {
         atom.commands.add("atom-workspace", name, command(deps));

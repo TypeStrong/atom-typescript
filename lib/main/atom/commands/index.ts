@@ -20,6 +20,7 @@ import "./checkAllFiles"
 import "./clearErrors"
 import "./findReferences"
 import "./goToDeclaration"
+import "./renameRefactor"
 
 export function registerCommands(deps: Dependencies) {
 
@@ -63,60 +64,6 @@ export function registerCommands(deps: Dependencies) {
     //             atom.notifications.addSuccess(`tsconfig.json file created: <br/> ${res.createdFilePath}`);
     //         }
     //     });
-    // });
-
-    // atom.commands.add('atom-text-editor', 'typescript:rename-refactor', (e) => {
-    //     // Rename variable
-    //     if (true) {
-    //         parent.getRenameInfo(atomUtils.getFilePathPosition()).then((res) => {
-    //             if (!res.canRename) {
-    //                 atom.notifications.addInfo('AtomTS: Rename not available at cursor location');
-    //                 return;
-    //             }
-
-    //             var paths = atomUtils.getOpenTypeScritEditorsConsistentPaths();
-    //             var openPathsMap = utils.createMap(paths);
-
-    //             let refactorPaths = Object.keys(res.locations);
-    //             let openFiles = refactorPaths.filter(p=> openPathsMap[p]);
-    //             let closedFiles = refactorPaths.filter(p=> !openPathsMap[p]);
-
-    //             renameView.panelView.renameThis({
-    //                 autoSelect: true,
-    //                 title: 'Rename Variable',
-    //                 text: res.displayName,
-    //                 openFiles: openFiles,
-    //                 closedFiles: closedFiles,
-    //                 onCancel: () => { },
-    //                 onValidate: (newText): string => {
-    //                     if (newText.replace(/\s/g, '') !== newText.trim()) {
-    //                         return 'The new variable must not contain a space';
-    //                     }
-    //                     if (!newText.trim()) {
-    //                         return 'If you want to abort : Press esc to exit'
-    //                     }
-    //                     return '';
-    //                 },
-    //                 onCommit: (newText) => {
-    //                     newText = newText.trim();
-    //                     // if file is open change in buffer
-    //                     // otherwise open the file and change the buffer range
-    //                     atomUtils.getEditorsForAllPaths(Object.keys(res.locations))
-    //                         .then((editorMap) => {
-    //                             Object.keys(res.locations).forEach((filePath) => {
-    //                                 var editor = editorMap[filePath];
-    //                                 editor.transact(() => {
-    //                                     res.locations[filePath].forEach((textSpan) => {
-    //                                         var range = atomUtils.getRangeForTextSpan(editor, textSpan);
-    //                                         editor.setTextInBufferRange(range, newText);
-    //                                     });
-    //                                 })
-    //                             });
-    //                         });
-    //                 }
-    //             });
-    //         });
-    //     }
     // });
 
     // atom.commands.add('atom-workspace', 'typescript:show-type', (e) => {

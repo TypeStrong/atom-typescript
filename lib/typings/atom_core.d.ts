@@ -6,6 +6,8 @@ declare namespace AtomCore {
 
 declare namespace TextBuffer {
   interface ITextBuffer {
-    onDidChange(callback: Function): AtomCore.Disposable    
+    onDidChange(callback: Function): AtomCore.Disposable
+    onDidReload(callback: Function): AtomCore.Disposable
+    onDidSave(callback: Function): AtomCore.Disposable
   }
 }

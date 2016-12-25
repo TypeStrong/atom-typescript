@@ -47,6 +47,7 @@ export class TypescriptServiceClient {
     quickinfo: true,
     references: true,
     reload: true,
+    rename: true,
   }
 
   executeChange(args: protocol.ChangeRequestArgs) {
@@ -93,6 +94,9 @@ export class TypescriptServiceClient {
   }
   executeReload(args: protocol.ReloadRequestArgs): Promise<protocol.ReloadResponse> {
     return this.execute("reload", args)
+  }
+  executeRename(args: protocol.RenameRequestArgs): Promise<protocol.RenameResponse> {
+    return this.execute("rename", args)
   }
   executeSaveTo(args: protocol.SavetoRequestArgs) {
     return this.execute("saveto", args)

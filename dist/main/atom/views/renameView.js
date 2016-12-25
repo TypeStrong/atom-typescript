@@ -1,4 +1,5 @@
 "use strict";
+const tslib_1 = require("tslib");
 const view = require("./view");
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
@@ -39,19 +40,22 @@ class RenameView extends view.View {
             }
         });
     }
+    setPanel(panel) {
+        this.panel = panel;
+    }
     clearView() {
         if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
             var view = atom.views.getView(this.editorAtRenameStart);
             view.focus();
         }
-        panel.hide();
+        this.panel.hide();
         this.options = {};
         this.editorAtRenameStart = null;
     }
     renameThis(options) {
         this.options = options;
         this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
-        panel.show();
+        this.panel.show();
         this.newNameEditor.model.setText(options.text);
         if (this.options.autoSelect) {
             this.newNameEditor.model.selectAll();
@@ -62,16 +66,28 @@ class RenameView extends view.View {
         this.title.text(this.options.title);
         this.newNameEditor.focus();
         this.validationMessage.hide();
-        this.fileCount.html(`<div>
-            Files Counts: <span class='highlight'> Already Open ( ${options.openFiles.length} )</span> and <span class='highlight'> Currently Closed ( ${options.closedFiles.length} ) </span>
-        </div>`);
+    }
+    showRenameDialog(options) {
+        return new Promise((resolve, reject) => {
+            this.renameThis(tslib_1.__assign({}, options, { onCancel: reject, onCommit: resolve }));
+        });
     }
 }
 RenameView.content = html;
 exports.RenameView = RenameView;
-var panel;
 function attach() {
-    exports.panelView = new RenameView({});
-    panel = atom.workspace.addModalPanel({ item: exports.panelView, priority: 1000, visible: false });
+    const renameView = new RenameView({});
+    const panel = atom.workspace.addModalPanel({
+        item: renameView,
+        priority: 1000,
+        visible: false
+    });
+    renameView.setPanel(panel);
+    return {
+        dispose() {
+            console.log("TODO: Detach the rename view: ", panel);
+        },
+        renameView
+    };
 }
 exports.attach = attach;

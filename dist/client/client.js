@@ -75,6 +75,9 @@ class TypescriptServiceClient {
     executeReload(args) {
         return this.execute("reload", args);
     }
+    executeRename(args) {
+        return this.execute("rename", args);
+    }
     executeSaveTo(args) {
         return this.execute("saveto", args);
     }
@@ -166,6 +169,7 @@ TypescriptServiceClient.commandWithResponse = {
     quickinfo: true,
     references: true,
     reload: true,
+    rename: true,
 };
 exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {

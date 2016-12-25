@@ -9,9 +9,10 @@ const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const hyperclickProvider = require("../hyperclickProvider");
-const renameView = require("./atom/views/renameView");
+const renameView_1 = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const lodash_2 = require("lodash");
+const Atom = require("atom");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
@@ -27,6 +28,7 @@ function activate(state) {
                 statusPriority = panel.getPriority() - 1;
             }
         }
+        const { renameView } = renameView_1.attach();
         const statusPanel = statusPanel_1.StatusPanel.create();
         statusBar.addRightTile({
             item: statusPanel,
@@ -44,21 +46,44 @@ function activate(state) {
                 errorPusher.setErrors(type, filePath, diagnostics);
             });
         }
-        renameView.attach();
         commands_1.registerCommands({
             clearErrors() {
                 errorPusher.clear();
             },
+            getBuffer(filePath) {
+                return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                    const pane = panes.find(pane => pane.filePath === filePath);
+                    if (pane) {
+                        return {
+                            buffer: pane.editor.buffer,
+                            isOpen: true
+                        };
+                    }
+                    const buffer = yield new Promise(resolve => {
+                        const buffer = new Atom.TextBuffer({
+                            filePath,
+                            load: true
+                        });
+                        buffer.onDidReload(() => {
+                            resolve(buffer);
+                        });
+                    });
+                    return {
+                        buffer,
+                        isOpen: false
+                    };
+                });
+            },
             getClient(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    for (const pane of panes) {
-                        if (pane.filePath === filePath) {
-                            return pane.client;
-                        }
+                    const pane = panes.find(pane => pane.filePath === filePath);
+                    if (pane) {
+                        return pane.client;
                     }
                     return exports.clientResolver.get(filePath);
                 });
             },
+            renameView,
             statusPanel,
         });
         const panes = [];

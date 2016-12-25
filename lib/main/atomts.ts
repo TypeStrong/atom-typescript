@@ -14,9 +14,10 @@ import {AutocompleteProvider} from './atom/autoCompleteProvider'
 // import * as fs from 'fs'
 import * as hyperclickProvider from "../hyperclickProvider"
 // import * as path from 'path'
-import * as renameView from './atom/views/renameView'
+import {attach as attachRenameView} from './atom/views/renameView'
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {flatten, values} from "lodash"
+import * as Atom from "atom"
 
 // globals
 const subscriptions = new CompositeDisposable()
@@ -42,6 +43,8 @@ export function activate(state: PackageState) {
         }
       }
 
+      // Add the rename view
+      const {renameView} = attachRenameView()
       const statusPanel = StatusPanel.create()
 
       statusBar.addRightTile({
@@ -66,23 +69,46 @@ export function activate(state: PackageState) {
         })
       }
 
-      // Add the rename view
-      renameView.attach()
-
       // Register the commands
       registerCommands({
         clearErrors() {
           errorPusher.clear()
         },
-        async getClient(filePath: string) {
-          for (const pane of panes) {
-            if (pane.filePath === filePath) {
-              return pane.client
+        async getBuffer(filePath: string) {
+          const pane = panes.find(pane => pane.filePath === filePath)
+          if (pane) {
+            return {
+              buffer: pane.editor.buffer,
+              isOpen: true
             }
+          }
+
+          // Wait for the buffer to load before resolving the promise
+          const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
+            const buffer = new Atom.TextBuffer({
+              filePath,
+              load: true
+            })
+
+            buffer.onDidReload(() => {
+              resolve(buffer)
+            })
+          })
+
+          return {
+            buffer,
+            isOpen: false
+          }
+        },
+        async getClient(filePath: string) {
+          const pane = panes.find(pane => pane.filePath === filePath)
+          if (pane) {
+            return pane.client
           }
 
           return clientResolver.get(filePath)
         },
+        renameView,
         statusPanel,
       })
 
