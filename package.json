@@ -8,8 +8,9 @@
     "atom-typescript:grammar-used"
   ],
   "scripts": {
-    "build": "ts-node scripts/grammar.ts",
-    "test": "tsc -p ./lib && tsc --noEmit -p ./scripts"
+    "build": "tsc -p ./lib",
+    "grammar": "ts-node scripts/grammar.ts",
+    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts"
   },
   "engines": {
     "atom": ">=0.199.0 <2.0.0",

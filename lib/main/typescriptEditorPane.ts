@@ -22,14 +22,27 @@ interface PaneOptions {
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
+  // Timestamp for didChange event
   changedAt: number
+
+  // Timestamp for activated event
   activeAt: number
+
   client: TypescriptServiceClient
+
+  // Path to the project's tsconfig.json
   configFile: string = ""
+
   filePath: string
   isActive = false
   isTSConfig = false
   isTypescript = false
+
+  // Timestamp for last didStopChanging event
+  stoppedChangingAt: number
+
+  // Callback that is going to be executed after the next didStopChanging event is processed
+  stoppedChangingCallbacks: Function[] = []
 
   private opts: PaneOptions
   private isOpen = false
@@ -181,16 +194,24 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   onDidSave = async event => {
     if (this.filePath !== event.path) {
-      console.log("file path changed to", event.path)
       this.client = await clientResolver.get(event.path)
       this.filePath = event.path
       this.isTSConfig = basename(this.filePath) === "tsconfig.json"
+    }
+
+    // Check if there isn't a onDidStopChanging event pending. If so, wait for it before updating
+    if (this.changedAt && this.changedAt > (this.stoppedChangingAt|0)) {
+      await new Promise(resolve => this.stoppedChangingCallbacks.push(resolve))
     }
 
     if (this.opts.onSave) {
       this.opts.onSave(this)
     }
 
+    this.compileOnSave()
+  }
+
+  async compileOnSave() {
     const result = await this.client.executeCompileOnSaveAffectedFileList({
       file: this.filePath
     })
@@ -224,6 +245,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onDidStopChanging = ({changes}) => {
+    this.stoppedChangingAt = Date.now()
+
     if (this.isTypescript && this.filePath) {
       if (this.isOpen) {
 
@@ -254,6 +277,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         delay: 100
       })
     }
+
+    this.stoppedChangingCallbacks.forEach(fn => fn())
+    this.stoppedChangingCallbacks.length = 0
   }
 
   setupTooltipView() {

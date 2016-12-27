@@ -13,6 +13,7 @@ class TypescriptEditorPane {
         this.isActive = false;
         this.isTSConfig = false;
         this.isTypescript = false;
+        this.stoppedChangingCallbacks = [];
         this.isOpen = false;
         this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
@@ -71,40 +72,20 @@ class TypescriptEditorPane {
         };
         this.onDidSave = (event) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.filePath !== event.path) {
-                console.log("file path changed to", event.path);
                 this.client = yield atomts_1.clientResolver.get(event.path);
                 this.filePath = event.path;
                 this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
             }
+            if (this.changedAt && this.changedAt > (this.stoppedChangingAt | 0)) {
+                yield new Promise(resolve => this.stoppedChangingCallbacks.push(resolve));
+            }
             if (this.opts.onSave) {
                 this.opts.onSave(this);
             }
-            const result = yield this.client.executeCompileOnSaveAffectedFileList({
-                file: this.filePath
-            });
-            this.opts.statusPanel.setBuildStatus(null);
-            const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
-            if (fileNames.length === 0) {
-                return;
-            }
-            try {
-                const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({ file }));
-                const saved = yield Promise.all(promises);
-                if (!saved.every(res => res.body)) {
-                    throw new Error("Some files failed to emit");
-                }
-                this.opts.statusPanel.setBuildStatus({
-                    success: true
-                });
-            }
-            catch (error) {
-                console.error("Save failed with error", error);
-                this.opts.statusPanel.setBuildStatus({
-                    success: false
-                });
-            }
+            this.compileOnSave();
         });
         this.onDidStopChanging = ({ changes }) => {
+            this.stoppedChangingAt = Date.now();
             if (this.isTypescript && this.filePath) {
                 if (this.isOpen) {
                     if (changes.length !== 0) {
@@ -124,6 +105,8 @@ class TypescriptEditorPane {
                     delay: 100
                 });
             }
+            this.stoppedChangingCallbacks.forEach(fn => fn());
+            this.stoppedChangingCallbacks.length = 0;
         };
         this.editor = editor;
         this.filePath = editor.getPath();
@@ -179,6 +162,34 @@ class TypescriptEditorPane {
         for (const marker of this.occurrenceMarkers) {
             marker.destroy();
         }
+    }
+    compileOnSave() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const result = yield this.client.executeCompileOnSaveAffectedFileList({
+                file: this.filePath
+            });
+            this.opts.statusPanel.setBuildStatus(null);
+            const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
+            if (fileNames.length === 0) {
+                return;
+            }
+            try {
+                const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({ file }));
+                const saved = yield Promise.all(promises);
+                if (!saved.every(res => res.body)) {
+                    throw new Error("Some files failed to emit");
+                }
+                this.opts.statusPanel.setBuildStatus({
+                    success: true
+                });
+            }
+            catch (error) {
+                console.error("Save failed with error", error);
+                this.opts.statusPanel.setBuildStatus({
+                    success: false
+                });
+            }
+        });
     }
     setupTooltipView() {
         const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));
