@@ -5,6 +5,7 @@ const fs = require("fs");
 const fsu = require("../utils/fsUtil");
 const _atom = require("atom");
 const url = require("url");
+// Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
     const pos = editor.getCursorBufferPosition();
     return {
@@ -38,6 +39,7 @@ function onDiskAndTs(editor) {
     return false;
 }
 exports.onDiskAndTs = onDiskAndTs;
+/** Either ts or tsconfig */
 function onDiskAndTsRelated(editor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
@@ -75,10 +77,11 @@ function getEditorsForAllPaths(filePaths) {
         map[fsu.consistentPath(editor.getPath())] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
+    /// find the editors that are not in here
     var newPaths = filePaths.filter(p => !map[p]);
     if (!newPaths.length)
         return Promise.resolve(map);
-    var promises = newPaths.map(p => atom.workspace.open(p, {}));
+    var promises = newPaths.map(p => atom.workspace.open(p, {})); // Update Atom typings!
     return Promise.all(promises).then(editors => {
         editors.forEach(editor => addConsistentlyToMap(editor));
         return map;
@@ -92,6 +95,7 @@ function getRangeForTextSpan(editor, ts) {
     return range;
 }
 exports.getRangeForTextSpan = getRangeForTextSpan;
+/** only the editors that are persisted to disk. And are of type TypeScript */
 function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
         .filter(editor => !!editor.getPath())
@@ -136,7 +140,11 @@ function kindToColor(kind) {
     }
 }
 exports.kindToColor = kindToColor;
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
 function kindToType(kind) {
+    // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
     switch (kind) {
         case 'const':
             return 'constant';
@@ -161,6 +169,7 @@ function kindToType(kind) {
     }
 }
 exports.kindToType = kindToType;
+/** Utility functions for commands */
 function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
@@ -171,6 +180,7 @@ function commandForTypeScript(e) {
     return true;
 }
 exports.commandForTypeScript = commandForTypeScript;
+/** Gets the consisten path for the current editor */
 function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
     return fsu.consistentPath(editor.getPath());
@@ -191,14 +201,21 @@ function editorInTheseScopes(matches) {
         return '';
 }
 exports.editorInTheseScopes = editorInTheseScopes;
+/** One less level of indirection */
 function getActiveEditor() {
     return atom.workspace.getActiveTextEditor();
 }
 exports.getActiveEditor = getActiveEditor;
+/**
+ * Uri for filepath based on protocol
+ */
 function uriForPath(uriProtocol, filePath) {
     return uriProtocol + "//" + filePath;
 }
 exports.uriForPath = uriForPath;
+/**
+ * Registers an opener with atom
+ */
 function registerOpener(config) {
     atom.commands.add(config.commandSelector, config.commandName, (e) => {
         if (!commandForTypeScript(e))
@@ -225,14 +242,23 @@ function registerOpener(config) {
 }
 exports.registerOpener = registerOpener;
 function triggerLinter() {
+    // also invalidate linter
     atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
 }
 exports.triggerLinter = triggerLinter;
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
 function getFilePathRelativeToAtomProject(filePath) {
     filePath = fsu.consistentPath(filePath);
+    // Sample:
+    // atom.project.relativize(`D:/REPOS/atom-typescript/lib/main/atom/atomUtils.ts`)
     return '~' + atom.project.relativize(filePath);
 }
 exports.getFilePathRelativeToAtomProject = getFilePathRelativeToAtomProject;
+/**
+ * Opens the given file in the same project
+ */
 function openFile(filePath, position = {}) {
     var config = {};
     if (position.line) {

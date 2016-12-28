@@ -1,5 +1,7 @@
+// Inspiration : https://atom.io/packages/ide-haskell
+// and https://atom.io/packages/ide-flow
 "use strict";
-const atomUtils = require("./atomUtils");
+const atomUtils = require("./atomUtils"); ///ts:import:generated
 const atomts_1 = require("../atomts");
 const path = require("path");
 const fs = require("fs");
@@ -17,11 +19,13 @@ function getFromShadowDom(element, selector) {
 exports.getFromShadowDom = getFromShadowDom;
 function attach(editorView, editor) {
     var rawView = editorView[0];
+    // Only on ".ts" files
     var filePath = editor.getPath();
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (!atomUtils.isAllowedExtension(ext))
         return;
+    // We only create a "program" once the file is persisted to disk
     if (!fs.existsSync(filePath)) {
         return;
     }
@@ -30,6 +34,7 @@ function attach(editorView, editor) {
     var subscriber = new Subscriber();
     var exprTypeTimeout = null;
     var exprTypeTooltip = null;
+    // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, 'mousemove', (e) => {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
@@ -43,8 +48,10 @@ function attach(editorView, editor) {
     });
     subscriber.subscribe(scroll, 'mouseout', (e) => clearExprTypeTimeout());
     subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
+    // Setup for clearing
     editor.onDidDestroy(() => deactivate());
     function showExpressionType(e) {
+        // If we are already showing we should wait for that to clear
         if (exprTypeTooltip)
             return;
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
@@ -56,6 +63,7 @@ function attach(editorView, editor) {
         var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
         if (curCharPixelPt.left >= nextCharPixelPt.left)
             return;
+        // find out show position
         var offset = editor.getLineHeightInPixels() * 0.7;
         var tooltipRect = {
             left: e.clientX,
@@ -82,6 +90,7 @@ function attach(editorView, editor) {
         subscriber.unsubscribe();
         clearExprTypeTimeout();
     }
+    /** clears the timeout && the tooltip */
     function clearExprTypeTimeout() {
         if (exprTypeTimeout) {
             clearTimeout(exprTypeTimeout);

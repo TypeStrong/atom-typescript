@@ -9,6 +9,19 @@ function getSuggestionForWord(textEditor, text, range) {
     return {
         range: range,
         callback() {
+            // let filePathPosition = {
+            //   filePath: textEditor.getPath(),
+            //   position: atomUtils.getEditorPositionForBufferPosition(textEditor, range.start)
+            // };
+            // parent.getDefinitionsAtPosition(filePathPosition).then((res) => {
+            //     if (res.definitions.length > 0) {
+            //         let definition = res.definitions[0];
+            //         atom.workspace.open(definition.filePath, {
+            //             initialLine: definition.position.line,
+            //             initialColumn: definition.position.col
+            //         });
+            //     }
+            // });
         }
     };
 }

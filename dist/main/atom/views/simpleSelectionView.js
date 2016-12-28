@@ -1,3 +1,7 @@
+/**
+ * A functional form of the SelectListView
+ * Only one of these bad boys is allowed on the screen at one time
+ */
 "use strict";
 var singleton;
 function simpleSelectionView(options) {
@@ -11,6 +15,9 @@ function simpleSelectionView(options) {
     return singleton;
 }
 exports.simpleSelectionView = simpleSelectionView;
+/**
+ * Various Utility section
+ */
 const sp = require("atom-space-pen-views");
 var $ = sp.$;
 class SimpleSelectListView extends sp.SelectListView {
@@ -25,6 +32,7 @@ class SimpleSelectListView extends sp.SelectListView {
     setItems() {
         super.setItems(this.options.items);
     }
+    /** override */
     viewForItem(item) {
         var view = this.options.viewForItem(item);
         if (typeof view === "string") {
@@ -37,10 +45,12 @@ class SimpleSelectListView extends sp.SelectListView {
         }
         ;
     }
+    /** override */
     confirmed(item) {
         this.options.confirmed(item);
         this.hide();
     }
+    /** override */
     getFilterKey() {
         return this.options.filterKey;
     }
@@ -50,6 +60,7 @@ class SimpleSelectListView extends sp.SelectListView {
             this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show();
         this.focusFilterEditor();
+        // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
     }
     hide() {
         this.panel.hide();

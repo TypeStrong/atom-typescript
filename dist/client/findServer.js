@@ -1,6 +1,7 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
+/** Recursively search all directories rooted at the argument and find all typescript modules */
 function findTypescriptServers(root) {
     const results = [];
     if (!path.isAbsolute(root)) {
@@ -44,6 +45,7 @@ function findTypescriptServers(root) {
     }
 }
 exports.findTypescriptServers = findTypescriptServers;
+/** Get info about the tsserver at the prefix */
 function getServerInfo(prefix, callback) {
     const tsDir = path.join(prefix, "node_modules", "typescript");
     fs.readFile(path.join(tsDir, "package.json"), "utf8", (err, pkg) => {

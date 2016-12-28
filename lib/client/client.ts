@@ -3,6 +3,20 @@ import {Transform, Readable} from "stream"
 import * as protocol from "typescript/lib/protocol"
 import byline = require("byline")
 
+export const CommandWithResponse = new Set([
+  "compileOnSaveAffectedFileList",
+  "compileOnSaveEmitFile",
+  "completionEntryDetails",
+  "completions",
+  "definition",
+  "occurrences",
+  "projectInfo",
+  "quickinfo",
+  "references",
+  "reload",
+  "rename",
+])
+
 export class TypescriptServiceClient {
 
   /** Map of callbacks that are waiting for responses */
@@ -25,7 +39,7 @@ export class TypescriptServiceClient {
   server: ChildProcess
 
   /** Promise that resolves when the server is ready to accept requests */
-  serverPromise: Promise<any>
+  serverPromise?: Promise<ChildProcess>
 
   /** Path to the tsserver executable */
   readonly tsServerPath: string
@@ -35,20 +49,6 @@ export class TypescriptServiceClient {
   constructor(tsServerPath: string, version) {
     this.tsServerPath = tsServerPath
     this.version = version
-  }
-
-  static commandWithResponse = {
-    compileOnSaveAffectedFileList: true,
-    compileOnSaveEmitFile: true,
-    completionEntryDetails: true,
-    completions: true,
-    definition: true,
-    occurrences: true,
-    projectInfo: true,
-    quickinfo: true,
-    references: true,
-    reload: true,
-    rename: true,
   }
 
   executeChange(args: protocol.ChangeRequestArgs) {
@@ -103,10 +103,9 @@ export class TypescriptServiceClient {
     return this.execute("saveto", args)
   }
 
-  execute(command: string, args): Promise<any> {
+  private execute(command: string, args): Promise<any> {
     return this.serverPromise.then(cp => {
-      const expectResponse = !!TypescriptServiceClient.commandWithResponse[command]
-      return this.sendRequest(cp, command, args, expectResponse)
+      return this.sendRequest(cp, command, args, CommandWithResponse.has(command))
     }).catch(err => {
       console.log("command", command, "failed due to", err)
       throw err
@@ -141,7 +140,7 @@ export class TypescriptServiceClient {
   }
 
   private emitPendingRequests() {
-    const pending = []
+    const pending: string[] = []
 
     for (const callback in this.callbacks) {
       pending.push(this.callbacks[callback].name)
@@ -170,6 +169,9 @@ export class TypescriptServiceClient {
     }
   }
 
+  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: true): Promise<protocol.Response>
+  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: false): undefined
+  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: boolean): Promise<protocol.Response> | undefined
   private sendRequest(cp: ChildProcess, command: string, args, expectResponse: boolean): Promise<protocol.Response> | undefined {
 
     const req = {
@@ -221,7 +223,7 @@ export class TypescriptServiceClient {
       })
 
       return this.serverPromise.catch(error => {
-        this.serverPromise = null
+        this.serverPromise = undefined
         throw error
       })
 

@@ -67,6 +67,7 @@ class RenameView extends view.View {
         this.newNameEditor.focus();
         this.validationMessage.hide();
     }
+    // Show the dialog and resolve the promise with the entered string
     showRenameDialog(options) {
         return new Promise((resolve, reject) => {
             this.renameThis(tslib_1.__assign({}, options, { onCancel: reject, onCommit: resolve }));

@@ -9,10 +9,12 @@ const tsUtil_1 = require("./utils/tsUtil");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
     constructor(editor, opts) {
+        // Path to the project's tsconfig.json
         this.configFile = "";
         this.isActive = false;
         this.isTSConfig = false;
         this.isTypescript = false;
+        // Callback that is going to be executed after the next didStopChanging event is processed
         this.stoppedChangingCallbacks = [];
         this.isOpen = false;
         this.occurrenceMarkers = [];
@@ -23,6 +25,7 @@ class TypescriptEditorPane {
             if (this.isTypescript && this.filePath) {
                 this.opts.statusPanel.show();
                 if (this.client) {
+                    // The first activation might happen before we even have a client
                     this.client.executeGetErr({
                         files: [this.filePath],
                         delay: 100
@@ -76,6 +79,7 @@ class TypescriptEditorPane {
                 this.filePath = event.path;
                 this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
             }
+            // Check if there isn't a onDidStopChanging event pending. If so, wait for it before updating
             if (this.changedAt && this.changedAt > (this.stoppedChangingAt | 0)) {
                 yield new Promise(resolve => this.stoppedChangingCallbacks.push(resolve));
             }
@@ -192,6 +196,8 @@ class TypescriptEditorPane {
         });
     }
     setupTooltipView() {
+        // subscribe for tooltips
+        // inspiration : https://github.com/chaika2013/ide-haskell
         const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));
         tooltipManager.attach(editorView, this.editor);
     }

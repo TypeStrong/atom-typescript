@@ -15,6 +15,10 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         });
         const files = new Set(projectInfo.body.fileNames);
         const max = files.size;
+        // There's no real way to know when all of the errors have been received and not every file from
+        // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
+        // that, we cancel the listener and close the progress bar after no diagnostics have been received
+        // for some amount of time.
         let cancelTimeout;
         const unregister = client.on("syntaxDiag", evt => {
             clearTimeout(cancelTimeout);

@@ -1,5 +1,7 @@
 "use strict";
 const tslib_1 = require("tslib");
+// import {getFileStatus} from "./atom/fileStatusCache"
+// import {$} from "atom-space-pen-views"
 const clientResolver_1 = require("../client/clientResolver");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
@@ -7,15 +9,20 @@ const errorPusher_1 = require("./errorPusher");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const atomConfig = require("./atom/atomConfig");
+// import * as atomUtils from './atom/atomUtils'
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
+// import * as fs from 'fs'
 const hyperclickProvider = require("../hyperclickProvider");
+// import * as path from 'path'
 const renameView_1 = require("./atom/views/renameView");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const lodash_2 = require("lodash");
 const Atom = require("atom");
+// globals
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
+// Register all custom components
 require("./atom/components");
 const commands_1 = require("./atom/commands");
 let linter;
@@ -28,6 +35,7 @@ function activate(state) {
                 statusPriority = panel.getPriority() - 1;
             }
         }
+        // Add the rename view
         const { renameView } = renameView_1.attach();
         const statusPanel = statusPanel_1.StatusPanel.create();
         statusBar.addRightTile({
@@ -46,6 +54,7 @@ function activate(state) {
                 errorPusher.setErrors(type, filePath, diagnostics);
             });
         }
+        // Register the commands
         commands_1.registerCommands({
             clearErrors() {
                 errorPusher.clear();
@@ -59,6 +68,7 @@ function activate(state) {
                             isOpen: true
                         };
                     }
+                    // Wait for the buffer to load before resolving the promise
                     const buffer = yield new Promise(resolve => {
                         const buffer = new Atom.TextBuffer({
                             filePath,
@@ -102,6 +112,7 @@ function activate(state) {
                         activePane = null;
                     }
                     panes.splice(panes.indexOf(pane), 1);
+                    // Clear errors if any from this pane
                     errorPusher.setErrors("syntaxDiag", pane.filePath, []);
                     errorPusher.setErrors("semanticDiag", pane.filePath, []);
                 },
@@ -149,6 +160,7 @@ function consumeStatusBar(_statusBar) {
     statusBar = _statusBar;
 }
 exports.consumeStatusBar = consumeStatusBar;
+// Registering an autocomplete provider
 function provide() {
     return [
         new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver),

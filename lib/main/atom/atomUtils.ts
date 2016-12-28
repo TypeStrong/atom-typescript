@@ -191,7 +191,7 @@ export function kindToType(kind: string) {
 }
 
 /** Utility functions for commands */
-export function commandForTypeScript(e) {
+export function commandForTypeScript(e: AtomCore.CommandEvent) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor) return e.abortKeyBinding() && false;
     var ext = path.extname(editor.getPath());
@@ -259,7 +259,7 @@ export function registerOpener<T>(config: OpenerConfig<T>) {
         atom.workspace.open(uri, config.getData());
     });
 
-    atom.workspace.addOpener(function(uri, data: T) {
+    atom.workspace.addOpener(function(uri: string, data: T) {
         try {
             var {protocol} = url.parse(uri);
         }

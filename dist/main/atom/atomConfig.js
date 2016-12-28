@@ -1,5 +1,9 @@
 "use strict";
 const utils_1 = require("../lang/utils");
+// Documentation https://atom.io/docs/api/v0.177.0/Config and http://json-schema.org/examples.html
+// To add a new setting you need to add to
+//    schema
+//    getter/setter
 var packageName = 'atom-typescript';
 function getConfig(nameLambda) {
     return atom.config.get(packageName + '.' + utils_1.getName(nameLambda));

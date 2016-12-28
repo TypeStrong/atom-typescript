@@ -7,6 +7,10 @@ const defaultServer = {
     serverPath: require.resolve("typescript/bin/tsserver"),
     version: require("typescript").version
 };
+/**
+ * ClientResolver takes care of finding the correct tsserver for a source file based on how a
+ * require("typescript") from the same source file would resolve.
+ */
 class ClientResolver extends events.EventEmitter {
     constructor() {
         super(...arguments);
@@ -22,10 +26,7 @@ class ClientResolver extends events.EventEmitter {
             if (this.clients[serverPath]) {
                 return this.clients[serverPath].client;
             }
-            const entry = this.clients[serverPath] = {
-                client: new client_1.TypescriptServiceClient(serverPath, version),
-                pending: [],
-            };
+            const entry = this.addClient(serverPath, new client_1.TypescriptServiceClient(serverPath, version));
             entry.client.startServer();
             entry.client.on("pendingRequestsChange", pending => {
                 entry.pending = pending;
@@ -44,6 +45,13 @@ class ClientResolver extends events.EventEmitter {
             entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"));
             return entry.client;
         });
+    }
+    addClient(serverPath, client) {
+        this.clients[serverPath] = {
+            client,
+            pending: [],
+        };
+        return this.clients[serverPath];
     }
 }
 exports.ClientResolver = ClientResolver;

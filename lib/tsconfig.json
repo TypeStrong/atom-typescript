@@ -1,23 +1,21 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "declaration": false,
-        "lib": ["es6", "dom"],
-        "noImplicitAny": false,
-        "importHelpers": true,
-        "removeComments": true,
-        "noLib": false,
-        "noUnusedLocals": true,
-        "preserveConstEnums": true,
-        "outDir": "../dist",
-        "sourceMap": false,
-        "jsx": "react",
-        "types": [],
-        "reactNamespace": "dom"
-    },
-    "atom": {
-        "formatOnSave": false
-    },
-    "compileOnSave": true
+  "compilerOptions": {
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["es6", "dom"],
+    "module": "commonjs",
+    "forceConsistentCasingInFileNames": true,
+    "noLib": false,
+    "noUnusedLocals": true,
+    "outDir": "../dist",
+    "preserveConstEnums": true,
+    "reactNamespace": "dom",
+    "sourceMap": false,
+    "strictNullChecks": false,
+    "target": "es6"
+  },
+  "atom": {
+    "formatOnSave": false
+  },
+  "compileOnSave": true
 }

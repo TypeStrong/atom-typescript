@@ -49,7 +49,7 @@ class MainPanelView extends view.View {
                 });
                 this.span({
                     class: 'layout horizontal atomts-panel-header',
-                    style: 'align-items: center; flex: 1 1 auto; line-height: 24px;'
+                    style: 'align-items: center; flex: 1 1 auto; line-height: 24px;' // Line height is equal to height of github loading icon
                 }, () => {
                     this.div({
                         style: 'cursor: pointer;',
@@ -130,6 +130,19 @@ class MainPanelView extends view.View {
     }
     softReset() {
         console.log("soft reset");
+        // var editor = atom.workspace.getActiveTextEditor();
+        // var prom = parent.softReset({ filePath: editor.getPath(), text: editor.getText() })
+        //     .then(() => {
+        //
+        // });
+        // if (atomUtils.onDiskAndTs(editor)) {
+        //     prom.then(() => {
+        //         atomUtils.triggerLinter();
+        //
+        //         return parent.errorsForFile({ filePath: editor.getPath() })
+        //     })
+        //         .then((resp) => errorView.setErrors(editor.getPath(), resp.errors));
+        // }
     }
     setTsconfigInUse(tsconfigFilePath) {
         this.fullTsconfigPath = tsconfigFilePath;
@@ -150,8 +163,25 @@ class MainPanelView extends view.View {
             atomUtils.openFile(this.fullTsconfigPath);
         }
     }
+    ///////////// Change JS File Status
     updateFileStatus(filePath) {
+        // parent.getProjectFileDetails({ filePath }).then(fileDetails => {
+        //     if (!fileDetails.project.compileOnSave) {
+        //         this.fileStatus.addClass("hidden");
+        //     } else {
+        //         let status = getFileStatus(filePath);
+        //         this.fileStatus.removeClass('icon-x icon-check text-error text-success hidden');
+        //         if (status.emitDiffers || status.modified) {
+        //             this.fileStatus.text('JS Outdated');
+        //             this.fileStatus.addClass('icon-x text-error');
+        //         } else {
+        //             this.fileStatus.text('JS Current');
+        //             this.fileStatus.addClass('icon-check text-success');
+        //         }
+        //     }
+        // });
     }
+    ///////////// Pending Requests
     showPending() {
         atom.notifications.addInfo('Pending Requests: <br/> - ' + this.pendingRequests.join('<br/> - '));
     }
@@ -221,7 +251,9 @@ class MainPanelView extends view.View {
         this.expanded = !this.expanded;
         this.setActivePanel();
     }
+    ////////////// REFERENCES
     setReferences(references) {
+        // Select it
         this.referencesPanelSelected(true);
         this.referencesBody.empty();
         if (references.length == 0) {
@@ -244,9 +276,11 @@ class MainPanelView extends view.View {
                 preview: ref.preview
             });
             this.referencesBody.append(view.$);
+            // Update the list for goto history
             gotoHistory.referencesOutput.members.push({ filePath: ref.filePath, line: ref.position.line + 1, col: ref.position.col });
         }
     }
+    ///////////////////// BUILD
     setBuildPanelCount(errorCount, inProgressBuild = false) {
         var titleMain = inProgressBuild ? "Build Progress" : panelHeaders.build;
         var title = `${titleMain} ( <span class="text-success">No Errors</span> )`;
@@ -269,12 +303,15 @@ class MainPanelView extends view.View {
         this.buildBody.append(view.$);
     }
     setBuildProgress(progress) {
+        // just for the first time
         if (progress.builtCount == 1) {
             this.buildProgress.show();
             this.buildProgress.removeClass('warn');
             this.buildBody.html('<span class="text-success">Things are looking good \u2665</span>');
+            // Update the errors list for goto history
             gotoHistory.buildOutput.members = [];
         }
+        // For last time we don't care just return
         if (progress.builtCount == progress.totalCount) {
             this.buildProgress.hide();
             return;
@@ -296,6 +333,7 @@ class MainPanelView extends view.View {
                     file: error.filePath,
                     preview: error.preview
                 }));
+                // Update the errors list for goto history
                 gotoHistory.buildOutput.members.push({ filePath: error.filePath, line: error.startPos.line + 1, col: error.startPos.col });
             });
         }

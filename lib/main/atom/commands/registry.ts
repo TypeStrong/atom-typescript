@@ -11,7 +11,7 @@ export interface Dependencies {
 }
 
 export interface CommandConstructor {
-  (deps: Dependencies): (e) => any
+  (deps: Dependencies): (e: AtomCore.CommandEvent) => any
 }
 
 // To allow using dependency injection, but avoid having to type a lot of boilerplate, we have the

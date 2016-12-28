@@ -1,4 +1,11 @@
 "use strict";
+/**
+ * Maintainance:
+ * When a new option is added add it to:
+ * - the FormatCodeOptions interface
+ * - the defaultFormatCodeOptions function
+ * - the makeFormatCodeOptions function
+ */
 const os_1 = require("os");
 function defaultFormatCodeOptions() {
     return {

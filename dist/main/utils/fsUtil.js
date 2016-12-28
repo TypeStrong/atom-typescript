@@ -1,17 +1,31 @@
+/**
+ * Wraps fs and path into a nice "consistentPath" API
+ */
 "use strict";
+/** we work with "/" for all paths (so does the typescript language service) */
 function consistentPath(filePath) {
     return filePath.split('\\').join('/');
 }
 exports.consistentPath = consistentPath;
 const path = require("path");
+/**
+ * Resolves to to an absolute path.
+ * @param from,to,to,to...
+ */
 function resolve(...args) {
     return consistentPath(path.resolve(...args));
 }
 exports.resolve = resolve;
+/**
+ * Could be called ends with :)
+ */
 function isExt(path, ext) {
     return path && path.indexOf(ext, path.length - ext.length) !== -1;
 }
 exports.isExt = isExt;
+/**
+ * Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
+ */
 function makeRelativePath(relativeFolder, filePath) {
     var relativePath = path.relative(relativeFolder, filePath).split('\\').join('/');
     if (relativePath[0] !== '.') {

@@ -2,6 +2,10 @@ declare namespace AtomCore {
   interface IEditor {
     onDidChangeGrammar(callback: (grammar: IGrammar) => any): Disposable
   }
+
+  interface CommandEvent extends Event {
+    abortKeyBinding(): any
+  }
 }
 
 declare namespace TextBuffer {

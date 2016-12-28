@@ -1,6 +1,7 @@
 "use strict";
 const lodash_1 = require("lodash");
 const tsUtil_1 = require("./utils/tsUtil");
+/** Class that collects errors from all of the clients and pushes them to the Linter service */
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
@@ -23,6 +24,7 @@ class ErrorPusher {
             }
         }, 100);
     }
+    /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {
         let prefixed = this.errors.get(prefix);
         if (!prefixed) {
@@ -32,6 +34,7 @@ class ErrorPusher {
         prefixed.set(filePath, errors);
         this.pushErrors();
     }
+    /** Clear all errors */
     clear() {
         if (this.linter) {
             this.linter.deleteMessages();

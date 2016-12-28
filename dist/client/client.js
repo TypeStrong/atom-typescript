@@ -2,8 +2,22 @@
 const child_process_1 = require("child_process");
 const stream_1 = require("stream");
 const byline = require("byline");
+exports.CommandWithResponse = new Set([
+    "compileOnSaveAffectedFileList",
+    "compileOnSaveEmitFile",
+    "completionEntryDetails",
+    "completions",
+    "definition",
+    "occurrences",
+    "projectInfo",
+    "quickinfo",
+    "references",
+    "reload",
+    "rename",
+]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
+        /** Map of callbacks that are waiting for responses */
         this.callbacks = {};
         this.listeners = {};
         this.seq = 0;
@@ -84,8 +98,7 @@ class TypescriptServiceClient {
     }
     execute(command, args) {
         return this.serverPromise.then(cp => {
-            const expectResponse = !!TypescriptServiceClient.commandWithResponse[command];
-            return this.sendRequest(cp, command, args, expectResponse);
+            return this.sendRequest(cp, command, args, exports.CommandWithResponse.has(command));
         }).catch(err => {
             console.log("command", command, "failed due to", err);
             throw err;
@@ -148,10 +161,11 @@ class TypescriptServiceClient {
                 });
                 messageStream(cp.stdout).on("data", this.onMessage);
                 cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()));
+                // We send an unknown command to verify that the server is working.
                 this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
             });
             return this.serverPromise.catch(error => {
-                this.serverPromise = null;
+                this.serverPromise = undefined;
                 throw error;
             });
         }
@@ -160,19 +174,6 @@ class TypescriptServiceClient {
         }
     }
 }
-TypescriptServiceClient.commandWithResponse = {
-    compileOnSaveAffectedFileList: true,
-    compileOnSaveEmitFile: true,
-    completionEntryDetails: true,
-    completions: true,
-    definition: true,
-    occurrences: true,
-    projectInfo: true,
-    quickinfo: true,
-    references: true,
-    reload: true,
-    rename: true,
-};
 exports.TypescriptServiceClient = TypescriptServiceClient;
 function isEvent(res) {
     return res.type === "event";
@@ -183,6 +184,7 @@ function isResponse(res) {
 function messageStream(input) {
     return input.pipe(byline()).pipe(new MessageStream());
 }
+/** Helper to parse the tsserver output stream to a message stream  */
 class MessageStream extends stream_1.Transform {
     constructor() {
         super({ objectMode: true });

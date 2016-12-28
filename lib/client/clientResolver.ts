@@ -51,10 +51,7 @@ export class ClientResolver extends events.EventEmitter {
           return this.clients[serverPath].client
         }
 
-        const entry = this.clients[serverPath] = {
-          client: new Client(serverPath, version),
-          pending: [],
-        }
+        const entry = this.addClient(serverPath, new Client(serverPath, version))
 
         entry.client.startServer()
 
@@ -78,6 +75,15 @@ export class ClientResolver extends events.EventEmitter {
 
         return entry.client
       })
+  }
+
+  addClient(serverPath: string, client: Client) {
+    this.clients[serverPath] = {
+      client,
+      pending: [],
+    }
+
+    return this.clients[serverPath]
   }
 }
 

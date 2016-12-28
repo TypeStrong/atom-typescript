@@ -1,6 +1,9 @@
 "use strict";
 const sp = require("atom-space-pen-views");
 const atomUtils = require("../atomUtils");
+/**
+ * https://github.com/atom/atom-space-pen-views
+ */
 class FileSymbolsView extends sp.SelectListView {
     constructor() {
         super(...arguments);
@@ -14,6 +17,7 @@ class FileSymbolsView extends sp.SelectListView {
         this.filePath = filePath;
         super.setItems(items);
     }
+    /** override */
     viewForItem(item) {
         return `
             <li>
@@ -23,6 +27,7 @@ class FileSymbolsView extends sp.SelectListView {
             </li>
         `;
     }
+    /** override */
     confirmed(item) {
         atom.workspace.open(this.filePath, {
             initialLine: item.position.line,
