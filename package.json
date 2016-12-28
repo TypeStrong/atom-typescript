@@ -70,7 +70,7 @@
     "resolve": "1.1.7",
     "tsconfig": "^2.2.0",
     "tslib": "1.2.0",
-    "typescript": "2.1.4"
+    "typescript": "2.2.0-dev.20161228"
   },
   "devDependencies": {
     "@types/cson": "0.0.30",
