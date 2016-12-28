@@ -7,6 +7,7 @@ class TypescriptServiceClient {
         this.callbacks = {};
         this.listeners = {};
         this.seq = 0;
+        this.tsServerArgs = [];
         this.onMessage = (res) => {
             if (isResponse(res)) {
                 const callback = this.callbacks[res.request_seq];
@@ -136,7 +137,7 @@ class TypescriptServiceClient {
         if (!this.serverPromise) {
             this.serverPromise = new Promise((resolve, reject) => {
                 console.log("starting", this.tsServerPath);
-                const cp = child_process_1.spawn(this.tsServerPath, []);
+                const cp = child_process_1.spawn(this.tsServerPath, this.tsServerArgs);
                 cp.once("error", err => {
                     console.log("tsserver starting failed with", err);
                     reject(err);
@@ -146,6 +147,7 @@ class TypescriptServiceClient {
                     reject({ code });
                 });
                 messageStream(cp.stdout).on("data", this.onMessage);
+                cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()));
                 this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
             });
             return this.serverPromise.catch(error => {

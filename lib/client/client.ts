@@ -29,6 +29,7 @@ export class TypescriptServiceClient {
 
   /** Path to the tsserver executable */
   readonly tsServerPath: string
+  readonly tsServerArgs = []
   readonly version: string
 
   constructor(tsServerPath: string, version) {
@@ -199,7 +200,7 @@ export class TypescriptServiceClient {
       this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
         console.log("starting", this.tsServerPath)
 
-        const cp = spawn(this.tsServerPath, [])
+        const cp = spawn(this.tsServerPath, this.tsServerArgs)
 
         cp.once("error", err => {
           console.log("tsserver starting failed with", err)
@@ -212,6 +213,8 @@ export class TypescriptServiceClient {
         })
 
         messageStream(cp.stdout).on("data", this.onMessage)
+
+        cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()))
 
         // We send an unknown command to verify that the server is working.
         this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
