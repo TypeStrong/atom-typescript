@@ -16,7 +16,7 @@ export class StatusPanel extends HTMLElement {
   private statusText: HTMLElement
   private version: HTMLElement
 
-  private configPath: string
+  private configPath?: string
   private pendingRequests: string[]
   private pendingTimeout: any
 
@@ -56,11 +56,11 @@ export class StatusPanel extends HTMLElement {
       this.appendChild(node)
     }
 
-    this.setVersion(null)
+    this.setVersion(undefined)
     this.setPending([], true)
-    this.setTsConfigPath(null)
-    this.setBuildStatus(null)
-    this.setProgress(null)
+    this.setTsConfigPath(undefined)
+    this.setBuildStatus(undefined)
+    this.setProgress(undefined)
   }
 
   dispose() {
@@ -75,7 +75,7 @@ export class StatusPanel extends HTMLElement {
     }
   }
 
-  setBuildStatus(status: {success: boolean}) {
+  setBuildStatus(status?: {success: boolean}) {
     const container = this.statusText
     if (status) {
       if (status.success) {
@@ -103,7 +103,7 @@ export class StatusPanel extends HTMLElement {
     }
   }
 
-  setTsConfigPath(configPath: string) {
+  setTsConfigPath(configPath?: string) {
     this.configPath = configPath
 
     if (configPath) {
@@ -116,7 +116,7 @@ export class StatusPanel extends HTMLElement {
     }
   }
 
-  setVersion(version: string) {
+  setVersion(version?: string) {
     if (version) {
       this.version.textContent = version
       this.version.classList.remove("hide")

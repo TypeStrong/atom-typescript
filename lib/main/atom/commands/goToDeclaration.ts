@@ -12,9 +12,9 @@ commands.set("typescript:go-to-declaration", deps => {
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
 
-    if (result.body.length > 1) {
+    if (result.body!.length > 1) {
       simpleSelectionView({
-        items: result.body,
+        items: result.body!,
         viewForItem: item => {
             return `
                 <span>${item.file}</span>
@@ -22,13 +22,13 @@ commands.set("typescript:go-to-declaration", deps => {
             `
         },
         filterKey: 'filePath',
-        confirmed: open
+        confirmed: item => open(item)
       })
     } else {
-      open(result.body[0])
+      open(result.body![0])
     }
 
-    function open(item: typeof result.body[0]) {
+    function open(item: {file: string, start: {line: number, offset: number}}) {
       atom.workspace.open(item.file, {
         initialLine: item.start.line - 1,
         initialColumn: item.start.offset - 1

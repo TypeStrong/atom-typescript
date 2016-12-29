@@ -64,7 +64,7 @@ export class RenameView
       this.panel = panel
     }
 
-    public editorAtRenameStart: AtomCore.IEditor = null;
+    public editorAtRenameStart?: AtomCore.IEditor;
     public clearView() {
         if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
             var view = atom.views.getView(this.editorAtRenameStart);
@@ -72,7 +72,7 @@ export class RenameView
         }
         this.panel.hide();
         this.options = <any>{};
-        this.editorAtRenameStart = null;
+        this.editorAtRenameStart = undefined;
     }
 
     private renameThis(options: RenameViewOptions) {

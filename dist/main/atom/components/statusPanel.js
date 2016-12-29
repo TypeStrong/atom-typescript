@@ -23,11 +23,11 @@ class StatusPanel extends HTMLElement {
         for (const node of nodes) {
             this.appendChild(node);
         }
-        this.setVersion(null);
+        this.setVersion(undefined);
         this.setPending([], true);
-        this.setTsConfigPath(null);
-        this.setBuildStatus(null);
-        this.setProgress(null);
+        this.setTsConfigPath(undefined);
+        this.setBuildStatus(undefined);
+        this.setProgress(undefined);
     }
     dispose() {
         this.remove();

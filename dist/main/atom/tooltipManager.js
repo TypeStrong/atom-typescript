@@ -1,6 +1,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 "use strict";
+const tslib_1 = require("tslib");
 const atomUtils = require("./atomUtils"); ///ts:import:generated
 const atomts_1 = require("../atomts");
 const path = require("path");
@@ -32,8 +33,8 @@ function attach(editorView, editor) {
     var clientPromise = atomts_1.clientResolver.get(filePath);
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
-    var exprTypeTimeout = null;
-    var exprTypeTooltip = null;
+    var exprTypeTimeout;
+    var exprTypeTooltip;
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, 'mousemove', (e) => {
@@ -51,39 +52,45 @@ function attach(editorView, editor) {
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
     function showExpressionType(e) {
-        // If we are already showing we should wait for that to clear
-        if (exprTypeTooltip)
-            return;
-        var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-        pixelPt.top += editor.getScrollTop();
-        pixelPt.left += editor.getScrollLeft();
-        var screenPt = editor.screenPositionForPixelPosition(pixelPt);
-        var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
-        var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-        var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
-        if (curCharPixelPt.left >= nextCharPixelPt.left)
-            return;
-        // find out show position
-        var offset = editor.getLineHeightInPixels() * 0.7;
-        var tooltipRect = {
-            left: e.clientX,
-            right: e.clientX,
-            top: e.clientY - offset,
-            bottom: e.clientY + offset
-        };
-        exprTypeTooltip = new TooltipView(tooltipRect);
-        clientPromise.then(client => {
-            client.executeQuickInfo({
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // If we are already showing we should wait for that to clear
+            if (exprTypeTooltip)
+                return;
+            var pixelPt = pixelPositionFromMouseEvent(editorView, e);
+            pixelPt.top += editor.getScrollTop();
+            pixelPt.left += editor.getScrollLeft();
+            var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+            var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
+            var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
+            var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
+            if (curCharPixelPt.left >= nextCharPixelPt.left)
+                return;
+            // find out show position
+            var offset = editor.getLineHeightInPixels() * 0.7;
+            var tooltipRect = {
+                left: e.clientX,
+                right: e.clientX,
+                top: e.clientY - offset,
+                bottom: e.clientY + offset
+            };
+            exprTypeTooltip = new TooltipView(tooltipRect);
+            const client = yield clientPromise;
+            const result = yield client.executeQuickInfo({
                 file: filePath,
                 line: bufferPt.row + 1,
                 offset: bufferPt.column + 1
-            }).then(({ body: { displayString, documentation } }) => {
-                var message = `<b>${escape(displayString)}</b>`;
-                if (documentation) {
-                    message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />')}</i>`;
-                }
+            }).catch(err => undefined);
+            if (!result) {
+                return;
+            }
+            const { displayString, documentation } = result.body;
+            var message = `<b>${escape(displayString)}</b>`;
+            if (documentation) {
+                message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />')}</i>`;
+            }
+            if (exprTypeTooltip) {
                 exprTypeTooltip.updateText(message);
-            }, () => { });
+            }
         });
     }
     function deactivate() {
@@ -102,7 +109,7 @@ function attach(editorView, editor) {
         if (!exprTypeTooltip)
             return;
         exprTypeTooltip.$.remove();
-        exprTypeTooltip = null;
+        exprTypeTooltip = undefined;
     }
 }
 exports.attach = attach;

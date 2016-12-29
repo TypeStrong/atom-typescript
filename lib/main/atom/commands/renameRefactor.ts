@@ -10,7 +10,8 @@ commands.set("typescript:rename-refactor", deps => {
 
     const location = getFilePathPosition()
     const client = await deps.getClient(location.file)
-    const {body: {info, locs}} = await client.executeRename(location)
+    const response = await client.executeRename(location)
+    const {info, locs} = response.body!
 
     if (!info.canRename) {
       return atom.notifications.addInfo("AtomTS: Rename not available at cursor location")

@@ -14,7 +14,7 @@ commands.set("typescript:find-references", deps => {
     const result = await client.executeReferences(location)
 
     simpleSelectionView({
-      items: result.body.refs,
+      items: result.body!.refs,
       viewForItem: item => {
         return `<div>
           <span>${atom.project.relativize(item.file)}</span>
@@ -23,10 +23,10 @@ commands.set("typescript:find-references", deps => {
         </div>`
       },
       filterKey: 'filePath',
-      confirmed: open
+      confirmed: item => open(item)
     })
 
-    function open(item: typeof result.body.refs[0]) {
+    function open(item: {file: string, start: {line: number, offset: number}}) {
       atom.workspace.open(item.file, {
         initialLine: item.start.line - 1,
         initialColumn: item.start.offset - 1

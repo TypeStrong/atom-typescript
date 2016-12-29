@@ -35,7 +35,7 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         function updateStatus() {
             if (files.size === 0) {
                 unregister();
-                deps.statusPanel.setProgress(null);
+                deps.statusPanel.setProgress(undefined);
             }
             else {
                 deps.statusPanel.setProgress({ max, value: max - files.size });

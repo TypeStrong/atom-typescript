@@ -57,7 +57,7 @@ export function findTypescriptServers(root: string): Promise<Server[]> {
 }
 
 /** Get info about the tsserver at the prefix */
-function getServerInfo(prefix: string, callback: (err: Error, info: Server) => any) {
+function getServerInfo(prefix: string, callback: (err: Error | null, info: Server | null) => any) {
   const tsDir = path.join(prefix, "node_modules", "typescript")
 
   fs.readFile(path.join(tsDir, "package.json"), "utf8", (err, pkg) => {

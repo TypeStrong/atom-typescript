@@ -11,7 +11,7 @@
     "preserveConstEnums": true,
     "reactNamespace": "dom",
     "sourceMap": false,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "target": "es6"
   },
   "atom": {

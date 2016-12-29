@@ -17,14 +17,6 @@ export function resolve(...args: string[]) {
     return consistentPath(path.resolve(...args));
 }
 
-
-/**
- * Could be called ends with :)
- */
-export function isExt(path: string, ext: string): boolean {
-    return path && path.indexOf(ext, path.length - ext.length) !== -1;
-}
-
 /**
  * Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
  */

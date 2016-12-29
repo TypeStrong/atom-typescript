@@ -4,10 +4,6 @@ const view = require("./view");
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
 class RenameView extends view.View {
-    constructor() {
-        super(...arguments);
-        this.editorAtRenameStart = null;
-    }
     init() {
         $(atom.views.getView(atom.workspace)).on('keydown', (e) => {
             if (e.keyCode == 27) {
@@ -50,7 +46,7 @@ class RenameView extends view.View {
         }
         this.panel.hide();
         this.options = {};
-        this.editorAtRenameStart = null;
+        this.editorAtRenameStart = undefined;
     }
     renameThis(options) {
         this.options = options;

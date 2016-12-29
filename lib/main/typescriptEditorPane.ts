@@ -96,7 +96,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
           needFileNameList: false,
           file: this.filePath
         }).then(result => {
-          this.configFile = result.body.configFileName
+          this.configFile = result.body!.configFileName
 
           if (this.isActive) {
             this.opts.statusPanel.setTsConfigPath(this.configFile)
@@ -164,7 +164,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }).then(result => {
       this.clearOccurrenceMarkers()
 
-      for (const ref of result.body) {
+      for (const ref of result.body!) {
         const marker = this.editor.markBufferRange(spanToRange(ref))
         this.editor.decorateMarker(marker as any, {
           type: "highlight",
@@ -216,7 +216,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       file: this.filePath
     })
 
-    this.opts.statusPanel.setBuildStatus(null)
+    this.opts.statusPanel.setBuildStatus(undefined)
 
     const fileNames = flatten(result.body.map(project => project.fileNames))
 
@@ -251,7 +251,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       if (this.isOpen) {
 
         if (changes.length !== 0) {
-          this.opts.statusPanel.setBuildStatus(null)
+          this.opts.statusPanel.setBuildStatus(undefined)
         }
 
         for (const change of changes) {

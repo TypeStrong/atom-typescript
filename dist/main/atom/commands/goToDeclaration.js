@@ -21,7 +21,7 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
             `;
                 },
                 filterKey: 'filePath',
-                confirmed: open
+                confirmed: item => open(item)
             });
         }
         else {

@@ -22,7 +22,7 @@ registry_1.commands.set("typescript:find-references", deps => {
         </div>`;
             },
             filterKey: 'filePath',
-            confirmed: open
+            confirmed: item => open(item)
         });
         function open(item) {
             atom.workspace.open(item.file, {

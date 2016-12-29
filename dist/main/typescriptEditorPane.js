@@ -93,7 +93,7 @@ class TypescriptEditorPane {
             if (this.isTypescript && this.filePath) {
                 if (this.isOpen) {
                     if (changes.length !== 0) {
-                        this.opts.statusPanel.setBuildStatus(null);
+                        this.opts.statusPanel.setBuildStatus(undefined);
                     }
                     for (const change of changes) {
                         const { start, oldExtent, newText } = change;
@@ -172,7 +172,7 @@ class TypescriptEditorPane {
             const result = yield this.client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath
             });
-            this.opts.statusPanel.setBuildStatus(null);
+            this.opts.statusPanel.setBuildStatus(undefined);
             const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
             if (fileNames.length === 0) {
                 return;

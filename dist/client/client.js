@@ -1,4 +1,5 @@
 "use strict";
+const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
 const stream_1 = require("stream");
 const byline = require("byline");
@@ -97,11 +98,11 @@ class TypescriptServiceClient {
         return this.execute("saveto", args);
     }
     execute(command, args) {
-        return this.serverPromise.then(cp => {
-            return this.sendRequest(cp, command, args, exports.CommandWithResponse.has(command));
-        }).catch(err => {
-            console.log("command", command, "failed due to", err);
-            throw err;
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (!this.serverPromise) {
+                throw new Error("Server is not running");
+            }
+            return this.sendRequest(yield this.serverPromise, command, args, exports.CommandWithResponse.has(command));
         });
     }
     on(name, listener) {
@@ -136,15 +137,16 @@ class TypescriptServiceClient {
             arguments: args
         };
         console.log("sending request", command, "with args", args);
-        let resultPromise = undefined;
+        setImmediate(() => {
+            cp.stdin.write(JSON.stringify(req) + "\n");
+        });
         if (expectResponse) {
-            resultPromise = new Promise((resolve, reject) => {
+            const resultPromise = new Promise((resolve, reject) => {
                 this.callbacks[req.seq] = { name: command, resolve, reject, started: Date.now() };
             });
             this.emitPendingRequests();
+            return resultPromise;
         }
-        cp.stdin.write(JSON.stringify(req) + "\n");
-        return resultPromise;
     }
     startServer() {
         if (!this.serverPromise) {

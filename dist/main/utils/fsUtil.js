@@ -17,13 +17,6 @@ function resolve(...args) {
 }
 exports.resolve = resolve;
 /**
- * Could be called ends with :)
- */
-function isExt(path, ext) {
-    return path && path.indexOf(ext, path.length - ext.length) !== -1;
-}
-exports.isExt = isExt;
-/**
  * Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
  */
 function makeRelativePath(relativeFolder, filePath) {

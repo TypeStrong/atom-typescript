@@ -15,7 +15,7 @@ commands.set("typescript:check-all-files", deps => {
       needFileNameList: true
     })
 
-    const files = new Set(projectInfo.body.fileNames)
+    const files = new Set(projectInfo.body!.fileNames)
     const max = files.size
 
     // There's no real way to know when all of the errors have been received and not every file from
@@ -43,7 +43,7 @@ commands.set("typescript:check-all-files", deps => {
     function updateStatus() {
       if (files.size === 0) {
         unregister()
-        deps.statusPanel.setProgress(null)
+        deps.statusPanel.setProgress(undefined)
       } else {
         deps.statusPanel.setProgress({max, value: max - files.size})
       }

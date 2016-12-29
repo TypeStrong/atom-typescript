@@ -112,6 +112,7 @@ export function activate(state: PackageState) {
         statusPanel,
       })
 
+      let activePane: TypescriptEditorPane | undefined
       const panes: TypescriptEditorPane[] = []
 
       const onSave = debounce((pane: TypescriptEditorPane) => {
@@ -130,7 +131,7 @@ export function activate(state: PackageState) {
         panes.push(new TypescriptEditorPane(editor, {
           onDispose(pane) {
             if (activePane === pane) {
-              activePane = null
+              activePane = undefined
             }
 
             panes.splice(panes.indexOf(pane), 1)
@@ -144,8 +145,7 @@ export function activate(state: PackageState) {
         }))
       }))
 
-      let activePane: TypescriptEditorPane = panes.find(pane =>
-        pane.editor === atom.workspace.getActiveTextEditor())
+      panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
 
       if (activePane) {
         activePane.onActivated()
@@ -154,7 +154,7 @@ export function activate(state: PackageState) {
       subscriptions.add(atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
         if (activePane) {
           activePane.onDeactivated()
-          activePane = null
+          activePane = undefined
         }
 
         if (atom.workspace.isTextEditor(editor)) {
@@ -204,7 +204,7 @@ export function getHyperclickProvider() {
 export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
   return clientResolver.get(sourcePath).then(client => {
     return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {
-      return tsconfig.load(result.body.configFileName)
+      return tsconfig.load(result.body!.configFileName)
     })
   })
 }

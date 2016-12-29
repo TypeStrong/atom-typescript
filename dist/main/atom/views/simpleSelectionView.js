@@ -24,7 +24,6 @@ class SimpleSelectListView extends sp.SelectListView {
     constructor(options) {
         super();
         this.options = options;
-        this.panel = null;
     }
     get $() {
         return this;
@@ -63,7 +62,9 @@ class SimpleSelectListView extends sp.SelectListView {
         // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
     }
     hide() {
-        this.panel.hide();
+        if (this.panel) {
+            this.panel.hide();
+        }
         this.restoreFocus();
     }
     cancelled() {

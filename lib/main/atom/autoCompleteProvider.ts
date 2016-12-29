@@ -56,7 +56,7 @@ export class AutocompleteProvider implements Provider {
     const client = await this.clientResolver.get(location.file)
     const completions = await client.executeCompletions({prefix, ...location})
 
-    const suggestions = completions.body.map(entry => ({
+    const suggestions = completions.body!.map(entry => ({
       text: entry.name,
       leftLabel: entry.kind,
       type: kindToType(entry.kind),
@@ -99,7 +99,7 @@ export class AutocompleteProvider implements Provider {
     const trimmed = prefix.trim()
 
     return suggestions.map(suggestion => ({
-      replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text),
+      replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
       ...suggestion
     }))
   }
@@ -107,11 +107,11 @@ export class AutocompleteProvider implements Provider {
   async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
     if (suggestions.some(s => !s.details)) {
       const details = await this.lastSuggestions.client.executeCompletionDetails({
-        entryNames: suggestions.map(s => s.text),
+        entryNames: suggestions.map(s => s.text!),
         ...location
       })
 
-      details.body.forEach((detail, i) => {
+      details.body!.forEach((detail, i) => {
         const suggestion = suggestions[i]
 
         suggestion.details = detail

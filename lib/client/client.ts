@@ -103,13 +103,12 @@ export class TypescriptServiceClient {
     return this.execute("saveto", args)
   }
 
-  private execute(command: string, args): Promise<any> {
-    return this.serverPromise.then(cp => {
-      return this.sendRequest(cp, command, args, CommandWithResponse.has(command))
-    }).catch(err => {
-      console.log("command", command, "failed due to", err)
-      throw err
-    })
+  private async execute(command: string, args) {
+    if (!this.serverPromise) {
+      throw new Error("Server is not running")
+    }
+
+    return this.sendRequest(await this.serverPromise, command, args, CommandWithResponse.has(command))
   }
 
   /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
@@ -182,19 +181,19 @@ export class TypescriptServiceClient {
 
     console.log("sending request", command, "with args", args)
 
-    let resultPromise: Promise<protocol.Response> | undefined = undefined
+    setImmediate(() => {
+      cp.stdin.write(JSON.stringify(req) + "\n")
+    })
 
     if (expectResponse) {
-      resultPromise = new Promise((resolve, reject) => {
+      const resultPromise = new Promise((resolve, reject) => {
         this.callbacks[req.seq] = {name: command, resolve, reject, started: Date.now()}
       })
 
       this.emitPendingRequests()
+
+      return resultPromise
     }
-
-    cp.stdin.write(JSON.stringify(req) + "\n")
-
-    return resultPromise
   }
 
   startServer() {

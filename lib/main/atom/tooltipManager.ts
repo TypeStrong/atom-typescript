@@ -36,8 +36,8 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     var clientPromise = clientResolver.get(filePath)
     var scroll = getFromShadowDom(editorView, '.scroll-view');
     var subscriber = new Subscriber();
-    var exprTypeTimeout = null;
-    var exprTypeTooltip: TooltipView = null;
+    var exprTypeTimeout: any | undefined;
+    var exprTypeTooltip: TooltipView | undefined;
 
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt: any;
@@ -60,7 +60,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
 
-    function showExpressionType(e: MouseEvent) {
+    async function showExpressionType(e: MouseEvent) {
 
         // If we are already showing we should wait for that to clear
         if (exprTypeTooltip) return;
@@ -85,19 +85,26 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         };
         exprTypeTooltip = new TooltipView(tooltipRect);
 
-        clientPromise.then(client => {
-          client.executeQuickInfo({
-              file: filePath,
-              line: bufferPt.row+1,
-              offset: bufferPt.column+1
-          }).then(({body: {displayString, documentation}}) => {
-              var message = `<b>${escape(displayString) }</b>`;
-              if (documentation) {
-                  message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
-              }
-              exprTypeTooltip.updateText(message);
-          }, () => { /* ignore the errors */ })
-        })
+        const client = await clientPromise
+        const result = await client.executeQuickInfo({
+            file: filePath,
+            line: bufferPt.row+1,
+            offset: bufferPt.column+1
+        }).catch(err => undefined)
+
+        if (!result) {
+          return
+        }
+
+        const {displayString, documentation} = result.body!
+
+        var message = `<b>${escape(displayString) }</b>`;
+        if (documentation) {
+            message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />') }</i>`;
+        }
+        if (exprTypeTooltip) {
+          exprTypeTooltip.updateText(message);
+        }
     }
 
     function deactivate() {
@@ -115,7 +122,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     function hideExpressionType() {
         if (!exprTypeTooltip) return;
         exprTypeTooltip.$.remove();
-        exprTypeTooltip = null;
+        exprTypeTooltip = undefined;
     }
 }
 

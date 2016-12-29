@@ -96,6 +96,7 @@ function activate(state) {
             renameView,
             statusPanel,
         });
+        let activePane;
         const panes = [];
         const onSave = lodash_1.debounce((pane) => {
             console.log("checking errors for all panes for", pane.filePath);
@@ -109,7 +110,7 @@ function activate(state) {
             panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
                 onDispose(pane) {
                     if (activePane === pane) {
-                        activePane = null;
+                        activePane = undefined;
                     }
                     panes.splice(panes.indexOf(pane), 1);
                     // Clear errors if any from this pane
@@ -120,14 +121,14 @@ function activate(state) {
                 statusPanel,
             }));
         }));
-        let activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
+        panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
         if (activePane) {
             activePane.onActivated();
         }
         subscriptions.add(atom.workspace.onDidChangeActivePaneItem((editor) => {
             if (activePane) {
                 activePane.onDeactivated();
-                activePane = null;
+                activePane = undefined;
             }
             if (atom.workspace.isTextEditor(editor)) {
                 const pane = panes.find(pane => pane.editor === editor);
