@@ -1,4 +1,5 @@
 import {ChildProcess, spawn} from "child_process"
+import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
 import * as protocol from "typescript/lib/protocol"
 import byline = require("byline")
@@ -29,10 +30,7 @@ export class TypescriptServiceClient {
     }
   } = {}
 
-  private listeners: {
-    [event: string]: ((event: any) => any)[]
-  } = {}
-
+  private events = new EventEmitter()
   private seq = 0
 
   /** The tsserver child process */
@@ -51,11 +49,11 @@ export class TypescriptServiceClient {
     this.version = version
   }
 
-  executeChange(args: protocol.ChangeRequestArgs) {
-    this.execute("change", args)
+  executeChange(args: protocol.ChangeRequestArgs): Promise<undefined> {
+    return this.execute("change", args)
   }
-  executeClose(args: protocol.FileRequestArgs) {
-    this.execute("close", args)
+  executeClose(args: protocol.FileRequestArgs): Promise<undefined> {
+    return this.execute("close", args)
   }
   executeCompileOnSaveAffectedFileList(args: protocol.FileRequestArgs): Promise<protocol.CompileOnSaveAffectedFileListResponse> {
     return this.execute("compileOnSaveAffectedFileList", args)
@@ -72,17 +70,17 @@ export class TypescriptServiceClient {
   executeDefinition(args: protocol.FileLocationRequestArgs): Promise<protocol.DefinitionResponse> {
     return this.execute("definition", args)
   }
-  executeGetErr(args: protocol.GeterrRequestArgs) {
-    this.execute("geterr", args)
+  executeGetErr(args: protocol.GeterrRequestArgs): Promise<undefined> {
+    return this.execute("geterr", args)
   }
-  executeGetErrForProject(args: protocol.GeterrForProjectRequestArgs) {
-    this.execute("geterrForProject", args)
+  executeGetErrForProject(args: protocol.GeterrForProjectRequestArgs): Promise<undefined> {
+    return this.execute("geterrForProject", args)
   }
   executeOccurances(args: protocol.FileLocationRequestArgs): Promise<protocol.OccurrencesResponse> {
     return this.execute("occurrences", args)
   }
-  executeOpen(args: protocol.OpenRequestArgs) {
-    this.execute("open", args)
+  executeOpen(args: protocol.OpenRequestArgs): Promise<undefined> {
+    return this.execute("open", args)
   }
   executeProjectInfo(args: protocol.ProjectInfoRequestArgs): Promise<protocol.ProjectInfoResponse> {
     return this.execute("projectInfo", args)
@@ -117,24 +115,10 @@ export class TypescriptServiceClient {
   on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
   on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
   on(name: string, listener: (result: any) => any): Function {
-    if (this.listeners[name] === undefined) {
-      this.listeners[name] = []
-    }
-
-    this.listeners[name].push(listener)
+    this.events.on(name, listener)
 
     return () => {
-      const idx = this.listeners[name].indexOf(listener)
-      this.listeners[name].splice(idx, 1)
-    }
-  }
-
-  private emit(name: string, data: any) {
-    const listeners = this.listeners[name]
-    if (listeners) {
-      for (const listener of listeners) {
-        listener(data)
-      }
+      this.events.removeListener(name, listener)
     }
   }
 
@@ -145,7 +129,7 @@ export class TypescriptServiceClient {
       pending.push(this.callbacks[callback].name)
     }
 
-    this.emit("pendingRequestsChange", pending)
+    this.events.emit("pendingRequestsChange", pending)
   }
 
   private onMessage = (res: protocol.Response | protocol.Event) => {
@@ -164,7 +148,7 @@ export class TypescriptServiceClient {
       }
     } else if (isEvent(res)) {
       console.log("received event", res)
-      this.emit(res.event, res.body)
+      this.events.emit(res.event, res.body)
     }
   }
 
