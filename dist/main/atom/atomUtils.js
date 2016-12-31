@@ -1,9 +1,9 @@
 "use strict";
 const tslib_1 = require("tslib");
-const path = require("path");
+const Atom = require("atom");
 const fs = require("fs");
 const fsu = require("../utils/fsUtil");
-const _atom = require("atom");
+const path = require("path");
 const url = require("url");
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
@@ -14,6 +14,13 @@ function getEditorPosition(editor) {
     };
 }
 exports.getEditorPosition = getEditorPosition;
+function isTypescriptFile(filePath) {
+    if (!filePath)
+        return false;
+    const ext = path.extname(filePath);
+    return ext === ".ts" || ext === ".tsx";
+}
+exports.isTypescriptFile = isTypescriptFile;
 function isAllowedExtension(ext) {
     return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
 }
@@ -91,7 +98,7 @@ exports.getEditorsForAllPaths = getEditorsForAllPaths;
 function getRangeForTextSpan(editor, ts) {
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
-    var range = new _atom.Range(start, end);
+    var range = new Atom.Range(start, end);
     return range;
 }
 exports.getRangeForTextSpan = getRangeForTextSpan;

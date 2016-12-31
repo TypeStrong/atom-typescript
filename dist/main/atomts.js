@@ -108,6 +108,7 @@ function activate(state) {
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
+                getClient: (filePath) => exports.clientResolver.get(filePath),
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = undefined;

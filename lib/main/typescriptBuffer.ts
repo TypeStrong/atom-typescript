@@ -1,0 +1,119 @@
+// A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
+// the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
+import {CompositeDisposable} from "atom"
+import {TypescriptServiceClient as Client} from "../client/client"
+import {EventEmitter} from "events"
+import {isTypescriptFile} from "./atom/atomUtils"
+
+export class TypescriptBuffer {
+  // Timestamps for buffer events
+  changedAt: number
+  changedAtBatch: number
+
+  // Promise that resolves to the correct client for this filePath
+  clientPromise: Promise<Client>
+
+  // Flag that signifies if tsserver has an open view of this file
+  isOpen: boolean
+
+  private events = new EventEmitter()
+  private subscriptions = new CompositeDisposable()
+
+  constructor(
+    public buffer: TextBuffer.ITextBuffer,
+    public getClient: (filePath: string) => Promise<Client>
+  ) {
+    this.subscriptions.add(buffer.onDidChange(this.onDidChange))
+    this.subscriptions.add(buffer.onDidDestroy(this.dispose))
+    this.subscriptions.add(buffer.onDidSave(this.onDidSave))
+    this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging))
+
+    this.open()
+  }
+
+  async open() {
+    const filePath = this.buffer.getPath()
+
+    if (isTypescriptFile(filePath)) {
+      // Set isOpen before we actually open the file to enqueue any changed events
+      this.isOpen = true
+
+      this.clientPromise = this.getClient(filePath)
+      const client = await this.clientPromise
+
+      await client.executeOpen({
+        file: filePath,
+        fileContent: this.buffer.getText()
+      })
+
+      this.events.emit("opened")
+    } else {
+      this.clientPromise = Promise.reject(new Error("Missing filePath or not a Typescript file"))
+    }
+  }
+
+  dispose = () => {
+    console.warn("buffer disposed")
+    this.subscriptions.dispose()
+
+    if (this.isOpen) {
+      this.clientPromise.then(client =>
+        client.executeClose({file: this.buffer.getPath()}))
+    }
+  }
+
+  on(name: "saved", callback: () => any): this // saved after waiting for any pending changes
+  on(name: "opened", callback: () => any): this // the file is opened
+  on(name: "changed", callback: () => any): this // tsserver view of the file has changed
+  on(name: string, callback: () => any): this {
+    this.events.on(name, callback)
+    return this
+  }
+
+  onDidChange = () => {
+    this.changedAt = Date.now()
+  }
+
+  onDidSave = async () => {
+    // Check if there isn't a onDidStopChanging event pending.
+    const {changedAt = 0, changedAtBatch = 0} = this
+    if (changedAt && changedAt > changedAtBatch) {
+      await new Promise(resolve => this.events.once("changed", resolve))
+    }
+
+    this.events.emit("saved")
+  }
+
+  onDidStopChanging = async ({changes}) => {
+    // Don't update changedAt or emit any events if there are no actual changes or file isn't open
+    if (changes.length === 0 || !this.isOpen) {
+      return
+    }
+
+    console.warn("onDidStopChanging", this, changes)
+
+    this.changedAtBatch = Date.now()
+
+    const client = await this.clientPromise
+    const filePath = this.buffer.getPath()
+
+    for (const change of changes) {
+      const {start, oldExtent, newText} = change
+
+      const end = {
+        endLine: start.row + oldExtent.row + 1,
+        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column: oldExtent.column) + 1
+      }
+
+      await client.executeChange({
+        ...end,
+        file: filePath,
+        line: start.row + 1,
+        offset: start.column + 1,
+        insertString: newText,
+      })
+    }
+
+    this.events.emit("changed")
+  }
+}

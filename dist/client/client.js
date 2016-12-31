@@ -1,6 +1,7 @@
 "use strict";
 const tslib_1 = require("tslib");
 const child_process_1 = require("child_process");
+const events_1 = require("events");
 const stream_1 = require("stream");
 const byline = require("byline");
 exports.CommandWithResponse = new Set([
@@ -20,7 +21,7 @@ class TypescriptServiceClient {
     constructor(tsServerPath, version) {
         /** Map of callbacks that are waiting for responses */
         this.callbacks = {};
-        this.listeners = {};
+        this.events = new events_1.EventEmitter();
         this.seq = 0;
         this.tsServerArgs = [];
         this.onMessage = (res) => {
@@ -40,17 +41,17 @@ class TypescriptServiceClient {
             }
             else if (isEvent(res)) {
                 console.log("received event", res);
-                this.emit(res.event, res.body);
+                this.events.emit(res.event, res.body);
             }
         };
         this.tsServerPath = tsServerPath;
         this.version = version;
     }
     executeChange(args) {
-        this.execute("change", args);
+        return this.execute("change", args);
     }
     executeClose(args) {
-        this.execute("close", args);
+        return this.execute("close", args);
     }
     executeCompileOnSaveAffectedFileList(args) {
         return this.execute("compileOnSaveAffectedFileList", args);
@@ -68,16 +69,16 @@ class TypescriptServiceClient {
         return this.execute("definition", args);
     }
     executeGetErr(args) {
-        this.execute("geterr", args);
+        return this.execute("geterr", args);
     }
     executeGetErrForProject(args) {
-        this.execute("geterrForProject", args);
+        return this.execute("geterrForProject", args);
     }
     executeOccurances(args) {
         return this.execute("occurrences", args);
     }
     executeOpen(args) {
-        this.execute("open", args);
+        return this.execute("open", args);
     }
     executeProjectInfo(args) {
         return this.execute("projectInfo", args);
@@ -106,29 +107,17 @@ class TypescriptServiceClient {
         });
     }
     on(name, listener) {
-        if (this.listeners[name] === undefined) {
-            this.listeners[name] = [];
-        }
-        this.listeners[name].push(listener);
+        this.events.on(name, listener);
         return () => {
-            const idx = this.listeners[name].indexOf(listener);
-            this.listeners[name].splice(idx, 1);
+            this.events.removeListener(name, listener);
         };
-    }
-    emit(name, data) {
-        const listeners = this.listeners[name];
-        if (listeners) {
-            for (const listener of listeners) {
-                listener(data);
-            }
-        }
     }
     emitPendingRequests() {
         const pending = [];
         for (const callback in this.callbacks) {
             pending.push(this.callbacks[callback].name);
         }
-        this.emit("pendingRequestsChange", pending);
+        this.events.emit("pendingRequestsChange", pending);
     }
     sendRequest(cp, command, args, expectResponse) {
         const req = {

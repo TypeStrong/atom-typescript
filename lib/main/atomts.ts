@@ -129,6 +129,7 @@ export function activate(state: PackageState) {
 
       subscriptions.add(atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
         panes.push(new TypescriptEditorPane(editor, {
+          getClient: (filePath: string) => clientResolver.get(filePath),
           onDispose(pane) {
             if (activePane === pane) {
               activePane = undefined

@@ -1,8 +1,8 @@
-import path = require('path');
-import fs = require('fs');
-import * as fsu from "../utils/fsUtil";
-import _atom = require('atom');
-import url = require('url');
+import * as Atom from "atom"
+import * as fs from "fs"
+import * as fsu from "../utils/fsUtil"
+import * as path from "path"
+import * as url from "url"
 
 export interface LocationQuery {
   line: number
@@ -20,6 +20,13 @@ export function getEditorPosition(editor: AtomCore.IEditor): LocationQuery {
       line: pos.row + 1,
       offset: pos.column + 1
     }
+}
+
+export function isTypescriptFile(filePath?: string): boolean {
+  if (!filePath) return false
+
+  const ext = path.extname(filePath)
+  return ext === ".ts" || ext === ".tsx"
 }
 
 export function isAllowedExtension(ext: string) {
@@ -106,7 +113,7 @@ export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath:
 export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: number; length: number }): TextBuffer.IRange {
     var start = editor.buffer.positionForCharacterIndex(ts.start);
     var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
-    var range = new _atom.Range(start, end);
+    var range = new Atom.Range(start, end);
     return range;
 }
 

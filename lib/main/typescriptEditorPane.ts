@@ -1,33 +1,25 @@
 import {$} from "atom-space-pen-views"
 import {basename} from "path"
-import {clientResolver} from "./atomts"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
 import {spanToRange} from "./utils/tsUtil"
 import {TypescriptServiceClient} from "../client/client"
+import {TypescriptBuffer} from "./typescriptBuffer"
 import {StatusPanel} from "./atom/components/statusPanel"
 import * as tooltipManager from './atom/tooltipManager'
 
-type onChangeObserver = (diff: {
-  oldRange: TextBuffer.IRange
-  newRange: TextBuffer.IRange
-  oldText: string
-  newText: string
-}) => any
-
 interface PaneOptions {
+  getClient: (filePath: string) => Promise<TypescriptServiceClient>
   onDispose: (pane: TypescriptEditorPane) => any
   onSave: (pane: TypescriptEditorPane) => any
   statusPanel: StatusPanel
 }
 
 export class TypescriptEditorPane implements AtomCore.Disposable {
-  // Timestamp for didChange event
-  changedAt: number
-
   // Timestamp for activated event
   activeAt: number
 
+  buffer: TypescriptBuffer
   client: TypescriptServiceClient
 
   // Path to the project's tsconfig.json
@@ -37,12 +29,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   isActive = false
   isTSConfig = false
   isTypescript = false
-
-  // Timestamp for last didStopChanging event
-  stoppedChangingAt: number
-
-  // Callback that is going to be executed after the next didStopChanging event is processed
-  stoppedChangingCallbacks: Function[] = []
 
   private opts: PaneOptions
   private isOpen = false
@@ -55,6 +41,10 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.editor = editor
     this.filePath = editor.getPath()
     this.opts = opts
+    this.buffer = new TypescriptBuffer(editor.buffer, opts.getClient)
+      .on("changed", this.onChanged)
+      .on("opened", this.onOpened)
+      .on("saved", this.onSaved)
 
     this.isTypescript = isTypescriptGrammar(editor.getGrammar())
 
@@ -66,55 +56,11 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.isTSConfig = basename(this.filePath) === "tsconfig.json"
     }
 
-    clientResolver.get(this.filePath).then(client => {
-      this.client = client
-
-      this.subscriptions.add(editor.buffer.onDidChange(this.onDidChange))
-      this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
-      this.subscriptions.add(editor.onDidSave(this.onDidSave))
-      this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging))
-      this.subscriptions.add(editor.onDidDestroy(this.onDidDestroy))
-
-      if (this.isActive) {
-        this.opts.statusPanel.setVersion(this.client.version)
-      }
-
-      if (this.isTypescript && this.filePath) {
-        this.client.executeOpen({
-          file: this.filePath,
-          fileContent: this.editor.getText()
-        })
-
-        this.client.executeGetErr({
-          files: [this.filePath],
-          delay: 100
-        })
-
-        this.isOpen = true
-
-        this.client.executeProjectInfo({
-          needFileNameList: false,
-          file: this.filePath
-        }).then(result => {
-          this.configFile = result.body!.configFileName
-
-          if (this.isActive) {
-            this.opts.statusPanel.setTsConfigPath(this.configFile)
-          }
-        }, error => null)
-      }
-    })
-
     this.setupTooltipView()
   }
 
   dispose() {
     this.subscriptions.dispose()
-
-    if (this.isOpen) {
-      this.client.executeClose({file: this.filePath})
-    }
-
     this.opts.onDispose(this)
   }
 
@@ -139,13 +85,20 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.opts.statusPanel.setTsConfigPath(this.configFile)
   }
 
+  onChanged = () => {
+    console.warn("changed event")
+
+    this.opts.statusPanel.setBuildStatus(undefined)
+
+    this.client.executeGetErr({
+      files: [this.filePath],
+      delay: 100
+    })
+  }
+
   onDeactivated = () => {
     this.isActive = false
     this.opts.statusPanel.hide()
-  }
-
-  onDidChange: onChangeObserver = diff => {
-    this.changedAt = Date.now()
   }
 
   clearOccurrenceMarkers() {
@@ -192,23 +145,52 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.dispose()
   }
 
-  onDidSave = async event => {
-    if (this.filePath !== event.path) {
-      this.client = await clientResolver.get(event.path)
-      this.filePath = event.path
-      this.isTSConfig = basename(this.filePath) === "tsconfig.json"
+  onOpened = async () => {
+    console.warn("opened event")
+
+    this.client = await this.opts.getClient(this.filePath)
+
+    this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
+    this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
+
+    if (this.isActive) {
+      this.opts.statusPanel.setVersion(this.client.version)
     }
 
-    // Check if there isn't a onDidStopChanging event pending. If so, wait for it before updating
-    if (this.changedAt && this.changedAt > (this.stoppedChangingAt|0)) {
-      await new Promise(resolve => this.stoppedChangingCallbacks.push(resolve))
-    }
+    if (this.isTypescript && this.filePath) {
+      this.client.executeGetErr({
+        files: [this.filePath],
+        delay: 100
+      })
 
+      this.isOpen = true
+
+      this.client.executeProjectInfo({
+        needFileNameList: false,
+        file: this.filePath
+      }).then(result => {
+        this.configFile = result.body!.configFileName
+
+        if (this.isActive) {
+          this.opts.statusPanel.setTsConfigPath(this.configFile)
+        }
+      }, error => null)
+    }
+  }
+
+  onSaved = ()  => {
+    console.warn("saved event")
     if (this.opts.onSave) {
       this.opts.onSave(this)
     }
 
     this.compileOnSave()
+
+    // if (this.filePath !== event.path) {
+    //   this.client = await this.opts.getClient(event.path)
+    //   this.filePath = event.path
+    //   this.isTSConfig = basename(this.filePath) === "tsconfig.json"
+    // }
   }
 
   async compileOnSave() {
@@ -242,44 +224,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         success: false
       })
     }
-  }
-
-  onDidStopChanging = ({changes}) => {
-    this.stoppedChangingAt = Date.now()
-
-    if (this.isTypescript && this.filePath) {
-      if (this.isOpen) {
-
-        if (changes.length !== 0) {
-          this.opts.statusPanel.setBuildStatus(undefined)
-        }
-
-        for (const change of changes) {
-          const {start, oldExtent, newText} = change
-
-          const end = {
-            endLine: start.row + oldExtent.row + 1,
-            endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column: oldExtent.column) + 1
-          }
-
-          this.client.executeChange({
-            ...end,
-            file: this.filePath,
-            line: start.row + 1,
-            offset: start.column + 1,
-            insertString: newText,
-          })
-        }
-      }
-
-      this.client.executeGetErr({
-        files: [this.filePath],
-        delay: 100
-      })
-    }
-
-    this.stoppedChangingCallbacks.forEach(fn => fn())
-    this.stoppedChangingCallbacks.length = 0
   }
 
   setupTooltipView() {

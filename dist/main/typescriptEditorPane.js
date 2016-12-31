@@ -2,10 +2,10 @@
 const tslib_1 = require("tslib");
 const atom_space_pen_views_1 = require("atom-space-pen-views");
 const path_1 = require("path");
-const atomts_1 = require("./atomts");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const tsUtil_1 = require("./utils/tsUtil");
+const typescriptBuffer_1 = require("./typescriptBuffer");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
     constructor(editor, opts) {
@@ -14,8 +14,6 @@ class TypescriptEditorPane {
         this.isActive = false;
         this.isTSConfig = false;
         this.isTypescript = false;
-        // Callback that is going to be executed after the next didStopChanging event is processed
-        this.stoppedChangingCallbacks = [];
         this.isOpen = false;
         this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
@@ -35,12 +33,17 @@ class TypescriptEditorPane {
             }
             this.opts.statusPanel.setTsConfigPath(this.configFile);
         };
+        this.onChanged = () => {
+            console.warn("changed event");
+            this.opts.statusPanel.setBuildStatus(undefined);
+            this.client.executeGetErr({
+                files: [this.filePath],
+                delay: 100
+            });
+        };
         this.onDeactivated = () => {
             this.isActive = false;
             this.opts.statusPanel.hide();
-        };
-        this.onDidChange = diff => {
-            this.changedAt = Date.now();
         };
         this.updateMarkers = lodash_1.debounce(() => {
             const pos = this.editor.getLastCursor().getBufferPosition();
@@ -73,70 +76,15 @@ class TypescriptEditorPane {
         this.onDidDestroy = () => {
             this.dispose();
         };
-        this.onDidSave = (event) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this.filePath !== event.path) {
-                this.client = yield atomts_1.clientResolver.get(event.path);
-                this.filePath = event.path;
-                this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
-            }
-            // Check if there isn't a onDidStopChanging event pending. If so, wait for it before updating
-            if (this.changedAt && this.changedAt > (this.stoppedChangingAt | 0)) {
-                yield new Promise(resolve => this.stoppedChangingCallbacks.push(resolve));
-            }
-            if (this.opts.onSave) {
-                this.opts.onSave(this);
-            }
-            this.compileOnSave();
-        });
-        this.onDidStopChanging = ({ changes }) => {
-            this.stoppedChangingAt = Date.now();
-            if (this.isTypescript && this.filePath) {
-                if (this.isOpen) {
-                    if (changes.length !== 0) {
-                        this.opts.statusPanel.setBuildStatus(undefined);
-                    }
-                    for (const change of changes) {
-                        const { start, oldExtent, newText } = change;
-                        const end = {
-                            endLine: start.row + oldExtent.row + 1,
-                            endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1
-                        };
-                        this.client.executeChange(tslib_1.__assign({}, end, { file: this.filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
-                    }
-                }
-                this.client.executeGetErr({
-                    files: [this.filePath],
-                    delay: 100
-                });
-            }
-            this.stoppedChangingCallbacks.forEach(fn => fn());
-            this.stoppedChangingCallbacks.length = 0;
-        };
-        this.editor = editor;
-        this.filePath = editor.getPath();
-        this.opts = opts;
-        this.isTypescript = isTypescriptGrammar(editor.getGrammar());
-        this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
-            this.isTypescript = isTypescriptGrammar(grammar);
-        }));
-        if (this.filePath) {
-            this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
-        }
-        atomts_1.clientResolver.get(this.filePath).then(client => {
-            this.client = client;
-            this.subscriptions.add(editor.buffer.onDidChange(this.onDidChange));
-            this.subscriptions.add(editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
-            this.subscriptions.add(editor.onDidSave(this.onDidSave));
-            this.subscriptions.add(editor.onDidStopChanging(this.onDidStopChanging));
-            this.subscriptions.add(editor.onDidDestroy(this.onDidDestroy));
+        this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            console.warn("opened event");
+            this.client = yield this.opts.getClient(this.filePath);
+            this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
+            this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
             if (this.isActive) {
                 this.opts.statusPanel.setVersion(this.client.version);
             }
             if (this.isTypescript && this.filePath) {
-                this.client.executeOpen({
-                    file: this.filePath,
-                    fileContent: this.editor.getText()
-                });
                 this.client.executeGetErr({
                     files: [this.filePath],
                     delay: 100
@@ -153,13 +101,36 @@ class TypescriptEditorPane {
                 }, error => null);
             }
         });
+        this.onSaved = () => {
+            console.warn("saved event");
+            if (this.opts.onSave) {
+                this.opts.onSave(this);
+            }
+            this.compileOnSave();
+            // if (this.filePath !== event.path) {
+            //   this.client = await this.opts.getClient(event.path)
+            //   this.filePath = event.path
+            //   this.isTSConfig = basename(this.filePath) === "tsconfig.json"
+            // }
+        };
+        this.editor = editor;
+        this.filePath = editor.getPath();
+        this.opts = opts;
+        this.buffer = new typescriptBuffer_1.TypescriptBuffer(editor.buffer, opts.getClient)
+            .on("changed", this.onChanged)
+            .on("opened", this.onOpened)
+            .on("saved", this.onSaved);
+        this.isTypescript = isTypescriptGrammar(editor.getGrammar());
+        this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
+            this.isTypescript = isTypescriptGrammar(grammar);
+        }));
+        if (this.filePath) {
+            this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
+        }
         this.setupTooltipView();
     }
     dispose() {
         this.subscriptions.dispose();
-        if (this.isOpen) {
-            this.client.executeClose({ file: this.filePath });
-        }
         this.opts.onDispose(this);
     }
     clearOccurrenceMarkers() {
