@@ -75,6 +75,7 @@
         "./main/lang/fixmyts/quickFixes/addClassMethod.ts",
         "./main/lang/fixmyts/quickFixes/addImportDefaultStatement.ts",
         "./main/lang/fixmyts/quickFixes/addImportFromStatement.ts",
+        "./main/lang/fixmyts/quickFixes/addImportFromStatementNoBrackets.ts",
         "./main/lang/fixmyts/quickFixes/addImportStatement.ts",
         "./main/lang/fixmyts/quickFixes/equalsToEquals.ts",
         "./main/lang/fixmyts/quickFixes/extractVariable.ts",
