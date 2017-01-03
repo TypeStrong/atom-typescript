@@ -52,6 +52,7 @@ export class AddImportFromStatement implements QuickFix {
 
         var identifierName = identifier.text;
         var fileNameforFix = getIdentifierAndFileNames(relevantError, info.project);
+
         // Add stuff at the top of the file
         let refactorings: Refactoring[] = [{
             span: {
