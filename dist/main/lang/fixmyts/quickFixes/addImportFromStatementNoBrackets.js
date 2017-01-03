@@ -2,11 +2,11 @@
 var os_1 = require("os");
 var displayPartsToString = ts.displayPartsToString, typeToDisplayParts = ts.typeToDisplayParts;
 var getIdentifierUtil_1 = require("../getIdentifierUtil");
-var AddImportFromStatement = (function () {
-    function AddImportFromStatement() {
-        this.key = AddImportFromStatement.name;
+var AddImportFromStatementNoBrackets = (function () {
+    function AddImportFromStatementNoBrackets() {
+        this.key = AddImportFromStatementNoBrackets.name;
     }
-    AddImportFromStatement.prototype.canProvideFix = function (info) {
+    AddImportFromStatementNoBrackets.prototype.canProvideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         if (!relevantError)
             return;
@@ -16,9 +16,9 @@ var AddImportFromStatement = (function () {
         if (!matches)
             return;
         var identifierName = matches.identifierName, file = matches.file;
-        return file ? { display: "import {" + identifierName + "} from \"" + file + "\"" } : undefined;
+        return file ? { display: "import " + identifierName + " from \"" + file + "\"" } : undefined;
     };
-    AddImportFromStatement.prototype.provideFix = function (info) {
+    AddImportFromStatementNoBrackets.prototype.provideFix = function (info) {
         var relevantError = info.positionErrors.filter(function (x) { return x.code == 2304; })[0];
         var identifier = info.positionNode;
         var identifierName = identifier.text;
@@ -28,11 +28,11 @@ var AddImportFromStatement = (function () {
                     start: 0,
                     length: 0
                 },
-                newText: "import {" + identifierName + "} from \"" + fileNameforFix.file + "\";" + os_1.EOL,
+                newText: "import " + identifierName + " from \"" + fileNameforFix.file + "\";" + os_1.EOL,
                 filePath: info.sourceFile.fileName
             }];
         return refactorings;
     };
-    return AddImportFromStatement;
+    return AddImportFromStatementNoBrackets;
 }());
-exports.AddImportFromStatement = AddImportFromStatement;
+exports.AddImportFromStatementNoBrackets = AddImportFromStatementNoBrackets;
