@@ -3,7 +3,6 @@ var addClassMember_1 = require("./quickFixes/addClassMember");
 var addClassMethod_1 = require("./quickFixes/addClassMethod");
 var addImportDefaultStatement_1 = require("./quickFixes/addImportDefaultStatement");
 var addImportFromStatement_1 = require("./quickFixes/addImportFromStatement");
-var addImportFromStatementNoBrackets_1 = require("./quickFixes/addImportFromStatementNoBrackets");
 var addImportStatement_1 = require("./quickFixes/addImportStatement");
 var equalsToEquals_1 = require("./quickFixes/equalsToEquals");
 var extractVariable_1 = require("./quickFixes/extractVariable");
@@ -20,7 +19,6 @@ exports.allQuickFixes = [
     new addClassMember_1.AddClassMember(),
     new addImportDefaultStatement_1.AddImportDefaultStatement(),
     new addImportFromStatement_1.AddImportFromStatement(),
-    new addImportFromStatementNoBrackets_1.AddImportFromStatementNoBrackets(),
     new addImportStatement_1.AddImportStatement(),
     new wrapInProperty_1.WrapInProperty(),
     new equalsToEquals_1.EqualsToEquals(),
