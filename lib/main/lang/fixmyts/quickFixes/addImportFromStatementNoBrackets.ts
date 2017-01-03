@@ -3,38 +3,10 @@ import * as ast from "../astUtils";
 import {EOL } from "os";
 var { displayPartsToString, typeToDisplayParts } = ts;
 import path = require('path');
-import {Project} from "../../core/project";
+import {getIdentifierAndFileNames} from "../getIdentifierUtil";
 
-import {getPathCompletions} from "../../modules/getPathCompletions";
-
-function getIdentifierAndFileNames(error: ts.Diagnostic, project: Project) {
-
-    var errorText: string = <any>error.messageText;
-
-    // We don't support error chains yet
-    if (typeof errorText !== 'string') {
-        return undefined;
-    };
-
-    var match = errorText.match(/Cannot find name \'(\w+)\'./);
-
-    // If for whatever reason the error message doesn't match
-    if (!match) return;
-
-    var [, identifierName] = match;
-    var {files} = getPathCompletions({
-        project,
-        filePath: error.file.fileName,
-        prefix: identifierName,
-        includeExternalModules: false
-    });
-    var file = files.length > 0 ? files[0].relativePath : undefined;
-    var basename = files.length > 0 ? files[0].name : undefined;
-    return { identifierName, file, basename };
-}
-
-export class AddImportStatement implements QuickFix {
-    key = AddImportStatement.name;
+export class AddImportFromStatement implements QuickFix {
+    key = AddImportFromStatement.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
@@ -43,7 +15,7 @@ export class AddImportStatement implements QuickFix {
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches) return;
         var { identifierName, file} = matches;
-        return file ? { display: `import ${identifierName} = require(\"${file}\")` } : undefined;
+        return file ? { display: `import {${identifierName}} from \"${file}\"` } : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
@@ -59,7 +31,7 @@ export class AddImportStatement implements QuickFix {
                 start: 0,
                 length: 0
             },
-            newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
+            newText: `import {${identifierName}} from \"${fileNameforFix.file}\";${EOL}`,
             filePath: info.sourceFile.fileName
         }];
 
