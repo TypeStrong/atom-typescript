@@ -6,6 +6,7 @@ import {AddClassMember} from "./quickFixes/addClassMember";
 import {AddClassMethod} from "./quickFixes/addClassMethod";
 import {AddImportDefaultStatement} from "./quickFixes/addImportDefaultStatement";
 import {AddImportFromStatement} from "./quickFixes/addImportFromStatement";
+import {AddImportFromStatementNoBrackets} from "./quickFixes/addImportFromStatementNoBrackets";
 import {AddImportStatement} from "./quickFixes/addImportStatement";
 import {EqualsToEquals} from "./quickFixes/equalsToEquals";
 import {ExtractVariable} from "./quickFixes/extractVariable";
@@ -22,6 +23,7 @@ export var allQuickFixes: QuickFix[] = [
     new AddClassMember(),
     new AddImportDefaultStatement(),
     new AddImportFromStatement(),
+    new AddImportFromStatementNoBrackets(),
     new AddImportStatement(),
     new WrapInProperty(),
     new EqualsToEquals(),
