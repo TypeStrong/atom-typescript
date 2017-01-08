@@ -1,10 +1,5 @@
 "use strict";
 const tslib_1 = require("tslib");
-// import {getFileStatus} from "./atom/fileStatusCache"
-// import {$} from "atom-space-pen-views"
-// import * as atomUtils from './atom/utils'
-// import * as fs from 'fs'
-// import * as path from 'path'
 const Atom = require("atom");
 const atomConfig = require("./atom/atomConfig");
 const hyperclickProvider = require("../hyperclickProvider");
@@ -151,11 +146,9 @@ function serialize() {
 }
 exports.serialize = serialize;
 function consumeLinter(registry) {
-    console.log("consume linter");
     linter = registry.register({
         name: ""
     });
-    console.log("linter is", linter);
 }
 exports.consumeLinter = consumeLinter;
 function consumeStatusBar(_statusBar) {

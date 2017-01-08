@@ -1,7 +1,7 @@
-import {TextSpan, CodeEdit} from "typescript/lib/protocol"
+import {TextSpan, CodeEdit, FormatCodeSettings} from "typescript/lib/protocol"
 import {Point, Range} from "atom"
 
-export {TextSpan, CodeEdit}
+export {TextSpan, CodeEdit, FormatCodeSettings}
 
 export interface LocationQuery {
   line: number

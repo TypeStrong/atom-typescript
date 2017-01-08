@@ -1,10 +1,11 @@
 import {commands} from "./registry"
 import {
+  CodeEdit,
   commandForTypeScript,
+  formatCode,
+  FormatCodeSettings,
   LocationRangeQuery,
   rangeToLocationRange,
-  formatCode,
-  CodeEdit
 } from "../utils"
 
 commands.set("typescript:format-code", deps => {
@@ -37,9 +38,15 @@ commands.set("typescript:format-code", deps => {
     const client = await deps.getClient(filePath)
     const edits: CodeEdit[] = []
 
-    // Collect all edits together so we can update in a single transaction
+    // TODO: Read these from package settings and/or tsconfig.json
+    const options: FormatCodeSettings = {
+      indentSize: atom.config.get("editor.tabLength"),
+      tabSize: atom.config.get("editor.tabLength"),
+    }
+
+    // Collect all edits together so we can update everything in a single transaction
     for (const range of ranges) {
-      const result = await client.executeFormat({...range, file: filePath})
+      const result = await client.executeFormat({...range, options, file: filePath})
       if (result.body) {
         edits.push(...result.body)
       }
@@ -50,24 +57,5 @@ commands.set("typescript:format-code", deps => {
         formatCode(editor, edits)
       })
     }
-
-    // if (selection.isEmpty()) {
-      // console.log("no selection, format all")
-      // parent.formatDocument({ filePath: filePath }).then((result) => {
-      //     if (!result.edits.length) return;
-      //     editor.transact(() => {
-      //         atomUtils.formatCode(editor, result.edits);
-      //     });
-      // });
-    // } else {
-      // console.log("selcetion", selection, filePath)
-      //
-      // parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-      //     if (!result.edits.length) return;
-      //     editor.transact(() => {
-      //         atomUtils.formatCode(editor, result.edits);
-      //     });
-      // });
-    // }
   }
 })

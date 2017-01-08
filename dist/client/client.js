@@ -9,6 +9,7 @@ exports.CommandWithResponse = new Set([
     "compileOnSaveEmitFile",
     "completionEntryDetails",
     "completions",
+    "configure",
     "definition",
     "format",
     "occurrences",
@@ -65,6 +66,9 @@ class TypescriptServiceClient {
     }
     executeCompletionDetails(args) {
         return this.execute("completionEntryDetails", args);
+    }
+    executeConfigure(args) {
+        return this.execute("configure", args);
     }
     executeDefinition(args) {
         return this.execute("definition", args);

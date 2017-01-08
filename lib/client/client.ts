@@ -9,6 +9,7 @@ export const CommandWithResponse = new Set([
   "compileOnSaveEmitFile",
   "completionEntryDetails",
   "completions",
+  "configure",
   "definition",
   "format",
   "occurrences",
@@ -67,6 +68,9 @@ export class TypescriptServiceClient {
   }
   executeCompletionDetails(args: protocol.CompletionDetailsRequestArgs): Promise<protocol.CompletionDetailsResponse> {
     return this.execute("completionEntryDetails", args)
+  }
+  executeConfigure(args: protocol.ConfigureRequestArguments): Promise<undefined> {
+    return this.execute("configure", args)
   }
   executeDefinition(args: protocol.FileLocationRequestArgs): Promise<protocol.DefinitionResponse> {
     return this.execute("definition", args)

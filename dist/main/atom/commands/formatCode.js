@@ -27,9 +27,14 @@ registry_1.commands.set("typescript:format-code", deps => {
         }
         const client = yield deps.getClient(filePath);
         const edits = [];
-        // Collect all edits together so we can update in a single transaction
+        // TODO: Read these from package settings and/or tsconfig.json
+        const options = {
+            indentSize: atom.config.get("editor.tabLength"),
+            tabSize: atom.config.get("editor.tabLength"),
+        };
+        // Collect all edits together so we can update everything in a single transaction
         for (const range of ranges) {
-            const result = yield client.executeFormat(tslib_1.__assign({}, range, { file: filePath }));
+            const result = yield client.executeFormat(tslib_1.__assign({}, range, { options, file: filePath }));
             if (result.body) {
                 edits.push(...result.body);
             }
@@ -39,23 +44,5 @@ registry_1.commands.set("typescript:format-code", deps => {
                 utils_1.formatCode(editor, edits);
             });
         }
-        // if (selection.isEmpty()) {
-        // console.log("no selection, format all")
-        // parent.formatDocument({ filePath: filePath }).then((result) => {
-        //     if (!result.edits.length) return;
-        //     editor.transact(() => {
-        //         atomUtils.formatCode(editor, result.edits);
-        //     });
-        // });
-        // } else {
-        // console.log("selcetion", selection, filePath)
-        //
-        // parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-        //     if (!result.edits.length) return;
-        //     editor.transact(() => {
-        //         atomUtils.formatCode(editor, result.edits);
-        //     });
-        // });
-        // }
     });
 });

@@ -1,8 +1,3 @@
-// import {getFileStatus} from "./atom/fileStatusCache"
-// import {$} from "atom-space-pen-views"
-// import * as atomUtils from './atom/utils'
-// import * as fs from 'fs'
-// import * as path from 'path'
 import * as Atom from "atom"
 import * as atomConfig from './atom/atomConfig'
 import * as hyperclickProvider from "../hyperclickProvider"
@@ -174,17 +169,13 @@ export function deactivate() {
 }
 
 export function serialize(): PackageState {
-    return {};
+    return {}
 }
 
 export function consumeLinter(registry: LinterRegistry) {
-    console.log("consume linter")
-
-    linter = registry.register({
-      name: ""
-    })
-
-    console.log("linter is", linter)
+  linter = registry.register({
+    name: ""
+  })
 }
 
 export function consumeStatusBar(_statusBar) {
