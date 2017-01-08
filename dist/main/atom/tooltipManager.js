@@ -2,7 +2,7 @@
 // and https://atom.io/packages/ide-flow
 "use strict";
 const tslib_1 = require("tslib");
-const atomUtils = require("./atomUtils"); ///ts:import:generated
+const atomUtils = require("./utils"); ///ts:import:generated
 const atomts_1 = require("../atomts");
 const path = require("path");
 const fs = require("fs");

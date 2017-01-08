@@ -5,7 +5,7 @@ import {
   rangeToLocationRange,
   formatCode,
   CodeEdit
-} from "../atomUtils"
+} from "../utils"
 
 commands.set("typescript:format-code", deps => {
   return async e => {

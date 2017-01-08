@@ -1,7 +1,7 @@
 import {debounce} from "lodash"
 import {Diagnostic} from "typescript/lib/protocol"
 import {Linter, LinterMessage} from "../typings/linter"
-import {locationsToRange} from "./atom/atomUtils"
+import {locationsToRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {

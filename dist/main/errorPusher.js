@@ -1,6 +1,6 @@
 "use strict";
 const lodash_1 = require("lodash");
-const atomUtils_1 = require("./atom/atomUtils");
+const utils_1 = require("./atom/utils");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 class ErrorPusher {
     constructor() {
@@ -14,7 +14,7 @@ class ErrorPusher {
                             type: "Error",
                             text: diagnostic.text,
                             filePath: filePath,
-                            range: diagnostic.start ? atomUtils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined
+                            range: diagnostic.start ? utils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined
                         });
                     }
                 }

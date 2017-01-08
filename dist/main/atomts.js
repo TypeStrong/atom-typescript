@@ -2,7 +2,7 @@
 const tslib_1 = require("tslib");
 // import {getFileStatus} from "./atom/fileStatusCache"
 // import {$} from "atom-space-pen-views"
-// import * as atomUtils from './atom/atomUtils'
+// import * as atomUtils from './atom/utils'
 // import * as fs from 'fs'
 // import * as path from 'path'
 const Atom = require("atom");

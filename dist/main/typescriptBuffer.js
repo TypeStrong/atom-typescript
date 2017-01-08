@@ -4,7 +4,7 @@ const tslib_1 = require("tslib");
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 const atom_1 = require("atom");
 const events_1 = require("events");
-const atomUtils_1 = require("./atom/atomUtils");
+const utils_1 = require("./atom/utils");
 class TypescriptBuffer {
     constructor(buffer, getClient) {
         this.buffer = buffer;
@@ -57,7 +57,7 @@ class TypescriptBuffer {
     open() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const filePath = this.buffer.getPath();
-            if (atomUtils_1.isTypescriptFile(filePath)) {
+            if (utils_1.isTypescriptFile(filePath)) {
                 // Set isOpen before we actually open the file to enqueue any changed events
                 this.isOpen = true;
                 this.clientPromise = this.getClient(filePath);

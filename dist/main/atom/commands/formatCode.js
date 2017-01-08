@@ -1,10 +1,10 @@
 "use strict";
 const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
-const atomUtils_1 = require("../atomUtils");
+const utils_1 = require("../utils");
 registry_1.commands.set("typescript:format-code", deps => {
     return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-        if (!atomUtils_1.commandForTypeScript(e)) {
+        if (!utils_1.commandForTypeScript(e)) {
             return;
         }
         const editor = atom.workspace.getActiveTextEditor();
@@ -12,7 +12,7 @@ registry_1.commands.set("typescript:format-code", deps => {
         const ranges = [];
         for (const selection of editor.getSelectedBufferRanges()) {
             if (!selection.isEmpty()) {
-                ranges.push(atomUtils_1.rangeToLocationRange(selection));
+                ranges.push(utils_1.rangeToLocationRange(selection));
             }
         }
         // Format the whole document if there are no ranges added
@@ -36,7 +36,7 @@ registry_1.commands.set("typescript:format-code", deps => {
         }
         if (edits.length > 0) {
             editor.transact(() => {
-                atomUtils_1.formatCode(editor, edits);
+                utils_1.formatCode(editor, edits);
             });
         }
         // if (selection.isEmpty()) {

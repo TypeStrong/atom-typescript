@@ -1,5 +1,5 @@
 import {commands} from "./registry"
-import {commandForTypeScript, getFilePathPosition} from "../atomUtils"
+import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
 import escapeHtml = require('escape-html')
 

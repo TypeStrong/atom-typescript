@@ -3,7 +3,7 @@
 import {CompositeDisposable} from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
 import {EventEmitter} from "events"
-import {isTypescriptFile} from "./atom/atomUtils"
+import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
   // Timestamps for buffer events

@@ -2,31 +2,9 @@
 const tslib_1 = require("tslib");
 const Atom = require("atom");
 const fs = require("fs");
-const fsu = require("../utils/fsUtil");
 const path = require("path");
 const url = require("url");
-const atom_1 = require("atom");
-function locationToPoint(loc) {
-    return new atom_1.Point(loc.line - 1, loc.offset - 1);
-}
-exports.locationToPoint = locationToPoint;
-function spanToRange(span) {
-    return locationsToRange(span.start, span.end);
-}
-exports.spanToRange = spanToRange;
-function locationsToRange(start, end) {
-    return new atom_1.Range(locationToPoint(start), locationToPoint(end));
-}
-exports.locationsToRange = locationsToRange;
-function rangeToLocationRange(range) {
-    return {
-        line: range.start.row + 1,
-        offset: range.start.column + 1,
-        endLine: range.end.row + 1,
-        endOffset: range.end.column + 1
-    };
-}
-exports.rangeToLocationRange = rangeToLocationRange;
+const _1 = require("./");
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
     const pos = editor.getCursorBufferPosition();
@@ -103,7 +81,7 @@ function getEditorsForAllPaths(filePaths) {
     var map = {};
     var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath());
     function addConsistentlyToMap(editor) {
-        map[fsu.consistentPath(editor.getPath())] = editor;
+        map[_1.consistentPath(editor.getPath())] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
     /// find the editors that are not in here
@@ -132,7 +110,7 @@ function getTypeScriptEditorsWithPaths() {
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(e => fsu.consistentPath(e.getPath()));
+    return getTypeScriptEditorsWithPaths().map(e => _1.consistentPath(e.getPath()));
 }
 exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
@@ -152,7 +130,7 @@ exports.quickNotifyWarning = quickNotifyWarning;
 function formatCode(editor, edits) {
     // The code edits need to be applied in reverse order
     for (let i = edits.length - 1; i >= 0; i--) {
-        editor.setTextInBufferRange(spanToRange(edits[i]), edits[i].newText);
+        editor.setTextInBufferRange(_1.spanToRange(edits[i]), edits[i].newText);
     }
 }
 exports.formatCode = formatCode;
@@ -212,7 +190,7 @@ exports.commandForTypeScript = commandForTypeScript;
 /** Gets the consisten path for the current editor */
 function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
-    return fsu.consistentPath(editor.getPath());
+    return _1.consistentPath(editor.getPath());
 }
 exports.getCurrentPath = getCurrentPath;
 exports.knownScopes = {
@@ -279,7 +257,7 @@ exports.triggerLinter = triggerLinter;
  * converts "c:\dev\somethin\bar.ts" to "~something\bar".
  */
 function getFilePathRelativeToAtomProject(filePath) {
-    filePath = fsu.consistentPath(filePath);
+    filePath = _1.consistentPath(filePath);
     // Sample:
     // atom.project.relativize(`D:/REPOS/atom-typescript/lib/main/atom/atomUtils.ts`)
     return '~' + atom.project.relativize(filePath);

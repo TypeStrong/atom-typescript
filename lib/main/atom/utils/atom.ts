@@ -1,47 +1,14 @@
 import * as Atom from "atom"
 import * as fs from "fs"
-import * as fsu from "../utils/fsUtil"
 import * as path from "path"
 import * as url from "url"
-import {TextSpan, CodeEdit} from "typescript/lib/protocol"
-import {Point, Range} from "atom"
-
-export {TextSpan, CodeEdit}
-
-export interface LocationQuery {
-  line: number
-  offset: number
-}
-
-export interface LocationRangeQuery extends LocationQuery {
-  endLine: number
-  endOffset: number
-}
-
-export interface FileLocationQuery extends LocationQuery {
-  file: string
-}
-
-export function locationToPoint(loc: LocationQuery): TextBuffer.IPoint {
-  return new Point(loc.line-1, loc.offset-1)
-}
-
-export function spanToRange(span: TextSpan): TextBuffer.IRange {
-  return locationsToRange(span.start, span.end)
-}
-
-export function locationsToRange(start, end): TextBuffer.IRange {
-  return new Range(locationToPoint(start), locationToPoint(end))
-}
-
-export function rangeToLocationRange(range: TextBuffer.IRange): LocationRangeQuery {
-  return {
-    line: range.start.row + 1,
-    offset: range.start.column + 1,
-    endLine: range.end.row + 1,
-    endOffset: range.end.column + 1
-  }
-}
+import {
+  CodeEdit,
+  consistentPath,
+  FileLocationQuery,
+  LocationQuery,
+  spanToRange
+} from "./"
 
 // Return line/offset position in the editor using 1-indexed coordinates
 export function getEditorPosition(editor: AtomCore.IEditor): LocationQuery {
@@ -123,7 +90,7 @@ export function getEditorsForAllPaths(filePaths: string[]): Promise<{ [filePath:
     var activeEditors = atom.workspace.getTextEditors().filter(editor=> !!editor.getPath());
 
     function addConsistentlyToMap(editor: AtomCore.IEditor) {
-        map[fsu.consistentPath(editor.getPath())] = editor;
+        map[consistentPath(editor.getPath())] = editor;
     }
 
     activeEditors.forEach(addConsistentlyToMap);
@@ -156,7 +123,7 @@ export function getTypeScriptEditorsWithPaths() {
 }
 
 export function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(e=> fsu.consistentPath(e.getPath()));
+    return getTypeScriptEditorsWithPaths().map(e=> consistentPath(e.getPath()));
 }
 
 export function quickNotifySuccess(htmlMessage: string) {
@@ -235,7 +202,7 @@ export function commandForTypeScript(e: AtomCore.CommandEvent) {
 /** Gets the consisten path for the current editor */
 export function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
-    return fsu.consistentPath(editor.getPath());
+    return consistentPath(editor.getPath());
 }
 
 export var knownScopes = {
@@ -318,7 +285,7 @@ export function triggerLinter() {
  * converts "c:\dev\somethin\bar.ts" to "~something\bar".
  */
 export function getFilePathRelativeToAtomProject(filePath: string) {
-    filePath = fsu.consistentPath(filePath);
+    filePath = consistentPath(filePath);
     // Sample:
     // atom.project.relativize(`D:/REPOS/atom-typescript/lib/main/atom/atomUtils.ts`)
     return '~' + atom.project.relativize(filePath);

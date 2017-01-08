@@ -1,14 +1,14 @@
 "use strict";
 const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
-const atomUtils_1 = require("../atomUtils");
-const atomUtils_2 = require("../atomUtils");
+const utils_1 = require("../utils");
+const utils_2 = require("../utils");
 registry_1.commands.set("typescript:rename-refactor", deps => {
     return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-        if (!atomUtils_1.commandForTypeScript(e)) {
+        if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const location = atomUtils_1.getFilePathPosition();
+        const location = utils_1.getFilePathPosition();
         const client = yield deps.getClient(location.file);
         const response = yield client.executeRename(location);
         const { info, locs } = response.body;
@@ -33,7 +33,7 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
             const { buffer, isOpen } = yield deps.getBuffer(loc.file);
             buffer.transact(() => {
                 for (const span of loc.locs) {
-                    buffer.setTextInRange(atomUtils_2.spanToRange(span), newName);
+                    buffer.setTextInRange(utils_2.spanToRange(span), newName);
                 }
             });
             if (!isOpen) {

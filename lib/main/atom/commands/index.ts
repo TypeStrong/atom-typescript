@@ -1,4 +1,4 @@
-// import atomUtils = require("../atomUtils");
+// import atomUtils = require("../utils");
 // import path = require('path');
 // import renameView = require("../views/renameView");
 // import fileSymbolsView = require("../views/fileSymbolsView");

@@ -3,7 +3,7 @@ import {dirname} from "path"
 import {
   getFilePathRelativeToAtomProject,
   openFile,
-} from "../atomUtils"
+} from "../utils"
 
 export class StatusPanel extends HTMLElement {
 

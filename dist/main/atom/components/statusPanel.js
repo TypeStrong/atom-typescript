@@ -1,7 +1,7 @@
 "use strict";
 const dom = require("jsx-render-dom");
 const path_1 = require("path");
-const atomUtils_1 = require("../atomUtils");
+const utils_1 = require("../utils");
 class StatusPanel extends HTMLElement {
     createdCallback() {
         const nodes = [
@@ -34,7 +34,7 @@ class StatusPanel extends HTMLElement {
     }
     openConfigPath() {
         if (this.configPath && !this.configPath.startsWith("/dev/null")) {
-            atomUtils_1.openFile(this.configPath);
+            utils_1.openFile(this.configPath);
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
@@ -73,7 +73,7 @@ class StatusPanel extends HTMLElement {
         this.configPath = configPath;
         if (configPath) {
             this.configPathContainer.textContent = configPath.startsWith("/dev/null") ? "No project" :
-                path_1.dirname(atomUtils_1.getFilePathRelativeToAtomProject(configPath));
+                path_1.dirname(utils_1.getFilePathRelativeToAtomProject(configPath));
             this.configPathContainer.classList.remove("hide");
         }
         else {

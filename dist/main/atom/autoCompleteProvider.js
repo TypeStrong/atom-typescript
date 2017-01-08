@@ -1,6 +1,6 @@
 "use strict";
 const tslib_1 = require("tslib");
-const atomUtils_1 = require("./atomUtils");
+const utils_1 = require("./utils");
 const fuzzaldrin = require("fuzzaldrin");
 class AutocompleteProvider {
     constructor(clientResolver) {
@@ -32,7 +32,7 @@ class AutocompleteProvider {
             const suggestions = completions.body.map(entry => ({
                 text: entry.name,
                 leftLabel: entry.kind,
-                type: atomUtils_1.kindToType(entry.kind),
+                type: utils_1.kindToType(entry.kind),
             }));
             this.lastSuggestions = {
                 client,

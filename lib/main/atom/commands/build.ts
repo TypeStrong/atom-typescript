@@ -1,5 +1,5 @@
 import {commands} from "./registry"
-import {commandForTypeScript, getFilePathPosition} from "../atomUtils"
+import {commandForTypeScript, getFilePathPosition} from "../utils"
 
 commands.set("typescript:build", deps => {
   return async e => {

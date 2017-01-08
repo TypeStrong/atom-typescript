@@ -1,7 +1,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-import atomUtils = require('./atomUtils'); ///ts:import:generated
+import atomUtils = require('./utils'); ///ts:import:generated
 import {clientResolver} from "../atomts"
 
 import path = require('path');

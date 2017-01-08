@@ -1,6 +1,6 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {kindToType, FileLocationQuery} from "./atomUtils"
+import {kindToType, FileLocationQuery} from "./utils"
 import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
 import {TypescriptServiceClient} from "../../client/client"
 import * as fuzzaldrin from "fuzzaldrin"
