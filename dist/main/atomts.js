@@ -2,22 +2,22 @@
 const tslib_1 = require("tslib");
 // import {getFileStatus} from "./atom/fileStatusCache"
 // import {$} from "atom-space-pen-views"
+// import * as atomUtils from './atom/atomUtils'
+// import * as fs from 'fs'
+// import * as path from 'path'
+const Atom = require("atom");
+const atomConfig = require("./atom/atomConfig");
+const hyperclickProvider = require("../hyperclickProvider");
+const tsconfig = require("tsconfig/dist/tsconfig");
+const renameView_1 = require("./atom/views/renameView");
+const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const errorPusher_1 = require("./errorPusher");
-const typescriptEditorPane_1 = require("./typescriptEditorPane");
-const statusPanel_1 = require("./atom/components/statusPanel");
-const atomConfig = require("./atom/atomConfig");
-// import * as atomUtils from './atom/atomUtils'
-const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-// import * as fs from 'fs'
-const hyperclickProvider = require("../hyperclickProvider");
-// import * as path from 'path'
-const renameView_1 = require("./atom/views/renameView");
-const tsconfig = require("tsconfig/dist/tsconfig");
 const lodash_2 = require("lodash");
-const Atom = require("atom");
+const statusPanel_1 = require("./atom/components/statusPanel");
+const typescriptEditorPane_1 = require("./typescriptEditorPane");
 // globals
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();

@@ -82,12 +82,6 @@ interface EditorPosition {
     col: number;
 }
 
-interface CodeEdit {
-    start: EditorPosition;
-    end: EditorPosition;
-    newText: string;
-}
-
 /** Interfaces used by GotoHistory feature */
 interface GotoPosition {
     filePath: string;

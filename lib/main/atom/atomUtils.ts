@@ -3,14 +3,44 @@ import * as fs from "fs"
 import * as fsu from "../utils/fsUtil"
 import * as path from "path"
 import * as url from "url"
+import {TextSpan, CodeEdit} from "typescript/lib/protocol"
+import {Point, Range} from "atom"
+
+export {TextSpan, CodeEdit}
 
 export interface LocationQuery {
   line: number
   offset: number
 }
 
+export interface LocationRangeQuery extends LocationQuery {
+  endLine: number
+  endOffset: number
+}
+
 export interface FileLocationQuery extends LocationQuery {
   file: string
+}
+
+export function locationToPoint(loc: LocationQuery): TextBuffer.IPoint {
+  return new Point(loc.line-1, loc.offset-1)
+}
+
+export function spanToRange(span: TextSpan): TextBuffer.IRange {
+  return locationsToRange(span.start, span.end)
+}
+
+export function locationsToRange(start, end): TextBuffer.IRange {
+  return new Range(locationToPoint(start), locationToPoint(end))
+}
+
+export function rangeToLocationRange(range: TextBuffer.IRange): LocationRangeQuery {
+  return {
+    line: range.start.row + 1,
+    offset: range.start.column + 1,
+    endLine: range.end.row + 1,
+    endOffset: range.end.column + 1
+  }
 }
 
 // Return line/offset position in the editor using 1-indexed coordinates
@@ -37,6 +67,7 @@ export function isActiveEditorOnDiskAndTs() {
     var editor = atom.workspace.getActiveTextEditor();
     return onDiskAndTs(editor);
 }
+
 export function onDiskAndTs(editor: AtomCore.IEditor) {
     if (editor instanceof require('atom').TextEditor) {
         var filePath = editor.getPath();
@@ -142,17 +173,11 @@ export function quickNotifyWarning(htmlMessage: string) {
     }, 800);
 }
 
-type Location = { line: number; col: number };
-export interface CodeEdit {
-    start: Location;
-    end: Location;
-    newText: string;
-}
 export function formatCode(editor: AtomCore.IEditor, edits: CodeEdit[]) {
-    for (var i = edits.length - 1; i >= 0; i--) {
-        var edit = edits[i];
-        editor.setTextInBufferRange([[edit.start.line, edit.start.col], [edit.end.line, edit.end.col]], edit.newText);
-    }
+  // The code edits need to be applied in reverse order
+  for (let i = edits.length - 1; i >= 0; i--) {
+    editor.setTextInBufferRange(spanToRange(edits[i]), edits[i].newText)
+  }
 }
 
 export function kindToColor(kind: string) {

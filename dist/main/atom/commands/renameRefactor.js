@@ -2,7 +2,7 @@
 const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const atomUtils_1 = require("../atomUtils");
-const tsUtil_1 = require("./../../utils/tsUtil");
+const atomUtils_2 = require("../atomUtils");
 registry_1.commands.set("typescript:rename-refactor", deps => {
     return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
         if (!atomUtils_1.commandForTypeScript(e)) {
@@ -33,7 +33,7 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
             const { buffer, isOpen } = yield deps.getBuffer(loc.file);
             buffer.transact(() => {
                 for (const span of loc.locs) {
-                    buffer.setTextInRange(tsUtil_1.spanToRange(span), newName);
+                    buffer.setTextInRange(atomUtils_2.spanToRange(span), newName);
                 }
             });
             if (!isOpen) {

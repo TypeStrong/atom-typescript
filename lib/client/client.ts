@@ -10,6 +10,7 @@ export const CommandWithResponse = new Set([
   "completionEntryDetails",
   "completions",
   "definition",
+  "format",
   "occurrences",
   "projectInfo",
   "quickinfo",
@@ -69,6 +70,9 @@ export class TypescriptServiceClient {
   }
   executeDefinition(args: protocol.FileLocationRequestArgs): Promise<protocol.DefinitionResponse> {
     return this.execute("definition", args)
+  }
+  executeFormat(args: protocol.FormatRequestArgs): Promise<protocol.FormatResponse> {
+    return this.execute("format", args)
   }
   executeGetErr(args: protocol.GeterrRequestArgs): Promise<undefined> {
     return this.execute("geterr", args)

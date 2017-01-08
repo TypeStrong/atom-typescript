@@ -5,6 +5,28 @@ const fs = require("fs");
 const fsu = require("../utils/fsUtil");
 const path = require("path");
 const url = require("url");
+const atom_1 = require("atom");
+function locationToPoint(loc) {
+    return new atom_1.Point(loc.line - 1, loc.offset - 1);
+}
+exports.locationToPoint = locationToPoint;
+function spanToRange(span) {
+    return locationsToRange(span.start, span.end);
+}
+exports.spanToRange = spanToRange;
+function locationsToRange(start, end) {
+    return new atom_1.Range(locationToPoint(start), locationToPoint(end));
+}
+exports.locationsToRange = locationsToRange;
+function rangeToLocationRange(range) {
+    return {
+        line: range.start.row + 1,
+        offset: range.start.column + 1,
+        endLine: range.end.row + 1,
+        endOffset: range.end.column + 1
+    };
+}
+exports.rangeToLocationRange = rangeToLocationRange;
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
     const pos = editor.getCursorBufferPosition();
@@ -128,9 +150,9 @@ function quickNotifyWarning(htmlMessage) {
 }
 exports.quickNotifyWarning = quickNotifyWarning;
 function formatCode(editor, edits) {
-    for (var i = edits.length - 1; i >= 0; i--) {
-        var edit = edits[i];
-        editor.setTextInBufferRange([[edit.start.line, edit.start.col], [edit.end.line, edit.end.col]], edit.newText);
+    // The code edits need to be applied in reverse order
+    for (let i = edits.length - 1; i >= 0; i--) {
+        editor.setTextInBufferRange(spanToRange(edits[i]), edits[i].newText);
     }
 }
 exports.formatCode = formatCode;

@@ -1,6 +1,6 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../atomUtils"
-import {spanToRange} from "./../../utils/tsUtil"
+import {spanToRange} from "../atomUtils"
 
 commands.set("typescript:rename-refactor", deps => {
   return async e => {

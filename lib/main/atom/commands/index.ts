@@ -18,6 +18,7 @@ import {commands, Dependencies} from "./registry"
 import "./build"
 import "./checkAllFiles"
 import "./clearErrors"
+import "./formatCode"
 import "./findReferences"
 import "./goToDeclaration"
 import "./renameRefactor"
@@ -27,31 +28,6 @@ export function registerCommands(deps: Dependencies) {
   for (const [name, command] of commands) {
     atom.commands.add("atom-workspace", name, command(deps))
   }
-
-    // Setup custom commands NOTE: these need to be added to the keymaps
-    // atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
-    //     if (!atomUtils.commandForTypeScript(e)) return;
-
-    //     var editor = atom.workspace.getActiveTextEditor();
-    //     var filePath = editor.getPath();
-    //     var selection = editor.getSelectedBufferRange();
-    //     if (selection.isEmpty()) {
-    //         parent.formatDocument({ filePath: filePath }).then((result) => {
-    //             if (!result.edits.length) return;
-    //             editor.transact(() => {
-    //                 atomUtils.formatCode(editor, result.edits);
-    //             });
-    //         });
-    //     } else {
-    //         parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-    //             if (!result.edits.length) return;
-    //             editor.transact(() => {
-    //                 atomUtils.formatCode(editor, result.edits);
-    //             });
-    //         });
-
-    //     }
-    // });
 
     // atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
     //     if (!atomUtils.commandForTypeScript(e)) return;
@@ -146,12 +122,4 @@ export function registerCommands(deps: Dependencies) {
     //         theProjectSymbolsView.show();
     //     });
     // }, 400);
-
-    atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
-        console.log("typescript:sync trigerred")
-
-        // if (!atomUtils.commandForTypeScript(e)) return;
-        // panelView.softReset();
-    });
-
 }

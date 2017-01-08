@@ -10,6 +10,7 @@ exports.CommandWithResponse = new Set([
     "completionEntryDetails",
     "completions",
     "definition",
+    "format",
     "occurrences",
     "projectInfo",
     "quickinfo",
@@ -67,6 +68,9 @@ class TypescriptServiceClient {
     }
     executeDefinition(args) {
         return this.execute("definition", args);
+    }
+    executeFormat(args) {
+        return this.execute("format", args);
     }
     executeGetErr(args) {
         return this.execute("geterr", args);

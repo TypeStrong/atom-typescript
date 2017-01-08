@@ -4,7 +4,7 @@ const atom_space_pen_views_1 = require("atom-space-pen-views");
 const path_1 = require("path");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
-const tsUtil_1 = require("./utils/tsUtil");
+const atomUtils_1 = require("./atom/atomUtils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
@@ -54,7 +54,7 @@ class TypescriptEditorPane {
             }).then(result => {
                 this.clearOccurrenceMarkers();
                 for (const ref of result.body) {
-                    const marker = this.editor.markBufferRange(tsUtil_1.spanToRange(ref));
+                    const marker = this.editor.markBufferRange(atomUtils_1.spanToRange(ref));
                     this.editor.decorateMarker(marker, {
                         type: "highlight",
                         class: "atom-typescript-occurrence"

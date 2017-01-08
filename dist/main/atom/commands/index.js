@@ -16,6 +16,7 @@ const registry_1 = require("./registry");
 require("./build");
 require("./checkAllFiles");
 require("./clearErrors");
+require("./formatCode");
 require("./findReferences");
 require("./goToDeclaration");
 require("./renameRefactor");
@@ -23,28 +24,6 @@ function registerCommands(deps) {
     for (const [name, command] of registry_1.commands) {
         atom.commands.add("atom-workspace", name, command(deps));
     }
-    // Setup custom commands NOTE: these need to be added to the keymaps
-    // atom.commands.add('atom-text-editor', 'typescript:format-code', (e) => {
-    //     if (!atomUtils.commandForTypeScript(e)) return;
-    //     var editor = atom.workspace.getActiveTextEditor();
-    //     var filePath = editor.getPath();
-    //     var selection = editor.getSelectedBufferRange();
-    //     if (selection.isEmpty()) {
-    //         parent.formatDocument({ filePath: filePath }).then((result) => {
-    //             if (!result.edits.length) return;
-    //             editor.transact(() => {
-    //                 atomUtils.formatCode(editor, result.edits);
-    //             });
-    //         });
-    //     } else {
-    //         parent.formatDocumentRange({ filePath: filePath, start: { line: selection.start.row, col: selection.start.column }, end: { line: selection.end.row, col: selection.end.column } }).then((result) => {
-    //             if (!result.edits.length) return;
-    //             editor.transact(() => {
-    //                 atomUtils.formatCode(editor, result.edits);
-    //             });
-    //         });
-    //     }
-    // });
     // atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
     //     if (!atomUtils.commandForTypeScript(e)) return;
     //     var editor = atom.workspace.getActiveTextEditor();
@@ -127,10 +106,5 @@ function registerCommands(deps) {
     //         theProjectSymbolsView.show();
     //     });
     // }, 400);
-    atom.commands.add('atom-workspace', 'typescript:sync', (e) => {
-        console.log("typescript:sync trigerred");
-        // if (!atomUtils.commandForTypeScript(e)) return;
-        // panelView.softReset();
-    });
 }
 exports.registerCommands = registerCommands;
