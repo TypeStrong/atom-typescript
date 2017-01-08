@@ -1,5 +1,4 @@
 import {$} from "atom-space-pen-views"
-import {basename} from "path"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
 import {spanToRange} from "./atom/utils"
@@ -27,7 +26,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   filePath: string
   isActive = false
-  isTSConfig = false
   isTypescript = false
 
   private opts: PaneOptions
@@ -52,10 +50,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.isTypescript = isTypescriptGrammar(grammar)
     }))
 
-    if (this.filePath) {
-      this.isTSConfig = basename(this.filePath) === "tsconfig.json"
-    }
-
     this.setupTooltipView()
   }
 
@@ -71,8 +65,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     if (this.isTypescript && this.filePath) {
       this.opts.statusPanel.show()
 
+      // The first activation might happen before we even have a client
       if (this.client) {
-        // The first activation might happen before we even have a client
         this.client.executeGetErr({
           files: [this.filePath],
           delay: 100
@@ -86,8 +80,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onChanged = () => {
-    console.warn("changed event")
-
     this.opts.statusPanel.setBuildStatus(undefined)
 
     this.client.executeGetErr({
@@ -146,8 +138,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onOpened = async () => {
-    console.warn("opened event")
-
     this.client = await this.opts.getClient(this.filePath)
 
     this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
@@ -178,19 +168,14 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }
   }
 
-  onSaved = ()  => {
-    console.warn("saved event")
+  onSaved = () => {
+    this.filePath = this.editor.getPath()
+
     if (this.opts.onSave) {
       this.opts.onSave(this)
     }
 
     this.compileOnSave()
-
-    // if (this.filePath !== event.path) {
-    //   this.client = await this.opts.getClient(event.path)
-    //   this.filePath = event.path
-    //   this.isTSConfig = basename(this.filePath) === "tsconfig.json"
-    // }
   }
 
   async compileOnSave() {

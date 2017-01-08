@@ -24,6 +24,7 @@ export class TypescriptBuffer {
     public getClient: (filePath: string) => Promise<Client>
   ) {
     this.subscriptions.add(buffer.onDidChange(this.onDidChange))
+    this.subscriptions.add(buffer.onDidChangePath(this.onDidSave))
     this.subscriptions.add(buffer.onDidDestroy(this.dispose))
     this.subscriptions.add(buffer.onDidSave(this.onDidSave))
     this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging))
@@ -53,7 +54,6 @@ export class TypescriptBuffer {
   }
 
   dispose = () => {
-    console.warn("buffer disposed")
     this.subscriptions.dispose()
 
     if (this.isOpen) {
@@ -89,8 +89,6 @@ export class TypescriptBuffer {
     if (changes.length === 0 || !this.isOpen) {
       return
     }
-
-    console.warn("onDidStopChanging", this, changes)
 
     this.changedAtBatch = Date.now()
 

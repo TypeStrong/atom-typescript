@@ -12,7 +12,6 @@ class TypescriptBuffer {
         this.events = new events_1.EventEmitter();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.dispose = () => {
-            console.warn("buffer disposed");
             this.subscriptions.dispose();
             if (this.isOpen) {
                 this.clientPromise.then(client => client.executeClose({ file: this.buffer.getPath() }));
@@ -34,7 +33,6 @@ class TypescriptBuffer {
             if (changes.length === 0 || !this.isOpen) {
                 return;
             }
-            console.warn("onDidStopChanging", this, changes);
             this.changedAtBatch = Date.now();
             const client = yield this.clientPromise;
             const filePath = this.buffer.getPath();
@@ -49,6 +47,7 @@ class TypescriptBuffer {
             this.events.emit("changed");
         });
         this.subscriptions.add(buffer.onDidChange(this.onDidChange));
+        this.subscriptions.add(buffer.onDidChangePath(this.onDidSave));
         this.subscriptions.add(buffer.onDidDestroy(this.dispose));
         this.subscriptions.add(buffer.onDidSave(this.onDidSave));
         this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging));

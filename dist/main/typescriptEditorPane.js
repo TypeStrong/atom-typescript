@@ -1,7 +1,6 @@
 "use strict";
 const tslib_1 = require("tslib");
 const atom_space_pen_views_1 = require("atom-space-pen-views");
-const path_1 = require("path");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
@@ -12,7 +11,6 @@ class TypescriptEditorPane {
         // Path to the project's tsconfig.json
         this.configFile = "";
         this.isActive = false;
-        this.isTSConfig = false;
         this.isTypescript = false;
         this.isOpen = false;
         this.occurrenceMarkers = [];
@@ -22,8 +20,8 @@ class TypescriptEditorPane {
             this.isActive = true;
             if (this.isTypescript && this.filePath) {
                 this.opts.statusPanel.show();
+                // The first activation might happen before we even have a client
                 if (this.client) {
-                    // The first activation might happen before we even have a client
                     this.client.executeGetErr({
                         files: [this.filePath],
                         delay: 100
@@ -34,7 +32,6 @@ class TypescriptEditorPane {
             this.opts.statusPanel.setTsConfigPath(this.configFile);
         };
         this.onChanged = () => {
-            console.warn("changed event");
             this.opts.statusPanel.setBuildStatus(undefined);
             this.client.executeGetErr({
                 files: [this.filePath],
@@ -77,7 +74,6 @@ class TypescriptEditorPane {
             this.dispose();
         };
         this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            console.warn("opened event");
             this.client = yield this.opts.getClient(this.filePath);
             this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
             this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
@@ -102,16 +98,11 @@ class TypescriptEditorPane {
             }
         });
         this.onSaved = () => {
-            console.warn("saved event");
+            this.filePath = this.editor.getPath();
             if (this.opts.onSave) {
                 this.opts.onSave(this);
             }
             this.compileOnSave();
-            // if (this.filePath !== event.path) {
-            //   this.client = await this.opts.getClient(event.path)
-            //   this.filePath = event.path
-            //   this.isTSConfig = basename(this.filePath) === "tsconfig.json"
-            // }
         };
         this.editor = editor;
         this.filePath = editor.getPath();
@@ -124,9 +115,6 @@ class TypescriptEditorPane {
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
             this.isTypescript = isTypescriptGrammar(grammar);
         }));
-        if (this.filePath) {
-            this.isTSConfig = path_1.basename(this.filePath) === "tsconfig.json";
-        }
         this.setupTooltipView();
     }
     dispose() {

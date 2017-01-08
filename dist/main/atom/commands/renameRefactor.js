@@ -30,16 +30,16 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
             }
         });
         locs.map((loc) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { buffer, isOpen } = yield deps.getBuffer(loc.file);
-            buffer.transact(() => {
+            const { buffer, isOpen } = yield deps.getTypescriptBuffer(loc.file);
+            buffer.buffer.transact(() => {
                 for (const span of loc.locs) {
-                    buffer.setTextInRange(utils_2.spanToRange(span), newName);
+                    buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
                 }
             });
             if (!isOpen) {
-                buffer.save();
-                buffer.onDidSave(() => {
-                    buffer.destroy();
+                buffer.buffer.save();
+                buffer.on("saved", () => {
+                    buffer.buffer.destroy();
                 });
             }
         }));

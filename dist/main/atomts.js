@@ -13,6 +13,7 @@ const errorPusher_1 = require("./errorPusher");
 const lodash_2 = require("lodash");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
+const typescriptBuffer_1 = require("./typescriptBuffer");
 // globals
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
@@ -54,12 +55,12 @@ function activate(state) {
             clearErrors() {
                 errorPusher.clear();
             },
-            getBuffer(filePath) {
+            getTypescriptBuffer(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const pane = panes.find(pane => pane.filePath === filePath);
                     if (pane) {
                         return {
-                            buffer: pane.editor.buffer,
+                            buffer: pane.buffer,
                             isOpen: true
                         };
                     }
@@ -74,7 +75,7 @@ function activate(state) {
                         });
                     });
                     return {
-                        buffer,
+                        buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
                         isOpen: false
                     };
                 });

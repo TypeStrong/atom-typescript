@@ -13,6 +13,7 @@ import {LinterRegistry, Linter} from "../typings/linter"
 import {StatusBar} from "../typings/status_bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
+import {TypescriptBuffer} from "./typescriptBuffer"
 
 // globals
 const subscriptions = new CompositeDisposable()
@@ -69,11 +70,11 @@ export function activate(state: PackageState) {
       clearErrors() {
         errorPusher.clear()
       },
-      async getBuffer(filePath: string) {
+      async getTypescriptBuffer(filePath: string) {
         const pane = panes.find(pane => pane.filePath === filePath)
         if (pane) {
           return {
-            buffer: pane.editor.buffer,
+            buffer: pane.buffer,
             isOpen: true
           }
         }
@@ -91,7 +92,7 @@ export function activate(state: PackageState) {
         })
 
         return {
-          buffer,
+          buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
           isOpen: false
         }
       },
