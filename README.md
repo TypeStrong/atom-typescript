@@ -1,3 +1,7 @@
+# Beta
+
+This is a fork of the `atom-typescript` package with a very different implementation and, necessarily, different user experience. More info here: https://github.com/TypeStrong/atom-typescript/pull/1166
+
 # Atom TypeScript
 
 [![Join the chat at https://gitter.im/TypeStrong/atom-typescript](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TypeStrong/atom-typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

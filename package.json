@@ -1,6 +1,6 @@
 {
-  "name": "atom-typescript",
-  "version": "10.1.13",
+  "name": "atom-typescript-beta",
+  "version": "11.0.1-beta",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
@@ -40,14 +40,14 @@
       }
     }
   },
-  "homepage": "http://atom.io/packages/atom-typescript",
+  "homepage": "https://github.com/TypeStrong/atom-typescript/pull/1166",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TypeStrong/atom-typescript.git"
+    "url": "https://github.com/guncha/atom-typescript.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TypeStrong/atom-typescript/issues"
+    "url": "https://github.com/TypeStrong/atom-typescript/pull/1166"
   },
   "dependencies": {
     "@types/atom": "0.0.35",
