@@ -7,8 +7,8 @@ import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
   // Timestamps for buffer events
-  changedAt: number
-  changedAtBatch: number
+  changedAt: number = 0
+  changedAtBatch: number = 0
 
   // Promise that resolves to the correct client for this filePath
   clientPromise: Promise<Client>
@@ -53,6 +53,25 @@ export class TypescriptBuffer {
     }
   }
 
+  // If there are any pending changes, flush them out to the Typescript server
+  async flush() {
+    if (this.changedAt > this.changedAtBatch) {
+      const prevDelay = this.buffer.stoppedChangingDelay
+      try {
+        this.buffer.stoppedChangingDelay = 0
+        this.buffer.scheduleDidStopChangingEvent()
+        await new Promise(resolve => {
+          const {dispose} = this.buffer.onDidStopChanging(() => {
+            dispose()
+            resolve()
+          })
+        })
+      } finally {
+        this.buffer.stoppedChangingDelay = prevDelay
+      }
+    }
+  }
+
   dispose = () => {
     this.subscriptions.dispose()
 
@@ -76,7 +95,7 @@ export class TypescriptBuffer {
 
   onDidSave = async () => {
     // Check if there isn't a onDidStopChanging event pending.
-    const {changedAt = 0, changedAtBatch = 0} = this
+    const {changedAt, changedAtBatch} = this
     if (changedAt && changedAt > changedAtBatch) {
       await new Promise(resolve => this.events.once("changed", resolve))
     }

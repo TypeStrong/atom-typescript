@@ -9,6 +9,9 @@ class TypescriptBuffer {
     constructor(buffer, getClient) {
         this.buffer = buffer;
         this.getClient = getClient;
+        // Timestamps for buffer events
+        this.changedAt = 0;
+        this.changedAtBatch = 0;
         this.events = new events_1.EventEmitter();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.dispose = () => {
@@ -22,7 +25,7 @@ class TypescriptBuffer {
         };
         this.onDidSave = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             // Check if there isn't a onDidStopChanging event pending.
-            const { changedAt = 0, changedAtBatch = 0 } = this;
+            const { changedAt, changedAtBatch } = this;
             if (changedAt && changedAt > changedAtBatch) {
                 yield new Promise(resolve => this.events.once("changed", resolve));
             }
@@ -69,6 +72,27 @@ class TypescriptBuffer {
             }
             else {
                 this.clientPromise = Promise.reject(new Error("Missing filePath or not a Typescript file"));
+            }
+        });
+    }
+    // If there are any pending changes, flush them out to the Typescript server
+    flush() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (this.changedAt > this.changedAtBatch) {
+                const prevDelay = this.buffer.stoppedChangingDelay;
+                try {
+                    this.buffer.stoppedChangingDelay = 0;
+                    this.buffer.scheduleDidStopChangingEvent();
+                    yield new Promise(resolve => {
+                        const { dispose } = this.buffer.onDidStopChanging(() => {
+                            dispose();
+                            resolve();
+                        });
+                    });
+                }
+                finally {
+                    this.buffer.stoppedChangingDelay = prevDelay;
+                }
             }
         });
     }

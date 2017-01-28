@@ -19,6 +19,7 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
 export const config = atomConfig.schema
+const panes: TypescriptEditorPane[] = []
 
 // Register all custom components
 import "./atom/components"
@@ -70,32 +71,7 @@ export function activate(state: PackageState) {
       clearErrors() {
         errorPusher.clear()
       },
-      async getTypescriptBuffer(filePath: string) {
-        const pane = panes.find(pane => pane.filePath === filePath)
-        if (pane) {
-          return {
-            buffer: pane.buffer,
-            isOpen: true
-          }
-        }
-
-        // Wait for the buffer to load before resolving the promise
-        const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
-          const buffer = new Atom.TextBuffer({
-            filePath,
-            load: true
-          })
-
-          buffer.onDidReload(() => {
-            resolve(buffer)
-          })
-        })
-
-        return {
-          buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
-          isOpen: false
-        }
-      },
+      getTypescriptBuffer,
       async getClient(filePath: string) {
         const pane = panes.find(pane => pane.filePath === filePath)
         if (pane) {
@@ -109,7 +85,6 @@ export function activate(state: PackageState) {
     })
 
     let activePane: TypescriptEditorPane | undefined
-    const panes: TypescriptEditorPane[] = []
 
     const onSave = debounce((pane: TypescriptEditorPane) => {
       console.log("checking errors for all panes for", pane.filePath)
@@ -186,7 +161,7 @@ export function consumeStatusBar(_statusBar) {
 // Registering an autocomplete provider
 export function provide() {
   return [
-    new AutocompleteProvider(clientResolver),
+    new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
 }
 
@@ -200,4 +175,32 @@ export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig
       return tsconfig.load(result.body!.configFileName)
     })
   })
+}
+
+// Get Typescript buffer for the given path
+async function getTypescriptBuffer(filePath: string) {
+  const pane = panes.find(pane => pane.filePath === filePath)
+  if (pane) {
+    return {
+      buffer: pane.buffer,
+      isOpen: true
+    }
+  }
+
+  // Wait for the buffer to load before resolving the promise
+  const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
+    const buffer = new Atom.TextBuffer({
+      filePath,
+      load: true
+    })
+
+    buffer.onDidReload(() => {
+      resolve(buffer)
+    })
+  })
+
+  return {
+    buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
+    isOpen: false
+  }
 }

@@ -18,6 +18,7 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 exports.config = atomConfig.schema;
+const panes = [];
 // Register all custom components
 require("./atom/components");
 const commands_1 = require("./atom/commands");
@@ -55,31 +56,7 @@ function activate(state) {
             clearErrors() {
                 errorPusher.clear();
             },
-            getTypescriptBuffer(filePath) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    const pane = panes.find(pane => pane.filePath === filePath);
-                    if (pane) {
-                        return {
-                            buffer: pane.buffer,
-                            isOpen: true
-                        };
-                    }
-                    // Wait for the buffer to load before resolving the promise
-                    const buffer = yield new Promise(resolve => {
-                        const buffer = new Atom.TextBuffer({
-                            filePath,
-                            load: true
-                        });
-                        buffer.onDidReload(() => {
-                            resolve(buffer);
-                        });
-                    });
-                    return {
-                        buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
-                        isOpen: false
-                    };
-                });
-            },
+            getTypescriptBuffer,
             getClient(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const pane = panes.find(pane => pane.filePath === filePath);
@@ -93,7 +70,6 @@ function activate(state) {
             statusPanel,
         });
         let activePane;
-        const panes = [];
         const onSave = lodash_1.debounce((pane) => {
             console.log("checking errors for all panes for", pane.filePath);
             const files = panes
@@ -159,7 +135,7 @@ exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
 function provide() {
     return [
-        new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver),
+        new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer }),
     ];
 }
 exports.provide = provide;
@@ -175,3 +151,29 @@ function loadProjectConfig(sourcePath) {
     });
 }
 exports.loadProjectConfig = loadProjectConfig;
+// Get Typescript buffer for the given path
+function getTypescriptBuffer(filePath) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const pane = panes.find(pane => pane.filePath === filePath);
+        if (pane) {
+            return {
+                buffer: pane.buffer,
+                isOpen: true
+            };
+        }
+        // Wait for the buffer to load before resolving the promise
+        const buffer = yield new Promise(resolve => {
+            const buffer = new Atom.TextBuffer({
+                filePath,
+                load: true
+            });
+            buffer.onDidReload(() => {
+                resolve(buffer);
+            });
+        });
+        return {
+            buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
+            isOpen: false
+        };
+    });
+}

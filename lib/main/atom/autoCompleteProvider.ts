@@ -2,14 +2,25 @@
 import {ClientResolver} from "../../client/clientResolver"
 import {kindToType, FileLocationQuery} from "./utils"
 import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
+import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
+import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
 
+const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 type SuggestionWithDetails = Suggestion & {details?}
+
+type Options = {
+  getTypescriptBuffer: (filePath: string) => Promise<{
+    buffer: TypescriptBuffer
+    isOpen: boolean
+  }>
+}
 
 export class AutocompleteProvider implements Provider {
   selector = ".source.ts, .source.tsx"
-  disableForSelector = ".comment.block.documentation.ts, .comment.block.documentation.tsx, .comment.line.double-slash.ts, .comment.line.double-slash.tsx"
+
+  disableForSelector = ".comment"
 
   inclusionPriority = 3
   suggestionPriority = 3
@@ -30,28 +41,30 @@ export class AutocompleteProvider implements Provider {
     suggestions: SuggestionWithDetails[]
   }
 
-  constructor(clientResolver: ClientResolver) {
+  private opts: Options
+
+  constructor(clientResolver: ClientResolver, opts: Options) {
     this.clientResolver = clientResolver
+    this.opts = opts
   }
 
   // Try to reuse the last completions we got from tsserver if they're for the same position.
   async getSuggestionsWithCache(
     prefix: string,
-    location: FileLocationQuery
+    location: FileLocationQuery,
+    activatedManually: boolean,
   ): Promise<SuggestionWithDetails[]> {
-    // NOTE: While typing this can get out of sync with what tsserver would return so find a better
-    // way to reuse the completions.
-    // if (this.lastSuggestions) {
-    //   const lastLoc = this.lastSuggestions.location
-    //   const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
-    //   const thisCol = getNormalizedCol(prefix, location.offset)
-    //
-    //   if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
-    //     if (this.lastSuggestions.suggestions.length !== 0) {
-    //       return this.lastSuggestions.suggestions
-    //     }
-    //   }
-    // }
+    if (this.lastSuggestions && !activatedManually) {
+      const lastLoc = this.lastSuggestions.location
+      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
+      const thisCol = getNormalizedCol(prefix, location.offset)
+
+      if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+        if (this.lastSuggestions.suggestions.length !== 0) {
+          return this.lastSuggestions.suggestions
+        }
+      }
+    }
 
     const client = await this.clientResolver.get(location.file)
     const completions = await client.executeCompletions({prefix, ...location})
@@ -76,14 +89,37 @@ export class AutocompleteProvider implements Provider {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
-    console.log("autocomplete", {prefix, location})
-
     if (!location.file) {
       return []
     }
 
+    // Don't show autocomplete if the previous character was a non word character except "."
+    const lastChar = getLastNonWhitespaceChar(opts.editor.buffer, opts.bufferPosition)
+    if (lastChar && !opts.activatedManually) {
+      if (/\W/i.test(lastChar) && lastChar !== ".") {
+        return []
+      }
+    }
+
+    // Don't show autocomplete if we're in a string.template and not in a template expression
+    if (containsScope(opts.scopeDescriptor.scopes, "string.template.")
+      && !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
+        return []
+    }
+
+    // Don't show autocomplete if we're in a string and it's not an import path
+    if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
+      if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
+        return []
+      }
+    }
+
+    // Flush any pending changes for this buffer to get up to date completions
+    const {buffer} = await this.opts.getTypescriptBuffer(location.file)
+    await buffer.flush()
+
     try {
-      var suggestions = await this.getSuggestionsWithCache(prefix, location)
+      var suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
     } catch (error) {
       return []
     }
@@ -93,8 +129,8 @@ export class AutocompleteProvider implements Provider {
       suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {key: "text"})
     }
 
-    // Get additional details for the first few suggestions, but don't wait for it to complete
-    this.getAdditionalDetails(suggestions.slice(0, 15), location)
+    // Get additional details for the first few suggestions
+    await this.getAdditionalDetails(suggestions.slice(0, 10), location)
 
     const trimmed = prefix.trim()
 
@@ -138,10 +174,10 @@ function getReplacementPrefix(prefix: string, trimmed: string, replacement: stri
 
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."
-// function getNormalizedCol(prefix: string, col: number): number {
-//   const length = prefix === "." ? 0 : prefix.length
-//   return col - length
-// }
+function getNormalizedCol(prefix: string, col: number): number {
+  const length = prefix === "." ? 0 : prefix.length
+  return col - length
+}
 
 function getLocationQuery(opts: RequestOptions): FileLocationQuery {
   return {
@@ -149,4 +185,24 @@ function getLocationQuery(opts: RequestOptions): FileLocationQuery {
     line: opts.bufferPosition.row+1,
     offset: opts.bufferPosition.column+1
   }
+}
+
+function getLastNonWhitespaceChar(buffer: TextBuffer.ITextBuffer, pos: TextBuffer.IPoint): string | undefined {
+  let lastChar: string | undefined = undefined
+  const range = new Atom.Range([0,0], pos)
+  buffer.backwardsScanInRange(/\S/, range, ({matchText, stop}) => {
+      lastChar = matchText
+      stop()
+    })
+  return lastChar
+}
+
+function containsScope(scopes: string[], matchScope: string): boolean {
+  for (const scope of scopes) {
+    if (scope.includes(matchScope)) {
+      return true
+    }
+  }
+
+  return false
 }

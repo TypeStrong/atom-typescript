@@ -144,7 +144,7 @@ export class TypescriptServiceClient {
     if (isResponse(res)) {
       const callback = this.callbacks[res.request_seq]
       if (callback) {
-        console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
+        // console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
         delete this.callbacks[res.request_seq]
         if (res.success) {
           callback.resolve(res)
@@ -155,7 +155,7 @@ export class TypescriptServiceClient {
         this.emitPendingRequests()
       }
     } else if (isEvent(res)) {
-      console.log("received event", res)
+      // console.log("received event", res)
       this.events.emit(res.event, res.body)
     }
   }
@@ -171,7 +171,7 @@ export class TypescriptServiceClient {
       arguments: args
     }
 
-    console.log("sending request", command, "with args", args)
+    // console.log("sending request", command, "with args", args)
 
     setImmediate(() => {
       cp.stdin.write(JSON.stringify(req) + "\n")
@@ -191,17 +191,17 @@ export class TypescriptServiceClient {
   startServer() {
     if (!this.serverPromise) {
       this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
-        console.log("starting", this.tsServerPath)
+        // console.log("starting", this.tsServerPath)
 
         const cp = spawn(this.tsServerPath, this.tsServerArgs)
 
         cp.once("error", err => {
-          console.log("tsserver starting failed with", err)
+          // console.log("tsserver starting failed with", err)
           reject(err)
         })
 
         cp.once("exit", code => {
-          console.log("tsserver failed to start with code", code)
+          // console.log("tsserver failed to start with code", code)
           reject({code})
         })
 
