@@ -52,7 +52,7 @@
   "dependencies": {
     "@types/atom": "0.0.35",
     "@types/byline": "^4.2.31",
-    "@types/lodash": "4.14.41",
+    "@types/lodash": "^4.14.51",
     "@types/resolve": "0.0.4",
     "atom-package-deps": "^2.0.3",
     "atom-space-pen-views": "^2.0.4",
@@ -70,6 +70,7 @@
     "resolve": "1.1.7",
     "tsconfig": "^2.2.0",
     "tslib": "1.2.0",
+    "typescript": "^2.2.0-dev.20170128",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
