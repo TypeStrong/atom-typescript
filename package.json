@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "10.1.12",
+  "version": "10.1.13",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
@@ -70,7 +70,7 @@
     "resolve": "1.1.7",
     "tsconfig": "^2.2.0",
     "tslib": "1.2.0",
-    "typescript": "2.2.0-dev.20161228"
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "@types/cson": "0.0.30",
