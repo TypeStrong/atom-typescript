@@ -1,9 +1,9 @@
 "use strict";
 const tslib_1 = require("tslib");
-const child_process_1 = require("child_process");
 const events_1 = require("events");
 const stream_1 = require("stream");
 const byline = require("byline");
+const atom_1 = require("atom");
 exports.CommandWithResponse = new Set([
     "compileOnSaveAffectedFileList",
     "compileOnSaveEmitFile",
@@ -149,13 +149,16 @@ class TypescriptServiceClient {
         if (!this.serverPromise) {
             this.serverPromise = new Promise((resolve, reject) => {
                 // console.log("starting", this.tsServerPath)
-                const cp = child_process_1.spawn(this.tsServerPath, this.tsServerArgs);
+                const cp = new atom_1.BufferedNodeProcess({
+                    command: this.tsServerPath,
+                    args: this.tsServerArgs,
+                }).process;
                 cp.once("error", err => {
-                    // console.log("tsserver starting failed with", err)
+                    console.log("tsserver failed with", err);
                     reject(err);
                 });
                 cp.once("exit", code => {
-                    // console.log("tsserver failed to start with code", code)
+                    console.log("tsserver failed to start with code", code);
                     reject({ code });
                 });
                 messageStream(cp.stdout).on("data", this.onMessage);

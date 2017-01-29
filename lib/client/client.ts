@@ -1,8 +1,9 @@
-import {ChildProcess, spawn} from "child_process"
 import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
 import * as protocol from "typescript/lib/protocol"
 import byline = require("byline")
+import {BufferedNodeProcess} from "atom"
+import {ChildProcess} from "child_process"
 
 export const CommandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
@@ -193,15 +194,18 @@ export class TypescriptServiceClient {
       this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
         // console.log("starting", this.tsServerPath)
 
-        const cp = spawn(this.tsServerPath, this.tsServerArgs)
+        const cp = new BufferedNodeProcess({
+          command: this.tsServerPath,
+          args: this.tsServerArgs,
+        }).process as any as ChildProcess
 
         cp.once("error", err => {
-          // console.log("tsserver starting failed with", err)
+          console.log("tsserver failed with", err)
           reject(err)
         })
 
         cp.once("exit", code => {
-          // console.log("tsserver failed to start with code", code)
+          console.log("tsserver failed to start with code", code)
           reject({code})
         })
 
