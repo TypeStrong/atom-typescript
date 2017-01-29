@@ -5,7 +5,7 @@
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "activationHooks": [
-    "atom-typescript:grammar-used"
+    "atom-typescript-beta:grammar-used"
   ],
   "scripts": {
     "build": "tsc -p ./lib",

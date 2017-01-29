@@ -31,7 +31,7 @@ let statusBar: StatusBar
 interface PackageState {}
 
 export function activate(state: PackageState) {
-  require('atom-package-deps').install('atom-typescript').then(() => {
+  require('atom-package-deps').install('atom-typescript-beta').then(() => {
 
     let statusPriority = 100
     for (const panel of statusBar.getRightTiles()) {
