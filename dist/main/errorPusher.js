@@ -9,11 +9,12 @@ class ErrorPusher {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
                 for (const [filePath, diagnostics] of fileErrors) {
+                    const _filePath = utils_1.systemPath(filePath);
                     for (const diagnostic of diagnostics) {
                         errors.push({
                             type: "Error",
                             text: diagnostic.text,
-                            filePath: filePath,
+                            filePath: _filePath,
                             range: diagnostic.start ? utils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined
                         });
                     }

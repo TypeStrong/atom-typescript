@@ -1,7 +1,7 @@
 import {debounce} from "lodash"
 import {Diagnostic} from "typescript/lib/protocol"
 import {Linter, LinterMessage} from "../typings/linter"
-import {locationsToRange} from "./atom/utils"
+import {locationsToRange, systemPath} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
@@ -38,11 +38,12 @@ export class ErrorPusher {
 
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, diagnostics] of fileErrors) {
+        const _filePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
           errors.push({
             type: "Error",
             text: diagnostic.text,
-            filePath: filePath,
+            filePath: _filePath,
             range: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined
           })
         }
