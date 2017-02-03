@@ -1,10 +1,13 @@
-atom-text-editor::shadow {
-    .source.ts,
-    .source.tsx {
-        .require.path, .reference.path, .es6import.path, .amd.path {
+atom-text-editor {
+    .syntax--source.syntax--ts,
+    .syntax--source.syntax--tsx {
+        .syntax--require.syntax--path,
+        .syntax--reference.syntax--path,
+        .syntax--es6import.syntax--path,
+        .syntax--amd.syntax--path {
             text-decoration: underline;
         }
-        .keyword.debugger {
+        .syntax--keyword.syntax--debugger {
             background-color: lime;
         }
     }
