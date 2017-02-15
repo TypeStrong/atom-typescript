@@ -159,7 +159,7 @@ function registerCommands() {
     };
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
-    atom.commands.add('atom-text-editor', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+    atom.commands.add('atom-workspace', 'typescript:return-from-declaration', handleReturnFromDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', function (e) {
         if (!atomUtils.commandForTypeScript(e))

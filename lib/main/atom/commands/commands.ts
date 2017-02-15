@@ -191,8 +191,8 @@ export function registerCommands() {
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
-    
-    atom.commands.add('atom-text-editor', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+
+    atom.commands.add('atom-workspace', 'typescript:return-from-declaration', handleReturnFromDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
 
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
