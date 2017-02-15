@@ -146,9 +146,7 @@ function registerCommands() {
             }
         });
     };
-    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
-    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
-    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', function (e) {
+    var handleReturnFromDeclaration = function (e) {
         var position = prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo('AtomTS: Previous position not found.');
@@ -158,7 +156,11 @@ function registerCommands() {
             initialLine: position.cursor.row,
             initialColumn: position.cursor.column
         });
-    });
+    };
+    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
+    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    atom.commands.add('atom-text-editor', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;

@@ -14,7 +14,8 @@
 # Stronger bindings
 'atom-workspace':
   'f6': 'typescript:build'
-  'f12': 'typescript:go-to-declaration'
+  'f10': 'typescript:return-from-declaration',
+  'f12': 'typescript:go-to-declaration',
   'ctrl-\'': 'typescript:sync'
   'cmd-\'': 'typescript:sync'
 

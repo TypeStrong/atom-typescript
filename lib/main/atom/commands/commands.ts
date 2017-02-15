@@ -176,10 +176,7 @@ export function registerCommands() {
         });
     };
 
-    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
-    // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
-    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
-    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', (e) => {
+    var handleReturnFromDeclaration = (e) => {
         const position = prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo('AtomTS: Previous position not found.');
@@ -189,7 +186,14 @@ export function registerCommands() {
             initialLine: position.cursor.row,
             initialColumn: position.cursor.column
         });
-   });
+    }
+
+    atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
+    // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
+    atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    
+    atom.commands.add('atom-text-editor', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
 
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
