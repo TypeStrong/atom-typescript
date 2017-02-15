@@ -2,6 +2,15 @@ import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
 
+const prevCursorPositions:any[] = [];
+
+function open(item: {file: string, start: {line: number, offset: number}}) {
+   atom.workspace.open(item.file, {
+     initialLine: item.start.line - 1,
+     initialColumn: item.start.offset - 1
+   })
+}
+
 commands.set("typescript:go-to-declaration", deps => {
   return async e => {
     if (!commandForTypeScript(e)) {
@@ -11,6 +20,8 @@ commands.set("typescript:go-to-declaration", deps => {
     const location = getFilePathPosition()
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
+
+    prevCursorPositions.push(location);
 
     if (result.body!.length > 1) {
       simpleSelectionView({
@@ -27,12 +38,19 @@ commands.set("typescript:go-to-declaration", deps => {
     } else {
       open(result.body![0])
     }
-
-    function open(item: {file: string, start: {line: number, offset: number}}) {
-      atom.workspace.open(item.file, {
-        initialLine: item.start.line - 1,
-        initialColumn: item.start.offset - 1
-      })
-    }
   }
-})
+});
+
+commands.set("typescript:return-from-declaration", deps => {
+   return async e => {
+      const position = prevCursorPositions.pop();
+      if (!position) {
+         atom.notifications.addInfo('AtomTS: Previous position not found.');
+         return;
+      }
+      open({
+         file: position.file,
+         start: { line: position.line, offset: position.offset }
+      });
+   }
+});
