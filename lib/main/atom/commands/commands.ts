@@ -151,8 +151,8 @@ export function registerCommands() {
                     filterKey: 'filePath',
                     confirmed: (definition) => {
                         prevCursorPositions.push({
-                           cursor: editor.getCursorBufferPosition(),
-                           filePath: editor.buffer.file.path
+                            cursor: editor.getCursorBufferPosition(),
+                            filePath: editor.buffer.file.path
                         });
                         atom.workspace.open(definition.filePath, {
                             initialLine: definition.position.line,
@@ -165,8 +165,8 @@ export function registerCommands() {
                 var definition = definitions[0];
 
                 prevCursorPositions.push({
-                   cursor: editor.getCursorBufferPosition(),
-                   filePath: editor.buffer.file.path
+                    cursor: editor.getCursorBufferPosition(),
+                    filePath: editor.buffer.file.path
                 });
                 atom.workspace.open(definition.filePath, {
                     initialLine: definition.position.line,
