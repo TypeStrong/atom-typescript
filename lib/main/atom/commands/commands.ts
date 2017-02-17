@@ -31,6 +31,9 @@ import * as semanticView from "../views/semanticView";
 // Load all the web components
 export * from "../components/componentRegistry";
 
+// Stack of previous cursor positions
+const prevCursorPositions:{ filePath:string, cursor:TextBuffer.IPoint }[] = [];
+
 export function registerCommands() {
 
     // Stuff I've split out as we have a *lot* of commands
@@ -124,6 +127,7 @@ export function registerCommands() {
     var handleGoToDeclaration = (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;
 
+        const editor = atom.workspace.getActiveTextEditor();
         parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(res=> {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
@@ -146,6 +150,10 @@ export function registerCommands() {
                     },
                     filterKey: 'filePath',
                     confirmed: (definition) => {
+                        prevCursorPositions.push({
+                            cursor: editor.getCursorBufferPosition(),
+                            filePath: editor.buffer.file.path
+                        });
                         atom.workspace.open(definition.filePath, {
                             initialLine: definition.position.line,
                             initialColumn: definition.position.col
@@ -156,6 +164,10 @@ export function registerCommands() {
             else {
                 var definition = definitions[0];
 
+                prevCursorPositions.push({
+                    cursor: editor.getCursorBufferPosition(),
+                    filePath: editor.buffer.file.path
+                });
                 atom.workspace.open(definition.filePath, {
                     initialLine: definition.position.line,
                     initialColumn: definition.position.col
@@ -164,9 +176,24 @@ export function registerCommands() {
         });
     };
 
+    var handleReturnFromDeclaration = (e) => {
+        const position = prevCursorPositions.pop();
+        if (!position) {
+            atom.notifications.addInfo('AtomTS: Previous position not found.');
+            return;
+        }
+        atom.workspace.open(position.filePath, {
+            initialLine: position.cursor.row,
+            initialColumn: position.cursor.column
+        });
+    }
+
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     // This exists by default in the right click menu https://github.com/TypeStrong/atom-typescript/issues/96
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+
+    atom.commands.add('atom-workspace', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
 
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', (e) => {
         if (!atomUtils.commandForTypeScript(e)) return;

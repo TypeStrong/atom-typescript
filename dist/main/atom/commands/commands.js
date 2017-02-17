@@ -28,6 +28,7 @@ var fileStatusCache_1 = require("../fileStatusCache");
 var json2dtsCommands_1 = require("./json2dtsCommands");
 var semanticView = require("../views/semanticView");
 __export(require("../components/componentRegistry"));
+var prevCursorPositions = [];
 function registerCommands() {
     outputFileCommands.register();
     moveFilesHandling_1.registerRenameHandling();
@@ -106,6 +107,7 @@ function registerCommands() {
     var handleGoToDeclaration = function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
+        var editor = atom.workspace.getActiveTextEditor();
         parent.getDefinitionsAtPosition(atomUtils.getFilePathPosition()).then(function (res) {
             var definitions = res.definitions;
             if (!definitions || !definitions.length) {
@@ -120,6 +122,10 @@ function registerCommands() {
                     },
                     filterKey: 'filePath',
                     confirmed: function (definition) {
+                        prevCursorPositions.push({
+                            cursor: editor.getCursorBufferPosition(),
+                            filePath: editor.buffer.file.path
+                        });
                         atom.workspace.open(definition.filePath, {
                             initialLine: definition.position.line,
                             initialColumn: definition.position.col
@@ -129,6 +135,10 @@ function registerCommands() {
             }
             else {
                 var definition = definitions[0];
+                prevCursorPositions.push({
+                    cursor: editor.getCursorBufferPosition(),
+                    filePath: editor.buffer.file.path
+                });
                 atom.workspace.open(definition.filePath, {
                     initialLine: definition.position.line,
                     initialColumn: definition.position.col
@@ -136,8 +146,21 @@ function registerCommands() {
             }
         });
     };
+    var handleReturnFromDeclaration = function (e) {
+        var position = prevCursorPositions.pop();
+        if (!position) {
+            atom.notifications.addInfo('AtomTS: Previous position not found.');
+            return;
+        }
+        atom.workspace.open(position.filePath, {
+            initialLine: position.cursor.row,
+            initialColumn: position.cursor.column
+        });
+    };
     atom.commands.add('atom-workspace', 'typescript:go-to-declaration', handleGoToDeclaration);
     atom.commands.add('atom-text-editor', 'symbols-view:go-to-declaration', handleGoToDeclaration);
+    atom.commands.add('atom-workspace', 'typescript:return-from-declaration', handleReturnFromDeclaration);
+    atom.commands.add('atom-text-editor', 'symbols-view:return-from-declaration', handleReturnFromDeclaration);
     atom.commands.add('atom-workspace', 'typescript:create-tsconfig.json-project-file', function (e) {
         if (!atomUtils.commandForTypeScript(e))
             return;
