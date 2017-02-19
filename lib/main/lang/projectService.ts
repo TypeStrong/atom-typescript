@@ -860,7 +860,7 @@ function findClosestErrorPosition(fileErrors: ts.Diagnostic[], position: number)
   const newPos = fileErrors
     .map(i => [Math.min(Math.abs(position - i.start), Math.abs(position - i.start - i.length)), i.start])
     .reduce((acc, val) => val[0] < acc[0] || acc[0] === -1 ? val : acc, [-1, -1]);
-  return newPos[1];
+  return newPos[1] !== -1 ? newPos[1] : position;
 }
 
 export interface GetQuickFixesQuery extends FilePathPositionQuery { }
