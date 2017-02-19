@@ -815,10 +815,15 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
     if (project.includesSourceFile(query.filePath)) {
         sourceFileText = sourceFile.getFullText();
         fileErrors = getDiagnositcsByFilePath(query);
-        /** We want errors that are *touching* and thefore expand the query position by one */
-        positionErrors = fileErrors.filter(e=> ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position);
+        let position = query.position;
+        positionErrors = getPositionErrors(fileErrors, position);
+        if (positionErrors.length === 0 && fileErrors.length !== 0) {
+          /** Fall back to file errors */
+          position = findClosestErrorPosition(fileErrors, position);
+          positionErrors = getPositionErrors(fileErrors, position);
+        }
         positionErrorMessages = positionErrors.map(e=> ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
-        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+        positionNode = ts.getTokenAtPosition(sourceFile, position);
     } else {
         sourceFileText = "";
         fileErrors = [];
@@ -844,6 +849,18 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
         typeChecker,
         filePath: query.filePath
     };
+}
+
+function getPositionErrors(fileErrors: ts.Diagnostic[], position: number) {
+  /** We want errors that are *touching* and thefore expand the query position by one */
+  return fileErrors.filter(e=> ((e.start - 1) < position) && (e.start + e.length + 1) > position)
+}
+
+function findClosestErrorPosition(fileErrors: ts.Diagnostic[], position: number) {
+  const newPos = fileErrors
+    .map(i => [Math.min(Math.abs(position - i.start), Math.abs(position - i.start - i.length)), i.start])
+    .reduce((acc, val) => val[0] < acc[0] || acc[0] === -1 ? val : acc, [-1, -1]);
+  return newPos[1];
 }
 
 export interface GetQuickFixesQuery extends FilePathPositionQuery { }
