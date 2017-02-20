@@ -18,7 +18,6 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
         const location = utils_1.getFilePathPosition();
         const client = yield deps.getClient(location.file);
         const result = yield client.executeDefinition(location);
-        prevCursorPositions.push(location);
         if (result.body.length > 1) {
             simpleSelectionView_1.simpleSelectionView({
                 items: result.body,
@@ -29,10 +28,14 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
             `;
                 },
                 filterKey: 'filePath',
-                confirmed: item => open(item)
+                confirmed: item => {
+                    prevCursorPositions.push(location);
+                    open(item);
+                }
             });
         }
         else {
+            prevCursorPositions.push(location);
             open(result.body[0]);
         }
     });

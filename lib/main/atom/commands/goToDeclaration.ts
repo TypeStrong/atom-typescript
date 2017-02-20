@@ -1,8 +1,8 @@
 import {commands} from "./registry"
-import {commandForTypeScript, getFilePathPosition} from "../utils"
+import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
 
-const prevCursorPositions:any[] = [];
+const prevCursorPositions:FileLocationQuery[] = [];
 
 function open(item: {file: string, start: {line: number, offset: number}}) {
    atom.workspace.open(item.file, {
@@ -21,8 +21,6 @@ commands.set("typescript:go-to-declaration", deps => {
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
 
-    prevCursorPositions.push(location);
-
     if (result.body!.length > 1) {
       simpleSelectionView({
         items: result.body!,
@@ -33,9 +31,13 @@ commands.set("typescript:go-to-declaration", deps => {
             `
         },
         filterKey: 'filePath',
-        confirmed: item => open(item)
+        confirmed: item => {
+           prevCursorPositions.push(location);
+           open(item)
+        }
       })
     } else {
+      prevCursorPositions.push(location);
       open(result.body![0])
     }
   }
