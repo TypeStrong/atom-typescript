@@ -28,6 +28,9 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
 
     // Only on ".ts" files
     var filePath = editor.getPath();
+    if (!filePath) {
+      return;
+    }
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (!atomUtils.isAllowedExtension(ext)) return;
