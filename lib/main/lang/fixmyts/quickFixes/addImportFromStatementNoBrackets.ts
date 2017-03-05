@@ -5,8 +5,8 @@ var { displayPartsToString, typeToDisplayParts } = ts;
 import path = require('path');
 import {getIdentifierAndFileNames} from "../getIdentifierUtil";
 
-export class AddImportStatement implements QuickFix {
-    key = AddImportStatement.name;
+export class AddImportFromStatementNoBrackets implements QuickFix {
+    key = AddImportFromStatementNoBrackets.name;
 
     canProvideFix(info: QuickFixQueryInformation): CanProvideFixResponse {
         var relevantError = info.positionErrors.filter(x => x.code == 2304)[0];
@@ -15,7 +15,7 @@ export class AddImportStatement implements QuickFix {
         var matches = getIdentifierAndFileNames(relevantError, info.project);
         if (!matches) return;
         var { identifierName, file} = matches;
-        return file ? { display: `import ${identifierName} = require(\"${file}\")` } : undefined;
+        return file ? { display: `import ${identifierName} from \"${file}\"` } : undefined;
     }
 
     provideFix(info: QuickFixQueryInformation): Refactoring[] {
@@ -31,7 +31,7 @@ export class AddImportStatement implements QuickFix {
                 start: 0,
                 length: 0
             },
-            newText: `import ${identifierName} = require(\"${fileNameforFix.file}\");${EOL}`,
+            newText: `import ${identifierName} from \"${fileNameforFix.file}\";${EOL}`,
             filePath: info.sourceFile.fileName
         }];
 
