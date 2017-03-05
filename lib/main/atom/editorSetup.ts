@@ -7,6 +7,16 @@ import * as atomUtils from "./atomUtils";
 import {isTransformerFile} from "../lang/transformers/transformer";
 
 export function setupEditor(editor: AtomCore.IEditor) {
+
+    const editorView: HTMLElement = atom.views.getView(editor);
+
+    // Add and remove 'typescript-editor' class from the <atom-text-editor>
+    // where typescript is active.
+    editorView.classList.add('typescript-editor');
+    editor.onDidDestroy(() => {
+        editorView.classList.remove('typescript-editor');
+    });
+
     //
     // // Quick fix decoration stuff
     // var quickFixDecoration: AtomCore.Decoration = null;
