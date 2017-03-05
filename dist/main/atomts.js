@@ -146,7 +146,7 @@ function readyToActivate() {
     commands.registerCommands();
 }
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate);
+    require('atom-package-deps').install('atom-typescript', true).then(waitForGrammarActivation).then(readyToActivate);
 }
 exports.activate = activate;
 function deactivate() {

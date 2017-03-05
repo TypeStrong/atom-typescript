@@ -50,7 +50,7 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
-    "atom-package-deps": "^2.0.3",
+    "atom-package-deps": "^4.4.1",
     "atom-space-pen-views": "^2.0.4",
     "babel": "^5.6.23",
     "basarat-text-buffer": "6.0.0",

@@ -286,7 +286,7 @@ function readyToActivate() {
 }
 
 export function activate(state: PackageState) {
-    require('atom-package-deps').install('atom-typescript').then(waitForGrammarActivation).then(readyToActivate)
+    require('atom-package-deps').install('atom-typescript', true).then(waitForGrammarActivation).then(readyToActivate)
 }
 
 export function deactivate() {
