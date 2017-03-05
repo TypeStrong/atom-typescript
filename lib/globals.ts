@@ -190,3 +190,9 @@ interface String {
     startsWith(str: string): boolean;
     endsWith(str: string): boolean;
 }
+
+declare module AtomCore {
+    export interface IEditor {
+        element: any;
+    }
+}
