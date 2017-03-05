@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var makeTypeScriptGlobal_1 = require("../../typescript/makeTypeScriptGlobal");
 makeTypeScriptGlobal_1.makeTsGlobal();
 var tsconfig = require("../tsconfig/tsconfig");

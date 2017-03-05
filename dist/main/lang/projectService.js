@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var fsu = require("../utils/fsUtil");
 var fs = require("fs");
 var path = require("path");
@@ -521,9 +522,14 @@ function getInfoForQuickFixAnalysis(query) {
     if (project.includesSourceFile(query.filePath)) {
         sourceFileText = sourceFile.getFullText();
         fileErrors = getDiagnositcsByFilePath(query);
-        positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
+        var position = query.position;
+        positionErrors = getPositionErrors(fileErrors, position);
+        if (positionErrors.length === 0 && fileErrors.length !== 0) {
+            position = findClosestErrorPosition(fileErrors, position);
+            positionErrors = getPositionErrors(fileErrors, position);
+        }
         positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
-        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+        positionNode = ts.getTokenAtPosition(sourceFile, position);
     }
     else {
         sourceFileText = "";
@@ -548,6 +554,15 @@ function getInfoForQuickFixAnalysis(query) {
         typeChecker: typeChecker,
         filePath: query.filePath
     };
+}
+function getPositionErrors(fileErrors, position) {
+    return fileErrors.filter(function (e) { return ((e.start - 1) < position) && (e.start + e.length + 1) > position; });
+}
+function findClosestErrorPosition(fileErrors, position) {
+    var newPos = fileErrors
+        .map(function (i) { return [Math.min(Math.abs(position - i.start), Math.abs(position - i.start - i.length)), i.start]; })
+        .reduce(function (acc, val) { return val[0] < acc[0] || acc[0] === -1 ? val : acc; }, [-1, -1]);
+    return newPos[1] !== -1 ? newPos[1] : position;
 }
 function getQuickFixes(query) {
     projectCache_1.consistentPath(query);

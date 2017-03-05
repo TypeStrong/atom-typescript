@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var QuotesToQuotes = (function () {
     function QuotesToQuotes() {
         this.key = QuotesToQuotes.name;

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var utils = require("../../utils");
 var SingleLineCommentToJsdoc = (function () {
     function SingleLineCommentToJsdoc() {

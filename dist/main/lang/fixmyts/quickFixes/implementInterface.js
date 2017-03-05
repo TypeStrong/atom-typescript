@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ast = require("../astUtils");
 var os_1 = require("os");
 function getClassAndInterfaceName(error) {

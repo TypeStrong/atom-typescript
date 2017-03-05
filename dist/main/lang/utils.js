@@ -1,4 +1,5 @@
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 function mapValues(map) {
     return Object.keys(map).reduce(function (result, key) {

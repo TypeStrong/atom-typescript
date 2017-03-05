@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var os_1 = require("os");
 var ExtractVariable = (function () {
     function ExtractVariable() {

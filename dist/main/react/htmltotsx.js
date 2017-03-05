@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var HTMLtoJSX = require("htmltojsx");
 function convert(content, indentSize) {
     var indent = Array(indentSize + 1).join(' ');

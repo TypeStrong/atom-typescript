@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var parent = require("../../worker/parent");
 var fs = require("fs");
 var atomUtils = require("./atomUtils");

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var mkdirp = require("mkdirp");
 var path = require("path");
 var fs = require("fs");

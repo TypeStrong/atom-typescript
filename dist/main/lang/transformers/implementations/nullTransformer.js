@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var transformerRegistry_1 = require("../transformerRegistry");
 var NullTransformer = (function () {
     function NullTransformer() {

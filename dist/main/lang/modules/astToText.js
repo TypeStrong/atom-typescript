@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var astUtils_1 = require("../fixmyts/astUtils");
 function astToText(srcFile) {
     var nodeIndex = 0;

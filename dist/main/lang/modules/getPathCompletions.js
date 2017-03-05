@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var tsconfig = require("../../tsconfig/tsconfig");
 var utils = require("../utils");

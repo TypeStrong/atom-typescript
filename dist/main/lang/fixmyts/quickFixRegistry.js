@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var addClassMember_1 = require("./quickFixes/addClassMember");
 var addClassMethod_1 = require("./quickFixes/addClassMethod");
 var addImportDefaultStatement_1 = require("./quickFixes/addImportDefaultStatement");

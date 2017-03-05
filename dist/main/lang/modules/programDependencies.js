@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var tsconfig_1 = require("../../tsconfig/tsconfig");
 var fsUtil_1 = require("../../utils/fsUtil");
 var path = require("path");
@@ -32,5 +33,4 @@ function getDependencies(projectFile, program) {
     }
     return links;
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = getDependencies;

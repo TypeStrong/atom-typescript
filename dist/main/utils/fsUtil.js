@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function consistentPath(filePath) {
     return filePath.split('\\').join('/');
 }

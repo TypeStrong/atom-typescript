@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var typescriptServices = '';
 if (process.argv.length > 2) {
     typescriptServices = process.argv[2];

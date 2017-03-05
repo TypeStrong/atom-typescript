@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function isBinaryAddition(node) {
     return (node.kind == ts.SyntaxKind.BinaryExpression &&
         node.operatorToken.kind == ts.SyntaxKind.PlusToken);

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var atomUtils = require("./atomUtils");
 var parent = require("../../worker/parent");
 var path = require("path");
@@ -18,6 +19,9 @@ exports.getFromShadowDom = getFromShadowDom;
 function attach(editorView, editor) {
     var rawView = editorView[0];
     var filePath = editor.getPath();
+    if (!filePath) {
+        return;
+    }
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (!atomUtils.isAllowedExtension(ext))
@@ -32,7 +36,7 @@ function attach(editorView, editor) {
     var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, 'mousemove', function (e) {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-        var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+        var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
         if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
             return;
@@ -47,9 +51,9 @@ function attach(editorView, editor) {
         if (exprTypeTooltip)
             return;
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-        pixelPt.top += editor.getScrollTop();
-        pixelPt.left += editor.getScrollLeft();
-        var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+        pixelPt.top += editor.element.getScrollTop();
+        pixelPt.left += editor.element.getScrollLeft();
+        var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
         var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
         var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);

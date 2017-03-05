@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var parent = require("./worker/parent");
 var atomUtils = require("./main/atom/atomUtils");
 var immutable_1 = require("immutable");

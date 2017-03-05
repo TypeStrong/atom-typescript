@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var mainPanelView = require("./views/mainPanelView");
 var lineMessageView = require("./views/lineMessageView");
 var gotoHistory = require("./gotoHistory");

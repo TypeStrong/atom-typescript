@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var QuoteToTemplate = (function () {
     function QuoteToTemplate() {
         this.key = QuoteToTemplate.name;

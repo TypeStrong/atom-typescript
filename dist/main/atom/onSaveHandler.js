@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var atomUtils = require("./atomUtils");
 var parent = require("../../worker/parent");
 var mainPanelView_1 = require("./views/mainPanelView");

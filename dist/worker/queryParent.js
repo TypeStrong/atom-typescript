@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var resolve = Promise.resolve.bind(Promise);
 var tsconfig = require("../main/tsconfig/tsconfig");
 var atomUtils;

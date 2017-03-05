@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var allTransformers = [];
 function add(transformer) {
     transformer.regex = (new RegExp("transform:" + transformer.name + "{[.\\s]*}transform:" + transformer.name, 'g'));

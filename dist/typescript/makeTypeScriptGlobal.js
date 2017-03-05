@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 global.stack = function () {
     console.error(new Error().stack);

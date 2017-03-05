@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var fsu = require("../utils/fsUtil");
 var simpleValidator = require("./simpleValidator");
 var types = simpleValidator.types;

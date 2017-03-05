@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.forEachChild = ts.forEachChild;
 function forEachChildRecursive(node, cbNode, depth) {
     if (depth === void 0) { depth = 0; }

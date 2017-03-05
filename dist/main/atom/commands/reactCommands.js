@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var atomUtils = require("../atomUtils");
 var htmltotsx_1 = require("../../react/htmltotsx");
 function registerReactCommands() {
