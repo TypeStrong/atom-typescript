@@ -563,6 +563,8 @@ declare module AtomCore {
 		subscriptionsByObject: any; /* WeakMap */
 		subscriptions: Emissary.ISubscription[];
 
+                editor: any;
+
 		serializeParams():{id:number; softTabs:boolean; scrollTop:number; scrollLeft:number; displayBuffer:any;};
 		deserializeParams(params:any):any;
 		subscribeToBuffer():void;
