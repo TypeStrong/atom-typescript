@@ -17,29 +17,12 @@ declare module 'escape-html' {
     export = escape;
 }
 
-declare module 'detect-indent' {
-    function detectIndent (string: string): { amount: number; type?: string; indent: string };
-    export = detectIndent;
-}
-
-declare module 'detect-newline' {
-    function detectNewline (string: string): string;
-    export = detectNewline;
-}
-
 declare module 'atom-space-pen-views' {
     import atom = require('atom');
     export class SelectListView extends atom.SelectListView { }
     export class ScrollView extends atom.ScrollView { }
     export class View extends atom.View { }
     export var $: JQueryStatic;
-}
-
-declare module 'basarat-text-buffer' {
-    var ctor: {
-        new (content: string): TextBuffer.ITextBuffer;
-    };
-    export = ctor;
 }
 
 interface EmitOutput {
@@ -128,4 +111,10 @@ interface ReferenceDetails {
     filePath: string;
     position: EditorPosition
     preview: string;
+}
+
+declare module AtomCore {
+    export interface IEditor {
+        element: any;
+    }
 }

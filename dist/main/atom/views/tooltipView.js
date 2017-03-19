@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
 var $ = view.$;
 class TooltipView extends view.View {

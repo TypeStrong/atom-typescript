@@ -1,5 +1,5 @@
 "use strict";
-const tslib_1 = require("tslib");
+Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
@@ -66,7 +66,7 @@ class RenameView extends view.View {
     // Show the dialog and resolve the promise with the entered string
     showRenameDialog(options) {
         return new Promise((resolve, reject) => {
-            this.renameThis(tslib_1.__assign({}, options, { onCancel: reject, onCommit: resolve }));
+            this.renameThis(Object.assign({}, options, { onCancel: reject, onCommit: resolve }));
         });
     }
 }

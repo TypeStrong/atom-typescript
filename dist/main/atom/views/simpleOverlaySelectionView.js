@@ -3,6 +3,7 @@
  * Only one of these bad boys is allowed on the screen at one time
  */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var singleton;
 function default_1(options, editor) {
     if (!singleton)
@@ -15,7 +16,6 @@ function default_1(options, editor) {
     singleton.show();
     return singleton;
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 /**
  * Various Utility section

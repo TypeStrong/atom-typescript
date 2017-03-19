@@ -1,5 +1,5 @@
 "use strict";
-const tslib_1 = require("tslib");
+Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const fs = require("fs");
 const path = require("path");
@@ -68,7 +68,7 @@ function onDiskAndTsRelated(editor) {
 exports.onDiskAndTsRelated = onDiskAndTsRelated;
 function getFilePathPosition() {
     const editor = atom.workspace.getActiveTextEditor();
-    return tslib_1.__assign({ file: editor.getPath() }, getEditorPosition(editor));
+    return Object.assign({ file: editor.getPath() }, getEditorPosition(editor));
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getFilePath() {

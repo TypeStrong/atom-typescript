@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
@@ -34,7 +35,7 @@ registry_1.commands.set("typescript:format-code", deps => {
         };
         // Collect all edits together so we can update everything in a single transaction
         for (const range of ranges) {
-            const result = yield client.executeFormat(tslib_1.__assign({}, range, { options, file: filePath }));
+            const result = yield client.executeFormat(Object.assign({}, range, { options, file: filePath }));
             if (result.body) {
                 edits.push(...result.body);
             }

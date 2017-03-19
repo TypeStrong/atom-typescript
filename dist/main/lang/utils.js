@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
 function mapValues(map) {
     return Object.keys(map).reduce((result, key) => {

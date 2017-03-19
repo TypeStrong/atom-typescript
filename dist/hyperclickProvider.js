@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const TS_GRAMMARS = new Set(["source.ts", "source.tsx"]);
 exports.providerName = "typescript-hyperclick-provider";
 exports.wordRegExp = /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g;

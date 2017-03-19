@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
 class PlainMessageView extends view.View {
     static content() {

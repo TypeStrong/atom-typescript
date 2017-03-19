@@ -46,6 +46,11 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
     this.isTypescript = isTypescriptGrammar(editor.getGrammar())
 
+    // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
+    if (this.isTypescript) {
+      this.editor.element.classList.add('typescript-editor')
+    }
+
     this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
       this.isTypescript = isTypescriptGrammar(grammar)
     }))
@@ -54,6 +59,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   dispose() {
+    this.editor.element.classList.remove('typescript-editor')
     this.subscriptions.dispose()
     this.opts.onDispose(this)
   }

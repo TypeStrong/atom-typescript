@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const atom_space_pen_views_1 = require("atom-space-pen-views");
 const atom_1 = require("atom");
@@ -112,12 +113,17 @@ class TypescriptEditorPane {
             .on("opened", this.onOpened)
             .on("saved", this.onSaved);
         this.isTypescript = isTypescriptGrammar(editor.getGrammar());
+        // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
+        if (this.isTypescript) {
+            this.editor.element.classList.add('typescript-editor');
+        }
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
             this.isTypescript = isTypescriptGrammar(grammar);
         }));
         this.setupTooltipView();
     }
     dispose() {
+        this.editor.element.classList.remove('typescript-editor');
         this.subscriptions.dispose();
         this.opts.onDispose(this);
     }

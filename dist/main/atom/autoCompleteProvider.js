@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const utils_1 = require("./utils");
 const Atom = require("atom");
@@ -28,7 +29,7 @@ class AutocompleteProvider {
                 }
             }
             const client = yield this.clientResolver.get(location.file);
-            const completions = yield client.executeCompletions(tslib_1.__assign({ prefix }, location));
+            const completions = yield client.executeCompletions(Object.assign({ prefix }, location));
             const suggestions = completions.body.map(entry => ({
                 text: entry.name,
                 leftLabel: entry.kind,
@@ -84,13 +85,13 @@ class AutocompleteProvider {
             // Get additional details for the first few suggestions
             yield this.getAdditionalDetails(suggestions.slice(0, 10), location);
             const trimmed = prefix.trim();
-            return suggestions.map(suggestion => (tslib_1.__assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
+            return suggestions.map(suggestion => (Object.assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
         });
     }
     getAdditionalDetails(suggestions, location) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (suggestions.some(s => !s.details)) {
-                const details = yield this.lastSuggestions.client.executeCompletionDetails(tslib_1.__assign({ entryNames: suggestions.map(s => s.text) }, location));
+                const details = yield this.lastSuggestions.client.executeCompletionDetails(Object.assign({ entryNames: suggestions.map(s => s.text) }, location));
                 details.body.forEach((detail, i) => {
                     const suggestion = suggestions[i];
                     suggestion.details = detail;

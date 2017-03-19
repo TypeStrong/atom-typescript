@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 function locationToPoint(loc) {
     return new atom_1.Point(loc.line - 1, loc.offset - 1);

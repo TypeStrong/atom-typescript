@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const escapeHtml = require("escape-html");
 function create(type, comment) {
     let overlayHTML = `

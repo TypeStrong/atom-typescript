@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const Atom = require("atom");
 const atomConfig = require("./atom/atomConfig");
@@ -25,7 +26,7 @@ const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript-beta').then(() => {
+    require('atom-package-deps').install('atom-typescript-beta', true).then(() => {
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
             if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {

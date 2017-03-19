@@ -9,6 +9,7 @@
 // import {simpleSelectionView} from "../views/simpleSelectionView";
 // import escapeHtml = require('escape-html');
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // Load all the web components
 // export * from "../components/componentRegistry";
 const registry_1 = require("./registry");

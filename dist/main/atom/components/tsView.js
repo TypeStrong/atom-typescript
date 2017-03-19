@@ -1,6 +1,7 @@
 // Some docs
 // http://www.html5rocks.com/en/tutorials/webcomponents/customelements/ (look at lifecycle callback methods)
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class TsView extends HTMLElement {
     createdCallback() {
         var preview = this.innerText;

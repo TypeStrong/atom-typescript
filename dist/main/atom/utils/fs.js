@@ -2,6 +2,7 @@
  * Wraps fs and path into a nice "consistentPath" API
  */
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function consistentPath(filePath) {
     return filePath.split('\\').join('/');
 }

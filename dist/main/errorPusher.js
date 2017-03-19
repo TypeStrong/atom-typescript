@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */

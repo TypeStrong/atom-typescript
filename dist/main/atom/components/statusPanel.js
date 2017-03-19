@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const dom = require("jsx-render-dom");
 const path_1 = require("path");
 const utils_1 = require("../utils");

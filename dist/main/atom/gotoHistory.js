@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorsInOpenFiles = { members: [] };
 exports.buildOutput = { members: [] };
 exports.referencesOutput = { members: [] };

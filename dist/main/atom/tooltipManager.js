@@ -1,6 +1,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const atomUtils = require("./utils"); ///ts:import:generated
 const atomts_1 = require("../atomts");
@@ -22,6 +23,9 @@ function attach(editorView, editor) {
     var rawView = editorView[0];
     // Only on ".ts" files
     var filePath = editor.getPath();
+    if (!filePath) {
+        return;
+    }
     var filename = path.basename(filePath);
     var ext = path.extname(filename);
     if (!atomUtils.isAllowedExtension(ext))
@@ -39,7 +43,7 @@ function attach(editorView, editor) {
     var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, 'mousemove', (e) => {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-        var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+        var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
         if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
             return;
@@ -57,9 +61,9 @@ function attach(editorView, editor) {
             if (exprTypeTooltip)
                 return;
             var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-            pixelPt.top += editor.getScrollTop();
-            pixelPt.left += editor.getScrollLeft();
-            var screenPt = editor.screenPositionForPixelPosition(pixelPt);
+            pixelPt.top += editor.element.getScrollTop();
+            pixelPt.left += editor.element.getScrollLeft();
+            var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
             var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
             var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
             var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);

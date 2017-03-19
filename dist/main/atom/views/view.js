@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const sp = require("atom-space-pen-views");
 class View extends sp.View {
     constructor(options) {

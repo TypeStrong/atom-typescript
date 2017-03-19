@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
@@ -45,7 +46,7 @@ class TypescriptBuffer {
                     endLine: start.row + oldExtent.row + 1,
                     endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1
                 };
-                yield client.executeChange(tslib_1.__assign({}, end, { file: filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
+                yield client.executeChange(Object.assign({}, end, { file: filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
             }
             this.events.emit("changed");
         });
