@@ -33,6 +33,8 @@ class TypescriptEditorPane {
             this.opts.statusPanel.setTsConfigPath(this.configFile);
         };
         this.onChanged = () => {
+            if (!this.client)
+                return;
             this.opts.statusPanel.setBuildStatus(undefined);
             this.client.executeGetErr({
                 files: [this.filePath],
@@ -44,6 +46,8 @@ class TypescriptEditorPane {
             this.opts.statusPanel.hide();
         };
         this.updateMarkers = lodash_1.debounce(() => {
+            if (!this.client)
+                return;
             const pos = this.editor.getLastCursor().getBufferPosition();
             this.client.executeOccurances({
                 file: this.filePath,
@@ -134,7 +138,10 @@ class TypescriptEditorPane {
     }
     compileOnSave() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const result = yield this.client.executeCompileOnSaveAffectedFileList({
+            const { client } = this;
+            if (!client)
+                return;
+            const result = yield client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath
             });
             this.opts.statusPanel.setBuildStatus(undefined);
@@ -143,7 +150,7 @@ class TypescriptEditorPane {
                 return;
             }
             try {
-                const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({ file }));
+                const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
                 const saved = yield Promise.all(promises);
                 if (!saved.every(res => res.body)) {
                     throw new Error("Some files failed to emit");

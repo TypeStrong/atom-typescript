@@ -72,7 +72,8 @@ function activate(state) {
         });
         let activePane;
         const onSave = lodash_1.debounce((pane) => {
-            console.log("checking errors for all panes for", pane.filePath);
+            if (!pane.client)
+                return;
             const files = panes
                 .sort((a, b) => a.activeAt - b.activeAt)
                 .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)

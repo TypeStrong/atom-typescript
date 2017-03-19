@@ -87,7 +87,8 @@ export function activate(state: PackageState) {
     let activePane: TypescriptEditorPane | undefined
 
     const onSave = debounce((pane: TypescriptEditorPane) => {
-      console.log("checking errors for all panes for", pane.filePath)
+      if (!pane.client)
+        return
 
       const files = panes
         .sort((a, b) => a.activeAt - b.activeAt)

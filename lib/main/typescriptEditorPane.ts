@@ -19,7 +19,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   activeAt: number
 
   buffer: TypescriptBuffer
-  client: TypescriptServiceClient
+  client?: TypescriptServiceClient
 
   // Path to the project's tsconfig.json
   configFile: string = ""
@@ -86,6 +86,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onChanged = () => {
+    if (!this.client)
+      return
+
     this.opts.statusPanel.setBuildStatus(undefined)
 
     this.client.executeGetErr({
@@ -106,6 +109,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   updateMarkers = debounce(() => {
+    if (!this.client)
+      return
+
     const pos = this.editor.getLastCursor().getBufferPosition()
 
     this.client.executeOccurances({
@@ -185,7 +191,11 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   async compileOnSave() {
-    const result = await this.client.executeCompileOnSaveAffectedFileList({
+    const {client} = this
+    if (!client)
+      return
+
+    const result = await client.executeCompileOnSaveAffectedFileList({
       file: this.filePath
     })
 
@@ -198,7 +208,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }
 
     try {
-      const promises = fileNames.map(file => this.client.executeCompileOnSaveEmitFile({file}))
+      const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({file}))
       const saved = await Promise.all(promises)
 
       if (!saved.every(res => res.body)) {
