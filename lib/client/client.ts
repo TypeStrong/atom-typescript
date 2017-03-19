@@ -27,8 +27,8 @@ export class TypescriptServiceClient {
   callbacks: {
     [seq: number]: {
       name: string
-      reject(res)
-      resolve(res)
+      reject(err: Error): void
+      resolve(res: protocol.Response): void
       started: number
     }
   } = {}
@@ -47,7 +47,7 @@ export class TypescriptServiceClient {
   readonly tsServerArgs = []
   readonly version: string
 
-  constructor(tsServerPath: string, version) {
+  constructor(tsServerPath: string, version: string) {
     this.tsServerPath = tsServerPath
     this.version = version
   }
@@ -110,7 +110,7 @@ export class TypescriptServiceClient {
     return this.execute("saveto", args)
   }
 
-  private async execute(command: string, args) {
+  private async execute(command: string, args: any) {
     if (!this.serverPromise) {
       throw new Error("Server is not running")
     }
@@ -161,10 +161,10 @@ export class TypescriptServiceClient {
     }
   }
 
-  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: true): Promise<protocol.Response>
-  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: false): undefined
-  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: boolean): Promise<protocol.Response> | undefined
-  private sendRequest(cp: ChildProcess, command: string, args, expectResponse: boolean): Promise<protocol.Response> | undefined {
+  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: true): Promise<protocol.Response>
+  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: false): undefined
+  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: boolean): Promise<protocol.Response> | undefined
+  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: boolean): Promise<protocol.Response> | undefined {
 
     const req = {
       seq: this.seq++,
@@ -248,7 +248,7 @@ class MessageStream extends Transform {
     super({objectMode: true})
   }
 
-  _transform(line, encoding, callback) {
+  _transform(line: string, encoding: string, callback: Function) {
     if (this.lineCount % 2 === 0) {
       this.push(JSON.parse(line))
     }

@@ -51,8 +51,8 @@ function attach(editorView, editor) {
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', (e) => clearExprTypeTimeout());
-    subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'mouseout', () => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'keydown', () => clearExprTypeTimeout());
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
     function showExpressionType(e) {

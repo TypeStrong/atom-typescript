@@ -47,7 +47,7 @@ commands.set("typescript:build", deps => {
   }
 })
 
-function _finally<T>(promise: Promise<T>, callback: (result) => any): Promise<T> {
+function _finally<T>(promise: Promise<T>, callback: (result: T) => any): Promise<T> {
   promise.then(callback, callback)
   return promise
 }

@@ -6,17 +6,13 @@
     "lib": ["es6", "dom"],
     "module": "commonjs",
     "noLib": false,
-    "noUnusedLocals": true,
     "outDir": "../dist",
     "preserveConstEnums": true,
     "reactNamespace": "dom",
     "skipLibCheck": true,
     "sourceMap": false,
-    "strictNullChecks": true,
+    "strict": true,
     "target": "es6"
-  },
-  "atom": {
-    "formatOnSave": false
   },
   "compileOnSave": true
 }

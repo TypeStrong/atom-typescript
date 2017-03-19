@@ -132,7 +132,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }).catch(() => this.clearOccurrenceMarkers())
   }, 100)
 
-  onDidChangeCursorPosition = ({textChanged}) => {
+  onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
     if (!this.isTypescript) {
       return
     }

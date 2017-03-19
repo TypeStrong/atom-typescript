@@ -1,6 +1,6 @@
 import escapeHtml = require('escape-html');
 
-export function create(type, comment) {
+export function create(type: string, comment: string) {
   let overlayHTML = `
     <strong>${escapeHtml(type)}</strong>
   `;

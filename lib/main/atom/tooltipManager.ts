@@ -45,7 +45,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt: any;
 
-    subscriber.subscribe(scroll, 'mousemove', (e) => {
+    subscriber.subscribe(scroll, 'mousemove', (e: MouseEvent) => {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e)
         var screenPt = editor.element.screenPositionForPixelPosition(pixelPt)
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt)
@@ -57,8 +57,8 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', (e) => clearExprTypeTimeout());
-    subscriber.subscribe(scroll, 'keydown', (e) => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'mouseout', () => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, 'keydown', () => clearExprTypeTimeout());
 
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
@@ -130,7 +130,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
 }
 
 
-function pixelPositionFromMouseEvent(editorView, event: MouseEvent) {
+function pixelPositionFromMouseEvent(editorView: JQuery, event: MouseEvent) {
     var clientX = event.clientX, clientY = event.clientY;
     var linesClientRect = getFromShadowDom(editorView, '.lines')[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;

@@ -8,7 +8,10 @@ import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
-type SuggestionWithDetails = Suggestion & {details?}
+
+type SuggestionWithDetails = Suggestion & {
+  details?: protocol.CompletionEntryDetails
+}
 
 type Options = {
   getTypescriptBuffer: (filePath: string) => Promise<{
@@ -190,7 +193,7 @@ function getLocationQuery(opts: RequestOptions): FileLocationQuery {
 function getLastNonWhitespaceChar(buffer: TextBuffer.ITextBuffer, pos: TextBuffer.IPoint): string | undefined {
   let lastChar: string | undefined = undefined
   const range = new Atom.Range([0,0], pos)
-  buffer.backwardsScanInRange(/\S/, range, ({matchText, stop}) => {
+  buffer.backwardsScanInRange(/\S/, range, ({matchText, stop}: {matchText: string, stop: () => void}) => {
       lastChar = matchText
       stop()
     })

@@ -22,7 +22,7 @@ commands.set("typescript:check-all-files", deps => {
     // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
     // that, we cancel the listener and close the progress bar after no diagnostics have been received
     // for some amount of time.
-    let cancelTimeout
+    let cancelTimeout: any
 
     const unregister = client.on("syntaxDiag", evt => {
       clearTimeout(cancelTimeout)

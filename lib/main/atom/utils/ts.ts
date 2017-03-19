@@ -25,7 +25,7 @@ export function spanToRange(span: TextSpan): TextBuffer.IRange {
   return locationsToRange(span.start, span.end)
 }
 
-export function locationsToRange(start, end): TextBuffer.IRange {
+export function locationsToRange(start: LocationQuery, end: LocationQuery): TextBuffer.IRange {
   return new Range(locationToPoint(start), locationToPoint(end))
 }
 

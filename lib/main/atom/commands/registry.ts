@@ -4,7 +4,7 @@ import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
 
 export interface Dependencies {
-  clearErrors()
+  clearErrors(): void
   getTypescriptBuffer(filePath: string): Promise<{buffer: TypescriptBuffer, isOpen: boolean}>
   getClient(filePath: string): Promise<TypescriptServiceClient>
   renameView: RenameView

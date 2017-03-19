@@ -105,7 +105,7 @@ export class RenameView
     }
 }
 
-export function attach(): {dispose(), renameView: RenameView} {
+export function attach(): {dispose(): void, renameView: RenameView} {
     const renameView = new RenameView(<any>{});
     const panel = atom.workspace.addModalPanel({
       item: renameView,

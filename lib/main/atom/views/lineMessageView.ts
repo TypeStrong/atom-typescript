@@ -64,11 +64,11 @@ export class LineMessageView extends view.View<ViewOptions> {
         }
     }
 
-    goToLine() {
+    goToLine = () => {
         this.options.goToLine(this.options.file, this.options.line, this.options.col);
     }
 
-    getSummary() {
+    getSummary = () => {
         var pos = this.options.line.toString();
         if (this.options.file !== undefined) {
             pos += ', ' + this.options.file;
@@ -76,11 +76,11 @@ export class LineMessageView extends view.View<ViewOptions> {
         return {
             summary: pos + ' ' + this.options.message,
             rawSummary: true,
-            handler: function(element) {
+            handler: (element: HTMLElement) => {
                 $(element)
                     .css('cursor', 'pointer')
-                    .click(this.goToLine.bind(this));
-            }.bind(this)
+                    .click(this.goToLine);
+            }
         };
     }
 

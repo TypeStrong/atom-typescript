@@ -61,15 +61,16 @@
     "resolve": "1.1.7",
     "tsconfig": "^2.2.0",
     "tslib": "1.2.0",
-    "typescript": "^2.2.0-dev.20170128",
+    "typescript": "2.3.0-dev.20170319",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
     "@types/atom": "0.0.35",
     "@types/byline": "^4.2.31",
+    "@types/cson": "0.0.30",
+    "@types/fuzzaldrin": "^2.1.0",
     "@types/lodash": "^4.14.51",
     "@types/resolve": "0.0.4",
-    "@types/cson": "0.0.30",
     "cson": "^3.0.2",
     "mz": "^2.1.0",
     "plist": "2.0.1",

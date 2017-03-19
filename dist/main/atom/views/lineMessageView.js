@@ -3,6 +3,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
 var $ = view.$;
 class LineMessageView extends view.View {
+    constructor() {
+        super(...arguments);
+        this.goToLine = () => {
+            this.options.goToLine(this.options.file, this.options.line, this.options.col);
+        };
+        this.getSummary = () => {
+            var pos = this.options.line.toString();
+            if (this.options.file !== undefined) {
+                pos += ', ' + this.options.file;
+            }
+            return {
+                summary: pos + ' ' + this.options.message,
+                rawSummary: true,
+                handler: (element) => {
+                    $(element)
+                        .css('cursor', 'pointer')
+                        .click(this.goToLine);
+                }
+            };
+        };
+    }
     static content() {
         return this.div({
             class: 'line-message'
@@ -38,24 +59,6 @@ class LineMessageView extends view.View {
         else {
             this.code.remove();
         }
-    }
-    goToLine() {
-        this.options.goToLine(this.options.file, this.options.line, this.options.col);
-    }
-    getSummary() {
-        var pos = this.options.line.toString();
-        if (this.options.file !== undefined) {
-            pos += ', ' + this.options.file;
-        }
-        return {
-            summary: pos + ' ' + this.options.message,
-            rawSummary: true,
-            handler: function (element) {
-                $(element)
-                    .css('cursor', 'pointer')
-                    .click(this.goToLine.bind(this));
-            }.bind(this)
-        };
     }
 }
 exports.LineMessageView = LineMessageView;

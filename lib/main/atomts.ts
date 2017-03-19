@@ -155,7 +155,7 @@ export function consumeLinter(registry: LinterRegistry) {
   })
 }
 
-export function consumeStatusBar(_statusBar) {
+export function consumeStatusBar(_statusBar: StatusBar) {
   statusBar = _statusBar
 }
 

@@ -2,8 +2,8 @@
 // http://www.html5rocks.com/en/tutorials/webcomponents/customelements/ (look at lifecycle callback methods)
 
 export class TsView extends HTMLElement {
-    editorElement;
-    editor;
+    editorElement: HTMLElement
+    editor: AtomCore.IEditor
     createdCallback() {
         var preview = this.innerText;
         this.innerText = "";
