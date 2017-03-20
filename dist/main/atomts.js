@@ -1,204 +1,174 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var atomConfig = require("./atom/atomConfig");
-var makeTypeScriptGlobal_1 = require("../typescript/makeTypeScriptGlobal");
-makeTypeScriptGlobal_1.makeTsGlobal(atomConfig.typescriptServices);
-var path = require("path");
-var fs = require("fs");
-var mainPanelView_1 = require("./atom/views/mainPanelView");
-var autoCompleteProvider = require("./atom/autoCompleteProvider");
-var tooltipManager = require("./atom/tooltipManager");
-var atomUtils = require("./atom/atomUtils");
-var commands = require("./atom/commands/commands");
-var onSaveHandler = require("./atom/onSaveHandler");
-var debugAtomTs = require("./atom/debugAtomTs");
-var atom_space_pen_views_1 = require("atom-space-pen-views");
-var documentationView = require("./atom/views/documentationView");
-var renameView = require("./atom/views/renameView");
-var mainPanelView = require("./atom/views/mainPanelView");
-var semanticView = require("./atom/views/semanticView");
-var fileStatusCache_1 = require("./atom/fileStatusCache");
-var editorSetup = require("./atom/editorSetup");
-var statusBar;
-var statusBarMessage;
-var editorWatch;
-var autoCompleteWatch;
-var parent = require("../worker/parent");
-exports.config = atomConfig.schema;
-var utils_1 = require("./lang/utils");
-var hideIfNotActiveOnStart = utils_1.debounce(function () {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!atomUtils.onDiskAndTsRelated(editor)) {
-        mainPanelView.hide();
-    }
-}, 100);
-var __onlyOnce = false;
-function onlyOnceStuff() {
-    if (__onlyOnce)
-        return;
-    else
-        __onlyOnce = true;
-    mainPanelView.attach();
-    documentationView.attach();
-    renameView.attach();
-    semanticView.attach();
-}
-function readyToActivate() {
-    parent.startWorker();
-    atom.workspace.onDidChangeActivePaneItem(function (editor) {
-        if (atomUtils.onDiskAndTs(editor)) {
-            var filePath = editor.getPath();
-            onlyOnceStuff();
-            parent.getProjectFileDetails({ filePath: filePath }).then(function (res) {
-                mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
-            }).catch(function (err) {
-                mainPanelView.panelView.setTsconfigInUse('');
-            });
-            parent.errorsForFile({ filePath: filePath })
-                .then(function (resp) {
-                mainPanelView_1.errorView.setErrors(filePath, resp.errors);
-                atomUtils.triggerLinter();
-            });
-            mainPanelView.panelView.updateFileStatus(filePath);
-            mainPanelView.show();
-        }
-        else if (atomUtils.onDiskAndTsRelated(editor)) {
-            mainPanelView.show();
-        }
-        else {
-            mainPanelView.hide();
-        }
-    });
-    editorWatch = atom.workspace.observeTextEditors(function (editor) {
-        var editorView = atom_space_pen_views_1.$(atom.views.getView(editor));
-        tooltipManager.attach(editorView, editor);
-        var filePath = editor.getPath();
-        var ext = path.extname(filePath);
-        if (atomUtils.isAllowedExtension(ext)) {
-            var isTst = ext === '.tst';
-            try {
-                onlyOnceStuff();
-                parent.getProjectFileDetails({ filePath: filePath }).then(function (res) {
-                    mainPanelView.panelView.setTsconfigInUse(res.projectFilePath);
-                }).catch(function (err) {
-                    mainPanelView.panelView.setTsconfigInUse('');
-                });
-                var onDisk = false;
-                if (fs.existsSync(filePath)) {
-                    onDisk = true;
-                }
-                hideIfNotActiveOnStart();
-                debugAtomTs.runDebugCode({ filePath: filePath, editor: editor });
-                if (onDisk) {
-                    parent.updateText({ filePath: filePath, text: editor.getText() })
-                        .then(function () { return parent.errorsForFile({ filePath: filePath }); })
-                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
-                    parent.getOutputJsStatus({ filePath: filePath }).then(function (res) {
-                        var status = fileStatusCache_1.getFileStatus(filePath);
-                        status.emitDiffers = res.emitDiffers;
-                        var ed = atom.workspace.getActiveTextEditor();
-                        if (ed && ed.getPath() === filePath) {
-                            mainPanelView.panelView.updateFileStatus(filePath);
-                        }
-                    });
-                }
-                editorSetup.setupEditor(editor);
-                var changeObserver = editor.onDidStopChanging(function () {
-                    if (editor === atom.workspace.getActiveTextEditor()) {
-                        var status_1 = fileStatusCache_1.getFileStatus(filePath);
-                        status_1.modified = editor.isModified();
-                        mainPanelView.panelView.updateFileStatus(filePath);
-                    }
-                    if (!onDisk) {
-                        var root = { line: 0, col: 0 };
-                        mainPanelView_1.errorView.setErrors(filePath, [{ startPos: root, endPos: root, filePath: filePath, message: "Please save file for it be processed by TypeScript", preview: "" }]);
-                        return;
-                    }
-                    parent.errorsForFile({ filePath: filePath })
-                        .then(function (resp) { return mainPanelView_1.errorView.setErrors(filePath, resp.errors); });
-                });
-                var buffer = editor.buffer;
-                var fasterChangeObserver = editor.buffer.onDidChange(function (diff) {
-                    var newText = diff.newText;
-                    var oldText = diff.oldText;
-                    var start = { line: diff.oldRange.start.row, col: diff.oldRange.start.column };
-                    var end = { line: diff.oldRange.end.row, col: diff.oldRange.end.column };
-                    var promise = parent.editText({ filePath: filePath, start: start, end: end, newText: newText });
-                });
-                var saveObserver = editor.onDidSave(function (event) {
-                    onDisk = true;
-                    filePath = event.path;
-                    onSaveHandler.handle({ filePath: filePath, editor: editor });
-                });
-                var destroyObserver = editor.onDidDestroy(function () {
-                    mainPanelView_1.errorView.setErrors(filePath, []);
-                    changeObserver.dispose();
-                    fasterChangeObserver.dispose();
-                    saveObserver.dispose();
-                    destroyObserver.dispose();
-                });
-            }
-            catch (ex) {
-                console.error('Solve this in atom-typescript', ex);
-                throw ex;
-            }
-        }
-    });
-    commands.registerCommands();
-}
+const tslib_1 = require("tslib");
+const Atom = require("atom");
+const tsconfig = require("tsconfig/dist/tsconfig");
+const renameView_1 = require("./atom/views/renameView");
+const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
+const clientResolver_1 = require("../client/clientResolver");
+const atom_1 = require("atom");
+const lodash_1 = require("lodash");
+const errorPusher_1 = require("./errorPusher");
+const lodash_2 = require("lodash");
+const statusPanel_1 = require("./atom/components/statusPanel");
+const typescriptEditorPane_1 = require("./typescriptEditorPane");
+const typescriptBuffer_1 = require("./typescriptBuffer");
+// globals
+const subscriptions = new atom_1.CompositeDisposable();
+exports.clientResolver = new clientResolver_1.ClientResolver();
+const panes = [];
+// Register all custom components
+require("./atom/components");
+const commands_1 = require("./atom/commands");
+let linter;
+let statusBar;
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript', true).then(waitForGrammarActivation).then(readyToActivate);
+    require('atom-package-deps').install('atom-typescript', true).then(() => {
+        let statusPriority = 100;
+        for (const panel of statusBar.getRightTiles()) {
+            if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+                statusPriority = panel.getPriority() - 1;
+            }
+        }
+        // Add the rename view
+        const { renameView } = renameView_1.attach();
+        const statusPanel = statusPanel_1.StatusPanel.create();
+        statusBar.addRightTile({
+            item: statusPanel,
+            priority: statusPriority
+        });
+        subscriptions.add(statusPanel);
+        const errorPusher = new errorPusher_1.ErrorPusher();
+        exports.clientResolver.on("pendingRequestsChange", () => {
+            const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
+            statusPanel.setPending(pending);
+        });
+        if (linter) {
+            errorPusher.setLinter(linter);
+            exports.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+                errorPusher.setErrors(type, filePath, diagnostics);
+            });
+        }
+        // Register the commands
+        commands_1.registerCommands({
+            clearErrors() {
+                errorPusher.clear();
+            },
+            getTypescriptBuffer,
+            getClient(filePath) {
+                return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                    const pane = panes.find(pane => pane.filePath === filePath);
+                    if (pane) {
+                        return pane.client;
+                    }
+                    return exports.clientResolver.get(filePath);
+                });
+            },
+            renameView,
+            statusPanel,
+        });
+        let activePane;
+        const onSave = lodash_1.debounce((pane) => {
+            if (!pane.client)
+                return;
+            const files = panes
+                .sort((a, b) => a.activeAt - b.activeAt)
+                .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
+                .map(pane => pane.filePath);
+            pane.client.executeGetErr({ files, delay: 100 });
+        }, 50);
+        subscriptions.add(atom.workspace.observeTextEditors((editor) => {
+            panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
+                getClient: (filePath) => exports.clientResolver.get(filePath),
+                onDispose(pane) {
+                    if (activePane === pane) {
+                        activePane = undefined;
+                    }
+                    panes.splice(panes.indexOf(pane), 1);
+                    // Clear errors if any from this pane
+                    errorPusher.setErrors("syntaxDiag", pane.filePath, []);
+                    errorPusher.setErrors("semanticDiag", pane.filePath, []);
+                },
+                onSave,
+                statusPanel,
+            }));
+        }));
+        panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
+        if (activePane) {
+            activePane.onActivated();
+        }
+        subscriptions.add(atom.workspace.onDidChangeActivePaneItem((editor) => {
+            if (activePane) {
+                activePane.onDeactivated();
+                activePane = undefined;
+            }
+            if (atom.workspace.isTextEditor(editor)) {
+                const pane = panes.find(pane => pane.editor === editor);
+                if (pane) {
+                    activePane = pane;
+                    pane.onActivated();
+                }
+            }
+        }));
+    });
 }
 exports.activate = activate;
 function deactivate() {
-    if (statusBarMessage)
-        statusBarMessage.destroy();
-    if (editorWatch)
-        editorWatch.dispose();
-    if (autoCompleteWatch)
-        autoCompleteWatch.dispose();
-    parent.stopWorker();
+    subscriptions.dispose();
 }
 exports.deactivate = deactivate;
 function serialize() {
     return {};
 }
 exports.serialize = serialize;
-function deserialize() {
+function consumeLinter(registry) {
+    linter = registry.register({
+        name: ""
+    });
 }
-exports.deserialize = deserialize;
+exports.consumeLinter = consumeLinter;
+function consumeStatusBar(_statusBar) {
+    statusBar = _statusBar;
+}
+exports.consumeStatusBar = consumeStatusBar;
+// Registering an autocomplete provider
 function provide() {
-    return [autoCompleteProvider.provider];
+    return [
+        new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer }),
+    ];
 }
 exports.provide = provide;
-var linter = require("../linter");
-function provideLinter() {
-    return linter.provider;
-}
-exports.provideLinter = provideLinter;
-function consumeSnippets(snippetsManager) {
-    atomUtils._setSnippetsManager(snippetsManager);
-}
-exports.consumeSnippets = consumeSnippets;
-function waitForGrammarActivation() {
-    var activated = false;
-    var promise = new Promise(function (resolve, reject) {
-        var editorWatch = atom.workspace.observeTextEditors(function (editor) {
-            if (activated)
-                return;
-            editor.observeGrammar(function (grammar) {
-                if (grammar.packageName === 'atom-typescript') {
-                    activated = true;
-                    resolve({});
-                    editorWatch.dispose();
-                }
-            });
+function loadProjectConfig(sourcePath) {
+    return exports.clientResolver.get(sourcePath).then(client => {
+        return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
+            return tsconfig.load(result.body.configFileName);
         });
     });
-    return promise;
 }
-var hyperclickProvider = require("../hyperclickProvider");
-function getHyperclickProvider() {
-    return hyperclickProvider;
+exports.loadProjectConfig = loadProjectConfig;
+// Get Typescript buffer for the given path
+function getTypescriptBuffer(filePath) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const pane = panes.find(pane => pane.filePath === filePath);
+        if (pane) {
+            return {
+                buffer: pane.buffer,
+                isOpen: true
+            };
+        }
+        // Wait for the buffer to load before resolving the promise
+        const buffer = yield new Promise(resolve => {
+            const buffer = new Atom.TextBuffer({
+                filePath,
+                load: true
+            });
+            buffer.onDidReload(() => {
+                resolve(buffer);
+            });
+        });
+        return {
+            buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
+            isOpen: false
+        };
+    });
 }
-exports.getHyperclickProvider = getHyperclickProvider;

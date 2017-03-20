@@ -1,90 +1,90 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var view = require("./view");
+const view = require("./view");
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
-var RenameView = (function (_super) {
-    __extends(RenameView, _super);
-    function RenameView() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.editorAtRenameStart = null;
-        return _this;
-    }
-    RenameView.prototype.init = function () {
-        var _this = this;
-        $(atom.views.getView(atom.workspace)).on('keydown', function (e) {
+class RenameView extends view.View {
+    init() {
+        $(atom.views.getView(atom.workspace)).on('keydown', (e) => {
             if (e.keyCode == 27) {
-                if (_this.options.onCancel) {
-                    _this.options.onCancel();
-                    _this.clearView();
+                if (this.options.onCancel) {
+                    this.options.onCancel();
+                    this.clearView();
                 }
             }
         });
-        this.newNameEditor.on('keydown', function (e) {
-            var newText = _this.newNameEditor.model.getText();
+        this.newNameEditor.on('keydown', (e) => {
+            var newText = this.newNameEditor.model.getText();
             if (e.keyCode == 13) {
-                var invalid = _this.options.onValidate(newText);
+                var invalid = this.options.onValidate(newText);
                 if (invalid) {
-                    _this.validationMessage.text(invalid);
-                    _this.validationMessage.show();
+                    this.validationMessage.text(invalid);
+                    this.validationMessage.show();
                     return;
                 }
-                _this.validationMessage.hide();
-                if (_this.options.onCommit) {
-                    _this.options.onCommit(newText);
-                    _this.clearView();
+                this.validationMessage.hide();
+                if (this.options.onCommit) {
+                    this.options.onCommit(newText);
+                    this.clearView();
                 }
             }
             if (e.keyCode == 27) {
-                if (_this.options.onCancel) {
-                    _this.options.onCancel();
-                    _this.clearView();
+                if (this.options.onCancel) {
+                    this.options.onCancel();
+                    this.clearView();
                 }
             }
         });
-    };
-    RenameView.prototype.clearView = function () {
+    }
+    setPanel(panel) {
+        this.panel = panel;
+    }
+    clearView() {
         if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
             var view = atom.views.getView(this.editorAtRenameStart);
             view.focus();
         }
-        panel.hide();
+        this.panel.hide();
         this.options = {};
-        this.editorAtRenameStart = null;
-    };
-    RenameView.prototype.renameThis = function (options) {
+        this.editorAtRenameStart = undefined;
+    }
+    renameThis(options) {
         this.options = options;
         this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
-        panel.show();
+        this.panel.show();
         this.newNameEditor.model.setText(options.text);
         if (this.options.autoSelect) {
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveToEndOfScreenLine();
+            this.newNameEditor.model.moveCursorToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();
         this.validationMessage.hide();
-        this.fileCount.html("<div>\n            Files Counts: <span class='highlight'> Already Open ( " + options.openFiles.length + " )</span> and <span class='highlight'> Currently Closed ( " + options.closedFiles.length + " ) </span>\n        </div>");
-    };
-    return RenameView;
-}(view.View));
+    }
+    // Show the dialog and resolve the promise with the entered string
+    showRenameDialog(options) {
+        return new Promise((resolve, reject) => {
+            this.renameThis(Object.assign({}, options, { onCancel: reject, onCommit: resolve }));
+        });
+    }
+}
 RenameView.content = html;
 exports.RenameView = RenameView;
-var panel;
 function attach() {
-    exports.panelView = new RenameView({});
-    panel = atom.workspace.addModalPanel({ item: exports.panelView, priority: 1000, visible: false });
+    const renameView = new RenameView({});
+    const panel = atom.workspace.addModalPanel({
+        item: renameView,
+        priority: 1000,
+        visible: false
+    });
+    renameView.setPanel(panel);
+    return {
+        dispose() {
+            console.log("TODO: Detach the rename view: ", panel);
+        },
+        renameView
+    };
 }
 exports.attach = attach;

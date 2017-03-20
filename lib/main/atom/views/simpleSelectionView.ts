@@ -30,7 +30,6 @@ export function simpleSelectionView<T>(options: SelectListViewOptions<T>): Simpl
 
 import sp = require('atom-space-pen-views');
 import $ = sp.$;
-import * as atomUtils from "../atomUtils";
 
 export class SimpleSelectListView<T> extends sp.SelectListView {
 
@@ -58,7 +57,7 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
             return $('<li></li>').append(view);
         };
     }
-    
+
     /** override */
     confirmed(item: T) {
         this.options.confirmed(item);
@@ -70,22 +69,24 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
         return this.options.filterKey;
     }
 
-    panel: AtomCore.Panel = null;
+    panel?: AtomCore.Panel;
     show() {
         this.storeFocusedElement();
         if (!this.panel) this.panel = atom.workspace.addModalPanel({ item: this });
         this.panel.show()
 
-        this.focusFilterEditor();        
+        this.focusFilterEditor();
         // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
     }
     hide() {
-        this.panel.hide();
-        this.restoreFocus();
+      if (this.panel) {
+        this.panel.hide()
+      }
+
+      this.restoreFocus()
     }
 
     cancelled() {
         this.hide();
     }
 }
-

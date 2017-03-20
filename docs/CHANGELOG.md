@@ -5,6 +5,9 @@ We only plan to *strictly* document the breaking changes. The rest is optional.
 # Planned
 (No breaking changes staged)
 
+# v11.0.0
+* Major rewrite using `tsserver` API for the best compatibility with the current versions of Typescript.
+
 # v7.0.0
 * Removed the (already ignored in any significant way) `version` option from tsconfig. [More](https://github.com/TypeStrong/atom-typescript/issues/617)
 
@@ -32,4 +35,3 @@ We only plan to *strictly* document the breaking changes. The rest is optional.
 
 # 0.x
 * Initial releases
-
