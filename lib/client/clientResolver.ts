@@ -61,12 +61,16 @@ export class ClientResolver extends events.EventEmitter {
         })
 
         const diagnosticHandler = (type: string, result: DiagnosticEventBody | ConfigFileDiagnosticEventBody) => {
-          this.emit("diagnostics", {
-            type,
-            serverPath,
-            filePath: isConfDiagBody(result) ? result.configFile : result.file,
-            diagnostics: result.diagnostics
-          })
+          const filePath = isConfDiagBody(result) ? result.configFile : result.file
+
+          if (filePath) {
+            this.emit("diagnostics", {
+              type,
+              serverPath,
+              filePath,
+              diagnostics: result.diagnostics
+            })
+          }
         }
 
         entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"))

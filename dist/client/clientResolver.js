@@ -34,12 +34,15 @@ class ClientResolver extends events.EventEmitter {
                 this.emit("pendingRequestsChange");
             });
             const diagnosticHandler = (type, result) => {
-                this.emit("diagnostics", {
-                    type,
-                    serverPath,
-                    filePath: isConfDiagBody(result) ? result.configFile : result.file,
-                    diagnostics: result.diagnostics
-                });
+                const filePath = isConfDiagBody(result) ? result.configFile : result.file;
+                if (filePath) {
+                    this.emit("diagnostics", {
+                        type,
+                        serverPath,
+                        filePath,
+                        diagnostics: result.diagnostics
+                    });
+                }
             };
             entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"));
             entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"));

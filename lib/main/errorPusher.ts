@@ -9,7 +9,12 @@ export class ErrorPusher {
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-  setErrors(prefix: string, filePath: string, errors: Diagnostic[]) {
+  setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
+    if (prefix == undefined || filePath == undefined) {
+      console.warn("setErrors: prefix or filePath is undefined", prefix, filePath)
+      return
+    }
+
     let prefixed = this.errors.get(prefix)
     if (!prefixed) {
       prefixed = new Map()

@@ -28,6 +28,10 @@ class ErrorPusher {
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {
+        if (prefix == undefined || filePath == undefined) {
+            console.warn("setErrors: prefix or filePath is undefined", prefix, filePath);
+            return;
+        }
         let prefixed = this.errors.get(prefix);
         if (!prefixed) {
             prefixed = new Map();
