@@ -852,8 +852,7 @@ function getInfoForQuickFixAnalysis(query: FilePathPositionQuery): QuickFixQuery
 }
 
 function getPositionErrors(fileErrors: ts.Diagnostic[], position: number) {
-  /** We want errors that are *touching* and thefore expand the query position by one */
-  return fileErrors.filter(e=> ((e.start - 1) < position) && (e.start + e.length + 1) > position)
+  return fileErrors.filter(e => (e.start <= position) && ((e.start + e.length) > position));
 }
 
 function findClosestErrorPosition(fileErrors: ts.Diagnostic[], position: number) {
