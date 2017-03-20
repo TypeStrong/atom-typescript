@@ -16,8 +16,7 @@ interface RenameViewOptions {
     onValidate: (newValue: string) => string;
 }
 
-export class RenameView
-    extends view.View<RenameViewOptions> {
+export class RenameView extends view.View<RenameViewOptions> {
 
     private newNameEditor: EditorViewzz;
     private validationMessage: JQuery;

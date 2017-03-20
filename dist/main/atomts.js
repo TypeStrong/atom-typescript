@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const Atom = require("atom");
-const atomConfig = require("./atom/atomConfig");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
@@ -17,7 +16,6 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 // globals
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
-exports.config = atomConfig.schema;
 const panes = [];
 // Register all custom components
 require("./atom/components");

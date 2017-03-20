@@ -1,5 +1,4 @@
 import * as Atom from "atom"
-import * as atomConfig from './atom/atomConfig'
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from './atom/views/renameView'
 import {AutocompleteProvider} from './atom/autoCompleteProvider'
@@ -17,7 +16,6 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 // globals
 const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
-export const config = atomConfig.schema
 const panes: TypescriptEditorPane[] = []
 
 // Register all custom components

@@ -1,3 +1,0 @@
-# Magic
-Basically we run `makeTypeScriptGlobal.ts` (both in parent and child) to export `module ts` to the variable `global.ts` so we can just use `ts.` without any imports.
-This isn't ideal but it makes it easier to not have a `require('typescript')` all over the code base. Also it makes it easier to swap out `typescript` with something else (we sometimes move to nightly typescript `ntypescript`). Also you can point it to a custom typescript file if you want (we have a package option exposed to atom for this).
