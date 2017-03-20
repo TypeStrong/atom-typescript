@@ -1,6 +1,5 @@
 import * as Atom from "atom"
 import * as atomConfig from './atom/atomConfig'
-import * as hyperclickProvider from "../hyperclickProvider"
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from './atom/views/renameView'
 import {AutocompleteProvider} from './atom/autoCompleteProvider'
@@ -31,7 +30,7 @@ let statusBar: StatusBar
 interface PackageState {}
 
 export function activate(state: PackageState) {
-  require('atom-package-deps').install('atom-typescript-beta', true).then(() => {
+  require('atom-package-deps').install('atom-typescript', true).then(() => {
 
     let statusPriority = 100
     for (const panel of statusBar.getRightTiles()) {
@@ -164,10 +163,6 @@ export function provide() {
   return [
     new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
-}
-
-export function getHyperclickProvider() {
-  return hyperclickProvider;
 }
 
 export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {

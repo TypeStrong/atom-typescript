@@ -1,11 +1,11 @@
 {
-  "name": "atom-typescript-beta",
+  "name": "atom-typescript",
   "version": "11.0.1",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "activationHooks": [
-    "atom-typescript-beta:grammar-used"
+    "atom-typescript:grammar-used"
   ],
   "scripts": {
     "build": "tsc -p ./lib",
@@ -33,21 +33,16 @@
       "versions": {
         "2.0.0": "provide"
       }
-    },
-    "hyperclick.provider": {
-      "versions": {
-        "0.0.0": "getHyperclickProvider"
-      }
     }
   },
-  "homepage": "https://github.com/TypeStrong/atom-typescript/pull/1166",
+  "homepage": "https://github.com/TypeStrong/atom-typescript",
   "repository": {
     "type": "git",
-    "url": "https://github.com/guncha/atom-typescript.git"
+    "url": "https://github.com/TypeStrong/atom-typescript.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TypeStrong/atom-typescript/pull/1166"
+    "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
     "atom-package-deps": "4.4.1",

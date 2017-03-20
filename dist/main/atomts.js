@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const Atom = require("atom");
 const atomConfig = require("./atom/atomConfig");
-const hyperclickProvider = require("../hyperclickProvider");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
@@ -26,7 +25,7 @@ const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript-beta', true).then(() => {
+    require('atom-package-deps').install('atom-typescript', true).then(() => {
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
             if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
@@ -141,10 +140,6 @@ function provide() {
     ];
 }
 exports.provide = provide;
-function getHyperclickProvider() {
-    return hyperclickProvider;
-}
-exports.getHyperclickProvider = getHyperclickProvider;
 function loadProjectConfig(sourcePath) {
     return exports.clientResolver.get(sourcePath).then(client => {
         return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
