@@ -145,7 +145,10 @@ export class TypescriptServiceClient {
     if (isResponse(res)) {
       const callback = this.callbacks[res.request_seq]
       if (callback) {
-        // console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
+        if (window.atom_typescript_debug) {
+          console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
+        }
+
         delete this.callbacks[res.request_seq]
         if (res.success) {
           callback.resolve(res)
@@ -156,7 +159,10 @@ export class TypescriptServiceClient {
         this.emitPendingRequests()
       }
     } else if (isEvent(res)) {
-      // console.log("received event", res)
+      if (window.atom_typescript_debug) {
+        console.log("received event", res)
+      }
+
       this.events.emit(res.event, res.body)
     }
   }
@@ -172,7 +178,9 @@ export class TypescriptServiceClient {
       arguments: args
     }
 
-    // console.log("sending request", command, "with args", args)
+    if (window.atom_typescript_debug) {
+      console.log("sending request", command, "with args", args)
+    }
 
     setImmediate(() => {
       cp.stdin.write(JSON.stringify(req) + "\n")
@@ -192,7 +200,10 @@ export class TypescriptServiceClient {
   startServer() {
     if (!this.serverPromise) {
       this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
-        // console.log("starting", this.tsServerPath)
+
+        if (window.atom_typescript_debug) {
+          console.log("starting", this.tsServerPath)
+        }
 
         const cp = new BufferedNodeProcess({
           command: this.tsServerPath,

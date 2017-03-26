@@ -7,6 +7,10 @@ declare module NodeJS {
     }
 }
 
+interface Window {
+  atom_typescript_debug: boolean
+}
+
 interface Error {
     details?: any; // Really useful to have for debugging
 }

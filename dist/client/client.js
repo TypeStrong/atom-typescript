@@ -31,7 +31,9 @@ class TypescriptServiceClient {
             if (isResponse(res)) {
                 const callback = this.callbacks[res.request_seq];
                 if (callback) {
-                    // console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
+                    if (window.atom_typescript_debug) {
+                        console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body);
+                    }
                     delete this.callbacks[res.request_seq];
                     if (res.success) {
                         callback.resolve(res);
@@ -43,7 +45,9 @@ class TypescriptServiceClient {
                 }
             }
             else if (isEvent(res)) {
-                // console.log("received event", res)
+                if (window.atom_typescript_debug) {
+                    console.log("received event", res);
+                }
                 this.events.emit(res.event, res.body);
             }
         };
@@ -134,7 +138,9 @@ class TypescriptServiceClient {
             command,
             arguments: args
         };
-        // console.log("sending request", command, "with args", args)
+        if (window.atom_typescript_debug) {
+            console.log("sending request", command, "with args", args);
+        }
         setImmediate(() => {
             cp.stdin.write(JSON.stringify(req) + "\n");
         });
@@ -149,7 +155,9 @@ class TypescriptServiceClient {
     startServer() {
         if (!this.serverPromise) {
             this.serverPromise = new Promise((resolve, reject) => {
-                // console.log("starting", this.tsServerPath)
+                if (window.atom_typescript_debug) {
+                    console.log("starting", this.tsServerPath);
+                }
                 const cp = new atom_1.BufferedNodeProcess({
                     command: this.tsServerPath,
                     args: this.tsServerArgs,
