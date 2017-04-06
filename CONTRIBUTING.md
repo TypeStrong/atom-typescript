@@ -12,10 +12,10 @@ Simply clone the repository, and then link the folder into your packages directo
 git clone https://github.com/TypeStrong/atom-typescript.git
 cd atom-typescript
 npm install
-apm link -l
+apm link -d
 ```
 
-You still have to reload atom with `ctrl+alt+r` to test your changes.
+You still have to reload atom with `ctrl+alt+r` or `ctrl+shift+f5` to test your changes.
 
 Now you can use atom-typescript *to develop atom-typescript*. This is covered more in the workflow https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md#workflow
 
@@ -55,17 +55,17 @@ Additional Notes:
 
 Some shortcuts:
 * `ctrl+alt+i` will open the dev tools. These are the same Chrome dev tools you are familiar with. Feel free to inspect elements. This will come handy when doing UI or even seeing why a particular code element is highlighted in some way.
-* `ctrl+alt+r` will reload the entire atom instance.
+* `ctrl+alt+r` or `ctrl+shift+f5` will reload the entire atom instance.
 
 ### General Steps
 1. We open `atom-typescript` in one atom window
-1. We have [`atom-typescript-examples`](https://github.com/TypeStrong/atom-typescript-examples) open in another atom window
+1. We have [`atom-typescript-examples`](https://github.com/TypeStrong/atom-typescript-examples) open in another atom window as such: `atom --dev <examplesFolder>`
 1. We make changes to `atom-typescript` and save to get the JS.
-1. We reload the `atom-typescript-examples` window to see the effects of our change.
+1. We reload the `atom-typescript-examples` (`ctrl+alt+r` or `ctrl+shift+f5`) window to see the effects of our change.
 1. Only reload the `atom-typescript` window once we are sure that our new code is functional.
 
 #### When you break atom-typescript during development
-This shouldn't happen as long as you leave the `atom-typescript` window untouched and do testing in another atom instance. If you reload the `atom-typescript` window thinking its going to be stable but it turns out to be unstable do one of the following:  
+This shouldn't happen as long as you start the `atom-typescript` window _without_ the `--dev` flag, and do testing in another atom instance. If you reload the `atom-typescript` window thinking its going to be stable but it turns out to be unstable do one of the following:  
 * Discard the *JavaScript* changes that you think broke it and reload the atom instance.
 
 ## Language Service Documentation
