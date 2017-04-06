@@ -6,6 +6,7 @@ const utils_1 = require("./atom/utils");
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
+        this.unusedAsInfo = true;
         this.pushErrors = lodash_1.debounce(() => {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
@@ -13,7 +14,7 @@ class ErrorPusher {
                     const _filePath = utils_1.systemPath(filePath);
                     for (const diagnostic of diagnostics) {
                         errors.push({
-                            type: "Error",
+                            type: this.unusedAsInfo && diagnostic.text.indexOf(' is declared but never used') > 0 ? "Info" : "Error",
                             text: diagnostic.text,
                             filePath: _filePath,
                             range: diagnostic.start ? utils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined
@@ -25,6 +26,10 @@ class ErrorPusher {
                 this.linter.setMessages(errors);
             }
         }, 100);
+        this.unusedAsInfo = atom.config.get('atom-typescript.unusedAsInfo');
+        atom.config.onDidChange('atom-typescript.unusedAsInfo', (val) => {
+            this.unusedAsInfo = val.newValue;
+        });
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {

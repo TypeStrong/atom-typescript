@@ -138,6 +138,14 @@ function provide() {
     ];
 }
 exports.provide = provide;
+exports.config = {
+    unusedAsInfo: {
+        title: 'Show unused values with severity info',
+        description: 'Show unused values with severety \'info\' instead of \'error\'',
+        type: 'boolean',
+        default: true
+    }
+};
 function loadProjectConfig(sourcePath) {
     return exports.clientResolver.get(sourcePath).then(client => {
         return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {

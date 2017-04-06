@@ -162,6 +162,14 @@ export function provide() {
     new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
 }
+export var config = {
+  unusedAsInfo: {
+    title: 'Show unused values with severity info',
+    description: 'Show unused values with severety \'info\' instead of \'error\'',
+    type: 'boolean',
+    default: true
+  }
+}
 
 export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
   return clientResolver.get(sourcePath).then(client => {
