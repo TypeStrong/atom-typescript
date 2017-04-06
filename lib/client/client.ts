@@ -1,9 +1,10 @@
+import * as protocol from "typescript/lib/protocol"
+import {BufferedNodeProcess} from "atom"
+import {Callbacks} from "./callbacks"
+import {ChildProcess} from "child_process"
 import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
-import * as protocol from "typescript/lib/protocol"
 import byline = require("byline")
-import {BufferedNodeProcess} from "atom"
-import {ChildProcess} from "child_process"
 
 export const CommandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
@@ -23,15 +24,8 @@ export const CommandWithResponse = new Set([
 
 export class TypescriptServiceClient {
 
-  /** Map of callbacks that are waiting for responses */
-  callbacks: {
-    [seq: number]: {
-      name: string
-      reject(err: Error): void
-      resolve(res: protocol.Response): void
-      started: number
-    }
-  } = {}
+  /** Callbacks that are waiting for responses */
+  callbacks: Callbacks
 
   private events = new EventEmitter()
   private seq = 0
@@ -42,14 +36,11 @@ export class TypescriptServiceClient {
   /** Promise that resolves when the server is ready to accept requests */
   serverPromise?: Promise<ChildProcess>
 
-  /** Path to the tsserver executable */
-  readonly tsServerPath: string
+  /** Extra args passed to the tsserver executable */
   readonly tsServerArgs = []
-  readonly version: string
 
-  constructor(tsServerPath: string, version: string) {
-    this.tsServerPath = tsServerPath
-    this.version = version
+  constructor(public tsServerPath: string, public version: string) {
+    this.callbacks = new Callbacks(this.emitPendingRequests)
   }
 
   executeChange(args: protocol.ChangeRequestArgs): Promise<undefined> {
@@ -131,32 +122,25 @@ export class TypescriptServiceClient {
     }
   }
 
-  private emitPendingRequests() {
-    const pending: string[] = []
-
-    for (const callback in this.callbacks) {
-      pending.push(this.callbacks[callback].name)
-    }
-
+  private emitPendingRequests = (pending: string[]) => {
     this.events.emit("pendingRequestsChange", pending)
   }
 
   private onMessage = (res: protocol.Response | protocol.Event) => {
     if (isResponse(res)) {
-      const callback = this.callbacks[res.request_seq]
-      if (callback) {
+      const req = this.callbacks.remove(res.request_seq)
+      if (req) {
         if (window.atom_typescript_debug) {
-          console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
+          console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body)
         }
 
-        delete this.callbacks[res.request_seq]
         if (res.success) {
-          callback.resolve(res)
+          req.resolve(res)
         } else {
-          callback.reject(new Error(res.message))
+          req.reject(new Error(res.message))
         }
-
-        this.emitPendingRequests()
+      } else {
+        console.warn("unexpected response:", res)
       }
     } else if (isEvent(res)) {
       if (window.atom_typescript_debug) {
@@ -183,24 +167,26 @@ export class TypescriptServiceClient {
     }
 
     setImmediate(() => {
-      cp.stdin.write(JSON.stringify(req) + "\n")
+      try {
+        cp.stdin.write(JSON.stringify(req) + "\n")
+      } catch (error) {
+        const callback = this.callbacks.remove(req.seq)
+        if (callback) {
+          callback.reject(error)
+        } else {
+          console.error(error)
+        }
+      }
     })
 
     if (expectResponse) {
-      const resultPromise = new Promise((resolve, reject) => {
-        this.callbacks[req.seq] = {name: command, resolve, reject, started: Date.now()}
-      })
-
-      this.emitPendingRequests()
-
-      return resultPromise
+      return this.callbacks.add(req.seq, command)
     }
   }
 
   startServer() {
     if (!this.serverPromise) {
       this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
-
         if (window.atom_typescript_debug) {
           console.log("starting", this.tsServerPath)
         }
@@ -211,13 +197,16 @@ export class TypescriptServiceClient {
         }).process as any as ChildProcess
 
         cp.once("error", err => {
-          console.log("tsserver failed with", err)
+          console.error("tsserver failed with", err)
+          this.callbacks.rejectAll(err)
           reject(err)
         })
 
         cp.once("exit", code => {
-          console.log("tsserver failed to start with code", code)
-          reject({code})
+          const err = new Error("tsserver: exited with code: " + code)
+          console.error(err)
+          this.callbacks.rejectAll(err)
+          reject(err)
         })
 
         messageStream(cp.stdout).on("data", this.onMessage)
@@ -253,19 +242,23 @@ function messageStream(input: Readable) {
 
 /** Helper to parse the tsserver output stream to a message stream  */
 class MessageStream extends Transform {
-  lineCount = 1
-
   constructor() {
     super({objectMode: true})
   }
 
-  _transform(line: string, encoding: string, callback: Function) {
-    if (this.lineCount % 2 === 0) {
-      this.push(JSON.parse(line))
+  _transform(buf: Buffer, encoding: string, callback: Function) {
+    const line = buf.toString()
+
+    try {
+      if (line.startsWith("{")) {
+        this.push(JSON.parse(line))
+      } else if (!line.startsWith("Content-Length:")) {
+        console.warn(line)
+      }
+    } catch (error) {
+      console.error("client: failed to parse: ", line)
+    } finally {
+      callback(null)
     }
-
-    this.lineCount += 1
-
-    callback(null)
   }
 }
