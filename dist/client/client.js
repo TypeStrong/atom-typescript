@@ -226,3 +226,4 @@ class MessageStream extends stream_1.Transform {
         }
     }
 }
+//# sourceMappingURL=client.js.map

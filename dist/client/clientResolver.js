@@ -75,3 +75,4 @@ exports.resolveServer = resolveServer;
 function isConfDiagBody(body) {
     return body && body.triggerFile && body.configFile;
 }
+//# sourceMappingURL=clientResolver.js.map

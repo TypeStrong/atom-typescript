@@ -32,3 +32,4 @@ class ScrollView extends sp.ScrollView {
     init() { }
 }
 exports.ScrollView = ScrollView;
+//# sourceMappingURL=view.js.map

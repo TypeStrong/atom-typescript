@@ -44,3 +44,4 @@ function _finally(promise, callback) {
     promise.then(callback, callback);
     return promise;
 }
+//# sourceMappingURL=build.js.map

@@ -47,3 +47,4 @@ registry_1.commands.set("typescript:format-code", deps => {
         }
     });
 });
+//# sourceMappingURL=formatCode.js.map

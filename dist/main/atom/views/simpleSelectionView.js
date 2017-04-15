@@ -73,3 +73,4 @@ class SimpleSelectListView extends sp.SelectListView {
     }
 }
 exports.SimpleSelectListView = SimpleSelectListView;
+//# sourceMappingURL=simpleSelectionView.js.map

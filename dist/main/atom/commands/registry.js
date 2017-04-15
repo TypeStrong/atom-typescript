@@ -4,3 +4,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // individual command files register themselves in the below map. When the package is initializing,
 // the constructors are passed the deps and return the actual commands handlers.
 exports.commands = new Map();
+//# sourceMappingURL=registry.js.map

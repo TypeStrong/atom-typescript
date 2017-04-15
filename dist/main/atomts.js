@@ -172,3 +172,4 @@ function getTypescriptBuffer(filePath) {
         };
     });
 }
+//# sourceMappingURL=atomts.js.map

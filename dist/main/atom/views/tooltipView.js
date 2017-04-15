@@ -40,3 +40,4 @@ class TooltipView extends view.View {
     }
 }
 exports.TooltipView = TooltipView;
+//# sourceMappingURL=tooltipView.js.map

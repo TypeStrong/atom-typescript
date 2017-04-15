@@ -147,3 +147,4 @@ function containsScope(scopes, matchScope) {
     }
     return false;
 }
+//# sourceMappingURL=autoCompleteProvider.js.map

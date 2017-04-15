@@ -33,3 +33,4 @@ registry_1.commands.set("typescript:find-references", deps => {
         }
     });
 });
+//# sourceMappingURL=findReferences.js.map

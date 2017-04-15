@@ -26,3 +26,4 @@ class TsView extends HTMLElement {
 }
 exports.TsView = TsView;
 document.registerElement('ts-view', TsView);
+//# sourceMappingURL=tsView.js.map
