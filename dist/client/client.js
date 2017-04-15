@@ -6,6 +6,8 @@ const callbacks_1 = require("./callbacks");
 const events_1 = require("events");
 const stream_1 = require("stream");
 const byline = require("byline");
+// Set this to true to start tsserver with node --inspect
+const INSPECT_TSSERVER = false;
 exports.CommandWithResponse = new Set([
     "compileOnSaveAffectedFileList",
     "compileOnSaveEmitFile",
@@ -163,10 +165,7 @@ class TypescriptServiceClient {
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
                 }
-                const cp = new atom_1.BufferedNodeProcess({
-                    command: this.tsServerPath,
-                    args: this.tsServerArgs,
-                }).process;
+                const cp = startServer(this.tsServerPath, this.tsServerArgs);
                 cp.once("error", err => {
                     console.error("tsserver failed with", err);
                     this.callbacks.rejectAll(err);
@@ -194,6 +193,20 @@ class TypescriptServiceClient {
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
+function startServer(tsServerPath, tsServerArgs) {
+    if (INSPECT_TSSERVER) {
+        return new atom_1.BufferedProcess({
+            command: "node",
+            args: ["--inspect", tsServerPath].concat(tsServerArgs),
+        }).process;
+    }
+    else {
+        return new atom_1.BufferedNodeProcess({
+            command: tsServerPath,
+            args: tsServerArgs
+        }).process;
+    }
+}
 function isEvent(res) {
     return res.type === "event";
 }
