@@ -84,6 +84,7 @@ class TypescriptEditorPane {
             this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
+                this.isActive = true;
                 this.opts.statusPanel.setVersion(this.client.version);
             }
             if (this.isTypescript && this.filePath) {

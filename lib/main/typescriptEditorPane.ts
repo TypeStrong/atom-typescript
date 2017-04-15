@@ -157,6 +157,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
     // onOpened might trigger before onActivated so we can't rely on isActive flag
     if (atom.workspace.getActiveTextEditor() === this.editor) {
+      this.isActive = true
       this.opts.statusPanel.setVersion(this.client.version)
     }
 
