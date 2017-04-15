@@ -148,7 +148,7 @@ export function serialize(): PackageState {
 
 export function consumeLinter(registry: LinterRegistry) {
   linter = registry.register({
-    name: ""
+    name: "Typescript"
   })
 }
 

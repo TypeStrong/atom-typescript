@@ -9,7 +9,7 @@ export interface LinterConfig {
 }
 
 export interface LinterMessage {
-    type: string, // "Error" or "Warning"
+    type: "Error" | "Warning" | "Info",
     text?: string,
     html?: string,
     filePath?: string,

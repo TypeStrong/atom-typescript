@@ -123,7 +123,7 @@ function serialize() {
 exports.serialize = serialize;
 function consumeLinter(registry) {
     linter = registry.register({
-        name: ""
+        name: "Typescript"
     });
 }
 exports.consumeLinter = consumeLinter;
