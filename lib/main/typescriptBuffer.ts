@@ -11,7 +11,7 @@ export class TypescriptBuffer {
   changedAtBatch: number = 0
 
   // Promise that resolves to the correct client for this filePath
-  clientPromise: Promise<Client>
+  private clientPromise?: Promise<Client>
 
   // Flag that signifies if tsserver has an open view of this file
   isOpen: boolean
@@ -48,8 +48,6 @@ export class TypescriptBuffer {
       })
 
       this.events.emit("opened")
-    } else {
-      this.clientPromise = Promise.reject(new Error("Missing filePath or not a Typescript file"))
     }
   }
 
@@ -75,7 +73,7 @@ export class TypescriptBuffer {
   dispose = () => {
     this.subscriptions.dispose()
 
-    if (this.isOpen) {
+    if (this.isOpen && this.clientPromise) {
       this.clientPromise.then(client =>
         client.executeClose({file: this.buffer.getPath()}))
     }
@@ -105,7 +103,7 @@ export class TypescriptBuffer {
 
   onDidStopChanging = async ({changes}: {changes: any[]}) => {
     // Don't update changedAt or emit any events if there are no actual changes or file isn't open
-    if (changes.length === 0 || !this.isOpen) {
+    if (changes.length === 0 || !this.isOpen || !this.clientPromise) {
       return
     }
 
