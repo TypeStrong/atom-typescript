@@ -1,10 +1,13 @@
 import * as protocol from "typescript/lib/protocol"
-import {BufferedNodeProcess} from "atom"
+import {BufferedNodeProcess, BufferedProcess} from "atom"
 import {Callbacks} from "./callbacks"
 import {ChildProcess} from "child_process"
 import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
 import byline = require("byline")
+
+// Set this to true to start tsserver with node --inspect
+const INSPECT_TSSERVER = false
 
 export const CommandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
@@ -37,7 +40,7 @@ export class TypescriptServiceClient {
   serverPromise?: Promise<ChildProcess>
 
   /** Extra args passed to the tsserver executable */
-  readonly tsServerArgs = []
+  readonly tsServerArgs: string[] = []
 
   constructor(public tsServerPath: string, public version: string) {
     this.callbacks = new Callbacks(this.emitPendingRequests)
@@ -191,10 +194,7 @@ export class TypescriptServiceClient {
           console.log("starting", this.tsServerPath)
         }
 
-        const cp = new BufferedNodeProcess({
-          command: this.tsServerPath,
-          args: this.tsServerArgs,
-        }).process as any as ChildProcess
+        const cp = startServer(this.tsServerPath, this.tsServerArgs)
 
         cp.once("error", err => {
           console.error("tsserver failed with", err)
@@ -225,6 +225,20 @@ export class TypescriptServiceClient {
     } else {
       throw new Error(`Server already started: ${this.tsServerPath}`)
     }
+  }
+}
+
+function startServer(tsServerPath: string, tsServerArgs: string[]): ChildProcess {
+  if (INSPECT_TSSERVER) {
+    return new BufferedProcess({
+      command: "node",
+      args: ["--inspect", tsServerPath].concat(tsServerArgs),
+    }).process as any
+  } else {
+    return new BufferedNodeProcess({
+      command: tsServerPath,
+      args: tsServerArgs
+    }).process as any
   }
 }
 
