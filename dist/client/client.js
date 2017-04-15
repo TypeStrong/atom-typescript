@@ -161,30 +161,41 @@ class TypescriptServiceClient {
     }
     startServer() {
         if (!this.serverPromise) {
-            this.serverPromise = new Promise((resolve, reject) => {
+            let lastStderrOutput;
+            let reject;
+            const exitHandler = (result) => {
+                const err = typeof result === "number" ?
+                    new Error("exited with code: " + result) : result;
+                console.error("tsserver: ", err);
+                this.callbacks.rejectAll(err);
+                reject(err);
+                this.serverPromise = undefined;
+                setImmediate(() => {
+                    let detail = err.stack;
+                    if (lastStderrOutput) {
+                        detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail;
+                    }
+                    atom.notifications.addError("Typescript quit unexpectedly", {
+                        detail,
+                        dismissable: true,
+                    });
+                });
+            };
+            return this.serverPromise = new Promise((resolve, _reject) => {
+                reject = _reject;
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
                 }
                 const cp = startServer(this.tsServerPath, this.tsServerArgs);
-                cp.once("error", err => {
-                    console.error("tsserver failed with", err);
-                    this.callbacks.rejectAll(err);
-                    reject(err);
-                });
-                cp.once("exit", code => {
-                    const err = new Error("tsserver: exited with code: " + code);
-                    console.error(err);
-                    this.callbacks.rejectAll(err);
-                    reject(err);
-                });
+                cp.once("error", exitHandler);
+                cp.once("exit", exitHandler);
+                // Pipe both stdout and stderr appropriately
                 messageStream(cp.stdout).on("data", this.onMessage);
-                cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()));
+                cp.stderr.on("data", data => {
+                    console.warn("tsserver stderr:", lastStderrOutput = data.toString());
+                });
                 // We send an unknown command to verify that the server is working.
                 this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
-            });
-            return this.serverPromise.catch(error => {
-                this.serverPromise = undefined;
-                throw error;
             });
         }
         else {

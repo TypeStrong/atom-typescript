@@ -189,37 +189,52 @@ export class TypescriptServiceClient {
 
   startServer() {
     if (!this.serverPromise) {
-      this.serverPromise = new Promise<ChildProcess>((resolve, reject) => {
+      let lastStderrOutput: string
+      let reject: (err: Error) => void
+
+      const exitHandler = (result: Error | number) => {
+        const err = typeof result === "number" ?
+          new Error("exited with code: " + result) : result
+
+          console.error("tsserver: ", err)
+          this.callbacks.rejectAll(err)
+          reject(err)
+          this.serverPromise = undefined
+
+          setImmediate(() => {
+            let detail = err.stack
+
+            if (lastStderrOutput) {
+              detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail
+            }
+
+            atom.notifications.addError("Typescript quit unexpectedly", {
+              detail,
+              dismissable: true,
+            })
+          })
+      }
+
+      return this.serverPromise = new Promise<ChildProcess>((resolve, _reject) => {
+        reject = _reject
+
         if (window.atom_typescript_debug) {
           console.log("starting", this.tsServerPath)
         }
 
         const cp = startServer(this.tsServerPath, this.tsServerArgs)
 
-        cp.once("error", err => {
-          console.error("tsserver failed with", err)
-          this.callbacks.rejectAll(err)
-          reject(err)
-        })
+        cp.once("error", exitHandler)
+        cp.once("exit", exitHandler)
 
-        cp.once("exit", code => {
-          const err = new Error("tsserver: exited with code: " + code)
-          console.error(err)
-          this.callbacks.rejectAll(err)
-          reject(err)
-        })
-
+        // Pipe both stdout and stderr appropriately
         messageStream(cp.stdout).on("data", this.onMessage)
-
-        cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()))
+        cp.stderr.on("data", data => {
+          console.warn("tsserver stderr:", lastStderrOutput = data.toString())
+        })
 
         // We send an unknown command to verify that the server is working.
         this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
-      })
-
-      return this.serverPromise.catch(error => {
-        this.serverPromise = undefined
-        throw error
       })
 
     } else {
