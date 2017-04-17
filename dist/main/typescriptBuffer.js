@@ -17,7 +17,7 @@ class TypescriptBuffer {
         this.subscriptions = new atom_1.CompositeDisposable();
         this.dispose = () => {
             this.subscriptions.dispose();
-            if (this.isOpen) {
+            if (this.isOpen && this.clientPromise) {
                 this.clientPromise.then(client => client.executeClose({ file: this.buffer.getPath() }));
             }
         };
@@ -34,7 +34,7 @@ class TypescriptBuffer {
         });
         this.onDidStopChanging = ({ changes }) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             // Don't update changedAt or emit any events if there are no actual changes or file isn't open
-            if (changes.length === 0 || !this.isOpen) {
+            if (changes.length === 0 || !this.isOpen || !this.clientPromise) {
                 return;
             }
             this.changedAtBatch = Date.now();
@@ -71,9 +71,6 @@ class TypescriptBuffer {
                 });
                 this.events.emit("opened");
             }
-            else {
-                this.clientPromise = Promise.reject(new Error("Missing filePath or not a Typescript file"));
-            }
         });
     }
     // If there are any pending changes, flush them out to the Typescript server
@@ -103,3 +100,4 @@ class TypescriptBuffer {
     }
 }
 exports.TypescriptBuffer = TypescriptBuffer;
+//# sourceMappingURL=typescriptBuffer.js.map

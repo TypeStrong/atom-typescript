@@ -6,3 +6,4 @@ registry_1.commands.set("typescript:clear-errors", deps => {
         deps.clearErrors();
     };
 });
+//# sourceMappingURL=clearErrors.js.map

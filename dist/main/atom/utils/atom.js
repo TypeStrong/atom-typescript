@@ -277,3 +277,4 @@ function openFile(filePath, position = {}) {
     atom.workspace.open(filePath, config);
 }
 exports.openFile = openFile;
+//# sourceMappingURL=atom.js.map

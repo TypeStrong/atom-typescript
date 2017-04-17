@@ -115,7 +115,7 @@ export function activate(state: PackageState) {
       }))
     }))
 
-    panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
+    activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
 
     if (activePane) {
       activePane.onActivated()
@@ -148,7 +148,7 @@ export function serialize(): PackageState {
 
 export function consumeLinter(registry: LinterRegistry) {
   linter = registry.register({
-    name: ""
+    name: "Typescript"
   })
 }
 

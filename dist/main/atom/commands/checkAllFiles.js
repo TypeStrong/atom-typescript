@@ -44,3 +44,4 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         }
     });
 });
+//# sourceMappingURL=checkAllFiles.js.map

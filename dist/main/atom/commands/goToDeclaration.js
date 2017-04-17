@@ -54,3 +54,4 @@ registry_1.commands.set("typescript:return-from-declaration", deps => {
         });
     });
 });
+//# sourceMappingURL=goToDeclaration.js.map

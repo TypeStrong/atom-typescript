@@ -82,7 +82,9 @@ class TypescriptEditorPane {
             this.client = yield this.opts.getClient(this.filePath);
             this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
             this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
-            if (this.isActive) {
+            // onOpened might trigger before onActivated so we can't rely on isActive flag
+            if (atom.workspace.getActiveTextEditor() === this.editor) {
+                this.isActive = true;
                 this.opts.statusPanel.setVersion(this.client.version);
             }
             if (this.isTypescript && this.filePath) {
@@ -178,3 +180,4 @@ exports.TypescriptEditorPane = TypescriptEditorPane;
 function isTypescriptGrammar(grammar) {
     return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx";
 }
+//# sourceMappingURL=typescriptEditorPane.js.map

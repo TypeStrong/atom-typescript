@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const atom_1 = require("atom");
+const callbacks_1 = require("./callbacks");
 const events_1 = require("events");
 const stream_1 = require("stream");
 const byline = require("byline");
-const atom_1 = require("atom");
+// Set this to true to start tsserver with node --inspect
+const INSPECT_TSSERVER = false;
 exports.CommandWithResponse = new Set([
     "compileOnSaveAffectedFileList",
     "compileOnSaveEmitFile",
@@ -22,33 +25,41 @@ exports.CommandWithResponse = new Set([
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
-        /** Map of callbacks that are waiting for responses */
-        this.callbacks = {};
+        this.tsServerPath = tsServerPath;
+        this.version = version;
         this.events = new events_1.EventEmitter();
         this.seq = 0;
+        /** Extra args passed to the tsserver executable */
         this.tsServerArgs = [];
+        this.emitPendingRequests = (pending) => {
+            this.events.emit("pendingRequestsChange", pending);
+        };
         this.onMessage = (res) => {
             if (isResponse(res)) {
-                const callback = this.callbacks[res.request_seq];
-                if (callback) {
-                    // console.log("received response for", res.command, "in", Date.now() - callback.started, "ms", "with data", res.body)
-                    delete this.callbacks[res.request_seq];
+                const req = this.callbacks.remove(res.request_seq);
+                if (req) {
+                    if (window.atom_typescript_debug) {
+                        console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body);
+                    }
                     if (res.success) {
-                        callback.resolve(res);
+                        req.resolve(res);
                     }
                     else {
-                        callback.reject(new Error(res.message));
+                        req.reject(new Error(res.message));
                     }
-                    this.emitPendingRequests();
+                }
+                else {
+                    console.warn("unexpected response:", res);
                 }
             }
             else if (isEvent(res)) {
-                // console.log("received event", res)
+                if (window.atom_typescript_debug) {
+                    console.log("received event", res);
+                }
                 this.events.emit(res.event, res.body);
             }
         };
-        this.tsServerPath = tsServerPath;
-        this.version = version;
+        this.callbacks = new callbacks_1.Callbacks(this.emitPendingRequests);
     }
     executeChange(args) {
         return this.execute("change", args);
@@ -121,55 +132,70 @@ class TypescriptServiceClient {
             this.events.removeListener(name, listener);
         };
     }
-    emitPendingRequests() {
-        const pending = [];
-        for (const callback in this.callbacks) {
-            pending.push(this.callbacks[callback].name);
-        }
-        this.events.emit("pendingRequestsChange", pending);
-    }
     sendRequest(cp, command, args, expectResponse) {
         const req = {
             seq: this.seq++,
             command,
             arguments: args
         };
-        // console.log("sending request", command, "with args", args)
+        if (window.atom_typescript_debug) {
+            console.log("sending request", command, "with args", args);
+        }
         setImmediate(() => {
-            cp.stdin.write(JSON.stringify(req) + "\n");
+            try {
+                cp.stdin.write(JSON.stringify(req) + "\n");
+            }
+            catch (error) {
+                const callback = this.callbacks.remove(req.seq);
+                if (callback) {
+                    callback.reject(error);
+                }
+                else {
+                    console.error(error);
+                }
+            }
         });
         if (expectResponse) {
-            const resultPromise = new Promise((resolve, reject) => {
-                this.callbacks[req.seq] = { name: command, resolve, reject, started: Date.now() };
-            });
-            this.emitPendingRequests();
-            return resultPromise;
+            return this.callbacks.add(req.seq, command);
         }
     }
     startServer() {
         if (!this.serverPromise) {
-            this.serverPromise = new Promise((resolve, reject) => {
-                // console.log("starting", this.tsServerPath)
-                const cp = new atom_1.BufferedNodeProcess({
-                    command: this.tsServerPath,
-                    args: this.tsServerArgs,
-                }).process;
-                cp.once("error", err => {
-                    console.log("tsserver failed with", err);
-                    reject(err);
+            let lastStderrOutput;
+            let reject;
+            const exitHandler = (result) => {
+                const err = typeof result === "number" ?
+                    new Error("exited with code: " + result) : result;
+                console.error("tsserver: ", err);
+                this.callbacks.rejectAll(err);
+                reject(err);
+                this.serverPromise = undefined;
+                setImmediate(() => {
+                    let detail = err.stack;
+                    if (lastStderrOutput) {
+                        detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail;
+                    }
+                    atom.notifications.addError("Typescript quit unexpectedly", {
+                        detail,
+                        dismissable: true,
+                    });
                 });
-                cp.once("exit", code => {
-                    console.log("tsserver failed to start with code", code);
-                    reject({ code });
-                });
+            };
+            return this.serverPromise = new Promise((resolve, _reject) => {
+                reject = _reject;
+                if (window.atom_typescript_debug) {
+                    console.log("starting", this.tsServerPath);
+                }
+                const cp = startServer(this.tsServerPath, this.tsServerArgs);
+                cp.once("error", exitHandler);
+                cp.once("exit", exitHandler);
+                // Pipe both stdout and stderr appropriately
                 messageStream(cp.stdout).on("data", this.onMessage);
-                cp.stderr.on("data", data => console.warn("tsserver stderr:", data.toString()));
+                cp.stderr.on("data", data => {
+                    console.warn("tsserver stderr:", lastStderrOutput = data.toString());
+                });
                 // We send an unknown command to verify that the server is working.
                 this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
-            });
-            return this.serverPromise.catch(error => {
-                this.serverPromise = undefined;
-                throw error;
             });
         }
         else {
@@ -178,6 +204,20 @@ class TypescriptServiceClient {
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
+function startServer(tsServerPath, tsServerArgs) {
+    if (INSPECT_TSSERVER) {
+        return new atom_1.BufferedProcess({
+            command: "node",
+            args: ["--inspect", tsServerPath].concat(tsServerArgs),
+        }).process;
+    }
+    else {
+        return new atom_1.BufferedNodeProcess({
+            command: tsServerPath,
+            args: tsServerArgs
+        }).process;
+    }
+}
 function isEvent(res) {
     return res.type === "event";
 }
@@ -191,13 +231,23 @@ function messageStream(input) {
 class MessageStream extends stream_1.Transform {
     constructor() {
         super({ objectMode: true });
-        this.lineCount = 1;
     }
-    _transform(line, encoding, callback) {
-        if (this.lineCount % 2 === 0) {
-            this.push(JSON.parse(line));
+    _transform(buf, encoding, callback) {
+        const line = buf.toString();
+        try {
+            if (line.startsWith("{")) {
+                this.push(JSON.parse(line));
+            }
+            else if (!line.startsWith("Content-Length:")) {
+                console.warn(line);
+            }
         }
-        this.lineCount += 1;
-        callback(null);
+        catch (error) {
+            console.error("client: failed to parse: ", line);
+        }
+        finally {
+            callback(null);
+        }
     }
 }
+//# sourceMappingURL=client.js.map

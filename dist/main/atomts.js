@@ -93,7 +93,7 @@ function activate(state) {
                 statusPanel,
             }));
         }));
-        panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
+        activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
         if (activePane) {
             activePane.onActivated();
         }
@@ -123,7 +123,7 @@ function serialize() {
 exports.serialize = serialize;
 function consumeLinter(registry) {
     linter = registry.register({
-        name: ""
+        name: "Typescript"
     });
 }
 exports.consumeLinter = consumeLinter;
@@ -172,3 +172,4 @@ function getTypescriptBuffer(filePath) {
         };
     });
 }
+//# sourceMappingURL=atomts.js.map

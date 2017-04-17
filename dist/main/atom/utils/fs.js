@@ -34,3 +34,4 @@ function removeExt(filePath) {
     return filePath.substr(0, filePath.lastIndexOf('.'));
 }
 exports.removeExt = removeExt;
+//# sourceMappingURL=fs.js.map

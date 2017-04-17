@@ -2,9 +2,9 @@ import {$} from "atom-space-pen-views"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
 import {spanToRange} from "./atom/utils"
-import {TypescriptServiceClient} from "../client/client"
-import {TypescriptBuffer} from "./typescriptBuffer"
 import {StatusPanel} from "./atom/components/statusPanel"
+import {TypescriptBuffer} from "./typescriptBuffer"
+import {TypescriptServiceClient} from "../client/client"
 import * as tooltipManager from './atom/tooltipManager'
 
 interface PaneOptions {
@@ -155,7 +155,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
     this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
 
-    if (this.isActive) {
+    // onOpened might trigger before onActivated so we can't rely on isActive flag
+    if (atom.workspace.getActiveTextEditor() === this.editor) {
+      this.isActive = true
       this.opts.statusPanel.setVersion(this.client.version)
     }
 

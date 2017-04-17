@@ -122,3 +122,4 @@ class StatusPanel extends HTMLElement {
 }
 exports.StatusPanel = StatusPanel;
 document.registerElement('ts-status-panel', StatusPanel);
+//# sourceMappingURL=statusPanel.js.map

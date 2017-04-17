@@ -109,3 +109,4 @@ function registerCommands(deps) {
     // }, 400);
 }
 exports.registerCommands = registerCommands;
+//# sourceMappingURL=index.js.map

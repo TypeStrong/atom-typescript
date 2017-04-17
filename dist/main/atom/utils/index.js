@@ -6,3 +6,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./atom"));
 __export(require("./fs"));
 __export(require("./ts"));
+//# sourceMappingURL=index.js.map

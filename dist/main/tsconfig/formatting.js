@@ -30,3 +30,4 @@ function defaultFormatCodeOptions() {
     };
 }
 exports.defaultFormatCodeOptions = defaultFormatCodeOptions;
+//# sourceMappingURL=formatting.js.map

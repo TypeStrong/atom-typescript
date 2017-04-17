@@ -22,3 +22,4 @@ function rangeToLocationRange(range) {
     };
 }
 exports.rangeToLocationRange = rangeToLocationRange;
+//# sourceMappingURL=ts.js.map

@@ -7,6 +7,7 @@ import {
   LocationRangeQuery,
   rangeToLocationRange,
 } from "../utils"
+import {loadProjectConfig} from "../../atomts"
 
 commands.set("typescript:format-code", deps => {
   return async e => {
@@ -36,13 +37,15 @@ commands.set("typescript:format-code", deps => {
     }
 
     const client = await deps.getClient(filePath)
-    const edits: CodeEdit[] = []
+    const options = await getProjectCodeSettings(filePath)
 
-    // TODO: Read these from package settings and/or tsconfig.json
-    const options: FormatCodeSettings = {
-      indentSize: atom.config.get("editor.tabLength"),
-      tabSize: atom.config.get("editor.tabLength"),
-    }
+    // Newer versions of tsserver ignore the options argument so we need to call
+    // configure with the format code options to make the format command do anything.
+    client.executeConfigure({
+      formatOptions: options
+    })
+
+    const edits: CodeEdit[] = []
 
     // Collect all edits together so we can update everything in a single transaction
     for (const range of ranges) {
@@ -59,3 +62,14 @@ commands.set("typescript:format-code", deps => {
     }
   }
 })
+
+async function getProjectCodeSettings(filePath: string): Promise<FormatCodeSettings> {
+  const config = await loadProjectConfig(filePath)
+  const options = config.formatCodeOptions
+
+  return {
+    indentSize: atom.config.get("editor.tabLength"),
+    tabSize: atom.config.get("editor.tabLength"),
+    ...options,
+  }
+}

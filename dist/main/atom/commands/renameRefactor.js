@@ -46,3 +46,4 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
         }));
     });
 });
+//# sourceMappingURL=renameRefactor.js.map

@@ -124,3 +124,4 @@ function pixelPositionFromMouseEvent(editorView, event) {
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };
 }
+//# sourceMappingURL=tooltipManager.js.map
