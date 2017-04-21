@@ -33,7 +33,7 @@ export function activate(state: PackageState) {
     let statusPriority = 100
     for (const panel of statusBar.getRightTiles()) {
       if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
-        statusPriority = panel.getPriority() - 1
+      statusPriority = panel.getPriority() - 1
       }
     }
 
@@ -47,12 +47,13 @@ export function activate(state: PackageState) {
     })
 
     subscriptions.add(statusPanel)
-
     const errorPusher = new ErrorPusher()
-    errorPusher.setUnusedAsInfo(atom.config.get('atom-typescript.unusedAsInfo'));
-    subscriptions.add((<any>atom.config).onDidChange('atom-typescript.unusedAsInfo', (val:{oldValue:boolean, newValue:boolean}) => {
-      errorPusher.setUnusedAsInfo(val.newValue);
-    }))
+    errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
+    subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo",
+      (val:{oldValue:boolean, newValue:boolean}) => {
+        errorPusher.setUnusedAsInfo(val.newValue)
+      }
+    ))
 
     clientResolver.on("pendingRequestsChange", () => {
       const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))

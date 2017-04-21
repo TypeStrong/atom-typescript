@@ -7,7 +7,7 @@ import {locationsToRange, systemPath} from "./atom/utils"
 export class ErrorPusher {
   private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
-  private unusedAsInfo = true;
+  private unusedAsInfo = true
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
   setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
@@ -28,7 +28,7 @@ export class ErrorPusher {
   }
 
   setUnusedAsInfo(unusedAsInfo: boolean) {
-    this.unusedAsInfo = unusedAsInfo;
+    this.unusedAsInfo = unusedAsInfo
   }
 
   /** Clear all errors */
