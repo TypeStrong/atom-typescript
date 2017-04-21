@@ -26,10 +26,6 @@ class ErrorPusher {
                 this.linter.setMessages(errors);
             }
         }, 100);
-        this.unusedAsInfo = atom.config.get('atom-typescript.unusedAsInfo');
-        atom.config.onDidChange('atom-typescript.unusedAsInfo', (val) => {
-            this.unusedAsInfo = val.newValue;
-        });
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {
@@ -44,6 +40,9 @@ class ErrorPusher {
         }
         prefixed.set(filePath, errors);
         this.pushErrors();
+    }
+    setUnusedAsInfo(unusedAsInfo) {
+        this.unusedAsInfo = unusedAsInfo;
     }
     /** Clear all errors */
     clear() {

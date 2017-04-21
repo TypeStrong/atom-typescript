@@ -39,6 +39,10 @@ function activate(state) {
         });
         subscriptions.add(statusPanel);
         const errorPusher = new errorPusher_1.ErrorPusher();
+        errorPusher.setUnusedAsInfo(atom.config.get('atom-typescript.unusedAsInfo'));
+        subscriptions.add(atom.config.onDidChange('atom-typescript.unusedAsInfo', (val) => {
+            errorPusher.setUnusedAsInfo(val.newValue);
+        }));
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);

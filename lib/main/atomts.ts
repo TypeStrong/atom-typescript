@@ -49,6 +49,10 @@ export function activate(state: PackageState) {
     subscriptions.add(statusPanel)
 
     const errorPusher = new ErrorPusher()
+    errorPusher.setUnusedAsInfo(atom.config.get('atom-typescript.unusedAsInfo'));
+    subscriptions.add((<any>atom.config).onDidChange('atom-typescript.unusedAsInfo', (val:{oldValue:boolean, newValue:boolean}) => {
+      errorPusher.setUnusedAsInfo(val.newValue);
+    }))
 
     clientResolver.on("pendingRequestsChange", () => {
       const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))

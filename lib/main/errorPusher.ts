@@ -8,12 +8,7 @@ export class ErrorPusher {
   private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
   private unusedAsInfo = true;
-  constructor() {
-    this.unusedAsInfo = atom.config.get('atom-typescript.unusedAsInfo');
-    (<any>atom.config).onDidChange('atom-typescript.unusedAsInfo', (val:{oldValue:boolean, newValue:boolean}) => {
-      this.unusedAsInfo = val.newValue;
-    })
-  }
+
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
   setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
     if (prefix == undefined || filePath == undefined) {
@@ -30,6 +25,10 @@ export class ErrorPusher {
     prefixed.set(filePath, errors)
 
     this.pushErrors()
+  }
+
+  setUnusedAsInfo(unusedAsInfo: boolean) {
+    this.unusedAsInfo = unusedAsInfo;
   }
 
   /** Clear all errors */
