@@ -7,6 +7,7 @@ import {locationsToRange, systemPath} from "./atom/utils"
 export class ErrorPusher {
   private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
+  private unusedAsInfo = true
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
   setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
@@ -24,6 +25,10 @@ export class ErrorPusher {
     prefixed.set(filePath, errors)
 
     this.pushErrors()
+  }
+
+  setUnusedAsInfo(unusedAsInfo: boolean) {
+    this.unusedAsInfo = unusedAsInfo
   }
 
   /** Clear all errors */
@@ -46,7 +51,7 @@ export class ErrorPusher {
         const _filePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
           errors.push({
-            type: "Error",
+            type: this.unusedAsInfo && diagnostic.code === 6133 ?"Info":"Error",
             text: diagnostic.text,
             filePath: _filePath,
             range: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined

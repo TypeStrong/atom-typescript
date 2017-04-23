@@ -2,7 +2,9 @@ declare namespace AtomCore {
   interface IEditor {
     onDidChangeGrammar(callback: (grammar: IGrammar) => any): Disposable
   }
-
+  interface IConfig {
+    onDidChange(opt:string, callback: (val:{oldValue:any, newValue:any}) => void): Disposable
+  }
   interface CommandEvent extends Event {
     abortKeyBinding(): any
   }

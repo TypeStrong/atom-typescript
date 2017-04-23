@@ -6,6 +6,7 @@ const utils_1 = require("./atom/utils");
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
+        this.unusedAsInfo = true;
         this.pushErrors = lodash_1.debounce(() => {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
@@ -13,7 +14,7 @@ class ErrorPusher {
                     const _filePath = utils_1.systemPath(filePath);
                     for (const diagnostic of diagnostics) {
                         errors.push({
-                            type: "Error",
+                            type: this.unusedAsInfo && diagnostic.code === 6133 ? "Info" : "Error",
                             text: diagnostic.text,
                             filePath: _filePath,
                             range: diagnostic.start ? utils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined
@@ -39,6 +40,9 @@ class ErrorPusher {
         }
         prefixed.set(filePath, errors);
         this.pushErrors();
+    }
+    setUnusedAsInfo(unusedAsInfo) {
+        this.unusedAsInfo = unusedAsInfo;
     }
     /** Clear all errors */
     clear() {

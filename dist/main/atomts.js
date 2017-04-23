@@ -39,6 +39,10 @@ function activate(state) {
         });
         subscriptions.add(statusPanel);
         const errorPusher = new errorPusher_1.ErrorPusher();
+        errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
+        subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", (val) => {
+            errorPusher.setUnusedAsInfo(val.newValue);
+        }));
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
@@ -138,6 +142,14 @@ function provide() {
     ];
 }
 exports.provide = provide;
+exports.config = {
+    unusedAsInfo: {
+        title: 'Show unused values with severity info',
+        description: 'Show unused values with severety \'info\' instead of \'error\'',
+        type: 'boolean',
+        default: true
+    }
+};
 function loadProjectConfig(sourcePath) {
     return exports.clientResolver.get(sourcePath).then(client => {
         return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
