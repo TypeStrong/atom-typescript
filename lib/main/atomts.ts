@@ -33,7 +33,7 @@ export function activate(state: PackageState) {
     let statusPriority = 100
     for (const panel of statusBar.getRightTiles()) {
       if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
-      statusPriority = panel.getPriority() - 1
+        statusPriority = panel.getPriority() - 1
       }
     }
 
@@ -50,7 +50,7 @@ export function activate(state: PackageState) {
     const errorPusher = new ErrorPusher()
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo",
-      (val:{oldValue:boolean, newValue:boolean}) => {
+      (val: {oldValue: boolean, newValue: boolean}) => {
         errorPusher.setUnusedAsInfo(val.newValue)
       }
     ))
@@ -148,7 +148,7 @@ export function deactivate() {
 }
 
 export function serialize(): PackageState {
-    return {}
+  return {}
 }
 
 export function consumeLinter(registry: LinterRegistry) {
@@ -167,6 +167,7 @@ export function provide() {
     new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
 }
+
 export var config = {
   unusedAsInfo: {
     title: 'Show unused values with severity info',

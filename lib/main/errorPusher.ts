@@ -51,7 +51,7 @@ export class ErrorPusher {
         const _filePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
           errors.push({
-            type: this.unusedAsInfo && diagnostic.code === 6133 ?"Info":"Error",
+            type: this.unusedAsInfo && diagnostic.code === 6133 ? "Info" : "Error",
             text: diagnostic.text,
             filePath: _filePath,
             range: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined
