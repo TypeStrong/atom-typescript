@@ -171,7 +171,7 @@ class TypescriptServiceClient {
                 reject(err);
                 this.serverPromise = undefined;
                 setImmediate(() => {
-                    let detail = err.stack;
+                    let detail = err && err.stack || "";
                     if (lastStderrOutput) {
                         detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail;
                     }
