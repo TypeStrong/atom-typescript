@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "types": ["node"]
-  },
-  "compileOnSave": false
-}
