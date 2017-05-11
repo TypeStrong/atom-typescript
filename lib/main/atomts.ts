@@ -171,7 +171,7 @@ export function provide() {
 export var config = {
   unusedAsInfo: {
     title: 'Show unused values with severity info',
-    description: 'Show unused values with severety \'info\' instead of \'error\'',
+    description: 'Show unused values with severity \'info\' instead of \'error\'',
     type: 'boolean',
     default: true
   }
