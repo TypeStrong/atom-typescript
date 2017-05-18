@@ -7,7 +7,7 @@ const fuzzaldrin = require("fuzzaldrin");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
     constructor(clientResolver, opts) {
-        this.selector = ".source.ts, .source.tsx";
+        this.selector = ".source.ts, .source.tsx, .source.js";
         this.disableForSelector = ".comment";
         this.inclusionPriority = 3;
         this.suggestionPriority = 3;

@@ -23,11 +23,11 @@ export function isTypescriptFile(filePath?: string): boolean {
   if (!filePath) return false
 
   const ext = path.extname(filePath)
-  return ext === ".ts" || ext === ".tsx"
+  return ext === ".ts" || ext === ".tsx" || ext === ".js"
 }
 
 export function isAllowedExtension(ext: string) {
-    return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
+    return (ext == '.ts' || ext == '.tst' || ext == '.tsx' || ext == '.js');
 }
 
 export function isActiveEditorOnDiskAndTs() {
@@ -119,7 +119,7 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
 export function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
         .filter(editor=> !!editor.getPath())
-        .filter(editor=> (path.extname(editor.getPath()) === '.ts'));
+        .filter(editor=> (path.extname(editor.getPath()) === '.ts' || editor.getPath()) === '.js'));
 }
 
 export function getOpenTypeScritEditorsConsistentPaths() {

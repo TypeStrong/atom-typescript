@@ -21,7 +21,7 @@ type Options = {
 }
 
 export class AutocompleteProvider implements Provider {
-  selector = ".source.ts, .source.tsx"
+  selector = ".source.ts, .source.tsx, .source.js"
 
   disableForSelector = ".comment"
 

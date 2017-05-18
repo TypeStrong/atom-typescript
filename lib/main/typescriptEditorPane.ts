@@ -238,5 +238,5 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 }
 
 function isTypescriptGrammar(grammar: AtomCore.IGrammar): boolean {
-  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
+  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx" || grammar.scopeName === "source.js"
 }
