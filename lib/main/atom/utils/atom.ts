@@ -119,7 +119,7 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
 export function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
         .filter(editor=> !!editor.getPath())
-        .filter(editor=> (path.extname(editor.getPath()) === '.ts' || editor.getPath()) === '.js'));
+        .filter(editor=> (path.extname(editor.getPath()) === '.ts' || '.js');
 }
 
 export function getOpenTypeScritEditorsConsistentPaths() {

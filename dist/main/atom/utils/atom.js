@@ -106,8 +106,7 @@ exports.getRangeForTextSpan = getRangeForTextSpan;
 function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
         .filter(editor => !!editor.getPath())
-        .filter(editor => (path.extname(editor.getPath()) === '.ts' || editor.getPath()) === '.js');
-    ;
+        .filter(editor => (path.extname(editor.getPath()) === '.ts' || '.js'));
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
