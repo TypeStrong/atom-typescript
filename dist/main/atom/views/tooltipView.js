@@ -1,36 +1,30 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var view = require("./view");
+Object.defineProperty(exports, "__esModule", { value: true });
+const view = require("./view");
 var $ = view.$;
-var TooltipView = (function (_super) {
-    __extends(TooltipView, _super);
-    function TooltipView(rect) {
-        var _this = _super.call(this, rect) || this;
-        _this.rect = rect;
-        $(document.body).append(_this.$);
-        _this.updatePosition();
-        return _this;
+class TooltipView extends view.View {
+    constructor(rect) {
+        super(rect);
+        this.rect = rect;
+        $(document.body).append(this.$);
+        this.updatePosition();
     }
-    TooltipView.content = function () {
-        var _this = this;
-        return this.div({ class: 'atom-typescript-tooltip tooltip' }, function () {
-            _this.div({ class: 'tooltip-inner', outlet: 'inner' });
+    static content() {
+        return this.div({ class: 'atom-typescript-tooltip tooltip' }, () => {
+            this.div({ class: 'tooltip-inner', outlet: 'inner' });
         });
-    };
-    TooltipView.prototype.updateText = function (text) {
+    }
+    updateText(text) {
         this.inner.html(text);
         this.updatePosition();
         this.$.fadeTo(300, 1);
-    };
-    TooltipView.prototype.updatePosition = function () {
+    }
+    updatePosition() {
         var offset = 10;
         var left = this.rect.right;
         var top = this.rect.bottom;
         var right = undefined;
+        // X axis adjust
         if (left + this.$[0].offsetWidth >= view.$(document.body).width())
             left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
         if (left < 0) {
@@ -38,11 +32,12 @@ var TooltipView = (function (_super) {
             left = offset;
             right = offset;
         }
+        // Y axis adjust
         if (top + this.$[0].offsetHeight >= $(document.body).height()) {
             top = this.rect.top - this.$[0].offsetHeight;
         }
-        this.$.css({ left: left, top: top, right: right });
-    };
-    return TooltipView;
-}(view.View));
+        this.$.css({ left, top, right });
+    }
+}
 exports.TooltipView = TooltipView;
+//# sourceMappingURL=tooltipView.js.map

@@ -1,16 +1,17 @@
 "use strict";
-var fsu = require("../utils/fsUtil");
-var fs = require("fs");
-var path = require("path");
-var os = require("os");
-var child_process = require("child_process");
+Object.defineProperty(exports, "__esModule", { value: true });
+const fsu = require("../utils/fsUtil");
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const child_process = require("child_process");
 var fuzzaldrin = require('fuzzaldrin');
-var transformer_1 = require("./transformers/transformer");
-var transformer = require("./transformers/transformer");
-var tsconfig = require("../tsconfig/tsconfig");
-var utils = require("./utils");
+const transformer_1 = require("./transformers/transformer");
+const transformer = require("./transformers/transformer");
+const tsconfig = require("../tsconfig/tsconfig");
+const utils = require("./utils");
 var resolve = Promise.resolve.bind(Promise);
-var projectCache_1 = require("./projectCache");
+const projectCache_1 = require("./projectCache");
 function textSpan(span) {
     return {
         start: span.start,
@@ -18,7 +19,7 @@ function textSpan(span) {
     };
 }
 function echo(data) {
-    return projectCache_1.queryParent.echoNumWithModification({ num: data.num }).then(function (resp) {
+    return projectCache_1.queryParent.echoNumWithModification({ num: data.num }).then((resp) => {
         data.num = resp.num;
         return data;
     });
@@ -43,33 +44,36 @@ function quickInfo(query) {
     }
 }
 exports.quickInfo = quickInfo;
-var building = require("./modules/building");
+const building = require("./modules/building");
 function build(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);
-    var filesToEmit = proj.projectFile.project.files.filter(function (fte) { return !fte.toLowerCase().endsWith('.json'); });
+    let filesToEmit = proj.projectFile.project.files.filter(fte => !fte.toLowerCase().endsWith('.json'));
+    /** I am assuming there was at least one file. How else would we even get here? */
     filesToEmit = proj.projectFile.project.compilerOptions.outFile ? [filesToEmit[0]] : filesToEmit;
-    var totalCount = filesToEmit.length;
+    let totalCount = filesToEmit.length;
     var builtCount = 0;
     var errorCount = 0;
-    var outputs = filesToEmit.map(function (filePath) {
+    let outputs = filesToEmit.map((filePath) => {
         var output = building.emitFile(proj, filePath);
         builtCount++;
         errorCount = errorCount + output.errors.length;
         projectCache_1.queryParent.buildUpdate({
-            totalCount: totalCount,
-            builtCount: builtCount,
-            errorCount: errorCount,
+            totalCount,
+            builtCount,
+            errorCount,
             firstError: errorCount && !(errorCount - output.errors.length),
-            filePath: filePath,
+            filePath,
             errorsInFile: output.errors
         });
         return output;
     });
+    // Also optionally emit a root dts:
     building.emitDts(proj);
+    // If there is a post build script to run ... run it
     if (proj.projectFile.project.scripts
         && proj.projectFile.project.scripts.postbuild) {
-        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, function (err, stdout, stderr) {
+        child_process.exec(proj.projectFile.project.scripts.postbuild, { cwd: proj.projectFile.projectFileDirectory }, (err, stdout, stderr) => {
             if (err) {
                 console.error('postbuild failed!');
                 console.error(proj.projectFile.project.scripts.postbuild);
@@ -77,12 +81,12 @@ function build(query) {
             }
         });
     }
-    var tsFilesWithInvalidEmit = outputs
-        .filter(function (o) { return o.emitError; })
-        .map(function (o) { return o.sourceFileName; });
-    var tsFilesWithValidEmit = outputs
-        .filter(function (o) { return !o.emitError; })
-        .map(function (o) { return o.sourceFileName; });
+    let tsFilesWithInvalidEmit = outputs
+        .filter((o) => o.emitError)
+        .map((o) => o.sourceFileName);
+    let tsFilesWithValidEmit = outputs
+        .filter((o) => !o.emitError)
+        .map((o) => o.sourceFileName);
     return resolve({
         tsFilesWithInvalidEmit: tsFilesWithInvalidEmit,
         tsFilesWithValidEmit: tsFilesWithValidEmit,
@@ -90,9 +94,9 @@ function build(query) {
             outputs: outputs,
             counts: {
                 inputFiles: proj.projectFile.project.files.length,
-                outputFiles: utils.selectMany(outputs.map(function (out) { return out.outputFiles; })).length,
+                outputFiles: utils.selectMany(outputs.map((out) => out.outputFiles)).length,
                 errors: errorCount,
-                emitErrors: outputs.filter(function (out) { return out.emitError; }).length
+                emitErrors: outputs.filter(out => out.emitError).length
             }
         }
     });
@@ -102,22 +106,30 @@ function getCompletionsAtPosition(query) {
     projectCache_1.consistentPath(query);
     var filePath = query.filePath, position = query.position, prefix = query.prefix;
     var project = projectCache_1.getOrCreateProject(filePath);
+    // For transformer files
     filePath = transformer.getPseudoFilePath(filePath);
     var completions = project.languageService.getCompletionsAtPosition(filePath, position);
-    var completionList = completions ? completions.entries.filter(function (x) { return !!x; }) : [];
+    var completionList = completions ? completions.entries.filter(x => !!x) : [];
     var endsInPunctuation = utils.prefixEndsInPunctuation(prefix);
     if (prefix.length && !endsInPunctuation) {
+        // Didn't work good for punctuation
         completionList = fuzzaldrin.filter(completionList, prefix, { key: 'name' });
     }
-    var maxSuggestions = 50;
-    var maxDocComments = 10;
+    /** Doing too many suggestions is slowing us down in some cases */
+    let maxSuggestions = 50;
+    /** Doc comments slow us down tremendously */
+    let maxDocComments = 10;
+    // limit to maxSuggestions
     if (completionList.length > maxSuggestions)
         completionList = completionList.slice(0, maxSuggestions);
+    // Potentially use it more aggresively at some point
     function docComment(c) {
         var completionDetails = project.languageService.getCompletionEntryDetails(filePath, position, c.name);
+        // Show the signatures for methods / functions
         var display;
         if (c.kind == "method" || c.kind == "function" || c.kind == "property") {
-            var parts = completionDetails.displayParts || [];
+            let parts = completionDetails.displayParts || [];
+            // don't show `(method)` or `(function)` as that is taken care of by `kind`
             if (parts.length > 3) {
                 parts = parts.splice(3);
             }
@@ -129,7 +141,7 @@ function getCompletionsAtPosition(query) {
         var comment = (display ? display + '\n' : '') + ts.displayPartsToString(completionDetails.documentation || []);
         return { display: display, comment: comment };
     }
-    var completionsToReturn = completionList.map(function (c, index) {
+    var completionsToReturn = completionList.map((c, index) => {
         if (index < maxDocComments) {
             var details = docComment(c);
         }
@@ -149,18 +161,19 @@ function getCompletionsAtPosition(query) {
     if (query.prefix == '(') {
         var signatures = project.languageService.getSignatureHelpItems(query.filePath, query.position);
         if (signatures && signatures.items) {
-            signatures.items.forEach(function (item) {
-                var snippet = item.parameters.map(function (p, i) {
+            signatures.items.forEach((item) => {
+                var snippet = item.parameters.map((p, i) => {
                     var display = '${' + (i + 1) + ':' + ts.displayPartsToString(p.displayParts) + '}';
                     if (i === signatures.argumentIndex) {
                         return display;
                     }
                     return display;
                 }).join(ts.displayPartsToString(item.separatorDisplayParts));
+                // We do not use the label for now. But it looks too good to kill off
                 var label = ts.displayPartsToString(item.prefixDisplayParts)
                     + snippet
                     + ts.displayPartsToString(item.suffixDisplayParts);
-                completionsToReturn.unshift({ snippet: snippet });
+                completionsToReturn.unshift({ snippet });
             });
         }
     }
@@ -176,6 +189,7 @@ function getSignatureHelps(query) {
     var signatureHelpItems = project.languageService.getSignatureHelpItems(query.filePath, query.position);
     if (!signatureHelpItems || !signatureHelpItems.items || !signatureHelpItems.items.length)
         return resolve({ signatureHelps: [] });
+    // TODO: WIP
     return signatureHelpItems.items;
 }
 exports.getSignatureHelps = getSignatureHelps;
@@ -185,7 +199,7 @@ function emitFile(query) {
     return resolve(building.emitFile(projectCache_1.getOrCreateProject(filePath), filePath));
 }
 exports.emitFile = emitFile;
-var formatting = require("./modules/formatting");
+const formatting = require("./modules/formatting");
 function formatDocument(query) {
     projectCache_1.consistentPath(query);
     var proj = projectCache_1.getOrCreateProject(query.filePath);
@@ -207,7 +221,8 @@ function getDefinitionsAtPosition(query) {
         return resolve({ projectFileDirectory: projectFileDirectory, definitions: [] });
     return resolve({
         projectFileDirectory: projectFileDirectory,
-        definitions: definitions.map(function (d) {
+        definitions: definitions.map(d => {
+            // If we can get the filename *we are in the same program :P*
             var pos = project.languageServiceHost.getPositionFromIndex(d.fileName, d.textSpan.start);
             return {
                 filePath: d.fileName,
@@ -220,6 +235,7 @@ exports.getDefinitionsAtPosition = getDefinitionsAtPosition;
 function updateText(query) {
     projectCache_1.consistentPath(query);
     var lsh = projectCache_1.getOrCreateProject(query.filePath).languageServiceHost;
+    // Apply the update to the pseudo ts file
     var filePath = transformer.getPseudoFilePath(query.filePath);
     lsh.updateScript(filePath, query.text);
     return resolve({});
@@ -227,15 +243,17 @@ function updateText(query) {
 exports.updateText = updateText;
 function editText(query) {
     projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
+    let project = projectCache_1.getOrCreateProject(query.filePath);
     if (project.includesSourceFile(query.filePath)) {
-        var lsh = project.languageServiceHost;
-        var filePath = transformer.getPseudoFilePath(query.filePath);
+        let lsh = project.languageServiceHost;
+        // Apply the update to the pseudo ts file
+        let filePath = transformer.getPseudoFilePath(query.filePath);
         lsh.editScript(filePath, query.start, query.end, query.newText);
     }
     return resolve({});
 }
 exports.editText = editText;
+/** Utility function */
 function getDiagnositcsByFilePath(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -247,23 +265,24 @@ function getDiagnositcsByFilePath(query) {
 }
 function errorsForFile(query) {
     projectCache_1.consistentPath(query);
-    var project;
+    let project;
     try {
         project = projectCache_1.getOrCreateProject(query.filePath);
     }
     catch (ex) {
         return resolve({ errors: [] });
     }
+    // for file path errors in transformer
     if (transformer_1.isTransformerFile(query.filePath)) {
-        var filePath = transformer.getPseudoFilePath(query.filePath);
-        var errors = getDiagnositcsByFilePath({ filePath: filePath }).map(building.diagnosticToTSError);
-        errors.forEach(function (error) {
+        let filePath = transformer.getPseudoFilePath(query.filePath);
+        let errors = getDiagnositcsByFilePath({ filePath }).map(building.diagnosticToTSError);
+        errors.forEach(error => {
             error.filePath = query.filePath;
         });
         return resolve({ errors: errors });
     }
     else {
-        var result = void 0;
+        let result;
         if (project.includesSourceFile(query.filePath)) {
             result = getDiagnositcsByFilePath(query).map(building.diagnosticToTSError);
         }
@@ -291,9 +310,10 @@ function getRenameInfo(query) {
     if (info && info.canRename) {
         var locations = {};
         project.languageService.findRenameLocations(query.filePath, query.position, findInStrings, findInComments)
-            .forEach(function (loc) {
+            .forEach(loc => {
             if (!locations[loc.fileName])
                 locations[loc.fileName] = [];
+            // Using unshift makes them with maximum value on top ;)
             locations[loc.fileName].unshift(textSpan(loc.textSpan));
         });
         return resolve({
@@ -318,7 +338,7 @@ function getIndentationAtPosition(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var indent = project.languageService.getIndentationAtPosition(query.filePath, query.position, project.projectFile.project.formatCodeOptions);
-    return resolve({ indent: indent });
+    return resolve({ indent });
 }
 exports.getIndentationAtPosition = getIndentationAtPosition;
 function debugLanguageServiceHostVersion(query) {
@@ -334,14 +354,19 @@ function getProjectFileDetails(query) {
 }
 exports.getProjectFileDetails = getProjectFileDetails;
 function sortNavbarItemsBySpan(items) {
-    items.sort(function (a, b) { return a.spans[0].start - b.spans[0].start; });
-    for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
-        var item = items_1[_i];
+    items.sort((a, b) => a.spans[0].start - b.spans[0].start);
+    // sort children recursively
+    for (let item of items) {
         if (item.childItems) {
             sortNavbarItemsBySpan(item.childItems);
         }
     }
 }
+/**
+ * Note the `indent` is fairly useless in ts service
+ * Basically only exists for global / module level and 0 elsewhere
+ * We make it true indent here ;)
+ */
 function flattenNavBarItems(items) {
     var toreturn = [];
     function keepAdding(item, depth) {
@@ -350,10 +375,11 @@ function flattenNavBarItems(items) {
         delete item.childItems;
         toreturn.push(item);
         if (children) {
-            children.forEach(function (child) { return keepAdding(child, depth + 1); });
+            children.forEach(child => keepAdding(child, depth + 1));
         }
     }
-    items.forEach(function (item) { return keepAdding(item, 0); });
+    // Kick it off
+    items.forEach(item => keepAdding(item, 0));
     return toreturn;
 }
 function getNavigationBarItems(query) {
@@ -361,17 +387,21 @@ function getNavigationBarItems(query) {
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var languageService = project.languageService;
     var navBarItems = languageService.getNavigationBarItems(query.filePath);
+    // remove the first global (whatever that is???)
     if (navBarItems.length && navBarItems[0].text == "<global>") {
         navBarItems.shift();
     }
+    // Sort items by first spans:
     sortNavbarItemsBySpan(navBarItems);
+    // And flatten
     navBarItems = flattenNavBarItems(navBarItems);
-    var items = navBarItems.map(function (item) {
+    // Add a position
+    var items = navBarItems.map(item => {
         item.position = project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start);
         delete item.spans;
         return item;
     });
-    return resolve({ items: items });
+    return resolve({ items });
 }
 exports.getNavigationBarItems = getNavigationBarItems;
 function navigationBarItemToSemanticTreeNode(item, project, query) {
@@ -381,7 +411,7 @@ function navigationBarItemToSemanticTreeNode(item, project, query) {
         kindModifiers: item.kindModifiers,
         start: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start),
         end: project.languageServiceHost.getPositionFromIndex(query.filePath, item.spans[0].start + item.spans[0].length),
-        subNodes: item.childItems ? item.childItems.map(function (ci) { return navigationBarItemToSemanticTreeNode(ci, project, query); }) : []
+        subNodes: item.childItems ? item.childItems.map(ci => navigationBarItemToSemanticTreeNode(ci, project, query)) : []
     };
     return toReturn;
 }
@@ -389,26 +419,29 @@ function getSemtanticTree(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var navBarItems = project.languageService.getNavigationBarItems(query.filePath);
+    // remove the first global (whatever that is???)
     if (navBarItems.length && navBarItems[0].text == "<global>") {
         navBarItems.shift();
     }
+    // Sort items by first spans:
     sortNavbarItemsBySpan(navBarItems);
-    var nodes = navBarItems.map(function (nbi) { return navigationBarItemToSemanticTreeNode(nbi, project, query); });
-    return resolve({ nodes: nodes });
+    // convert to SemanticTreeNodes
+    var nodes = navBarItems.map(nbi => navigationBarItemToSemanticTreeNode(nbi, project, query));
+    return resolve({ nodes });
 }
 exports.getSemtanticTree = getSemtanticTree;
 function getNavigateToItems(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var languageService = project.languageService;
-    var getNodeKind = ts.getNodeKind;
+    let getNodeKind = ts.getNodeKind;
     function getDeclarationName(declaration) {
-        var result = getTextOfIdentifierOrLiteral(declaration.name);
+        let result = getTextOfIdentifierOrLiteral(declaration.name);
         if (result !== undefined) {
             return result;
         }
         if (declaration.name.kind === ts.SyntaxKind.ComputedPropertyName) {
-            var expr = declaration.name.expression;
+            let expr = declaration.name.expression;
             if (expr.kind === ts.SyntaxKind.PropertyAccessExpression) {
                 return expr.name.text;
             }
@@ -425,13 +458,11 @@ function getNavigateToItems(query) {
         return undefined;
     }
     var items = [];
-    for (var _i = 0, _a = project.getProjectSourceFiles(); _i < _a.length; _i++) {
-        var file = _a[_i];
-        var declarations = file.getNamedDeclarations();
-        for (var index in declarations) {
-            for (var _b = 0, _c = declarations[index]; _b < _c.length; _b++) {
-                var declaration = _c[_b];
-                var item = {
+    for (let file of project.getProjectSourceFiles()) {
+        let declarations = file.getNamedDeclarations();
+        for (let index in declarations) {
+            for (let declaration of declarations[index]) {
+                let item = {
                     name: getDeclarationName(declaration),
                     kind: getNodeKind(declaration),
                     filePath: file.fileName,
@@ -442,7 +473,7 @@ function getNavigateToItems(query) {
             }
         }
     }
-    return resolve({ items: items });
+    return resolve({ items });
 }
 exports.getNavigateToItems = getNavigateToItems;
 function getReferences(query) {
@@ -451,16 +482,19 @@ function getReferences(query) {
     var languageService = project.languageService;
     var references = [];
     var refs = languageService.getReferencesAtPosition(query.filePath, query.position) || [];
-    references = refs.map(function (r) {
+    references = refs.map(r => {
         var res = project.languageServiceHost.getPositionFromTextSpanWithLinePreview(r.fileName, r.textSpan);
         return { filePath: r.fileName, position: res.position, preview: res.preview };
     });
     return resolve({
-        references: references
+        references
     });
 }
 exports.getReferences = getReferences;
-var getPathCompletions_1 = require("./modules/getPathCompletions");
+/**
+ * Get Completions for external modules + references tags
+ */
+const getPathCompletions_1 = require("./modules/getPathCompletions");
 function filePathWithoutExtension(query) {
     var base = path.basename(query, '.ts');
     return path.dirname(query) + '/' + base;
@@ -469,61 +503,73 @@ function getRelativePathsInProject(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     return resolve(getPathCompletions_1.getPathCompletions({
-        project: project,
+        project,
         filePath: query.filePath,
         prefix: query.prefix,
         includeExternalModules: query.includeExternalModules
     }));
 }
 exports.getRelativePathsInProject = getRelativePathsInProject;
-var astToText_1 = require("./modules/astToText");
+/**
+ * Get AST
+ */
+const astToText_1 = require("./modules/astToText");
 function getAST(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var service = project.languageService;
-    var files = service.getProgram().getSourceFiles().filter(function (x) { return x.fileName == query.filePath; });
+    var files = service.getProgram().getSourceFiles().filter(x => x.fileName == query.filePath);
     if (!files.length)
         resolve({});
     var sourceFile = files[0];
     var root = astToText_1.astToText(sourceFile);
-    return resolve({ root: root });
+    return resolve({ root });
 }
 exports.getAST = getAST;
 function getASTFull(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var service = project.languageService;
-    var files = service.getProgram().getSourceFiles().filter(function (x) { return x.fileName == query.filePath; });
+    var files = service.getProgram().getSourceFiles().filter(x => x.fileName == query.filePath);
     if (!files.length)
         resolve({});
     var sourceFile = files[0];
     var root = astToText_1.astToTextFull(sourceFile);
-    return resolve({ root: root });
+    return resolve({ root });
 }
 exports.getASTFull = getASTFull;
-var programDependencies_1 = require("./modules/programDependencies");
+/**
+ * Get Dependencies
+ */
+const programDependencies_1 = require("./modules/programDependencies");
 function getDependencies(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var projectFile = project.projectFile;
     var links = programDependencies_1.default(projectFile, project.languageService.getProgram());
-    return resolve({ links: links });
+    return resolve({ links });
 }
 exports.getDependencies = getDependencies;
-var qf = require("./fixmyts/quickFix");
-var quickFixRegistry_1 = require("./fixmyts/quickFixRegistry");
+const qf = require("./fixmyts/quickFix");
+const quickFixRegistry_1 = require("./fixmyts/quickFixRegistry");
 function getInfoForQuickFixAnalysis(query) {
     projectCache_1.consistentPath(query);
-    var project = projectCache_1.getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText, fileErrors, positionErrors, positionErrorMessages, positionNode;
+    let project = projectCache_1.getOrCreateProject(query.filePath);
+    let program = project.languageService.getProgram();
+    let sourceFile = program.getSourceFile(query.filePath);
+    let sourceFileText, fileErrors, positionErrors, positionErrorMessages, positionNode;
     if (project.includesSourceFile(query.filePath)) {
         sourceFileText = sourceFile.getFullText();
         fileErrors = getDiagnositcsByFilePath(query);
-        positionErrors = fileErrors.filter(function (e) { return ((e.start - 1) < query.position) && (e.start + e.length + 1) > query.position; });
-        positionErrorMessages = positionErrors.map(function (e) { return ts.flattenDiagnosticMessageText(e.messageText, os.EOL); });
-        positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+        let position = query.position;
+        positionErrors = getPositionErrors(fileErrors, position);
+        if (positionErrors.length === 0 && fileErrors.length !== 0) {
+            /** Fall back to file errors */
+            position = findClosestErrorPosition(fileErrors, position);
+            positionErrors = getPositionErrors(fileErrors, position);
+        }
+        positionErrorMessages = positionErrors.map(e => ts.flattenDiagnosticMessageText(e.messageText, os.EOL));
+        positionNode = ts.getTokenAtPosition(sourceFile, position);
     }
     else {
         sourceFileText = "";
@@ -532,22 +578,32 @@ function getInfoForQuickFixAnalysis(query) {
         positionErrorMessages = [];
         positionNode = undefined;
     }
-    var service = project.languageService;
-    var typeChecker = program.getTypeChecker();
+    let service = project.languageService;
+    let typeChecker = program.getTypeChecker();
     return {
-        project: project,
-        program: program,
-        sourceFile: sourceFile,
-        sourceFileText: sourceFileText,
-        fileErrors: fileErrors,
-        positionErrors: positionErrors,
-        positionErrorMessages: positionErrorMessages,
+        project,
+        program,
+        sourceFile,
+        sourceFileText,
+        fileErrors,
+        positionErrors,
+        positionErrorMessages,
         position: query.position,
-        positionNode: positionNode,
-        service: service,
-        typeChecker: typeChecker,
+        positionNode,
+        service,
+        typeChecker,
         filePath: query.filePath
     };
+}
+function getPositionErrors(fileErrors, position) {
+    /** We want errors that are *touching* and thefore expand the query position by one */
+    return fileErrors.filter(e => ((e.start - 1) < position) && (e.start + e.length + 1) > position);
+}
+function findClosestErrorPosition(fileErrors, position) {
+    const newPos = fileErrors
+        .map(i => [Math.min(Math.abs(position - i.start), Math.abs(position - i.start - i.length)), i.start])
+        .reduce((acc, val) => val[0] < acc[0] || acc[0] === -1 ? val : acc, [-1, -1]);
+    return newPos[1] !== -1 ? newPos[1] : position;
 }
 function getQuickFixes(query) {
     projectCache_1.consistentPath(query);
@@ -556,28 +612,30 @@ function getQuickFixes(query) {
         return resolve({ fixes: [] });
     }
     var info = getInfoForQuickFixAnalysis(query);
+    // And then we let the quickFix determine if it wants provide any fixes for this file
+    // And if so we also treat the result as a display string
     var fixes = quickFixRegistry_1.allQuickFixes
-        .map(function (x) {
+        .map(x => {
         var canProvide = x.canProvideFix(info);
         if (!canProvide)
             return;
         else
             return { key: x.key, display: canProvide.display, isNewTextSnippet: canProvide.isNewTextSnippet };
     })
-        .filter(function (x) { return !!x; });
-    return resolve({ fixes: fixes });
+        .filter(x => !!x);
+    return resolve({ fixes });
 }
 exports.getQuickFixes = getQuickFixes;
 function applyQuickFix(query) {
     projectCache_1.consistentPath(query);
-    var fix = quickFixRegistry_1.allQuickFixes.filter(function (x) { return x.key == query.key; })[0];
+    var fix = quickFixRegistry_1.allQuickFixes.filter(x => x.key == query.key)[0];
     var info = getInfoForQuickFixAnalysis(query);
     var res = fix.provideFix(info);
     var refactorings = qf.getRefactoringsByFilePath(res);
-    return resolve({ refactorings: refactorings });
+    return resolve({ refactorings });
 }
 exports.applyQuickFix = applyQuickFix;
-var building_1 = require("./modules/building");
+const building_1 = require("./modules/building");
 function getOutput(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
@@ -588,7 +646,7 @@ function getOutputJs(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
     var output = building_1.getRawOutput(project, query.filePath);
-    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx"; })[0];
+    var jsFile = output.outputFiles.filter(x => path.extname(x.name) == ".js" || path.extname(x.name) == ".jsx")[0];
     if (!jsFile || output.emitSkipped) {
         return resolve({});
     }
@@ -609,29 +667,35 @@ function getOutputJsStatus(query) {
         }
         return resolve({ emitDiffers: true });
     }
-    var jsFile = output.outputFiles.filter(function (x) { return path.extname(x.name) == ".js"; })[0];
+    var jsFile = output.outputFiles.filter(x => path.extname(x.name) == ".js")[0];
     if (!jsFile) {
         return resolve({ emitDiffers: false });
     }
     else {
         var emitDiffers = !fs.existsSync(jsFile.name) || fs.readFileSync(jsFile.name).toString() !== jsFile.text;
-        return resolve({ emitDiffers: emitDiffers });
+        return resolve({ emitDiffers });
     }
 }
 exports.getOutputJsStatus = getOutputJsStatus;
+/**
+ * Reset all that we know about the file system
+ */
 function softReset(query) {
     projectCache_1.resetCache(query);
     return resolve({});
 }
 exports.softReset = softReset;
-var moveFiles = require("./modules/moveFiles");
+/**
+ * Get rename files refactorings
+ */
+const moveFiles = require("./modules/moveFiles");
 function getRenameFilesRefactorings(query) {
     query.oldPath = fsu.consistentPath(query.oldPath);
     query.newPath = fsu.consistentPath(query.newPath);
     var project = projectCache_1.getOrCreateProject(query.oldPath);
     var res = moveFiles.getRenameFilesRefactorings(project.languageService.getProgram(), query.oldPath, query.newPath);
     var refactorings = qf.getRefactoringsByFilePath(res);
-    return resolve({ refactorings: refactorings });
+    return resolve({ refactorings });
 }
 exports.getRenameFilesRefactorings = getRenameFilesRefactorings;
 function createProject(query) {
@@ -644,23 +708,30 @@ exports.createProject = createProject;
 function toggleBreakpoint(query) {
     projectCache_1.consistentPath(query);
     var project = projectCache_1.getOrCreateProject(query.filePath);
-    var program = project.languageService.getProgram();
-    var sourceFile = program.getSourceFile(query.filePath);
-    var sourceFileText = sourceFile.getFullText();
-    var positionNode = ts.getTokenAtPosition(sourceFile, query.position);
-    var refactoring;
+    // Get the node at the current location.
+    let program = project.languageService.getProgram();
+    let sourceFile = program.getSourceFile(query.filePath);
+    let sourceFileText = sourceFile.getFullText();
+    let positionNode = ts.getTokenAtPosition(sourceFile, query.position);
+    let refactoring;
+    // Because we add a debugger *before* the current token
+    //  ... just preemptively check the previous token to see if *that* is a debugger keyword by any chance
     if (positionNode.kind != ts.SyntaxKind.DebuggerKeyword && positionNode.getFullStart() > 0) {
-        var previousNode = ts.getTokenAtPosition(sourceFile, positionNode.getFullStart() - 1);
+        let previousNode = ts.getTokenAtPosition(sourceFile, positionNode.getFullStart() - 1);
+        // Note: the previous node might be `debugger`
         if (previousNode.kind == ts.SyntaxKind.DebuggerStatement) {
             positionNode = previousNode;
         }
+        // Or `debugger;` (previous node would be `;` but parent is the right one)
         if (previousNode.parent && previousNode.parent.kind == ts.SyntaxKind.DebuggerStatement) {
             positionNode = previousNode.parent;
         }
     }
+    // If it is a debugger keyword ... remove it
     if (positionNode.kind == ts.SyntaxKind.DebuggerKeyword || positionNode.kind == ts.SyntaxKind.DebuggerStatement) {
-        var start = positionNode.getFullStart();
-        var end = start + positionNode.getFullWidth();
+        let start = positionNode.getFullStart();
+        let end = start + positionNode.getFullWidth();
+        // also get trailing semicolons
         while (end < sourceFileText.length && sourceFileText[end] == ';') {
             end = end + 1;
         }
@@ -674,7 +745,7 @@ function toggleBreakpoint(query) {
         };
     }
     else {
-        var toInsert = 'debugger;';
+        let toInsert = 'debugger;';
         refactoring = {
             filePath: query.filePath,
             span: {
@@ -685,6 +756,6 @@ function toggleBreakpoint(query) {
         };
     }
     var refactorings = qf.getRefactoringsByFilePath(refactoring ? [refactoring] : []);
-    return resolve({ refactorings: refactorings });
+    return resolve({ refactorings });
 }
 exports.toggleBreakpoint = toggleBreakpoint;

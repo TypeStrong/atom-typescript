@@ -2,7 +2,7 @@ import view = require('./view');
 var $ = view.$;
 var html = require('../../../../views/renameView.html');
 
-interface EditorView extends JQuery {
+interface EditorViewzz extends JQuery {
     model: AtomCore.IEditor;
 }
 
@@ -10,20 +10,17 @@ interface RenameViewOptions {
     autoSelect: boolean;
     title: string;
     text: string;
-    onCommit: (newValue: string) => any;
-    onCancel: () => any;
+    onCommit?: (newValue: string) => any;
+    onCancel?: () => any;
     /** A truthy string return indicates a validation error */
     onValidate: (newValue: string) => string;
-    openFiles: string[];
-    closedFiles: string[];
 }
 
-export class RenameView
-    extends view.View<RenameViewOptions> {
+export class RenameView extends view.View<RenameViewOptions> {
 
-    private newNameEditor: EditorView;
+    private newNameEditor: EditorViewzz;
     private validationMessage: JQuery;
-    private fileCount: JQuery;
+    private panel: AtomCore.Panel;
     private title: JQuery;
     static content = html;
 
@@ -62,43 +59,65 @@ export class RenameView
         });
     }
 
-    public editorAtRenameStart: AtomCore.IEditor = null;
+    public setPanel(panel: AtomCore.Panel) {
+      this.panel = panel
+    }
+
+    public editorAtRenameStart?: AtomCore.IEditor;
     public clearView() {
         if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
             var view = atom.views.getView(this.editorAtRenameStart);
             view.focus();
         }
-        panel.hide();
+        this.panel.hide();
         this.options = <any>{};
-        this.editorAtRenameStart = null;
+        this.editorAtRenameStart = undefined;
     }
 
-    public renameThis(options: RenameViewOptions) {
+    private renameThis(options: RenameViewOptions) {
         this.options = options;
         this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
-        panel.show();
+        this.panel.show();
 
         this.newNameEditor.model.setText(options.text);
         if (this.options.autoSelect) {
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveToEndOfScreenLine();
+            this.newNameEditor.model.moveCursorToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();
 
         this.validationMessage.hide();
+    }
 
-        this.fileCount.html(`<div>
-            Files Counts: <span class='highlight'> Already Open ( ${options.openFiles.length} )</span> and <span class='highlight'> Currently Closed ( ${options.closedFiles.length} ) </span>
-        </div>`);
+    // Show the dialog and resolve the promise with the entered string
+    showRenameDialog(options: RenameViewOptions): Promise<string> {
+      return new Promise((resolve, reject) => {
+        this.renameThis({
+          ...options,
+          onCancel: reject,
+          onCommit: resolve
+        })
+      })
     }
 }
 
-export var panelView: RenameView;
-var panel: AtomCore.Panel;
-export function attach() {
-    panelView = new RenameView(<any>{});
-    panel = atom.workspace.addModalPanel({ item: panelView, priority: 1000, visible: false });
+export function attach(): {dispose(): void, renameView: RenameView} {
+    const renameView = new RenameView(<any>{});
+    const panel = atom.workspace.addModalPanel({
+      item: renameView,
+      priority: 1000,
+      visible: false
+    })
+
+    renameView.setPanel(panel)
+
+    return {
+      dispose() {
+        console.log("TODO: Detach the rename view: ", panel)
+      },
+      renameView
+    }
 }

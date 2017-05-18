@@ -33,7 +33,7 @@ export class TooltipView extends view.View<Rect> {
         var offset = 10;
         var left = this.rect.right;
         var top = this.rect.bottom;
-        var right = undefined;
+        var right: number | undefined = undefined;
 
         // X axis adjust
         if (left + this.$[0].offsetWidth >= view.$(document.body).width())

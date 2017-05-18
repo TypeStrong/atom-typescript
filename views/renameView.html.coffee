@@ -17,6 +17,4 @@ module.exports =
                 @div class: 'editor-container', =>
                     @subview 'newNameEditor', new TextEditorView(mini: true, placeholderText: 'new name')
 
-            @div {outlet:'fileCount'}, => return
-            @br {}
             @div {class: 'highlight-error', style:'display:none', outlet:'validationMessage'},
