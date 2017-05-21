@@ -101,6 +101,12 @@ class TypescriptEditorPane {
                     if (this.isActive) {
                         this.opts.statusPanel.setTsConfigPath(this.configFile);
                     }
+                    utils_1.getProjectCodeSettings(this.filePath, this.configFile).then(options => {
+                        this.client.executeConfigure({
+                            file: this.filePath,
+                            formatOptions: options
+                        });
+                    });
                 }, error => null);
             }
         });

@@ -186,12 +186,14 @@ export var config = {
   }
 }
 
-export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
-  return clientResolver.get(sourcePath).then(client => {
-    return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {
-      return tsconfig.load(result.body!.configFileName)
-    })
-  })
+export async function getProjectConfigPath(sourcePath: string): Promise<string> {
+  const client = await clientResolver.get(sourcePath)
+  const result = await client.executeProjectInfo({needFileNameList: false, file: sourcePath})
+  return result.body!.configFileName
+}
+
+export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<tsconfig.TSConfig> {
+  return tsconfig.load(configFile || await getProjectConfigPath(sourcePath))
 }
 
 // Get Typescript buffer for the given path

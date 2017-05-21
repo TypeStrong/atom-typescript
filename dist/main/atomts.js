@@ -158,11 +158,17 @@ exports.config = {
         default: true
     }
 };
-function loadProjectConfig(sourcePath) {
-    return exports.clientResolver.get(sourcePath).then(client => {
-        return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
-            return tsconfig.load(result.body.configFileName);
-        });
+function getProjectConfigPath(sourcePath) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const client = yield exports.clientResolver.get(sourcePath);
+        const result = yield client.executeProjectInfo({ needFileNameList: false, file: sourcePath });
+        return result.body.configFileName;
+    });
+}
+exports.getProjectConfigPath = getProjectConfigPath;
+function loadProjectConfig(sourcePath, configFile) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return tsconfig.load(configFile || (yield getProjectConfigPath(sourcePath)));
     });
 }
 exports.loadProjectConfig = loadProjectConfig;

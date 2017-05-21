@@ -1,5 +1,6 @@
 import {TextSpan, CodeEdit, Diagnostic, FormatCodeSettings, Location} from "typescript/lib/protocol"
 import {Point, Range} from "atom"
+import {loadProjectConfig} from "../../atomts"
 
 export {TextSpan, CodeEdit, FormatCodeSettings, Location}
 
@@ -56,4 +57,15 @@ export function compareLocation(loc1: Location, loc2: Location) {
 
 export function isLocationInRange(loc: Location, range: {start: Location, end: Location}) {
   return compareLocation(range.start, loc) != 1 && compareLocation(range.end, loc) !== -1
+}
+
+export async function getProjectCodeSettings(filePath: string, configFile?: string): Promise<FormatCodeSettings> {
+  const config = await loadProjectConfig(filePath, configFile)
+  const options = config.formatCodeOptions
+
+  return {
+    indentSize: atom.config.get("editor.tabLength"),
+    tabSize: atom.config.get("editor.tabLength"),
+    ...options,
+  }
 }
