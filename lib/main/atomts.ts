@@ -1,8 +1,9 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachRenameView} from './atom/views/renameView'
-import {AutocompleteProvider} from './atom/autoCompleteProvider'
+import {attach as attachRenameView} from "./atom/views/renameView"
+import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
+import {CodefixProvider} from "./atom/codefixProvider"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -24,6 +25,7 @@ import {registerCommands} from "./atom/commands"
 
 let linter: Linter
 let statusBar: StatusBar
+const codefixProvider = new CodefixProvider(clientResolver)
 
 interface PackageState {}
 
@@ -54,6 +56,9 @@ export function activate(state: PackageState) {
         errorPusher.setUnusedAsInfo(val.newValue)
       }
     ))
+
+    codefixProvider.errorPusher = errorPusher
+    codefixProvider.getTypescriptBuffer = getTypescriptBuffer
 
     clientResolver.on("pendingRequestsChange", () => {
       const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
@@ -166,6 +171,10 @@ export function provide() {
   return [
     new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
+}
+
+export function provideIntentions() {
+  return codefixProvider
 }
 
 export var config = {

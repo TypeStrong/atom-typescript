@@ -17,6 +17,8 @@ export const CommandWithResponse = new Set([
   "configure",
   "definition",
   "format",
+  "getCodeFixes",
+  "getSupportedCodeFixes",
   "occurrences",
   "projectInfo",
   "quickinfo",
@@ -72,6 +74,12 @@ export class TypescriptServiceClient {
   }
   executeFormat(args: protocol.FormatRequestArgs): Promise<protocol.FormatResponse> {
     return this.execute("format", args)
+  }
+  executeGetCodeFixes(args: protocol.CodeFixRequestArgs): Promise<protocol.GetCodeFixesResponse> {
+    return this.execute("getCodeFixes", args)
+  }
+  executeGetSupportedCodeFixes(): Promise<protocol.GetSupportedCodeFixesResponse> {
+    return this.execute("getSupportedCodeFixes", undefined)
   }
   executeGetErr(args: protocol.GeterrRequestArgs): Promise<undefined> {
     return this.execute("geterr", args)

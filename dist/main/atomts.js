@@ -6,6 +6,7 @@ const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
+const codefixProvider_1 = require("./atom/codefixProvider");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const errorPusher_1 = require("./errorPusher");
@@ -22,6 +23,7 @@ require("./atom/components");
 const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
+const codefixProvider = new codefixProvider_1.CodefixProvider(exports.clientResolver);
 function activate(state) {
     require('atom-package-deps').install('atom-typescript', true).then(() => {
         let statusPriority = 100;
@@ -43,6 +45,8 @@ function activate(state) {
         subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", (val) => {
             errorPusher.setUnusedAsInfo(val.newValue);
         }));
+        codefixProvider.errorPusher = errorPusher;
+        codefixProvider.getTypescriptBuffer = getTypescriptBuffer;
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
@@ -142,6 +146,10 @@ function provide() {
     ];
 }
 exports.provide = provide;
+function provideIntentions() {
+    return codefixProvider;
+}
+exports.provideIntentions = provideIntentions;
 exports.config = {
     unusedAsInfo: {
         title: 'Show unused values with severity info',

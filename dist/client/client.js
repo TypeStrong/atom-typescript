@@ -16,6 +16,8 @@ exports.CommandWithResponse = new Set([
     "configure",
     "definition",
     "format",
+    "getCodeFixes",
+    "getSupportedCodeFixes",
     "occurrences",
     "projectInfo",
     "quickinfo",
@@ -87,6 +89,12 @@ class TypescriptServiceClient {
     }
     executeFormat(args) {
         return this.execute("format", args);
+    }
+    executeGetCodeFixes(args) {
+        return this.execute("getCodeFixes", args);
+    }
+    executeGetSupportedCodeFixes() {
+        return this.execute("getSupportedCodeFixes", undefined);
     }
     executeGetErr(args) {
         return this.execute("geterr", args);

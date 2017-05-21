@@ -33,6 +33,11 @@
       "versions": {
         "2.0.0": "provide"
       }
+    },
+    "intentions:list": {
+      "versions": {
+        "1.0.0": "provideIntentions"
+      }
     }
   },
   "homepage": "https://github.com/TypeStrong/atom-typescript",

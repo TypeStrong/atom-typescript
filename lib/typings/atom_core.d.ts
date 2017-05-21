@@ -1,12 +1,19 @@
 declare namespace AtomCore {
   interface IEditor {
     onDidChangeGrammar(callback: (grammar: IGrammar) => any): Disposable
+    gutterWithName(name: string): Gutter | null
   }
   interface IConfig {
     onDidChange(opt: string, callback: (val: {oldValue: any, newValue: any}) => void): Disposable
   }
   interface CommandEvent extends Event {
     abortKeyBinding(): any
+  }
+  interface Gutter {
+    decorateMarker(marker, decorationParams)
+    isVisible(): boolean
+    hide()
+    show()
   }
 }
 

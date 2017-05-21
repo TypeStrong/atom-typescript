@@ -6,12 +6,12 @@ import {
   CodeEdit,
   consistentPath,
   FileLocationQuery,
-  LocationQuery,
+  Location,
   spanToRange
 } from "./"
 
 // Return line/offset position in the editor using 1-indexed coordinates
-export function getEditorPosition(editor: AtomCore.IEditor): LocationQuery {
+export function getEditorPosition(editor: AtomCore.IEditor): Location {
     const pos = editor.getCursorBufferPosition()
     return {
       line: pos.row + 1,
