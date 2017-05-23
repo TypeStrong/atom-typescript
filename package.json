@@ -33,6 +33,11 @@
       "versions": {
         "2.0.0": "provide"
       }
+    },
+    "hyperclick.provider": {
+      "versions": {
+        "0.0.0": "hyperclickProvider"
+      }
     }
   },
   "homepage": "https://github.com/TypeStrong/atom-typescript",

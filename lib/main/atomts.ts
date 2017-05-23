@@ -3,6 +3,7 @@ import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from './atom/views/renameView'
 import {AutocompleteProvider} from './atom/autoCompleteProvider'
 import {ClientResolver} from "../client/clientResolver"
+import {getHyperclickProvider} from './atom/hyperclickProvider'
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -166,6 +167,10 @@ export function provide() {
   return [
     new AutocompleteProvider(clientResolver, {getTypescriptBuffer}),
   ]
+}
+
+export function hyperclickProvider() {
+    return getHyperclickProvider(clientResolver);
 }
 
 export var config = {
