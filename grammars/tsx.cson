@@ -66,6 +66,9 @@ repository:
         include: "#template"
       }
       {
+        include: "#template-styledcss"
+      }
+      {
         include: "#comment"
       }
       {
@@ -379,6 +382,9 @@ repository:
       }
       {
         include: "#regex"
+      }
+      {
+        include: "#template-styledcss"
       }
       {
         include: "#template"
@@ -797,7 +803,7 @@ repository:
       {
         comment: "(default|*|name) as alias"
         match: '''
-          (?x) (?: \\b(default)\\b | (\\*) | ([_$[:alpha:]][_$[:alnum:]]*)) \\s+ 
+          (?x) (?: \\b(default)\\b | (\\*) | ([_$[:alpha:]][_$[:alnum:]]*)) \\s+
             (as) \\s+ (?: (\\b default \\b | \\*) | ([_$[:alpha:]][_$[:alnum:]]*))
         '''
         captures:
@@ -1703,7 +1709,7 @@ repository:
           (?x)(
             (?=
               [(]\\s*(
-                ([)]) | 
+                ([)]) |
                 (\\.\\.\\.) |
                 ([_$[:alnum:]]+\\s*(
                   ([:,?=])|
@@ -1967,7 +1973,7 @@ repository:
         name: "support.function.tsx"
         match: '''
           (?x)(?<!\\.|\\$)\\b(clear(Interval|Timeout)|decodeURI|decodeURIComponent|encodeURI|encodeURIComponent|escape|eval|
-            isFinite|isNaN|parseFloat|parseInt|require|set(Interval|Timeout)|super|unescape|uneval)(?=\\s*\\() 
+            isFinite|isNaN|parseFloat|parseInt|require|set(Interval|Timeout)|super|unescape|uneval)(?=\\s*\\()
         '''
       }
       {
@@ -2016,7 +2022,7 @@ repository:
       {
         match: '''
           (?x) (\\.) \\s* (?:
-            (constructor|length|prototype|__proto__) 
+            (constructor|length|prototype|__proto__)
             |
             (EPSILON|MAX_SAFE_INTEGER|MAX_VALUE|MIN_SAFE_INTEGER|MIN_VALUE|NEGATIVE_INFINITY|POSITIVE_INFINITY))\\b(?!\\$)
         '''
@@ -2031,7 +2037,7 @@ repository:
       {
         match: '''
           (?x) (?<!\\.|\\$) \\b (?:
-            (document|event|navigator|performance|screen|window) 
+            (document|event|navigator|performance|screen|window)
             |
             (AnalyserNode|ArrayBufferView|Attr|AudioBuffer|AudioBufferSourceNode|AudioContext|AudioDestinationNode|AudioListener
             |AudioNode|AudioParam|BatteryManager|BeforeUnloadEvent|BiquadFilterNode|Blob|BufferSource|ByteString|CSS|CSSConditionRule
@@ -2185,7 +2191,7 @@ repository:
       }
       {
         match: '''
-          (?x) (\\.) \\s* 
+          (?x) (\\.) \\s*
           (?:
            (on(?:Rowsinserted|Rowsdelete|Rowenter|Rowexit|Resize|Resizestart|Resizeend|Reset|
              Readystatechange|Mouseout|Mouseover|Mousedown|Mouseup|Mousemove|
@@ -2961,6 +2967,77 @@ repository:
         include: "#qstring-double"
       }
     ]
+  "template-styledcss":
+    patterns: [
+      {
+        comment: "Styled CSS tags"
+        contentName: "source.inside-js.css.styled"
+        begin: "\\s*+(?:(?:\\b(css|injectGlobal|keyframes)\\b)|(?:(\\bstyled)(?:(\\.)\\s*(\\w+))))\\s*((`))"
+        end: "\\s*(?<!\\\\)((`))"
+        beginCaptures:
+          "1":
+            name: "entity.name.tag.styledcss.js"
+          "2":
+            name: "entity.name.tag.styledcss.js"
+          "3":
+            name: "keyword.operator.accessor.js"
+          "4":
+            name: "entity.name.tag.styledcss.js"
+          "5":
+            name: "punctuation.definition.quasi.begin.js"
+          "6":
+            name: "string.quoted.template.js"
+        endCaptures:
+          "1":
+            name: "punctuation.definition.quasi.end.js"
+          "2":
+            name: "string.quoted.template.graphql.js"
+        patterns: [
+          {
+            include: "source.css.styled"
+          }
+        ]
+      }
+      {
+        comment: "Styled CSS tag functions"
+        contentName: "source.inside-js.css.styled"
+        begin: "\\s*+(?:(\\bstyled))\\s*(?=(\\((?:(?>[^()]+)|\\g<-1>)*\\)\\s*(`)))"
+        end: "(?<=`)"
+        beginCaptures:
+          "1":
+            name: "entity.name.tag.styledcss.js"
+        endCaptures:
+          "1":
+            name: "punctuation.definition.quasi.end.js"
+          "2":
+            name: "string.quoted.template.graphql.js"
+        patterns: [
+          {
+            include: "#round-brackets"
+          }
+          {
+            contentName: "source.css.styled"
+            begin: "\\s*((`))"
+            end: "\\s*(?<!\\\\)((`))"
+            beginCaptures:
+              "1":
+                name: "punctuation.definition.quasi.begin.js"
+              "2":
+                name: "string.quoted.template.graphql.js"
+            endCaptures:
+              "1":
+                name: "punctuation.definition.quasi.end.js"
+              "2":
+                name: "string.quoted.template.graphql.js"
+            patterns: [
+              {
+                include: "source.css.styled"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   template:
     name: "string.template.tsx"
     begin: "([_$[:alpha:]][_$[:alnum:]]*)?(`)"
@@ -3235,7 +3312,7 @@ repository:
             \\[
               [^\\]]+            # Optional [link text] preceding {@link syntax}
             \\]
-          
+
             (?!                  # Check to avoid highlighting two sets of link text
               {
                 @\\w+            # Tagname
@@ -3246,7 +3323,7 @@ repository:
               }
             )
           )?
-          
+
           (?:
             {
               (
@@ -3257,11 +3334,11 @@ repository:
                   | tutorial
                 )
               )
-          
+
               \\s+
-          
+
               ([^\\s|}]+)        # Namepath or URL
-          
+
               (?:                # Optional link text following link target
                 [\\s|]           # Bar or space separating target and text
                 [^}]*            # Actual text
@@ -3282,22 +3359,22 @@ repository:
       {
         match: '''
           (?x)
-          
+
           (?:(?<=@param)|(?<=@arg)|(?<=@argument)|(?<=@type)|(?<=@property)|(?<=@prop))
-          
+
           \\s+
-          
+
           ({(?:
             \\* |                                       # {*} any type
             \\? |                                       # {?} unknown type
-          
+
             (?:
               (?:                                       # Check for a prefix
                 \\? |                                   # {?string} nullable type
                 !   |                                   # {!string} non-nullable type
                 \\.{3}                                  # {...string} variable number of parameters
               )?
-          
+
               (?:
                 (?:
                   function                              # {function(string, number)} function type
@@ -3364,9 +3441,9 @@ repository:
               =?                                        # {string=} optional parameter
             )
           )})
-          
+
           \\s+
-          
+
           (
             \\[                                         # [foo] optional parameter
               \\s*
@@ -3395,11 +3472,11 @@ repository:
               )*
             )?
           )
-          
+
           \\s+
-          
+
           (?:-\\s+)?                                     # optional hyphen before the description
-          
+
           ((?:(?!\\*\\/).)*)                             # The type description
         '''
         captures:
@@ -3415,18 +3492,18 @@ repository:
       {
         match: '''
           (?x)
-          
+
           ({(?:
             \\* |                                       # {*} any type
             \\? |                                       # {?} unknown type
-          
+
             (?:
               (?:                                       # Check for a prefix
                 \\? |                                   # {?string} nullable type
                 !   |                                   # {!string} non-nullable type
                 \\.{3}                                  # {...string} variable number of parameters
               )?
-          
+
               (?:
                 (?:
                   function                              # {function(string, number)} function type
@@ -3484,11 +3561,11 @@ repository:
               =?                                        # {string=} optional parameter
             )
           )})
-          
+
           \\s+
-          
+
           (?:-\\s+)?                                    # optional hyphen before the description
-          
+
           ((?:(?!\\*\\/).)*)                            # The type description
         '''
         captures:

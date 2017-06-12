@@ -1,0 +1,1524 @@
+name: "Styled CSS"
+scopeName: "source.css.styled"
+foldingStartMarker: "(/\\*|{|\\()"
+foldingEndMarker: "(\\*/|\\}|\\))"
+fileTypes: []
+patterns: [
+  {
+    include: "#selector-declaration"
+  }
+]
+repository:
+  "attribute-selectors":
+    patterns: [
+      {
+        begin: "(?<=\\[)\\s*+(-?[_a-zA-Z][_a-zA-Z0-9-]*)"
+        end: "(?=\\])"
+        beginCaptures:
+          "1":
+            name: "entity.other.attribute-name.attribute.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            begin: "\\s*+(=|~=|\\|=|\\^=|\\$=|\\*=)"
+            end: "(?<=\")|(?=\\])"
+            beginCaptures:
+              "1":
+                name: "keyword.operator.comparison.css"
+            patterns: [
+              {
+                include: "#css-comment-and-interpolate"
+              }
+              {
+                include: "#string"
+              }
+              {
+                name: "string.unquoted.value.css"
+                match: "(?<==)\\s*+[-_a-zA-Z][-_a-zA-Z0-9]*"
+              }
+            ]
+          }
+          {
+            match: "\\s*+(i|I)(?=\\s*+])"
+            captures:
+              "1":
+                name: "keyword.attribute.ignore-case.css"
+          }
+          {
+            match: "(\\S.*?)(?=\\]|$)"
+            captures:
+              "1":
+                name: "invalid.illegal.css"
+          }
+        ]
+      }
+      {
+        match: "(?<=\\[)\\s*+(-?[_a-zA-Z][_a-zA-Z0-9-]*)"
+        captures:
+          "1":
+            name: "entity.other.attribute-name.attribute.css"
+          "2":
+            name: "keyword.operator.comparison.css"
+      }
+      {
+        match: "(\\S.*?)(?=\\]|$)"
+        captures:
+          "1":
+            name: "invalid.illegal.css"
+      }
+    ]
+  "css-color":
+    name: "support.constant.color.w3c-standard-color-name.css"
+    match: "(?i)\\s*+\\b(YellowGreen|Yellow|WhiteSmoke|White|Wheat|Violet|Turquoise|Tomato|Thistle|Teal|Tan|SteelBlue|SpringGreen|Snow|SlateGrey|SlateGray|SlateBlue|SkyBlue|Silver|Sienna|SeaShell|SeaGreen|SandyBrown|Salmon|SaddleBrown|RoyalBlue|RosyBrown|Red|RebeccaPurple|Purple|PowderBlue|Plum|Pink|Peru|PeachPuff|PapayaWhip|PaleVioletRed|PaleTurquoise|PaleGreen|PaleGoldenRod|Orchid|OrangeRed|Orange|OliveDrab|Olive|OldLace|Navy|NavajoWhite|Moccasin|MistyRose|MintCream|MidnightBlue|MediumVioletRed|MediumTurquoise|MediumSpringGreen|MediumSlateBlue|MediumSeaGreen|MediumPurple|MediumOrchid|MediumBlue|MediumAquaMarine|Maroon|Magenta|Linen|LimeGreen|Lime|LightYellow|LightSteelBlue|LightSlateGrey|LightSlateGray|LightSkyBlue|LightSeaGreen|LightSalmon|LightPink|LightGrey|LightGreen|LightGray|LightGoldenRodYellow|LightCyan|LightCoral|LightBlue|LemonChiffon|LawnGreen|LavenderBlush|Lavender|Khaki|Ivory|Indigo|IndianRed|HotPink|HoneyDew|Grey|GreenYellow|Green|Gray|GoldenRod|Gold|GhostWhite|Gainsboro|Fuchsia|ForestGreen|FloralWhite|FireBrick|DodgerBlue|DimGrey|DimGray|DeepSkyBlue|DeepPink|DarkViolet|DarkTurquoise|DarkSlateGrey|DarkSlateGray|DarkSlateBlue|DarkSeaGreen|DarkSalmon|DarkRed|DarkOrchid|DarkOrange|DarkOliveGreen|DarkMagenta|DarkKhaki|DarkGrey|DarkGreen|DarkGray|DarkGoldenRod|DarkCyan|DarkBlue|Cyan|Crimson|Cornsilk|CornflowerBlue|Coral|Chocolate|Chartreuse|CadetBlue|BurlyWood|Brown|BlueViolet|Blue|BlanchedAlmond|Black|Bisque|Beige|Azure|Aquamarine|Aqua|AntiqueWhite|AliceBlue)\\b"
+  "css-comment":
+    contentName: "comment.block.css"
+    begin: "\\s*+((/\\*))"
+    end: "(\\s*+(\\*/))"
+    captures:
+      "1":
+        name: "comment.block.css"
+      "2":
+        name: "punctuation.definition.comment.css"
+  "css-interpolate":
+    patterns: [
+      {
+        name: "entity.quasi.element.js"
+        begin: "(?<!\\\\)(\\${)"
+        end: "(?<!\\\\)(})"
+        beginCaptures:
+          "1":
+            name: "punctuation.quasi.element.begin.js"
+        endCaptures:
+          "1":
+            name: "punctuation.quasi.element.end.js"
+        patterns: [
+          {
+            include: "source.js.jsx#expression"
+          }
+        ]
+      }
+      {
+        comment: "units such as px may appear right after a interpolation close }"
+        begin: "\\s*+(?<=\\})"
+        end: "(?=.)"
+        applyEndPatternLast: 1
+        patterns: [
+          {
+            include: "#css-units"
+          }
+        ]
+      }
+    ]
+  "css-comment-and-interpolate":
+    patterns: [
+      {
+        include: "#css-comment"
+      }
+      {
+        include: "#css-interpolate"
+      }
+    ]
+  "css-functions":
+    patterns: [
+      {
+        include: "#css-function-url"
+      }
+      {
+        begin: "(?i)\\s*+((-(webkit|moz|o|ms)-)?(var|translateZ|translateY|translateX|translate3d|translate|symbols|swash|stylistic|styleset|steps|skewY|skewX|skew|sepia|scaleZ|scaleY|scaleX|scale3d|scale|saturate|rotateZ|rotateY|rotateX|rotate3d|rotate|rgba|rgb|repeating-radial-gradient|repeating-linear-gradient|repeat|rect|radial-gradient|polygon|perspective|ornaments|opacity|minmax|matrix3d|matrix|local|linear-gradient|invert|inset|image-set|image|hue-rotate|hsla|hsl|grayscale|format|fit-content|ellipse|element|drop-shadow|cubic-bezier|cross-fade|contrast|circle|character-variant|calc|brightness|blur|attr|annotation))\\s*+(\\()"
+        end: "\\s*+(\\))"
+        beginCaptures:
+          "1":
+            name: "support.function.css"
+          "5":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+    ]
+  "css-function-url":
+    contentName: "string.url.css"
+    begin: "(?i)\\s*+((-(webkit|moz|o|ms)-)?(url))\\s*+(\\()"
+    end: "\\s*+(\\))"
+    beginCaptures:
+      "1":
+        name: "support.function.css"
+      "5":
+        name: "meta.brace.round.css"
+    endCaptures:
+      "1":
+        name: "meta.brace.round.css"
+    patterns: [
+      {
+        include: "#string"
+      }
+    ]
+  "css-math":
+    match: "\\s*+(\\+|-|(?<!\\*)/|\\*(?!/))"
+    captures:
+      "1":
+        name: "keyword.operator.arithmetic.css"
+  "css-numbers":
+    patterns: [
+      {
+        begin: "(?<=^|[^a-z])\\s*+((?:\\B[-+])?(?:(\\B\\.[0-9]+|\\b[0-9]+(\\.[0-9]*)?)([eE][-+]?[0-9]+)?))"
+        end: "(?=.)"
+        applyEndPatternLast: 1
+        beginCaptures:
+          "1":
+            name: "constant.numeric.css"
+        patterns: [
+          {
+            include: "#css-units"
+          }
+        ]
+      }
+    ]
+  "css-units":
+    patterns: [
+      {
+        include: "#css-<angle>"
+      }
+      {
+        include: "#css-<frequency>"
+      }
+      {
+        include: "#css-<length>"
+      }
+      {
+        include: "#css-<percentage>"
+      }
+      {
+        include: "#css-<resolution>"
+      }
+      {
+        include: "#css-<time>"
+      }
+    ]
+  "css-<angle>":
+    match: "(?i)(turn|rad|grad|deg)\\b"
+    captures:
+      "1":
+        name: "constant.angle.units.css"
+  "css-<frequency>":
+    match: "(?i)(kHz|Hz)\\b"
+    captures:
+      "1":
+        name: "constant.freq.units.css"
+  "css-<length>":
+    match: "(?i)(vw|vmin|vmax|vh|rem|q|px|pt|pc|mozmm|mm|in|ex|em|cm|ch)\\b"
+    captures:
+      "1":
+        name: "constant.length.units.css"
+  "css-<percentage>":
+    match: "(?i)(%)"
+    captures:
+      "1":
+        name: "constant.percentage.units.css"
+  "css-<resolution>":
+    match: "(?i)(dppx|dpi|dpcm)\\b"
+    captures:
+      "1":
+        name: "constant.resolution.units.css"
+  "css-<time>":
+    match: "(?i)(s|ms)\\b"
+    captures:
+      "1":
+        name: "constant.time.units.css"
+  "css-hex":
+    match: "(?<=^|[^a-z])\\s*+(#\\h{1,8})(?!0-9a-fA-F)\\b"
+    captures:
+      "1":
+        name: "constant.hex.css"
+  "css-key-values":
+    patterns: [
+      {
+        include: "#css-properties"
+      }
+      {
+        include: "#css-values"
+      }
+    ]
+  "css-properties":
+    patterns: [
+      {
+        begin: "(?i)(?<=^|[^a-z])\\s*+((-(webkit|moz|o|ms)-)?(align-(self|items|content)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(animation(-(timing-function|play-state|name|iteration-count|fill-mode|duration|direction|delay))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(background(-(size|repeat|position|origin|image|color|clip|blend-mode|attachment))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(border(-(width|top-width|top-style|top-right-radius|top-left-radius|top-color|top|style|spacing|right-width|right-style|right-color|right|radius|left-width|left-style|left-color|left|inline-start-width|inline-start-style|inline-start-color|inline-start|inline-end-width|inline-end-style|inline-end-color|inline-end|image-width|image-source|image-slice|image-repeat|image-outset|image|color|collapse|bottom-width|bottom-style|bottom-right-radius|bottom-left-radius|bottom-color|bottom|block-start-width|block-start-style|block-start-color|block-start|block-end-width|block-end-style|block-end-color|block-end))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(box-(sizing|shadow|decoration-break)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(break-(inside|before|after)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(column-(width|span|rule-width|rule-style|rule-color|rule|gap|fill|count)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(counter-(reset|increment)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(flex(-(wrap|shrink|grow|flow|direction|basis))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(font(-(weight|variant-position|variant-numeric|variant-ligatures||variant-east-asian||variant-caps||variant-alternates|variant|synthesis|style|stretch|size-adjust|size|language-override|kerning|feature-settings|family))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(grid(-(template-rows|template-columns|template-areas|template|row-start|row-gap|row-end|row|gap|column-start|column-gap|column-end|column|auto-rows|auto-flow|auto-columns|area))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(image(-(resolution|rendering|orientation))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(list-(style-type|style-position|style-image|style)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(margin(-(top|right|left|inline-start|inline-end|bottom|block-start|block-end))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(mask(-(type|size|repeat|position|origin|mode|image|composite|clip))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(max-|min-)?(zoom|width|inline-size|height|block-size))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(nav-(up|right|left|index|down)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(object-(position|fit)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(offset-(inline-start|inline-end|block-start|block-end)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(outline(-(width|style|offset|color))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(overflow(-(y|x|wrap))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(padding(-(top|right|left|inline-start|inline-end|bottom|block-start|block-end))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(page-break-(inside|before|after)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(perspective(-(origin))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(ruby-(position|merge|align)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(scroll-(snap-type|snap-destination|snap-coordinate|behavior)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(shape-(outside|margin|image-threshold)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(text-(underline-position|transform|shadow|size-adjust|rendering|overflow|orientation|justify|indent|emphasis-style|emphasis-position|emphasis-color|emphasis|decoration-style|decoration-line|decoration-color|decoration|combine-upright|align-last|align)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(transform(-(style|origin|box))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(transition(-(timing-function|property|duration|delay))?))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(word-(wrap|spacing|break)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(unicode-(range|bidi)))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        comment: "individual words without any sub options"
+        begin: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(z-index|writing-mode|will-change|width|widows|white-space|volume|visibility|vertical-align|user-zoom|user-select|touch-action|top|table-layout|tab-size|system|symbols|suffix|src|speak-as|size|right|revert|resize|range|prefix|quotes|position|pointer-events|pad|orphans|orientation|order|opacity|negative|mix-blend-mode|marks|line-height|line-break|letter-spacing|left|justify-content|isolation|inline-size|hyphens|height|float|filter|fallback|empty-cells|display|direction|cursor|content|columns|color|clip-path|clip|clear|caption-side|bottom|block-size|bleed|backface-visibility|appearance|all|additive-symbols))\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        comment: "custom properties --*"
+        begin: "(?<=^|[\\W])\\s*+(--[-_a-zA-Z0-9]*)\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.custom.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+      {
+        comment: "unknown properties --*"
+        begin: "(?<=^|[\\W])\\s*+([-_a-zA-Z0-9]*)\\s*+(:)"
+        end: "(;)|(?=[})\\]])"
+        beginCaptures:
+          "1":
+            name: "support.type.property-name.unknown.css"
+        endCaptures:
+          "1":
+            name: "punctuation.semi-colon.css"
+        patterns: [
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+    ]
+  "css-property-values":
+    match: "(?i)(?<=^|[\\W])\\s*+((-(webkit|moz|o|ms)-)?(zoom-out|zoom-in|xx-small|xx-large|x-soft|x-small|x-slow|x-low|x-loud|x-large|x-high|x-fast|wrap-reverse|wrap|wider|wavy|wait|w-resize|visible|vertical-text|vertical|uri|uppercase|upper-roman|upper-latin|upper-alpha|underline|under|ultra-expanded|ultra-condensed|trim|transparent|top|time|thin|thick|text-top|text-bottom|text|table-row-group|table-row|table-header-group|table-footer-group|table-column-group|table-column|table-cell|table-caption|table|sw-resize|super|sub|strict|stretch|step-start|step-end|status-bar|static|square|spell-out|specific-voice|spaces|space-between|space-around|space|soft-light|soft|smaller|small-caption|small-caps|small|slower|slow|slice|silent|show|separate|semi-expanded|semi-condensed|se-resize|scroll|screen|saturation|s-resize|running|run-in|rtl|row-reverse|row-resize|row|round|root|rightwards|right-side|right|ridge|reverse|repeat-y|repeat-x|repeat|relative|progress|preserve-3d|pre-wrap|pre-line|pre|pointer|percentage|paused|page|padding-box|overline|overlay|outside|outset|open-quote|once|oblique|objects|nwse-resize|nw-resize|ns-resize|nowrap|not-allowed|normal|none|no-repeat|no-open-quote|no-drop|no-close-quote|nesw-resize|ne-resize|narrower|n-resize|multiply|move|mix|middle|message-box|menu|medium|marker|mark|manual|luminosity|ltr|lowercase|lower-roman|lower-alpha|lower|low|loud|loose|local|list-item|linear|line-through|lighter|level|length|leftwards|left-side|left|last|larger|large|keep-all|katakana-iroh|katakana|kashida|justify|italic|isolate|invert|inter-word|inter-ideograph|inter-cluster|inside|inset|inline-table|inline|ink|initial|inherit|infinite|icon|hue|horizontal|historical-forms|hiragana-iroha|hiragana|higher|high|hide|hidden|help|hebrew|hard-light|groove|grabbing|grab|georgian|generic-voice|frequency|forwards|force-end|flex-start|flex-end|flat|fixed|first|fill|faster|fast|far-right|far-left|extra-expanded|extra-condensed|expanded|exclusion|ew-resize|embed|ellipsis|edges|ease-out|ease-in-out|ease-in|ease|e-resize|double|dotted|distribute|disc|digits|difference|default|decimal|dashed|darken|current|crosshair|cover|counter|copy|continuous|context-menu|content-box|content|contain|condensed|compact|column-reverse|column|color-dodge|color-burn|color|collapse|col-resize|close-quote|clone|clip|cjk-ideographic|circle|center-right|center-left|center|cell|caption|capitalize|break-word|break-all|box-decoration|bottom|both|border-box|bolder|bold|block|blink|bidi-override|below|behind|baseline|balance|backwards|avoid-page|avoid-column|avoid|auto|attr|armenian|angle|always|alternate-reverse|alternate|allow-end|all-scroll|alias|absolute|above))\\b"
+    captures:
+      "1":
+        name: "support.constant.property-value.css"
+  "css-values":
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#important"
+      }
+      {
+        include: "#css-functions"
+      }
+      {
+        include: "#css-property-values"
+      }
+      {
+        include: "#css-color"
+      }
+      {
+        include: "#css-numbers"
+      }
+      {
+        include: "#css-math"
+      }
+      {
+        include: "#css-hex"
+      }
+      {
+        include: "#identifier"
+      }
+      {
+        include: "#literals"
+      }
+      {
+        include: "#string"
+      }
+    ]
+  identifier:
+    match: "(?<=^|[\\W])\\s*+([-_a-zA-Z][-_a-zA-Z0-9]*)\\b"
+    captures:
+      "1":
+        name: "meta.identifier.css"
+  important:
+    match: "\\s*+(!)\\s*+(important)\\b"
+    captures:
+      "1":
+        name: "punctuation.important.css"
+      "2":
+        name: "support.constant.important.css"
+  language:
+    match: "\\s*+([a-zA-Z][-_a-zA-Z0-9]*)"
+    captures:
+      "1":
+        name: "support.constant.language-range.css"
+  literals:
+    match: "\\s*+(,)"
+    captures:
+      "1":
+        name: "punctuation.literral.css"
+  "nth-child":
+    patterns: [
+      {
+        match: "\\s*+(\\+|-)?\\s*+([0-9]*)?(n)\\s*+((\\+|-)\\s*+([0-9]*))?\\s*+(?=\\))"
+        captures:
+          "1":
+            name: "keyword.operator.arithmetic.css"
+          "2":
+            name: "constant.numeric.css"
+          "3":
+            name: "constant.character.css"
+          "5":
+            name: "keyword.operator.arithmetic.css"
+          "6":
+            name: "constant.numeric.css"
+      }
+      {
+        match: "(?i)\\s*+(?:(\\+|-)?\\s*+([0-9]+)|(odd|even))\\s*+(?=\\))"
+        captures:
+          "1":
+            name: "keyword.operator.arithmetic.css"
+          "2":
+            name: "constant.numeric.css"
+          "3":
+            name: "constant.character.css"
+      }
+      {
+        match: "(.+?)(?=\\)|$)"
+        captures:
+          "1":
+            name: "invalid.illegal.css"
+      }
+    ]
+  "css-rules":
+    patterns: [
+      {
+        include: "#@charset-rule"
+      }
+      {
+        include: "#@counter-style-rule"
+      }
+      {
+        include: "#@font-face-rule"
+      }
+      {
+        include: "#@font-feature-values-rule"
+      }
+      {
+        include: "#@font-feature-value-blocks"
+      }
+      {
+        include: "#@import-rule"
+      }
+      {
+        include: "#@keyframes-rule"
+      }
+      {
+        include: "#@media-rule"
+      }
+      {
+        include: "#@namespace-rule"
+      }
+      {
+        include: "#@page-rule"
+      }
+      {
+        include: "#@supports-rule"
+      }
+      {
+        include: "#@viewport-rule"
+      }
+    ]
+  "@charset-rule":
+    contentName: "string.unquoted.css"
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?charset)\\b"
+    end: "\\s*+(;)"
+    beginCaptures:
+      "1":
+        name: "keyword.control.charset.css"
+    endCaptures:
+      "1":
+        name: "punctuation,semi-colon.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#string"
+      }
+    ]
+  "@counter-style-rule":
+    name: "meta.counter-style.css"
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?counter-style)\\b"
+    end: "(?<=})"
+    beginCaptures:
+      "1":
+        name: "keyword.control.font-face.css"
+    patterns: [
+      {
+        include: "#identifier"
+      }
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  "@font-feature-value-blocks":
+    begin: "(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?swash|ornaments|annotation|stylistic|styleset|character-variant)\\b"
+    end: "(?<=})"
+    beginCaptures:
+      "1":
+        name: "keyword.control.font-feature-values.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  "@font-face-rule":
+    name: "meta.font-face.css"
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?font-face)\\b"
+    end: "(?<=})"
+    beginCaptures:
+      "1":
+        name: "keyword.control.font-face.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  "@font-feature-values-rule":
+    name: "meta.font-face.css"
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?font-feature-values)\\b"
+    end: "(?<=})"
+    beginCaptures:
+      "1":
+        name: "keyword.control.font-feature-values.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#css-rules"
+      }
+      {
+        include: "#string"
+      }
+      {
+        include: "#css-number"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  "@import-rule":
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?import)\\b"
+    end: "\\s*+(;)"
+    beginCaptures:
+      "1":
+        name: "keyword.control.charset.css"
+    endCaptures:
+      "1":
+        name: "punctuation,semi-colon.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#media-queries"
+      }
+      {
+        include: "#css-function-url"
+      }
+      {
+        include: "#string"
+      }
+    ]
+  "@keyframes-rule":
+    patterns: [
+      {
+        name: "meta.media.css"
+        begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?keyframes)\\b"
+        end: "(?<=})"
+        beginCaptures:
+          "1":
+            name: "keyword.control.media.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.curly.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#identifier"
+          }
+          {
+            begin: "\\s*+({)"
+            end: "\\s*+(})"
+            captures:
+              "1":
+                name: "meta.brace.curly.css"
+            patterns: [
+              {
+                match: "(?i)\\s*+(from|to)\\b"
+                captures:
+                  "1":
+                    name: "keyword.control.keyframe.css"
+              }
+              {
+                include: "#css-numbers"
+              }
+              {
+                include: "#css-comment-and-interpolate"
+              }
+              {
+                include: "#selector-body"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  "@media-rule":
+    patterns: [
+      {
+        name: "meta.media.css"
+        begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?media)\\b"
+        end: "(?<=})"
+        beginCaptures:
+          "1":
+            name: "keyword.control.media.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.curly.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#media-queries"
+          }
+          {
+            include: "#selector-body"
+          }
+        ]
+      }
+    ]
+  "@namespace-rule":
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?namespace)\\b"
+    end: "\\s*+(;)"
+    beginCaptures:
+      "1":
+        name: "keyword.control.namespace.css"
+    endCaptures:
+      "1":
+        name: "punctuation,semi-colon.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#css-function-url"
+      }
+      {
+        include: "#identifier"
+      }
+      {
+        include: "#string"
+      }
+    ]
+  "@page-rule":
+    patterns: [
+      {
+        name: "meta.media.css"
+        begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?page)\\b"
+        end: "(?<=})"
+        beginCaptures:
+          "1":
+            name: "keyword.control.media.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.curly.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#selector"
+          }
+          {
+            include: "#selector-body"
+          }
+        ]
+      }
+    ]
+  "@supports-rule":
+    name: "meta.supports.css"
+    begin: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?supports)\\b"
+    end: "(?<=})"
+    beginCaptures:
+      "1":
+        name: "keyword.control.supports.css"
+    endCaptures:
+      "1":
+        name: "meta.brace.curly.css"
+    patterns: [
+      {
+        include: "#supports-queries"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  "@viewport-rule":
+    match: "(?i)(?<=^|[\\W])\\s*+(@(-(webkit|moz|o|ms)-)?viewport)\\b"
+    captures:
+      "1":
+        name: "keyword.control.viewport.css"
+  "supports-queries":
+    patterns: [
+      {
+        match: "(?i)\\s*+\\b(not|only|and)\\b"
+        captures:
+          "2":
+            name: "keyword.operator.logical.css"
+      }
+      {
+        begin: "\\s*+(\\()"
+        end: "\\s*+(\\))"
+        beginCaptures:
+          "1":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#supports-queries"
+          }
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#css-key-values"
+          }
+          {
+            comment: "prefixed values that aren't known"
+            match: "(?i)\\s*+((-(webkit|moz|o|ms)-)[_a-zA-Z][-_a-zA-Z0-9]*)\\s*+(:)"
+            captures:
+              "1":
+                name: "support.type.property-names.css"
+              "4":
+                name: "punctuation.colon.css"
+          }
+        ]
+      }
+    ]
+  "media-queries":
+    patterns: [
+      {
+        match: "(?i)\\s*+(\\b(not|only)\\b)?\\s*+\\b(all|aural|braile|embosed|handheld|print|projection|screen|speech|tty|tv)\\b"
+        captures:
+          "2":
+            name: "keyword.operator.logical.css"
+          "3":
+            name: "support.type.media-names.css"
+      }
+      {
+        begin: "(?i)(\\s*+\\b(and)\\b)?\\s*+(\\()"
+        end: "(\\))"
+        beginCaptures:
+          "2":
+            name: "keyword.operator.logical.css"
+          "3":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            match: "(?i)\\s*+((-(webkit|moz|o|ms)-)?((min-|max-)?(width|reolution|monochrome|height|device-width|device-height|device-aspect-ratio|color-index|color|aspect-ratio))|(scan|orientation|grid))\\s*+(:)"
+            captures:
+              "1":
+                name: "support.type.property-names.css"
+              "8":
+                name: "punctuation.colon.css"
+          }
+          {
+            comment: "prefixed values that aren't known"
+            match: "(?i)\\s*+((-(webkit|moz|o|ms)-)[_a-zA-Z][-_a-zA-Z0-9]*)\\s*+(:)"
+            captures:
+              "1":
+                name: "support.type.property-names.css"
+              "4":
+                name: "punctuation.colon.css"
+          }
+          {
+            include: "#css-values"
+          }
+        ]
+      }
+    ]
+  selector:
+    patterns: [
+      {
+        comment: "standard html tags"
+        match: "(?i)(?<=^|[\\W])\\s*+(wbr|video|var|ul|u|tspan|track|tr|title|time|thead|th|tfoot|textarea|text|template|td|tbody|table|svg|sup|summary|sub|style|strong|stop|span|source|small|select|section|script|samp|s|ruby|rt|rp|rect|radialGradient|q|progress|pre|polyline|polygon|picture|pattern|path|param|p|output|option|optgroup|ol|object|noscript|nav|meter|meta|menuitem|menu|mark|map|main|link|linearGradient|line|li|legend|label|keygen|kbd|ins|input|img|image|iframe|i|html|hr|hgroup|header|head|h6|h5|h4|h3|h2|h1|g|form|footer|figure|figcaption|fieldset|embed|em|ellipse|dt|dl|div|dialog|dfn|details|del|defs|dd|datalist|data|colgroup|col|code|clipPath|cite|circle|caption|canvas|button|br|body|blockquote|big|bdo|bdi|base|b|audio|aside|article|area|address|abbr|a)\\b(?![-_])"
+        captures:
+          "1":
+            name: "entity.name.tag.css"
+      }
+      {
+        comment: " global, class and id selectors"
+        match: "\\s*+(?:(\\.-?([_a-zA-Z][-_a-zA-Z0-9]*))|(\\#-?([_a-zA-Z][-_a-zA-Z0-9]*))|(\\*))"
+        captures:
+          "1":
+            name: "entity.other.attribute-name.class.css"
+          "3":
+            name: "entity.other.attribute-name.id.css"
+          "5":
+            name: "entity.name.tag.all.css"
+      }
+      {
+        comment: "element relationship"
+        match: "\\s*+(,|\\+|~|>)"
+        captures:
+          "1":
+            name: "keyword.operator.relationship.css"
+      }
+      {
+        comment: "pseudo parent"
+        match: "\\s*+(&)"
+        captures:
+          "1":
+            name: "keyword.operator.parent.css"
+      }
+      {
+        comment: "psuedo double colon"
+        match: "(?i)((::)(selection|first-line|first-letter|before|backdrop|after))\\b"
+        captures:
+          "2":
+            name: "keyword.operator.pseudo.css"
+          "3":
+            name: "constant.language.pseudo.css"
+      }
+      {
+        comment: "psuedo single colon"
+        match: "(?i)((:)(visited|valid|user-error|unresolved|target|scope|root|right|required|read-write|read-only|placeholder-shown|past|out-of-range|optional|only-of-type|only-child|link|left|last-of-type|last-child|invalid|indeterminate|in-range|hover|fullscreen|focus|first-of-type|first-line|first-letter|first-child|future|first|enabled|empty|drop|disabled|dir|default|current|checked|before|any-link|after|active))\\b"
+        captures:
+          "2":
+            name: "keyword.operator.pseudo.css"
+          "3":
+            name: "constant.language.pseudo.css"
+      }
+      {
+        comment: "language with arguments"
+        begin: "(?i)(?:(:)(lang)(\\())"
+        end: "\\)"
+        beginCaptures:
+          "1":
+            name: "keyword.operator.pseudo.css"
+          "2":
+            name: "entity.name.function.css"
+          "3":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "0":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#string"
+          }
+          {
+            include: "#language"
+          }
+        ]
+      }
+      {
+        comment: "psuedo with selector arguments "
+        begin: "(?i)(?:(:)(not|has|matches|column)(\\())"
+        end: "\\)"
+        beginCaptures:
+          "1":
+            name: "keyword.operator.pseudo.css"
+          "2":
+            name: "entity.name.function.css"
+          "3":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "0":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#selector"
+          }
+        ]
+      }
+      {
+        comment: "psuedo with property value arguments"
+        begin: "(?i)(?:(:)(dir)(\\())"
+        end: "\\)"
+        beginCaptures:
+          "1":
+            name: "keyword.operator.pseudo.css"
+          "2":
+            name: "entity.name.function.css"
+          "3":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "0":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "literals"
+          }
+          {
+            include: "#css-property-values"
+          }
+        ]
+      }
+      {
+        comment: "psuedo wuth nth notation arguments"
+        begin: "(?i)(?:(:)((nth-)(child|column|last-child|last-column|last-of-type|of-type))(\\())"
+        end: "\\)"
+        beginCaptures:
+          "1":
+            name: "keyword.operator.pseudo.css"
+          "2":
+            name: "entity.name.function.css"
+          "5":
+            name: "meta.brace.round.css"
+        endCaptures:
+          "0":
+            name: "meta.brace.round.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#nth-child"
+          }
+        ]
+      }
+      {
+        comment: "attribute selectors []"
+        name: "meta.attribute-selector.css"
+        begin: "\\s*+(\\[)"
+        end: "\\s*+(\\])"
+        beginCaptures:
+          "1":
+            name: "meta.brace.square.css"
+        endCaptures:
+          "1":
+            name: "meta.brace.square.css"
+        patterns: [
+          {
+            include: "#css-comment-and-interpolate"
+          }
+          {
+            include: "#attribute-selectors"
+          }
+        ]
+      }
+      {
+        comment: "psuedo selectors for browser prefixes"
+        match: "(?i)((:{1,2})((-(webkit|moz|o|ms)-)[_a-zA-Z][-_a-zA-Z0-9]*))\\b"
+        captures:
+          "2":
+            name: "keyword.operator.pseudo.css"
+          "3":
+            name: "constant.language.pseudo.prefixed.css"
+      }
+    ]
+  "selector-body":
+    contentName: "meta.property-list.css"
+    begin: "\\s*+(\\{)"
+    end: "\\s*+(\\})"
+    beginCaptures:
+      "1":
+        name: "meta.brace.curly.css"
+    endCaptures:
+      "1":
+        name: "meta.brace.curly.css"
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#selector-declaration"
+      }
+    ]
+  "selector-declaration":
+    patterns: [
+      {
+        include: "#css-comment-and-interpolate"
+      }
+      {
+        include: "#css-rules"
+      }
+      {
+        include: "#selector"
+      }
+      {
+        include: "#css-properties"
+      }
+      {
+        include: "#selector-body"
+      }
+    ]
+  string:
+    patterns: [
+      {
+        contentName: "string.quoted.double.css"
+        begin: "\\s*+((\"))"
+        end: '''
+          \\s*+(?:(((?<!\\\\)"))|(
+          ))
+        '''
+        beginCaptures:
+          "1":
+            name: "string.quoted.double.css"
+          "2":
+            name: "punctuation.definition.string.begin.css"
+        endCaptures:
+          "1":
+            name: "string.quoted.double.css"
+          "2":
+            name: "punctuation.definition.string.end.css"
+          "3":
+            name: "invalid.illegal.newline.css"
+        patterns: [
+          {
+            include: "#css-interpolate"
+          }
+        ]
+      }
+      {
+        contentName: "string.quoted.single.css"
+        begin: "\\s*+(('))"
+        end: '''
+          \\s*+(?:(((?<!\\\\)'))|(
+          ))
+        '''
+        beginCaptures:
+          "1":
+            name: "string.quoted.single.css"
+          "2":
+            name: "punctuation.definition.string.begin.css"
+        endCaptures:
+          "1":
+            name: "string.quoted.single.css"
+          "2":
+            name: "punctuation.definition.string.end.css"
+          "3":
+            name: "invalid.illegal.newline.css"
+        patterns: [
+          {
+            include: "#css-interpolate"
+          }
+        ]
+      }
+    ]
