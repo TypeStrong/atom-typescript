@@ -22,6 +22,7 @@ exports.CommandWithResponse = new Set([
     "references",
     "reload",
     "rename",
+    "navtree"
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
@@ -117,6 +118,9 @@ class TypescriptServiceClient {
     }
     executeSaveTo(args) {
         return this.execute("saveto", args);
+    }
+    executeNavTree(args) {
+        return this.execute("navtree", args);
     }
     execute(command, args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {

@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from './atom/views/renameView'
+import {attach as attachSemanticView} from './atom/views/semanticView'
 import {AutocompleteProvider} from './atom/autoCompleteProvider'
 import {ClientResolver} from "../client/clientResolver"
 import {CompositeDisposable} from "atom"
@@ -39,6 +40,7 @@ export function activate(state: PackageState) {
 
     // Add the rename view
     const {renameView} = attachRenameView()
+    const {semanticView} = attachSemanticView({getTypescriptBuffer})
     const statusPanel = StatusPanel.create()
 
     statusBar.addRightTile({
@@ -83,6 +85,7 @@ export function activate(state: PackageState) {
         return clientResolver.get(filePath)
       },
       renameView,
+      semanticView,
       statusPanel,
     })
 

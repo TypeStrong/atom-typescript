@@ -1,5 +1,6 @@
 import {TypescriptServiceClient} from "../../../client/client"
 import {RenameView} from "../views/renameView"
+import {SemanticView} from "../views/semanticView"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
 
@@ -8,6 +9,7 @@ export interface Dependencies {
   getTypescriptBuffer(filePath: string): Promise<{buffer: TypescriptBuffer, isOpen: boolean}>
   getClient(filePath: string): Promise<TypescriptServiceClient>
   renameView: RenameView
+  semanticView: SemanticView
   statusPanel: StatusPanel
 }
 

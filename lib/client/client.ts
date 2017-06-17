@@ -23,6 +23,7 @@ export const CommandWithResponse = new Set([
   "references",
   "reload",
   "rename",
+  "navtree"
 ])
 
 export class TypescriptServiceClient {
@@ -102,6 +103,9 @@ export class TypescriptServiceClient {
   }
   executeSaveTo(args: protocol.SavetoRequestArgs) {
     return this.execute("saveto", args)
+  }
+  executeNavTree(args: protocol.FileRequestArgs) {
+    return this.execute("navtree", args)
   }
 
   private async execute(command: string, args: any) {
