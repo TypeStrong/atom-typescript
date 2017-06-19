@@ -8,6 +8,7 @@ import "./formatCode"
 import "./findReferences"
 import "./goToDeclaration"
 import "./renameRefactor"
+import "./semanticView"
 
 export function registerCommands(deps: Dependencies) {
 

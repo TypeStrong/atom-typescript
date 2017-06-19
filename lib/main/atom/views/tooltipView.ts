@@ -49,6 +49,6 @@ export class TooltipView extends view.View<Rect> {
             top = this.rect.top - this.$[0].offsetHeight
         }
 
-        this.$.css({ left, top, right });
+        this.$.css({ left, top, right } as JQuery.PlainObject);
     }
 }

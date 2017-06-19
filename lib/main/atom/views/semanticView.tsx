@@ -1,3 +1,4 @@
+import atomConfig = require("../atomConfig");
 import atomUtils = require("../utils");
 import * as sp from "atom-space-pen-views";
 import * as view from "./view";
@@ -20,6 +21,7 @@ interface Position {
   line: number;
   offset: number;
 }
+
 interface SemanticTreeNode {
   text: string;
   kind: string;
@@ -33,7 +35,7 @@ export interface TypescriptFileBuffer {
   isOpen: boolean;
 }
 
-class MyComponent {//React.Component<Props, State>{
+class SemanticViewRenderer {
 
     editor: AtomCore.IEditor;
     ast: SemanticTreeNode | null;
@@ -57,7 +59,8 @@ class MyComponent {//React.Component<Props, State>{
     }
 
     forceUpdate(){
-      //TODO?
+      //FIXME should this be done differently?
+      this._render();
     }
 
     loadAst(buffer: TypescriptFileBuffer, filePath?: string) {
@@ -91,7 +94,7 @@ class MyComponent {//React.Component<Props, State>{
               } else {
                 buffer.buffer.open().then(() => {
                     this.loadAst(buffer, filePath);
-                });
+                }).catch(err => console.error(err, filePath));
               }
             });
             // Subscribe to stop scrolling
@@ -109,7 +112,7 @@ class MyComponent {//React.Component<Props, State>{
                 } else {
                   buffer.buffer.open().then(() => {
                       this.loadAst(buffer, filePath);
-                  });
+                  }).catch(err => console.error(err, filePath));
                 }
               });
             })
@@ -132,7 +135,7 @@ class MyComponent {//React.Component<Props, State>{
 
         // Tab changing
         atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-            if (atomUtils.onDiskAndTs(editor) && true) {//FIXME impl. & use settings// atomConfig.showSemanticView) {
+            if (atomUtils.onDiskAndTs(editor) && atomConfig.showSemanticView) {
                 subscribeToEditor(editor);
             }
             else {
@@ -217,7 +220,7 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
     public get rootDomElement() {
         return this.mainContent[0];
     }
-    private comp: MyComponent;
+    private comp: SemanticViewRenderer;
     private getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>;
     static content() {
         return this.div({ class: 'atomts atomts-semantic-view native-key-bindings' }, () => {
@@ -236,9 +239,12 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
      */
     started = false
     start() {
-        if (this.started) return;
+        if (this.started){
+          this.comp.forceUpdate();
+          return;
+        }
         this.started = true;
-        this.comp = new MyComponent({getTypescriptBuffer: this.getTypescriptBuffer});
+        this.comp = new SemanticViewRenderer({getTypescriptBuffer: this.getTypescriptBuffer});
         this.comp.componentDidMount();
         this.comp._render(this.rootDomElement);
     }
@@ -264,7 +270,7 @@ export function attach(getTypescriptBuffer: {getTypescriptBuffer: (filePath: str
     panel = atom.workspace.addRightPanel({
       item: mainView,
       priority: 1000,
-      visible: atomUtils.isActiveEditorOnDiskAndTs() && true //FIXME atomConfig.showSemanticView
+      visible: atomUtils.isActiveEditorOnDiskAndTs() && atomConfig.showSemanticView
     });
 
     if (panel.isVisible()) {
@@ -281,10 +287,10 @@ export function attach(getTypescriptBuffer: {getTypescriptBuffer: (filePath: str
 
 export function toggle() {
     if (panel.isVisible()) {
-        //FIXME// atomConfig.showSemanticView = (false);
+        atomConfig.showSemanticView = (false);
         panel.hide();
     } else {
-        //FIXME// atomConfig.showSemanticView = (true);
+        atomConfig.showSemanticView = (true);
         panel.show();
         mainView.start();
     }
