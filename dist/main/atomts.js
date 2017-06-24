@@ -125,8 +125,8 @@ function serialize() {
     return {};
 }
 exports.serialize = serialize;
-function consumeLinter(registry) {
-    linter = registry.register({
+function consumeLinter(register) {
+    linter = register({
         name: "Typescript"
     });
 }

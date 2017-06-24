@@ -7,7 +7,7 @@ import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {flatten, values} from "lodash"
-import {LinterRegistry, Linter} from "../typings/linter"
+import {RegisterLinter, Linter} from "../typings/linter"
 import {StatusBar} from "../typings/status_bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
@@ -151,8 +151,8 @@ export function serialize(): PackageState {
   return {}
 }
 
-export function consumeLinter(registry: LinterRegistry) {
-  linter = registry.register({
+export function consumeLinter(register: RegisterLinter) {
+  linter = register({
     name: "Typescript"
   })
 }

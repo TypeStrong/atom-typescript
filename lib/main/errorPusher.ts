@@ -34,7 +34,7 @@ export class ErrorPusher {
   /** Clear all errors */
   clear() {
     if (this.linter) {
-      this.linter.deleteMessages()
+      this.linter.clearMessages()
     }
   }
 
@@ -51,17 +51,19 @@ export class ErrorPusher {
         const _filePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
           errors.push({
-            type: this.unusedAsInfo && diagnostic.code === 6133 ? "Info" : "Error",
-            text: diagnostic.text,
-            filePath: _filePath,
-            range: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined
+            severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
+            excerpt: diagnostic.text,
+            location: {
+              file: _filePath,
+              position: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined,
+            },
           })
         }
       }
     }
 
     if (this.linter) {
-      this.linter.setMessages(errors)
+      this.linter.setAllMessages(errors)
     }
   }, 100)
 }
