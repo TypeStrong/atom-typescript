@@ -178,6 +178,6 @@ class TypescriptEditorPane {
 }
 exports.TypescriptEditorPane = TypescriptEditorPane;
 function isTypescriptGrammar(grammar) {
-    return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx" || grammar.scopeName === "source.js";
+    return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx" || grammar.scopeName === "source.js" || grammar.scopeName == "source.js.jsx";
 }
 //# sourceMappingURL=typescriptEditorPane.js.map
