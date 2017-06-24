@@ -18,11 +18,11 @@ function isTypescriptFile(filePath) {
     if (!filePath)
         return false;
     const ext = path.extname(filePath);
-    return ext === ".ts" || ext === ".tsx";
+    return ext === ".ts" || ext === ".tsx" || ext === ".js";
 }
 exports.isTypescriptFile = isTypescriptFile;
 function isAllowedExtension(ext) {
-    return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
+    return (ext == '.ts' || ext == '.tst' || ext == '.tsx' || ext == '.js');
 }
 exports.isAllowedExtension = isAllowedExtension;
 function isActiveEditorOnDiskAndTs() {
@@ -106,7 +106,7 @@ exports.getRangeForTextSpan = getRangeForTextSpan;
 function getTypeScriptEditorsWithPaths() {
     return atom.workspace.getTextEditors()
         .filter(editor => !!editor.getPath())
-        .filter(editor => (path.extname(editor.getPath()) === '.ts'));
+        .filter(editor => (path.extname(editor.getPath()) === '.ts' || '.js'));
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
