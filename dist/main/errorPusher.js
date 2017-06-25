@@ -29,6 +29,17 @@ class ErrorPusher {
             }
         }, 100);
     }
+    /** Return any errors that cover the given location */
+    getErrorsAt(filePath, loc) {
+        const result = [];
+        for (const prefixed of this.errors.values()) {
+            const errors = prefixed.get(filePath);
+            if (errors) {
+                result.push(...errors.filter(err => utils_1.isLocationInRange(loc, err)));
+            }
+        }
+        return result;
+    }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {
         if (prefix == undefined || filePath == undefined) {

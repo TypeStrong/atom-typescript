@@ -1,7 +1,7 @@
 import {$} from "atom-space-pen-views"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
-import {spanToRange} from "./atom/utils"
+import {spanToRange, getProjectCodeSettings} from "./atom/utils"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptServiceClient} from "../client/client"
@@ -178,6 +178,13 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         if (this.isActive) {
           this.opts.statusPanel.setTsConfigPath(this.configFile)
         }
+
+        getProjectCodeSettings(this.filePath, this.configFile).then(options => {
+          this.client!.executeConfigure({
+            file: this.filePath,
+            formatOptions: options
+          })
+        })
       }, error => null)
     }
   }

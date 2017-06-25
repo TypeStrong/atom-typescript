@@ -1,13 +1,25 @@
 import {debounce} from "lodash"
-import {Diagnostic} from "typescript/lib/protocol"
+import {Diagnostic, Location} from "typescript/lib/protocol"
 import {Linter, LinterMessage} from "../typings/linter"
-import {locationsToRange, systemPath} from "./atom/utils"
+import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: Linter
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
   private unusedAsInfo = true
+
+  /** Return any errors that cover the given location */
+  getErrorsAt(filePath: string, loc: Location): Diagnostic[] {
+    const result: Diagnostic[] = []
+    for (const prefixed of this.errors.values()) {
+      const errors = prefixed.get(filePath)
+      if (errors) {
+        result.push(...errors.filter(err => isLocationInRange(loc, err)))
+      }
+    }
+    return result
+  }
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
   setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {

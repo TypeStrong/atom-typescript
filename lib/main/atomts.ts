@@ -1,8 +1,9 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachRenameView} from './atom/views/renameView'
-import {AutocompleteProvider} from './atom/autoCompleteProvider'
+import {attach as attachRenameView} from "./atom/views/renameView"
+import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
+import {CodefixProvider} from "./atom/codefixProvider"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -24,6 +25,7 @@ import {registerCommands} from "./atom/commands"
 
 let linter: Linter
 let statusBar: StatusBar
+const codefixProvider = new CodefixProvider(clientResolver)
 
 interface PackageState {}
 
@@ -54,6 +56,9 @@ export function activate(state: PackageState) {
         errorPusher.setUnusedAsInfo(val.newValue)
       }
     ))
+
+    codefixProvider.errorPusher = errorPusher
+    codefixProvider.getTypescriptBuffer = getTypescriptBuffer
 
     clientResolver.on("pendingRequestsChange", () => {
       const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
@@ -168,6 +173,10 @@ export function provide() {
   ]
 }
 
+export function provideIntentions() {
+  return codefixProvider
+}
+
 export var config = {
   unusedAsInfo: {
     title: 'Show unused values with severity info',
@@ -177,12 +186,14 @@ export var config = {
   }
 }
 
-export function loadProjectConfig(sourcePath: string): Promise<tsconfig.TSConfig> {
-  return clientResolver.get(sourcePath).then(client => {
-    return client.executeProjectInfo({needFileNameList: false, file: sourcePath}).then(result => {
-      return tsconfig.load(result.body!.configFileName)
-    })
-  })
+export async function getProjectConfigPath(sourcePath: string): Promise<string> {
+  const client = await clientResolver.get(sourcePath)
+  const result = await client.executeProjectInfo({needFileNameList: false, file: sourcePath})
+  return result.body!.configFileName
+}
+
+export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<tsconfig.TSConfig> {
+  return tsconfig.load(configFile || await getProjectConfigPath(sourcePath))
 }
 
 // Get Typescript buffer for the given path
