@@ -6,20 +6,20 @@ const utils_1 = require("../utils");
 class StatusPanel extends HTMLElement {
     createdCallback() {
         const nodes = [
-            dom.createElement("div", { ref: el => this.version = el, className: "inline-block" }),
-            dom.createElement("a", { ref: el => this.pendingContainer = el, className: "inline-block", href: "", onClick: evt => {
+            dom.createElement("div", { ref: el => (this.version = el), className: "inline-block" }),
+            dom.createElement("a", { ref: el => (this.pendingContainer = el), className: "inline-block", href: "", onClick: evt => {
                     evt.preventDefault();
                     this.showPendingRequests();
                 } },
-                dom.createElement("span", { ref: span => this.pendingCounter = span }),
-                dom.createElement("span", { ref: span => this.pendingSpinner = span, className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: 0.5, verticalAlign: "sub" } })),
-            dom.createElement("a", { ref: el => this.configPathContainer = el, className: "inline-block", href: "", onClick: evt => {
+                dom.createElement("span", { ref: span => (this.pendingCounter = span) }),
+                dom.createElement("span", { ref: span => (this.pendingSpinner = span), className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: 0.5, verticalAlign: "sub" } })),
+            dom.createElement("a", { ref: el => (this.configPathContainer = el), className: "inline-block", href: "", onClick: evt => {
                     evt.preventDefault();
                     this.openConfigPath();
                 } }),
-            dom.createElement("div", { ref: el => this.statusContainer = el, className: "inline-block" },
-                dom.createElement("span", { ref: el => this.statusText = el })),
-            dom.createElement("progress", { ref: el => this.progress = el, style: { verticalAlign: "baseline" }, className: 'inline-block' })
+            dom.createElement("div", { ref: el => (this.statusContainer = el), className: "inline-block" },
+                dom.createElement("span", { ref: el => (this.statusText = el) })),
+            dom.createElement("progress", { ref: el => (this.progress = el), style: { verticalAlign: "baseline" }, className: "inline-block" }),
         ];
         for (const node of nodes) {
             this.appendChild(node);
@@ -73,8 +73,9 @@ class StatusPanel extends HTMLElement {
     setTsConfigPath(configPath) {
         this.configPath = configPath;
         if (configPath) {
-            this.configPathContainer.textContent = configPath.startsWith("/dev/null") ? "No project" :
-                path_1.dirname(utils_1.getFilePathRelativeToAtomProject(configPath));
+            this.configPathContainer.textContent = configPath.startsWith("/dev/null")
+                ? "No project"
+                : path_1.dirname(utils_1.getFilePathRelativeToAtomProject(configPath));
             this.configPathContainer.classList.remove("hide");
         }
         else {
@@ -121,5 +122,6 @@ class StatusPanel extends HTMLElement {
     }
 }
 exports.StatusPanel = StatusPanel;
-document.registerElement('ts-status-panel', StatusPanel);
+;
+document.registerElement("ts-status-panel", StatusPanel);
 //# sourceMappingURL=statusPanel.js.map

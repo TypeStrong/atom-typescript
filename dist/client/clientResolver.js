@@ -6,7 +6,7 @@ const path = require("path");
 const resolve_1 = require("resolve");
 const defaultServer = {
     serverPath: require.resolve("typescript/bin/tsserver"),
-    version: require("typescript").version
+    version: require("typescript").version,
 };
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
@@ -21,9 +21,7 @@ class ClientResolver extends events.EventEmitter {
         return super.on(event, callback);
     }
     get(filePath) {
-        return resolveServer(filePath)
-            .catch(() => defaultServer)
-            .then(({ serverPath, version }) => {
+        return resolveServer(filePath).catch(() => defaultServer).then(({ serverPath, version }) => {
             if (this.clients[serverPath]) {
                 return this.clients[serverPath].client;
             }
@@ -40,7 +38,7 @@ class ClientResolver extends events.EventEmitter {
                         type,
                         serverPath,
                         filePath,
-                        diagnostics: result.diagnostics
+                        diagnostics: result.diagnostics,
                     });
                 }
             };
@@ -67,7 +65,7 @@ function resolveServer(sourcePath) {
         const version = require(packagePath).version;
         return {
             version,
-            serverPath: resolvedPath
+            serverPath: resolvedPath,
         };
     });
 }

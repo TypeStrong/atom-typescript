@@ -10,7 +10,7 @@ function getEditorPosition(editor) {
     const pos = editor.getCursorBufferPosition();
     return {
         line: pos.row + 1,
-        offset: pos.column + 1
+        offset: pos.column + 1,
     };
 }
 exports.getEditorPosition = getEditorPosition;
@@ -21,8 +21,12 @@ function isTypescriptFile(filePath) {
     return ext === ".ts" || ext === ".tsx";
 }
 exports.isTypescriptFile = isTypescriptFile;
+function isTypescriptGrammar(grammar) {
+    return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx";
+}
+exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {
-    return (ext == '.ts' || ext == '.tst' || ext == '.tsx');
+    return ext == ".ts" || ext == ".tst" || ext == ".tsx";
 }
 exports.isAllowedExtension = isAllowedExtension;
 function isActiveEditorOnDiskAndTs() {
@@ -31,7 +35,7 @@ function isActiveEditorOnDiskAndTs() {
 }
 exports.isActiveEditorOnDiskAndTs = isActiveEditorOnDiskAndTs;
 function onDiskAndTs(editor) {
-    if (editor instanceof require('atom').TextEditor) {
+    if (editor instanceof require("atom").TextEditor) {
         var filePath = editor.getPath();
         if (!filePath) {
             return false;
@@ -48,7 +52,7 @@ function onDiskAndTs(editor) {
 exports.onDiskAndTs = onDiskAndTs;
 /** Either ts or tsconfig */
 function onDiskAndTsRelated(editor) {
-    if (editor instanceof require('atom').TextEditor) {
+    if (editor instanceof require("atom").TextEditor) {
         var filePath = editor.getPath();
         if (!filePath) {
             return false;
@@ -59,7 +63,7 @@ function onDiskAndTsRelated(editor) {
                 return true;
             }
         }
-        if (filePath.endsWith('tsconfig.json')) {
+        if (filePath.endsWith("tsconfig.json")) {
             return true;
         }
     }
@@ -104,9 +108,10 @@ function getRangeForTextSpan(editor, ts) {
 exports.getRangeForTextSpan = getRangeForTextSpan;
 /** only the editors that are persisted to disk. And are of type TypeScript */
 function getTypeScriptEditorsWithPaths() {
-    return atom.workspace.getTextEditors()
+    return atom.workspace
+        .getTextEditors()
         .filter(editor => !!editor.getPath())
-        .filter(editor => (path.extname(editor.getPath()) === '.ts'));
+        .filter(editor => path.extname(editor.getPath()) === ".ts");
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
@@ -136,14 +141,14 @@ function formatCode(editor, edits) {
 exports.formatCode = formatCode;
 function kindToColor(kind) {
     switch (kind) {
-        case 'interface':
-            return 'rgb(16, 255, 0)';
-        case 'keyword':
-            return 'rgb(0, 207, 255)';
-        case 'class':
-            return 'rgb(255, 0, 194)';
+        case "interface":
+            return "rgb(16, 255, 0)";
+        case "keyword":
+            return "rgb(0, 207, 255)";
+        case "class":
+            return "rgb(255, 0, 194)";
         default:
-            return 'white';
+            return "white";
     }
 }
 exports.kindToColor = kindToColor;
@@ -153,26 +158,26 @@ exports.kindToColor = kindToColor;
 function kindToType(kind) {
     // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
     switch (kind) {
-        case 'const':
-            return 'constant';
-        case 'interface':
-            return 'type';
-        case 'identifier':
-            return 'variable';
-        case 'local function':
-            return 'function';
-        case 'local var':
-            return 'variable';
-        case 'let':
-        case 'var':
-        case 'parameter':
-            return 'variable';
-        case 'alias':
-            return 'import';
-        case 'type parameter':
-            return 'type';
+        case "const":
+            return "constant";
+        case "interface":
+            return "type";
+        case "identifier":
+            return "variable";
+        case "local function":
+            return "function";
+        case "local var":
+            return "variable";
+        case "let":
+        case "var":
+        case "parameter":
+            return "variable";
+        case "alias":
+            return "import";
+        case "type parameter":
+            return "type";
         default:
-            return kind.split(' ')[0];
+            return kind.split(" ")[0];
     }
 }
 exports.kindToType = kindToType;
@@ -194,9 +199,9 @@ function getCurrentPath() {
 }
 exports.getCurrentPath = getCurrentPath;
 exports.knownScopes = {
-    reference: 'reference.path.string',
-    require: 'require.path.string',
-    es6import: 'es6import.path.string'
+    reference: "reference.path.string",
+    require: "require.path.string",
+    es6import: "es6import.path.string",
 };
 function editorInTheseScopes(matches) {
     var editor = atom.workspace.getActiveTextEditor();
@@ -205,7 +210,7 @@ function editorInTheseScopes(matches) {
     if (matches.some(p => lastScope === p))
         return lastScope;
     else
-        return '';
+        return "";
 }
 exports.editorInTheseScopes = editorInTheseScopes;
 /** One less level of indirection */
@@ -224,7 +229,7 @@ exports.uriForPath = uriForPath;
  * Registers an opener with atom
  */
 function registerOpener(config) {
-    atom.commands.add(config.commandSelector, config.commandName, (e) => {
+    atom.commands.add(config.commandSelector, config.commandName, e => {
         if (!commandForTypeScript(e))
             return;
         var uri = uriForPath(config.uriProtocol, getCurrentPath());
@@ -250,7 +255,7 @@ function registerOpener(config) {
 exports.registerOpener = registerOpener;
 function triggerLinter() {
     // also invalidate linter
-    atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), 'linter:lint');
+    atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), "linter:lint");
 }
 exports.triggerLinter = triggerLinter;
 /**
@@ -260,7 +265,7 @@ function getFilePathRelativeToAtomProject(filePath) {
     filePath = _1.consistentPath(filePath);
     // Sample:
     // atom.project.relativize(`D:/REPOS/atom-typescript/lib/main/atom/atomUtils.ts`)
-    return '~' + atom.project.relativize(filePath);
+    return "~" + atom.project.relativize(filePath);
 }
 exports.getFilePathRelativeToAtomProject = getFilePathRelativeToAtomProject;
 /**

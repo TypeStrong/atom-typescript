@@ -59,8 +59,8 @@ class AutocompleteProvider {
                 }
             }
             // Don't show autocomplete if we're in a string.template and not in a template expression
-            if (containsScope(opts.scopeDescriptor.scopes, "string.template.")
-                && !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
+            if (containsScope(opts.scopeDescriptor.scopes, "string.template.") &&
+                !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
                 return [];
             }
             // Don't show autocomplete if we're in a string and it's not an import path
@@ -127,7 +127,7 @@ function getLocationQuery(opts) {
     return {
         file: opts.editor.getPath(),
         line: opts.bufferPosition.row + 1,
-        offset: opts.bufferPosition.column + 1
+        offset: opts.bufferPosition.column + 1,
     };
 }
 function getLastNonWhitespaceChar(buffer, pos) {

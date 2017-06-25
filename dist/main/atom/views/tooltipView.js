@@ -10,8 +10,8 @@ class TooltipView extends view.View {
         this.updatePosition();
     }
     static content() {
-        return this.div({ class: 'atom-typescript-tooltip tooltip' }, () => {
-            this.div({ class: 'tooltip-inner', outlet: 'inner' });
+        return this.div({ class: "atom-typescript-tooltip tooltip" }, () => {
+            this.div({ class: "tooltip-inner", outlet: "inner" });
         });
     }
     updateText(text) {
@@ -28,7 +28,7 @@ class TooltipView extends view.View {
         if (left + this.$[0].offsetWidth >= view.$(document.body).width())
             left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
         if (left < 0) {
-            this.$.css({ 'white-space': 'pre-wrap' });
+            this.$.css({ "white-space": "pre-wrap" });
             left = offset;
             right = offset;
         }

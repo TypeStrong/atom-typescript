@@ -44,7 +44,7 @@ class TypescriptBuffer {
                 const { start, oldExtent, newText } = change;
                 const end = {
                     endLine: start.row + oldExtent.row + 1,
-                    endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1
+                    endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
                 };
                 yield client.executeChange(Object.assign({}, end, { file: filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
             }
@@ -67,7 +67,7 @@ class TypescriptBuffer {
                 const client = yield this.clientPromise;
                 yield client.executeOpen({
                     file: filePath,
-                    fileContent: this.buffer.getText()
+                    fileContent: this.buffer.getText(),
                 });
                 this.events.emit("opened");
             }

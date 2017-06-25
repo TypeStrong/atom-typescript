@@ -1,8 +1,8 @@
+"use strict";
 /**
  * A functional form of the SelectListView
  * Only one of these bad boys is allowed on the screen at one time
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var singleton;
 function simpleSelectionView(options) {
@@ -41,9 +41,8 @@ class SimpleSelectListView extends sp.SelectListView {
             </li>`;
         }
         else {
-            return $('<li></li>').append(view);
+            return $("<li></li>").append(view);
         }
-        ;
     }
     /** override */
     confirmed(item) {

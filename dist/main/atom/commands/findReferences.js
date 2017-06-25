@@ -22,13 +22,13 @@ registry_1.commands.set("typescript:find-references", deps => {
           <ts-view>${escapeHtml(item.lineText.trim())}</ts-view>
         </div>`;
             },
-            filterKey: 'filePath',
-            confirmed: item => open(item)
+            filterKey: "filePath",
+            confirmed: item => open(item),
         });
         function open(item) {
             atom.workspace.open(item.file, {
                 initialLine: item.start.line - 1,
-                initialColumn: item.start.offset - 1
+                initialColumn: item.start.offset - 1,
             });
         }
     });

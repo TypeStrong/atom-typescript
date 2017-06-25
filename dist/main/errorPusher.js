@@ -18,7 +18,9 @@ class ErrorPusher {
                             excerpt: diagnostic.text,
                             location: {
                                 file: _filePath,
-                                position: diagnostic.start ? utils_1.locationsToRange(diagnostic.start, diagnostic.end) : undefined,
+                                position: diagnostic.start
+                                    ? utils_1.locationsToRange(diagnostic.start, diagnostic.end)
+                                    : undefined,
                             },
                         });
                     }

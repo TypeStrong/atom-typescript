@@ -35,13 +35,13 @@ function attach(editorView, editor) {
         return;
     }
     var clientPromise = atomts_1.clientResolver.get(filePath);
-    var scroll = getFromShadowDom(editorView, '.scroll-view');
+    var scroll = getFromShadowDom(editorView, ".scroll-view");
     var subscriber = new Subscriber();
     var exprTypeTimeout;
     var exprTypeTooltip;
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt;
-    subscriber.subscribe(scroll, 'mousemove', (e) => {
+    subscriber.subscribe(scroll, "mousemove", (e) => {
         var pixelPt = pixelPositionFromMouseEvent(editorView, e);
         var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
         var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
@@ -51,8 +51,8 @@ function attach(editorView, editor) {
         clearExprTypeTimeout();
         exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
     });
-    subscriber.subscribe(scroll, 'mouseout', () => clearExprTypeTimeout());
-    subscriber.subscribe(scroll, 'keydown', () => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout());
+    subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout());
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
     function showExpressionType(e) {
@@ -66,7 +66,10 @@ function attach(editorView, editor) {
             var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
             var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
             var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-            var nextCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column + 1]);
+            var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
+                bufferPt.row,
+                bufferPt.column + 1,
+            ]);
             if (curCharPixelPt.left >= nextCharPixelPt.left)
                 return;
             // find out show position
@@ -75,22 +78,25 @@ function attach(editorView, editor) {
                 left: e.clientX,
                 right: e.clientX,
                 top: e.clientY - offset,
-                bottom: e.clientY + offset
+                bottom: e.clientY + offset,
             };
             exprTypeTooltip = new TooltipView(tooltipRect);
             const client = yield clientPromise;
-            const result = yield client.executeQuickInfo({
+            const result = yield client
+                .executeQuickInfo({
                 file: filePath,
                 line: bufferPt.row + 1,
-                offset: bufferPt.column + 1
-            }).catch(err => undefined);
+                offset: bufferPt.column + 1,
+            })
+                .catch(err => undefined);
             if (!result) {
                 return;
             }
             const { displayString, documentation } = result.body;
             var message = `<b>${escape(displayString)}</b>`;
             if (documentation) {
-                message = message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, '<br />')}</i>`;
+                message =
+                    message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
             }
             if (exprTypeTooltip) {
                 exprTypeTooltip.updateText(message);
@@ -119,7 +125,7 @@ function attach(editorView, editor) {
 exports.attach = attach;
 function pixelPositionFromMouseEvent(editorView, event) {
     var clientX = event.clientX, clientY = event.clientY;
-    var linesClientRect = getFromShadowDom(editorView, '.lines')[0].getBoundingClientRect();
+    var linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect();
     var top = clientY - linesClientRect.top;
     var left = clientX - linesClientRect.left;
     return { top: top, left: left };

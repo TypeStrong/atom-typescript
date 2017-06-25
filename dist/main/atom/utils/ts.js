@@ -24,7 +24,7 @@ function rangeToLocationRange(range) {
         line: range.start.row + 1,
         offset: range.start.column + 1,
         endLine: range.end.row + 1,
-        endOffset: range.end.column + 1
+        endOffset: range.end.column + 1,
     };
 }
 exports.rangeToLocationRange = rangeToLocationRange;
