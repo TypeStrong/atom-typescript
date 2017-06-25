@@ -4,7 +4,8 @@ const tslib_1 = require("tslib");
 const utils_1 = require("./utils");
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
-const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
+const path = require("path");
+const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash.directive"];
 class AutocompleteProvider {
     constructor(clientResolver, opts) {
         this.selector = ".source.ts, .source.tsx";
@@ -44,6 +45,46 @@ class AutocompleteProvider {
             return suggestions;
         });
     }
+    formatImportPath(sourcePath) {
+        sourcePath = sourcePath.replace(/\.d$/, ""); // tsconfig.removeExt can convert d.ts file path into the filepath end with `.d`;
+        sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
+        return sourcePath;
+    }
+    getPathSuggestions(prefix, location) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const client = yield this.clientResolver.get(location.file);
+            const projectInfo = yield client.executeProjectInfo({
+                file: location.file,
+                needFileNameList: true
+            });
+            const filePaths = projectInfo.body.fileNames.filter(p => p != location.file);
+            var files = [];
+            var sourceDir = path.dirname(location.file);
+            filePaths.forEach(p => {
+                let relativePath = path.relative(sourceDir, p).split('\\').join('/');
+                relativePath = relativePath.substr(0, relativePath.lastIndexOf("."));
+                if (relativePath[0] !== '.') {
+                    relativePath = './' + relativePath;
+                }
+                files.push({
+                    name: path.basename(p, '.ts'),
+                    relativePath: this.formatImportPath(relativePath),
+                    fullPath: p
+                });
+            });
+            files = fuzzaldrin.filter(files, prefix, { key: "name" });
+            return files.map(file => {
+                let suggestionText = file.relativePath;
+                let suggestion = {
+                    text: suggestionText,
+                    replacementPrefix: prefix,
+                    rightLabelHTML: '<span>' + file.name + '</span>',
+                    type: 'import'
+                };
+                return suggestion;
+            });
+        });
+    }
     getSuggestions(opts) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
@@ -67,6 +108,9 @@ class AutocompleteProvider {
             if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
                 if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
                     return [];
+                }
+                else {
+                    return yield this.getPathSuggestions(prefix, location);
                 }
             }
             // Flush any pending changes for this buffer to get up to date completions

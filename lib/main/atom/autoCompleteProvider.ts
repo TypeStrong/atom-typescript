@@ -6,8 +6,9 @@ import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
+import * as path from "path";
 
-const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
+const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash.directive"]
 
 type SuggestionWithDetails = Suggestion & {
   details?: protocol.CompletionEntryDetails
@@ -88,6 +89,53 @@ export class AutocompleteProvider implements Provider {
     return suggestions
   }
 
+  formatImportPath(sourcePath: string): string {
+    sourcePath = sourcePath.replace(/\.d$/, ""); // tsconfig.removeExt can convert d.ts file path into the filepath end with `.d`;
+    sourcePath = sourcePath.replace(/.*\/node_modules\//, "");
+    return sourcePath;
+  }
+
+  async getPathSuggestions(
+    prefix: string,
+    location: FileLocationQuery): Promise<SuggestionWithDetails[]> {
+    const client = await this.clientResolver.get(location.file)
+    const projectInfo = await client.executeProjectInfo({
+      file: location.file,
+      needFileNameList: true
+    })
+    const filePaths = projectInfo.body!.fileNames!.filter(p => p != location.file);
+    var files: {
+      name: string;
+      relativePath: string;
+      fullPath: string;
+    }[] = []
+    var sourceDir = path.dirname(location.file);
+    filePaths.forEach(p => {
+      let relativePath = path.relative(sourceDir, p).split('\\').join('/');
+      relativePath = relativePath.substr(0, relativePath.lastIndexOf("."));
+      if (relativePath[0] !== '.') {
+        relativePath = './' + relativePath;
+      }
+      files.push({
+        name: path.basename(p, '.ts'),
+        relativePath: this.formatImportPath(relativePath),
+        fullPath: p
+      });
+    })
+    files = fuzzaldrin.filter(files, prefix, {key: "name"})
+    return files.map(file => {
+      let suggestionText = file.relativePath;
+      let suggestion: Suggestion = {
+        text: suggestionText,
+        replacementPrefix: prefix,
+        rightLabelHTML: '<span>' + file.name + '</span>',
+        type: 'import'
+      }
+
+      return suggestion;
+    });
+  }
+
   async getSuggestions(opts: RequestOptions): Promise<Suggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
@@ -107,20 +155,20 @@ export class AutocompleteProvider implements Provider {
     // Don't show autocomplete if we're in a string.template and not in a template expression
     if (containsScope(opts.scopeDescriptor.scopes, "string.template.")
       && !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
-        return []
+      return []
     }
 
     // Don't show autocomplete if we're in a string and it's not an import path
     if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
       if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
         return []
+      } else {
+          return await this.getPathSuggestions(prefix, location);
       }
     }
-
     // Flush any pending changes for this buffer to get up to date completions
     const {buffer} = await this.opts.getTypescriptBuffer(location.file)
     await buffer.flush()
-
     try {
       var suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
     } catch (error) {
@@ -185,18 +233,18 @@ function getNormalizedCol(prefix: string, col: number): number {
 function getLocationQuery(opts: RequestOptions): FileLocationQuery {
   return {
     file: opts.editor.getPath(),
-    line: opts.bufferPosition.row+1,
-    offset: opts.bufferPosition.column+1
+    line: opts.bufferPosition.row + 1,
+    offset: opts.bufferPosition.column + 1
   }
 }
 
 function getLastNonWhitespaceChar(buffer: TextBuffer.ITextBuffer, pos: TextBuffer.IPoint): string | undefined {
   let lastChar: string | undefined = undefined
-  const range = new Atom.Range([0,0], pos)
+  const range = new Atom.Range([0, 0], pos)
   buffer.backwardsScanInRange(/\S/, range, ({matchText, stop}: {matchText: string, stop: () => void}) => {
-      lastChar = matchText
-      stop()
-    })
+    lastChar = matchText
+    stop()
+  })
   return lastChar
 }
 
