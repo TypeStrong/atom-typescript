@@ -1,7 +1,7 @@
 import {$} from "atom-space-pen-views"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
-import {spanToRange, getProjectCodeSettings} from "./atom/utils"
+import {spanToRange, isTypescriptGrammar, getProjectCodeSettings} from "./atom/utils"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptServiceClient} from "../client/client"
@@ -245,8 +245,4 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     const editorView = $(atom.views.getView(this.editor))
     tooltipManager.attach(editorView, this.editor)
   }
-}
-
-function isTypescriptGrammar(grammar: AtomCore.IGrammar): boolean {
-  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
 }

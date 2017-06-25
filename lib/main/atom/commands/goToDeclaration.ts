@@ -16,30 +16,10 @@ commands.set("typescript:go-to-declaration", deps => {
     if (!commandForTypeScript(e)) {
       return
     }
-
     const location = getFilePathPosition()
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
-
-    if (result.body!.length > 1) {
-      simpleSelectionView({
-        items: result.body!,
-        viewForItem: item => {
-          return `
-                <span>${item.file}</span>
-                <div class="pull-right">line: ${item.start.line}</div>
-            `
-        },
-        filterKey: "filePath",
-        confirmed: item => {
-          prevCursorPositions.push(location)
-          open(item)
-        },
-      })
-    } else {
-      prevCursorPositions.push(location)
-      open(result.body![0])
-    }
+    handleDefinitionResult(result, location)
   }
 })
 
@@ -56,3 +36,30 @@ commands.set("typescript:return-from-declaration", deps => {
     })
   }
 })
+
+export function handleDefinitionResult(
+  result: protocol.DefinitionResponse,
+  location: FileLocationQuery,
+): void {
+  if (!result.body) {
+    return
+  } else if (result.body.length > 1) {
+    simpleSelectionView({
+      items: result.body,
+      viewForItem: item => {
+        return `
+            <span>${item.file}</span>
+            <div class="pull-right">line: ${item.start.line}</div>
+        `
+      },
+      filterKey: "filePath",
+      confirmed: item => {
+        prevCursorPositions.push(location)
+        open(item)
+      },
+    })
+  } else {
+    prevCursorPositions.push(location)
+    open(result.body[0])
+  }
+}

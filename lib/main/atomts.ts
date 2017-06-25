@@ -3,6 +3,7 @@ import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
+import {getHyperclickProvider} from "./atom/hyperclickProvider"
 import {CodefixProvider} from "./atom/codefixProvider"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
@@ -179,6 +180,10 @@ export function provide() {
 
 export function provideIntentions() {
   return codefixProvider
+}
+
+export function hyperclickProvider() {
+  return getHyperclickProvider(clientResolver)
 }
 
 export var config = {

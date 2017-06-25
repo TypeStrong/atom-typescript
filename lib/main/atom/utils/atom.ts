@@ -20,6 +20,10 @@ export function isTypescriptFile(filePath?: string): boolean {
   return ext === ".ts" || ext === ".tsx"
 }
 
+export function isTypescriptGrammar(grammar: AtomCore.IGrammar): boolean {
+  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
+}
+
 export function isAllowedExtension(ext: string) {
   return ext == ".ts" || ext == ".tst" || ext == ".tsx"
 }
