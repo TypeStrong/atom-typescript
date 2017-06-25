@@ -58,9 +58,11 @@ class ClientResolver extends events.EventEmitter {
 }
 exports.ClientResolver = ClientResolver;
 function resolveServer(sourcePath) {
-    const basedir = path.dirname(sourcePath);
     return Promise.resolve().then(() => {
-        const resolvedPath = resolve_1.sync("typescript/bin/tsserver", { basedir });
+        const resolvedPath = resolve_1.sync("typescript/bin/tsserver", {
+            basedir: path.dirname(sourcePath),
+            paths: process.env.NODE_PATH && [process.env.NODE_PATH],
+        });
         const packagePath = path.resolve(resolvedPath, "../../package.json");
         const version = require(packagePath).version;
         return {
