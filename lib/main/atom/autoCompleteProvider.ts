@@ -1,13 +1,14 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {kindToType, FileLocationQuery} from "./utils"
+import {kindToType, FileLocationQuery, makeRelativePath} from "./utils"
 import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
 import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
+import * as path from "path";
 
-const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
+const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash.directive"]
 
 type SuggestionWithDetails = Suggestion & {
   details?: protocol.CompletionEntryDetails
@@ -25,7 +26,7 @@ type Options = {
 export class AutocompleteProvider implements Provider {
   selector = ".source.ts, .source.tsx"
 
-  disableForSelector = ".comment"
+  // disableForSelector = ".comment"
 
   inclusionPriority = 3
   suggestionPriority = 3
@@ -90,6 +91,40 @@ export class AutocompleteProvider implements Provider {
     return suggestions
   }
 
+  async getReferencePathSuggestions(
+    prefix: string,
+    location: FileLocationQuery): Promise<SuggestionWithDetails[]> {
+    const client = await this.clientResolver.get(location.file)
+    const projectInfo = await client.executeProjectInfo({
+      file: location.file,
+      needFileNameList: true
+    })
+    if (!projectInfo.body || !projectInfo.body.fileNames) {
+        return [];
+    }
+    const filePaths = projectInfo.body!.fileNames!.filter(p => p != location.file);
+    const sourceDir = path.dirname(location.file);
+    let files: {
+      name: string;
+      fullPath: string;
+    }[] = [];
+    filePaths.forEach(p => {
+      files.push({
+        name: path.basename(p),
+        fullPath: p
+      });
+    })
+    files = fuzzaldrin.filter(files, prefix, {key: "name"})
+    return files.map(file => {
+      return {
+        text: makeRelativePath(sourceDir, file.fullPath),
+        replacementPrefix: prefix,
+        rightLabelHTML: '<span>' + file.name + '</span>',
+        type: 'import'
+      };
+    });
+  }
+
   async getSuggestions(opts: RequestOptions): Promise<Suggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
@@ -118,6 +153,8 @@ export class AutocompleteProvider implements Provider {
     if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
       if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
         return []
+      } else if (containsScope(opts.scopeDescriptor.scopes, "triple-slash.directive")) {
+        return await this.getReferencePathSuggestions(prefix, location);
       }
     }
 

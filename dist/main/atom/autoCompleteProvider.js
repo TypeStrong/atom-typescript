@@ -4,11 +4,12 @@ const tslib_1 = require("tslib");
 const utils_1 = require("./utils");
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
-const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
+const path = require("path");
+const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash.directive"];
 class AutocompleteProvider {
     constructor(clientResolver, opts) {
         this.selector = ".source.ts, .source.tsx";
-        this.disableForSelector = ".comment";
+        // disableForSelector = ".comment"
         this.inclusionPriority = 3;
         this.suggestionPriority = 3;
         this.excludeLowerPriority = false;
@@ -44,6 +45,36 @@ class AutocompleteProvider {
             return suggestions;
         });
     }
+    getReferencePathSuggestions(prefix, location) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const client = yield this.clientResolver.get(location.file);
+            const projectInfo = yield client.executeProjectInfo({
+                file: location.file,
+                needFileNameList: true
+            });
+            if (!projectInfo.body || !projectInfo.body.fileNames) {
+                return [];
+            }
+            const filePaths = projectInfo.body.fileNames.filter(p => p != location.file);
+            const sourceDir = path.dirname(location.file);
+            let files = [];
+            filePaths.forEach(p => {
+                files.push({
+                    name: path.basename(p),
+                    fullPath: p
+                });
+            });
+            files = fuzzaldrin.filter(files, prefix, { key: "name" });
+            return files.map(file => {
+                return {
+                    text: utils_1.makeRelativePath(sourceDir, file.fullPath),
+                    replacementPrefix: prefix,
+                    rightLabelHTML: '<span>' + file.name + '</span>',
+                    type: 'import'
+                };
+            });
+        });
+    }
     getSuggestions(opts) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
@@ -67,6 +98,9 @@ class AutocompleteProvider {
             if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
                 if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
                     return [];
+                }
+                else if (containsScope(opts.scopeDescriptor.scopes, "triple-slash.directive")) {
+                    return yield this.getReferencePathSuggestions(prefix, location);
                 }
             }
             // Flush any pending changes for this buffer to get up to date completions
