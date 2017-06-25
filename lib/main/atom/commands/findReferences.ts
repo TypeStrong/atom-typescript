@@ -1,7 +1,7 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
-import escapeHtml = require('escape-html')
+import escapeHtml = require("escape-html")
 
 commands.set("typescript:find-references", deps => {
   return async e => {
@@ -22,14 +22,14 @@ commands.set("typescript:find-references", deps => {
           <ts-view>${escapeHtml(item.lineText.trim())}</ts-view>
         </div>`
       },
-      filterKey: 'filePath',
-      confirmed: item => open(item)
+      filterKey: "filePath",
+      confirmed: item => open(item),
     })
 
-    function open(item: {file: string, start: {line: number, offset: number}}) {
+    function open(item: {file: string; start: {line: number; offset: number}}) {
       atom.workspace.open(item.file, {
         initialLine: item.start.line - 1,
-        initialColumn: item.start.offset - 1
+        initialColumn: item.start.offset - 1,
       })
     }
   }

@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc -p ./lib",
     "grammar": "ts-node scripts/grammar.ts",
-    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts"
+    "prettier": "ACTION=write ts-node scripts/prettier.ts",
+    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && ACTION=check ts-node scripts/prettier.ts"
   },
   "engines": {
     "atom": ">=0.199.0 <2.0.0",
@@ -19,7 +20,7 @@
   "consumedServices": {
     "linter-indie": {
       "versions": {
-        "^1.0.0": "consumeLinter"
+        "^2.0.0": "consumeLinter"
       }
     },
     "status-bar": {
@@ -37,6 +38,11 @@
     "hyperclick.provider": {
       "versions": {
         "0.0.0": "hyperclickProvider"
+      }
+    },
+    "intentions:list": {
+      "versions": {
+        "1.0.0": "provideIntentions"
       }
     }
   },
@@ -61,7 +67,7 @@
     "resolve": "1.1.7",
     "tsconfig": "^2.2.0",
     "tslib": "1.2.0",
-    "typescript": "2.3.0-dev.20170319",
+    "typescript": "~2.3.4",
     "xtend": "^4.0.0"
   },
   "devDependencies": {
@@ -75,6 +81,7 @@
     "mz": "^2.1.0",
     "plist": "2.0.1",
     "popsicle": "8.2.0",
+    "prettier": "1.4.4",
     "ts-node": "1.7.0"
   },
   "package-deps": [

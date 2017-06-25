@@ -5,11 +5,15 @@ import {TypescriptBuffer} from "../../typescriptBuffer"
 
 export interface Dependencies {
   clearErrors(): void
-  getTypescriptBuffer(filePath: string): Promise<{buffer: TypescriptBuffer, isOpen: boolean}>
+  getTypescriptBuffer: GetTypescriptBuffer
   getClient(filePath: string): Promise<TypescriptServiceClient>
   renameView: RenameView
   statusPanel: StatusPanel
 }
+
+export type GetTypescriptBuffer = (
+  filePath: string,
+) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
 export interface CommandConstructor {
   (deps: Dependencies): (e: AtomCore.CommandEvent) => any

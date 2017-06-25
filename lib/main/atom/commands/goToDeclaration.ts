@@ -2,13 +2,13 @@ import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
 
-const prevCursorPositions: FileLocationQuery[] = [];
+const prevCursorPositions: FileLocationQuery[] = []
 
-function open(item: {file: string, start: {line: number, offset: number}}) {
-   atom.workspace.open(item.file, {
-     initialLine: item.start.line - 1,
-     initialColumn: item.start.offset - 1
-   })
+function open(item: {file: string; start: {line: number; offset: number}}) {
+  atom.workspace.open(item.file, {
+    initialLine: item.start.line - 1,
+    initialColumn: item.start.offset - 1,
+  })
 }
 
 commands.set("typescript:go-to-declaration", deps => {
@@ -21,26 +21,26 @@ commands.set("typescript:go-to-declaration", deps => {
     const result = await client.executeDefinition(location)
     handleDefinitionResult(result, location)
   }
-});
+})
 
 commands.set("typescript:return-from-declaration", deps => {
-   return async e => {
-      const position = prevCursorPositions.pop();
-      if (!position) {
-         atom.notifications.addInfo('AtomTS: Previous position not found.');
-         return;
-      }
-      open({
-         file: position.file,
-         start: { line: position.line, offset: position.offset }
-      });
-   }
-});
+  return async e => {
+    const position = prevCursorPositions.pop()
+    if (!position) {
+      atom.notifications.addInfo("AtomTS: Previous position not found.")
+      return
+    }
+    open({
+      file: position.file,
+      start: {line: position.line, offset: position.offset},
+    })
+  }
+})
 
 export function handleDefinitionResult(
     result: protocol.DefinitionResponse, location: FileLocationQuery): void {
   if (!result.body) {
-    return;
+    return
   } else if (result.body.length > 1) {
     simpleSelectionView({
       items: result.body,
@@ -52,12 +52,12 @@ export function handleDefinitionResult(
       },
       filterKey: "filePath",
       confirmed: item => {
-        prevCursorPositions.push(location);
-        open(item);
+        prevCursorPositions.push(location)
+        open(item)
       }
     });
   } else {
-    prevCursorPositions.push(location);
-    open(result.body[0]);
+    prevCursorPositions.push(location)
+    open(result.body[0])
   }
 }

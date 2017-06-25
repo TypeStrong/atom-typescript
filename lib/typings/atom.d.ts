@@ -7,9 +7,6 @@ declare module "atom" {
   }
 
   var TextBuffer: {
-    new (opts?: {
-      filePath?: string
-      load?: boolean
-    }): TextBuffer.ITextBuffer
+    new (opts?: {filePath?: string; load?: boolean}): TextBuffer.ITextBuffer
   }
 }

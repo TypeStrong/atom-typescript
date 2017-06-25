@@ -4,7 +4,7 @@ export interface RequestOptions {
   editor: AtomCore.IEditor
   bufferPosition: TextBuffer.IPoint // the position of the cursor
   prefix: string
-  scopeDescriptor: { scopes: string[] }
+  scopeDescriptor: {scopes: string[]}
 }
 
 /** The suggestion */
@@ -44,7 +44,7 @@ export interface Provider {
 }
 
 export interface InsertArgs {
-  editor: AtomCore.IEditor,
-  triggerPosition: TextBuffer.IPoint,
+  editor: AtomCore.IEditor
+  triggerPosition: TextBuffer.IPoint
   suggestion: Suggestion
 }
