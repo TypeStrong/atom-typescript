@@ -37,11 +37,13 @@ commands.set("typescript:return-from-declaration", deps => {
    }
 });
 
-export function handleDefinitionResult(result: protocol.DefinitionResponse,
-                                       location: FileLocationQuery): void {
-  if (result.body!.length > 1) {
+export function handleDefinitionResult(
+    result: protocol.DefinitionResponse, location: FileLocationQuery): void {
+  if (!result.body) {
+    return;
+  } else if (result.body.length > 1) {
     simpleSelectionView({
-      items: result.body!,
+      items: result.body,
       viewForItem: item => {
         return `
             <span>${item.file}</span>
@@ -56,6 +58,6 @@ export function handleDefinitionResult(result: protocol.DefinitionResponse,
     });
   } else {
     prevCursorPositions.push(location);
-    open(result.body![0]);
+    open(result.body[0]);
   }
 }
