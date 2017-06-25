@@ -115,17 +115,6 @@ export function getRangeForTextSpan(editor: AtomCore.IEditor, ts: { start: numbe
     return range;
 }
 
-/** only the editors that are persisted to disk. And are of type TypeScript */
-export function getTypeScriptEditorsWithPaths() {
-    return atom.workspace.getTextEditors()
-        .filter(editor=> !!editor.getPath())
-        .filter(editor=> (path.extname(editor.getPath()) === '.ts' || '.js');
-}
-
-export function getOpenTypeScritEditorsConsistentPaths() {
-    return getTypeScriptEditorsWithPaths().map(e=> consistentPath(e.getPath()));
-}
-
 export function quickNotifySuccess(htmlMessage: string) {
     var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
     setTimeout(() => {

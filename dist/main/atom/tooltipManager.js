@@ -1,6 +1,6 @@
+"use strict";
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const atomUtils = require("./utils"); ///ts:import:generated
