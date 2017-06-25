@@ -2,13 +2,13 @@ import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {simpleSelectionView} from "../views/simpleSelectionView"
 
-const prevCursorPositions:FileLocationQuery[] = [];
+const prevCursorPositions: FileLocationQuery[] = []
 
-function open(item: {file: string, start: {line: number, offset: number}}) {
-   atom.workspace.open(item.file, {
-     initialLine: item.start.line - 1,
-     initialColumn: item.start.offset - 1
-   })
+function open(item: {file: string; start: {line: number; offset: number}}) {
+  atom.workspace.open(item.file, {
+    initialLine: item.start.line - 1,
+    initialColumn: item.start.offset - 1,
+  })
 }
 
 commands.set("typescript:go-to-declaration", deps => {
@@ -25,34 +25,34 @@ commands.set("typescript:go-to-declaration", deps => {
       simpleSelectionView({
         items: result.body!,
         viewForItem: item => {
-            return `
+          return `
                 <span>${item.file}</span>
                 <div class="pull-right">line: ${item.start.line}</div>
             `
         },
-        filterKey: 'filePath',
+        filterKey: "filePath",
         confirmed: item => {
-           prevCursorPositions.push(location);
-           open(item)
-        }
+          prevCursorPositions.push(location)
+          open(item)
+        },
       })
     } else {
-      prevCursorPositions.push(location);
+      prevCursorPositions.push(location)
       open(result.body![0])
     }
   }
-});
+})
 
 commands.set("typescript:return-from-declaration", deps => {
-   return async e => {
-      const position = prevCursorPositions.pop();
-      if (!position) {
-         atom.notifications.addInfo('AtomTS: Previous position not found.');
-         return;
-      }
-      open({
-         file: position.file,
-         start: { line: position.line, offset: position.offset }
-      });
-   }
-});
+  return async e => {
+    const position = prevCursorPositions.pop()
+    if (!position) {
+      atom.notifications.addInfo("AtomTS: Previous position not found.")
+      return
+    }
+    open({
+      file: position.file,
+      start: {line: position.line, offset: position.offset},
+    })
+  }
+})

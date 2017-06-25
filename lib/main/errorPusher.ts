@@ -67,7 +67,9 @@ export class ErrorPusher {
             excerpt: diagnostic.text,
             location: {
               file: _filePath,
-              position: diagnostic.start ? locationsToRange(diagnostic.start, diagnostic.end) : undefined,
+              position: diagnostic.start
+                ? locationsToRange(diagnostic.start, diagnostic.end)
+                : undefined,
             },
           })
         }

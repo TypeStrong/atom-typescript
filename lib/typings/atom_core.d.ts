@@ -4,7 +4,7 @@ declare namespace AtomCore {
     gutterWithName(name: string): Gutter | null
   }
   interface IConfig {
-    onDidChange(opt: string, callback: (val: {oldValue: any, newValue: any}) => void): Disposable
+    onDidChange(opt: string, callback: (val: {oldValue: any; newValue: any}) => void): Disposable
   }
   interface CommandEvent extends Event {
     abortKeyBinding(): any

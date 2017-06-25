@@ -12,7 +12,7 @@ commands.set("typescript:check-all-files", deps => {
 
     const projectInfo = await client.executeProjectInfo({
       file,
-      needFileNameList: true
+      needFileNameList: true,
     })
 
     const files = new Set(projectInfo.body!.fileNames)

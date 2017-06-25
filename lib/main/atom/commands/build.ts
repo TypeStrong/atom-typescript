@@ -12,7 +12,7 @@ commands.set("typescript:build", deps => {
 
     const projectInfo = await client.executeProjectInfo({
       file,
-      needFileNameList: true
+      needFileNameList: true,
     })
 
     const files = new Set(projectInfo.body!.fileNames)
@@ -21,18 +21,20 @@ commands.set("typescript:build", deps => {
       _finally(client.executeCompileOnSaveEmitFile({file, forced: true}), () => {
         files.delete(file)
         updateStatus()
-      })
+      }),
     )
 
-    Promise.all(promises).then(results => {
-      if (results.some(result => result.body === false)) {
-        throw new Error("Emit failed")
-      }
+    Promise.all(promises)
+      .then(results => {
+        if (results.some(result => result.body === false)) {
+          throw new Error("Emit failed")
+        }
 
-      deps.statusPanel.setBuildStatus({success: true})
-    }).catch(() => {
-      deps.statusPanel.setBuildStatus({success: false})
-    })
+        deps.statusPanel.setBuildStatus({success: true})
+      })
+      .catch(() => {
+        deps.statusPanel.setBuildStatus({success: false})
+      })
 
     deps.statusPanel.setBuildStatus(undefined)
     deps.statusPanel.setProgress({max, value: 0})
