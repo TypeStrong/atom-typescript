@@ -38,7 +38,9 @@ commands.set("typescript:return-from-declaration", deps => {
 })
 
 export function handleDefinitionResult(
-    result: protocol.DefinitionResponse, location: FileLocationQuery): void {
+  result: protocol.DefinitionResponse,
+  location: FileLocationQuery,
+): void {
   if (!result.body) {
     return
   } else if (result.body.length > 1) {
@@ -48,14 +50,14 @@ export function handleDefinitionResult(
         return `
             <span>${item.file}</span>
             <div class="pull-right">line: ${item.start.line}</div>
-        `;
+        `
       },
       filterKey: "filePath",
       confirmed: item => {
         prevCursorPositions.push(location)
         open(item)
-      }
-    });
+      },
+    })
   } else {
     prevCursorPositions.push(location)
     open(result.body[0])

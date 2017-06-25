@@ -21,7 +21,7 @@ export function isTypescriptFile(filePath?: string): boolean {
 }
 
 export function isTypescriptGrammar(grammar: AtomCore.IGrammar): boolean {
-    return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx";
+  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
 }
 
 export function isAllowedExtension(ext: string) {
