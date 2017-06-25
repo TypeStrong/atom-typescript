@@ -21,7 +21,7 @@ export class TypescriptBuffer {
 
   constructor(
     public buffer: TextBuffer.ITextBuffer,
-    public getClient: (filePath: string) => Promise<Client>
+    public getClient: (filePath: string) => Promise<Client>,
   ) {
     this.subscriptions.add(buffer.onDidChange(this.onDidChange))
     this.subscriptions.add(buffer.onDidChangePath(this.onDidSave))
@@ -44,7 +44,7 @@ export class TypescriptBuffer {
 
       await client.executeOpen({
         file: filePath,
-        fileContent: this.buffer.getText()
+        fileContent: this.buffer.getText(),
       })
 
       this.events.emit("opened")
@@ -74,8 +74,7 @@ export class TypescriptBuffer {
     this.subscriptions.dispose()
 
     if (this.isOpen && this.clientPromise) {
-      this.clientPromise.then(client =>
-        client.executeClose({file: this.buffer.getPath()}))
+      this.clientPromise.then(client => client.executeClose({file: this.buffer.getPath()}))
     }
   }
 
@@ -117,7 +116,7 @@ export class TypescriptBuffer {
 
       const end = {
         endLine: start.row + oldExtent.row + 1,
-        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column: oldExtent.column) + 1
+        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
       }
 
       await client.executeChange({

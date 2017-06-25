@@ -14,7 +14,9 @@ type SuggestionWithDetails = Suggestion & {
 }
 
 type Options = {
-  getTypescriptBuffer: (filePath: string) => Promise<{
+  getTypescriptBuffer: (
+    filePath: string,
+  ) => Promise<{
     buffer: TypescriptBuffer
     isOpen: boolean
   }>
@@ -105,9 +107,11 @@ export class AutocompleteProvider implements Provider {
     }
 
     // Don't show autocomplete if we're in a string.template and not in a template expression
-    if (containsScope(opts.scopeDescriptor.scopes, "string.template.")
-      && !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
-        return []
+    if (
+      containsScope(opts.scopeDescriptor.scopes, "string.template.") &&
+      !containsScope(opts.scopeDescriptor.scopes, "template.expression.")
+    ) {
+      return []
     }
 
     // Don't show autocomplete if we're in a string and it's not an import path
@@ -139,7 +143,7 @@ export class AutocompleteProvider implements Provider {
 
     return suggestions.map(suggestion => ({
       replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
-      ...suggestion
+      ...suggestion,
     }))
   }
 
@@ -147,7 +151,7 @@ export class AutocompleteProvider implements Provider {
     if (suggestions.some(s => !s.details)) {
       const details = await this.lastSuggestions.client.executeCompletionDetails({
         entryNames: suggestions.map(s => s.text!),
-        ...location
+        ...location,
       })
 
       details.body!.forEach((detail, i) => {
@@ -185,18 +189,25 @@ function getNormalizedCol(prefix: string, col: number): number {
 function getLocationQuery(opts: RequestOptions): FileLocationQuery {
   return {
     file: opts.editor.getPath(),
-    line: opts.bufferPosition.row+1,
-    offset: opts.bufferPosition.column+1
+    line: opts.bufferPosition.row + 1,
+    offset: opts.bufferPosition.column + 1,
   }
 }
 
-function getLastNonWhitespaceChar(buffer: TextBuffer.ITextBuffer, pos: TextBuffer.IPoint): string | undefined {
+function getLastNonWhitespaceChar(
+  buffer: TextBuffer.ITextBuffer,
+  pos: TextBuffer.IPoint,
+): string | undefined {
   let lastChar: string | undefined = undefined
-  const range = new Atom.Range([0,0], pos)
-  buffer.backwardsScanInRange(/\S/, range, ({matchText, stop}: {matchText: string, stop: () => void}) => {
+  const range = new Atom.Range([0, 0], pos)
+  buffer.backwardsScanInRange(
+    /\S/,
+    range,
+    ({matchText, stop}: {matchText: string; stop: () => void}) => {
       lastChar = matchText
       stop()
-    })
+    },
+  )
   return lastChar
 }
 

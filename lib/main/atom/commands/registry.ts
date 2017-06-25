@@ -11,7 +11,9 @@ export interface Dependencies {
   statusPanel: StatusPanel
 }
 
-export type GetTypescriptBuffer = (filePath: string) => Promise<{buffer: TypescriptBuffer, isOpen: boolean}>
+export type GetTypescriptBuffer = (
+  filePath: string,
+) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
 export interface CommandConstructor {
   (deps: Dependencies): (e: AtomCore.CommandEvent) => any

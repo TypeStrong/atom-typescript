@@ -45,16 +45,19 @@ export class CodefixProvider implements IntentionsProvider {
     const client = await this.clientResolver.get(filePath)
     const supportedCodes = await this.getSupportedFixes(client)
 
-    const requests = this.errorPusher.getErrorsAt(filePath, pointToLocation(bufferPosition))
+    const requests = this.errorPusher
+      .getErrorsAt(filePath, pointToLocation(bufferPosition))
       .filter(error => error.code && supportedCodes.has(error.code))
-      .map(error => client.executeGetCodeFixes({
-        file: filePath,
-        startLine: error.start.line,
-        startOffset: error.start.offset,
-        endLine: error.end.line,
-        endOffset: error.end.offset,
-        errorCodes: [error.code!]
-      }))
+      .map(error =>
+        client.executeGetCodeFixes({
+          file: filePath,
+          startLine: error.start.line,
+          startOffset: error.start.offset,
+          endLine: error.end.line,
+          endOffset: error.end.offset,
+          errorCodes: [error.code!],
+        }),
+      )
 
     const fixes = await Promise.all(requests)
     const results: Intention[] = []
@@ -66,7 +69,7 @@ export class CodefixProvider implements IntentionsProvider {
             priority: 100,
             title: fix.description,
             selected: () => {
-              fix.changes.forEach(async (fix) => {
+              fix.changes.forEach(async fix => {
                 const {buffer, isOpen} = await this.getTypescriptBuffer(fix.fileName)
 
                 buffer.buffer.transact(() => {
@@ -82,7 +85,7 @@ export class CodefixProvider implements IntentionsProvider {
                   })
                 }
               })
-            }
+            },
           })
         }
       }

@@ -10,7 +10,6 @@ import "./goToDeclaration"
 import "./renameRefactor"
 
 export function registerCommands(deps: Dependencies) {
-
   for (const [name, command] of commands) {
     atom.commands.add("atom-workspace", name, command(deps))
   }

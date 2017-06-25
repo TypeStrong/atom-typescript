@@ -1,12 +1,8 @@
 import * as dom from "jsx-render-dom"
 import {dirname} from "path"
-import {
-  getFilePathRelativeToAtomProject,
-  openFile,
-} from "../utils"
+import {getFilePathRelativeToAtomProject, openFile} from "../utils"
 
 export class StatusPanel extends HTMLElement {
-
   private pendingContainer: HTMLElement
   private pendingCounter: HTMLElement
   private pendingSpinner: HTMLElement
@@ -22,34 +18,39 @@ export class StatusPanel extends HTMLElement {
 
   createdCallback() {
     const nodes = [
-      <div ref={ el => this.version = el } className="inline-block" />,
-      <a ref={ el => this.pendingContainer = el }
+      <div ref={el => (this.version = el)} className="inline-block" />,
+      <a
+        ref={el => (this.pendingContainer = el)}
         className="inline-block"
         href=""
-        onClick={ evt => {
+        onClick={evt => {
           evt.preventDefault()
           this.showPendingRequests()
         }}>
-        <span ref={ span => this.pendingCounter = span }></span>
-        <span ref={ span => this.pendingSpinner = span }
+        <span ref={span => (this.pendingCounter = span)} />
+        <span
+          ref={span => (this.pendingSpinner = span)}
           className="loading loading-spinner-tiny inline-block"
-          style={{marginLeft: "5px", opacity: 0.5, verticalAlign: "sub"}}>
-        </span>
+          style={{marginLeft: "5px", opacity: 0.5, verticalAlign: "sub"}}
+        />
       </a>,
-      <a ref={ el => this.configPathContainer = el }
+      <a
+        ref={el => (this.configPathContainer = el)}
         className="inline-block"
         href=""
-        onClick={ evt => {
+        onClick={evt => {
           evt.preventDefault()
           this.openConfigPath()
-        }}/>,
-      <div ref={ el => this.statusContainer = el }
-        className="inline-block">
-        <span ref={ el => this.statusText = el } />
+        }}
+      />,
+      <div ref={el => (this.statusContainer = el)} className="inline-block">
+        <span ref={el => (this.statusText = el)} />
       </div>,
-      <progress ref={ el => this.progress = el }
-        style={{ verticalAlign: "baseline" }}
-        className='inline-block' />
+      <progress
+        ref={el => (this.progress = el)}
+        style={{verticalAlign: "baseline"}}
+        className="inline-block"
+      />,
     ]
 
     for (const node of nodes) {
@@ -93,7 +94,7 @@ export class StatusPanel extends HTMLElement {
     }
   }
 
-  setProgress(progress?: {max: number, value: number}) {
+  setProgress(progress?: {max: number; value: number}) {
     if (progress) {
       this.progress.max = progress.max
       this.progress.value = progress.value
@@ -107,8 +108,9 @@ export class StatusPanel extends HTMLElement {
     this.configPath = configPath
 
     if (configPath) {
-      this.configPathContainer.textContent = configPath.startsWith("/dev/null") ? "No project" :
-        dirname(getFilePathRelativeToAtomProject(configPath))
+      this.configPathContainer.textContent = configPath.startsWith("/dev/null")
+        ? "No project"
+        : dirname(getFilePathRelativeToAtomProject(configPath))
 
       this.configPathContainer.classList.remove("hide")
     } else {
@@ -144,7 +146,9 @@ export class StatusPanel extends HTMLElement {
 
   showPendingRequests() {
     if (this.pendingRequests) {
-      atom.notifications.addInfo("Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "))
+      atom.notifications.addInfo(
+        "Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "),
+      )
     }
   }
 
@@ -161,4 +165,4 @@ export class StatusPanel extends HTMLElement {
   }
 }
 
-(document as any).registerElement('ts-status-panel', StatusPanel)
+;(document as any).registerElement("ts-status-panel", StatusPanel)

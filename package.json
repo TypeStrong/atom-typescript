@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc -p ./lib",
     "grammar": "ts-node scripts/grammar.ts",
-    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts"
+    "prettier": "ACTION=write ts-node scripts/prettier.ts",
+    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && ACTION=check ts-node scripts/prettier.ts"
   },
   "engines": {
     "atom": ">=0.199.0 <2.0.0",
@@ -75,6 +76,7 @@
     "mz": "^2.1.0",
     "plist": "2.0.1",
     "popsicle": "8.2.0",
+    "prettier": "1.4.4",
     "ts-node": "1.7.0"
   },
   "package-deps": [

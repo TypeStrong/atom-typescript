@@ -23,13 +23,13 @@ commands.set("typescript:rename-refactor", deps => {
       text: info.displayName,
       onValidate: (newText): string => {
         if (newText.replace(/\s/g, "") !== newText.trim()) {
-            return "The new variable must not contain a space"
+          return "The new variable must not contain a space"
         }
         if (!newText.trim()) {
-            return "If you want to abort : Press esc to exit"
+          return "If you want to abort : Press esc to exit"
         }
         return ""
-      }
+      },
     })
 
     locs.map(async loc => {
