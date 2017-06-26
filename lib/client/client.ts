@@ -104,7 +104,7 @@ export class TypescriptServiceClient {
   executeSaveTo(args: protocol.SavetoRequestArgs) {
     return this.execute("saveto", args)
   }
-  executeNavTree(args: protocol.FileRequestArgs) {
+  executeNavTree(args: protocol.FileRequestArgs): Promise<protocol.NavTreeResponse> {
     return this.execute("navtree", args)
   }
 
