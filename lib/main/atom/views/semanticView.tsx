@@ -1,4 +1,5 @@
 import atomUtils = require("../utils");
+import {CompositeDisposable} from "atom"
 import * as sp from "atom-space-pen-views";
 import * as view from "./view";
 import {clientResolver} from "../../atomts"
@@ -12,7 +13,7 @@ class SemanticViewRenderer {
   root: HTMLElement;
   selectedNode: HTMLElement | null;
 
-  constructor() {
+  constructor(){
     this.navTree = null;
     this.selectedNode = null;
   }
@@ -63,41 +64,46 @@ class SemanticViewRenderer {
       this.loadNavTree(filePath);
 
       // Subscribe to stop scrolling
+      if(editorScrolling){
+        editorScrolling.dispose();
+      }
       editorScrolling = editor.onDidChangeCursorPosition(() => {
         this.selectAtCursorLine();
       });
 
-
+      if(editorChanging){
+        editorChanging.dispose();
+      }
       editorChanging = editor.onDidStopChanging(() => {
         //set navTree
         const filePath = editor.getPath();
         this.loadNavTree(filePath);
       })
 
-      panel.show();
+      // mainPane.show();//panel.show(); TODO
     }
 
-    let unsubscribeToEditor = () => {
-      panel.hide();
-      this.setNavTree(null);
-      if (!this.editor) return;
-
-      editorScrolling.dispose();
-      editorChanging.dispose();
-      this.forceUpdate();
-    }
+    // let unsubscribeToEditor = () => {
+    //   // mainPane.hide();//panel.hide(); TODO
+    //   this.setNavTree(null);
+    //   if (!this.editor) return;
+    //
+    //   editorScrolling.dispose();
+    //   editorChanging.dispose();
+    //   this.forceUpdate();
+    // }
 
     // We don't start unless there is work to do ... so work
     subscribeToEditor(atomUtils.getActiveEditor());
 
     // Tab changing
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-      if (atomUtils.onDiskAndTs(editor) && showSemanticView) {
+      if (atomUtils.onDiskAndTs(editor)){//TODO && showSemanticView) {
         subscribeToEditor(editor);
       }
-      else {
-        unsubscribeToEditor();
-      }
+      // else {
+      //   unsubscribeToEditor();
+      // }
     });
   }
 
@@ -304,7 +310,7 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
   private comp: SemanticViewRenderer;
   static content() {
     return this.div({class: 'atomts atomts-semantic-view native-key-bindings'}, () => {
-      this.div({outlet: 'mainContent', class: 'layout vertical'});
+      this.div({outlet: 'mainContent', class: 'layout vertical atomts atomts-semantic-view native-key-bindings'});
     });
   }
 
@@ -323,55 +329,191 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
       return;
     }
     this.started = true;
-    this.comp = new SemanticViewRenderer();
+    this.comp = new SemanticViewRenderer();//{getTypescriptBuffer: this.getTypescriptBuffer});
     this.comp.componentDidMount();
     this.comp._render(this.rootDomElement);
   }
+
+  getElement() {
+    return this.rootDomElement;
+  }
+
+  getTitle(){
+    return 'TypeScript'
+  }
+
+  getURI() {
+    // Used by Atom to identify the view when toggling.
+    return 'atom://atomts-semantic-view';
+  }
+
+  // Tear down any state and detach
+  destroy() {
+    // this.element.remove();
+    // this.subscriptions.dispose();
+    //TODO
+  }
+
+  getDefaultLocation() {
+    // This location will be used if the user hasn't overridden it by dragging the item elsewhere.
+    // Valid values are "left", "right", "bottom", and "center" (the default).
+    return 'right';
+  }
+
+  getAllowedLocations() {
+    // The locations into which the item can be moved.
+    return ['left', 'right'];
+  }
+
+  serialize(){
+    return {
+      // This is used to look up the deserializer function. It can be any string, but it needs to be
+      // unique across all packages!
+      deserializer: 'atomts-semantic-view/SemanticView'
+    }
+  }
+
+  deserializeSemanticView(serialized: any) {
+    return new SemanticView({});
+  }
 }
 
+interface IWorkspaceExt extends AtomCore.IWorkspace {
+  getPaneItems() : Array<AtomCore.IPane>;
+  toggle(item: AtomCore.IPane | string): Promise<void>;
+  hide(item: AtomCore.IPane | string): boolean;
+}
+
+export class SemanticViewPane {
+
+  // testAtomPluginActiveeditorView: null,
+  // modalPanel: null,
+  subscriptions: CompositeDisposable | null = null;
+
+  activate(state: any) {
+    this.subscriptions = new CompositeDisposable();
+    this.subscriptions.add(
+      atom.workspace.addOpener((uri: string) => {
+        if(uri === 'atom://atomts-semantic-view'){
+          const view = new SemanticView({});
+          view.start();//FIXME
+          return view;
+        }
+      })
+    );
+    // this.subscriptions.add( atom.commands.add('atom-workspace', {
+    //     'typescript:toggle-semantic-view': () => this.toggle()
+    //   })
+    // );
+    //TODO:
+    // this.subscriptions.add( new AtomCore.Disposable(() => {
+    //     (atom.workspace as IWorkspaceExt).getPaneItems().forEach(paneItem => {
+    //       if(paneItem instanceof SemanticView){
+    //         paneItem.destroy();
+    //       }
+    //     });
+    //   })
+    // );
+  }
+
+  deactivate() {
+    if(this.subscriptions !== null){
+      this.subscriptions.dispose();
+    }
+  }
+
+  toggle() {
+    console.log('TypeScript Semantic View was toggled!');
+    (atom.workspace  as IWorkspaceExt).toggle('atom://atomts-semantic-view');
+  }
+
+  show() {
+    console.log('TypeScript Semantic View was opened!');
+    atom.workspace.open('atom://atomts-semantic-view', {});
+  }
+
+  hide() {
+    console.log('TypeScript Semantic View was hidden!');
+    (atom.workspace  as IWorkspaceExt).hide('atom://atomts-semantic-view');
+  }
+
+};
 
 
-export var mainView: SemanticView;
-export var showSemanticView: boolean = false;
-var panel: AtomCore.Panel;
-export function attach(): {dispose(): void, semanticView: SemanticView} {
+export var mainPane: SemanticViewPane;
+export function attach(): {dispose(): void, semanticView: SemanticViewPane} {
 
   // Only attach once
-  if (mainView) {
+  if (mainPane) {
     return {
       dispose() {
-        console.log("TODO: Detach the semantic view: ", panel)
+        console.log("TODO: Detach the semantic view: ", mainPane)
       },
-      semanticView: mainView
+      semanticView: mainPane
     };
   }
 
-  mainView = new SemanticView({});
-  panel = atom.workspace.addRightPanel({
-    item: mainView,
-    priority: 1000,
-    visible: atomUtils.isActiveEditorOnDiskAndTs() && showSemanticView
-  });
-
-  if (panel.isVisible()) {
-    mainView.start();
-  }
+  mainPane = new SemanticViewPane();
+  mainPane.activate({});
 
   return {
     dispose() {
-      console.log("TODO: Detach the semantic view: ", panel)
+      console.log("TODO: Detach the semantic view: ", mainPane)
     },
-    semanticView: mainView
+    semanticView: mainPane
   }
 }
 
 export function toggle() {
-  if (panel.isVisible()) {
-    showSemanticView = (false);
-    panel.hide();
+  if (mainPane) {
+    mainPane.toggle()
   } else {
-    showSemanticView = (true);
-    panel.show();
-    mainView.start();
+    console.log('cannot toggle: atomts-semantic-view not initialized')
   }
 }
+
+// export var mainView: SemanticView;
+// var panel: AtomCore.Panel;
+// export function attach(): {dispose(): void, semanticView: SemanticView} {
+//
+//   // Only attach once
+//   if (mainView) {
+//     return {
+//       dispose() {
+//         console.log("TODO: Detach the semantic view: ", panel)
+//       },
+//       semanticView: mainView
+//     };
+//   }
+//
+//   mainView = new SemanticView({});
+//   panel = atom.workspace.addRightPanel({
+//     item: mainView,
+//     priority: 1000,
+//     visible: atomUtils.isActiveEditorOnDiskAndTs() && showSemanticView
+//   });
+//
+//   if (panel.isVisible()) {
+//     mainView.start();
+//   }
+//
+//   return {
+//     dispose() {
+//       console.log("TODO: Detach the semantic view: ", panel)
+//     },
+//     semanticView: mainView
+//   }
+// }
+//
+// export var showSemanticView: boolean = false;
+//
+// export function toggle() {
+//   if (panel.isVisible()) {
+//     showSemanticView = (false);
+//     panel.hide();
+//   } else {
+//     showSemanticView = (true);
+//     panel.show();
+//     mainView.start();
+//   }
+// }
