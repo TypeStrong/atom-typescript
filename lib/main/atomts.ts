@@ -174,6 +174,12 @@ export var config = {
     description: 'Show unused values with severity \'info\' instead of \'error\'',
     type: 'boolean',
     default: true
+  },
+  checkJs: {
+    title: 'Enable Typescript support in .js files',
+    description: 'This requires enabled "checkJs" in tsconfig.json',
+    type: 'boolean',
+    default: false
   }
 }
 
