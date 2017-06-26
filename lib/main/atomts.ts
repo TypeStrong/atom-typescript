@@ -40,7 +40,7 @@ export function activate(state: PackageState) {
 
     // Add the rename view
     const {renameView} = attachRenameView()
-    const {semanticView} = attachSemanticView({getTypescriptBuffer})
+    const {semanticView} = attachSemanticView()
     const statusPanel = StatusPanel.create()
 
     statusBar.addRightTile({

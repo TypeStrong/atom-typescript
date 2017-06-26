@@ -1,50 +1,18 @@
-import atomConfig = require("../atomConfig");
 import atomUtils = require("../utils");
 import * as sp from "atom-space-pen-views";
 import * as view from "./view";
 import {clientResolver} from "../../atomts"
 import * as dom from "jsx-render-dom"
-import {TypescriptBuffer} from '../../typescriptBuffer';
-
-/**
- * Eventually
- */
-namespace rts {
-  /** 0 based length */
-  export function indent(indent: number) {
-    return Array(indent + 1).join().split('').map(i => "\u00a0\u00a0\u00a0\u00a0");
-  }
-}
-
-//TODO extract?
-interface Position {
-  line: number;
-  offset: number;
-}
-
-interface SemanticTreeNode {
-  text: string;
-  kind: string;
-  kindModifiers: string;
-  spans: Array<{start: Position, end: Position}>;
-  childItems?: Array<SemanticTreeNode>;
-}
-
-export interface TypescriptFileBuffer {
-  buffer: TypescriptBuffer;
-  isOpen: boolean;
-}
+import {NavigationTree} from "typescript/lib/protocol"
 
 class SemanticViewRenderer {
 
   editor: AtomCore.IEditor;
-  navTree: SemanticTreeNode | null;
-  getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>;
+  navTree: NavigationTree | null;
   root: HTMLElement;
   selectedNode: HTMLElement | null;
 
-  constructor(options: {getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>}) {
-    this.getTypescriptBuffer = options.getTypescriptBuffer;
+  constructor() {
     this.navTree = null;
     this.selectedNode = null;
   }
@@ -53,7 +21,7 @@ class SemanticViewRenderer {
     this.editor = editor;
   }
 
-  setNavTree(navTree: SemanticTreeNode | null) {
+  setNavTree(navTree: NavigationTree | null) {
     this.navTree = navTree;
     this._render();
   }
@@ -63,15 +31,20 @@ class SemanticViewRenderer {
     this._render();
   }
 
-  loadNavTree(buffer: TypescriptFileBuffer, filePath?: string) {
+  async loadNavTree(filePath?: string) {
     filePath = filePath ? filePath : this.editor.getPath();
-    buffer.buffer.getClient(filePath).then(client => client.executeNavTree({file: filePath as string}).then(navtreeResult => {
-      let navTree = navtreeResult ? navtreeResult.body as SemanticTreeNode : void (0);
+    // const client = await clientResolver.get(filePath);
+    try {
+      const client = await clientResolver.get(filePath);
+      await client.executeOpen({file: filePath});
+      const navtreeResult = await client.executeNavTree({file: filePath as string});
+      const navTree = navtreeResult ? navtreeResult.body as NavigationTree : void (0);
       if (navTree) {
         this.setNavTree(navTree);
       }
-    }).catch(err => console.error(err, filePath))
-    );
+    } catch(err) {
+      console.error(err, filePath);
+    }
   }
 
   componentDidMount() {
@@ -87,16 +60,8 @@ class SemanticViewRenderer {
 
       //set navTree
       const filePath = editor.getPath();
-      this.getTypescriptBuffer(filePath).then(fbuffer => {
-        let buffer = fbuffer as TypescriptFileBuffer;
-        if (buffer.isOpen) {
-          this.loadNavTree(buffer, filePath);
-        } else {
-          buffer.buffer.open().then(() => {
-            this.loadNavTree(buffer, filePath);
-          }).catch(err => console.error(err, filePath));
-        }
-      });
+      this.loadNavTree(filePath);
+
       // Subscribe to stop scrolling
       editorScrolling = editor.onDidChangeCursorPosition(() => {
         this.selectAtCursorLine();
@@ -106,15 +71,7 @@ class SemanticViewRenderer {
       editorChanging = editor.onDidStopChanging(() => {
         //set navTree
         const filePath = editor.getPath();
-        this.getTypescriptBuffer(filePath).then(buffer => {
-          if (buffer.isOpen) {
-            this.loadNavTree(buffer, filePath);
-          } else {
-            buffer.buffer.open().then(() => {
-              this.loadNavTree(buffer, filePath);
-            }).catch(err => console.error(err, filePath));
-          }
-        });
+        this.loadNavTree(filePath);
       })
 
       panel.show();
@@ -135,7 +92,7 @@ class SemanticViewRenderer {
 
     // Tab changing
     atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-      if (atomUtils.onDiskAndTs(editor) && atomConfig.showSemanticView) {
+      if (atomUtils.onDiskAndTs(editor) && showSemanticView) {
         subscribeToEditor(editor);
       }
       else {
@@ -181,21 +138,20 @@ class SemanticViewRenderer {
       this.scrollTo(this.selectedNode);
   }
 
-  _nodeStartLine(node: SemanticTreeNode) {
+  _nodeStartLine(node: NavigationTree) {
     return node.spans[0].start.line - 1;
   }
 
-  _nodeEndLine(node: SemanticTreeNode) {
+  _nodeEndLine(node: NavigationTree) {
     let s = node.spans;
     return s[s.length - 1].end.line - 1;
   }
 
-  renderNode(node: SemanticTreeNode, indent: number): HTMLElement {
+  renderNode(node: NavigationTree, indent: number): HTMLElement {
 
     let selected = this.isSelected(node);
 
     let domNode = <div className="node" onClick={(event) => {this.gotoNode(node); event.stopPropagation();}}>
-      {rts.indent(indent)}
       <span className={this.getIconForKind(node.kind) + this.getClassForKindModifiers(node.kindModifiers)}>{node.text}</span>
       {node.childItems ? node.childItems.
         sort((a, b) => this._nodeStartLine(a) - this._nodeStartLine(b)).//TODO should there be a different sort-order? for now: just by line-number
@@ -226,7 +182,7 @@ class SemanticViewRenderer {
     return parent === node;
   }
 
-  isSelected(node: SemanticTreeNode) {
+  isSelected(node: NavigationTree) {
     if (this.whileRendering.lastCursorLine == null) return '';
     else {
       if (this._nodeStartLine(node) <= this.whileRendering.lastCursorLine && this._nodeEndLine(node) >= this.whileRendering.lastCursorLine) {
@@ -331,15 +287,13 @@ class SemanticViewRenderer {
     }//TODO else: impl. scroll
   }
 
-  gotoNode(node: SemanticTreeNode) {
+  gotoNode(node: NavigationTree) {
     var gotoLine = this._nodeStartLine(node);
     this.editor.setCursorBufferPosition([gotoLine, 0]);
   }
 }
 
-interface SemanticViewOptions {
-  getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>;
-}
+export interface SemanticViewOptions {}
 
 export class SemanticView extends view.ScrollView<SemanticViewOptions> {
 
@@ -348,7 +302,6 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
     return this.mainContent[0];
   }
   private comp: SemanticViewRenderer;
-  private getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>;
   static content() {
     return this.div({class: 'atomts atomts-semantic-view native-key-bindings'}, () => {
       this.div({outlet: 'mainContent', class: 'layout vertical'});
@@ -357,7 +310,6 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
 
   constructor(public config: SemanticViewOptions) {
     super(config);
-    this.getTypescriptBuffer = config.getTypescriptBuffer;
   }
 
   /**
@@ -371,7 +323,7 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
       return;
     }
     this.started = true;
-    this.comp = new SemanticViewRenderer({getTypescriptBuffer: this.getTypescriptBuffer});
+    this.comp = new SemanticViewRenderer();
     this.comp.componentDidMount();
     this.comp._render(this.rootDomElement);
   }
@@ -380,8 +332,9 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
 
 
 export var mainView: SemanticView;
+export var showSemanticView: boolean;
 var panel: AtomCore.Panel;
-export function attach(getTypescriptBuffer: {getTypescriptBuffer: (filePath: string) => Promise<TypescriptFileBuffer>}): {dispose(): void, semanticView: SemanticView} {
+export function attach(): {dispose(): void, semanticView: SemanticView} {
 
   // Only attach once
   if (mainView) {
@@ -393,11 +346,11 @@ export function attach(getTypescriptBuffer: {getTypescriptBuffer: (filePath: str
     };
   }
 
-  mainView = new SemanticView(getTypescriptBuffer);
+  mainView = new SemanticView({});
   panel = atom.workspace.addRightPanel({
     item: mainView,
     priority: 1000,
-    visible: atomUtils.isActiveEditorOnDiskAndTs() && atomConfig.showSemanticView
+    visible: atomUtils.isActiveEditorOnDiskAndTs() && showSemanticView
   });
 
   if (panel.isVisible()) {
@@ -414,10 +367,10 @@ export function attach(getTypescriptBuffer: {getTypescriptBuffer: (filePath: str
 
 export function toggle() {
   if (panel.isVisible()) {
-    atomConfig.showSemanticView = (false);
+    showSemanticView = (false);
     panel.hide();
   } else {
-    atomConfig.showSemanticView = (true);
+    showSemanticView = (true);
     panel.show();
     mainView.start();
   }
