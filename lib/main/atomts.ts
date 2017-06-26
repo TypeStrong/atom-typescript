@@ -1,7 +1,7 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from "./atom/views/renameView"
-import {attach as attachSemanticView} from './atom/views/semanticView'
+import {attach as attachSemanticView} from "./atom/views/semanticView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"

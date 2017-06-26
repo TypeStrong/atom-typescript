@@ -7,7 +7,7 @@ commands.set("typescript:toggle-semantic-view", deps => {
     if (!commandForTypeScript(e)) {
       return
     }
-
+    
     toggle();
   }
 })

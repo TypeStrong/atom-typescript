@@ -56,6 +56,7 @@ class SemanticViewRenderer {
     var editorChanging: AtomCore.Disposable;
 
     let subscribeToEditor = (editor: AtomCore.IEditor) => {
+      
       this.setEditor(editor);
 
       //set navTree
@@ -66,7 +67,6 @@ class SemanticViewRenderer {
       editorScrolling = editor.onDidChangeCursorPosition(() => {
         this.selectAtCursorLine();
       });
-
 
       editorChanging = editor.onDidStopChanging(() => {
         //set navTree
