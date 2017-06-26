@@ -332,7 +332,7 @@ export class SemanticView extends view.ScrollView<SemanticViewOptions> {
 
 
 export var mainView: SemanticView;
-export var showSemanticView: boolean;
+export var showSemanticView: boolean = false;
 var panel: AtomCore.Panel;
 export function attach(): {dispose(): void, semanticView: SemanticView} {
 
