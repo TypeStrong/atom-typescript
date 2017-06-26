@@ -87,13 +87,8 @@ function activate(state) {
             pane.client.executeGetErr({ files, delay: 100 });
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
-            panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
+            const pane = new typescriptEditorPane_1.TypescriptEditorPane(editor, {
                 getClient: (filePath) => exports.clientResolver.get(filePath),
-                onClose(filePath) {
-                    // Clear errors if any from this file
-                    errorPusher.setErrors("syntaxDiag", filePath, []);
-                    errorPusher.setErrors("semanticDiag", filePath, []);
-                },
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = undefined;
@@ -102,7 +97,18 @@ function activate(state) {
                 },
                 onSave,
                 statusPanel,
-            }));
+            });
+            pane.buffer.on("opened", () => {
+                exports.clientResolver.retain(pane.buffer.buffer.getPath());
+            });
+            pane.buffer.on("closed", filePath => {
+                // Clear errors if any from this file
+                errorPusher.setErrors("syntaxDiag", filePath, []);
+                errorPusher.setErrors("semanticDiag", filePath, []);
+                // Release this client
+                exports.clientResolver.release(filePath);
+            });
+            panes.push(pane);
         }));
         activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
         if (activePane) {

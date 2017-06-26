@@ -13,10 +13,6 @@ interface PaneOptions {
   // Called when the pane is being disposed.
   onDispose: (pane: TypescriptEditorPane) => void
 
-  // Called when the Typescript view of the file is closed. This happens when the pane is closed
-  // and also when the file is renamed.
-  onClose: (filePath: string) => void
-
   onSave: (pane: TypescriptEditorPane) => void
   statusPanel: StatusPanel
 }
@@ -48,7 +44,6 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.opts = opts
     this.buffer = new TypescriptBuffer(editor.buffer, opts.getClient)
       .on("changed", this.onChanged)
-      .on("closed", this.opts.onClose)
       .on("opened", this.onOpened)
       .on("saved", this.onSaved)
 

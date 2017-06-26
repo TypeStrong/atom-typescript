@@ -27,7 +27,6 @@ class TypescriptBuffer {
             this.changedAt = Date.now();
         };
         this.onDidChangePath = (newPath) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            console.log("did change path", newPath);
             if (this.clientPromise && this.filePath) {
                 const client = yield this.clientPromise;
                 client.executeClose({ file: this.filePath });

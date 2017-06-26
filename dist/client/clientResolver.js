@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const client_1 = require("./client");
 const events = require("events");
 const path = require("path");
@@ -52,13 +53,41 @@ class ClientResolver extends events.EventEmitter {
         this.clients[serverPath] = {
             client,
             pending: [],
+            retained: 0,
         };
         return this.clients[serverPath];
+    }
+    retain(filePath) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const client = yield this.get(filePath);
+            const clientInfo = this.clients[client.tsServerPath];
+            if (!clientInfo) {
+                throw new Error("Could not find server for: " + filePath);
+            }
+            clientInfo.retained += 1;
+        });
+    }
+    release(filePath) {
+        // Sleep a little and then decrement the retained counter. If it's 0,
+        // shut the server down.
+        setTimeout(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const client = yield this.get(filePath);
+            const clientInfo = this.clients[client.tsServerPath];
+            if (!clientInfo) {
+                return;
+            }
+            clientInfo.retained -= 1;
+            if (clientInfo.retained <= 0) {
+                delete this.clients[client.tsServerPath];
+                client.stopServer();
+                client.dispose();
+            }
+        }), 300);
     }
 }
 exports.ClientResolver = ClientResolver;
 function resolveServer(sourcePath) {
-    return Promise.resolve().then(() => {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const resolvedPath = resolve_1.sync("typescript/bin/tsserver", {
             basedir: path.dirname(sourcePath),
             paths: process.env.NODE_PATH && [process.env.NODE_PATH],

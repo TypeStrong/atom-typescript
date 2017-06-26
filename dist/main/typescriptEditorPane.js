@@ -83,7 +83,6 @@ class TypescriptEditorPane {
         };
         this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.filePath = this.editor.getPath();
-            console.log("TypescriptEditorPane.onOpened", this.isOpen);
             this.client = yield this.opts.getClient(this.filePath);
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
@@ -125,7 +124,6 @@ class TypescriptEditorPane {
         this.opts = opts;
         this.buffer = new typescriptBuffer_1.TypescriptBuffer(editor.buffer, opts.getClient)
             .on("changed", this.onChanged)
-            .on("closed", this.opts.onClose)
             .on("opened", this.onOpened)
             .on("saved", this.onSaved);
         this.isTypescript = utils_1.isTypescriptGrammar(editor.getGrammar());

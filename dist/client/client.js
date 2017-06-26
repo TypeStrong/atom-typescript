@@ -31,6 +31,7 @@ class TypescriptServiceClient {
         this.version = version;
         this.events = new events_1.EventEmitter();
         this.seq = 0;
+        this.shuttingDown = false;
         /** Extra args passed to the tsserver executable */
         this.tsServerArgs = [];
         this.emitPendingRequests = (pending) => {
@@ -172,6 +173,9 @@ class TypescriptServiceClient {
             let lastStderrOutput;
             let reject;
             const exitHandler = (result) => {
+                if (this.shuttingDown) {
+                    return;
+                }
                 const err = typeof result === "number" ? new Error("exited with code: " + result) : result;
                 console.error("tsserver: ", err);
                 this.callbacks.rejectAll(err);
@@ -208,6 +212,20 @@ class TypescriptServiceClient {
         else {
             throw new Error(`Server already started: ${this.tsServerPath}`);
         }
+    }
+    stopServer() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (this.serverPromise) {
+                this.shuttingDown = true;
+                const cp = yield this.serverPromise;
+                cp.kill();
+                this.callbacks.rejectAll(new Error("Shutting down."));
+                this.serverPromise = undefined;
+            }
+        });
+    }
+    dispose() {
+        this.events.removeAllListeners();
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;

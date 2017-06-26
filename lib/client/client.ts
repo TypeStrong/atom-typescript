@@ -40,6 +40,8 @@ export class TypescriptServiceClient {
   /** Promise that resolves when the server is ready to accept requests */
   serverPromise?: Promise<ChildProcess>
 
+  private shuttingDown = false
+
   /** Extra args passed to the tsserver executable */
   readonly tsServerArgs: string[] = []
 
@@ -238,6 +240,10 @@ export class TypescriptServiceClient {
       let reject: (err: Error) => void
 
       const exitHandler = (result: Error | number) => {
+        if (this.shuttingDown) {
+          return
+        }
+
         const err = typeof result === "number" ? new Error("exited with code: " + result) : result
 
         console.error("tsserver: ", err)
@@ -283,6 +289,20 @@ export class TypescriptServiceClient {
     } else {
       throw new Error(`Server already started: ${this.tsServerPath}`)
     }
+  }
+
+  async stopServer() {
+    if (this.serverPromise) {
+      this.shuttingDown = true
+      const cp = await this.serverPromise
+      cp.kill()
+      this.callbacks.rejectAll(new Error("Shutting down."))
+      this.serverPromise = undefined
+    }
+  }
+
+  dispose() {
+    this.events.removeAllListeners()
   }
 }
 

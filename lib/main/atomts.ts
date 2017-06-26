@@ -109,25 +109,33 @@ export function activate(state: PackageState) {
 
     subscriptions.add(
       atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
-        panes.push(
-          new TypescriptEditorPane(editor, {
-            getClient: (filePath: string) => clientResolver.get(filePath),
-            onClose(filePath) {
-              // Clear errors if any from this file
-              errorPusher.setErrors("syntaxDiag", filePath, [])
-              errorPusher.setErrors("semanticDiag", filePath, [])
-            },
-            onDispose(pane) {
-              if (activePane === pane) {
-                activePane = undefined
-              }
+        const pane = new TypescriptEditorPane(editor, {
+          getClient: (filePath: string) => clientResolver.get(filePath),
+          onDispose(pane) {
+            if (activePane === pane) {
+              activePane = undefined
+            }
 
-              panes.splice(panes.indexOf(pane), 1)
-            },
-            onSave,
-            statusPanel,
-          }),
-        )
+            panes.splice(panes.indexOf(pane), 1)
+          },
+          onSave,
+          statusPanel,
+        })
+
+        pane.buffer.on("opened", () => {
+          clientResolver.retain(pane.buffer.buffer.getPath())
+        })
+
+        pane.buffer.on("closed", filePath => {
+          // Clear errors if any from this file
+          errorPusher.setErrors("syntaxDiag", filePath, [])
+          errorPusher.setErrors("semanticDiag", filePath, [])
+
+          // Release this client
+          clientResolver.release(filePath)
+        })
+
+        panes.push(pane)
       }),
     )
 

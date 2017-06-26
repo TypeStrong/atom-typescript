@@ -36,6 +36,7 @@ export class ClientResolver extends events.EventEmitter {
     [tsServerPath: string]: {
       client: Client
       pending: string[]
+      retained: number
     }
   } = {}
 
@@ -89,26 +90,57 @@ export class ClientResolver extends events.EventEmitter {
     this.clients[serverPath] = {
       client,
       pending: [],
+      retained: 0,
     }
 
     return this.clients[serverPath]
   }
+
+  async retain(filePath: string) {
+    const client = await this.get(filePath)
+    const clientInfo = this.clients[client.tsServerPath]
+
+    if (!clientInfo) {
+      throw new Error("Could not find server for: " + filePath)
+    }
+
+    clientInfo.retained += 1
+  }
+
+  release(filePath: string) {
+    // Sleep a little and then decrement the retained counter. If it's 0,
+    // shut the server down.
+    setTimeout(async () => {
+      const client = await this.get(filePath)
+      const clientInfo = this.clients[client.tsServerPath]
+
+      if (!clientInfo) {
+        return
+      }
+
+      clientInfo.retained -= 1
+
+      if (clientInfo.retained <= 0) {
+        delete this.clients[client.tsServerPath]
+        client.stopServer()
+        client.dispose()
+      }
+    }, 300)
+  }
 }
 
-export function resolveServer(sourcePath: string): Promise<Server> {
-  return Promise.resolve().then(() => {
-    const resolvedPath = resolveSync("typescript/bin/tsserver", {
-      basedir: path.dirname(sourcePath),
-      paths: process.env.NODE_PATH && [process.env.NODE_PATH],
-    })
-    const packagePath = path.resolve(resolvedPath, "../../package.json")
-    const version = require(packagePath).version
-
-    return {
-      version,
-      serverPath: resolvedPath,
-    }
+export async function resolveServer(sourcePath: string): Promise<Server> {
+  const resolvedPath = resolveSync("typescript/bin/tsserver", {
+    basedir: path.dirname(sourcePath),
+    paths: process.env.NODE_PATH && [process.env.NODE_PATH],
   })
+  const packagePath = path.resolve(resolvedPath, "../../package.json")
+  const version = require(packagePath).version
+
+  return {
+    version,
+    serverPath: resolvedPath,
+  }
 }
 
 function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {
