@@ -18,13 +18,14 @@ export class TypescriptBuffer {
 
   private events = new EventEmitter()
   private subscriptions = new CompositeDisposable()
+  private filePath: string
 
   constructor(
     public buffer: TextBuffer.ITextBuffer,
-    public getClient: (filePath: string) => Promise<Client>
+    public getClient: (filePath: string) => Promise<Client>,
   ) {
     this.subscriptions.add(buffer.onDidChange(this.onDidChange))
-    this.subscriptions.add(buffer.onDidChangePath(this.onDidSave))
+    this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath))
     this.subscriptions.add(buffer.onDidDestroy(this.dispose))
     this.subscriptions.add(buffer.onDidSave(this.onDidSave))
     this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging))
@@ -33,18 +34,18 @@ export class TypescriptBuffer {
   }
 
   async open() {
-    const filePath = this.buffer.getPath()
+    this.filePath = this.buffer.getPath()
 
-    if (isTypescriptFile(filePath)) {
+    if (isTypescriptFile(this.filePath)) {
       // Set isOpen before we actually open the file to enqueue any changed events
       this.isOpen = true
 
-      this.clientPromise = this.getClient(filePath)
+      this.clientPromise = this.getClient(this.filePath)
       const client = await this.clientPromise
 
       await client.executeOpen({
-        file: filePath,
-        fileContent: this.buffer.getText()
+        file: this.filePath,
+        fileContent: this.buffer.getText(),
       })
 
       this.events.emit("opened")
@@ -70,25 +71,37 @@ export class TypescriptBuffer {
     }
   }
 
-  dispose = () => {
+  dispose = async () => {
     this.subscriptions.dispose()
 
     if (this.isOpen && this.clientPromise) {
-      this.clientPromise.then(client =>
-        client.executeClose({file: this.buffer.getPath()}))
+      const client = await this.clientPromise
+      client.executeClose({file: this.buffer.getPath()})
+      this.events.emit("closed", this.filePath)
     }
   }
 
-  on(name: "saved", callback: () => any): this // saved after waiting for any pending changes
-  on(name: "opened", callback: () => any): this // the file is opened
-  on(name: "changed", callback: () => any): this // tsserver view of the file has changed
-  on(name: string, callback: () => any): this {
+  on(name: "saved", callback: () => void): this // saved after waiting for any pending changes
+  on(name: "opened", callback: () => void): this // the file is opened
+  on(name: "closed", callback: (filePath: string) => void): this // the file is closed
+  on(name: "changed", callback: () => void): this // tsserver view of the file has changed
+  on(name: string, callback: () => void): this {
     this.events.on(name, callback)
     return this
   }
 
   onDidChange = () => {
     this.changedAt = Date.now()
+  }
+
+  onDidChangePath = async (newPath: string) => {
+    if (this.clientPromise && this.filePath) {
+      const client = await this.clientPromise
+      client.executeClose({file: this.filePath})
+      this.events.emit("closed", this.filePath)
+    }
+
+    this.open()
   }
 
   onDidSave = async () => {
@@ -117,7 +130,7 @@ export class TypescriptBuffer {
 
       const end = {
         endLine: start.row + oldExtent.row + 1,
-        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column: oldExtent.column) + 1
+        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
       }
 
       await client.executeChange({

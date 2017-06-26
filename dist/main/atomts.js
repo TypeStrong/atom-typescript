@@ -6,6 +6,8 @@ const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
+const hyperclickProvider_1 = require("./atom/hyperclickProvider");
+const codefixProvider_1 = require("./atom/codefixProvider");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const errorPusher_1 = require("./errorPusher");
@@ -22,8 +24,9 @@ require("./atom/components");
 const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
+const codefixProvider = new codefixProvider_1.CodefixProvider(exports.clientResolver);
 function activate(state) {
-    require('atom-package-deps').install('atom-typescript', true).then(() => {
+    require("atom-package-deps").install("atom-typescript", true).then(() => {
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
             if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
@@ -35,7 +38,7 @@ function activate(state) {
         const statusPanel = statusPanel_1.StatusPanel.create();
         statusBar.addRightTile({
             item: statusPanel,
-            priority: statusPriority
+            priority: statusPriority,
         });
         subscriptions.add(statusPanel);
         const errorPusher = new errorPusher_1.ErrorPusher();
@@ -43,6 +46,8 @@ function activate(state) {
         subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", (val) => {
             errorPusher.setUnusedAsInfo(val.newValue);
         }));
+        codefixProvider.errorPusher = errorPusher;
+        codefixProvider.getTypescriptBuffer = getTypescriptBuffer;
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
@@ -84,14 +89,16 @@ function activate(state) {
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
                 getClient: (filePath) => exports.clientResolver.get(filePath),
+                onClose(filePath) {
+                    // Clear errors if any from this file
+                    errorPusher.setErrors("syntaxDiag", filePath, []);
+                    errorPusher.setErrors("semanticDiag", filePath, []);
+                },
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = undefined;
                     }
                     panes.splice(panes.indexOf(pane), 1);
-                    // Clear errors if any from this pane
-                    errorPusher.setErrors("syntaxDiag", pane.filePath, []);
-                    errorPusher.setErrors("semanticDiag", pane.filePath, []);
                 },
                 onSave,
                 statusPanel,
@@ -125,9 +132,9 @@ function serialize() {
     return {};
 }
 exports.serialize = serialize;
-function consumeLinter(registry) {
-    linter = registry.register({
-        name: "Typescript"
+function consumeLinter(register) {
+    linter = register({
+        name: "Typescript",
     });
 }
 exports.consumeLinter = consumeLinter;
@@ -137,24 +144,36 @@ function consumeStatusBar(_statusBar) {
 exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
 function provide() {
-    return [
-        new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer }),
-    ];
+    return [new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer })];
 }
 exports.provide = provide;
+function provideIntentions() {
+    return codefixProvider;
+}
+exports.provideIntentions = provideIntentions;
+function hyperclickProvider() {
+    return hyperclickProvider_1.getHyperclickProvider(exports.clientResolver);
+}
+exports.hyperclickProvider = hyperclickProvider;
 exports.config = {
     unusedAsInfo: {
-        title: 'Show unused values with severity info',
-        description: 'Show unused values with severity \'info\' instead of \'error\'',
-        type: 'boolean',
-        default: true
-    }
+        title: "Show unused values with severity info",
+        description: "Show unused values with severity 'info' instead of 'error'",
+        type: "boolean",
+        default: true,
+    },
 };
-function loadProjectConfig(sourcePath) {
-    return exports.clientResolver.get(sourcePath).then(client => {
-        return client.executeProjectInfo({ needFileNameList: false, file: sourcePath }).then(result => {
-            return tsconfig.load(result.body.configFileName);
-        });
+function getProjectConfigPath(sourcePath) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const client = yield exports.clientResolver.get(sourcePath);
+        const result = yield client.executeProjectInfo({ needFileNameList: false, file: sourcePath });
+        return result.body.configFileName;
+    });
+}
+exports.getProjectConfigPath = getProjectConfigPath;
+function loadProjectConfig(sourcePath, configFile) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return tsconfig.load(configFile || (yield getProjectConfigPath(sourcePath)));
     });
 }
 exports.loadProjectConfig = loadProjectConfig;
@@ -165,14 +184,14 @@ function getTypescriptBuffer(filePath) {
         if (pane) {
             return {
                 buffer: pane.buffer,
-                isOpen: true
+                isOpen: true,
             };
         }
         // Wait for the buffer to load before resolving the promise
         const buffer = yield new Promise(resolve => {
             const buffer = new Atom.TextBuffer({
                 filePath,
-                load: true
+                load: true,
             });
             buffer.onDidReload(() => {
                 resolve(buffer);
@@ -180,7 +199,7 @@ function getTypescriptBuffer(filePath) {
         });
         return {
             buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
-            isOpen: false
+            isOpen: false,
         };
     });
 }

@@ -17,6 +17,8 @@ export const CommandWithResponse = new Set([
   "configure",
   "definition",
   "format",
+  "getCodeFixes",
+  "getSupportedCodeFixes",
   "occurrences",
   "projectInfo",
   "quickinfo",
@@ -27,7 +29,6 @@ export const CommandWithResponse = new Set([
 ])
 
 export class TypescriptServiceClient {
-
   /** Callbacks that are waiting for responses */
   callbacks: Callbacks
 
@@ -53,16 +54,22 @@ export class TypescriptServiceClient {
   executeClose(args: protocol.FileRequestArgs): Promise<undefined> {
     return this.execute("close", args)
   }
-  executeCompileOnSaveAffectedFileList(args: protocol.FileRequestArgs): Promise<protocol.CompileOnSaveAffectedFileListResponse> {
+  executeCompileOnSaveAffectedFileList(
+    args: protocol.FileRequestArgs,
+  ): Promise<protocol.CompileOnSaveAffectedFileListResponse> {
     return this.execute("compileOnSaveAffectedFileList", args)
   }
-  executeCompileOnSaveEmitFile(args: protocol.CompileOnSaveEmitFileRequestArgs): Promise<protocol.Response & {body: boolean}> {
+  executeCompileOnSaveEmitFile(
+    args: protocol.CompileOnSaveEmitFileRequestArgs,
+  ): Promise<protocol.Response & {body: boolean}> {
     return this.execute("compileOnSaveEmitFile", args)
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
     return this.execute("completions", args)
   }
-  executeCompletionDetails(args: protocol.CompletionDetailsRequestArgs): Promise<protocol.CompletionDetailsResponse> {
+  executeCompletionDetails(
+    args: protocol.CompletionDetailsRequestArgs,
+  ): Promise<protocol.CompletionDetailsResponse> {
     return this.execute("completionEntryDetails", args)
   }
   executeConfigure(args: protocol.ConfigureRequestArguments): Promise<undefined> {
@@ -73,6 +80,12 @@ export class TypescriptServiceClient {
   }
   executeFormat(args: protocol.FormatRequestArgs): Promise<protocol.FormatResponse> {
     return this.execute("format", args)
+  }
+  executeGetCodeFixes(args: protocol.CodeFixRequestArgs): Promise<protocol.GetCodeFixesResponse> {
+    return this.execute("getCodeFixes", args)
+  }
+  executeGetSupportedCodeFixes(): Promise<protocol.GetSupportedCodeFixesResponse> {
+    return this.execute("getSupportedCodeFixes", undefined)
   }
   executeGetErr(args: protocol.GeterrRequestArgs): Promise<undefined> {
     return this.execute("geterr", args)
@@ -113,7 +126,12 @@ export class TypescriptServiceClient {
       throw new Error("Server is not running")
     }
 
-    return this.sendRequest(await this.serverPromise, command, args, CommandWithResponse.has(command))
+    return this.sendRequest(
+      await this.serverPromise,
+      command,
+      args,
+      CommandWithResponse.has(command),
+    )
   }
 
   /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
@@ -138,7 +156,15 @@ export class TypescriptServiceClient {
       const req = this.callbacks.remove(res.request_seq)
       if (req) {
         if (window.atom_typescript_debug) {
-          console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body)
+          console.log(
+            "received response for",
+            res.command,
+            "in",
+            Date.now() - req.started,
+            "ms",
+            "with data",
+            res.body,
+          )
         }
 
         if (res.success) {
@@ -158,15 +184,34 @@ export class TypescriptServiceClient {
     }
   }
 
-  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: true): Promise<protocol.Response>
-  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: false): undefined
-  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: boolean): Promise<protocol.Response> | undefined
-  private sendRequest(cp: ChildProcess, command: string, args: any, expectResponse: boolean): Promise<protocol.Response> | undefined {
-
+  private sendRequest(
+    cp: ChildProcess,
+    command: string,
+    args: any,
+    expectResponse: true,
+  ): Promise<protocol.Response>
+  private sendRequest(
+    cp: ChildProcess,
+    command: string,
+    args: any,
+    expectResponse: false,
+  ): undefined
+  private sendRequest(
+    cp: ChildProcess,
+    command: string,
+    args: any,
+    expectResponse: boolean,
+  ): Promise<protocol.Response> | undefined
+  private sendRequest(
+    cp: ChildProcess,
+    command: string,
+    args: any,
+    expectResponse: boolean,
+  ): Promise<protocol.Response> | undefined {
     const req = {
       seq: this.seq++,
       command,
-      arguments: args
+      arguments: args,
     }
 
     if (window.atom_typescript_debug) {
@@ -197,29 +242,28 @@ export class TypescriptServiceClient {
       let reject: (err: Error) => void
 
       const exitHandler = (result: Error | number) => {
-        const err = typeof result === "number" ?
-          new Error("exited with code: " + result) : result
+        const err = typeof result === "number" ? new Error("exited with code: " + result) : result
 
-          console.error("tsserver: ", err)
-          this.callbacks.rejectAll(err)
-          reject(err)
-          this.serverPromise = undefined
+        console.error("tsserver: ", err)
+        this.callbacks.rejectAll(err)
+        reject(err)
+        this.serverPromise = undefined
 
-          setImmediate(() => {
-            let detail = err && err.stack || ""
+        setImmediate(() => {
+          let detail = (err && err.stack) || ""
 
-            if (lastStderrOutput) {
-              detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail
-            }
+          if (lastStderrOutput) {
+            detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail
+          }
 
-            atom.notifications.addError("Typescript quit unexpectedly", {
-              detail,
-              dismissable: true,
-            })
+          atom.notifications.addError("Typescript quit unexpectedly", {
+            detail,
+            dismissable: true,
           })
+        })
       }
 
-      return this.serverPromise = new Promise<ChildProcess>((resolve, _reject) => {
+      return (this.serverPromise = new Promise<ChildProcess>((resolve, _reject) => {
         reject = _reject
 
         if (window.atom_typescript_debug) {
@@ -234,13 +278,12 @@ export class TypescriptServiceClient {
         // Pipe both stdout and stderr appropriately
         messageStream(cp.stdout).on("data", this.onMessage)
         cp.stderr.on("data", data => {
-          console.warn("tsserver stderr:", lastStderrOutput = data.toString())
+          console.warn("tsserver stderr:", (lastStderrOutput = data.toString()))
         })
 
         // We send an unknown command to verify that the server is working.
         this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
-      })
-
+      }))
     } else {
       throw new Error(`Server already started: ${this.tsServerPath}`)
     }
@@ -256,7 +299,7 @@ function startServer(tsServerPath: string, tsServerArgs: string[]): ChildProcess
   } else {
     return new BufferedNodeProcess({
       command: tsServerPath,
-      args: tsServerArgs
+      args: tsServerArgs,
     }).process as any
   }
 }

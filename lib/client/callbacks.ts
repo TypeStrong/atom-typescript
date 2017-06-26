@@ -19,7 +19,7 @@ export class Callbacks {
         name: command,
         resolve,
         reject,
-        started: Date.now()
+        started: Date.now(),
       })
 
       this.onPendingChange(this.pending())
