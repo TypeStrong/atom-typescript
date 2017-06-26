@@ -42,7 +42,7 @@ class SemanticViewRenderer {
       if (navTree) {
         this.setNavTree(navTree);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err, filePath);
     }
   }
@@ -56,7 +56,7 @@ class SemanticViewRenderer {
     var editorChanging: AtomCore.Disposable;
 
     let subscribeToEditor = (editor: AtomCore.IEditor) => {
-      
+
       this.setEditor(editor);
 
       //set navTree

@@ -120,7 +120,7 @@ export class TypescriptServiceClient {
   executeNavTree(args: protocol.FileRequestArgs): Promise<protocol.NavTreeResponse> {
     return this.execute("navtree", args)
   }
-  
+
   private async execute(command: string, args: any) {
     if (!this.serverPromise) {
       throw new Error("Server is not running")
