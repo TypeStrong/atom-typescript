@@ -69,7 +69,7 @@ class TypescriptEditorPane {
                 .catch(() => this.clearOccurrenceMarkers());
         }, 100);
         this.onDidChangeCursorPosition = ({ textChanged }) => {
-            if (!this.isTypescript) {
+            if (!this.isTypescript || !this.isOpen) {
                 return;
             }
             if (textChanged) {
@@ -82,9 +82,9 @@ class TypescriptEditorPane {
             this.dispose();
         };
         this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.filePath = this.editor.getPath();
+            console.log("TypescriptEditorPane.onOpened", this.isOpen);
             this.client = yield this.opts.getClient(this.filePath);
-            this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
-            this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
                 this.isActive = true;
@@ -117,9 +117,7 @@ class TypescriptEditorPane {
         });
         this.onSaved = () => {
             this.filePath = this.editor.getPath();
-            if (this.opts.onSave) {
-                this.opts.onSave(this);
-            }
+            this.opts.onSave(this);
             this.compileOnSave();
         };
         this.editor = editor;
@@ -127,6 +125,7 @@ class TypescriptEditorPane {
         this.opts = opts;
         this.buffer = new typescriptBuffer_1.TypescriptBuffer(editor.buffer, opts.getClient)
             .on("changed", this.onChanged)
+            .on("closed", this.opts.onClose)
             .on("opened", this.onOpened)
             .on("saved", this.onSaved);
         this.isTypescript = utils_1.isTypescriptGrammar(editor.getGrammar());
@@ -137,6 +136,8 @@ class TypescriptEditorPane {
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
             this.isTypescript = utils_1.isTypescriptGrammar(grammar);
         }));
+        this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
+        this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
         this.setupTooltipView();
     }
     dispose() {

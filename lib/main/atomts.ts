@@ -112,16 +112,17 @@ export function activate(state: PackageState) {
         panes.push(
           new TypescriptEditorPane(editor, {
             getClient: (filePath: string) => clientResolver.get(filePath),
+            onClose(filePath) {
+              // Clear errors if any from this file
+              errorPusher.setErrors("syntaxDiag", filePath, [])
+              errorPusher.setErrors("semanticDiag", filePath, [])
+            },
             onDispose(pane) {
               if (activePane === pane) {
                 activePane = undefined
               }
 
               panes.splice(panes.indexOf(pane), 1)
-
-              // Clear errors if any from this pane
-              errorPusher.setErrors("syntaxDiag", pane.filePath, [])
-              errorPusher.setErrors("semanticDiag", pane.filePath, [])
             },
             onSave,
             statusPanel,

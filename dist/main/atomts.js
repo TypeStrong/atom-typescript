@@ -89,14 +89,16 @@ function activate(state) {
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
                 getClient: (filePath) => exports.clientResolver.get(filePath),
+                onClose(filePath) {
+                    // Clear errors if any from this file
+                    errorPusher.setErrors("syntaxDiag", filePath, []);
+                    errorPusher.setErrors("semanticDiag", filePath, []);
+                },
                 onDispose(pane) {
                     if (activePane === pane) {
                         activePane = undefined;
                     }
                     panes.splice(panes.indexOf(pane), 1);
-                    // Clear errors if any from this pane
-                    errorPusher.setErrors("syntaxDiag", pane.filePath, []);
-                    errorPusher.setErrors("semanticDiag", pane.filePath, []);
                 },
                 onSave,
                 statusPanel,

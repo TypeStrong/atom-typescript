@@ -9,8 +9,15 @@ import * as tooltipManager from "./atom/tooltipManager"
 
 interface PaneOptions {
   getClient: (filePath: string) => Promise<TypescriptServiceClient>
-  onDispose: (pane: TypescriptEditorPane) => any
-  onSave: (pane: TypescriptEditorPane) => any
+
+  // Called when the pane is being disposed.
+  onDispose: (pane: TypescriptEditorPane) => void
+
+  // Called when the Typescript view of the file is closed. This happens when the pane is closed
+  // and also when the file is renamed.
+  onClose: (filePath: string) => void
+
+  onSave: (pane: TypescriptEditorPane) => void
   statusPanel: StatusPanel
 }
 
@@ -41,6 +48,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     this.opts = opts
     this.buffer = new TypescriptBuffer(editor.buffer, opts.getClient)
       .on("changed", this.onChanged)
+      .on("closed", this.opts.onClose)
       .on("opened", this.onOpened)
       .on("saved", this.onSaved)
 
@@ -56,6 +64,9 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
         this.isTypescript = isTypescriptGrammar(grammar)
       }),
     )
+
+    this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
+    this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
 
     this.setupTooltipView()
   }
@@ -136,7 +147,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }, 100)
 
   onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
-    if (!this.isTypescript) {
+    if (!this.isTypescript || !this.isOpen) {
       return
     }
 
@@ -153,10 +164,8 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onOpened = async () => {
+    this.filePath = this.editor.getPath()
     this.client = await this.opts.getClient(this.filePath)
-
-    this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
-    this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
 
     // onOpened might trigger before onActivated so we can't rely on isActive flag
     if (atom.workspace.getActiveTextEditor() === this.editor) {
@@ -196,11 +205,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   onSaved = () => {
     this.filePath = this.editor.getPath()
-
-    if (this.opts.onSave) {
-      this.opts.onSave(this)
-    }
-
+    this.opts.onSave(this)
     this.compileOnSave()
   }
 
