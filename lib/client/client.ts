@@ -25,7 +25,7 @@ export const CommandWithResponse = new Set([
   "references",
   "reload",
   "rename",
-  "navtree"
+  "navtree",
 ])
 
 export class TypescriptServiceClient {
