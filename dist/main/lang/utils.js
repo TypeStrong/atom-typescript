@@ -1,3 +1,4 @@
+"use strict";
 //   Copyright 2013-2014 François de Campredon
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,9 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
-'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+;
+("use strict");
 const path = require("path");
 function mapValues(map) {
     return Object.keys(map).reduce((result, key) => {
@@ -68,7 +70,7 @@ function getName(nameLambda) {
     var m = nameExtractorRegex.exec(nameLambda + "");
     if (m == null)
         throw new Error("The function does not contain a statement matching 'return variableName;'");
-    var access = m[1].split('.');
+    var access = m[1].split(".");
     return access[access.length - 1];
 }
 exports.getName = getName;

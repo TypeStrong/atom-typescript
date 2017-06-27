@@ -23,7 +23,7 @@ registry_1.commands.set("typescript:format-code", deps => {
                 line: 1,
                 offset: 1,
                 endLine: end.row + 1,
-                endOffset: end.column + 1
+                endOffset: end.column + 1,
             });
         }
         const client = yield deps.getClient(filePath);

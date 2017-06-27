@@ -144,7 +144,7 @@ class TypescriptServiceClient {
         const req = {
             seq: this.seq++,
             command,
-            arguments: args
+            arguments: args,
         };
         if (window.atom_typescript_debug) {
             console.log("sending request", command, "with args", args);
@@ -172,14 +172,13 @@ class TypescriptServiceClient {
             let lastStderrOutput;
             let reject;
             const exitHandler = (result) => {
-                const err = typeof result === "number" ?
-                    new Error("exited with code: " + result) : result;
+                const err = typeof result === "number" ? new Error("exited with code: " + result) : result;
                 console.error("tsserver: ", err);
                 this.callbacks.rejectAll(err);
                 reject(err);
                 this.serverPromise = undefined;
                 setImmediate(() => {
-                    let detail = err && err.stack || "";
+                    let detail = (err && err.stack) || "";
                     if (lastStderrOutput) {
                         detail = "Last output from tsserver:\n" + lastStderrOutput + "\n \n" + detail;
                     }
@@ -189,7 +188,7 @@ class TypescriptServiceClient {
                     });
                 });
             };
-            return this.serverPromise = new Promise((resolve, _reject) => {
+            return (this.serverPromise = new Promise((resolve, _reject) => {
                 reject = _reject;
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
@@ -200,11 +199,11 @@ class TypescriptServiceClient {
                 // Pipe both stdout and stderr appropriately
                 messageStream(cp.stdout).on("data", this.onMessage);
                 cp.stderr.on("data", data => {
-                    console.warn("tsserver stderr:", lastStderrOutput = data.toString());
+                    console.warn("tsserver stderr:", (lastStderrOutput = data.toString()));
                 });
                 // We send an unknown command to verify that the server is working.
                 this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
-            });
+            }));
         }
         else {
             throw new Error(`Server already started: ${this.tsServerPath}`);
@@ -222,7 +221,7 @@ function startServer(tsServerPath, tsServerArgs) {
     else {
         return new atom_1.BufferedNodeProcess({
             command: tsServerPath,
-            args: tsServerArgs
+            args: tsServerArgs,
         }).process;
     }
 }

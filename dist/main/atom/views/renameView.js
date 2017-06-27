@@ -2,20 +2,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
 var $ = view.$;
-var html = require('../../../../views/renameView.html');
+var html = require("../../../../views/renameView.html");
 class RenameView extends view.View {
     init() {
-        $(atom.views.getView(atom.workspace)).on('keydown', (e) => {
+        $(atom.views.getView(atom.workspace)).on("keydown", e => {
             if (e.keyCode == 27) {
+                // escape
                 if (this.options.onCancel) {
                     this.options.onCancel();
                     this.clearView();
                 }
             }
         });
-        this.newNameEditor.on('keydown', (e) => {
+        this.newNameEditor.on("keydown", e => {
             var newText = this.newNameEditor.model.getText();
             if (e.keyCode == 13) {
+                // enter
                 var invalid = this.options.onValidate(newText);
                 if (invalid) {
                     this.validationMessage.text(invalid);
@@ -29,6 +31,7 @@ class RenameView extends view.View {
                 }
             }
             if (e.keyCode == 27) {
+                // escape
                 if (this.options.onCancel) {
                     this.options.onCancel();
                     this.clearView();
@@ -77,14 +80,14 @@ function attach() {
     const panel = atom.workspace.addModalPanel({
         item: renameView,
         priority: 1000,
-        visible: false
+        visible: false,
     });
     renameView.setPanel(panel);
     return {
         dispose() {
             console.log("TODO: Detach the rename view: ", panel);
         },
-        renameView
+        renameView,
     };
 }
 exports.attach = attach;

@@ -16,7 +16,8 @@ class CodefixProvider {
             }
             const client = yield this.clientResolver.get(filePath);
             const supportedCodes = yield this.getSupportedFixes(client);
-            const requests = this.errorPusher.getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
+            const requests = this.errorPusher
+                .getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
                 .filter(error => error.code && supportedCodes.has(error.code))
                 .map(error => client.executeGetCodeFixes({
                 file: filePath,
@@ -24,7 +25,7 @@ class CodefixProvider {
                 startOffset: error.start.offset,
                 endLine: error.end.line,
                 endOffset: error.end.offset,
-                errorCodes: [error.code]
+                errorCodes: [error.code],
             }));
             const fixes = yield Promise.all(requests);
             const results = [];
@@ -49,7 +50,7 @@ class CodefixProvider {
                                         });
                                     }
                                 }));
-                            }
+                            },
                         });
                     }
                 }
