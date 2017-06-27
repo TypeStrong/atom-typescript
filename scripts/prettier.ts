@@ -4,7 +4,7 @@ import {resolve} from "path"
 // We can run in two modes here. If the argument given is write,
 // we format all the files in the project. If it's check, we
 // run prettier and if any file would change, return a non-zero exit code.
-const action: string = process.argv[2] || process.env.ACTION
+const action: string = process.argv[2]
 switch (action) {
   case "write":
     execSync(command("write"), {stdio: "inherit"})
@@ -26,9 +26,7 @@ switch (action) {
     }
     break
   default:
-    console.log(
-      "usage: prettier write|check\nor (*nix):\n       ACTION=write|check prettier\nor (Windows):\n       set ACTION=write|check&&prettier",
-    )
+    console.log("usage: prettier write|check")
     process.exit(1)
 }
 
