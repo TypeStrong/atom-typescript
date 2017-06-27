@@ -8,6 +8,6 @@ commands.set("typescript:toggle-semantic-view", deps => {
       return
     }
 
-    toggle();
+    toggle()
   }
 })

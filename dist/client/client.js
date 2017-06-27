@@ -24,7 +24,7 @@ exports.CommandWithResponse = new Set([
     "references",
     "reload",
     "rename",
-    "navtree"
+    "navtree",
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {

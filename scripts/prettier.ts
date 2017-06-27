@@ -39,7 +39,7 @@ function command(action: "write" | "check") {
       "--no-bracket-spacing",
       "--jsx-bracket-same-line",
       "--trailing-comma all",
-      "'./{lib,scripts}/**/*.{ts,tsx}'",
+      '"./{lib,scripts}/**/*.{ts,tsx}"',
     ],
   ].join(" ")
 }

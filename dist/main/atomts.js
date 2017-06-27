@@ -4,6 +4,7 @@ const tslib_1 = require("tslib");
 const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
+const semanticView_1 = require("./atom/views/semanticView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
@@ -35,6 +36,7 @@ function activate(state) {
         }
         // Add the rename view
         const { renameView } = renameView_1.attach();
+        const { semanticView } = semanticView_1.attach();
         const statusPanel = statusPanel_1.StatusPanel.create();
         statusBar.addRightTile({
             item: statusPanel,
@@ -74,6 +76,7 @@ function activate(state) {
                 });
             },
             renameView,
+            semanticView,
             statusPanel,
         });
         let activePane;
