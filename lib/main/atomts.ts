@@ -202,11 +202,8 @@ export async function getProjectConfigPath(sourcePath: string): Promise<string> 
   return result.body!.configFileName
 }
 
-export async function loadProjectConfig(
-  sourcePath: string,
-  configFile?: string,
-): Promise<tsconfig.TSConfig> {
-  return tsconfig.load(configFile || (await getProjectConfigPath(sourcePath)))
+export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<any> {
+  return tsconfig.readFile(configFile || (await getProjectConfigPath(sourcePath)))
 }
 
 // Get Typescript buffer for the given path
