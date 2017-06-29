@@ -10,8 +10,8 @@
   "scripts": {
     "build": "tsc -p ./lib",
     "grammar": "ts-node scripts/grammar.ts",
-    "prettier": "ACTION=write ts-node scripts/prettier.ts",
-    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && ACTION=check ts-node scripts/prettier.ts"
+    "prettier": "ts-node scripts/prettier.ts write",
+    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && ts-node scripts/prettier.ts check"
   },
   "engines": {
     "atom": ">=0.199.0 <2.0.0",

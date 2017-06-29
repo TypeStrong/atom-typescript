@@ -4,7 +4,8 @@ import {resolve} from "path"
 // We can run in two modes here. If the argument given is write,
 // we format all the files in the project. If it's check, we
 // run prettier and if any file would change, return a non-zero exit code.
-switch (process.env.ACTION) {
+const action: string = process.argv[2]
+switch (action) {
   case "write":
     execSync(command("write"), {stdio: "inherit"})
     break
@@ -25,7 +26,7 @@ switch (process.env.ACTION) {
     }
     break
   default:
-    console.log("usage: ACTION=write|check prettier")
+    console.log("usage: prettier write|check")
     process.exit(1)
 }
 
@@ -39,7 +40,7 @@ function command(action: "write" | "check") {
       "--no-bracket-spacing",
       "--jsx-bracket-same-line",
       "--trailing-comma all",
-      "'./{lib,scripts}/**/*.{ts,tsx}'",
+      '"./{lib,scripts}/**/*.{ts,tsx}"',
     ],
   ].join(" ")
 }
