@@ -173,7 +173,7 @@ function getProjectConfigPath(sourcePath) {
 exports.getProjectConfigPath = getProjectConfigPath;
 function loadProjectConfig(sourcePath, configFile) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        return tsconfig.load(configFile || (yield getProjectConfigPath(sourcePath)));
+        return tsconfig.readFile(configFile || (yield getProjectConfigPath(sourcePath)));
     });
 }
 exports.loadProjectConfig = loadProjectConfig;
