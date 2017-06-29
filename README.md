@@ -74,7 +74,9 @@ Shortcut `shift+F12`. Also called *find usages*.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Current iteration of the plugin doesn't support any Quickfixes, but they're coming in the future.
+Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux.
+Currently available codefixes:
+https://github.com/Microsoft/TypeScript/tree/master/src/services/codefixes
 
 ## Contributing
 
