@@ -5,7 +5,6 @@
   'cmd-;': 'typescript:context-actions'
   'f2': 'typescript:rename-refactor'
   'shift-f12': 'typescript:find-references'
-  'alt-enter': 'typescript:quick-fix'
   'ctrl-M': 'typescript:output-toggle'
   'cmd-M': 'typescript:output-toggle'
 
