@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "11.0.4",
+  "version": "11.0.5",
   "dependencies": {
     "@types/atom": {
       "version": "0.0.35",
