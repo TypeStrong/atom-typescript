@@ -107,7 +107,7 @@ export class TypescriptBuffer {
   onDidSave = async () => {
     // Check if there isn't a onDidStopChanging event pending.
     const {changedAt, changedAtBatch} = this
-    if (changedAt && changedAt > changedAtBatch) {
+    if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
       await new Promise(resolve => this.events.once("changed", resolve))
     }
 

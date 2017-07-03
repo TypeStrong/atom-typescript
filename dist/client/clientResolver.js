@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const client_1 = require("./client");
 const events = require("events");
 const path = require("path");
-const resolve_1 = require("resolve");
+const Resolve = require("resolve");
 const defaultServer = {
     serverPath: require.resolve("typescript/bin/tsserver"),
     version: require("typescript").version,
@@ -57,10 +58,21 @@ class ClientResolver extends events.EventEmitter {
     }
 }
 exports.ClientResolver = ClientResolver;
+// Promisify the async resolve function
+const resolveModule = (id, opts) => {
+    return new Promise((resolve, reject) => Resolve(id, opts, (err, result) => {
+        if (err) {
+            reject(err);
+        }
+        else {
+            resolve(result);
+        }
+    }));
+};
 function resolveServer(sourcePath) {
-    return Promise.resolve().then(() => {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { NODE_PATH } = process.env;
-        const resolvedPath = resolve_1.sync("typescript/bin/tsserver", {
+        const resolvedPath = yield resolveModule("typescript/bin/tsserver", {
             basedir: path.dirname(sourcePath),
             paths: NODE_PATH && [NODE_PATH],
         });
