@@ -6,6 +6,11 @@ import {clientResolver} from "../../atomts"
 import * as dom from "jsx-render-dom"
 import {NavigationTree} from "typescript/lib/protocol"
 
+interface NavigationTreeExt extends NavigationTree {
+  styleClasses: string
+  childItems?: NavigationTreeExt[]
+}
+
 class SemanticViewRenderer {
   private editor: AtomCore.IEditor
   private navTree: NavigationTree | null
@@ -44,6 +49,7 @@ class SemanticViewRenderer {
   }
 
   setNavTree(navTree: NavigationTree | null) {
+    this.prepareNavTree(navTree as NavigationTreeExt)
     this.navTree = navTree
     this._render()
   }
@@ -66,6 +72,38 @@ class SemanticViewRenderer {
       }
     } catch (err) {
       console.error(err, filePath)
+    }
+  }
+
+  /**
+   * HELPER modify / prepare NavigationTree for rendering.
+   *
+   * E.g. sort childItems by their location, preprocess className-string
+   *
+   * @param {NavigationTreeExt} navTree
+   *            the NavigationTree that will be prepared for rendering
+   */
+  private prepareNavTree(navTree: NavigationTreeExt): void {
+    navTree.styleClasses = this.getIconForKind(navTree.kind)
+    let modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
+    if (modifiersClasses) {
+      navTree.styleClasses += " " + modifiersClasses
+    }
+
+    if (navTree.childItems) {
+      if (navTree.childItems.length < 1) {
+        //normalize: remove empty lists
+        navTree.childItems = void 0
+        return
+      }
+
+      //TODO should there be a different sort-order?
+      //     for now: sort ascending by line-number
+      navTree.childItems.sort((a, b) => this._nodeStartLine(a) - this._nodeStartLine(b))
+
+      for (let child of navTree.childItems) {
+        this.prepareNavTree(child)
+      }
     }
   }
 
@@ -167,19 +205,12 @@ class SemanticViewRenderer {
     let domNode = (
       <li className={"node entry exanded list-" + (node.childItems ? "nested-" : "") + "item"}>
         <div className="header list-item" onClick={event => this.entryClicked(event, node)}>
-          <span
-            className={
-              this.getIconForKind(node.kind) + this.getClassForKindModifiers(node.kindModifiers)
-            }>
+          <span className={(node as NavigationTreeExt).styleClasses}>
             {node.text}
           </span>
         </div>
         <ol className="entries list-tree">
-          {node.childItems
-            ? node.childItems
-                .sort((a, b) => this._nodeStartLine(a) - this._nodeStartLine(b)) //TODO should there be a different sort-order? for now: just by line-number
-                .map(sn => this.renderNode(sn, indent + 1))
-            : ""}
+          {node.childItems ? node.childItems.map(sn => this.renderNode(sn, indent + 1)) : ""}
         </ol>
       </li>
     )
@@ -232,9 +263,9 @@ class SemanticViewRenderer {
     if (!kindModifiers) {
       return ""
     } else if (kindModifiers.indexOf(" ") === -1) {
-      return ` modifier-${kindModifiers}`
+      return `modifier-${kindModifiers}`
     } else {
-      return " " + kindModifiers.split(" ").map(modifier => "modifier-" + modifier).join(" ")
+      return kindModifiers.split(" ").map(modifier => "modifier-" + modifier).join(" ")
     }
   }
 
