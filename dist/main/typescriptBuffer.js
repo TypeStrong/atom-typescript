@@ -37,7 +37,7 @@ class TypescriptBuffer {
         this.onDidSave = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             // Check if there isn't a onDidStopChanging event pending.
             const { changedAt, changedAtBatch } = this;
-            if (changedAt && changedAt > changedAtBatch) {
+            if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
                 yield new Promise(resolve => this.events.once("changed", resolve));
             }
             this.events.emit("saved");

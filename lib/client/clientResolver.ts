@@ -1,7 +1,7 @@
 import {TypescriptServiceClient as Client} from "./client"
 import * as events from "events"
 import * as path from "path"
-import {sync as resolveSync} from "resolve"
+import * as Resolve from "resolve"
 import {
   Diagnostic,
   DiagnosticEventBody,
@@ -95,22 +95,32 @@ export class ClientResolver extends events.EventEmitter {
   }
 }
 
-export function resolveServer(sourcePath: string): Promise<Server> {
-  return Promise.resolve().then(() => {
-    const {NODE_PATH} = process.env
-
-    const resolvedPath = resolveSync("typescript/bin/tsserver", {
-      basedir: path.dirname(sourcePath),
-      paths: NODE_PATH && [NODE_PATH],
-    })
-    const packagePath = path.resolve(resolvedPath, "../../package.json")
-    const version = require(packagePath).version
-
-    return {
-      version,
-      serverPath: resolvedPath,
+// Promisify the async resolve function
+const resolveModule = (id: string, opts: Resolve.AsyncOpts): Promise<string> => {
+  return new Promise<string>((resolve, reject) => Resolve(id, opts, (err, result) => {
+    if (err) {
+      reject(err)
+    } else {
+      resolve(result)
     }
+  }))
+}
+
+export async function resolveServer(sourcePath: string): Promise<Server> {
+  const {NODE_PATH} = process.env
+
+  const resolvedPath = await resolveModule("typescript/bin/tsserver", {
+    basedir: path.dirname(sourcePath),
+    paths: NODE_PATH && [NODE_PATH],
   })
+
+  const packagePath = path.resolve(resolvedPath, "../../package.json")
+  const version = require(packagePath).version
+
+  return {
+    version,
+    serverPath: resolvedPath,
+  }
 }
 
 function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {
