@@ -513,7 +513,6 @@ interface IWorkspaceExt extends AtomCore.IWorkspace {
 }
 
 export class SemanticViewPane {
-
   subscriptions: CompositeDisposable | null = null
 
   activate(state: any) {
