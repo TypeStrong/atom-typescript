@@ -23,6 +23,8 @@ interface ElementExt extends Element {
   closest(seletor: string): Element | null
 }
 
+const VIEW_URI = "atomts-semantic-view"
+
 class SemanticViewRenderer {
   private editor: AtomCore.IEditor
   private navTree: NavigationTree | null
@@ -518,7 +520,7 @@ export class SemanticView {
   }
 
   getURI() {
-    return "atom://atomts-semantic-view"
+    return "atom://" + VIEW_URI
   }
   // Tear down any state and detach
   destroy() {
@@ -538,18 +540,25 @@ export class SemanticView {
     return ["left", "right"]
   }
 
-  serialize() {
-    return {
-      // This is used to look up the deserializer function. It can be any string, but it needs to be
-      // unique across all packages!
-      deserializer: "atomts-semantic-view/SemanticView",
-    }
-  }
-
-  static deserializeSemanticView(serialized: any) {
-    //TODO should store & restore the expansion-state of the nodes
-    return new SemanticView({})
-  }
+  //TODO activate serialization/deserialization
+  // add to package.json:
+  // "deserializers": {
+  //   "atomts-semantic-view/SemanticView": "deserializeSemanticView"
+  // },
+  //
+  // serialize() {
+  //   return {
+  //     // This is used to look up the deserializer function. It can be any string, but it needs to be
+  //     // unique across all packages!
+  //     deserializer: "atomts-semantic-view/SemanticView",
+  //     data: {},
+  //   }
+  // }
+  //
+  // static deserializeSemanticView(serialized: any) {
+  //   //TODO should store & restore the expansion-state of the nodes
+  //   return new SemanticView(serialized)
+  // }
 }
 
 export class SemanticViewPane {
@@ -560,7 +569,7 @@ export class SemanticViewPane {
 
     this.subscriptions.add(
       atom.workspace.addOpener((uri: string) => {
-        if (uri === "atom://atomts-semantic-view") {
+        if (uri === "atom://" + VIEW_URI) {
           const view = new SemanticView({})
           view.start()
           return view
@@ -587,17 +596,17 @@ export class SemanticViewPane {
 
   toggle() {
     // console.log("TypeScript Semantic View was toggled!")
-    ;(atom.workspace as IWorkspaceExt).toggle("atom://atomts-semantic-view")
+    ;(atom.workspace as IWorkspaceExt).toggle("atom://" + VIEW_URI)
   }
 
   show() {
     // console.log("TypeScript Semantic View was opened!")
-    atom.workspace.open("atom://atomts-semantic-view", {})
+    atom.workspace.open("atom://" + VIEW_URI, {})
   }
 
   hide() {
     // console.log("TypeScript Semantic View was hidden!")
-    ;(atom.workspace as IWorkspaceExt).hide("atom://atomts-semantic-view")
+    ;(atom.workspace as IWorkspaceExt).hide("atom://" + VIEW_URI)
   }
 }
 
@@ -621,6 +630,6 @@ export function toggle() {
   if (mainPane) {
     mainPane.toggle()
   } else {
-    console.log("cannot toggle: atomts-semantic-view not initialized")
+    console.log(`cannot toggle: ${VIEW_URI} not initialized`)
   }
 }
