@@ -1,7 +1,5 @@
 import atomUtils = require("../utils")
 import {CompositeDisposable} from "atom"
-// import * as sp from "atom-space-pen-views"
-// import * as view from "./view"
 import {clientResolver} from "../../atomts"
 import * as dom from "jsx-render-dom"
 import {NavigationTree} from "typescript/lib/protocol"
@@ -18,6 +16,11 @@ interface IWorkspaceExt extends AtomCore.IWorkspace {
 interface NavigationTreeExt extends NavigationTree {
   styleClasses: string
   childItems?: NavigationTreeExt[]
+}
+
+//experimental interface for Element, see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+interface ElementExt extends Element {
+  closest(seletor: string): Element | null
 }
 
 class SemanticViewRenderer {
@@ -63,8 +66,7 @@ class SemanticViewRenderer {
     this._render()
   }
 
-  forceUpdate() {
-    //FIXME should this be done differently?
+  public forceUpdate() {
     this._render()
   }
 
@@ -187,7 +189,7 @@ class SemanticViewRenderer {
     this.root = node ? node : this.root
     if (!this.root) {
       console.error("cannot render: not initialized yet.")
-      return
+      return ////////////// EARLY EXIT /////////////////
     }
     this.whileRendering = {
       lastCursorLine: this.editor && this.editor.getLastCursor()
@@ -248,7 +250,7 @@ class SemanticViewRenderer {
   }
 
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
-    let target = (event.target as any).closest(".node") as HTMLElement
+    let target = (event.target as ElementExt).closest(".node")
     let isToggle: boolean = false
     //HACK detect click on collapse-/expand-icon: "collapse/expand icon" is 12px wide + 5px margin,
     //     so if <= 15 interpret as "clicked on collapse/expand icon"
@@ -258,7 +260,7 @@ class SemanticViewRenderer {
       let isSelected = target.classList.contains("selected")
       isToggle = event.layerX <= (isSelected ? 15 : 49)
     }
-    console.log(isToggle ? "click-toggle" : "click-scroll")
+    // console.log(isToggle ? "click-toggle" : "click-scroll")
 
     if (!isToggle) {
       this.gotoNode(node)
@@ -273,12 +275,12 @@ class SemanticViewRenderer {
     event.stopPropagation()
   }
 
-  collapseEntry(target: HTMLElement): void {
+  public collapseEntry(target: Element): void {
     target.classList.add("collapsed")
     target.classList.remove("expanded")
   }
 
-  expandEntry(target: HTMLElement): void {
+  public expandEntry(target: Element): void {
     target.classList.add("expanded")
     target.classList.remove("collapsed")
   }
@@ -362,14 +364,11 @@ class SemanticViewRenderer {
       }
 
       if (setSelected) {
-        let labelSpan: Element
         if (this.selectedNode) {
-          labelSpan = /*this.selectedNode.firstElementChild ||*/ this.selectedNode
-          labelSpan.classList.remove("selected")
+          this.selectedNode.classList.remove("selected")
         }
 
-        labelSpan = /*domNode.firstElementChild ||*/ domNode
-        labelSpan.classList.add("selected")
+        domNode.classList.add("selected")
         this.selectedNode = domNode
       }
     }
@@ -482,22 +481,11 @@ class SemanticViewRenderer {
 export interface SemanticViewOptions {}
 
 export class SemanticView {
-  //extends view.ScrollView<SemanticViewOptions> {
-  // public mainContent: JQuery
   public get rootDomElement() {
-    // return this.mainContent[0]
     return this.element
   }
   public element: HTMLElement
   private comp: SemanticViewRenderer | null
-  // static content() {
-  //   return this.div({class: "atomts atomts-semantic-view native-key-bindings"}, () => {
-  //     this.div({
-  //       outlet: "mainContent",
-  //       class: "layout vertical atomts atomts-semantic-view native-key-bindings",
-  //     })
-  //   })
-  // }
 
   constructor(public config: SemanticViewOptions) {
     // super(config)
@@ -534,16 +522,11 @@ export class SemanticView {
   }
   // Tear down any state and detach
   destroy() {
-    // this.element.remove();
-    // this.subscriptions.dispose();
-
     if (this.comp) {
       this.comp.destroy()
       this.comp = null
     }
-    // this.mainContent.remove()
     this.element.remove()
-    // this.started = false
   }
 
   getDefaultLocation() {
@@ -563,7 +546,7 @@ export class SemanticView {
     }
   }
 
-  deserializeSemanticView(serialized: any) {
+  static deserializeSemanticView(serialized: any) {
     //TODO should store & restore the expansion-state of the nodes
     return new SemanticView({})
   }
@@ -579,7 +562,7 @@ export class SemanticViewPane {
       atom.workspace.addOpener((uri: string) => {
         if (uri === "atom://atomts-semantic-view") {
           const view = new SemanticView({})
-          view.start() //FIXME
+          view.start()
           return view
         }
       }),
@@ -603,17 +586,17 @@ export class SemanticViewPane {
   }
 
   toggle() {
-    console.log("TypeScript Semantic View was toggled!")
+    // console.log("TypeScript Semantic View was toggled!")
     ;(atom.workspace as IWorkspaceExt).toggle("atom://atomts-semantic-view")
   }
 
   show() {
-    console.log("TypeScript Semantic View was opened!")
+    // console.log("TypeScript Semantic View was opened!")
     atom.workspace.open("atom://atomts-semantic-view", {})
   }
 
   hide() {
-    console.log("TypeScript Semantic View was hidden!")
+    // console.log("TypeScript Semantic View was hidden!")
     ;(atom.workspace as IWorkspaceExt).hide("atom://atomts-semantic-view")
   }
 }
@@ -621,21 +604,14 @@ export class SemanticViewPane {
 export var mainPane: SemanticViewPane
 export function attach(): {dispose(): void; semanticView: SemanticViewPane} {
   // Only attach once
-  if (mainPane) {
-    return {
-      dispose() {
-        console.log("TODO: Detach the semantic view: ", mainPane)
-      },
-      semanticView: mainPane,
-    }
+  if (!mainPane) {
+    mainPane = new SemanticViewPane()
+    mainPane.activate({})
   }
-
-  mainPane = new SemanticViewPane()
-  mainPane.activate({})
 
   return {
     dispose() {
-      console.log("TODO: Detach the semantic view: ", mainPane)
+      mainPane.deactivate()
     },
     semanticView: mainPane,
   }
