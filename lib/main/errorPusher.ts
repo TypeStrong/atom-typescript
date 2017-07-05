@@ -62,7 +62,6 @@ export class ErrorPusher {
       for (const [filePath, diagnostics] of fileErrors) {
         const _filePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
-
           // Add a bit of extra validation that we have the necessary locations since linter v2
           // does not allow range-less messages anymore. This happens with configFileDiagnostics.
           let {start, end} = diagnostic
@@ -75,7 +74,7 @@ export class ErrorPusher {
             excerpt: diagnostic.text,
             location: {
               file: _filePath,
-              position: locationsToRange(start, end)
+              position: locationsToRange(start, end),
             },
           })
         }
