@@ -411,6 +411,10 @@ class SemanticViewRenderer {
 
       if (setSelected) {
 
+        if(this.selectedNode === domNode){
+          return;
+        }
+
         if (this.selectedNode) {
           this.selectedNode.classList.remove("selected")
         }
