@@ -136,8 +136,6 @@ class SemanticViewRenderer {
 
   //TODO refactor/rename this function if/when React is abandoned
   componentDidMount() {
-    // We listen to a few things
-
     let subscribeToEditor = (editor: AtomCore.IEditor) => {
       if (!editor) {
         unsubscribeFromEditor()
@@ -272,13 +270,41 @@ class SemanticViewRenderer {
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
     let target = (event.target as ElementExt).closest(".node")
     let isToggle: boolean = false
-    //HACK detect click on collapse-/expand-icon: "collapse/expand icon" is 12px wide + 5px margin,
-    //     so if <= 15 interpret as "clicked on collapse/expand icon"
+    //HACK detect click on collapse-/expand-icon: "collapse/expand icon" is icon-width + margin-right/2,
+    //     so if <= icon-width interpret as "clicked on collapse/expand icon"
     //     (cannot directly register/detect click on icons, since inserted via ::before style)
     if (target) {
-      //FIX if not selected, there is an additional offset of ca. 34px
-      let isSelected = target.classList.contains("selected")
-      isToggle = event.layerX <= (isSelected ? 15 : 49)
+      isToggle = target.classList.contains("list-nested-item")
+      if (isToggle) {
+        //get the length of the expand/collapse icon:
+        // its the ::before style of the contained "label", which should be the first .header child
+        let label = target.firstElementChild
+        //TODO optimization: should icon-size calculation only be done once? (+ every time the styling/theme is changed)
+        if (label && label.classList.contains("header")) {
+          //get style of icon, i.e. ::before
+          let style = window.getComputedStyle(label, "::before")
+
+          //use the "outer widht", i.e. "bare" width + padding-right + border-right
+          let iconWidth = parseFloat(style.getPropertyValue("width"))
+          iconWidth += parseFloat(style.getPropertyValue("padding-right"))
+          iconWidth += parseFloat(style.getPropertyValue("border-right-width"))
+
+          //add half of the right margin (i.e. allow to click slightly besides the icon)
+          let iconMarginRight = parseFloat(style.getPropertyValue("margin-right"))
+          iconWidth += iconMarginRight / 2
+          iconWidth = Math.round(iconWidth)
+
+          //FIX if not selected, there is an additional offset of ca. 34px
+          let isSelected = target.classList.contains("selected")
+          isToggle = event.layerX <= (isSelected ? iconWidth : iconWidth + 34)
+        } else {
+          console.warn(
+            "unexpected semantic tree structure: expected first child .header for ",
+            target,
+          )
+          isToggle = false
+        }
+      }
     }
     // console.log(isToggle ? "click-toggle" : "click-scroll")
 
@@ -384,6 +410,7 @@ class SemanticViewRenderer {
       }
 
       if (setSelected) {
+
         if (this.selectedNode) {
           this.selectedNode.classList.remove("selected")
         }
