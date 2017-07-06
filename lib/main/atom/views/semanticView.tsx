@@ -2,6 +2,7 @@ import atomUtils = require("../utils")
 import {CompositeDisposable} from "atom"
 import {clientResolver} from "../../atomts"
 import * as dom from "jsx-render-dom"
+import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 
 //add some missing interface definitions to IWorkspace TODO transfere to typings/atom*
@@ -78,6 +79,9 @@ class SemanticViewRenderer {
 
   private setNavTree(navTree: NavigationTree | null) {
     this.prepareNavTree(navTree as NavigationTreeExt)
+    if (isEqual(navTree, this.navTree)) {
+      return
+    }
     this.navTree = navTree
     this._render()
   }
@@ -410,9 +414,8 @@ class SemanticViewRenderer {
       }
 
       if (setSelected) {
-
-        if(this.selectedNode === domNode){
-          return;
+        if (this.selectedNode === domNode) {
+          return
         }
 
         if (this.selectedNode) {
