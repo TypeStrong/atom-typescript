@@ -262,6 +262,8 @@ class SemanticViewRenderer {
         </ol>
       </li>
     )
+
+    //TODO if using change-aware renderer, these should propably set within HTML/template code:
     domNode.dataset.start = this.getNodeStartLine(node) + ""
     domNode.dataset.end = this.getNodeEndLine(node) + ""
 
