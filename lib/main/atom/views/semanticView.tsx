@@ -10,6 +10,20 @@ interface IWorkspaceExt extends AtomCore.IWorkspace {
   toggle(item: AtomCore.IPane | string): Promise<void>
   hide(item: AtomCore.IPane | string): boolean
   onDidChangeActiveTextEditor(editor: any): AtomCore.Disposable
+  onDidAddPaneItem(callback: (itemInfo: PaneItemInfo) => void): AtomCore.Disposable
+  onDidDestroyPaneItem(callback: (itemInfo: PaneItemInfo) => void): AtomCore.Disposable
+}
+
+//referenced by IWorkspaceExt:
+interface PaneItemInfo {
+  item: any
+  pane: AtomCore.IPane
+  index: number
+}
+
+//add some missing interface definitions to IConfig TODO transfere to typings/atom*
+interface IConfigExt extends AtomCore.IConfig {
+  set<T>(keyPath: string, value: T): any
 }
 
 //interface for attaching some HELPER fields to the NavigationTree
@@ -125,6 +139,10 @@ class SemanticViewRenderer {
     // We listen to a few things
 
     let subscribeToEditor = (editor: AtomCore.IEditor) => {
+      if (!editor) {
+        unsubscribeFromEditor()
+        return
+      }
       this.setEditor(editor)
 
       //set navTree
@@ -562,6 +580,7 @@ export class SemanticView {
 }
 
 export class SemanticViewPane {
+  isOpen: boolean = false
   subscriptions: CompositeDisposable | null = null
 
   activate(state: any) {
@@ -570,6 +589,7 @@ export class SemanticViewPane {
     this.subscriptions.add(
       atom.workspace.addOpener((uri: string) => {
         if (uri === "atom://" + VIEW_URI) {
+          this.isOpen = true
           const view = new SemanticView({})
           view.start()
           return view
@@ -586,6 +606,37 @@ export class SemanticViewPane {
         })
       },
     })
+
+    this.subscriptions.add(
+      (atom.workspace as IWorkspaceExt).onDidAddPaneItem((event: PaneItemInfo) => {
+        if (event.item instanceof SemanticView) {
+          this.isOpen = true
+          ;(atom.config as IConfigExt).set<boolean>("atom-typescript.showSemanticView", true)
+          // console.log("TypeScript Semantic View was opened")
+        }
+      }),
+    )
+
+    this.subscriptions.add(
+      (atom.workspace as IWorkspaceExt).onDidDestroyPaneItem((event: PaneItemInfo) => {
+        if (event.item instanceof SemanticView) {
+          this.isOpen = false
+          ;(atom.config as IConfigExt).set<boolean>("atom-typescript.showSemanticView", false)
+          // console.log("TypeScript Semantic View was closed")
+        }
+      }),
+    )
+
+    this.subscriptions.add(
+      atom.config.onDidChange(
+        "atom-typescript.showSemanticView",
+        (val: {oldValue: boolean; newValue: boolean}) => {
+          this.show(val.newValue)
+        },
+      ),
+    )
+
+    this.show(atom.config.get("atom-typescript.showSemanticView"))
   }
 
   deactivate() {
@@ -594,18 +645,26 @@ export class SemanticViewPane {
     }
   }
 
-  toggle() {
-    // console.log("TypeScript Semantic View was toggled!")
+  toggle(): void {
+    // console.log("TypeScript Semantic View was toggled")
     ;(atom.workspace as IWorkspaceExt).toggle("atom://" + VIEW_URI)
   }
 
-  show() {
-    // console.log("TypeScript Semantic View was opened!")
+  show(isShow?: boolean): void {
+    if (isShow === false) {
+      this.hide()
+      return
+    }
+    // console.log("TypeScript Semantic View was opened")
     atom.workspace.open("atom://" + VIEW_URI, {})
   }
 
-  hide() {
-    // console.log("TypeScript Semantic View was hidden!")
+  hide(isHide?: boolean): void {
+    if (isHide === false) {
+      this.show()
+      return
+    }
+    // console.log("TypeScript Semantic View was hidden")
     ;(atom.workspace as IWorkspaceExt).hide("atom://" + VIEW_URI)
   }
 }

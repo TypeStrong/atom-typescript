@@ -197,6 +197,12 @@ export var config = {
     type: "boolean",
     default: true,
   },
+  showSemanticView: {
+    title: "Show semantic view",
+    description: "Show semantic view (outline) for typescript content",
+    type: "boolean",
+    default: false,
+  },
 }
 
 export async function getProjectConfigPath(sourcePath: string): Promise<string> {
