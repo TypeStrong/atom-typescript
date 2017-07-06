@@ -24,7 +24,7 @@ class ErrorPusher {
                             excerpt: diagnostic.text,
                             location: {
                                 file: _filePath,
-                                position: utils_1.locationsToRange(start, end)
+                                position: utils_1.locationsToRange(start, end),
                             },
                         });
                     }
