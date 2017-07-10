@@ -283,7 +283,7 @@ class SemanticViewRenderer {
 
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
     let target = (event.target as ElementExt).closest(".node")
-    let isToggle: boolean = this.isToggleEntry(target, event.offsetX)
+    let isToggle: boolean = this.isToggleEntry(target, event.layerX)
     // console.log(isToggle ? "click-toggle" : "click-scroll")
 
     if (!isToggle) {
@@ -321,7 +321,7 @@ class SemanticViewRenderer {
    *                        the "x-offset" (in pixel) of the click within the the element
    *                        (i.e. the MouseEvent's layerX field)
    */
-  private isToggleEntry(target: ElementExt | null, offsetX: MouseEvent | number): boolean {
+  private isToggleEntry(target: ElementExt | null, layerX: MouseEvent | number): boolean {
     if (!target) {
       return false
     }
@@ -359,8 +359,8 @@ class SemanticViewRenderer {
 
           iconWidth += leftOffset
         }
-        // console.log('event.offsetX: '+offsetX+' \t left offset '+leftOffset)
-        isToggle = (typeof offsetX === "number" ? offsetX : offsetX.offsetX) <= iconWidth
+        // console.log('event.layerX: '+layerX+' \t left offset '+leftOffset)
+        isToggle = (typeof layerX === "number" ? layerX : layerX.layerX) <= iconWidth
       } else {
         console.warn(
           "unexpected semantic tree structure: expected first child .header for ",
