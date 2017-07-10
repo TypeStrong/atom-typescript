@@ -247,6 +247,14 @@ class SemanticViewRenderer {
     return s[s.length - 1].end.line - 1
   }
 
+  private getDomNodeStartLine(elem: HTMLElement): number {
+    return parseInt(elem.dataset.start as string, 10)
+  }
+
+  private getDomNodeEndLine(elem: HTMLElement): number {
+    return parseInt(elem.dataset.end as string, 10)
+  }
+
   private renderNode(node: NavigationTree, indent: number): HTMLElement {
     let selected = this.isSelected(node)
 
@@ -487,8 +495,8 @@ class SemanticViewRenderer {
       let elem = domNode.children[i] as HTMLElement
       let selectedChild: HTMLElement | null = null
       if (elem.dataset) {
-        let start: number = parseInt(elem.dataset.start as string, 10)
-        let end: number = parseInt(elem.dataset.end as string, 10)
+        let start: number = this.getDomNodeStartLine(elem)
+        let end: number = this.getDomNodeEndLine(elem)
         if (isFinite(start) && isFinite(end)) {
           if (cursorLine >= start && cursorLine <= end) {
             selectedChild = this.findNodeAtCursorLine(elem, cursorLine)
@@ -509,8 +517,8 @@ class SemanticViewRenderer {
     }
 
     if (domNode.dataset) {
-      let start: number = parseInt(domNode.dataset.start as string, 10)
-      let end: number = parseInt(domNode.dataset.end as string, 10)
+      let start: number = this.getDomNodeStartLine(domNode)
+      let end: number = this.getDomNodeEndLine(domNode)
       if (isFinite(start) && isFinite(end) && cursorLine >= start && cursorLine <= end) {
         return domNode
       }
