@@ -283,58 +283,10 @@ class SemanticViewRenderer {
 
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
     let target = (event.target as ElementExt).closest(".node")
-    let isToggable: boolean = false
-    //HACK detect click on collapse-/expand-icon: "collapse/expand icon" is icon-width + margin-right/2,
-    //     so if <= icon-width interpret as "clicked on collapse/expand icon"
-    //     (cannot directly register/detect click on icons, since inserted via ::before style)
-    if (target) {
-      isToggable = target.classList.contains("list-nested-item")
-      if (isToggable) {
-        //get the length of the expand/collapse icon:
-        // its the ::before style of the contained "label", which should be the first .header child
-        let label = target.firstElementChild
-        //TODO optimization: should icon-size calculation only be done once? (+ every time the styling/theme is changed)
-        if (label && label.classList.contains("header")) {
-          //get style of icon, i.e. ::before pseudo element
-          let style = window.getComputedStyle(label, "::before")
-
-          //use the "outer width", i.e. "bare" width + padding-right + border-right
-          let iconWidth = parseFloat(style.getPropertyValue("width"))
-          iconWidth += parseFloat(style.getPropertyValue("padding-right"))
-          iconWidth += parseFloat(style.getPropertyValue("border-right-width"))
-
-          //add half of the right margin (i.e. allow to click slightly besides the icon)
-          let iconMarginRight = parseFloat(style.getPropertyValue("margin-right"))
-          iconWidth += iconMarginRight / 2
-          iconWidth = Math.round(iconWidth)
-
-          let isSelected = target.classList.contains("selected")
-
-          //HACK if not selected, there is an additional offset:
-          if (!isSelected) {
-            let leftOffset: number = (target as HTMLElement).offsetLeft
-            //TODO optimization: computed style would probaly only needed to be calculated once (+ every time style/theme changes)
-            let targetStyle = window.getComputedStyle(target)
-            leftOffset += parseFloat(targetStyle.getPropertyValue("margin-left"))
-            leftOffset += parseFloat(targetStyle.getPropertyValue("padding-left"))
-            leftOffset += parseFloat(targetStyle.getPropertyValue("border-left-width"))
-
-            iconWidth += leftOffset
-          }
-          // console.log('event.layerX: '+event.layerX+' \t left offset '+leftOffset)
-          isToggable = event.layerX <= iconWidth
-        } else {
-          console.warn(
-            "unexpected semantic tree structure: expected first child .header for ",
-            target,
-          )
-          isToggable = false
-        }
-      }
-    }
+    let isToggle: boolean = this.isToggleEntry(target, event.offsetX)
     // console.log(isToggle ? "click-toggle" : "click-scroll")
 
-    if (!isToggable) {
+    if (!isToggle) {
       this.gotoNode(node)
     } else if (target) {
       let isCollapsed = target.classList.contains("collapsed")
@@ -355,6 +307,69 @@ class SemanticViewRenderer {
   public expandEntry(target: Element): void {
     target.classList.add("expanded")
     target.classList.remove("collapsed")
+  }
+
+  /**
+   * HACK detect click on collapse-/expand-icon: "collapse/expand icon" is icon-width + margin-right/2,
+   *      so if <= icon-width interpret as "clicked on collapse/expand icon"
+   *      (cannot directly register/detect click on icons, since inserted via ::before style)
+   *  @param {ElementExt} target
+   *                        the DOM element that was clicked, and needs to be processed, in order
+   *                        to determine, if expand/collapse action should be applied
+   *                        (i.e. if the expand/collapse item of the target element was clicked)
+   *  @param {MouseEvent|number} layerX
+   *                        the "x-offset" (in pixel) of the click within the the element
+   *                        (i.e. the MouseEvent's layerX field)
+   */
+  private isToggleEntry(target: ElementExt | null, offsetX: MouseEvent | number): boolean {
+    if (!target) {
+      return false
+    }
+    let isToggle: boolean = target.classList.contains("list-nested-item")
+    //only continue, if entry as sub-entries (i.e. is nested list item):
+    if (isToggle) {
+      //get the length of the expand/collapse icon:
+      // its the ::before style of the contained "label", which should be the first .header child
+      let label = target.firstElementChild
+      //TODO optimization: should icon-size calculation only be done once? (+ every time the styling/theme is changed)
+      if (label && label.classList.contains("header")) {
+        //get style of icon, i.e. ::before pseudo element
+        let style = window.getComputedStyle(label, "::before")
+
+        //use the "outer width", i.e. "bare" width + padding-right + border-right
+        let iconWidth = parseFloat(style.getPropertyValue("width"))
+        iconWidth += parseFloat(style.getPropertyValue("padding-right"))
+        iconWidth += parseFloat(style.getPropertyValue("border-right-width"))
+
+        //add half of the right margin (i.e. allow to click slightly besides the icon)
+        let iconMarginRight = parseFloat(style.getPropertyValue("margin-right"))
+        iconWidth += iconMarginRight / 2
+        iconWidth = Math.round(iconWidth)
+
+        let isSelected = target.classList.contains("selected")
+
+        //HACK if not selected, there is an additional offset:
+        if (!isSelected) {
+          let leftOffset: number = (target as HTMLElement).offsetLeft
+          //TODO optimization: computed style would probaly only needed to be calculated once (+ every time style/theme changes)
+          let targetStyle = window.getComputedStyle(target)
+          leftOffset += parseFloat(targetStyle.getPropertyValue("margin-left"))
+          leftOffset += parseFloat(targetStyle.getPropertyValue("padding-left"))
+          leftOffset += parseFloat(targetStyle.getPropertyValue("border-left-width"))
+
+          iconWidth += leftOffset
+        }
+        // console.log('event.offsetX: '+offsetX+' \t left offset '+leftOffset)
+        isToggle = (typeof offsetX === "number" ? offsetX : offsetX.offsetX) <= iconWidth
+      } else {
+        console.warn(
+          "unexpected semantic tree structure: expected first child .header for ",
+          target,
+        )
+        isToggle = false
+      }
+    }
+    return isToggle
   }
 
   private getIconForKind(kind: string): string {
