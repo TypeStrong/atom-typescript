@@ -310,19 +310,19 @@ class SemanticViewRenderer {
 
           let isSelected = target.classList.contains("selected")
 
-          //FIX if not selected, there is an additional offset:
-          let leftOffset: number = 0;
-          if(!isSelected){
-            leftOffset = (target as HTMLElement).offsetLeft
+          //HACK if not selected, there is an additional offset:
+          if (!isSelected) {
+            let leftOffset: number = (target as HTMLElement).offsetLeft
             //TODO optimization: computed style would probaly only needed to be calculated once (+ every time style/theme changes)
             let targetStyle = window.getComputedStyle(target)
             leftOffset += parseFloat(targetStyle.getPropertyValue("margin-left"))
             leftOffset += parseFloat(targetStyle.getPropertyValue("padding-left"))
             leftOffset += parseFloat(targetStyle.getPropertyValue("border-left-width"))
+
+            iconWidth += leftOffset
           }
           // console.log('event.layerX: '+event.layerX+' \t left offset '+leftOffset)
-          iconWidth += leftOffset
-          isToggable = event.layerX <=  iconWidth
+          isToggable = event.layerX <= iconWidth
         } else {
           console.warn(
             "unexpected semantic tree structure: expected first child .header for ",
