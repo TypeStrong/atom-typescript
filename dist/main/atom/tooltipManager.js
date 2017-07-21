@@ -15,7 +15,7 @@ const atom_space_pen_views_1 = require("atom-space-pen-views");
 const escape = require("escape-html");
 function getFromShadowDom(element, selector) {
     var el = element[0];
-    var found = el.rootElement.querySelectorAll(selector);
+    var found = el.querySelectorAll(selector);
     return atom_space_pen_views_1.$(found[0]);
 }
 exports.getFromShadowDom = getFromShadowDom;

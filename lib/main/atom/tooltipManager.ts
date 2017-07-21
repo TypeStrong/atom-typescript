@@ -15,7 +15,7 @@ import escape = require("escape-html")
 
 export function getFromShadowDom(element: JQuery, selector: string): JQuery {
   var el = element[0]
-  var found = (<any>el).rootElement.querySelectorAll(selector)
+  var found = (<any>el).querySelectorAll(selector)
   return $(found[0])
 }
 
