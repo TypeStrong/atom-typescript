@@ -79,7 +79,7 @@ export class TypescriptBuffer {
   on(name: "opened", callback: () => void): this // the file is opened
   on(name: "closed", callback: (filePath: string) => void): this // the file is closed
   on(name: "changed", callback: () => void): this // tsserver view of the file has changed
-  on(name: string, callback: () => void): this {
+  on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
     this.events.on(name, callback)
     return this
   }

@@ -14,7 +14,7 @@ export class Callbacks {
   constructor(private onPendingChange: (pending: string[]) => void) {}
 
   add(seq: number, command: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<protocol.Response>((resolve, reject) => {
       this.callbacks.set(seq, {
         name: command,
         resolve,
