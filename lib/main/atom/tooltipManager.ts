@@ -19,6 +19,13 @@ export function getFromShadowDom(element: JQuery, selector: string): JQuery {
   return $(found[0])
 }
 
+  // screen position from mouse event -- with <3 from Atom-Haskell
+export function bufferPositionFromMouseEvent (editor: AtomCore.IEditor, event: MouseEvent) {
+  const sp = (atom.views.getView(editor) as any).component.screenPositionForMouseEvent(event)
+  if (isNaN(sp.row) || isNaN(sp.column)) { return }
+  return (editor as any).bufferPositionForScreenPosition(sp)
+}
+
 export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
   var rawView: any = editorView[0]
 
@@ -46,9 +53,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
   var lastExprTypeBufferPt: any
 
   subscriber.subscribe(scroll, "mousemove", (e: MouseEvent) => {
-    var pixelPt = pixelPositionFromMouseEvent(editorView, e)
-    var screenPt = editor.element.screenPositionForPixelPosition(pixelPt)
-    var bufferPt = editor.bufferPositionForScreenPosition(screenPt)
+    const bufferPt = bufferPositionFromMouseEvent(editor, e)
     if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) return
 
     lastExprTypeBufferPt = bufferPt
@@ -66,11 +71,7 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
     // If we are already showing we should wait for that to clear
     if (exprTypeTooltip) return
 
-    var pixelPt = pixelPositionFromMouseEvent(editorView, e)
-    pixelPt.top += editor.element.getScrollTop()
-    pixelPt.left += editor.element.getScrollLeft()
-    var screenPt = editor.element.screenPositionForPixelPosition(pixelPt)
-    var bufferPt = editor.bufferPositionForScreenPosition(screenPt)
+    const bufferPt = bufferPositionFromMouseEvent(editor, e)
     var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column])
     var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
       bufferPt.row,
