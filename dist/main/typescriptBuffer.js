@@ -87,20 +87,13 @@ class TypescriptBuffer {
     flush() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.changedAt > this.changedAtBatch) {
-                const prevDelay = this.buffer.stoppedChangingDelay;
-                try {
-                    this.buffer.stoppedChangingDelay = 0;
-                    this.buffer.scheduleDidStopChangingEvent();
-                    yield new Promise(resolve => {
-                        const { dispose } = this.buffer.onDidStopChanging(() => {
-                            dispose();
-                            resolve();
-                        });
+                this.buffer.emitDidStopChangingEvent();
+                yield new Promise(resolve => {
+                    const { dispose } = this.buffer.onDidStopChanging(() => {
+                        dispose();
+                        resolve();
                     });
-                }
-                finally {
-                    this.buffer.stoppedChangingDelay = prevDelay;
-                }
+                });
             }
         });
     }
