@@ -19,10 +19,12 @@ export function getFromShadowDom(element: JQuery, selector: string): JQuery {
   return $(found[0])
 }
 
-  // screen position from mouse event -- with <3 from Atom-Haskell
-export function bufferPositionFromMouseEvent (editor: AtomCore.IEditor, event: MouseEvent) {
+// screen position from mouse event -- with <3 from Atom-Haskell
+export function bufferPositionFromMouseEvent(editor: AtomCore.IEditor, event: MouseEvent) {
   const sp = (atom.views.getView(editor) as any).component.screenPositionForMouseEvent(event)
-  if (isNaN(sp.row) || isNaN(sp.column)) { return }
+  if (isNaN(sp.row) || isNaN(sp.column)) {
+    return
+  }
   return (editor as any).bufferPositionForScreenPosition(sp)
 }
 
