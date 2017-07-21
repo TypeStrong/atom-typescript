@@ -117,27 +117,75 @@ export class TypescriptServiceClient {
     return this.execute("saveto", args)
   }
 
-  private async execute(command: "change", args: protocol.ChangeRequestArgs): Promise<undefined> ;
-  private async execute(command: "close", args: protocol.FileRequestArgs): Promise<undefined> ;
-  private async execute(command: "compileOnSaveAffectedFileList", args: protocol.FileRequestArgs): Promise<protocol.CompileOnSaveAffectedFileListResponse> ;
-  private async execute(command: "compileOnSaveEmitFile", args: protocol.CompileOnSaveEmitFileRequestArgs): Promise<protocol.Response & {body: boolean}> ;
-  private async execute(command: "completions", args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> ;
-  private async execute(command: "completionEntryDetails", args: protocol.CompletionDetailsRequestArgs): Promise<protocol.CompletionDetailsResponse> ;
-  private async execute(command: "configure", args: protocol.ConfigureRequestArguments): Promise<undefined> ;
-  private async execute(command: "definition", args: protocol.FileLocationRequestArgs): Promise<protocol.DefinitionResponse> ;
-  private async execute(command: "format", args: protocol.FormatRequestArgs): Promise<protocol.FormatResponse> ;
-  private async execute(command: "getCodeFixes", args: protocol.CodeFixRequestArgs): Promise<protocol.GetCodeFixesResponse> ;
-  private async execute(command: "getSupportedCodeFixes", args: undefined ): Promise<protocol.GetSupportedCodeFixesResponse> ;
-  private async execute(command: "geterr", args: protocol.GeterrRequestArgs): Promise<undefined> ;
-  private async execute(command: "geterrForProject", args: protocol.GeterrForProjectRequestArgs): Promise<undefined> ;
-  private async execute(command: "occurrences", args: protocol.FileLocationRequestArgs): Promise<protocol.OccurrencesResponse> ;
-  private async execute(command: "open", args: protocol.OpenRequestArgs): Promise<undefined> ;
-  private async execute(command: "projectInfo", args: protocol.ProjectInfoRequestArgs): Promise<protocol.ProjectInfoResponse> ;
-  private async execute(command: "quickinfo", args: protocol.FileLocationRequestArgs): Promise<protocol.QuickInfoResponse> ;
-  private async execute(command: "references", args: protocol.FileLocationRequestArgs): Promise<protocol.ReferencesResponse> ;
-  private async execute(command: "reload", args: protocol.ReloadRequestArgs): Promise<protocol.ReloadResponse> ;
-  private async execute(command: "rename", args: protocol.RenameRequestArgs): Promise<protocol.RenameResponse> ;
-  private async execute(command: "saveto", args: protocol.SavetoRequestArgs): Promise<undefined> ;
+  private async execute(command: "change", args: protocol.ChangeRequestArgs): Promise<undefined>
+  private async execute(command: "close", args: protocol.FileRequestArgs): Promise<undefined>
+  private async execute(
+    command: "compileOnSaveAffectedFileList",
+    args: protocol.FileRequestArgs,
+  ): Promise<protocol.CompileOnSaveAffectedFileListResponse>
+  private async execute(
+    command: "compileOnSaveEmitFile",
+    args: protocol.CompileOnSaveEmitFileRequestArgs,
+  ): Promise<protocol.Response & {body: boolean}>
+  private async execute(
+    command: "completions",
+    args: protocol.CompletionsRequestArgs,
+  ): Promise<protocol.CompletionsResponse>
+  private async execute(
+    command: "completionEntryDetails",
+    args: protocol.CompletionDetailsRequestArgs,
+  ): Promise<protocol.CompletionDetailsResponse>
+  private async execute(
+    command: "configure",
+    args: protocol.ConfigureRequestArguments,
+  ): Promise<undefined>
+  private async execute(
+    command: "definition",
+    args: protocol.FileLocationRequestArgs,
+  ): Promise<protocol.DefinitionResponse>
+  private async execute(
+    command: "format",
+    args: protocol.FormatRequestArgs,
+  ): Promise<protocol.FormatResponse>
+  private async execute(
+    command: "getCodeFixes",
+    args: protocol.CodeFixRequestArgs,
+  ): Promise<protocol.GetCodeFixesResponse>
+  private async execute(
+    command: "getSupportedCodeFixes",
+    args: undefined,
+  ): Promise<protocol.GetSupportedCodeFixesResponse>
+  private async execute(command: "geterr", args: protocol.GeterrRequestArgs): Promise<undefined>
+  private async execute(
+    command: "geterrForProject",
+    args: protocol.GeterrForProjectRequestArgs,
+  ): Promise<undefined>
+  private async execute(
+    command: "occurrences",
+    args: protocol.FileLocationRequestArgs,
+  ): Promise<protocol.OccurrencesResponse>
+  private async execute(command: "open", args: protocol.OpenRequestArgs): Promise<undefined>
+  private async execute(
+    command: "projectInfo",
+    args: protocol.ProjectInfoRequestArgs,
+  ): Promise<protocol.ProjectInfoResponse>
+  private async execute(
+    command: "quickinfo",
+    args: protocol.FileLocationRequestArgs,
+  ): Promise<protocol.QuickInfoResponse>
+  private async execute(
+    command: "references",
+    args: protocol.FileLocationRequestArgs,
+  ): Promise<protocol.ReferencesResponse>
+  private async execute(
+    command: "reload",
+    args: protocol.ReloadRequestArgs,
+  ): Promise<protocol.ReloadResponse>
+  private async execute(
+    command: "rename",
+    args: protocol.RenameRequestArgs,
+  ): Promise<protocol.RenameResponse>
+  private async execute(command: "saveto", args: protocol.SavetoRequestArgs): Promise<undefined>
   private async execute(command: string, args: any) {
     if (!this.serverPromise) {
       throw new Error("Server is not running")
