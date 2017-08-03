@@ -68,7 +68,9 @@
     "tsconfig": "^6.0.0",
     "tslib": "1.2.0",
     "typescript": "~2.3.4",
-    "xtend": "^4.0.0"
+    "xtend": "^4.0.0",
+    "fs-plus": "^3.0.0",
+    "atom-select-list": "^0.1.0"
   },
   "devDependencies": {
     "@types/atom": "0.0.35",

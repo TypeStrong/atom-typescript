@@ -20,3 +20,13 @@
 '.platform-win32, .platform-linux, .platform-darwin':
   'f8': 'typescript:go-to-next'
   'shift-f8': 'typescript:go-to-previous'
+
+# Bindings for file symbols
+'.platform-darwin atom-text-editor:not([mini])[data-grammar^="source ts"]':
+  'cmd-r': 'typescript:toggle-file-symbols'
+
+'.platform-win32 atom-text-editor:not([mini])[data-grammar^="source ts"]':
+  'ctrl-r': 'typescript:toggle-file-symbols'
+
+'.platform-linux atom-text-editor:not([mini])[data-grammar^="source ts"]':
+  'ctrl-r': 'typescript:toggle-file-symbols'

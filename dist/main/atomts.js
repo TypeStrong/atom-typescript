@@ -5,6 +5,7 @@ const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const semanticView_1 = require("./atom/views/semanticView");
+const symbolsViewMain_1 = require("./atom/views/symbolsViewMain");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
@@ -37,6 +38,7 @@ function activate(state) {
         // Add the rename view
         const { renameView } = renameView_1.attach();
         const { semanticView } = semanticView_1.attach();
+        const { fileSymbolsView } = symbolsViewMain_1.attach();
         const statusPanel = statusPanel_1.StatusPanel.create();
         statusBar.addRightTile({
             item: statusPanel,
@@ -77,6 +79,7 @@ function activate(state) {
             },
             renameView,
             semanticView,
+            fileSymbolsView,
             statusPanel,
         });
         let activePane;
@@ -164,6 +167,12 @@ exports.config = {
         description: "Show unused values with severity 'info' instead of 'error'",
         type: "boolean",
         default: true,
+    },
+    showSemanticView: {
+        title: "Show semantic view",
+        description: "Show semantic view (outline) for typescript content",
+        type: "boolean",
+        default: false,
     },
 };
 function getProjectConfigPath(sourcePath) {
