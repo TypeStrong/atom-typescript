@@ -6,6 +6,12 @@ import {match} from "fuzzaldrin"
 import {clientResolver} from "../../atomts"
 import {NavigationTree} from "typescript/lib/protocol"
 
+/**
+ * this is a modified copy of symbols-view/lib/file-view.js
+ * for support of searching file-symbols in typescript files,
+ * utilizing the typescript service instead of ctag.
+ */
+
 export class FileView extends SymbolsView {
   cachedTags: any
   editorsSubscription: any

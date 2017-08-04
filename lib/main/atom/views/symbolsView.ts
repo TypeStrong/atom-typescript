@@ -3,6 +3,11 @@ import {Point} from "atom"
 import fs from "fs-plus"
 import {match} from "fuzzaldrin"
 
+/**
+ * this is a slightly modified copy of symbols-view/lib/symbols-view.js
+ * for support of searching file-symbols in typescript files.
+ */
+
 export default class SymbolsView {
   stack: any
   selectListView: any

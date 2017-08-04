@@ -1,6 +1,11 @@
 import {CompositeDisposable} from "atom"
 import {FileView} from "./fileSymbolsView"
 
+/**
+ * this is a slightly modified copy of symbols-view/lib/main.js
+ * for support of searching file-symbols in typescript files.
+ */
+
 export class FileSymbolsView {
   private stack: Array<Position>
   editorSubscription: CompositeDisposable | null = null
