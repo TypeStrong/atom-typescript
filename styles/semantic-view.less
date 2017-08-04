@@ -1,5 +1,6 @@
 // From https://github.com/xndcn/symbols-tree-view
 @import "ui-variables";
+@import "syntax-variables";
 @font-face {
   font-family: 'symbol-icons';
   src: url('atom://atom-typescript/images/symbol-icons.woff') format('woff');
@@ -105,6 +106,20 @@
     // module like
     .icon-namespace::before {
       .symbol-icon(symbol-namespace);
+    }
+
+    //icon-colors for access-modifiers
+    //  (note: currently re-uses syntax-colors for git status)
+    .modifier-public::before {
+      color: @syntax-color-renamed;
+    }
+
+    .modifier-protected::before {
+      color: @syntax-color-modified;
+    }
+
+    .modifier-private::before {
+      color: @syntax-color-removed;
     }
 
 }
