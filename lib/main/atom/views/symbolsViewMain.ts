@@ -4,8 +4,7 @@ import {FileView} from "./fileSymbolsView"
 export class FileSymbolsView {
   private stack: Array<Position>
   editorSubscription: CompositeDisposable | null = null
-  workspaceSubscription: CompositeDisposable | null = null
-  fileView: any
+  fileView: FileView | null
 
   activate() {
     this.stack = []
@@ -22,11 +21,6 @@ export class FileSymbolsView {
     if (this.fileView != null) {
       this.fileView.destroy()
       this.fileView = null
-    }
-
-    if (this.workspaceSubscription != null) {
-      this.workspaceSubscription.dispose()
-      this.workspaceSubscription = null
     }
 
     if (this.editorSubscription != null) {
