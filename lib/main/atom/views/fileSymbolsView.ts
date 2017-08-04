@@ -57,6 +57,7 @@ export class FileView extends SymbolsView {
   }
 
   didChangeSelection(item: any) {
+    //NOTE uses the "parent" package's setting (i.e. from symbols-view):
     if (atom.config.get("symbols-view.quickJumpToFileSymbol") && item) {
       this.openTag(item)
     }
@@ -78,9 +79,10 @@ export class FileView extends SymbolsView {
     const filePath = this.getPath()
     if (filePath) {
       const editor = this.getEditor()
-      // if (atom.config.get('symbols-view.quickJumpToFileSymbol') && editor) {
-      //   this.initialState = this.serializeEditorState(editor);
-      // }
+      //NOTE uses the "parent" package's setting (i.e. from symbols-view):
+      if (atom.config.get("symbols-view.quickJumpToFileSymbol") && editor) {
+        this.initialState = this.serializeEditorState(editor)
+      }
       this.populate(filePath)
       this.attach()
     }
