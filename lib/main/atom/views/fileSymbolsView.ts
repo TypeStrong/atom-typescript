@@ -177,6 +177,7 @@ export class FileView extends SymbolsView {
     }
   }
 
+  //TODO optimize? when semantic-view is open, and has the current navTree -> use that instead of requesting it again?
   private async getNavTree(filePath: string): Promise<NavigationTree | null> {
     try {
       const client = await clientResolver.get(filePath)
@@ -208,7 +209,7 @@ export class Tag {
   }
 
   getType(kind: string): string {
-    //FIXME need to convert from ctag
+    //TODO need to convert from ctag, but since this seem to be unused anyway...
     // switch(kind){
     //   case 'class':
     //   case 'struct':
