@@ -58,7 +58,7 @@ export class TypescriptBuffer {
       const prevDelay = this.buffer.stoppedChangingDelay
       try {
         this.buffer.stoppedChangingDelay = 0
-        this.buffer.scheduleDidStopChangingEvent()
+        this.buffer.debouncedEmitDidStopChangingEvent()
         await new Promise(resolve => {
           const {dispose} = this.buffer.onDidStopChanging(() => {
             dispose()
