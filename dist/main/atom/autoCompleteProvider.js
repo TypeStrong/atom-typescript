@@ -95,7 +95,16 @@ class AutocompleteProvider {
                 details.body.forEach((detail, i) => {
                     const suggestion = suggestions[i];
                     suggestion.details = detail;
-                    suggestion.rightLabel = detail.displayParts.map(d => d.text).join("");
+                    let parts = detail.displayParts;
+                    if (parts[1] &&
+                        parts[1].text === suggestion.leftLabel &&
+                        parts[0] &&
+                        parts[0].text === "(" &&
+                        parts[2] &&
+                        parts[2].text === ")") {
+                        parts = parts.slice(3);
+                    }
+                    suggestion.rightLabel = parts.map(d => d.text).join("");
                     if (detail.documentation) {
                         suggestion.description = detail.documentation.map(d => d.text).join(" ");
                     }
