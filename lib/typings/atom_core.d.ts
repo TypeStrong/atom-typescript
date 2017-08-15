@@ -2,6 +2,7 @@ declare namespace AtomCore {
   interface IEditor {
     onDidChangeGrammar(callback: (grammar: IGrammar) => any): Disposable
     gutterWithName(name: string): Gutter | null
+    scrollToBufferPosition(pos: IPoint, options?: {center: boolean}): void
   }
   interface IConfig {
     onDidChange(opt: string, callback: (val: {oldValue: any; newValue: any}) => void): Disposable
@@ -14,6 +15,9 @@ declare namespace AtomCore {
     isVisible(): boolean
     hide()
     show()
+  }
+  interface IWorkspace {
+    buildTextEditor(options: {}): IEditor
   }
 }
 
