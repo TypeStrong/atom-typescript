@@ -37,5 +37,6 @@ declare namespace TextBuffer {
     onDidDestroy(callback: Function): AtomCore.Disposable
     onWillThrowWatchError(callback: Function): AtomCore.Disposable
     emitDidStopChangingEvent()
+    debouncedEmitDidStopChangingEvent()
   }
 }
