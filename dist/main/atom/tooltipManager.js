@@ -15,10 +15,19 @@ const atom_space_pen_views_1 = require("atom-space-pen-views");
 const escape = require("escape-html");
 function getFromShadowDom(element, selector) {
     var el = element[0];
-    var found = el.rootElement.querySelectorAll(selector);
+    var found = el.querySelectorAll(selector);
     return atom_space_pen_views_1.$(found[0]);
 }
 exports.getFromShadowDom = getFromShadowDom;
+// screen position from mouse event -- with <3 from Atom-Haskell
+function bufferPositionFromMouseEvent(editor, event) {
+    const sp = atom.views.getView(editor).component.screenPositionForMouseEvent(event);
+    if (isNaN(sp.row) || isNaN(sp.column)) {
+        return;
+    }
+    return editor.bufferPositionForScreenPosition(sp);
+}
+exports.bufferPositionFromMouseEvent = bufferPositionFromMouseEvent;
 function attach(editorView, editor) {
     var rawView = editorView[0];
     // Only on ".ts" files
@@ -42,9 +51,7 @@ function attach(editorView, editor) {
     // to debounce mousemove event's firing for some reason on some machines
     var lastExprTypeBufferPt;
     subscriber.subscribe(scroll, "mousemove", (e) => {
-        var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-        var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
-        var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
+        const bufferPt = bufferPositionFromMouseEvent(editor, e);
         if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
             return;
         lastExprTypeBufferPt = bufferPt;
@@ -60,11 +67,7 @@ function attach(editorView, editor) {
             // If we are already showing we should wait for that to clear
             if (exprTypeTooltip)
                 return;
-            var pixelPt = pixelPositionFromMouseEvent(editorView, e);
-            pixelPt.top += editor.element.getScrollTop();
-            pixelPt.left += editor.element.getScrollLeft();
-            var screenPt = editor.element.screenPositionForPixelPosition(pixelPt);
-            var bufferPt = editor.bufferPositionForScreenPosition(screenPt);
+            const bufferPt = bufferPositionFromMouseEvent(editor, e);
             var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
             var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
                 bufferPt.row,

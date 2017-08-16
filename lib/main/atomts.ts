@@ -84,7 +84,7 @@ export function activate(state: PackageState) {
       getTypescriptBuffer,
       async getClient(filePath: string) {
         const pane = panes.find(pane => pane.filePath === filePath)
-        if (pane) {
+        if (pane && pane.client) {
           return pane.client
         }
 
