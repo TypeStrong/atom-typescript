@@ -10,9 +10,7 @@ exports.consistentPath = consistentPath;
 const path = require("path");
 // Atom uses system dependent path separators while Typescript uses /. Unfortunately, we
 // needs this to make sure things like lint errors work.
-exports.systemPath = path.sep === "\\"
-    ? filePath => filePath.replace(/\//g, "\\")
-    : filePath => filePath;
+exports.systemPath = path.sep === "\\" ? filePath => filePath.replace(/\//g, "\\") : filePath => filePath;
 /**
  * Resolves to to an absolute path.
  * @param from,to,to,to...

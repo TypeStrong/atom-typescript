@@ -42,7 +42,7 @@ export class ClientResolver extends events.EventEmitter {
   // This is just here so Typescript can infer the types of the callbacks when using "on" method
   on(event: "diagnostics", callback: (result: DiagnosticsPayload) => void): this
   on(event: "pendingRequestsChange", callback: () => void): this
-  on(event: string, callback: () => void): this {
+  on(event: string, callback: (() => void) | ((result: DiagnosticsPayload) => void)): this {
     return super.on(event, callback)
   }
 

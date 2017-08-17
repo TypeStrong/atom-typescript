@@ -6,17 +6,16 @@ class TsView extends HTMLElement {
     createdCallback() {
         var preview = this.innerText;
         this.innerText = "";
-        // Based on markdown editor
-        // https://github.com/atom/markdown-preview/blob/2bcbadac3980f1aeb455f7078bd1fdfb4e6fe6b1/lib/renderer.coffee#L111
-        var editorElement = (this.editorElement = document.createElement("atom-text-editor"));
-        editorElement.setAttributeNode(document.createAttribute("gutter-hidden"));
+        this.editor = atom.workspace.buildTextEditor({
+            lineNumberGutterVisible: false,
+            softWrapped: true,
+            mini: true,
+        });
+        var editorElement = atom.views.getView(this.editor);
         editorElement.removeAttribute("tabindex"); // make read-only
-        var editor = (this.editor = editorElement.getModel());
-        editor.getDecorations({ class: "cursor-line", type: "line" })[0].destroy(); // remove the default selection of a line in each editor
-        editor.setText(preview);
-        var grammar = atom.grammars.grammarForScopeName("source.tsx");
-        editor.setGrammar(grammar);
-        editor.setSoftWrapped(true);
+        this.editor.setText(preview);
+        this.editor.setGrammar(atom.grammars.grammarForScopeName("source.tsx"));
+        this.editor.scrollToBufferPosition([0, 0]);
         this.appendChild(editorElement);
     }
     // API
