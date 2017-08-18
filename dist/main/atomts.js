@@ -69,7 +69,7 @@ function activate(state) {
             getClient(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const pane = panes.find(pane => pane.filePath === filePath);
-                    if (pane) {
+                    if (pane && pane.client) {
                         return pane.client;
                     }
                     return exports.clientResolver.get(filePath);
