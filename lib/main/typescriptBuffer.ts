@@ -55,19 +55,13 @@ export class TypescriptBuffer {
   // If there are any pending changes, flush them out to the Typescript server
   async flush() {
     if (this.changedAt > this.changedAtBatch) {
-      const prevDelay = this.buffer.stoppedChangingDelay
-      try {
-        this.buffer.stoppedChangingDelay = 0
-        this.buffer.scheduleDidStopChangingEvent()
-        await new Promise(resolve => {
-          const {dispose} = this.buffer.onDidStopChanging(() => {
-            dispose()
-            resolve()
-          })
+      this.buffer.debouncedEmitDidStopChangingEvent()
+      await new Promise(resolve => {
+        const {dispose} = this.buffer.onDidStopChanging(() => {
+          dispose()
+          resolve()
         })
-      } finally {
-        this.buffer.stoppedChangingDelay = prevDelay
-      }
+      })
     }
   }
 
@@ -85,7 +79,7 @@ export class TypescriptBuffer {
   on(name: "opened", callback: () => void): this // the file is opened
   on(name: "closed", callback: (filePath: string) => void): this // the file is closed
   on(name: "changed", callback: () => void): this // tsserver view of the file has changed
-  on(name: string, callback: () => void): this {
+  on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
     this.events.on(name, callback)
     return this
   }

@@ -1,9 +1,7 @@
 "use strict";
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./atom"));
-__export(require("./fs"));
-__export(require("./ts"));
+const tslib_1 = require("tslib");
+tslib_1.__exportStar(require("./atom"), exports);
+tslib_1.__exportStar(require("./fs"), exports);
+tslib_1.__exportStar(require("./ts"), exports);
 //# sourceMappingURL=index.js.map
