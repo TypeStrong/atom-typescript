@@ -10,8 +10,9 @@ import * as path from "path"
 
 // Atom uses system dependent path separators while Typescript uses /. Unfortunately, we
 // needs this to make sure things like lint errors work.
-export const systemPath: (filePath: string) => string =
-  path.sep === "\\" ? filePath => filePath.replace(/\//g, "\\") : filePath => filePath
+export const systemPath: (filePath: string) => string = path.sep === "\\"
+  ? filePath => filePath.replace(/\//g, "\\")
+  : filePath => filePath
 
 /**
  * Resolves to to an absolute path.
