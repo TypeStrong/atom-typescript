@@ -190,6 +190,10 @@ export class TypescriptServiceClient {
     args: protocol.RenameRequestArgs,
   ): Promise<protocol.RenameResponse>
   private async execute(command: "saveto", args: protocol.SavetoRequestArgs): Promise<undefined>
+  private async execute(
+    command: "navtree",
+    args: protocol.FileRequestArgs,
+  ): Promise<protocol.NavTreeResponse>
   private async execute(command: string, args: any) {
     if (!this.serverPromise) {
       throw new Error("Server is not running")
