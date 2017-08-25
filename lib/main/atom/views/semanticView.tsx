@@ -345,10 +345,10 @@ class SemanticViewRenderer {
   private getClassForKindModifiers(kindModifiers: string): string {
     if (!kindModifiers) {
       return ""
-    } else if (kindModifiers.indexOf(" ") === -1) {
+    } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
       return `modifier-${kindModifiers}`
     } else {
-      return kindModifiers.split(" ").map(modifier => "modifier-" + modifier).join(" ")
+      return kindModifiers.split(/[, ]/).map(modifier => "modifier-" + modifier.trim()).join(" ")
     }
   }
 
