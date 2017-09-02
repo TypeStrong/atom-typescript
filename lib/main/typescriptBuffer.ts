@@ -1,6 +1,6 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
-import {CompositeDisposable} from "atom"
+import {CompositeDisposable, Disposable} from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
 import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
@@ -55,15 +55,17 @@ export class TypescriptBuffer {
   // If there are any pending changes, flush them out to the Typescript server
   async flush() {
     if (this.changedAt > this.changedAtBatch) {
-      try {
-        await new Promise(resolve => {
-          const {dispose} = this.buffer.onDidStopChanging(() => {
-            dispose()
-            resolve()
-          })
-          this.buffer.emitDidStopChangingEvent()
+      let sub: Disposable | undefined
+      await new Promise(resolve => {
+        sub = this.buffer.onDidStopChanging(() => {
+          resolve()
         })
-      } finally {
+
+        this.buffer.emitDidStopChangingEvent()
+      })
+
+      if (sub) {
+        sub.dispose()
       }
     }
   }
