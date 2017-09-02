@@ -55,13 +55,15 @@ export class TypescriptBuffer {
   // If there are any pending changes, flush them out to the Typescript server
   async flush() {
     if (this.changedAt > this.changedAtBatch) {
-      this.buffer.debouncedEmitDidStopChangingEvent()
-      await new Promise(resolve => {
-        const {dispose} = this.buffer.onDidStopChanging(() => {
-          dispose()
-          resolve()
+      try {
+        await new Promise(resolve => {
+          const {dispose} = this.buffer.onDidStopChanging(() => {
+            dispose()
+            resolve()
+          })
+          this.buffer.emitDidStopChangingEvent()
         })
-      })
+      } finally {}
     }
   }
 
