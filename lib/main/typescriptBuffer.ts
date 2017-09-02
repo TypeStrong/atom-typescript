@@ -63,7 +63,8 @@ export class TypescriptBuffer {
           })
           this.buffer.emitDidStopChangingEvent()
         })
-      } finally {}
+      } finally {
+      }
     }
   }
 
