@@ -74,7 +74,7 @@ function resolveServer(sourcePath) {
         const { NODE_PATH } = process.env;
         const resolvedPath = yield resolveModule("typescript/bin/tsserver", {
             basedir: path.dirname(sourcePath),
-            paths: NODE_PATH && [NODE_PATH],
+            paths: NODE_PATH && NODE_PATH.split(path.delimiter),
         });
         const packagePath = path.resolve(resolvedPath, "../../package.json");
         const version = require(packagePath).version;

@@ -15,6 +15,7 @@ registry_1.commands.set("typescript:build", deps => {
             needFileNameList: true,
         });
         const files = new Set(projectInfo.body.fileNames);
+        files.delete(projectInfo.body.configFileName);
         const max = files.size;
         const promises = [...files.values()].map(file => _finally(client.executeCompileOnSaveEmitFile({ file, forced: true }), () => {
             files.delete(file);
@@ -27,7 +28,8 @@ registry_1.commands.set("typescript:build", deps => {
             }
             deps.statusPanel.setBuildStatus({ success: true });
         })
-            .catch(() => {
+            .catch((e) => {
+            console.error(e);
             deps.statusPanel.setBuildStatus({ success: false });
         });
         deps.statusPanel.setBuildStatus(undefined);
