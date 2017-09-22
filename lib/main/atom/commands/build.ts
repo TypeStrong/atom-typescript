@@ -16,6 +16,7 @@ commands.set("typescript:build", deps => {
     })
 
     const files = new Set(projectInfo.body!.fileNames)
+    files.delete(projectInfo.body!.configFileName)
     const max = files.size
     const promises = [...files.values()].map(file =>
       _finally(client.executeCompileOnSaveEmitFile({file, forced: true}), () => {
@@ -32,7 +33,8 @@ commands.set("typescript:build", deps => {
 
         deps.statusPanel.setBuildStatus({success: true})
       })
-      .catch(() => {
+      .catch(e => {
+        console.error(e)
         deps.statusPanel.setBuildStatus({success: false})
       })
 
