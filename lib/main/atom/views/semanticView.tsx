@@ -214,9 +214,10 @@ class SemanticViewRenderer {
       return ////////////// EARLY EXIT /////////////////
     }
     this.whileRendering = {
-      lastCursorLine: this.editor && this.editor.getLastCursor()
-        ? this.editor.getLastCursor().getBufferRow()
-        : null,
+      lastCursorLine:
+        this.editor && this.editor.getLastCursor()
+          ? this.editor.getLastCursor().getBufferRow()
+          : null,
     }
     this.selectedNode = null
     if (!this.navTree) {
@@ -437,9 +438,10 @@ class SemanticViewRenderer {
    */
   selectAtCursorLine(): void {
     this.whileRendering = {
-      lastCursorLine: this.editor && this.editor.getLastCursor()
-        ? this.editor.getLastCursor().getBufferRow()
-        : null,
+      lastCursorLine:
+        this.editor && this.editor.getLastCursor()
+          ? this.editor.getLastCursor().getBufferRow()
+          : null,
     }
 
     let cursorLine = this.whileRendering.lastCursorLine
