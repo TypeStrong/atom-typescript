@@ -12,7 +12,7 @@
     "build": "tsc -p ./lib",
     "grammar": "ts-node scripts/grammar.ts",
     "prettier": "ts-node scripts/prettier.ts write",
-    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && tsc --noEmit -p ./spec && ts-node scripts/prettier.ts check && curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh"
+    "test": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && tsc --noEmit -p ./spec && ts-node scripts/prettier.ts check"
   },
   "engines": {
     "atom": ">=1.19.0 <2.0.0",
