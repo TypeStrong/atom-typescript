@@ -2,3 +2,4 @@ language: node_js
 node_js:
   - "6.3"
 sudo: false
+script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh'
