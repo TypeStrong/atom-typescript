@@ -1,5 +1,3 @@
-/// <reference path="../lib/typings/index" />
-
 import {expect} from "chai"
 import {join} from "path"
 

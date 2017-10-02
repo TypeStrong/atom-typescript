@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "types": ["atom", "mocha"]
-  },
   "compileOnSave": false,
   "extends": "../lib/tsconfig.json"
 }
