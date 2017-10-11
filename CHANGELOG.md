@@ -1,6 +1,7 @@
 # Changelog
 
 ## 11.0.10
+* Hide Remove redundant autocomplete label text
 * Update the grammar to fix several highlighting issues
 * Add a framework for writing specs
 
@@ -9,5 +10,4 @@
 * TypeScript 2.5: exclude tsconfig.json from project files on emit
 
 ## 11.0.8
-**Fixed:**
-- Speed up autocomplete and fix a disposable leak (@GlenCFL https://github.com/TypeStrong/atom-typescript/pull/1337)
+* Speed up autocomplete and fix a disposable leak
