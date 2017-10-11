@@ -103,17 +103,4 @@ const atomStatements = [
   },
 ]
 
-const atomExpressions = [
-  {
-    comment: "Match Angular 2 Component html templates",
-    begin: "(?:(?<=^|\\stemplate:)|(?<=/\\*\\* @html \\*/))\\s*(`)",
-    beginCaptures: {
-      "1": {name: "name: string.template.ts"},
-    },
-    end: "(?<!\\\\)`",
-    endCaptures: {
-      "0": {name: "name: string.template.ts"},
-    },
-    patterns: [{include: "text.html.basic"}],
-  },
-]
+const atomExpressions = []
