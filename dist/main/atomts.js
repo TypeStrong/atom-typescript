@@ -26,7 +26,9 @@ let linter;
 let statusBar;
 const codefixProvider = new codefixProvider_1.CodefixProvider(exports.clientResolver);
 function activate(state) {
-    require("atom-package-deps").install("atom-typescript", true).then(() => {
+    require("atom-package-deps")
+        .install("atom-typescript", true)
+        .then(() => {
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
             if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {

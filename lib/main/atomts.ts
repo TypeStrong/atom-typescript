@@ -31,129 +31,131 @@ const codefixProvider = new CodefixProvider(clientResolver)
 interface PackageState {}
 
 export function activate(state: PackageState) {
-  require("atom-package-deps").install("atom-typescript", true).then(() => {
-    let statusPriority = 100
-    for (const panel of statusBar.getRightTiles()) {
-      if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
-        statusPriority = panel.getPriority() - 1
+  require("atom-package-deps")
+    .install("atom-typescript", true)
+    .then(() => {
+      let statusPriority = 100
+      for (const panel of statusBar.getRightTiles()) {
+        if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+          statusPriority = panel.getPriority() - 1
+        }
       }
-    }
 
-    // Add the rename view
-    const {renameView} = attachRenameView()
-    const statusPanel = StatusPanel.create()
+      // Add the rename view
+      const {renameView} = attachRenameView()
+      const statusPanel = StatusPanel.create()
 
-    statusBar.addRightTile({
-      item: statusPanel,
-      priority: statusPriority,
-    })
-
-    subscriptions.add(statusPanel)
-    const errorPusher = new ErrorPusher()
-    errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
-    subscriptions.add(
-      atom.config.onDidChange(
-        "atom-typescript.unusedAsInfo",
-        (val: {oldValue: boolean; newValue: boolean}) => {
-          errorPusher.setUnusedAsInfo(val.newValue)
-        },
-      ),
-    )
-
-    codefixProvider.errorPusher = errorPusher
-    codefixProvider.getTypescriptBuffer = getTypescriptBuffer
-
-    clientResolver.on("pendingRequestsChange", () => {
-      const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
-      statusPanel.setPending(pending)
-    })
-
-    if (linter) {
-      errorPusher.setLinter(linter)
-
-      clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
-        errorPusher.setErrors(type, filePath, diagnostics)
+      statusBar.addRightTile({
+        item: statusPanel,
+        priority: statusPriority,
       })
-    }
 
-    // Register the commands
-    registerCommands({
-      clearErrors() {
-        errorPusher.clear()
-      },
-      getTypescriptBuffer,
-      async getClient(filePath: string) {
-        const pane = panes.find(pane => pane.filePath === filePath)
-        if (pane && pane.client) {
-          return pane.client
-        }
+      subscriptions.add(statusPanel)
+      const errorPusher = new ErrorPusher()
+      errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
+      subscriptions.add(
+        atom.config.onDidChange(
+          "atom-typescript.unusedAsInfo",
+          (val: {oldValue: boolean; newValue: boolean}) => {
+            errorPusher.setUnusedAsInfo(val.newValue)
+          },
+        ),
+      )
 
-        return clientResolver.get(filePath)
-      },
-      renameView,
-      statusPanel,
-    })
+      codefixProvider.errorPusher = errorPusher
+      codefixProvider.getTypescriptBuffer = getTypescriptBuffer
 
-    let activePane: TypescriptEditorPane | undefined
+      clientResolver.on("pendingRequestsChange", () => {
+        const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
+        statusPanel.setPending(pending)
+      })
 
-    const onSave = debounce((pane: TypescriptEditorPane) => {
-      if (!pane.client) return
+      if (linter) {
+        errorPusher.setLinter(linter)
 
-      const files = panes
-        .sort((a, b) => a.activeAt - b.activeAt)
-        .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
-        .map(pane => pane.filePath)
+        clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+          errorPusher.setErrors(type, filePath, diagnostics)
+        })
+      }
 
-      pane.client.executeGetErr({files, delay: 100})
-    }, 50)
-
-    subscriptions.add(
-      atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
-        panes.push(
-          new TypescriptEditorPane(editor, {
-            getClient: (filePath: string) => clientResolver.get(filePath),
-            onClose(filePath) {
-              // Clear errors if any from this file
-              errorPusher.setErrors("syntaxDiag", filePath, [])
-              errorPusher.setErrors("semanticDiag", filePath, [])
-            },
-            onDispose(pane) {
-              if (activePane === pane) {
-                activePane = undefined
-              }
-
-              panes.splice(panes.indexOf(pane), 1)
-            },
-            onSave,
-            statusPanel,
-          }),
-        )
-      }),
-    )
-
-    activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
-
-    if (activePane) {
-      activePane.onActivated()
-    }
-
-    subscriptions.add(
-      atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-        if (activePane) {
-          activePane.onDeactivated()
-          activePane = undefined
-        }
-
-        if (atom.workspace.isTextEditor(editor)) {
-          const pane = panes.find(pane => pane.editor === editor)
-          if (pane) {
-            activePane = pane
-            pane.onActivated()
+      // Register the commands
+      registerCommands({
+        clearErrors() {
+          errorPusher.clear()
+        },
+        getTypescriptBuffer,
+        async getClient(filePath: string) {
+          const pane = panes.find(pane => pane.filePath === filePath)
+          if (pane && pane.client) {
+            return pane.client
           }
-        }
-      }),
-    )
-  })
+
+          return clientResolver.get(filePath)
+        },
+        renameView,
+        statusPanel,
+      })
+
+      let activePane: TypescriptEditorPane | undefined
+
+      const onSave = debounce((pane: TypescriptEditorPane) => {
+        if (!pane.client) return
+
+        const files = panes
+          .sort((a, b) => a.activeAt - b.activeAt)
+          .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
+          .map(pane => pane.filePath)
+
+        pane.client.executeGetErr({files, delay: 100})
+      }, 50)
+
+      subscriptions.add(
+        atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+          panes.push(
+            new TypescriptEditorPane(editor, {
+              getClient: (filePath: string) => clientResolver.get(filePath),
+              onClose(filePath) {
+                // Clear errors if any from this file
+                errorPusher.setErrors("syntaxDiag", filePath, [])
+                errorPusher.setErrors("semanticDiag", filePath, [])
+              },
+              onDispose(pane) {
+                if (activePane === pane) {
+                  activePane = undefined
+                }
+
+                panes.splice(panes.indexOf(pane), 1)
+              },
+              onSave,
+              statusPanel,
+            }),
+          )
+        }),
+      )
+
+      activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
+
+      if (activePane) {
+        activePane.onActivated()
+      }
+
+      subscriptions.add(
+        atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
+          if (activePane) {
+            activePane.onDeactivated()
+            activePane = undefined
+          }
+
+          if (atom.workspace.isTextEditor(editor)) {
+            const pane = panes.find(pane => pane.editor === editor)
+            if (pane) {
+              activePane = pane
+              pane.onActivated()
+            }
+          }
+        }),
+      )
+    })
 }
 
 export function deactivate() {

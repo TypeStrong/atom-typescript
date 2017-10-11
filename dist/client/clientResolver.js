@@ -22,7 +22,9 @@ class ClientResolver extends events.EventEmitter {
         return super.on(event, callback);
     }
     get(filePath) {
-        return resolveServer(filePath).catch(() => defaultServer).then(({ serverPath, version }) => {
+        return resolveServer(filePath)
+            .catch(() => defaultServer)
+            .then(({ serverPath, version }) => {
             if (this.clients[serverPath]) {
                 return this.clients[serverPath].client;
             }

@@ -23,7 +23,10 @@ exports.resolve = resolve;
  * Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
  */
 function makeRelativePath(relativeFolder, filePath) {
-    var relativePath = path.relative(relativeFolder, filePath).split("\\").join("/");
+    var relativePath = path
+        .relative(relativeFolder, filePath)
+        .split("\\")
+        .join("/");
     if (relativePath[0] !== ".") {
         relativePath = "./" + relativePath;
     }

@@ -28,7 +28,7 @@ registry_1.commands.set("typescript:build", deps => {
             }
             deps.statusPanel.setBuildStatus({ success: true });
         })
-            .catch((e) => {
+            .catch(e => {
             console.error(e);
             deps.statusPanel.setBuildStatus({ success: false });
         });
