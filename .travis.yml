@@ -1,4 +1,5 @@
 language: node_js
 node_js:
   - "6.3"
-sudo: false
+install: echo Not running \"npm install\"
+script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh && npm test'

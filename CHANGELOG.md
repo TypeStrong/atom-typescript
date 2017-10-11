@@ -1,5 +1,8 @@
 # Changelog
 
+## 11.0.10
+* Add a framework for writing specs
+
 ## 11.0.9
 * Handle multiple directories in NODE\_PATH
 * TypeScript 2.5: exclude tsconfig.json from project files on emit
