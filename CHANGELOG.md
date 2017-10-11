@@ -1,6 +1,7 @@
 # Changelog
 
 ## 11.0.10
+* Update the grammar to fix several highlighting issues
 * Add a framework for writing specs
 
 ## 11.0.9
