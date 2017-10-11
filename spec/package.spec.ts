@@ -4,6 +4,8 @@ import {join} from "path"
 const Package = join(__dirname, "..")
 
 describe("atom-typescript", function() {
+  this.timeout(8000)
+
   it("should activate", async () => {
     const packages: any = atom.packages
 
