@@ -51,10 +51,13 @@ export function clone<T>(target: T): T {
 export function createMap(
   arr: (string | number)[],
 ): {[string: string]: boolean; [number: number]: boolean} {
-  return arr.reduce((result: {[string: string]: boolean}, key: string) => {
-    result[key] = true
-    return result
-  }, <{[string: string]: boolean}>{})
+  return arr.reduce(
+    (result: {[string: string]: boolean}, key: string) => {
+      result[key] = true
+      return result
+    },
+    <{[string: string]: boolean}>{},
+  )
 }
 
 /**

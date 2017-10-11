@@ -1026,9 +1026,9 @@
       "dev": true
     },
     "prettier": {
-      "version": "1.5.3",
-      "from": "https://registry.npmjs.org/prettier/-/prettier-1.5.3.tgz",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.5.3.tgz",
+      "version": "1.7.4",
+      "from": "prettier@latest",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.7.4.tgz",
       "dev": true
     },
     "process": {
