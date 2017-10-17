@@ -80,7 +80,9 @@ class AutocompleteProvider {
             }
             const alphaPrefix = prefix.replace(/\W/g, "");
             if (alphaPrefix !== "") {
-                suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, { key: "text" });
+                suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
+                    key: "text",
+                });
             }
             // Get additional details for the first few suggestions
             yield this.getAdditionalDetails(suggestions.slice(0, 10), location);

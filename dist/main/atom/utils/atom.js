@@ -119,14 +119,18 @@ function getOpenTypeScritEditorsConsistentPaths() {
 }
 exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
-    var notification = atom.notifications.addSuccess(htmlMessage, { dismissable: true });
+    var notification = atom.notifications.addSuccess(htmlMessage, {
+        dismissable: true,
+    });
     setTimeout(() => {
         notification.dismiss();
     }, 800);
 }
 exports.quickNotifySuccess = quickNotifySuccess;
 function quickNotifyWarning(htmlMessage) {
-    var notification = atom.notifications.addWarning(htmlMessage, { dismissable: true });
+    var notification = atom.notifications.addWarning(htmlMessage, {
+        dismissable: true,
+    });
     setTimeout(() => {
         notification.dismiss();
     }, 800);
