@@ -15,9 +15,16 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 
 **Dependencies**:
 
-- Either both `linter` and `linter-ui-default` or `atom-ide-ui` for message display
-- `hyperclick` for mouse-driven go-to-declaration
-- `intentions` or `atom-ide-ui` again for [quick fix](#quick-fix)
+Atom-TypeScript relies on some external packages for providing some of its GUI. You basically have two options.
+
+**Option 1**: Install `atom-ide-ui` package.
+
+**Option 2**: Install the following packages:
+
+- `linter`
+- `linter-ui-default`
+- `hyperclick`
+- `intentions`
 
 **Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md).
 
@@ -81,7 +88,7 @@ Shortcut `shift+F12`. Also called *find usages*.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux.
+Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux when using `intentions`, `alt+a` when using `atom-ide-ui`.
 Currently available codefixes:
 https://github.com/Microsoft/TypeScript/tree/master/src/services/codefixes
 
