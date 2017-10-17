@@ -5,6 +5,7 @@ import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
 import {CodefixProvider} from "./atom/codefixProvider"
+import {CodefixActionProvider} from "./atom/codeActionsProvider"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -27,6 +28,7 @@ import {registerCommands} from "./atom/commands"
 let linter: Linter
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
+const codefixActionProvider = new CodefixActionProvider(clientResolver)
 
 interface PackageState {}
 
@@ -64,6 +66,8 @@ export function activate(state: PackageState) {
 
       codefixProvider.errorPusher = errorPusher
       codefixProvider.getTypescriptBuffer = getTypescriptBuffer
+      codefixActionProvider.errorPusher = errorPusher
+      codefixActionProvider.getTypescriptBuffer = getTypescriptBuffer
 
       clientResolver.on("pendingRequestsChange", () => {
         const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
@@ -185,6 +189,10 @@ export function provideIntentions() {
   return codefixProvider
 }
 
+export function provideCodeActions(): CodefixActionProvider {
+  return codefixActionProvider
+}
+
 export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
 }
@@ -200,7 +208,10 @@ export var config = {
 
 export async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
-  const result = await client.executeProjectInfo({needFileNameList: false, file: sourcePath})
+  const result = await client.executeProjectInfo({
+    needFileNameList: false,
+    file: sourcePath,
+  })
   return result.body!.configFileName
 }
 

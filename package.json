@@ -36,14 +36,19 @@
         "2.0.0": "provide"
       }
     },
-    "hyperclick.provider": {
+    "hyperclick": {
       "versions": {
-        "0.0.0": "hyperclickProvider"
+        "0.1.0": "hyperclickProvider"
       }
     },
     "intentions:list": {
       "versions": {
         "1.0.0": "provideIntentions"
+      }
+    },
+    "code-actions": {
+      "versions": {
+        "0.1.0": "provideCodeActions"
       }
     }
   },
