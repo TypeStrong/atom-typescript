@@ -131,14 +131,18 @@ export function getOpenTypeScritEditorsConsistentPaths() {
 }
 
 export function quickNotifySuccess(htmlMessage: string) {
-  var notification = atom.notifications.addSuccess(htmlMessage, {dismissable: true})
+  var notification = atom.notifications.addSuccess(htmlMessage, {
+    dismissable: true,
+  })
   setTimeout(() => {
     notification.dismiss()
   }, 800)
 }
 
 export function quickNotifyWarning(htmlMessage: string) {
-  var notification = atom.notifications.addWarning(htmlMessage, {dismissable: true})
+  var notification = atom.notifications.addWarning(htmlMessage, {
+    dismissable: true,
+  })
   setTimeout(() => {
     notification.dismiss()
   }, 800)

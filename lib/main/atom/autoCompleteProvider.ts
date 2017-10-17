@@ -72,7 +72,10 @@ export class AutocompleteProvider implements Provider {
     }
 
     const client = await this.clientResolver.get(location.file)
-    const completions = await client.executeCompletions({prefix, ...location})
+    const completions = await client.executeCompletions({
+      prefix,
+      ...location,
+    })
 
     const suggestions = completions.body!.map(entry => ({
       text: entry.name,
@@ -133,7 +136,9 @@ export class AutocompleteProvider implements Provider {
 
     const alphaPrefix = prefix.replace(/\W/g, "")
     if (alphaPrefix !== "") {
-      suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {key: "text"})
+      suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
+        key: "text",
+      })
     }
 
     // Get additional details for the first few suggestions
