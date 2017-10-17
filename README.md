@@ -9,8 +9,15 @@ JavaScript developers can now just open a `.ts` file and start hacking away like
 ## Installation
 
 1. Install [atom](https://atom.io).
-2. `apm install atom-typescript` (`apm` needs `git` in your path)
-3. Fire up atom. Open a TypeScript file. Potentially wait for further installs (just `apm install linter` if its not there already).
+2. Install dependencies (see below)
+3. `apm install atom-typescript` (`apm` needs `git` in your path)
+4. Fire up atom. Open a TypeScript file.
+
+**Dependencies**:
+
+- Either both `linter` and `linter-ui-default` or `atom-ide-ui` for message display
+- `hyperclick` for mouse-driven go-to-declaration
+- `intentions` or `atom-ide-ui` again for [quick fix](#quick-fix)
 
 **Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md).
 
