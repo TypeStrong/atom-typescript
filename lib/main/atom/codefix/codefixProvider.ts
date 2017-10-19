@@ -1,8 +1,6 @@
 import {ClientResolver} from "../../../client/clientResolver"
-import {compact, flatten, debounce} from "lodash"
-import {CompositeDisposable} from "atom"
 import {ErrorPusher} from "../../errorPusher"
-import {getEditorPosition, spanToRange, pointToLocation} from "../utils"
+import {spanToRange, pointToLocation} from "../utils"
 import {GetTypescriptBuffer} from "../commands/registry"
 import {TypescriptServiceClient} from "../../../client/client"
 
