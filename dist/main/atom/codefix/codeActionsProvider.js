@@ -9,7 +9,7 @@ class CodeActionsProvider {
     }
     getCodeActions(textEditor, range, diagnostics) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.codefixProvider.runCodeFix(textEditor, range.start, fix => ({
+            return (yield this.codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
                 getTitle: () => tslib_1.__awaiter(this, void 0, void 0, function* () { return fix.description; }),
                 dispose: () => { },
                 apply: () => tslib_1.__awaiter(this, void 0, void 0, function* () {

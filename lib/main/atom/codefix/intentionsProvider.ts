@@ -24,7 +24,7 @@ export class IntentionsProvider implements IIntentionsProvider {
   constructor(private codefixProvider: CodefixProvider) {}
 
   async getIntentions({bufferPosition, textEditor}: GetIntentionsOptions): Promise<Intention[]> {
-    return this.codefixProvider.runCodeFix(textEditor, bufferPosition, fix => ({
+    return (await this.codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
       priority: 100,
       title: fix.description,
       selected: () => {

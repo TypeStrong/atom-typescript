@@ -33,7 +33,7 @@ export class CodeActionsProvider implements CodeActionProvider {
     range: TextBuffer.IRange,
     diagnostics: Message[],
   ): Promise<CodeAction[]> {
-    return this.codefixProvider.runCodeFix(textEditor, range.start, fix => ({
+    return (await this.codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
       getTitle: async () => fix.description,
       dispose: () => {},
       apply: async () => {

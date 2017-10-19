@@ -14,11 +14,10 @@ export class CodefixProvider {
     this.clientResolver = clientResolver
   }
 
-  async runCodeFix<ResultT>(
+  async runCodeFix(
     textEditor: AtomCore.IEditor,
     bufferPosition: TextBuffer.IPoint,
-    formatCodeFix: (fix: protocol.CodeAction) => ResultT,
-  ): Promise<ResultT[]> {
+  ): Promise<protocol.CodeAction[]> {
     const filePath = textEditor.getPath()
 
     if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
@@ -43,12 +42,12 @@ export class CodefixProvider {
       )
 
     const fixes = await Promise.all(requests)
-    const results: ResultT[] = []
+    const results: protocol.CodeAction[] = []
 
     for (const result of fixes) {
       if (result.body) {
         for (const fix of result.body) {
-          results.push(formatCodeFix(fix))
+          results.push(fix)
         }
       }
     }

@@ -7,7 +7,7 @@ class CodefixProvider {
         this.supportedFixes = new WeakMap();
         this.clientResolver = clientResolver;
     }
-    runCodeFix(textEditor, bufferPosition, formatCodeFix) {
+    runCodeFix(textEditor, bufferPosition) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const filePath = textEditor.getPath();
             if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
@@ -31,7 +31,7 @@ class CodefixProvider {
             for (const result of fixes) {
                 if (result.body) {
                     for (const fix of result.body) {
-                        results.push(formatCodeFix(fix));
+                        results.push(fix);
                     }
                 }
             }

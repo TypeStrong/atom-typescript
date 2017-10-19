@@ -8,7 +8,7 @@ class IntentionsProvider {
     }
     getIntentions({ bufferPosition, textEditor }) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.codefixProvider.runCodeFix(textEditor, bufferPosition, fix => ({
+            return (yield this.codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
                 priority: 100,
                 title: fix.description,
                 selected: () => {
