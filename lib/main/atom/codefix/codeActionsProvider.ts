@@ -37,7 +37,7 @@ export class CodeActionsProvider implements CodeActionProvider {
       getTitle: async () => fix.description,
       dispose: () => {},
       apply: async () => {
-        this.codefixProvider.applyFix(fix)
+        await this.codefixProvider.applyFix(fix)
       },
     }))
   }

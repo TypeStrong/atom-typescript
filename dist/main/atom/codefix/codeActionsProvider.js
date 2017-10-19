@@ -13,7 +13,7 @@ class CodeActionsProvider {
                 getTitle: () => tslib_1.__awaiter(this, void 0, void 0, function* () { return fix.description; }),
                 dispose: () => { },
                 apply: () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    this.codefixProvider.applyFix(fix);
+                    yield this.codefixProvider.applyFix(fix);
                 }),
             }));
         });
