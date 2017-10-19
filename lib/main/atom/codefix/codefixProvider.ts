@@ -77,7 +77,7 @@ export class CodefixProvider {
       const {buffer, isOpen} = await this.getTypescriptBuffer(f.fileName)
 
       buffer.buffer.transact(() => {
-        for (const edit of f.textChanges) {
+        for (const edit of f.textChanges.reverse()) {
           buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
         }
       })

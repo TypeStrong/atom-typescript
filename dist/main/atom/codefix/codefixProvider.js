@@ -58,7 +58,7 @@ class CodefixProvider {
             for (const f of fix.changes) {
                 const { buffer, isOpen } = yield this.getTypescriptBuffer(f.fileName);
                 buffer.buffer.transact(() => {
-                    for (const edit of f.textChanges) {
+                    for (const edit of f.textChanges.reverse()) {
                         buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
                     }
                 });
