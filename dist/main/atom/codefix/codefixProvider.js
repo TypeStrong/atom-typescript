@@ -1,15 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const utils_1 = require("./utils");
-class CodefixActionProvider {
+const utils_1 = require("../utils");
+class CodefixProvider {
     constructor(clientResolver) {
-        this.clientResolver = clientResolver;
         this.supportedFixes = new WeakMap();
-        this.grammarScopes = ["source.ts", "source.tsx"];
-        this.priority = 0;
+        this.clientResolver = clientResolver;
     }
-    getCodeActions(textEditor, range, diagnostics) {
+    runCodeFix(textEditor, bufferPosition, formatCodeFix) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const filePath = textEditor.getPath();
             if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
@@ -18,7 +16,7 @@ class CodefixActionProvider {
             const client = yield this.clientResolver.get(filePath);
             const supportedCodes = yield this.getSupportedFixes(client);
             const requests = this.errorPusher
-                .getErrorsAt(filePath, utils_1.pointToLocation(range.start))
+                .getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
                 .filter(error => error.code && supportedCodes.has(error.code))
                 .map(error => client.executeGetCodeFixes({
                 file: filePath,
@@ -33,26 +31,7 @@ class CodefixActionProvider {
             for (const result of fixes) {
                 if (result.body) {
                     for (const fix of result.body) {
-                        results.push({
-                            getTitle: () => tslib_1.__awaiter(this, void 0, void 0, function* () { return fix.description; }),
-                            dispose: () => { },
-                            apply: () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                                for (const f of fix.changes) {
-                                    const { buffer, isOpen } = yield this.getTypescriptBuffer(f.fileName);
-                                    buffer.buffer.transact(() => {
-                                        for (const edit of f.textChanges) {
-                                            buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
-                                        }
-                                    });
-                                    if (!isOpen) {
-                                        buffer.buffer.save();
-                                        buffer.on("saved", () => {
-                                            buffer.buffer.destroy();
-                                        });
-                                    }
-                                }
-                            }),
-                        });
+                        results.push(formatCodeFix(fix));
                     }
                 }
             }
@@ -74,6 +53,22 @@ class CodefixActionProvider {
             return codes;
         });
     }
+    applyFix(fix) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            for (const f of fix.changes) {
+                const { buffer, isOpen } = yield this.getTypescriptBuffer(f.fileName);
+                buffer.buffer.transact(() => {
+                    for (const edit of f.textChanges) {
+                        buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
+                    }
+                });
+                if (!isOpen) {
+                    ;
+                    buffer.buffer.save().then(() => buffer.buffer.destroy());
+                }
+            }
+        });
+    }
 }
-exports.CodefixActionProvider = CodefixActionProvider;
-//# sourceMappingURL=codeActionsProvider.js.map
+exports.CodefixProvider = CodefixProvider;
+//# sourceMappingURL=codefixProvider.js.map

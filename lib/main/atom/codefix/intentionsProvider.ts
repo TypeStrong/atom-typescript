@@ -1,0 +1,42 @@
+import {ClientResolver} from "../../../client/clientResolver"
+import {compact, flatten, debounce} from "lodash"
+import {CompositeDisposable} from "atom"
+import {ErrorPusher} from "../../errorPusher"
+import {getEditorPosition, spanToRange, pointToLocation} from "../utils"
+import {GetTypescriptBuffer} from "../commands/registry"
+import {TypescriptServiceClient} from "../../../client/client"
+import {CodefixProvider} from "./codefixProvider"
+
+interface Intention {
+  priority: number
+  icon?: string
+  class?: string
+  title: string
+  selected: () => void
+}
+
+interface IIntentionsProvider {
+  grammarScopes: string[]
+  getIntentions: (opts: GetIntentionsOptions) => Intention[] | Promise<Intention[]>
+}
+
+interface GetIntentionsOptions {
+  bufferPosition: TextBuffer.IPoint
+  textEditor: AtomCore.IEditor
+}
+
+export class IntentionsProvider implements IIntentionsProvider {
+  grammarScopes = ["*"]
+
+  constructor(private codefixProvider: CodefixProvider) {}
+
+  async getIntentions({bufferPosition, textEditor}: GetIntentionsOptions): Promise<Intention[]> {
+    return this.codefixProvider.runCodeFix(textEditor, bufferPosition, fix => ({
+      priority: 100,
+      title: fix.description,
+      selected: () => {
+        this.codefixProvider.applyFix(fix)
+      },
+    }))
+  }
+}

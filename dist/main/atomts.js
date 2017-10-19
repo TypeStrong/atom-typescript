@@ -7,8 +7,7 @@ const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
-const codefixProvider_1 = require("./atom/codefixProvider");
-const codeActionsProvider_1 = require("./atom/codeActionsProvider");
+const codefix_1 = require("./atom/codefix");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const errorPusher_1 = require("./errorPusher");
@@ -25,8 +24,7 @@ require("./atom/components");
 const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
-const codefixProvider = new codefixProvider_1.CodefixProvider(exports.clientResolver);
-const codefixActionProvider = new codeActionsProvider_1.CodefixActionProvider(exports.clientResolver);
+const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 function activate(state) {
     require("atom-package-deps")
         .install("atom-typescript", true)
@@ -52,8 +50,6 @@ function activate(state) {
         }));
         codefixProvider.errorPusher = errorPusher;
         codefixProvider.getTypescriptBuffer = getTypescriptBuffer;
-        codefixActionProvider.errorPusher = errorPusher;
-        codefixActionProvider.getTypescriptBuffer = getTypescriptBuffer;
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
@@ -154,11 +150,11 @@ function provide() {
 }
 exports.provide = provide;
 function provideIntentions() {
-    return codefixProvider;
+    return new codefix_1.IntentionsProvider(codefixProvider);
 }
 exports.provideIntentions = provideIntentions;
 function provideCodeActions() {
-    return codefixActionProvider;
+    return new codefix_1.CodeActionsProvider(codefixProvider);
 }
 exports.provideCodeActions = provideCodeActions;
 function hyperclickProvider() {

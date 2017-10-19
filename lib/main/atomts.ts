@@ -4,8 +4,7 @@ import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
-import {CodefixProvider} from "./atom/codefixProvider"
-import {CodefixActionProvider} from "./atom/codeActionsProvider"
+import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -28,7 +27,6 @@ import {registerCommands} from "./atom/commands"
 let linter: Linter
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
-const codefixActionProvider = new CodefixActionProvider(clientResolver)
 
 interface PackageState {}
 
@@ -66,8 +64,6 @@ export function activate(state: PackageState) {
 
       codefixProvider.errorPusher = errorPusher
       codefixProvider.getTypescriptBuffer = getTypescriptBuffer
-      codefixActionProvider.errorPusher = errorPusher
-      codefixActionProvider.getTypescriptBuffer = getTypescriptBuffer
 
       clientResolver.on("pendingRequestsChange", () => {
         const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
@@ -186,11 +182,11 @@ export function provide() {
 }
 
 export function provideIntentions() {
-  return codefixProvider
+  return new IntentionsProvider(codefixProvider)
 }
 
-export function provideCodeActions(): CodefixActionProvider {
-  return codefixActionProvider
+export function provideCodeActions(): CodeActionsProvider {
+  return new CodeActionsProvider(codefixProvider)
 }
 
 export function hyperclickProvider() {

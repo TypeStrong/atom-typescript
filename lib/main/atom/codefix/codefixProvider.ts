@@ -1,41 +1,26 @@
-import {ClientResolver} from "../../client/clientResolver"
+import {ClientResolver} from "../../../client/clientResolver"
 import {compact, flatten, debounce} from "lodash"
 import {CompositeDisposable} from "atom"
-import {ErrorPusher} from "../errorPusher"
-import {getEditorPosition, spanToRange, pointToLocation} from "./utils"
-import {GetTypescriptBuffer} from "./commands/registry"
-import {TypescriptServiceClient} from "../../client/client"
+import {ErrorPusher} from "../../errorPusher"
+import {getEditorPosition, spanToRange, pointToLocation} from "../utils"
+import {GetTypescriptBuffer} from "../commands/registry"
+import {TypescriptServiceClient} from "../../../client/client"
 
-interface Intention {
-  priority: number
-  icon?: string
-  class?: string
-  title: string
-  selected: () => void
-}
-
-interface IntentionsProvider {
-  grammarScopes: string[]
-  getIntentions: (opts: GetIntentionsOptions) => Intention[] | Promise<Intention[]>
-}
-
-interface GetIntentionsOptions {
-  bufferPosition: TextBuffer.IPoint
-  textEditor: AtomCore.IEditor
-}
-
-export class CodefixProvider implements IntentionsProvider {
+export class CodefixProvider {
   clientResolver: ClientResolver
   errorPusher: ErrorPusher
   getTypescriptBuffer: GetTypescriptBuffer
-  grammarScopes = ["*"]
   supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
 
   constructor(clientResolver: ClientResolver) {
     this.clientResolver = clientResolver
   }
 
-  async getIntentions({bufferPosition, textEditor}: GetIntentionsOptions): Promise<Intention[]> {
+  async runCodeFix<ResultT>(
+    textEditor: AtomCore.IEditor,
+    bufferPosition: TextBuffer.IPoint,
+    formatCodeFix: (fix: protocol.CodeAction) => ResultT,
+  ): Promise<ResultT[]> {
     const filePath = textEditor.getPath()
 
     if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
@@ -60,33 +45,12 @@ export class CodefixProvider implements IntentionsProvider {
       )
 
     const fixes = await Promise.all(requests)
-    const results: Intention[] = []
+    const results: ResultT[] = []
 
     for (const result of fixes) {
       if (result.body) {
         for (const fix of result.body) {
-          results.push({
-            priority: 100,
-            title: fix.description,
-            selected: () => {
-              fix.changes.forEach(async fix => {
-                const {buffer, isOpen} = await this.getTypescriptBuffer(fix.fileName)
-
-                buffer.buffer.transact(() => {
-                  for (const edit of fix.textChanges) {
-                    buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
-                  }
-                })
-
-                if (!isOpen) {
-                  buffer.buffer.save()
-                  buffer.on("saved", () => {
-                    buffer.buffer.destroy()
-                  })
-                }
-              })
-            },
-          })
+          results.push(formatCodeFix(fix))
         }
       }
     }
@@ -109,5 +73,21 @@ export class CodefixProvider implements IntentionsProvider {
     codes = new Set(result.body.map(code => parseInt(code, 10)))
     this.supportedFixes.set(client, codes)
     return codes
+  }
+
+  async applyFix(fix: protocol.CodeAction) {
+    for (const f of fix.changes) {
+      const {buffer, isOpen} = await this.getTypescriptBuffer(f.fileName)
+
+      buffer.buffer.transact(() => {
+        for (const edit of f.textChanges) {
+          buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
+        }
+      })
+
+      if (!isOpen) {
+        ;(buffer.buffer.save() as any).then(() => buffer.buffer.destroy())
+      }
+    }
   }
 }
