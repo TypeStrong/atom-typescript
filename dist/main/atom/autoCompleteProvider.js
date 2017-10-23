@@ -10,7 +10,7 @@ class AutocompleteProvider {
         this.selector = ".source.ts, .source.tsx";
         this.disableForSelector = ".comment";
         this.inclusionPriority = 3;
-        this.suggestionPriority = 3;
+        this.suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority");
         this.excludeLowerPriority = false;
         this.clientResolver = clientResolver;
         this.opts = opts;

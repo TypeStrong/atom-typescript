@@ -27,6 +27,11 @@
       "description": "Show unused values with severity 'info' instead of 'error'",
       "type": "boolean",
       "default": true
+    },
+    "autocompletionSuggestionPriority": {
+      "description": "Snippets etc have priority of 1. Requires Atom restart",
+      "type": "integer",
+      "default": 3
     }
   },
   "consumedServices": {
