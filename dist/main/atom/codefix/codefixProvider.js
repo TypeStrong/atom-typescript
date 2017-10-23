@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const utils_1 = require("./utils");
+const utils_1 = require("../utils");
 class CodefixProvider {
     constructor(clientResolver) {
-        this.grammarScopes = ["*"];
         this.supportedFixes = new WeakMap();
         this.clientResolver = clientResolver;
     }
-    getIntentions({ bufferPosition, textEditor }) {
+    runCodeFix(textEditor, bufferPosition) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const filePath = textEditor.getPath();
             if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
@@ -32,26 +31,7 @@ class CodefixProvider {
             for (const result of fixes) {
                 if (result.body) {
                     for (const fix of result.body) {
-                        results.push({
-                            priority: 100,
-                            title: fix.description,
-                            selected: () => {
-                                fix.changes.forEach((fix) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                                    const { buffer, isOpen } = yield this.getTypescriptBuffer(fix.fileName);
-                                    buffer.buffer.transact(() => {
-                                        for (const edit of fix.textChanges) {
-                                            buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
-                                        }
-                                    });
-                                    if (!isOpen) {
-                                        buffer.buffer.save();
-                                        buffer.on("saved", () => {
-                                            buffer.buffer.destroy();
-                                        });
-                                    }
-                                }));
-                            },
-                        });
+                        results.push(fix);
                     }
                 }
             }
@@ -71,6 +51,22 @@ class CodefixProvider {
             codes = new Set(result.body.map(code => parseInt(code, 10)));
             this.supportedFixes.set(client, codes);
             return codes;
+        });
+    }
+    applyFix(fix) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            for (const f of fix.changes) {
+                const { buffer, isOpen } = yield this.getTypescriptBuffer(f.fileName);
+                buffer.buffer.transact(() => {
+                    for (const edit of f.textChanges.reverse()) {
+                        buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
+                    }
+                });
+                if (!isOpen) {
+                    ;
+                    buffer.buffer.save().then(() => buffer.buffer.destroy());
+                }
+            }
         });
     }
 }

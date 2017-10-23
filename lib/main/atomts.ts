@@ -4,7 +4,7 @@ import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
-import {CodefixProvider} from "./atom/codefixProvider"
+import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
@@ -182,7 +182,11 @@ export function provide() {
 }
 
 export function provideIntentions() {
-  return codefixProvider
+  return new IntentionsProvider(codefixProvider)
+}
+
+export function provideCodeActions(): CodeActionsProvider {
+  return new CodeActionsProvider(codefixProvider)
 }
 
 export function hyperclickProvider() {
@@ -200,7 +204,10 @@ export var config = {
 
 export async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
-  const result = await client.executeProjectInfo({needFileNameList: false, file: sourcePath})
+  const result = await client.executeProjectInfo({
+    needFileNameList: false,
+    file: sourcePath,
+  })
   return result.body!.configFileName
 }
 

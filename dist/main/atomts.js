@@ -7,7 +7,7 @@ const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
-const codefixProvider_1 = require("./atom/codefixProvider");
+const codefix_1 = require("./atom/codefix");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const errorPusher_1 = require("./errorPusher");
@@ -24,7 +24,7 @@ require("./atom/components");
 const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
-const codefixProvider = new codefixProvider_1.CodefixProvider(exports.clientResolver);
+const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 function activate(state) {
     require("atom-package-deps")
         .install("atom-typescript", true)
@@ -150,9 +150,13 @@ function provide() {
 }
 exports.provide = provide;
 function provideIntentions() {
-    return codefixProvider;
+    return new codefix_1.IntentionsProvider(codefixProvider);
 }
 exports.provideIntentions = provideIntentions;
+function provideCodeActions() {
+    return new codefix_1.CodeActionsProvider(codefixProvider);
+}
+exports.provideCodeActions = provideCodeActions;
 function hyperclickProvider() {
     return hyperclickProvider_1.getHyperclickProvider(exports.clientResolver);
 }
@@ -168,7 +172,10 @@ exports.config = {
 function getProjectConfigPath(sourcePath) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const client = yield exports.clientResolver.get(sourcePath);
-        const result = yield client.executeProjectInfo({ needFileNameList: false, file: sourcePath });
+        const result = yield client.executeProjectInfo({
+            needFileNameList: false,
+            file: sourcePath,
+        });
         return result.body.configFileName;
     });
 }
