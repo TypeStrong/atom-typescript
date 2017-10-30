@@ -15,4 +15,14 @@ declare module "atom" {
   interface PackageManager {
     activatePackage(name: string): Promise<Package>
   }
+
+  interface EditorElement extends HTMLElement {
+    component: EditorComponent
+    pixelPositionForBufferPosition(p: PointCompatible): ClientRect
+    getModel(): TextEditor
+  }
+
+  interface EditorComponent {
+    screenPositionForMouseEvent(ev: MouseEvent): Point
+  }
 }

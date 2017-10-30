@@ -27,8 +27,9 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         // for some amount of time.
         let cancelTimeout;
         const unregister = client.on("syntaxDiag", evt => {
-            clearTimeout(cancelTimeout);
-            cancelTimeout = setTimeout(cancel, 500);
+            if (cancelTimeout !== undefined)
+                window.clearTimeout(cancelTimeout);
+            cancelTimeout = window.setTimeout(cancel, 500);
             files.delete(evt.file);
             updateStatus();
         });

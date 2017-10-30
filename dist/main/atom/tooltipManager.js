@@ -53,12 +53,14 @@ function attach(editorView, editor) {
     let lastExprTypeBufferPt;
     subscriber.subscribe(scroll, "mousemove", (e) => {
         const bufferPt = bufferPositionFromMouseEvent(editor, e);
+        if (!bufferPt)
+            return;
         if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
             return;
         }
         lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
-        exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
+        exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100);
     });
     subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout());
     subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout());
@@ -71,6 +73,8 @@ function attach(editorView, editor) {
                 return;
             }
             const bufferPt = bufferPositionFromMouseEvent(editor, e);
+            if (!bufferPt)
+                return;
             const curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
             const nextCharPixelPt = rawView.pixelPositionForBufferPosition([
                 bufferPt.row,
@@ -122,7 +126,7 @@ function attach(editorView, editor) {
     function clearExprTypeTimeout() {
         if (exprTypeTimeout) {
             clearTimeout(exprTypeTimeout);
-            exprTypeTimeout = null;
+            exprTypeTimeout = undefined;
         }
         hideExpressionType();
     }

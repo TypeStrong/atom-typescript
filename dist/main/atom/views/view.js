@@ -26,9 +26,6 @@ class ScrollView extends sp.ScrollView {
         this.options = options;
         this.init();
     }
-    get $() {
-        return this;
-    }
     static content() {
         throw new Error("Must override the base View static content member");
     }

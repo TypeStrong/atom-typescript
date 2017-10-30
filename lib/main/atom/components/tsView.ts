@@ -32,4 +32,4 @@ export class TsView extends HTMLElement {
   }
 }
 
-;(document as any).registerElement("ts-view", TsView)
+document.registerElement("ts-view", TsView)

@@ -11,7 +11,7 @@ export interface SelectListViewOptions<T> {
 
   /** some property on item */
   filterKey: string
-  confirmed: (item: T) => any
+  confirmed: (item: T) => void
 }
 
 let singleton: SimpleSelectListView<any>
@@ -40,16 +40,12 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
     super()
   }
 
-  get $(): JQuery {
-    return this as any
-  }
-
   public setItems() {
     super.setItems(this.options.items)
   }
 
   /** override */
-  viewForItem(item: T): any {
+  viewForItem(item: T): JQuery | string {
     const view = this.options.viewForItem(item)
     if (typeof view === "string") {
       return `<li>

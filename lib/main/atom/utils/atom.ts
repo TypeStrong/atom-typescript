@@ -108,7 +108,7 @@ export function getFilePathRelativeToAtomProject(filePath: string) {
  * Opens the given file in the same project
  */
 export function openFile(filePath: string, position: {line?: number; col?: number} = {}) {
-  const config: any = {}
+  const config: Atom.WorkspaceOpenOptions = {}
   if (position.line) {
     config.initialLine = position.line - 1
   }

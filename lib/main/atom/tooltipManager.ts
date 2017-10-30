@@ -15,21 +15,23 @@ import escape = require("escape-html")
 
 export function getFromShadowDom(element: JQuery, selector: string): JQuery {
   const el = element[0]
-  const found = (el as any).querySelectorAll(selector)
+  const found = el.querySelectorAll(selector)
   return $(found[0])
 }
 
 // screen position from mouse event -- with <3 from Atom-Haskell
 export function bufferPositionFromMouseEvent(editor: Atom.TextEditor, event: MouseEvent) {
-  const sp = (atom.views.getView(editor) as any).component.screenPositionForMouseEvent(event)
+  const sp = (atom.views.getView(
+    editor,
+  ) as Atom.EditorElement).component.screenPositionForMouseEvent(event)
   if (isNaN(sp.row) || isNaN(sp.column)) {
     return
   }
-  return (editor as any).bufferPositionForScreenPosition(sp)
+  return editor.bufferPositionForScreenPosition(sp)
 }
 
 export function attach(editorView: JQuery, editor: Atom.TextEditor) {
-  const rawView: any = editorView[0]
+  const rawView = editorView[0] as Atom.EditorElement
 
   // Only on ".ts" files
   const filePath = editor.getPath()
@@ -50,14 +52,15 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
   const clientPromise = clientResolver.get(filePath)
   const scroll = getFromShadowDom(editorView, ".scroll-view")
   const subscriber = new Subscriber()
-  let exprTypeTimeout: any | undefined
+  let exprTypeTimeout: number | undefined
   let exprTypeTooltip: TooltipView | undefined
 
   // to debounce mousemove event's firing for some reason on some machines
-  let lastExprTypeBufferPt: any
+  let lastExprTypeBufferPt: Atom.Point
 
   subscriber.subscribe(scroll, "mousemove", (e: MouseEvent) => {
     const bufferPt = bufferPositionFromMouseEvent(editor, e)
+    if (!bufferPt) return
     if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
       return
     }
@@ -65,7 +68,7 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
     lastExprTypeBufferPt = bufferPt
 
     clearExprTypeTimeout()
-    exprTypeTimeout = setTimeout(() => showExpressionType(e), 100)
+    exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100)
   })
   subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout())
   subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout())
@@ -80,6 +83,7 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
     }
 
     const bufferPt = bufferPositionFromMouseEvent(editor, e)
+    if (!bufferPt) return
     const curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column])
     const nextCharPixelPt = rawView.pixelPositionForBufferPosition([
       bufferPt.row,
@@ -134,7 +138,7 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
   function clearExprTypeTimeout() {
     if (exprTypeTimeout) {
       clearTimeout(exprTypeTimeout)
-      exprTypeTimeout = null
+      exprTypeTimeout = undefined
     }
     hideExpressionType()
   }

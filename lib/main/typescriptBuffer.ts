@@ -112,7 +112,7 @@ export class TypescriptBuffer {
     this.events.emit("saved")
   }
 
-  onDidStopChanging = async ({changes}: {changes: any[]}) => {
+  onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
     // Don't update changedAt or emit any events if there are no actual changes or file isn't open
     if (changes.length === 0 || !this.isOpen || !this.clientPromise) {
       return

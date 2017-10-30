@@ -14,7 +14,7 @@ export class StatusPanel extends HTMLElement {
 
   private configPath?: string
   private pendingRequests: string[]
-  private pendingTimeout: any
+  private pendingTimeout: number | undefined
 
   createdCallback() {
     const nodes = [
@@ -140,8 +140,8 @@ export class StatusPanel extends HTMLElement {
 
   setPending(pending: string[], immediate = false) {
     const timeout = immediate ? 0 : 100
-    clearTimeout(this.pendingTimeout)
-    this.pendingTimeout = setTimeout(() => this._setPending(pending), timeout)
+    if (this.pendingTimeout !== undefined) window.clearTimeout(this.pendingTimeout)
+    this.pendingTimeout = window.setTimeout(() => this._setPending(pending), timeout)
   }
 
   showPendingRequests() {
@@ -165,4 +165,4 @@ export class StatusPanel extends HTMLElement {
   }
 }
 
-;(document as any).registerElement("ts-status-panel", StatusPanel)
+document.registerElement("ts-status-panel", StatusPanel)

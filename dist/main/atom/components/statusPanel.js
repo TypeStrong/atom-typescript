@@ -103,8 +103,9 @@ class StatusPanel extends HTMLElement {
     }
     setPending(pending, immediate = false) {
         const timeout = immediate ? 0 : 100;
-        clearTimeout(this.pendingTimeout);
-        this.pendingTimeout = setTimeout(() => this._setPending(pending), timeout);
+        if (this.pendingTimeout !== undefined)
+            window.clearTimeout(this.pendingTimeout);
+        this.pendingTimeout = window.setTimeout(() => this._setPending(pending), timeout);
     }
     showPendingRequests() {
         if (this.pendingRequests) {
@@ -122,6 +123,5 @@ class StatusPanel extends HTMLElement {
     }
 }
 exports.StatusPanel = StatusPanel;
-;
 document.registerElement("ts-status-panel", StatusPanel);
 //# sourceMappingURL=statusPanel.js.map

@@ -3,7 +3,7 @@ import {ClientResolver} from "../../client/clientResolver"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
 import {isTypescriptGrammar} from "./utils"
 
-export function getHyperclickProvider(clientResolver: ClientResolver): any {
+export function getHyperclickProvider(clientResolver: ClientResolver) {
   return {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,

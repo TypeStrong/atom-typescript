@@ -23,9 +23,6 @@ class SimpleSelectListView extends sp.SelectListView {
         super();
         this.options = options;
     }
-    get $() {
-        return this;
-    }
     setItems() {
         super.setItems(this.options.items);
     }

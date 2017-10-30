@@ -22,10 +22,6 @@ export class View<Options> extends sp.View {
 export const $ = sp.$
 
 export class ScrollView<Options> extends sp.ScrollView {
-  get $(): JQuery {
-    return this as any
-  }
-
   static content() {
     throw new Error("Must override the base View static content member")
   }

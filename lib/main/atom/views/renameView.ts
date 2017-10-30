@@ -12,13 +12,13 @@ interface RenameViewOptions {
   autoSelect: boolean
   title: string
   text: string
-  onCommit?: (newValue: string) => any
-  onCancel?: () => any
+  onCommit?: (newValue: string) => void
+  onCancel?: () => void
   /** A truthy string return indicates a validation error */
   onValidate: (newValue: string) => string
 }
 
-export class RenameView extends view.View<RenameViewOptions> {
+export class RenameView extends view.View<Partial<RenameViewOptions>> {
   private newNameEditor: EditorViewzz
   private validationMessage: JQuery
   private panel: Atom.Panel
@@ -40,7 +40,7 @@ export class RenameView extends view.View<RenameViewOptions> {
       const newText = this.newNameEditor.model.getText()
       if (e.keyCode === 13) {
         // enter
-        const invalid = this.options.onValidate(newText)
+        const invalid = this.options.onValidate && this.options.onValidate(newText)
         if (invalid) {
           this.validationMessage.text(invalid)
           this.validationMessage.show()
@@ -74,7 +74,7 @@ export class RenameView extends view.View<RenameViewOptions> {
       editorView.focus()
     }
     this.panel.hide()
-    this.options = {} as any
+    this.options = {}
     this.editorAtRenameStart = undefined
   }
 
@@ -83,13 +83,13 @@ export class RenameView extends view.View<RenameViewOptions> {
     this.editorAtRenameStart = atom.workspace.getActiveTextEditor()
     this.panel.show()
 
-    this.newNameEditor.model.setText(options.text)
+    this.newNameEditor.model.setText(options.text || "undefined")
     if (this.options.autoSelect) {
       this.newNameEditor.model.selectAll()
     } else {
       this.newNameEditor.model.getLastCursor().moveToEndOfScreenLine()
     }
-    this.title.text(this.options.title)
+    this.title.text(this.options.title || "undefined")
     this.newNameEditor.focus()
 
     this.validationMessage.hide()
@@ -108,7 +108,7 @@ export class RenameView extends view.View<RenameViewOptions> {
 }
 
 export function attach(): {dispose(): void; renameView: RenameView} {
-  const renameView = new RenameView({} as any)
+  const renameView = new RenameView({})
   const panel = atom.workspace.addModalPanel({
     item: renameView,
     priority: 1000,

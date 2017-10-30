@@ -19,7 +19,7 @@ class RenameView extends view.View {
             const newText = this.newNameEditor.model.getText();
             if (e.keyCode === 13) {
                 // enter
-                const invalid = this.options.onValidate(newText);
+                const invalid = this.options.onValidate && this.options.onValidate(newText);
                 if (invalid) {
                     this.validationMessage.text(invalid);
                     this.validationMessage.show();
@@ -56,14 +56,14 @@ class RenameView extends view.View {
         this.options = options;
         this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
         this.panel.show();
-        this.newNameEditor.model.setText(options.text);
+        this.newNameEditor.model.setText(options.text || "undefined");
         if (this.options.autoSelect) {
             this.newNameEditor.model.selectAll();
         }
         else {
             this.newNameEditor.model.getLastCursor().moveToEndOfScreenLine();
         }
-        this.title.text(this.options.title);
+        this.title.text(this.options.title || "undefined");
         this.newNameEditor.focus();
         this.validationMessage.hide();
     }

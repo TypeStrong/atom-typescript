@@ -209,7 +209,14 @@ async function getProjectConfigPath(sourcePath: string): Promise<string> {
   return result.body!.configFileName
 }
 
-export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<any> {
+interface TSConfig {
+  formatCodeOptions: protocol.FormatCodeSettings
+}
+
+export async function loadProjectConfig(
+  sourcePath: string,
+  configFile?: string,
+): Promise<TSConfig> {
   return tsconfig.readFile(configFile || (await getProjectConfigPath(sourcePath)))
 }
 
