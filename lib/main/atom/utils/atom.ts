@@ -244,7 +244,7 @@ export function getCurrentPath(): string | undefined {
   return consistentPath(filePath)
 }
 
-export let knownScopes = {
+export const knownScopes = {
   reference: "reference.path.string",
   require: "require.path.string",
   es6import: "es6import.path.string",

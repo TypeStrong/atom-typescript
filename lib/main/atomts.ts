@@ -199,7 +199,7 @@ export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
 }
 
-export let config = {
+export const config = {
   unusedAsInfo: {
     title: "Show unused values with severity info",
     description: "Show unused values with severity 'info' instead of 'error'",

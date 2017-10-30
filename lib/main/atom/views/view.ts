@@ -19,7 +19,7 @@ export class View<Options> extends sp.View {
   }
 }
 
-export let $ = sp.$
+export const $ = sp.$
 
 export class ScrollView<Options> extends sp.ScrollView {
   get $(): JQuery {
