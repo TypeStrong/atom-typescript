@@ -1,3 +1,4 @@
+import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
 import {RenameView} from "../views/renameView"
 import {StatusPanel} from "../../atom/components/statusPanel"
@@ -16,7 +17,7 @@ export type GetTypescriptBuffer = (
 ) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
 export interface CommandConstructor {
-  (deps: Dependencies): (e: AtomCore.CommandEvent) => any
+  (deps: Dependencies): (e: Atom.CommandEvent) => any
 }
 
 // To allow using dependency injection, but avoid having to type a lot of boilerplate, we have the

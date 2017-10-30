@@ -1,8 +1,8 @@
 /** What gets passed into the handler */
 export interface RequestOptions {
   activatedManually: boolean
-  editor: AtomCore.IEditor
-  bufferPosition: TextBuffer.IPoint // the position of the cursor
+  editor: Atom.TextEditor
+  bufferPosition: Atom.Point // the position of the cursor
   prefix: string
   scopeDescriptor: {scopes: string[]}
 }
@@ -44,7 +44,7 @@ export interface Provider {
 }
 
 export interface InsertArgs {
-  editor: AtomCore.IEditor
-  triggerPosition: TextBuffer.IPoint
+  editor: Atom.TextEditor
+  triggerPosition: Atom.Point
   suggestion: Suggestion
 }

@@ -1,6 +1,6 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
-import {CompositeDisposable, Disposable} from "atom"
+import * as Atom from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
 import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
@@ -17,11 +17,11 @@ export class TypescriptBuffer {
   isOpen: boolean
 
   private events = new EventEmitter()
-  private subscriptions = new CompositeDisposable()
-  private filePath: string
+  private subscriptions = new Atom.CompositeDisposable()
+  private filePath: string | undefined
 
   constructor(
-    public buffer: TextBuffer.ITextBuffer,
+    public buffer: Atom.TextBuffer,
     public getClient: (filePath: string) => Promise<Client>,
   ) {
     this.subscriptions.add(buffer.onDidChange(this.onDidChange))
@@ -36,7 +36,7 @@ export class TypescriptBuffer {
   async open() {
     this.filePath = this.buffer.getPath()
 
-    if (isTypescriptFile(this.filePath)) {
+    if (this.filePath && isTypescriptFile(this.filePath)) {
       // Set isOpen before we actually open the file to enqueue any changed events
       this.isOpen = true
 
@@ -70,7 +70,8 @@ export class TypescriptBuffer {
 
     if (this.isOpen && this.clientPromise) {
       const client = await this.clientPromise
-      client.executeClose({file: this.buffer.getPath()})
+      const file = this.buffer.getPath()
+      if (file) client.executeClose({file})
       this.events.emit("closed", this.filePath)
     }
   }
@@ -116,8 +117,9 @@ export class TypescriptBuffer {
 
     this.changedAtBatch = Date.now()
 
-    const client = await this.clientPromise
     const filePath = this.buffer.getPath()
+    if (!filePath) return
+    const client = await this.clientPromise
 
     for (const change of changes) {
       const {start, oldExtent, newText} = change

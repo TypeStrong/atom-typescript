@@ -2,12 +2,6 @@
   "name": "atom-typescript",
   "version": "11.0.10",
   "dependencies": {
-    "@types/atom": {
-      "version": "0.0.38",
-      "from": "@types/atom@0.0.38",
-      "resolved": "https://registry.npmjs.org/@types/atom/-/atom-0.0.38.tgz",
-      "dev": true
-    },
     "@types/byline": {
       "version": "4.2.31",
       "from": "@types/byline@>=4.2.31 <5.0.0",
@@ -27,9 +21,9 @@
       "dev": true
     },
     "@types/emissary": {
-      "version": "0.0.29",
-      "from": "@types/emissary@*",
-      "resolved": "https://registry.npmjs.org/@types/emissary/-/emissary-0.0.29.tgz",
+      "version": "0.0.30",
+      "from": "@types/emissary@latest",
+      "resolved": "https://registry.npmjs.org/@types/emissary/-/emissary-0.0.30.tgz",
       "dev": true
     },
     "@types/fuzzaldrin": {
@@ -39,9 +33,9 @@
       "dev": true
     },
     "@types/jquery": {
-      "version": "3.2.9",
+      "version": "3.2.15",
       "from": "@types/jquery@*",
-      "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-3.2.9.tgz",
+      "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-3.2.15.tgz",
       "dev": true
     },
     "@types/lodash": {
@@ -51,9 +45,9 @@
       "dev": true
     },
     "@types/mixto": {
-      "version": "0.0.28",
+      "version": "0.0.29",
       "from": "@types/mixto@*",
-      "resolved": "https://registry.npmjs.org/@types/mixto/-/mixto-0.0.28.tgz",
+      "resolved": "https://registry.npmjs.org/@types/mixto/-/mixto-0.0.29.tgz",
       "dev": true
     },
     "@types/mocha": {
@@ -68,18 +62,6 @@
       "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.14.tgz",
       "dev": true
     },
-    "@types/pathwatcher": {
-      "version": "0.0.32",
-      "from": "@types/pathwatcher@*",
-      "resolved": "https://registry.npmjs.org/@types/pathwatcher/-/pathwatcher-0.0.32.tgz",
-      "dev": true
-    },
-    "@types/q": {
-      "version": "0.0.35",
-      "from": "@types/q@>=0.0.0 <1.0.0",
-      "resolved": "https://registry.npmjs.org/@types/q/-/q-0.0.35.tgz",
-      "dev": true
-    },
     "@types/resolve": {
       "version": "0.0.4",
       "from": "@types/resolve@0.0.4",
@@ -88,20 +70,8 @@
     },
     "@types/space-pen": {
       "version": "0.0.28",
-      "from": "@types/space-pen@*",
+      "from": "@types/space-pen@latest",
       "resolved": "https://registry.npmjs.org/@types/space-pen/-/space-pen-0.0.28.tgz",
-      "dev": true
-    },
-    "@types/status-bar": {
-      "version": "0.0.29",
-      "from": "@types/status-bar@*",
-      "resolved": "https://registry.npmjs.org/@types/status-bar/-/status-bar-0.0.29.tgz",
-      "dev": true
-    },
-    "@types/text-buffer": {
-      "version": "0.0.31",
-      "from": "@types/text-buffer@*",
-      "resolved": "https://registry.npmjs.org/@types/text-buffer/-/text-buffer-0.0.31.tgz",
       "dev": true
     },
     "ajv": {
@@ -189,6 +159,32 @@
       "version": "2.2.0",
       "from": "atom-space-pen-views@>=2.0.4 <3.0.0",
       "resolved": "https://registry.npmjs.org/atom-space-pen-views/-/atom-space-pen-views-2.2.0.tgz"
+    },
+    "atom-typings": {
+      "version": "1.21.4",
+      "from": "git+https://github.com/GlenCFL/atom-typings.git",
+      "resolved": "git+https://github.com/GlenCFL/atom-typings.git#f7c07abc5040660f0f020cc75b00fb2992b5fd52",
+      "dev": true,
+      "dependencies": {
+        "@types/jquery": {
+          "version": "3.2.15",
+          "from": "@types/jquery@>=3.2.15 <4.0.0",
+          "resolved": "https://registry.npmjs.org/@types/jquery/-/jquery-3.2.15.tgz",
+          "dev": true
+        },
+        "@types/mocha": {
+          "version": "2.2.44",
+          "from": "@types/mocha@>=2.2.44 <3.0.0",
+          "resolved": "https://registry.npmjs.org/@types/mocha/-/mocha-2.2.44.tgz",
+          "dev": true
+        },
+        "@types/node": {
+          "version": "8.0.47",
+          "from": "@types/node@>=8.0.47 <9.0.0",
+          "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.47.tgz",
+          "dev": true
+        }
+      }
     },
     "aws-sign2": {
       "version": "0.7.0",
@@ -1319,7 +1315,7 @@
     },
     "typescript": {
       "version": "2.4.2",
-      "from": "typescript@>=2.4.2 <2.5.0",
+      "from": "typescript@>=2.4.0 <2.5.0",
       "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.4.2.tgz"
     },
     "underscore": {

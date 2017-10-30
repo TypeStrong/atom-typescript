@@ -1,5 +1,5 @@
 import {TextSpan, CodeEdit, Diagnostic, FormatCodeSettings, Location} from "typescript/lib/protocol"
-import {Point, Range} from "atom"
+import * as Atom from "atom"
 import {loadProjectConfig} from "../../atomts"
 
 export {TextSpan, CodeEdit, FormatCodeSettings, Location}
@@ -13,23 +13,23 @@ export interface FileLocationQuery extends Location {
   file: string
 }
 
-export function pointToLocation(point: TextBuffer.IPoint): Location {
+export function pointToLocation(point: Atom.PointLike): Location {
   return {line: point.row + 1, offset: point.column + 1}
 }
 
-export function locationToPoint(loc: Location): TextBuffer.IPoint {
-  return new Point(loc.line - 1, loc.offset - 1)
+export function locationToPoint(loc: Location): Atom.Point {
+  return new Atom.Point(loc.line - 1, loc.offset - 1)
 }
 
-export function spanToRange(span: TextSpan): TextBuffer.IRange {
+export function spanToRange(span: TextSpan): Atom.Range {
   return locationsToRange(span.start, span.end)
 }
 
-export function locationsToRange(start: Location, end: Location): TextBuffer.IRange {
-  return new Range(locationToPoint(start), locationToPoint(end))
+export function locationsToRange(start: Location, end: Location): Atom.Range {
+  return new Atom.Range(locationToPoint(start), locationToPoint(end))
 }
 
-export function rangeToLocationRange(range: TextBuffer.IRange): LocationRangeQuery {
+export function rangeToLocationRange(range: Atom.Range): LocationRangeQuery {
   return {
     line: range.start.row + 1,
     offset: range.start.column + 1,

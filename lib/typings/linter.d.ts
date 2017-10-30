@@ -10,7 +10,7 @@ export interface LinterConfig {
 
 export interface LinterLocation {
   file: string
-  position?: TextBuffer.IRange
+  position?: Atom.Range
 }
 
 export interface LinterMessage {

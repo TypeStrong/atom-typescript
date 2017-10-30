@@ -101,16 +101,18 @@ export function activate(state: PackageState) {
       const onSave = debounce((pane: TypescriptEditorPane) => {
         if (!pane.client) return
 
-        const files = panes
-          .sort((a, b) => a.activeAt - b.activeAt)
-          .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
-          .map(pane => pane.filePath)
+        const files: string[] = []
+        for (const pane of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+          if (pane.filePath && pane.isTypescript && pane.client === pane.client) {
+            files.push(pane.filePath)
+          }
+        }
 
         pane.client.executeGetErr({files, delay: 100})
       }, 50)
 
       subscriptions.add(
-        atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+        atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
           panes.push(
             new TypescriptEditorPane(editor, {
               getClient: (filePath: string) => clientResolver.get(filePath),
@@ -140,7 +142,7 @@ export function activate(state: PackageState) {
       }
 
       subscriptions.add(
-        atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
+        atom.workspace.onDidChangeActivePaneItem((editor: Atom.TextEditor) => {
           if (activePane) {
             activePane.onDeactivated()
             activePane = undefined
@@ -226,16 +228,7 @@ async function getTypescriptBuffer(filePath: string) {
   }
 
   // Wait for the buffer to load before resolving the promise
-  const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
-    const buffer = new Atom.TextBuffer({
-      filePath,
-      load: true,
-    })
-
-    buffer.onDidReload(() => {
-      resolve(buffer)
-    })
-  })
+  const buffer = await Atom.TextBuffer.load(filePath)
 
   return {
     buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),

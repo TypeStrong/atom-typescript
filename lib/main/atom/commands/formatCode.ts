@@ -15,7 +15,15 @@ commands.set("typescript:format-code", deps => {
     }
 
     const editor = atom.workspace.getActiveTextEditor()
+    if (!editor) {
+      e.abortKeyBinding()
+      return
+    }
     const filePath = editor.getPath()
+    if (!filePath) {
+      e.abortKeyBinding()
+      return
+    }
     const ranges: LocationRangeQuery[] = []
 
     for (const selection of editor.getSelectedBufferRanges()) {

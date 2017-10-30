@@ -5,7 +5,7 @@ import * as url from "url"
 import {CodeEdit, consistentPath, FileLocationQuery, Location, spanToRange} from "./"
 
 // Return line/offset position in the editor using 1-indexed coordinates
-export function getEditorPosition(editor: AtomCore.IEditor): Location {
+export function getEditorPosition(editor: Atom.TextEditor): Location {
   const pos = editor.getCursorBufferPosition()
   return {
     line: pos.row + 1,
@@ -13,14 +13,14 @@ export function getEditorPosition(editor: AtomCore.IEditor): Location {
   }
 }
 
-export function isTypescriptFile(filePath?: string): boolean {
+export function isTypescriptFile(filePath: string): boolean {
   if (!filePath) return false
 
   const ext = path.extname(filePath)
   return ext === ".ts" || ext === ".tsx"
 }
 
-export function isTypescriptGrammar(grammar: AtomCore.IGrammar): boolean {
+export function isTypescriptGrammar(grammar: Atom.Grammar): boolean {
   return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
 }
 
@@ -30,10 +30,11 @@ export function isAllowedExtension(ext: string) {
 
 export function isActiveEditorOnDiskAndTs() {
   var editor = atom.workspace.getActiveTextEditor()
+  if (!editor) return
   return onDiskAndTs(editor)
 }
 
-export function onDiskAndTs(editor: AtomCore.IEditor) {
+export function onDiskAndTs(editor: Atom.TextEditor) {
   if (editor instanceof require("atom").TextEditor) {
     var filePath = editor.getPath()
     if (!filePath) {
@@ -50,7 +51,7 @@ export function onDiskAndTs(editor: AtomCore.IEditor) {
 }
 
 /** Either ts or tsconfig */
-export function onDiskAndTsRelated(editor: AtomCore.IEditor) {
+export function onDiskAndTsRelated(editor: Atom.TextEditor) {
   if (editor instanceof require("atom").TextEditor) {
     var filePath = editor.getPath()
     if (!filePath) {
@@ -69,28 +70,32 @@ export function onDiskAndTsRelated(editor: AtomCore.IEditor) {
   return false
 }
 
-export function getFilePathPosition(): FileLocationQuery {
+export function getFilePathPosition(): FileLocationQuery | undefined {
   const editor = atom.workspace.getActiveTextEditor()
-  return {
-    file: editor.getPath(),
-    ...getEditorPosition(editor),
+  if (editor) {
+    const file = editor.getPath()
+    if (file) {
+      return {file, ...getEditorPosition(editor)}
+    }
   }
 }
 
-export function getFilePath(): {filePath: string} {
+export function getFilePath(): {filePath: string | undefined} {
   var editor = atom.workspace.getActiveTextEditor()
+  if (!editor) return {filePath: undefined}
   var filePath = editor.getPath()
   return {filePath}
 }
 
 export function getEditorsForAllPaths(
   filePaths: string[],
-): Promise<{[filePath: string]: AtomCore.IEditor}> {
+): Promise<{[filePath: string]: Atom.TextEditor}> {
   var map = <any>{}
   var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath())
 
-  function addConsistentlyToMap(editor: AtomCore.IEditor) {
-    map[consistentPath(editor.getPath())] = editor
+  function addConsistentlyToMap(editor: Atom.TextEditor) {
+    const path = editor.getPath()
+    if (path) map[consistentPath(path)] = editor
   }
 
   activeEditors.forEach(addConsistentlyToMap)
@@ -109,9 +114,9 @@ export function getEditorsForAllPaths(
 }
 
 export function getRangeForTextSpan(
-  editor: AtomCore.IEditor,
+  editor: Atom.TextEditor,
   ts: {start: number; length: number},
-): TextBuffer.IRange {
+): Atom.Range {
   var start = editor.buffer.positionForCharacterIndex(ts.start)
   var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length)
   var range = new Atom.Range(start, end)
@@ -120,14 +125,14 @@ export function getRangeForTextSpan(
 
 /** only the editors that are persisted to disk. And are of type TypeScript */
 export function getTypeScriptEditorsWithPaths() {
-  return atom.workspace
-    .getTextEditors()
-    .filter(editor => !!editor.getPath())
-    .filter(editor => path.extname(editor.getPath()) === ".ts")
+  return atom.workspace.getTextEditors().filter(editor => {
+    const filePath = editor.getPath()
+    return filePath && path.extname(filePath) === ".ts"
+  })
 }
 
 export function getOpenTypeScritEditorsConsistentPaths() {
-  return getTypeScriptEditorsWithPaths().map(e => consistentPath(e.getPath()))
+  return getTypeScriptEditorsWithPaths().map(e => consistentPath(e.getPath()!))
 }
 
 export function quickNotifySuccess(htmlMessage: string) {
@@ -148,7 +153,7 @@ export function quickNotifyWarning(htmlMessage: string) {
   }, 800)
 }
 
-export function formatCode(editor: AtomCore.IEditor, edits: CodeEdit[]) {
+export function formatCode(editor: Atom.TextEditor, edits: CodeEdit[]) {
   // The code edits need to be applied in reverse order
   for (let i = edits.length - 1; i >= 0; i--) {
     editor.setTextInBufferRange(spanToRange(edits[i]), edits[i].newText)
@@ -198,19 +203,24 @@ export function kindToType(kind: string) {
 }
 
 /** Utility functions for commands */
-export function commandForTypeScript(e: AtomCore.CommandEvent) {
+export function commandForTypeScript(e: Atom.CommandEvent) {
   var editor = atom.workspace.getActiveTextEditor()
   if (!editor) return e.abortKeyBinding() && false
-  var ext = path.extname(editor.getPath())
+  const filePath = editor.getPath()
+  if (!filePath) return e.abortKeyBinding() && false
+  var ext = path.extname(filePath)
   if (!isAllowedExtension(ext)) return e.abortKeyBinding() && false
 
   return true
 }
 
 /** Gets the consisten path for the current editor */
-export function getCurrentPath() {
+export function getCurrentPath(): string | undefined {
   var editor = atom.workspace.getActiveTextEditor()
-  return consistentPath(editor.getPath())
+  if (!editor) return
+  const path = editor.getPath()
+  if (!path) return
+  return consistentPath(path)
 }
 
 export var knownScopes = {
@@ -221,6 +231,7 @@ export var knownScopes = {
 
 export function editorInTheseScopes(matches: string[]) {
   var editor = atom.workspace.getActiveTextEditor()
+  if (!editor) return ""
   var scopes = editor.getLastCursor().getScopeDescriptor().scopes
   var lastScope = scopes[scopes.length - 1]
   if (matches.some(p => lastScope === p)) return lastScope
@@ -253,11 +264,16 @@ export function uriForPath(uriProtocol: string, filePath: string) {
 export function registerOpener<T>(config: OpenerConfig<T>) {
   atom.commands.add(config.commandSelector, config.commandName, e => {
     if (!commandForTypeScript(e)) return
-
-    var uri = uriForPath(config.uriProtocol, getCurrentPath())
+    const path = getCurrentPath()
+    if (!path) {
+      e.abortKeyBinding()
+      return
+    }
+    var uri = uriForPath(config.uriProtocol, path)
     var old_pane = atom.workspace.paneForURI(uri)
     if (old_pane) {
-      old_pane.destroyItem(old_pane.itemForURI(uri))
+      const item = old_pane.itemForURI(uri)
+      if (item) old_pane.destroyItem(item)
     }
 
     atom.workspace.open(uri, config.getData())
@@ -280,7 +296,8 @@ export function registerOpener<T>(config: OpenerConfig<T>) {
 
 export function triggerLinter() {
   // also invalidate linter
-  atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), "linter:lint")
+  const editor = atom.workspace.getActiveTextEditor()
+  if (editor) atom.commands.dispatch(atom.views.getView(editor), "linter:lint")
 }
 
 /**

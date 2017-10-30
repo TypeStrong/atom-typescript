@@ -10,6 +10,10 @@ commands.set("typescript:find-references", deps => {
     }
 
     const location = getFilePathPosition()
+    if (!location) {
+      e.abortKeyBinding()
+      return
+    }
     const client = await deps.getClient(location.file)
     const result = await client.executeReferences(location)
 

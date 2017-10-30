@@ -2,6 +2,7 @@
  * A functional form of the SelectListView
  * Only one of these bad boys is allowed on the screen at one time
  */
+import * as Atom from "atom"
 
 export interface SelectListViewOptions<T> {
   items: T[]
@@ -69,7 +70,7 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
     return this.options.filterKey
   }
 
-  panel?: AtomCore.Panel
+  panel?: Atom.Panel
   show() {
     this.storeFocusedElement()
     if (!this.panel) this.panel = atom.workspace.addModalPanel({item: this})

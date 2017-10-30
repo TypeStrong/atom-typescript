@@ -1,3 +1,4 @@
+import * as Atom from "atom"
 import {ClientResolver} from "../../client/clientResolver"
 import {simpleSelectionView} from "./views/simpleSelectionView"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
@@ -7,8 +8,12 @@ export function getHyperclickProvider(clientResolver: ClientResolver): any {
   return {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
-    getSuggestionForWord(editor: AtomCore.IEditor, text: string, range: TextBuffer.IRange) {
+    getSuggestionForWord(editor: Atom.TextEditor, text: string, range: Atom.Range) {
       if (!isTypescriptGrammar(editor.getGrammar())) {
+        return null
+      }
+      const filePath = editor.getPath()
+      if (!filePath) {
         return null
       }
 
@@ -16,7 +21,7 @@ export function getHyperclickProvider(clientResolver: ClientResolver): any {
         range: range,
         callback: async () => {
           const location = {
-            file: editor.getPath(),
+            file: filePath,
             line: range.start.row + 1,
             offset: range.start.column + 1,
           }

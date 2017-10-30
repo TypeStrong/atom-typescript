@@ -7,7 +7,12 @@ commands.set("typescript:build", deps => {
       return
     }
 
-    const {file} = getFilePathPosition()
+    const fpp = getFilePathPosition()
+    if (!fpp) {
+      e.abortKeyBinding()
+      return
+    }
+    const {file} = fpp
     const client = await deps.getClient(file)
 
     const projectInfo = await client.executeProjectInfo({

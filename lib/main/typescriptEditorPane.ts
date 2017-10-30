@@ -1,3 +1,4 @@
+import * as Atom from "atom"
 import {$} from "atom-space-pen-views"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
@@ -21,7 +22,7 @@ interface PaneOptions {
   statusPanel: StatusPanel
 }
 
-export class TypescriptEditorPane implements AtomCore.Disposable {
+export class TypescriptEditorPane implements Atom.Disposable {
   // Timestamp for activated event
   activeAt: number
 
@@ -31,18 +32,18 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   // Path to the project's tsconfig.json
   configFile: string = ""
 
-  filePath: string
+  filePath: string | undefined
   isActive = false
   isTypescript = false
 
   private opts: PaneOptions
   private isOpen = false
 
-  readonly occurrenceMarkers: AtomCore.IDisplayBufferMarker[] = []
-  readonly editor: AtomCore.IEditor
+  readonly occurrenceMarkers: Atom.DisplayMarker[] = []
+  readonly editor: Atom.TextEditor
   readonly subscriptions = new CompositeDisposable()
 
-  constructor(editor: AtomCore.IEditor, opts: PaneOptions) {
+  constructor(editor: Atom.TextEditor, opts: PaneOptions) {
     this.editor = editor
     this.filePath = editor.getPath()
     this.opts = opts
@@ -56,7 +57,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
     // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
     if (this.isTypescript) {
-      this.editor.element.classList.add("typescript-editor")
+      atom.views.getView(this.editor).classList.add("typescript-editor")
     }
 
     this.subscriptions.add(
@@ -72,7 +73,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   dispose() {
-    this.editor.element.classList.remove("typescript-editor")
+    atom.views.getView(this.editor).classList.remove("typescript-editor")
     this.subscriptions.dispose()
     this.opts.onDispose(this)
   }
@@ -100,6 +101,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
 
   onChanged = () => {
     if (!this.client) return
+    if (!this.filePath) return
 
     this.opts.statusPanel.setBuildStatus(undefined)
 
@@ -120,30 +122,31 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
     }
   }
 
-  updateMarkers = debounce(() => {
+  updateMarkers = debounce(async () => {
     if (!this.client) return
+    if (!this.filePath) return
 
     const pos = this.editor.getLastCursor().getBufferPosition()
 
-    this.client
-      .executeOccurances({
+    try {
+      const result = await this.client.executeOccurances({
         file: this.filePath,
         line: pos.row + 1,
         offset: pos.column + 1,
       })
-      .then(result => {
-        this.clearOccurrenceMarkers()
 
-        for (const ref of result.body!) {
-          const marker = this.editor.markBufferRange(spanToRange(ref))
-          this.editor.decorateMarker(marker as any, {
-            type: "highlight",
-            class: "atom-typescript-occurrence",
-          })
-          this.occurrenceMarkers.push(marker)
-        }
-      })
-      .catch(() => this.clearOccurrenceMarkers())
+      for (const ref of result.body!) {
+        const marker = this.editor.markBufferRange(spanToRange(ref))
+        this.editor.decorateMarker(marker, {
+          type: "highlight",
+          class: "atom-typescript-occurrence",
+        })
+        this.occurrenceMarkers.push(marker)
+      }
+    } catch (e) {
+      console.error(e)
+    }
+    this.clearOccurrenceMarkers()
   }, 100)
 
   onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
@@ -164,8 +167,10 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   }
 
   onOpened = async () => {
-    this.filePath = this.editor.getPath()
-    this.client = await this.opts.getClient(this.filePath)
+    const filePath = this.editor.getPath()
+    this.filePath = filePath
+    if (!filePath) return
+    this.client = await this.opts.getClient(filePath)
 
     // onOpened might trigger before onActivated so we can't rely on isActive flag
     if (atom.workspace.getActiveTextEditor() === this.editor) {
@@ -173,33 +178,34 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
       this.opts.statusPanel.setVersion(this.client.version)
     }
 
-    if (this.isTypescript && this.filePath) {
+    if (this.isTypescript) {
       this.client.executeGetErr({
-        files: [this.filePath],
+        files: [filePath],
         delay: 100,
       })
 
       this.isOpen = true
 
-      this.client
-        .executeProjectInfo({
+      try {
+        const result = await this.client.executeProjectInfo({
           needFileNameList: false,
-          file: this.filePath,
+          file: filePath,
         })
-        .then(result => {
-          this.configFile = result.body!.configFileName
+        this.configFile = result.body!.configFileName
 
-          if (this.isActive) {
-            this.opts.statusPanel.setTsConfigPath(this.configFile)
-          }
+        if (this.isActive) {
+          this.opts.statusPanel.setTsConfigPath(this.configFile)
+        }
 
-          getProjectCodeSettings(this.filePath, this.configFile).then(options => {
-            this.client!.executeConfigure({
-              file: this.filePath,
-              formatOptions: options,
-            })
+        getProjectCodeSettings(filePath, this.configFile).then(options => {
+          this.client!.executeConfigure({
+            file: filePath,
+            formatOptions: options,
           })
-        }, error => null)
+        })
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
@@ -212,6 +218,7 @@ export class TypescriptEditorPane implements AtomCore.Disposable {
   async compileOnSave() {
     const {client} = this
     if (!client) return
+    if (!this.filePath) return
 
     const result = await client.executeCompileOnSaveAffectedFileList({
       file: this.filePath,

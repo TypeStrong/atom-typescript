@@ -1,3 +1,4 @@
+import * as Atom from "atom"
 import {CodefixProvider} from "./codefixProvider"
 
 interface Intention {
@@ -14,8 +15,8 @@ interface IIntentionsProvider {
 }
 
 interface GetIntentionsOptions {
-  bufferPosition: TextBuffer.IPoint
-  textEditor: AtomCore.IEditor
+  bufferPosition: Atom.Point
+  textEditor: Atom.TextEditor
 }
 
 export class IntentionsProvider implements IIntentionsProvider {

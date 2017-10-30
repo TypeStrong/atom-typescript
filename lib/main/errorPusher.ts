@@ -39,8 +39,8 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  setUnusedAsInfo(unusedAsInfo: boolean) {
-    this.unusedAsInfo = unusedAsInfo
+  setUnusedAsInfo(unusedAsInfo: boolean | undefined) {
+    this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo
   }
 
   /** Clear all errors */

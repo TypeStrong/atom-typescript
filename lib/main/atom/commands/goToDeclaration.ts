@@ -17,6 +17,10 @@ commands.set("typescript:go-to-declaration", deps => {
       return
     }
     const location = getFilePathPosition()
+    if (!location) {
+      e.abortKeyBinding()
+      return
+    }
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
     handleDefinitionResult(result, location)

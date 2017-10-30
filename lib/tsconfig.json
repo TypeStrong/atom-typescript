@@ -12,7 +12,11 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
+    "target": "es6",
+    "typeRoots" : [
+      "../node_modules/atom-typings",
+      "../node_modules/@types"
+    ]
   },
   "compileOnSave": true
 }

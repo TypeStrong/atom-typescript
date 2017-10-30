@@ -1,16 +1,18 @@
-export {}
-
 declare module "atom" {
-  export class CompositeDisposable {
-    add(disposable: AtomCore.Disposable)
-    dispose()
+  interface ConfigValues {
+    "atom-typescript.unusedAsInfo": boolean
   }
 
-  export class Disposable {
-    dispose()
+  interface TextBuffer {
+    emitDidStopChangingEvent(): void
+    destroy(): void
   }
 
-  var TextBuffer: {
-    new (opts?: {filePath?: string; load?: boolean}): TextBuffer.ITextBuffer
+  interface TextEditor {
+    isDestroyed(): boolean
+  }
+
+  interface Grammar {
+    scopeName: string
   }
 }

@@ -210,10 +210,7 @@ function getLocationQuery(opts: RequestOptions): FileLocationQuery {
   }
 }
 
-function getLastNonWhitespaceChar(
-  buffer: TextBuffer.ITextBuffer,
-  pos: TextBuffer.IPoint,
-): string | undefined {
+function getLastNonWhitespaceChar(buffer: Atom.TextBuffer, pos: Atom.Point): string | undefined {
   let lastChar: string | undefined = undefined
   const range = new Atom.Range([0, 0], pos)
   buffer.backwardsScanInRange(

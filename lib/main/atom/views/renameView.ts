@@ -1,9 +1,10 @@
+import * as Atom from "atom"
 import view = require("./view")
 var $ = view.$
 var html = require("../../../../views/renameView.html")
 
 interface EditorViewzz extends JQuery {
-  model: AtomCore.IEditor
+  model: Atom.TextEditor
 }
 
 interface RenameViewOptions {
@@ -19,7 +20,7 @@ interface RenameViewOptions {
 export class RenameView extends view.View<RenameViewOptions> {
   private newNameEditor: EditorViewzz
   private validationMessage: JQuery
-  private panel: AtomCore.Panel
+  private panel: Atom.Panel
   private title: JQuery
   static content = html
 
@@ -61,11 +62,11 @@ export class RenameView extends view.View<RenameViewOptions> {
     })
   }
 
-  public setPanel(panel: AtomCore.Panel) {
+  public setPanel(panel: Atom.Panel) {
     this.panel = panel
   }
 
-  public editorAtRenameStart?: AtomCore.IEditor
+  public editorAtRenameStart?: Atom.TextEditor
   public clearView() {
     if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
       var view = atom.views.getView(this.editorAtRenameStart)
@@ -85,7 +86,7 @@ export class RenameView extends view.View<RenameViewOptions> {
     if (this.options.autoSelect) {
       this.newNameEditor.model.selectAll()
     } else {
-      this.newNameEditor.model.moveCursorToEndOfScreenLine()
+      this.newNameEditor.model.getLastCursor().moveToEndOfScreenLine()
     }
     this.title.text(this.options.title)
     this.newNameEditor.focus()

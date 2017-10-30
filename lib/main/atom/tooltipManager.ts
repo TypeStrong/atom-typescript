@@ -3,7 +3,7 @@
 
 import atomUtils = require("./utils") ///ts:import:generated
 import {clientResolver} from "../atomts"
-
+import * as Atom from "atom"
 import path = require("path")
 import fs = require("fs")
 import emissary = require("emissary")
@@ -20,7 +20,7 @@ export function getFromShadowDom(element: JQuery, selector: string): JQuery {
 }
 
 // screen position from mouse event -- with <3 from Atom-Haskell
-export function bufferPositionFromMouseEvent(editor: AtomCore.IEditor, event: MouseEvent) {
+export function bufferPositionFromMouseEvent(editor: Atom.TextEditor, event: MouseEvent) {
   const sp = (atom.views.getView(editor) as any).component.screenPositionForMouseEvent(event)
   if (isNaN(sp.row) || isNaN(sp.column)) {
     return
@@ -28,7 +28,7 @@ export function bufferPositionFromMouseEvent(editor: AtomCore.IEditor, event: Mo
   return (editor as any).bufferPositionForScreenPosition(sp)
 }
 
-export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
+export function attach(editorView: JQuery, editor: Atom.TextEditor) {
   var rawView: any = editorView[0]
 
   // Only on ".ts" files
@@ -91,17 +91,16 @@ export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
       bottom: e.clientY + offset,
     }
     exprTypeTooltip = new TooltipView(tooltipRect)
-
+    let result: protocol.QuickInfoResponse
     const client = await clientPromise
-    const result = await client
-      .executeQuickInfo({
+    try {
+      if (!filePath) return
+      result = await client.executeQuickInfo({
         file: filePath,
         line: bufferPt.row + 1,
         offset: bufferPt.column + 1,
       })
-      .catch(err => undefined)
-
-    if (!result) {
+    } catch (e) {
       return
     }
 
