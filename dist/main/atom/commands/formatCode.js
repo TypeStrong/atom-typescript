@@ -9,7 +9,15 @@ registry_1.commands.set("typescript:format-code", deps => {
             return;
         }
         const editor = atom.workspace.getActiveTextEditor();
+        if (!editor) {
+            e.abortKeyBinding();
+            return;
+        }
         const filePath = editor.getPath();
+        if (!filePath) {
+            e.abortKeyBinding();
+            return;
+        }
         const ranges = [];
         for (const selection of editor.getSelectedBufferRanges()) {
             if (!selection.isEmpty()) {

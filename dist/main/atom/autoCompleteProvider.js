@@ -48,7 +48,7 @@ class AutocompleteProvider {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
             const { prefix } = opts;
-            if (!location.file) {
+            if (!location) {
                 return [];
             }
             // Don't show autocomplete if the previous character was a non word character except "."
@@ -135,8 +135,11 @@ function getNormalizedCol(prefix, col) {
     return col - length;
 }
 function getLocationQuery(opts) {
+    const path = opts.editor.getPath();
+    if (!path)
+        return undefined;
     return {
-        file: opts.editor.getPath(),
+        file: path,
         line: opts.bufferPosition.row + 1,
         offset: opts.bufferPosition.column + 1,
     };

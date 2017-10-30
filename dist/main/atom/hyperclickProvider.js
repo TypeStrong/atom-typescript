@@ -11,11 +11,15 @@ function getHyperclickProvider(clientResolver) {
             if (!utils_1.isTypescriptGrammar(editor.getGrammar())) {
                 return null;
             }
+            const filePath = editor.getPath();
+            if (!filePath) {
+                return null;
+            }
             return {
                 range: range,
                 callback: () => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const location = {
-                        file: editor.getPath(),
+                        file: filePath,
                         line: range.start.row + 1,
                         offset: range.start.column + 1,
                     };

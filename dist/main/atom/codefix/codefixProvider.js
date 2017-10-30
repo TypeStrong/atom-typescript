@@ -63,7 +63,6 @@ class CodefixProvider {
                     }
                 });
                 if (!isOpen) {
-                    ;
                     buffer.buffer.save().then(() => buffer.buffer.destroy());
                 }
             }

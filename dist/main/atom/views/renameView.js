@@ -60,7 +60,7 @@ class RenameView extends view.View {
             this.newNameEditor.model.selectAll();
         }
         else {
-            this.newNameEditor.model.moveCursorToEndOfScreenLine();
+            this.newNameEditor.model.getLastCursor().moveToEndOfScreenLine();
         }
         this.title.text(this.options.title);
         this.newNameEditor.focus();

@@ -17,6 +17,10 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
             return;
         }
         const location = utils_1.getFilePathPosition();
+        if (!location) {
+            e.abortKeyBinding();
+            return;
+        }
         const client = yield deps.getClient(location.file);
         const result = yield client.executeDefinition(location);
         handleDefinitionResult(result, location);

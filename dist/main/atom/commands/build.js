@@ -8,7 +8,12 @@ registry_1.commands.set("typescript:build", deps => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const { file } = utils_1.getFilePathPosition();
+        const fpp = utils_1.getFilePathPosition();
+        if (!fpp) {
+            e.abortKeyBinding();
+            return;
+        }
+        const { file } = fpp;
         const client = yield deps.getClient(file);
         const projectInfo = yield client.executeProjectInfo({
             file,

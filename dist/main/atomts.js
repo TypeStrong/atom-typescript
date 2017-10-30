@@ -31,7 +31,7 @@ function activate(state) {
         .then(() => {
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
-            if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+            if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
                 statusPriority = panel.getPriority() - 1;
             }
         }
@@ -82,10 +82,12 @@ function activate(state) {
         const onSave = lodash_1.debounce((pane) => {
             if (!pane.client)
                 return;
-            const files = panes
-                .sort((a, b) => a.activeAt - b.activeAt)
-                .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
-                .map(pane => pane.filePath);
+            const files = [];
+            for (const pane of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+                if (pane.filePath && pane.isTypescript && pane.client === pane.client) {
+                    files.push(pane.filePath);
+                }
+            }
             pane.client.executeGetErr({ files, delay: 100 });
         }, 50);
         subscriptions.add(atom.workspace.observeTextEditors((editor) => {
@@ -197,15 +199,7 @@ function getTypescriptBuffer(filePath) {
             };
         }
         // Wait for the buffer to load before resolving the promise
-        const buffer = yield new Promise(resolve => {
-            const buffer = new Atom.TextBuffer({
-                filePath,
-                load: true,
-            });
-            buffer.onDidReload(() => {
-                resolve(buffer);
-            });
-        });
+        const buffer = yield Atom.TextBuffer.load(filePath);
         return {
             buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
             isOpen: false,

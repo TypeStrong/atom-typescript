@@ -61,7 +61,7 @@ class ErrorPusher {
         this.pushErrors();
     }
     setUnusedAsInfo(unusedAsInfo) {
-        this.unusedAsInfo = unusedAsInfo;
+        this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo;
     }
     /** Clear all errors */
     clear() {

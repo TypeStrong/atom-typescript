@@ -10,6 +10,10 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
             return;
         }
         const location = utils_1.getFilePathPosition();
+        if (!location) {
+            e.abortKeyBinding();
+            return;
+        }
         const client = yield deps.getClient(location.file);
         const response = yield client.executeRename(location);
         const { info, locs } = response.body;

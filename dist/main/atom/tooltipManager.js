@@ -84,15 +84,18 @@ function attach(editorView, editor) {
                 bottom: e.clientY + offset,
             };
             exprTypeTooltip = new TooltipView(tooltipRect);
+            let result;
             const client = yield clientPromise;
-            const result = yield client
-                .executeQuickInfo({
-                file: filePath,
-                line: bufferPt.row + 1,
-                offset: bufferPt.column + 1,
-            })
-                .catch(err => undefined);
-            if (!result) {
+            try {
+                if (!filePath)
+                    return;
+                result = yield client.executeQuickInfo({
+                    file: filePath,
+                    line: bufferPt.row + 1,
+                    offset: bufferPt.column + 1,
+                });
+            }
+            catch (e) {
                 return;
             }
             const { displayString, documentation } = result.body;

@@ -35,6 +35,8 @@ class TypescriptEditorPane {
         this.onChanged = () => {
             if (!this.client)
                 return;
+            if (!this.filePath)
+                return;
             this.opts.statusPanel.setBuildStatus(undefined);
             this.client.executeGetErr({
                 files: [this.filePath],
@@ -45,18 +47,18 @@ class TypescriptEditorPane {
             this.isActive = false;
             this.opts.statusPanel.hide();
         };
-        this.updateMarkers = lodash_1.debounce(() => {
+        this.updateMarkers = lodash_1.debounce(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (!this.client)
                 return;
+            if (!this.filePath)
+                return;
             const pos = this.editor.getLastCursor().getBufferPosition();
-            this.client
-                .executeOccurances({
-                file: this.filePath,
-                line: pos.row + 1,
-                offset: pos.column + 1,
-            })
-                .then(result => {
-                this.clearOccurrenceMarkers();
+            try {
+                const result = yield this.client.executeOccurances({
+                    file: this.filePath,
+                    line: pos.row + 1,
+                    offset: pos.column + 1,
+                });
                 for (const ref of result.body) {
                     const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
                     this.editor.decorateMarker(marker, {
@@ -65,9 +67,12 @@ class TypescriptEditorPane {
                     });
                     this.occurrenceMarkers.push(marker);
                 }
-            })
-                .catch(() => this.clearOccurrenceMarkers());
-        }, 100);
+            }
+            catch (e) {
+                console.error(e);
+            }
+            this.clearOccurrenceMarkers();
+        }), 100);
         this.onDidChangeCursorPosition = ({ textChanged }) => {
             if (!this.isTypescript || !this.isOpen) {
                 return;
@@ -82,36 +87,41 @@ class TypescriptEditorPane {
             this.dispose();
         };
         this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.filePath = this.editor.getPath();
-            this.client = yield this.opts.getClient(this.filePath);
+            const filePath = this.editor.getPath();
+            this.filePath = filePath;
+            if (!filePath)
+                return;
+            this.client = yield this.opts.getClient(filePath);
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
                 this.isActive = true;
                 this.opts.statusPanel.setVersion(this.client.version);
             }
-            if (this.isTypescript && this.filePath) {
+            if (this.isTypescript) {
                 this.client.executeGetErr({
-                    files: [this.filePath],
+                    files: [filePath],
                     delay: 100,
                 });
                 this.isOpen = true;
-                this.client
-                    .executeProjectInfo({
-                    needFileNameList: false,
-                    file: this.filePath,
-                })
-                    .then(result => {
+                try {
+                    const result = yield this.client.executeProjectInfo({
+                        needFileNameList: false,
+                        file: filePath,
+                    });
                     this.configFile = result.body.configFileName;
                     if (this.isActive) {
                         this.opts.statusPanel.setTsConfigPath(this.configFile);
                     }
-                    utils_1.getProjectCodeSettings(this.filePath, this.configFile).then(options => {
+                    utils_1.getProjectCodeSettings(filePath, this.configFile).then(options => {
                         this.client.executeConfigure({
-                            file: this.filePath,
+                            file: filePath,
                             formatOptions: options,
                         });
                     });
-                }, error => null);
+                }
+                catch (e) {
+                    console.error(e);
+                }
             }
         });
         this.onSaved = () => {
@@ -130,7 +140,7 @@ class TypescriptEditorPane {
         this.isTypescript = utils_1.isTypescriptGrammar(editor.getGrammar());
         // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
         if (this.isTypescript) {
-            this.editor.element.classList.add("typescript-editor");
+            atom.views.getView(this.editor).classList.add("typescript-editor");
         }
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
             this.isTypescript = utils_1.isTypescriptGrammar(grammar);
@@ -140,7 +150,7 @@ class TypescriptEditorPane {
         this.setupTooltipView();
     }
     dispose() {
-        this.editor.element.classList.remove("typescript-editor");
+        atom.views.getView(this.editor).classList.remove("typescript-editor");
         this.subscriptions.dispose();
         this.opts.onDispose(this);
     }
@@ -153,6 +163,8 @@ class TypescriptEditorPane {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client } = this;
             if (!client)
+                return;
+            if (!this.filePath)
                 return;
             const result = yield client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath,

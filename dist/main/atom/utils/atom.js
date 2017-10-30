@@ -31,6 +31,8 @@ function isAllowedExtension(ext) {
 exports.isAllowedExtension = isAllowedExtension;
 function isActiveEditorOnDiskAndTs() {
     var editor = atom.workspace.getActiveTextEditor();
+    if (!editor)
+        return;
     return onDiskAndTs(editor);
 }
 exports.isActiveEditorOnDiskAndTs = isActiveEditorOnDiskAndTs;
@@ -72,11 +74,18 @@ function onDiskAndTsRelated(editor) {
 exports.onDiskAndTsRelated = onDiskAndTsRelated;
 function getFilePathPosition() {
     const editor = atom.workspace.getActiveTextEditor();
-    return Object.assign({ file: editor.getPath() }, getEditorPosition(editor));
+    if (editor) {
+        const file = editor.getPath();
+        if (file) {
+            return Object.assign({ file }, getEditorPosition(editor));
+        }
+    }
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getFilePath() {
     var editor = atom.workspace.getActiveTextEditor();
+    if (!editor)
+        return { filePath: undefined };
     var filePath = editor.getPath();
     return { filePath };
 }
@@ -85,7 +94,9 @@ function getEditorsForAllPaths(filePaths) {
     var map = {};
     var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath());
     function addConsistentlyToMap(editor) {
-        map[_1.consistentPath(editor.getPath())] = editor;
+        const path = editor.getPath();
+        if (path)
+            map[_1.consistentPath(path)] = editor;
     }
     activeEditors.forEach(addConsistentlyToMap);
     /// find the editors that are not in here
@@ -108,10 +119,10 @@ function getRangeForTextSpan(editor, ts) {
 exports.getRangeForTextSpan = getRangeForTextSpan;
 /** only the editors that are persisted to disk. And are of type TypeScript */
 function getTypeScriptEditorsWithPaths() {
-    return atom.workspace
-        .getTextEditors()
-        .filter(editor => !!editor.getPath())
-        .filter(editor => path.extname(editor.getPath()) === ".ts");
+    return atom.workspace.getTextEditors().filter(editor => {
+        const filePath = editor.getPath();
+        return filePath && path.extname(filePath) === ".ts";
+    });
 }
 exports.getTypeScriptEditorsWithPaths = getTypeScriptEditorsWithPaths;
 function getOpenTypeScritEditorsConsistentPaths() {
@@ -190,7 +201,10 @@ function commandForTypeScript(e) {
     var editor = atom.workspace.getActiveTextEditor();
     if (!editor)
         return e.abortKeyBinding() && false;
-    var ext = path.extname(editor.getPath());
+    const filePath = editor.getPath();
+    if (!filePath)
+        return e.abortKeyBinding() && false;
+    var ext = path.extname(filePath);
     if (!isAllowedExtension(ext))
         return e.abortKeyBinding() && false;
     return true;
@@ -199,7 +213,12 @@ exports.commandForTypeScript = commandForTypeScript;
 /** Gets the consisten path for the current editor */
 function getCurrentPath() {
     var editor = atom.workspace.getActiveTextEditor();
-    return _1.consistentPath(editor.getPath());
+    if (!editor)
+        return;
+    const path = editor.getPath();
+    if (!path)
+        return;
+    return _1.consistentPath(path);
 }
 exports.getCurrentPath = getCurrentPath;
 exports.knownScopes = {
@@ -209,6 +228,8 @@ exports.knownScopes = {
 };
 function editorInTheseScopes(matches) {
     var editor = atom.workspace.getActiveTextEditor();
+    if (!editor)
+        return "";
     var scopes = editor.getLastCursor().getScopeDescriptor().scopes;
     var lastScope = scopes[scopes.length - 1];
     if (matches.some(p => lastScope === p))
@@ -236,10 +257,17 @@ function registerOpener(config) {
     atom.commands.add(config.commandSelector, config.commandName, e => {
         if (!commandForTypeScript(e))
             return;
-        var uri = uriForPath(config.uriProtocol, getCurrentPath());
+        const path = getCurrentPath();
+        if (!path) {
+            e.abortKeyBinding();
+            return;
+        }
+        var uri = uriForPath(config.uriProtocol, path);
         var old_pane = atom.workspace.paneForURI(uri);
         if (old_pane) {
-            old_pane.destroyItem(old_pane.itemForURI(uri));
+            const item = old_pane.itemForURI(uri);
+            if (item)
+                old_pane.destroyItem(item);
         }
         atom.workspace.open(uri, config.getData());
     });
@@ -259,7 +287,9 @@ function registerOpener(config) {
 exports.registerOpener = registerOpener;
 function triggerLinter() {
     // also invalidate linter
-    atom.commands.dispatch(atom.views.getView(atom.workspace.getActiveTextEditor()), "linter:lint");
+    const editor = atom.workspace.getActiveTextEditor();
+    if (editor)
+        atom.commands.dispatch(atom.views.getView(editor), "linter:lint");
 }
 exports.triggerLinter = triggerLinter;
 /**

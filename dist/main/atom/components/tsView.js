@@ -1,6 +1,4 @@
 "use strict";
-// Some docs
-// http://www.html5rocks.com/en/tutorials/webcomponents/customelements/ (look at lifecycle callback methods)
 Object.defineProperty(exports, "__esModule", { value: true });
 class TsView extends HTMLElement {
     createdCallback() {
@@ -14,7 +12,9 @@ class TsView extends HTMLElement {
         var editorElement = atom.views.getView(this.editor);
         editorElement.removeAttribute("tabindex"); // make read-only
         this.editor.setText(preview);
-        this.editor.setGrammar(atom.grammars.grammarForScopeName("source.tsx"));
+        const grammar = atom.grammars.grammarForScopeName("source.tsx");
+        if (grammar)
+            this.editor.setGrammar(grammar);
         this.editor.scrollToBufferPosition([0, 0]);
         this.appendChild(editorElement);
     }
