@@ -69,7 +69,8 @@ class TypescriptEditorPane {
                 }
             }
             catch (e) {
-                console.error(e);
+                if (window.atom_typescript_debug)
+                    console.error(e);
             }
             this.clearOccurrenceMarkers();
         }), 100);
@@ -119,7 +120,8 @@ class TypescriptEditorPane {
                     });
                 }
                 catch (e) {
-                    console.error(e);
+                    if (window.atom_typescript_debug)
+                        console.error(e);
                 }
             }
         });

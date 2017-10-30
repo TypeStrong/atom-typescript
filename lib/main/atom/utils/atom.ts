@@ -284,40 +284,6 @@ export function uriForPath(uriProtocol: string, filePath: string) {
   return uriProtocol + "//" + filePath
 }
 
-/**
- * Registers an opener with atom
- */
-// export function registerOpener<T>(config: OpenerConfig<T>) {
-//   atom.commands.add(config.commandSelector, config.commandName, e => {
-//     if (!commandForTypeScript(e)) { return }
-//     const path = getCurrentPath()
-//     if (!path) {
-//       e.abortKeyBinding()
-//       return
-//     }
-//     let uri = uriForPath(config.uriProtocol, path)
-//     let old_pane = atom.workspace.paneForURI(uri)
-//     if (old_pane) {
-//       const item = old_pane.itemForURI(uri)
-//       if (item) { old_pane.destroyItem(item) }
-//     }
-//
-//     atom.workspace.open(uri, config.getData())
-//   })
-//
-//   atom.workspace.addOpener(function(uri: string, data: T) {
-//     try {
-//       let {protocol} = url.parse(uri)
-//       if (protocol !== config.uriProtocol) {
-//         return
-//       }
-//     } catch (error) {
-//       return
-//     }
-//     return config.onOpen(data)
-//   })
-// }
-
 export function triggerLinter() {
   // also invalidate linter
   const editor = atom.workspace.getActiveTextEditor()

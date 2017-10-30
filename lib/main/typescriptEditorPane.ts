@@ -144,7 +144,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
         this.occurrenceMarkers.push(marker)
       }
     } catch (e) {
-      console.error(e)
+      if (window.atom_typescript_debug) console.error(e)
     }
     this.clearOccurrenceMarkers()
   }, 100)
@@ -202,7 +202,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
           })
         })
       } catch (e) {
-        console.error(e)
+        if (window.atom_typescript_debug) console.error(e)
       }
     }
   }
