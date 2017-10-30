@@ -183,7 +183,7 @@ export function consumeStatusBar(_statusBar: StatusBar) {
 }
 
 // Registering an autocomplete provider
-export function provide() {
+export function provideAutocomplete() {
   return [new AutocompleteProvider(clientResolver, {getTypescriptBuffer})]
 }
 

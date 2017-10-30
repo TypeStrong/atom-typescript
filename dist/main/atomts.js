@@ -148,10 +148,10 @@ function consumeStatusBar(_statusBar) {
 }
 exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
-function provide() {
+function provideAutocomplete() {
     return [new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer })];
 }
-exports.provide = provide;
+exports.provideAutocomplete = provideAutocomplete;
 function provideIntentions() {
     return new codefix_1.IntentionsProvider(codefixProvider);
 }
