@@ -15,4 +15,8 @@ declare module "atom" {
   interface Grammar {
     scopeName: string
   }
+
+  interface PackageManager {
+    activatePackage(name: string): Promise<Package>
+  }
 }
