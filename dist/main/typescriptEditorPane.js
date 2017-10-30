@@ -137,13 +137,13 @@ class TypescriptEditorPane {
             .on("closed", this.opts.onClose)
             .on("opened", this.onOpened)
             .on("saved", this.onSaved);
-        this.isTypescript = utils_1.isTypescriptGrammar(editor.getGrammar());
+        this.isTypescript = utils_1.isTypescriptGrammar(editor);
         // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
         if (this.isTypescript) {
             atom.views.getView(this.editor).classList.add("typescript-editor");
         }
         this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
-            this.isTypescript = utils_1.isTypescriptGrammar(grammar);
+            this.isTypescript = utils_1.isTypescriptGrammar(editor);
         }));
         this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
         this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));

@@ -12,10 +12,6 @@ declare module "atom" {
     isDestroyed(): boolean
   }
 
-  interface Grammar {
-    scopeName: string
-  }
-
   interface PackageManager {
     activatePackage(name: string): Promise<Package>
   }

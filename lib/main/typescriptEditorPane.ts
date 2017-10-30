@@ -53,7 +53,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       .on("opened", this.onOpened)
       .on("saved", this.onSaved)
 
-    this.isTypescript = isTypescriptGrammar(editor.getGrammar())
+    this.isTypescript = isTypescriptGrammar(editor)
 
     // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
     if (this.isTypescript) {
@@ -62,7 +62,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     this.subscriptions.add(
       editor.onDidChangeGrammar(grammar => {
-        this.isTypescript = isTypescriptGrammar(grammar)
+        this.isTypescript = isTypescriptGrammar(editor)
       }),
     )
 

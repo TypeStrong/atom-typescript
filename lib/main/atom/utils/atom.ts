@@ -20,8 +20,9 @@ export function isTypescriptFile(filePath: string): boolean {
   return ext === ".ts" || ext === ".tsx"
 }
 
-export function isTypescriptGrammar(grammar: Atom.Grammar): boolean {
-  return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx"
+export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
+  const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
+  return scopeName === "source.ts" || scopeName === "source.tsx"
 }
 
 export function isAllowedExtension(ext: string) {

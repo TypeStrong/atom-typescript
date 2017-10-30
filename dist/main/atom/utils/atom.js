@@ -21,8 +21,9 @@ function isTypescriptFile(filePath) {
     return ext === ".ts" || ext === ".tsx";
 }
 exports.isTypescriptFile = isTypescriptFile;
-function isTypescriptGrammar(grammar) {
-    return grammar.scopeName === "source.ts" || grammar.scopeName === "source.tsx";
+function isTypescriptGrammar(editor) {
+    const [scopeName] = editor.getRootScopeDescriptor().getScopesArray();
+    return scopeName === "source.ts" || scopeName === "source.tsx";
 }
 exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {

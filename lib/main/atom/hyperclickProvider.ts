@@ -9,7 +9,7 @@ export function getHyperclickProvider(clientResolver: ClientResolver): any {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
     getSuggestionForWord(editor: Atom.TextEditor, text: string, range: Atom.Range) {
-      if (!isTypescriptGrammar(editor.getGrammar())) {
+      if (!isTypescriptGrammar(editor)) {
         return null
       }
       const filePath = editor.getPath()
