@@ -22,11 +22,9 @@ commands.set("typescript:build", deps => {
 
     const files = new Set(projectInfo.body!.fileNames)
     files.delete(projectInfo.body!.configFileName)
-    const max = files.size
     const promises = [...files.values()].map(f =>
       _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
         files.delete(file)
-        updateStatus()
       }),
     )
 
@@ -44,15 +42,6 @@ commands.set("typescript:build", deps => {
       })
 
     deps.statusPanel.setBuildStatus(undefined)
-    deps.statusPanel.setProgress({max, value: 0})
-
-    function updateStatus() {
-      if (files.size === 0) {
-        deps.statusPanel.setProgress(undefined)
-      } else {
-        deps.statusPanel.setProgress({max, value: max - files.size})
-      }
-    }
   }
 })
 
