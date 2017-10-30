@@ -1,7 +1,7 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
 import {kindToType, FileLocationQuery} from "./utils"
-import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
+import * as ACP from "atom/autocomplete-plus"
 import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
@@ -9,7 +9,7 @@ import * as fuzzaldrin from "fuzzaldrin"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 
-type SuggestionWithDetails = Suggestion & {
+type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
 }
 
@@ -22,7 +22,7 @@ type Options = {
   }>
 }
 
-export class AutocompleteProvider implements Provider {
+export class AutocompleteProvider implements ACP.AutocompleteProvider {
   selector = ".source.ts, .source.tsx"
 
   disableForSelector = ".comment"
@@ -93,11 +93,11 @@ export class AutocompleteProvider implements Provider {
     return suggestions
   }
 
-  async getSuggestions(opts: RequestOptions): Promise<Suggestion[]> {
+  async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
-    if (!location.file) {
+    if (!location) {
       return []
     }
 
@@ -202,9 +202,11 @@ function getNormalizedCol(prefix: string, col: number): number {
   return col - length
 }
 
-function getLocationQuery(opts: RequestOptions): FileLocationQuery {
+function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined{
+  const path = opts.editor.getPath()
+  if (!path) return undefined
   return {
-    file: opts.editor.getPath(),
+    file: path,
     line: opts.bufferPosition.row + 1,
     offset: opts.bufferPosition.column + 1,
   }

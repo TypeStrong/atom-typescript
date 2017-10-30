@@ -1,11 +1,11 @@
 import {debounce} from "lodash"
 import {Diagnostic, Location} from "typescript/lib/protocol"
-import {Linter, LinterMessage} from "../typings/linter"
+import {IndieDelegate, Message} from "atom/linter"
 import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
-  private linter?: Linter
+  private linter?: IndieDelegate
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
   private unusedAsInfo = true
 
@@ -50,13 +50,13 @@ export class ErrorPusher {
     }
   }
 
-  setLinter(linter: Linter) {
+  setLinter(linter: IndieDelegate) {
     this.linter = linter
     this.pushErrors()
   }
 
   private pushErrors = debounce(() => {
-    const errors: LinterMessage[] = []
+    const errors: Message[] = []
 
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, diagnostics] of fileErrors) {

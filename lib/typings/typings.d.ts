@@ -20,9 +20,3 @@ declare module "atom-space-pen-views" {
   export class View extends sp.View {}
   export var $: JQueryStatic
 }
-
-declare namespace AtomCore {
-  export interface IEditor {
-    element: any
-  }
-}

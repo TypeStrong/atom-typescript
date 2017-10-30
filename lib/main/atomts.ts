@@ -9,8 +9,8 @@ import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {flatten, values} from "lodash"
-import {RegisterLinter, Linter} from "../typings/linter"
-import {StatusBar} from "../typings/status_bar"
+import {LinterProvider, IndieDelegate} from "atom/linter"
+import {StatusBar} from "atom/status-bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -24,7 +24,7 @@ const panes: TypescriptEditorPane[] = []
 import "./atom/components"
 import {registerCommands} from "./atom/commands"
 
-let linter: Linter
+let linter: IndieDelegate
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
 
@@ -36,7 +36,7 @@ export function activate(state: PackageState) {
     .then(() => {
       let statusPriority = 100
       for (const panel of statusBar.getRightTiles()) {
-        if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+        if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
           statusPriority = panel.getPriority() - 1
         }
       }
@@ -168,7 +168,7 @@ export function serialize(): PackageState {
   return {}
 }
 
-export function consumeLinter(register: RegisterLinter) {
+export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
   linter = register({
     name: "Typescript",
   })
