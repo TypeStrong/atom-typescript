@@ -1,7 +1,8 @@
 import * as Atom from "atom"
 import view = require("./view")
-var $ = view.$
-var html = require("../../../../views/renameView.html")
+// tslint:disable-next-line:no-var-requires
+const html = require("../../../../views/renameView.html")
+const $ = view.$
 
 interface EditorViewzz extends JQuery {
   model: Atom.TextEditor
@@ -26,7 +27,7 @@ export class RenameView extends view.View<RenameViewOptions> {
 
   public init() {
     $(atom.views.getView(atom.workspace)).on("keydown", e => {
-      if (e.keyCode == 27) {
+      if (e.keyCode === 27) {
         // escape
         if (this.options.onCancel) {
           this.options.onCancel()
@@ -36,10 +37,10 @@ export class RenameView extends view.View<RenameViewOptions> {
     })
 
     this.newNameEditor.on("keydown", e => {
-      var newText = this.newNameEditor.model.getText()
-      if (e.keyCode == 13) {
+      const newText = this.newNameEditor.model.getText()
+      if (e.keyCode === 13) {
         // enter
-        var invalid = this.options.onValidate(newText)
+        const invalid = this.options.onValidate(newText)
         if (invalid) {
           this.validationMessage.text(invalid)
           this.validationMessage.show()
@@ -52,7 +53,7 @@ export class RenameView extends view.View<RenameViewOptions> {
           this.clearView()
         }
       }
-      if (e.keyCode == 27) {
+      if (e.keyCode === 27) {
         // escape
         if (this.options.onCancel) {
           this.options.onCancel()
@@ -69,11 +70,11 @@ export class RenameView extends view.View<RenameViewOptions> {
   public editorAtRenameStart?: Atom.TextEditor
   public clearView() {
     if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
-      var view = atom.views.getView(this.editorAtRenameStart)
-      view.focus()
+      const editorView = atom.views.getView(this.editorAtRenameStart)
+      editorView.focus()
     }
     this.panel.hide()
-    this.options = <any>{}
+    this.options = {} as any
     this.editorAtRenameStart = undefined
   }
 
@@ -107,7 +108,7 @@ export class RenameView extends view.View<RenameViewOptions> {
 }
 
 export function attach(): {dispose(): void; renameView: RenameView} {
-  const renameView = new RenameView(<any>{})
+  const renameView = new RenameView({} as any)
   const panel = atom.workspace.addModalPanel({
     item: renameView,
     priority: 1000,

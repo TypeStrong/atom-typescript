@@ -14,7 +14,9 @@ export function getEditorPosition(editor: Atom.TextEditor): Location {
 }
 
 export function isTypescriptFile(filePath: string): boolean {
-  if (!filePath) return false
+  if (!filePath) {
+    return false
+  }
 
   const ext = path.extname(filePath)
   return ext === ".ts" || ext === ".tsx"
@@ -26,22 +28,24 @@ export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
 }
 
 export function isAllowedExtension(ext: string) {
-  return ext == ".ts" || ext == ".tst" || ext == ".tsx"
+  return ext === ".ts" || ext === ".tst" || ext === ".tsx"
 }
 
 export function isActiveEditorOnDiskAndTs() {
-  var editor = atom.workspace.getActiveTextEditor()
-  if (!editor) return
+  const editor = atom.workspace.getActiveTextEditor()
+  if (!editor) {
+    return
+  }
   return onDiskAndTs(editor)
 }
 
 export function onDiskAndTs(editor: Atom.TextEditor) {
   if (editor instanceof require("atom").TextEditor) {
-    var filePath = editor.getPath()
+    const filePath = editor.getPath()
     if (!filePath) {
       return false
     }
-    var ext = path.extname(filePath)
+    const ext = path.extname(filePath)
     if (isAllowedExtension(ext)) {
       if (fs.existsSync(filePath)) {
         return true
@@ -54,11 +58,11 @@ export function onDiskAndTs(editor: Atom.TextEditor) {
 /** Either ts or tsconfig */
 export function onDiskAndTsRelated(editor: Atom.TextEditor) {
   if (editor instanceof require("atom").TextEditor) {
-    var filePath = editor.getPath()
+    const filePath = editor.getPath()
     if (!filePath) {
       return false
     }
-    var ext = path.extname(filePath)
+    const ext = path.extname(filePath)
     if (isAllowedExtension(ext)) {
       if (fs.existsSync(filePath)) {
         return true
@@ -82,30 +86,36 @@ export function getFilePathPosition(): FileLocationQuery | undefined {
 }
 
 export function getFilePath(): {filePath: string | undefined} {
-  var editor = atom.workspace.getActiveTextEditor()
-  if (!editor) return {filePath: undefined}
-  var filePath = editor.getPath()
+  const editor = atom.workspace.getActiveTextEditor()
+  if (!editor) {
+    return {filePath: undefined}
+  }
+  const filePath = editor.getPath()
   return {filePath}
 }
 
 export function getEditorsForAllPaths(
   filePaths: string[],
 ): Promise<{[filePath: string]: Atom.TextEditor}> {
-  var map = <any>{}
-  var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath())
+  const map: {[key: string]: Atom.TextEditor} = {}
+  const activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath())
 
   function addConsistentlyToMap(editor: Atom.TextEditor) {
-    const path = editor.getPath()
-    if (path) map[consistentPath(path)] = editor
+    const filePath = editor.getPath()
+    if (filePath) {
+      map[consistentPath(filePath)] = editor
+    }
   }
 
   activeEditors.forEach(addConsistentlyToMap)
 
   /// find the editors that are not in here
-  var newPaths = filePaths.filter(p => !map[p])
-  if (!newPaths.length) return Promise.resolve(map)
+  const newPaths = filePaths.filter(p => !map[p])
+  if (!newPaths.length) {
+    return Promise.resolve(map)
+  }
 
-  var promises = newPaths.map(p => atom.workspace.open(p, {}) as any) // Update Atom typings!
+  const promises = newPaths.map(p => atom.workspace.open(p, {}) as any) // Update Atom typings!
 
   return Promise.all(promises).then(editors => {
     editors.forEach(editor => addConsistentlyToMap(editor))
@@ -118,9 +128,9 @@ export function getRangeForTextSpan(
   editor: Atom.TextEditor,
   ts: {start: number; length: number},
 ): Atom.Range {
-  var start = editor.buffer.positionForCharacterIndex(ts.start)
-  var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length)
-  var range = new Atom.Range(start, end)
+  const start = editor.buffer.positionForCharacterIndex(ts.start)
+  const end = editor.buffer.positionForCharacterIndex(ts.start + ts.length)
+  const range = new Atom.Range(start, end)
   return range
 }
 
@@ -137,7 +147,7 @@ export function getOpenTypeScritEditorsConsistentPaths() {
 }
 
 export function quickNotifySuccess(htmlMessage: string) {
-  var notification = atom.notifications.addSuccess(htmlMessage, {
+  const notification = atom.notifications.addSuccess(htmlMessage, {
     dismissable: true,
   })
   setTimeout(() => {
@@ -146,7 +156,7 @@ export function quickNotifySuccess(htmlMessage: string) {
 }
 
 export function quickNotifyWarning(htmlMessage: string) {
-  var notification = atom.notifications.addWarning(htmlMessage, {
+  const notification = atom.notifications.addWarning(htmlMessage, {
     dismissable: true,
   })
   setTimeout(() => {
@@ -205,38 +215,53 @@ export function kindToType(kind: string) {
 
 /** Utility functions for commands */
 export function commandForTypeScript(e: Atom.CommandEvent) {
-  var editor = atom.workspace.getActiveTextEditor()
-  if (!editor) return e.abortKeyBinding() && false
+  const editor = atom.workspace.getActiveTextEditor()
+  if (!editor) {
+    return e.abortKeyBinding() && false
+  }
   const filePath = editor.getPath()
-  if (!filePath) return e.abortKeyBinding() && false
-  var ext = path.extname(filePath)
-  if (!isAllowedExtension(ext)) return e.abortKeyBinding() && false
+  if (!filePath) {
+    return e.abortKeyBinding() && false
+  }
+  const ext = path.extname(filePath)
+  if (!isAllowedExtension(ext)) {
+    return e.abortKeyBinding() && false
+  }
 
   return true
 }
 
 /** Gets the consisten path for the current editor */
 export function getCurrentPath(): string | undefined {
-  var editor = atom.workspace.getActiveTextEditor()
-  if (!editor) return
-  const path = editor.getPath()
-  if (!path) return
-  return consistentPath(path)
+  const editor = atom.workspace.getActiveTextEditor()
+  if (!editor) {
+    return
+  }
+  const filePath = editor.getPath()
+  if (!filePath) {
+    return
+  }
+  return consistentPath(filePath)
 }
 
-export var knownScopes = {
+export let knownScopes = {
   reference: "reference.path.string",
   require: "require.path.string",
   es6import: "es6import.path.string",
 }
 
 export function editorInTheseScopes(matches: string[]) {
-  var editor = atom.workspace.getActiveTextEditor()
-  if (!editor) return ""
-  var scopes = editor.getLastCursor().getScopeDescriptor().scopes
-  var lastScope = scopes[scopes.length - 1]
-  if (matches.some(p => lastScope === p)) return lastScope
-  else return ""
+  const editor = atom.workspace.getActiveTextEditor()
+  if (!editor) {
+    return ""
+  }
+  const scopes = editor.getLastCursor().getScopeDescriptor().scopes
+  const lastScope = scopes[scopes.length - 1]
+  if (matches.some(p => lastScope === p)) {
+    return lastScope
+  } else {
+    return ""
+  }
 }
 
 /** One less level of indirection */
@@ -262,43 +287,43 @@ export function uriForPath(uriProtocol: string, filePath: string) {
 /**
  * Registers an opener with atom
  */
-export function registerOpener<T>(config: OpenerConfig<T>) {
-  atom.commands.add(config.commandSelector, config.commandName, e => {
-    if (!commandForTypeScript(e)) return
-    const path = getCurrentPath()
-    if (!path) {
-      e.abortKeyBinding()
-      return
-    }
-    var uri = uriForPath(config.uriProtocol, path)
-    var old_pane = atom.workspace.paneForURI(uri)
-    if (old_pane) {
-      const item = old_pane.itemForURI(uri)
-      if (item) old_pane.destroyItem(item)
-    }
-
-    atom.workspace.open(uri, config.getData())
-  })
-
-  atom.workspace.addOpener(function(uri: string, data: T) {
-    try {
-      var {protocol} = url.parse(uri)
-    } catch (error) {
-      return
-    }
-
-    if (protocol !== config.uriProtocol) {
-      return
-    }
-
-    return config.onOpen(data)
-  })
-}
+// export function registerOpener<T>(config: OpenerConfig<T>) {
+//   atom.commands.add(config.commandSelector, config.commandName, e => {
+//     if (!commandForTypeScript(e)) { return }
+//     const path = getCurrentPath()
+//     if (!path) {
+//       e.abortKeyBinding()
+//       return
+//     }
+//     let uri = uriForPath(config.uriProtocol, path)
+//     let old_pane = atom.workspace.paneForURI(uri)
+//     if (old_pane) {
+//       const item = old_pane.itemForURI(uri)
+//       if (item) { old_pane.destroyItem(item) }
+//     }
+//
+//     atom.workspace.open(uri, config.getData())
+//   })
+//
+//   atom.workspace.addOpener(function(uri: string, data: T) {
+//     try {
+//       let {protocol} = url.parse(uri)
+//       if (protocol !== config.uriProtocol) {
+//         return
+//       }
+//     } catch (error) {
+//       return
+//     }
+//     return config.onOpen(data)
+//   })
+// }
 
 export function triggerLinter() {
   // also invalidate linter
   const editor = atom.workspace.getActiveTextEditor()
-  if (editor) atom.commands.dispatch(atom.views.getView(editor), "linter:lint")
+  if (editor) {
+    atom.commands.dispatch(atom.views.getView(editor), "linter:lint")
+  }
 }
 
 /**
@@ -315,7 +340,7 @@ export function getFilePathRelativeToAtomProject(filePath: string) {
  * Opens the given file in the same project
  */
 export function openFile(filePath: string, position: {line?: number; col?: number} = {}) {
-  var config: any = {}
+  const config: any = {}
   if (position.line) {
     config.initialLine = position.line - 1
   }

@@ -68,7 +68,7 @@ function activate(state) {
             getTypescriptBuffer,
             getClient(filePath) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    const pane = panes.find(pane => pane.filePath === filePath);
+                    const pane = panes.find(p => p.filePath === filePath);
                     if (pane && pane.client) {
                         return pane.client;
                     }
@@ -80,12 +80,13 @@ function activate(state) {
         });
         let activePane;
         const onSave = lodash_1.debounce((pane) => {
-            if (!pane.client)
+            if (!pane.client) {
                 return;
+            }
             const files = [];
-            for (const pane of panes.sort((a, b) => a.activeAt - b.activeAt)) {
-                if (pane.filePath && pane.isTypescript && pane.client === pane.client) {
-                    files.push(pane.filePath);
+            for (const p of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+                if (p.filePath && p.isTypescript && p.client === p.client) {
+                    files.push(p.filePath);
                 }
             }
             pane.client.executeGetErr({ files, delay: 100 });
@@ -118,7 +119,7 @@ function activate(state) {
                 activePane = undefined;
             }
             if (atom.workspace.isTextEditor(editor)) {
-                const pane = panes.find(pane => pane.editor === editor);
+                const pane = panes.find(p => p.editor === editor);
                 if (pane) {
                     activePane = pane;
                     pane.onActivated();
@@ -191,7 +192,7 @@ exports.loadProjectConfig = loadProjectConfig;
 // Get Typescript buffer for the given path
 function getTypescriptBuffer(filePath) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const pane = panes.find(pane => pane.filePath === filePath);
+        const pane = panes.find(p => p.filePath === filePath);
         if (pane) {
             return {
                 buffer: pane.buffer,
@@ -201,7 +202,7 @@ function getTypescriptBuffer(filePath) {
         // Wait for the buffer to load before resolving the promise
         const buffer = yield Atom.TextBuffer.load(filePath);
         return {
-            buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, filePath => exports.clientResolver.get(filePath)),
+            buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, fp => exports.clientResolver.get(fp)),
             isOpen: false,
         };
     });

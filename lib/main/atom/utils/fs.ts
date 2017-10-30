@@ -25,7 +25,7 @@ export function resolve(...args: string[]) {
  * Converts "C:\boo" , "C:\boo\foo.ts" => "./foo.ts"; Works on unix as well.
  */
 export function makeRelativePath(relativeFolder: string, filePath: string) {
-  var relativePath = path
+  let relativePath = path
     .relative(relativeFolder, filePath)
     .split("\\")
     .join("/")

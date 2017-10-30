@@ -16,9 +16,7 @@ export type GetTypescriptBuffer = (
   filePath: string,
 ) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
-export interface CommandConstructor {
-  (deps: Dependencies): (e: Atom.CommandEvent) => any
-}
+export type CommandConstructor = (deps: Dependencies) => (e: Atom.CommandEvent) => any
 
 // To allow using dependency injection, but avoid having to type a lot of boilerplate, we have the
 // individual command files register themselves in the below map. When the package is initializing,

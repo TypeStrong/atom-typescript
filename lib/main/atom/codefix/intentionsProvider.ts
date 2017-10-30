@@ -9,7 +9,7 @@ interface Intention {
   selected: () => void
 }
 
-interface IIntentionsProvider {
+interface IntentionsProviderInterface {
   grammarScopes: string[]
   getIntentions: (opts: GetIntentionsOptions) => Intention[] | Promise<Intention[]>
 }
@@ -19,7 +19,7 @@ interface GetIntentionsOptions {
   textEditor: Atom.TextEditor
 }
 
-export class IntentionsProvider implements IIntentionsProvider {
+export class IntentionsProvider implements IntentionsProviderInterface {
   grammarScopes = ["*"]
 
   constructor(private codefixProvider: CodefixProvider) {}

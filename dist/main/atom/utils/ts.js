@@ -50,7 +50,7 @@ function compareLocation(loc1, loc2) {
 }
 exports.compareLocation = compareLocation;
 function isLocationInRange(loc, range) {
-    return compareLocation(range.start, loc) != 1 && compareLocation(range.end, loc) !== -1;
+    return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1;
 }
 exports.isLocationInRange = isLocationInRange;
 function getProjectCodeSettings(filePath, configFile) {

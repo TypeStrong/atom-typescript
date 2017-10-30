@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const view = require("./view");
-var $ = view.$;
+const $ = view.$;
 class TooltipView extends view.View {
     constructor(rect) {
         super(rect);
@@ -20,13 +20,14 @@ class TooltipView extends view.View {
         this.$.fadeTo(300, 1);
     }
     updatePosition() {
-        var offset = 10;
-        var left = this.rect.right;
-        var top = this.rect.bottom;
-        var right = "";
+        const offset = 10;
+        let left = this.rect.right;
+        let top = this.rect.bottom;
+        let right = "";
         // X axis adjust
-        if (left + this.$[0].offsetWidth >= view.$(document.body).width())
+        if (left + this.$[0].offsetWidth >= view.$(document.body).width()) {
             left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
+        }
         if (left < 0) {
             this.$.css({ "white-space": "pre-wrap" });
             left = offset;

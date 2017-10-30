@@ -13,8 +13,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 Object.defineProperty(exports, "__esModule", { value: true });
-;
-("use strict");
 const path = require("path");
 function mapValues(map) {
     return Object.keys(map).reduce((result, key) => {
@@ -25,16 +23,16 @@ function mapValues(map) {
 exports.mapValues = mapValues;
 /**
  * assign all properties of a list of object to an object
- * @param target the object that will receive properties
+ * @param outerTarget the object that will receive properties
  * @param items items which properties will be assigned to a target
  */
-function assign(target, ...items) {
-    return items.reduce(function (target, source) {
-        return Object.keys(source).reduce((target, key) => {
-            target[key] = source[key];
-            return target;
+function assign(outerTarget, ...items) {
+    return items.reduce((target, source) => {
+        return Object.keys(source).reduce((innerTarget, key) => {
+            innerTarget[key] = source[key];
+            return innerTarget;
         }, target);
-    }, target);
+    }, outerTarget);
 }
 exports.assign = assign;
 /**
@@ -59,24 +57,25 @@ exports.createMap = createMap;
  * browserify path.resolve is buggy on windows
  */
 function pathResolve(from, to) {
-    var result = path.resolve(from, to);
-    var index = result.indexOf(from[0]);
+    const result = path.resolve(from, to);
+    const index = result.indexOf(from[0]);
     return result.slice(index);
 }
 exports.pathResolve = pathResolve;
-var nameExtractorRegex = /return (.*);/;
+const nameExtractorRegex = /return (.*);/;
 /** Get the name using a lambda so that you don't have magic strings */
 function getName(nameLambda) {
-    var m = nameExtractorRegex.exec(nameLambda + "");
-    if (m == null)
+    const m = nameExtractorRegex.exec(nameLambda + "");
+    if (m == null) {
         throw new Error("The function does not contain a statement matching 'return variableName;'");
-    var access = m[1].split(".");
+    }
+    const access = m[1].split(".");
     return access[access.length - 1];
 }
 exports.getName = getName;
 /** Sloppy but effective code to find distinct */
 function distinct(arr) {
-    var map = createMap(arr);
+    const map = createMap(arr);
     return Object.keys(map);
 }
 exports.distinct = distinct;

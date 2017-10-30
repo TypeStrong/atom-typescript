@@ -20,8 +20,9 @@ class TypescriptBuffer {
             if (this.isOpen && this.clientPromise) {
                 const client = yield this.clientPromise;
                 const file = this.buffer.getPath();
-                if (file)
+                if (file) {
                     client.executeClose({ file });
+                }
                 this.events.emit("closed", this.filePath);
             }
         });
@@ -51,8 +52,9 @@ class TypescriptBuffer {
             }
             this.changedAtBatch = Date.now();
             const filePath = this.buffer.getPath();
-            if (!filePath)
+            if (!filePath) {
                 return;
+            }
             const client = yield this.clientPromise;
             for (const change of changes) {
                 const { start, oldExtent, newText } = change;

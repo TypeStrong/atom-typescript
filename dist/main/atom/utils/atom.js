@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const fs = require("fs");
 const path = require("path");
-const url = require("url");
 const _1 = require("./");
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
@@ -15,8 +14,9 @@ function getEditorPosition(editor) {
 }
 exports.getEditorPosition = getEditorPosition;
 function isTypescriptFile(filePath) {
-    if (!filePath)
+    if (!filePath) {
         return false;
+    }
     const ext = path.extname(filePath);
     return ext === ".ts" || ext === ".tsx";
 }
@@ -27,23 +27,24 @@ function isTypescriptGrammar(editor) {
 }
 exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {
-    return ext == ".ts" || ext == ".tst" || ext == ".tsx";
+    return ext === ".ts" || ext === ".tst" || ext === ".tsx";
 }
 exports.isAllowedExtension = isAllowedExtension;
 function isActiveEditorOnDiskAndTs() {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
+    const editor = atom.workspace.getActiveTextEditor();
+    if (!editor) {
         return;
+    }
     return onDiskAndTs(editor);
 }
 exports.isActiveEditorOnDiskAndTs = isActiveEditorOnDiskAndTs;
 function onDiskAndTs(editor) {
     if (editor instanceof require("atom").TextEditor) {
-        var filePath = editor.getPath();
+        const filePath = editor.getPath();
         if (!filePath) {
             return false;
         }
-        var ext = path.extname(filePath);
+        const ext = path.extname(filePath);
         if (isAllowedExtension(ext)) {
             if (fs.existsSync(filePath)) {
                 return true;
@@ -56,11 +57,11 @@ exports.onDiskAndTs = onDiskAndTs;
 /** Either ts or tsconfig */
 function onDiskAndTsRelated(editor) {
     if (editor instanceof require("atom").TextEditor) {
-        var filePath = editor.getPath();
+        const filePath = editor.getPath();
         if (!filePath) {
             return false;
         }
-        var ext = path.extname(filePath);
+        const ext = path.extname(filePath);
         if (isAllowedExtension(ext)) {
             if (fs.existsSync(filePath)) {
                 return true;
@@ -84,27 +85,30 @@ function getFilePathPosition() {
 }
 exports.getFilePathPosition = getFilePathPosition;
 function getFilePath() {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
+    const editor = atom.workspace.getActiveTextEditor();
+    if (!editor) {
         return { filePath: undefined };
-    var filePath = editor.getPath();
+    }
+    const filePath = editor.getPath();
     return { filePath };
 }
 exports.getFilePath = getFilePath;
 function getEditorsForAllPaths(filePaths) {
-    var map = {};
-    var activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath());
+    const map = {};
+    const activeEditors = atom.workspace.getTextEditors().filter(editor => !!editor.getPath());
     function addConsistentlyToMap(editor) {
-        const path = editor.getPath();
-        if (path)
-            map[_1.consistentPath(path)] = editor;
+        const filePath = editor.getPath();
+        if (filePath) {
+            map[_1.consistentPath(filePath)] = editor;
+        }
     }
     activeEditors.forEach(addConsistentlyToMap);
     /// find the editors that are not in here
-    var newPaths = filePaths.filter(p => !map[p]);
-    if (!newPaths.length)
+    const newPaths = filePaths.filter(p => !map[p]);
+    if (!newPaths.length) {
         return Promise.resolve(map);
-    var promises = newPaths.map(p => atom.workspace.open(p, {})); // Update Atom typings!
+    }
+    const promises = newPaths.map(p => atom.workspace.open(p, {})); // Update Atom typings!
     return Promise.all(promises).then(editors => {
         editors.forEach(editor => addConsistentlyToMap(editor));
         return map;
@@ -112,9 +116,9 @@ function getEditorsForAllPaths(filePaths) {
 }
 exports.getEditorsForAllPaths = getEditorsForAllPaths;
 function getRangeForTextSpan(editor, ts) {
-    var start = editor.buffer.positionForCharacterIndex(ts.start);
-    var end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
-    var range = new Atom.Range(start, end);
+    const start = editor.buffer.positionForCharacterIndex(ts.start);
+    const end = editor.buffer.positionForCharacterIndex(ts.start + ts.length);
+    const range = new Atom.Range(start, end);
     return range;
 }
 exports.getRangeForTextSpan = getRangeForTextSpan;
@@ -131,7 +135,7 @@ function getOpenTypeScritEditorsConsistentPaths() {
 }
 exports.getOpenTypeScritEditorsConsistentPaths = getOpenTypeScritEditorsConsistentPaths;
 function quickNotifySuccess(htmlMessage) {
-    var notification = atom.notifications.addSuccess(htmlMessage, {
+    const notification = atom.notifications.addSuccess(htmlMessage, {
         dismissable: true,
     });
     setTimeout(() => {
@@ -140,7 +144,7 @@ function quickNotifySuccess(htmlMessage) {
 }
 exports.quickNotifySuccess = quickNotifySuccess;
 function quickNotifyWarning(htmlMessage) {
-    var notification = atom.notifications.addWarning(htmlMessage, {
+    const notification = atom.notifications.addWarning(htmlMessage, {
         dismissable: true,
     });
     setTimeout(() => {
@@ -199,27 +203,32 @@ function kindToType(kind) {
 exports.kindToType = kindToType;
 /** Utility functions for commands */
 function commandForTypeScript(e) {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
+    const editor = atom.workspace.getActiveTextEditor();
+    if (!editor) {
         return e.abortKeyBinding() && false;
+    }
     const filePath = editor.getPath();
-    if (!filePath)
+    if (!filePath) {
         return e.abortKeyBinding() && false;
-    var ext = path.extname(filePath);
-    if (!isAllowedExtension(ext))
+    }
+    const ext = path.extname(filePath);
+    if (!isAllowedExtension(ext)) {
         return e.abortKeyBinding() && false;
+    }
     return true;
 }
 exports.commandForTypeScript = commandForTypeScript;
 /** Gets the consisten path for the current editor */
 function getCurrentPath() {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
+    const editor = atom.workspace.getActiveTextEditor();
+    if (!editor) {
         return;
-    const path = editor.getPath();
-    if (!path)
+    }
+    const filePath = editor.getPath();
+    if (!filePath) {
         return;
-    return _1.consistentPath(path);
+    }
+    return _1.consistentPath(filePath);
 }
 exports.getCurrentPath = getCurrentPath;
 exports.knownScopes = {
@@ -228,15 +237,18 @@ exports.knownScopes = {
     es6import: "es6import.path.string",
 };
 function editorInTheseScopes(matches) {
-    var editor = atom.workspace.getActiveTextEditor();
-    if (!editor)
+    const editor = atom.workspace.getActiveTextEditor();
+    if (!editor) {
         return "";
-    var scopes = editor.getLastCursor().getScopeDescriptor().scopes;
-    var lastScope = scopes[scopes.length - 1];
-    if (matches.some(p => lastScope === p))
+    }
+    const scopes = editor.getLastCursor().getScopeDescriptor().scopes;
+    const lastScope = scopes[scopes.length - 1];
+    if (matches.some(p => lastScope === p)) {
         return lastScope;
-    else
+    }
+    else {
         return "";
+    }
 }
 exports.editorInTheseScopes = editorInTheseScopes;
 /** One less level of indirection */
@@ -254,43 +266,42 @@ exports.uriForPath = uriForPath;
 /**
  * Registers an opener with atom
  */
-function registerOpener(config) {
-    atom.commands.add(config.commandSelector, config.commandName, e => {
-        if (!commandForTypeScript(e))
-            return;
-        const path = getCurrentPath();
-        if (!path) {
-            e.abortKeyBinding();
-            return;
-        }
-        var uri = uriForPath(config.uriProtocol, path);
-        var old_pane = atom.workspace.paneForURI(uri);
-        if (old_pane) {
-            const item = old_pane.itemForURI(uri);
-            if (item)
-                old_pane.destroyItem(item);
-        }
-        atom.workspace.open(uri, config.getData());
-    });
-    atom.workspace.addOpener(function (uri, data) {
-        try {
-            var { protocol } = url.parse(uri);
-        }
-        catch (error) {
-            return;
-        }
-        if (protocol !== config.uriProtocol) {
-            return;
-        }
-        return config.onOpen(data);
-    });
-}
-exports.registerOpener = registerOpener;
+// export function registerOpener<T>(config: OpenerConfig<T>) {
+//   atom.commands.add(config.commandSelector, config.commandName, e => {
+//     if (!commandForTypeScript(e)) { return }
+//     const path = getCurrentPath()
+//     if (!path) {
+//       e.abortKeyBinding()
+//       return
+//     }
+//     let uri = uriForPath(config.uriProtocol, path)
+//     let old_pane = atom.workspace.paneForURI(uri)
+//     if (old_pane) {
+//       const item = old_pane.itemForURI(uri)
+//       if (item) { old_pane.destroyItem(item) }
+//     }
+//
+//     atom.workspace.open(uri, config.getData())
+//   })
+//
+//   atom.workspace.addOpener(function(uri: string, data: T) {
+//     try {
+//       let {protocol} = url.parse(uri)
+//       if (protocol !== config.uriProtocol) {
+//         return
+//       }
+//     } catch (error) {
+//       return
+//     }
+//     return config.onOpen(data)
+//   })
+// }
 function triggerLinter() {
     // also invalidate linter
     const editor = atom.workspace.getActiveTextEditor();
-    if (editor)
+    if (editor) {
         atom.commands.dispatch(atom.views.getView(editor), "linter:lint");
+    }
 }
 exports.triggerLinter = triggerLinter;
 /**
@@ -307,7 +318,7 @@ exports.getFilePathRelativeToAtomProject = getFilePathRelativeToAtomProject;
  * Opens the given file in the same project
  */
 function openFile(filePath, position = {}) {
-    var config = {};
+    const config = {};
     if (position.line) {
         config.initialLine = position.line - 1;
     }

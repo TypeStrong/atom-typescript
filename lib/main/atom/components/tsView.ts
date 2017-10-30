@@ -6,7 +6,7 @@ export class TsView extends HTMLElement {
   editorElement: HTMLElement
   editor: Atom.TextEditor
   createdCallback() {
-    var preview = this.innerText
+    const preview = this.innerText
     this.innerText = ""
 
     this.editor = atom.workspace.buildTextEditor({
@@ -14,11 +14,13 @@ export class TsView extends HTMLElement {
       softWrapped: true,
       mini: true,
     })
-    var editorElement: HTMLElement = atom.views.getView(this.editor)
+    const editorElement: HTMLElement = atom.views.getView(this.editor)
     editorElement.removeAttribute("tabindex") // make read-only
     this.editor.setText(preview)
     const grammar = atom.grammars.grammarForScopeName("source.tsx")
-    if (grammar) this.editor.setGrammar(grammar)
+    if (grammar) {
+      this.editor.setGrammar(grammar)
+    }
     this.editor.scrollToBufferPosition([0, 0])
 
     this.appendChild(editorElement)
@@ -30,4 +32,4 @@ export class TsView extends HTMLElement {
   }
 }
 
-;(<any>document).registerElement("ts-view", TsView)
+;(document as any).registerElement("ts-view", TsView)

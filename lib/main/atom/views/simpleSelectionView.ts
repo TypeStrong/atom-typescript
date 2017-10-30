@@ -14,11 +14,12 @@ export interface SelectListViewOptions<T> {
   confirmed: (item: T) => any
 }
 
-var singleton: SimpleSelectListView<any>
+let singleton: SimpleSelectListView<any>
 
 export function simpleSelectionView<T>(options: SelectListViewOptions<T>): SimpleSelectListView<T> {
-  if (!singleton) singleton = new SimpleSelectListView<T>(options)
-  else {
+  if (!singleton) {
+    singleton = new SimpleSelectListView<T>(options)
+  } else {
     singleton.options = options
   }
 
@@ -40,7 +41,7 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
   }
 
   get $(): JQuery {
-    return <any>this
+    return this as any
   }
 
   public setItems() {
@@ -49,7 +50,7 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
 
   /** override */
   viewForItem(item: T): any {
-    var view = this.options.viewForItem(item)
+    const view = this.options.viewForItem(item)
     if (typeof view === "string") {
       return `<li>
                 ${view}
@@ -73,7 +74,9 @@ export class SimpleSelectListView<T> extends sp.SelectListView {
   panel?: Atom.Panel
   show() {
     this.storeFocusedElement()
-    if (!this.panel) this.panel = atom.workspace.addModalPanel({item: this})
+    if (!this.panel) {
+      this.panel = atom.workspace.addModalPanel({item: this})
+    }
     this.panel.show()
 
     this.focusFilterEditor()

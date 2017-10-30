@@ -8,7 +8,7 @@ const stream_1 = require("stream");
 const byline = require("byline");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
-exports.CommandWithResponse = new Set([
+exports.commandWithResponse = new Set([
     "compileOnSaveAffectedFileList",
     "compileOnSaveEmitFile",
     "completionEntryDetails",
@@ -131,7 +131,7 @@ class TypescriptServiceClient {
             if (!this.serverPromise) {
                 throw new Error("Server is not running");
             }
-            return this.sendRequest(yield this.serverPromise, command, args, exports.CommandWithResponse.has(command));
+            return this.sendRequest(yield this.serverPromise, command, args, exports.commandWithResponse.has(command));
         });
     }
     on(name, listener) {

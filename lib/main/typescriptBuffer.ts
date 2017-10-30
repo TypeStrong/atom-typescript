@@ -71,15 +71,18 @@ export class TypescriptBuffer {
     if (this.isOpen && this.clientPromise) {
       const client = await this.clientPromise
       const file = this.buffer.getPath()
-      if (file) client.executeClose({file})
+      if (file) {
+        client.executeClose({file})
+      }
       this.events.emit("closed", this.filePath)
     }
   }
 
-  on(name: "saved", callback: () => void): this // saved after waiting for any pending changes
-  on(name: "opened", callback: () => void): this // the file is opened
+  // saved after waiting for any pending changes
+  // the file is opened
+  // or tsserver view of the file has changed
+  on(name: "saved" | "opened" | "changed", callback: () => void): this
   on(name: "closed", callback: (filePath: string) => void): this // the file is closed
-  on(name: "changed", callback: () => void): this // tsserver view of the file has changed
   on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
     this.events.on(name, callback)
     return this
@@ -118,7 +121,9 @@ export class TypescriptBuffer {
     this.changedAtBatch = Date.now()
 
     const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (!filePath) {
+      return
+    }
     const client = await this.clientPromise
 
     for (const change of changes) {

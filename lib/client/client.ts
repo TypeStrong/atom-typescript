@@ -1,3 +1,4 @@
+// tslint:disable:max-classes-per-file
 import * as protocol from "typescript/lib/protocol"
 import {BufferedNodeProcess, BufferedProcess} from "atom"
 import {Callbacks} from "./callbacks"
@@ -9,7 +10,7 @@ import byline = require("byline")
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-export const CommandWithResponse = new Set([
+export const commandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
   "compileOnSaveEmitFile",
   "completionEntryDetails",
@@ -195,16 +196,17 @@ export class TypescriptServiceClient {
       await this.serverPromise,
       command,
       args,
-      CommandWithResponse.has(command),
+      commandWithResponse.has(command),
     )
   }
 
   /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
-  on(name: "configFileDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: "pendingRequestsChange", listener: (requests: string[]) => any): Function
-  on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: string, listener: (result: any) => any): Function {
+  on(
+    name: "configFileDiag" | "semanticDiag" | "syntaxDiag",
+    listener: (result: protocol.DiagnosticEventBody) => any,
+  ): () => void
+  on(name: "pendingRequestsChange", listener: (requests: string[]) => any): () => void
+  on(name: string, listener: (result: any) => any): () => void {
     this.events.on(name, listener)
 
     return () => {
@@ -387,7 +389,7 @@ class MessageStream extends Transform {
     super({objectMode: true})
   }
 
-  _transform(buf: Buffer, encoding: string, callback: Function) {
+  _transform(buf: Buffer, encoding: string, callback: (n: null) => void) {
     const line = buf.toString()
 
     try {

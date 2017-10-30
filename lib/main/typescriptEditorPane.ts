@@ -150,9 +150,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   }, 100)
 
   onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
-    if (!this.isTypescript || !this.isOpen) {
-      return
-    }
+    if (!this.isTypescript || !this.isOpen) return
 
     if (textChanged) {
       this.clearOccurrenceMarkers()
@@ -228,9 +226,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     const fileNames = flatten(result.body.map(project => project.fileNames))
 
-    if (fileNames.length === 0) {
-      return
-    }
+    if (fileNames.length === 0) return
 
     try {
       const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({file}))

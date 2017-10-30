@@ -74,9 +74,8 @@ class TypescriptEditorPane {
             this.clearOccurrenceMarkers();
         }), 100);
         this.onDidChangeCursorPosition = ({ textChanged }) => {
-            if (!this.isTypescript || !this.isOpen) {
+            if (!this.isTypescript || !this.isOpen)
                 return;
-            }
             if (textChanged) {
                 this.clearOccurrenceMarkers();
                 return;
@@ -171,9 +170,8 @@ class TypescriptEditorPane {
             });
             this.opts.statusPanel.setBuildStatus(undefined);
             const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
-            if (fileNames.length === 0) {
+            if (fileNames.length === 0)
                 return;
-            }
             try {
                 const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
                 const saved = yield Promise.all(promises);

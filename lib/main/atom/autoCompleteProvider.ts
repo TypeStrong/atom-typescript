@@ -13,7 +13,7 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
 }
 
-type Options = {
+interface Options {
   getTypescriptBuffer: (
     filePath: string,
   ) => Promise<{
@@ -64,7 +64,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
       const thisCol = getNormalizedCol(prefix, location.offset)
 
-      if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
         if (this.lastSuggestions.suggestions.length !== 0) {
           return this.lastSuggestions.suggestions
         }
@@ -129,27 +129,27 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     await buffer.flush()
 
     try {
-      var suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
+      let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
+
+      const alphaPrefix = prefix.replace(/\W/g, "")
+      if (alphaPrefix !== "") {
+        suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
+          key: "text",
+        })
+      }
+
+      // Get additional details for the first few suggestions
+      await this.getAdditionalDetails(suggestions.slice(0, 10), location)
+
+      const trimmed = prefix.trim()
+
+      return suggestions.map(suggestion => ({
+        replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
+        ...suggestion,
+      }))
     } catch (error) {
       return []
     }
-
-    const alphaPrefix = prefix.replace(/\W/g, "")
-    if (alphaPrefix !== "") {
-      suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
-        key: "text",
-      })
-    }
-
-    // Get additional details for the first few suggestions
-    await this.getAdditionalDetails(suggestions.slice(0, 10), location)
-
-    const trimmed = prefix.trim()
-
-    return suggestions.map(suggestion => ({
-      replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
-      ...suggestion,
-    }))
   }
 
   async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
@@ -202,9 +202,11 @@ function getNormalizedCol(prefix: string, col: number): number {
   return col - length
 }
 
-function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined{
+function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined {
   const path = opts.editor.getPath()
-  if (!path) return undefined
+  if (!path) {
+    return undefined
+  }
   return {
     file: path,
     line: opts.bufferPosition.row + 1,
@@ -213,7 +215,7 @@ function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuer
 }
 
 function getLastNonWhitespaceChar(buffer: Atom.TextBuffer, pos: Atom.Point): string | undefined {
-  let lastChar: string | undefined = undefined
+  let lastChar: string | undefined
   const range = new Atom.Range([0, 0], pos)
   buffer.backwardsScanInRange(
     /\S/,

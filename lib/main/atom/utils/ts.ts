@@ -56,7 +56,7 @@ export function compareLocation(loc1: Location, loc2: Location) {
 }
 
 export function isLocationInRange(loc: Location, range: {start: Location; end: Location}) {
-  return compareLocation(range.start, loc) != 1 && compareLocation(range.end, loc) !== -1
+  return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1
 }
 
 export async function getProjectCodeSettings(

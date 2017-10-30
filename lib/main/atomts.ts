@@ -28,7 +28,9 @@ let linter: IndieDelegate
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
 
-interface PackageState {}
+interface PackageState {
+  /* TODO: do we need this? */
+}
 
 export function activate(state: PackageState) {
   require("atom-package-deps")
@@ -85,7 +87,7 @@ export function activate(state: PackageState) {
         },
         getTypescriptBuffer,
         async getClient(filePath: string) {
-          const pane = panes.find(pane => pane.filePath === filePath)
+          const pane = panes.find(p => p.filePath === filePath)
           if (pane && pane.client) {
             return pane.client
           }
@@ -99,12 +101,14 @@ export function activate(state: PackageState) {
       let activePane: TypescriptEditorPane | undefined
 
       const onSave = debounce((pane: TypescriptEditorPane) => {
-        if (!pane.client) return
+        if (!pane.client) {
+          return
+        }
 
         const files: string[] = []
-        for (const pane of panes.sort((a, b) => a.activeAt - b.activeAt)) {
-          if (pane.filePath && pane.isTypescript && pane.client === pane.client) {
-            files.push(pane.filePath)
+        for (const p of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+          if (p.filePath && p.isTypescript && p.client === p.client) {
+            files.push(p.filePath)
           }
         }
 
@@ -149,7 +153,7 @@ export function activate(state: PackageState) {
           }
 
           if (atom.workspace.isTextEditor(editor)) {
-            const pane = panes.find(pane => pane.editor === editor)
+            const pane = panes.find(p => p.editor === editor)
             if (pane) {
               activePane = pane
               pane.onActivated()
@@ -195,7 +199,7 @@ export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
 }
 
-export var config = {
+export let config = {
   unusedAsInfo: {
     title: "Show unused values with severity info",
     description: "Show unused values with severity 'info' instead of 'error'",
@@ -219,7 +223,7 @@ export async function loadProjectConfig(sourcePath: string, configFile?: string)
 
 // Get Typescript buffer for the given path
 async function getTypescriptBuffer(filePath: string) {
-  const pane = panes.find(pane => pane.filePath === filePath)
+  const pane = panes.find(p => p.filePath === filePath)
   if (pane) {
     return {
       buffer: pane.buffer,
@@ -231,7 +235,7 @@ async function getTypescriptBuffer(filePath: string) {
   const buffer = await Atom.TextBuffer.load(filePath)
 
   return {
-    buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
+    buffer: new TypescriptBuffer(buffer, fp => clientResolver.get(fp)),
     isOpen: false,
   }
 }

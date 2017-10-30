@@ -16,7 +16,7 @@ function getHyperclickProvider(clientResolver) {
                 return null;
             }
             return {
-                range: range,
+                range,
                 callback: () => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const location = {
                         file: filePath,

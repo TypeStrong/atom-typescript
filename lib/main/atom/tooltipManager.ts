@@ -1,21 +1,21 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-import atomUtils = require("./utils") ///ts:import:generated
+import atomUtils = require("./utils")
 import {clientResolver} from "../atomts"
 import * as Atom from "atom"
 import path = require("path")
 import fs = require("fs")
 import emissary = require("emissary")
-var Subscriber = emissary.Subscriber
+const Subscriber = emissary.Subscriber
 import tooltipView = require("./views/tooltipView")
 import TooltipView = tooltipView.TooltipView
 import {$} from "atom-space-pen-views"
 import escape = require("escape-html")
 
 export function getFromShadowDom(element: JQuery, selector: string): JQuery {
-  var el = element[0]
-  var found = (<any>el).querySelectorAll(selector)
+  const el = element[0]
+  const found = (el as any).querySelectorAll(selector)
   return $(found[0])
 }
 
@@ -29,34 +29,38 @@ export function bufferPositionFromMouseEvent(editor: Atom.TextEditor, event: Mou
 }
 
 export function attach(editorView: JQuery, editor: Atom.TextEditor) {
-  var rawView: any = editorView[0]
+  const rawView: any = editorView[0]
 
   // Only on ".ts" files
-  var filePath = editor.getPath()
+  const filePath = editor.getPath()
   if (!filePath) {
     return
   }
-  var filename = path.basename(filePath)
-  var ext = path.extname(filename)
-  if (!atomUtils.isAllowedExtension(ext)) return
+  const filename = path.basename(filePath)
+  const ext = path.extname(filename)
+  if (!atomUtils.isAllowedExtension(ext)) {
+    return
+  }
 
   // We only create a "program" once the file is persisted to disk
   if (!fs.existsSync(filePath)) {
     return
   }
 
-  var clientPromise = clientResolver.get(filePath)
-  var scroll = getFromShadowDom(editorView, ".scroll-view")
-  var subscriber = new Subscriber()
-  var exprTypeTimeout: any | undefined
-  var exprTypeTooltip: TooltipView | undefined
+  const clientPromise = clientResolver.get(filePath)
+  const scroll = getFromShadowDom(editorView, ".scroll-view")
+  const subscriber = new Subscriber()
+  let exprTypeTimeout: any | undefined
+  let exprTypeTooltip: TooltipView | undefined
 
   // to debounce mousemove event's firing for some reason on some machines
-  var lastExprTypeBufferPt: any
+  let lastExprTypeBufferPt: any
 
   subscriber.subscribe(scroll, "mousemove", (e: MouseEvent) => {
     const bufferPt = bufferPositionFromMouseEvent(editor, e)
-    if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) return
+    if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
+      return
+    }
 
     lastExprTypeBufferPt = bufferPt
 
@@ -71,20 +75,24 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
 
   async function showExpressionType(e: MouseEvent) {
     // If we are already showing we should wait for that to clear
-    if (exprTypeTooltip) return
+    if (exprTypeTooltip) {
+      return
+    }
 
     const bufferPt = bufferPositionFromMouseEvent(editor, e)
-    var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column])
-    var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
+    const curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column])
+    const nextCharPixelPt = rawView.pixelPositionForBufferPosition([
       bufferPt.row,
       bufferPt.column + 1,
     ])
 
-    if (curCharPixelPt.left >= nextCharPixelPt.left) return
+    if (curCharPixelPt.left >= nextCharPixelPt.left) {
+      return
+    }
 
     // find out show position
-    var offset = editor.getLineHeightInPixels() * 0.7
-    var tooltipRect = {
+    const offset = editor.getLineHeightInPixels() * 0.7
+    const tooltipRect = {
       left: e.clientX,
       right: e.clientX,
       top: e.clientY - offset,
@@ -94,7 +102,9 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
     let result: protocol.QuickInfoResponse
     const client = await clientPromise
     try {
-      if (!filePath) return
+      if (!filePath) {
+        return
+      }
       result = await client.executeQuickInfo({
         file: filePath,
         line: bufferPt.row + 1,
@@ -106,7 +116,7 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
 
     const {displayString, documentation} = result.body!
 
-    var message = `<b>${escape(displayString)}</b>`
+    let message = `<b>${escape(displayString)}</b>`
     if (documentation) {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
@@ -129,17 +139,19 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
     hideExpressionType()
   }
   function hideExpressionType() {
-    if (!exprTypeTooltip) return
+    if (!exprTypeTooltip) {
+      return
+    }
     exprTypeTooltip.$.remove()
     exprTypeTooltip = undefined
   }
 }
 
 function pixelPositionFromMouseEvent(editorView: JQuery, event: MouseEvent) {
-  var clientX = event.clientX,
-    clientY = event.clientY
-  var linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect()
-  var top = clientY - linesClientRect.top
-  var left = clientX - linesClientRect.left
-  return {top: top, left: left}
+  const clientX = event.clientX
+  const clientY = event.clientY
+  const linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect()
+  const top = clientY - linesClientRect.top
+  const left = clientX - linesClientRect.left
+  return {top, left}
 }

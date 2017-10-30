@@ -18,7 +18,7 @@ export function getHyperclickProvider(clientResolver: ClientResolver): any {
       }
 
       return {
-        range: range,
+        range,
         callback: async () => {
           const location = {
             file: filePath,
