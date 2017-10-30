@@ -135,12 +135,4 @@ function attach(editorView, editor) {
     }
 }
 exports.attach = attach;
-function pixelPositionFromMouseEvent(editorView, event) {
-    const clientX = event.clientX;
-    const clientY = event.clientY;
-    const linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect();
-    const top = clientY - linesClientRect.top;
-    const left = clientX - linesClientRect.left;
-    return { top, left };
-}
 //# sourceMappingURL=tooltipManager.js.map

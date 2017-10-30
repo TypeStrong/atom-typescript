@@ -32,7 +32,7 @@ export class CodeActionsProvider implements CodeActionProvider {
   async getCodeActions(
     textEditor: Atom.TextEditor,
     range: Atom.Range,
-    diagnostics: Message[],
+    _diagnostics: Message[],
   ): Promise<CodeAction[]> {
     return (await this.codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
       getTitle: async () => fix.description,

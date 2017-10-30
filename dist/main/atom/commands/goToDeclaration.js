@@ -26,8 +26,8 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
         handleDefinitionResult(result, location);
     });
 });
-registry_1.commands.set("typescript:return-from-declaration", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+registry_1.commands.set("typescript:return-from-declaration", () => {
+    return () => tslib_1.__awaiter(this, void 0, void 0, function* () {
         const position = prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo("AtomTS: Previous position not found.");

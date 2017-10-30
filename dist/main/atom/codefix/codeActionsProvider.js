@@ -7,7 +7,7 @@ class CodeActionsProvider {
         this.grammarScopes = ["source.ts", "source.tsx"];
         this.priority = 0;
     }
-    getCodeActions(textEditor, range, diagnostics) {
+    getCodeActions(textEditor, range, _diagnostics) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return (yield this.codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
                 getTitle: () => tslib_1.__awaiter(this, void 0, void 0, function* () { return fix.description; }),

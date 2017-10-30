@@ -29,7 +29,7 @@ class TypescriptBuffer {
         this.onDidChange = () => {
             this.changedAt = Date.now();
         };
-        this.onDidChangePath = (newPath) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        this.onDidChangePath = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.clientPromise && this.filePath) {
                 const client = yield this.clientPromise;
                 client.executeClose({ file: this.filePath });
@@ -93,7 +93,7 @@ class TypescriptBuffer {
     flush() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.changedAt > this.changedAtBatch) {
-                return new Promise(resolve => {
+                yield new Promise(resolve => {
                     const sub = this.buffer.onDidStopChanging(() => {
                         sub.dispose();
                         resolve();

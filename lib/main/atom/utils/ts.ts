@@ -1,4 +1,4 @@
-import {TextSpan, CodeEdit, Diagnostic, FormatCodeSettings, Location} from "typescript/lib/protocol"
+import {TextSpan, CodeEdit, FormatCodeSettings, Location} from "typescript/lib/protocol"
 import * as Atom from "atom"
 import {loadProjectConfig} from "../../atomts"
 

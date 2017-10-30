@@ -143,7 +143,7 @@ class TypescriptEditorPane {
         if (this.isTypescript) {
             atom.views.getView(this.editor).classList.add("typescript-editor");
         }
-        this.subscriptions.add(editor.onDidChangeGrammar(grammar => {
+        this.subscriptions.add(editor.onDidChangeGrammar(() => {
             this.isTypescript = utils_1.isTypescriptGrammar(editor);
         }));
         this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));

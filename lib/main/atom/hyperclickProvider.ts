@@ -1,6 +1,5 @@
 import * as Atom from "atom"
 import {ClientResolver} from "../../client/clientResolver"
-import {simpleSelectionView} from "./views/simpleSelectionView"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
 import {isTypescriptGrammar} from "./utils"
 
@@ -8,7 +7,7 @@ export function getHyperclickProvider(clientResolver: ClientResolver): any {
   return {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
-    getSuggestionForWord(editor: Atom.TextEditor, text: string, range: Atom.Range) {
+    getSuggestionForWord(editor: Atom.TextEditor, _text: string, range: Atom.Range) {
       if (!isTypescriptGrammar(editor)) {
         return null
       }

@@ -146,12 +146,3 @@ export function attach(editorView: JQuery, editor: Atom.TextEditor) {
     exprTypeTooltip = undefined
   }
 }
-
-function pixelPositionFromMouseEvent(editorView: JQuery, event: MouseEvent) {
-  const clientX = event.clientX
-  const clientY = event.clientY
-  const linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect()
-  const top = clientY - linesClientRect.top
-  const left = clientX - linesClientRect.left
-  return {top, left}
-}

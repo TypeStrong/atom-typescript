@@ -1,7 +1,7 @@
 import {commands} from "./registry"
 
 commands.set("typescript:clear-errors", deps => {
-  return e => {
+  return () => {
     deps.clearErrors()
   }
 })

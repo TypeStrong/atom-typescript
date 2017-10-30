@@ -61,7 +61,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     }
 
     this.subscriptions.add(
-      editor.onDidChangeGrammar(grammar => {
+      editor.onDidChangeGrammar(() => {
         this.isTypescript = isTypescriptGrammar(editor)
       }),
     )

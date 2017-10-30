@@ -16,7 +16,12 @@
     "typeRoots" : [
       "../node_modules/atom-typings",
       "../node_modules/@types"
-    ]
+    ],
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true
   },
   "compileOnSave": true
 }

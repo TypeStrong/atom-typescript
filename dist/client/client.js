@@ -188,8 +188,8 @@ class TypescriptServiceClient {
                     });
                 });
             };
-            return (this.serverPromise = new Promise((resolve, _reject) => {
-                reject = _reject;
+            return (this.serverPromise = new Promise((resolve, pReject) => {
+                reject = pReject;
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
                 }
@@ -202,7 +202,7 @@ class TypescriptServiceClient {
                     console.warn("tsserver stderr:", (lastStderrOutput = data.toString()));
                 });
                 // We send an unknown command to verify that the server is working.
-                this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
+                this.sendRequest(cp, "ping", null, true).then(() => resolve(cp), () => resolve(cp));
             }));
         }
         else {
@@ -239,7 +239,7 @@ class MessageStream extends stream_1.Transform {
     constructor() {
         super({ objectMode: true });
     }
-    _transform(buf, encoding, callback) {
+    _transform(buf, _encoding, callback) {
         const line = buf.toString();
         try {
             if (line.startsWith("{")) {

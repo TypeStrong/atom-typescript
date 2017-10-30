@@ -25,7 +25,7 @@ const commands_1 = require("./atom/commands");
 let linter;
 let statusBar;
 const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
-function activate(state) {
+function activate() {
     require("atom-package-deps")
         .install("atom-typescript", true)
         .then(() => {
@@ -133,18 +133,14 @@ function deactivate() {
     subscriptions.dispose();
 }
 exports.deactivate = deactivate;
-function serialize() {
-    return {};
-}
-exports.serialize = serialize;
 function consumeLinter(register) {
     linter = register({
         name: "Typescript",
     });
 }
 exports.consumeLinter = consumeLinter;
-function consumeStatusBar(_statusBar) {
-    statusBar = _statusBar;
+function consumeStatusBar(pStatusBar) {
+    statusBar = pStatusBar;
 }
 exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
@@ -182,7 +178,6 @@ function getProjectConfigPath(sourcePath) {
         return result.body.configFileName;
     });
 }
-exports.getProjectConfigPath = getProjectConfigPath;
 function loadProjectConfig(sourcePath, configFile) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         return tsconfig.readFile(configFile || (yield getProjectConfigPath(sourcePath)));

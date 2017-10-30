@@ -55,7 +55,7 @@ export class TypescriptBuffer {
   // If there are any pending changes, flush them out to the Typescript server
   async flush() {
     if (this.changedAt > this.changedAtBatch) {
-      return new Promise(resolve => {
+      await new Promise(resolve => {
         const sub = this.buffer.onDidStopChanging(() => {
           sub.dispose()
           resolve()
@@ -92,7 +92,7 @@ export class TypescriptBuffer {
     this.changedAt = Date.now()
   }
 
-  onDidChangePath = async (newPath: string) => {
+  onDidChangePath = async () => {
     if (this.clientPromise && this.filePath) {
       const client = await this.clientPromise
       client.executeClose({file: this.filePath})

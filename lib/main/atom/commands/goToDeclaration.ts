@@ -27,8 +27,8 @@ commands.set("typescript:go-to-declaration", deps => {
   }
 })
 
-commands.set("typescript:return-from-declaration", deps => {
-  return async e => {
+commands.set("typescript:return-from-declaration", () => {
+  return async () => {
     const position = prevCursorPositions.pop()
     if (!position) {
       atom.notifications.addInfo("AtomTS: Previous position not found.")

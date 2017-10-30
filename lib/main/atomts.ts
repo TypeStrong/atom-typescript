@@ -9,7 +9,7 @@ import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {flatten, values} from "lodash"
-import {LinterProvider, IndieDelegate} from "atom/linter"
+import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
@@ -28,11 +28,7 @@ let linter: IndieDelegate
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
 
-interface PackageState {
-  /* TODO: do we need this? */
-}
-
-export function activate(state: PackageState) {
+export function activate() {
   require("atom-package-deps")
     .install("atom-typescript", true)
     .then(() => {
@@ -168,18 +164,14 @@ export function deactivate() {
   subscriptions.dispose()
 }
 
-export function serialize(): PackageState {
-  return {}
-}
-
 export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
   linter = register({
     name: "Typescript",
   })
 }
 
-export function consumeStatusBar(_statusBar: StatusBar) {
-  statusBar = _statusBar
+export function consumeStatusBar(pStatusBar: StatusBar) {
+  statusBar = pStatusBar
 }
 
 // Registering an autocomplete provider
@@ -208,7 +200,7 @@ export const config = {
   },
 }
 
-export async function getProjectConfigPath(sourcePath: string): Promise<string> {
+async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
   const result = await client.executeProjectInfo({
     needFileNameList: false,

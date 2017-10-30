@@ -330,8 +330,8 @@ export class TypescriptServiceClient {
         })
       }
 
-      return (this.serverPromise = new Promise<ChildProcess>((resolve, _reject) => {
-        reject = _reject
+      return (this.serverPromise = new Promise<ChildProcess>((resolve, pReject) => {
+        reject = pReject
 
         if (window.atom_typescript_debug) {
           console.log("starting", this.tsServerPath)
@@ -349,7 +349,7 @@ export class TypescriptServiceClient {
         })
 
         // We send an unknown command to verify that the server is working.
-        this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
+        this.sendRequest(cp, "ping", null, true).then(() => resolve(cp), () => resolve(cp))
       }))
     } else {
       throw new Error(`Server already started: ${this.tsServerPath}`)
@@ -389,7 +389,7 @@ class MessageStream extends Transform {
     super({objectMode: true})
   }
 
-  _transform(buf: Buffer, encoding: string, callback: (n: null) => void) {
+  _transform(buf: Buffer, _encoding: string, callback: (n: null) => void) {
     const line = buf.toString()
 
     try {

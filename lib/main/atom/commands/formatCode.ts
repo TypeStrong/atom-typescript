@@ -3,7 +3,6 @@ import {
   CodeEdit,
   commandForTypeScript,
   formatCode,
-  FormatCodeSettings,
   LocationRangeQuery,
   rangeToLocationRange,
 } from "../utils"
