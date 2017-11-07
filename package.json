@@ -31,6 +31,12 @@
       "description": "Snippets etc have priority of 1. Requires Atom restart",
       "type": "integer",
       "default": 3
+    },
+    "locale": {
+      "title": "TypeScript locale",
+      "description": "Use this locale for TypeScript messages (e.g. 'de'). Requires Atom restart",
+      "type": "string",
+      "default": "en"
     }
   },
   "consumedServices": {
