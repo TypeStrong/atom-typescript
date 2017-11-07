@@ -26,9 +26,11 @@ let linter;
 let statusBar;
 const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 function activate() {
-    require("atom-package-deps")
-        .install("atom-typescript", true)
-        .then(() => {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const pns = atom.packages.getAvailablePackageNames();
+        if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
+            yield require("atom-package-deps").install("atom-typescript", true);
+        }
         let statusPriority = 100;
         for (const panel of statusBar.getRightTiles()) {
             if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
