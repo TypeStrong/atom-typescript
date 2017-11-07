@@ -100,7 +100,7 @@
     "tslint": "^5.8.0"
   },
   "package-deps": [
-    "linter:2.2.0"
+    "atom-ide-ui:0.5.3"
   ],
   "keywords": [
     "typescript",
