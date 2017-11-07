@@ -16,17 +16,16 @@ import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
 // globals
-const subscriptions = new CompositeDisposable()
-export const clientResolver = new ClientResolver()
+const subscriptions: CompositeDisposable = new CompositeDisposable()
+export const clientResolver: ClientResolver = new ClientResolver()
 const panes: TypescriptEditorPane[] = []
+const statusPanel: StatusPanel = StatusPanel.create()
+const errorPusher: ErrorPusher = new ErrorPusher()
+const codefixProvider: CodefixProvider = new CodefixProvider(clientResolver)
 
 // Register all custom components
 import "./atom/components"
 import {registerCommands} from "./atom/commands"
-
-let linter: IndieDelegate
-let statusBar: StatusBar
-const codefixProvider = new CodefixProvider(clientResolver)
 
 export async function activate() {
   const pns = atom.packages.getAvailablePackageNames()
@@ -34,24 +33,9 @@ export async function activate() {
     await require("atom-package-deps").install("atom-typescript", true)
   }
 
-  let statusPriority = 100
-  for (const panel of statusBar.getRightTiles()) {
-    if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
-      statusPriority = panel.getPriority() - 1
-    }
-  }
-
   // Add the rename view
   const {renameView} = attachRenameView()
-  const statusPanel = StatusPanel.create()
 
-  statusBar.addRightTile({
-    item: statusPanel,
-    priority: statusPriority,
-  })
-
-  subscriptions.add(statusPanel)
-  const errorPusher = new ErrorPusher()
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
     atom.config.onDidChange(
@@ -69,14 +53,6 @@ export async function activate() {
     const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
     statusPanel.setPending(pending)
   })
-
-  if (linter) {
-    errorPusher.setLinter(linter)
-
-    clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
-      errorPusher.setErrors(type, filePath, diagnostics)
-    })
-  }
 
   // Register the commands
   registerCommands({
@@ -166,13 +142,30 @@ export function deactivate() {
 }
 
 export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
-  linter = register({
+  const linter = register({
     name: "Typescript",
+  })
+
+  errorPusher.setLinter(linter)
+
+  clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+    errorPusher.setErrors(type, filePath, diagnostics)
   })
 }
 
-export function consumeStatusBar(pStatusBar: StatusBar) {
-  statusBar = pStatusBar
+export function consumeStatusBar(statusBar: StatusBar) {
+  let statusPriority = 100
+  for (const panel of statusBar.getRightTiles()) {
+    if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
+      statusPriority = panel.getPriority() - 1
+    }
+  }
+  statusBar.addRightTile({
+    item: statusPanel,
+    priority: statusPriority,
+  })
+
+  subscriptions.add(statusPanel)
 }
 
 // Registering an autocomplete provider

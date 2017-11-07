@@ -19,33 +19,20 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 const panes = [];
+const statusPanel = statusPanel_1.StatusPanel.create();
+const errorPusher = new errorPusher_1.ErrorPusher();
+const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 // Register all custom components
 require("./atom/components");
 const commands_1 = require("./atom/commands");
-let linter;
-let statusBar;
-const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 function activate() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const pns = atom.packages.getAvailablePackageNames();
         if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
             yield require("atom-package-deps").install("atom-typescript", true);
         }
-        let statusPriority = 100;
-        for (const panel of statusBar.getRightTiles()) {
-            if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
-                statusPriority = panel.getPriority() - 1;
-            }
-        }
         // Add the rename view
         const { renameView } = renameView_1.attach();
-        const statusPanel = statusPanel_1.StatusPanel.create();
-        statusBar.addRightTile({
-            item: statusPanel,
-            priority: statusPriority,
-        });
-        subscriptions.add(statusPanel);
-        const errorPusher = new errorPusher_1.ErrorPusher();
         errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
         subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", (val) => {
             errorPusher.setUnusedAsInfo(val.newValue);
@@ -56,12 +43,6 @@ function activate() {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
             statusPanel.setPending(pending);
         });
-        if (linter) {
-            errorPusher.setLinter(linter);
-            exports.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
-                errorPusher.setErrors(type, filePath, diagnostics);
-            });
-        }
         // Register the commands
         commands_1.registerCommands({
             clearErrors() {
@@ -136,13 +117,27 @@ function deactivate() {
 }
 exports.deactivate = deactivate;
 function consumeLinter(register) {
-    linter = register({
+    const linter = register({
         name: "Typescript",
+    });
+    errorPusher.setLinter(linter);
+    exports.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+        errorPusher.setErrors(type, filePath, diagnostics);
     });
 }
 exports.consumeLinter = consumeLinter;
-function consumeStatusBar(pStatusBar) {
-    statusBar = pStatusBar;
+function consumeStatusBar(statusBar) {
+    let statusPriority = 100;
+    for (const panel of statusBar.getRightTiles()) {
+        if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
+            statusPriority = panel.getPriority() - 1;
+        }
+    }
+    statusBar.addRightTile({
+        item: statusPanel,
+        priority: statusPriority,
+    });
+    subscriptions.add(statusPanel);
 }
 exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
@@ -162,14 +157,6 @@ function hyperclickProvider() {
     return hyperclickProvider_1.getHyperclickProvider(exports.clientResolver);
 }
 exports.hyperclickProvider = hyperclickProvider;
-exports.config = {
-    unusedAsInfo: {
-        title: "Show unused values with severity info",
-        description: "Show unused values with severity 'info' instead of 'error'",
-        type: "boolean",
-        default: true,
-    },
-};
 function getProjectConfigPath(sourcePath) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const client = yield exports.clientResolver.get(sourcePath);
