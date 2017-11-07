@@ -21,6 +21,14 @@
     "atom": ">=1.19.0 <2.0.0",
     "node": "*"
   },
+  "configSchema": {
+    "unusedAsInfo": {
+      "title": "Show unused values with severity info",
+      "description": "Show unused values with severity 'info' instead of 'error'",
+      "type": "boolean",
+      "default": true
+    }
+  },
   "consumedServices": {
     "linter-indie": {
       "versions": {

@@ -192,15 +192,6 @@ export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
 }
 
-export const config = {
-  unusedAsInfo: {
-    title: "Show unused values with severity info",
-    description: "Show unused values with severity 'info' instead of 'error'",
-    type: "boolean",
-    default: true,
-  },
-}
-
 async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
   const result = await client.executeProjectInfo({
