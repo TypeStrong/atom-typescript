@@ -96,17 +96,15 @@ function activate() {
         if (activePane) {
             activePane.onActivated();
         }
-        subscriptions.add(atom.workspace.onDidChangeActivePaneItem((editor) => {
+        subscriptions.add(atom.workspace.onDidChangeActiveTextEditor((editor) => {
             if (activePane) {
                 activePane.onDeactivated();
                 activePane = undefined;
             }
-            if (atom.workspace.isTextEditor(editor)) {
-                const pane = panes.find(p => p.editor === editor);
-                if (pane) {
-                    activePane = pane;
-                    pane.onActivated();
-                }
+            const pane = panes.find(p => p.editor === editor);
+            if (pane) {
+                activePane = pane;
+                pane.onActivated();
             }
         }));
     });

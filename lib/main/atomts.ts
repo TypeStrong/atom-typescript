@@ -40,7 +40,7 @@ export async function activate() {
   subscriptions.add(
     atom.config.onDidChange(
       "atom-typescript.unusedAsInfo",
-      (val: {oldValue: boolean; newValue: boolean}) => {
+      (val) => {
         errorPusher.setUnusedAsInfo(val.newValue)
       },
     ),
@@ -120,18 +120,16 @@ export async function activate() {
   }
 
   subscriptions.add(
-    atom.workspace.onDidChangeActivePaneItem((editor: Atom.TextEditor) => {
+    atom.workspace.onDidChangeActiveTextEditor((editor?: Atom.TextEditor) => {
       if (activePane) {
         activePane.onDeactivated()
         activePane = undefined
       }
 
-      if (atom.workspace.isTextEditor(editor)) {
-        const pane = panes.find(p => p.editor === editor)
-        if (pane) {
-          activePane = pane
-          pane.onActivated()
-        }
+      const pane = panes.find(p => p.editor === editor)
+      if (pane) {
+        activePane = pane
+        pane.onActivated()
       }
     }),
   )
