@@ -78,6 +78,7 @@
     "typescript": "^2.4.2"
   },
   "devDependencies": {
+    "@types/atom": "^1.21.8",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.0.4",
     "@types/cson": "0.0.30",
@@ -89,7 +90,6 @@
     "@types/resolve": "0.0.4",
     "@types/space-pen": "0.0.28",
     "atom-mocha-test-runner": "^1.0.1",
-    "atom-typings": "^1.21.4",
     "chai": "^4.1.2",
     "cson": "^4.1.0",
     "mz": "^2.1.0",
