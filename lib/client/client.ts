@@ -61,7 +61,7 @@ export class TypescriptServiceClient {
   }
   executeCompileOnSaveEmitFile(
     args: protocol.CompileOnSaveEmitFileRequestArgs,
-  ): Promise<protocol.Response & {body: boolean}> {
+  ): Promise<protocol.Response> {
     return this.execute("compileOnSaveEmitFile", args)
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
