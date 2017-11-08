@@ -23,7 +23,6 @@
       "functions": "always",
       "typeLiterals": "never"
     }, "singleline": "never"}],
-    "semicolon": false,
     "whitespace": false,
     "curly": [true, "ignore-same-line"]
   },
