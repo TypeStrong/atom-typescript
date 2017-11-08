@@ -177,7 +177,7 @@ class TypescriptEditorPane {
             try {
                 const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
                 const saved = yield Promise.all(promises);
-                if (!saved.every(res => res.body)) {
+                if (!saved.every(res => !!res.body)) {
                     throw new Error("Some files failed to emit");
                 }
                 this.opts.statusPanel.setBuildStatus({

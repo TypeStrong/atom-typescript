@@ -232,7 +232,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({file}))
       const saved = await Promise.all(promises)
 
-      if (!saved.every(res => res.body)) {
+      if (!saved.every(res => !!res.body)) {
         throw new Error("Some files failed to emit")
       }
 
