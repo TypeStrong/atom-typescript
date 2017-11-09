@@ -34,7 +34,7 @@ function activate() {
         // Add the rename view
         const { renameView } = renameView_1.attach();
         errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
-        subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", (val) => {
+        subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
             errorPusher.setUnusedAsInfo(val.newValue);
         }));
         codefixProvider.errorPusher = errorPusher;

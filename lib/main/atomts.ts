@@ -38,12 +38,9 @@ export async function activate() {
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
-    atom.config.onDidChange(
-      "atom-typescript.unusedAsInfo",
-      (val) => {
-        errorPusher.setUnusedAsInfo(val.newValue)
-      },
-    ),
+    atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
+      errorPusher.setUnusedAsInfo(val.newValue)
+    }),
   )
 
   codefixProvider.errorPusher = errorPusher
