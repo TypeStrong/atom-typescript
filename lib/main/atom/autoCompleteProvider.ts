@@ -1,9 +1,11 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
 import {kindToType, FileLocationQuery} from "./utils"
-import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
+import {Provider, RequestOptions, Suggestion, InsertArgs} from "../../typings/autocomplete"
 import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
+import {ImportManager} from "./importManager"
+import {getProjectConfigPath} from "../atomts"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
 
@@ -31,6 +33,7 @@ export class AutocompleteProvider implements Provider {
   suggestionPriority = 3
   excludeLowerPriority = false
 
+  private importManager: ImportManager
   private clientResolver: ClientResolver
   private lastSuggestions: {
     // Client used to get the suggestions
@@ -48,9 +51,18 @@ export class AutocompleteProvider implements Provider {
 
   private opts: Options
 
-  constructor(clientResolver: ClientResolver, opts: Options) {
+  constructor(clientResolver: ClientResolver, importManager: ImportManager, opts: Options) {
+    this.importManager = importManager
     this.clientResolver = clientResolver
     this.opts = opts
+  }
+
+  onDidInsertSuggestion = (args: InsertArgs) => {
+    if (!args.suggestion.text) {
+      return
+    }
+
+    this.importManager.addImport(args.editor, args.suggestion.text)
   }
 
   // Try to reuse the last completions we got from tsserver if they're for the same position.
@@ -76,6 +88,18 @@ export class AutocompleteProvider implements Provider {
       prefix,
       ...location,
     })
+
+    client
+      .executeProjectInfo({needFileNameList: false, file: location.file})
+      .then((resp: protocol.ProjectInfoResponse) => {
+        completions.body!.filter(entry => entry.kindModifiers === "export").forEach(entry => {
+          const e: any = entry
+          this.importManager.registerSymbol(e.name, {
+            source: e.source,
+            tsconfigFilename: resp.body!.configFileName,
+          })
+        })
+      })
 
     const suggestions = completions.body!.map(entry => ({
       text: entry.name,
