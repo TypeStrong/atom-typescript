@@ -171,7 +171,7 @@ exports.config = {
         default: true,
     },
     autoImport: {
-        type: 'object',
+        type: "object",
         properties: {
             enable: {
                 title: "Enable auto import",
@@ -185,8 +185,8 @@ exports.config = {
                 type: "string",
                 default: "import { #SYMBOLS } from '#SOURCE';",
             },
-        }
-    }
+        },
+    },
 };
 function getProjectConfigPath(sourcePath) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {

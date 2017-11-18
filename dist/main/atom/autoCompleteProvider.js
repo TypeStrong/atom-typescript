@@ -37,15 +37,18 @@ class AutocompleteProvider {
             }
             const client = yield this.clientResolver.get(location.file);
             const completions = yield client.executeCompletions(Object.assign({ prefix }, location));
-            client.executeProjectInfo({ needFileNameList: false, file: location.file })
+            client
+                .executeProjectInfo({ needFileNameList: false, file: location.file })
                 .then((resp) => {
-                completions.body
-                    .filter(entry => entry.kindModifiers === 'export')
-                    .forEach(entry => {
+                console.log(completions.body);
+                completions.body.filter(entry => !!entry.source).forEach(entry => {
                     const e = entry;
+                    if (!e.name || !e.source) {
+                        return;
+                    }
                     this.importManager.registerSymbol(e.name, {
                         source: e.source,
-                        tsconfigFilename: resp.body.configFileName
+                        tsconfigFilename: resp.body.configFileName,
                     });
                 });
             });

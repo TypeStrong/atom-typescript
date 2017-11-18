@@ -92,8 +92,12 @@ export class AutocompleteProvider implements Provider {
     client
       .executeProjectInfo({needFileNameList: false, file: location.file})
       .then((resp: protocol.ProjectInfoResponse) => {
-        completions.body!.filter(entry => entry.kindModifiers === "export").forEach(entry => {
-          const e: any = entry
+        completions.body!.filter(entry => !!(<any>entry).source).forEach(entry => {
+          const e: { name?: string, source?: string } = entry
+          if (!e.name || !e.source) {
+            return;
+          }
+
           this.importManager.registerSymbol(e.name, {
             source: e.source,
             tsconfigFilename: resp.body!.configFileName,

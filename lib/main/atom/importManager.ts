@@ -56,6 +56,10 @@ export class ImportManager {
    * into account.
    */
   private resolve(from: string, to: string, tsconfigFilename: string): string {
+    if (!to || !from) {
+      throw new Error('Neither `from`, nor `to` may be undefined.');
+    }
+
     const tsconfig = require(tsconfigFilename)
     let baseUrl: string = tsconfig.compilerOptions.baseUrl || ""
     if (baseUrl.endsWith("/")) {
