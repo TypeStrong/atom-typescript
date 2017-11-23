@@ -40,7 +40,6 @@ class AutocompleteProvider {
             client
                 .executeProjectInfo({ needFileNameList: false, file: location.file })
                 .then((resp) => {
-                console.log(completions.body);
                 completions.body.filter(entry => !!entry.source).forEach(entry => {
                     const e = entry;
                     if (!e.name || !e.source) {

@@ -25,6 +25,7 @@ interface FileImports {
 }
 
 const ES6_IMPORT_REGEX = /\bimport\s+(?:(.+\s+)from\s+)?[\'"]([^"\']+)["\'];?/g
+const NODE_MODULES_REGEX = /\/node_modules\/(?:@types\/)?([^\/]+)/
 
 export class ImportManager {
   private symbolSourceMap: {
@@ -57,7 +58,7 @@ export class ImportManager {
    */
   private resolve(from: string, to: string, tsconfigFilename: string): string {
     if (!to || !from) {
-      throw new Error('Neither `from`, nor `to` may be undefined.');
+      throw new Error("Neither `from`, nor `to` may be undefined.")
     }
 
     const tsconfig = require(tsconfigFilename)
@@ -67,6 +68,12 @@ export class ImportManager {
     }
 
     const absoluteBaseUrl = path.join(path.dirname(tsconfigFilename), baseUrl)
+
+    // Check for node_modules
+    const nodeModuleMatch = NODE_MODULES_REGEX.exec(to)
+    if (nodeModuleMatch) {
+      return nodeModuleMatch[1]
+    }
 
     // Check for resolved module configurations
     for (let key in tsconfig.compilerOptions.paths) {
