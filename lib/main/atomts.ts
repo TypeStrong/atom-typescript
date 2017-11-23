@@ -3,6 +3,7 @@ import * as tsconfig from "tsconfig/dist/tsconfig"
 import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
+import {ImportManager} from "./atom/importManager"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
 import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"
@@ -18,6 +19,7 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 // globals
 const subscriptions = new CompositeDisposable()
 export const clientResolver = new ClientResolver()
+export const importManager = new ImportManager()
 const panes: TypescriptEditorPane[] = []
 
 // Register all custom components
@@ -178,7 +180,7 @@ export function consumeStatusBar(_statusBar: StatusBar) {
 
 // Registering an autocomplete provider
 export function provide() {
-  return [new AutocompleteProvider(clientResolver, {getTypescriptBuffer})]
+  return [new AutocompleteProvider(clientResolver, importManager, {getTypescriptBuffer})]
 }
 
 export function provideIntentions() {
@@ -199,6 +201,24 @@ export var config = {
     description: "Show unused values with severity 'info' instead of 'error'",
     type: "boolean",
     default: true,
+  },
+  autoImport: {
+    type: "object",
+    properties: {
+      enable: {
+        title: "Enable auto import",
+        description: "Automatically adds ES6 import statements when autocompleting.",
+        type: "boolean",
+        default: true,
+      },
+      format: {
+        title: "The format of import string",
+        description:
+          "The format string which will be used if `Enable Auto Import` is turned on.\n#SYMBOLS will be replaced with the symbols.\n#SOURCE will be replaced with the source.",
+        type: "string",
+        default: "import { #SYMBOLS } from '#SOURCE';",
+      },
+    },
   },
 }
 

@@ -6,6 +6,7 @@ const tsconfig = require("tsconfig/dist/tsconfig");
 const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
+const importManager_1 = require("./atom/importManager");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
 const codefix_1 = require("./atom/codefix");
 const atom_1 = require("atom");
@@ -18,6 +19,7 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 // globals
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
+exports.importManager = new importManager_1.ImportManager();
 const panes = [];
 // Register all custom components
 require("./atom/components");
@@ -146,7 +148,7 @@ function consumeStatusBar(_statusBar) {
 exports.consumeStatusBar = consumeStatusBar;
 // Registering an autocomplete provider
 function provide() {
-    return [new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, { getTypescriptBuffer })];
+    return [new autoCompleteProvider_1.AutocompleteProvider(exports.clientResolver, exports.importManager, { getTypescriptBuffer })];
 }
 exports.provide = provide;
 function provideIntentions() {
@@ -167,6 +169,23 @@ exports.config = {
         description: "Show unused values with severity 'info' instead of 'error'",
         type: "boolean",
         default: true,
+    },
+    autoImport: {
+        type: "object",
+        properties: {
+            enable: {
+                title: "Enable auto import",
+                description: "Automatically adds ES6 import statements when autocompleting.",
+                type: "boolean",
+                default: true,
+            },
+            format: {
+                title: "The format of import string",
+                description: "The format string which will be used if `Enable Auto Import` is turned on.\n#SYMBOLS will be replaced with the symbols.\n#SOURCE will be replaced with the source.",
+                type: "string",
+                default: "import { #SYMBOLS } from '#SOURCE';",
+            },
+        },
     },
 };
 function getProjectConfigPath(sourcePath) {

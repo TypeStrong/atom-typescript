@@ -6,12 +6,19 @@ const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
-    constructor(clientResolver, opts) {
+    constructor(clientResolver, importManager, opts) {
         this.selector = ".source.ts, .source.tsx";
         this.disableForSelector = ".comment";
         this.inclusionPriority = 3;
         this.suggestionPriority = 3;
         this.excludeLowerPriority = false;
+        this.onDidInsertSuggestion = (args) => {
+            if (!args.suggestion.text) {
+                return;
+            }
+            this.importManager.addImport(args.editor, args.suggestion.text);
+        };
+        this.importManager = importManager;
         this.clientResolver = clientResolver;
         this.opts = opts;
     }
@@ -30,6 +37,20 @@ class AutocompleteProvider {
             }
             const client = yield this.clientResolver.get(location.file);
             const completions = yield client.executeCompletions(Object.assign({ prefix }, location));
+            client
+                .executeProjectInfo({ needFileNameList: false, file: location.file })
+                .then((resp) => {
+                completions.body.filter(entry => !!entry.source).forEach(entry => {
+                    const e = entry;
+                    if (!e.name || !e.source) {
+                        return;
+                    }
+                    this.importManager.registerSymbol(e.name, {
+                        source: e.source,
+                        tsconfigFilename: resp.body.configFileName,
+                    });
+                });
+            });
             const suggestions = completions.body.map(entry => ({
                 text: entry.name,
                 leftLabel: entry.kind,
