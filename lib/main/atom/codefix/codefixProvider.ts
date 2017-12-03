@@ -1,3 +1,4 @@
+import * as Atom from "atom"
 import {ClientResolver} from "../../../client/clientResolver"
 import {ErrorPusher} from "../../errorPusher"
 import {spanToRange, pointToLocation} from "../utils"
@@ -15,8 +16,8 @@ export class CodefixProvider {
   }
 
   async runCodeFix(
-    textEditor: AtomCore.IEditor,
-    bufferPosition: TextBuffer.IPoint,
+    textEditor: Atom.TextEditor,
+    bufferPosition: Atom.PointLike,
   ): Promise<protocol.CodeAction[]> {
     const filePath = textEditor.getPath()
 
@@ -83,7 +84,7 @@ export class CodefixProvider {
       })
 
       if (!isOpen) {
-        ;(buffer.buffer.save() as any).then(() => buffer.buffer.destroy())
+        buffer.buffer.save().then(() => buffer.buffer.destroy())
       }
     }
   }

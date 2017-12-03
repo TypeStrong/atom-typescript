@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const atom_1 = require("atom");
+const Atom = require("atom");
 const atomts_1 = require("../../atomts");
 function pointToLocation(point) {
     return { line: point.row + 1, offset: point.column + 1 };
 }
 exports.pointToLocation = pointToLocation;
 function locationToPoint(loc) {
-    return new atom_1.Point(loc.line - 1, loc.offset - 1);
+    return new Atom.Point(loc.line - 1, loc.offset - 1);
 }
 exports.locationToPoint = locationToPoint;
 function spanToRange(span) {
@@ -16,7 +16,7 @@ function spanToRange(span) {
 }
 exports.spanToRange = spanToRange;
 function locationsToRange(start, end) {
-    return new atom_1.Range(locationToPoint(start), locationToPoint(end));
+    return new Atom.Range(locationToPoint(start), locationToPoint(end));
 }
 exports.locationsToRange = locationsToRange;
 function rangeToLocationRange(range) {
@@ -50,7 +50,7 @@ function compareLocation(loc1, loc2) {
 }
 exports.compareLocation = compareLocation;
 function isLocationInRange(loc, range) {
-    return compareLocation(range.start, loc) != 1 && compareLocation(range.end, loc) !== -1;
+    return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1;
 }
 exports.isLocationInRange = isLocationInRange;
 function getProjectCodeSettings(filePath, configFile) {

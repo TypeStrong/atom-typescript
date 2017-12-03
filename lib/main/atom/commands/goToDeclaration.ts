@@ -17,14 +17,18 @@ commands.set("typescript:go-to-declaration", deps => {
       return
     }
     const location = getFilePathPosition()
+    if (!location) {
+      e.abortKeyBinding()
+      return
+    }
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
     handleDefinitionResult(result, location)
   }
 })
 
-commands.set("typescript:return-from-declaration", deps => {
-  return async e => {
+commands.set("typescript:return-from-declaration", () => {
+  return async () => {
     const position = prevCursorPositions.pop()
     if (!position) {
       atom.notifications.addInfo("AtomTS: Previous position not found.")

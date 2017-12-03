@@ -1,13 +1,10 @@
 "use strict";
-/**
- * A functional form of the SelectListView
- * Only one of these bad boys is allowed on the screen at one time
- */
 Object.defineProperty(exports, "__esModule", { value: true });
-var singleton;
+let singleton;
 function simpleSelectionView(options) {
-    if (!singleton)
+    if (!singleton) {
         singleton = new SimpleSelectListView(options);
+    }
     else {
         singleton.options = options;
     }
@@ -26,15 +23,12 @@ class SimpleSelectListView extends sp.SelectListView {
         super();
         this.options = options;
     }
-    get $() {
-        return this;
-    }
     setItems() {
         super.setItems(this.options.items);
     }
     /** override */
     viewForItem(item) {
-        var view = this.options.viewForItem(item);
+        const view = this.options.viewForItem(item);
         if (typeof view === "string") {
             return `<li>
                 ${view}
@@ -55,8 +49,9 @@ class SimpleSelectListView extends sp.SelectListView {
     }
     show() {
         this.storeFocusedElement();
-        if (!this.panel)
+        if (!this.panel) {
             this.panel = atom.workspace.addModalPanel({ item: this });
+        }
         this.panel.show();
         this.focusFilterEditor();
         // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you

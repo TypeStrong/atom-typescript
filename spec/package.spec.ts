@@ -1,7 +1,7 @@
 import {expect} from "chai"
 import {join} from "path"
 
-const Package = join(__dirname, "..")
+const packagePath = join(__dirname, "..")
 
 describe("atom-typescript", function() {
   this.timeout(8000)
@@ -10,7 +10,7 @@ describe("atom-typescript", function() {
     const packages: any = atom.packages
 
     // Load package, but it won't activate until the Typescript grammar is used
-    const promise = atom.packages.activatePackage(Package)
+    const promise = atom.packages.activatePackage(packagePath)
 
     packages.triggerActivationHook("atom-typescript:grammar-used")
     packages.triggerDeferredActivationHooks()

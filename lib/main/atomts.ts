@@ -9,8 +9,8 @@ import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {flatten, values} from "lodash"
-import {RegisterLinter, Linter} from "../typings/linter"
-import {StatusBar} from "../typings/status_bar"
+import {IndieDelegate} from "atom/linter"
+import {StatusBar} from "atom/status-bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -24,19 +24,17 @@ const panes: TypescriptEditorPane[] = []
 import "./atom/components"
 import {registerCommands} from "./atom/commands"
 
-let linter: Linter
+let linter: IndieDelegate
 let statusBar: StatusBar
 const codefixProvider = new CodefixProvider(clientResolver)
 
-interface PackageState {}
-
-export function activate(state: PackageState) {
+export function activate() {
   require("atom-package-deps")
     .install("atom-typescript", true)
     .then(() => {
       let statusPriority = 100
       for (const panel of statusBar.getRightTiles()) {
-        if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
+        if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
           statusPriority = panel.getPriority() - 1
         }
       }
@@ -85,7 +83,7 @@ export function activate(state: PackageState) {
         },
         getTypescriptBuffer,
         async getClient(filePath: string) {
-          const pane = panes.find(pane => pane.filePath === filePath)
+          const pane = panes.find(p => p.filePath === filePath)
           if (pane && pane.client) {
             return pane.client
           }
@@ -99,18 +97,22 @@ export function activate(state: PackageState) {
       let activePane: TypescriptEditorPane | undefined
 
       const onSave = debounce((pane: TypescriptEditorPane) => {
-        if (!pane.client) return
+        if (!pane.client) {
+          return
+        }
 
-        const files = panes
-          .sort((a, b) => a.activeAt - b.activeAt)
-          .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
-          .map(pane => pane.filePath)
+        const files: string[] = []
+        for (const p of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+          if (p.filePath && p.isTypescript && p.client === p.client) {
+            files.push(p.filePath)
+          }
+        }
 
         pane.client.executeGetErr({files, delay: 100})
       }, 50)
 
       subscriptions.add(
-        atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+        atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
           panes.push(
             new TypescriptEditorPane(editor, {
               getClient: (filePath: string) => clientResolver.get(filePath),
@@ -140,14 +142,14 @@ export function activate(state: PackageState) {
       }
 
       subscriptions.add(
-        atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
+        atom.workspace.onDidChangeActivePaneItem((editor: Atom.TextEditor) => {
           if (activePane) {
             activePane.onDeactivated()
             activePane = undefined
           }
 
           if (atom.workspace.isTextEditor(editor)) {
-            const pane = panes.find(pane => pane.editor === editor)
+            const pane = panes.find(p => p.editor === editor)
             if (pane) {
               activePane = pane
               pane.onActivated()
@@ -162,22 +164,18 @@ export function deactivate() {
   subscriptions.dispose()
 }
 
-export function serialize(): PackageState {
-  return {}
-}
-
-export function consumeLinter(register: RegisterLinter) {
+export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
   linter = register({
     name: "Typescript",
   })
 }
 
-export function consumeStatusBar(_statusBar: StatusBar) {
-  statusBar = _statusBar
+export function consumeStatusBar(pStatusBar: StatusBar) {
+  statusBar = pStatusBar
 }
 
 // Registering an autocomplete provider
-export function provide() {
+export function provideAutocomplete() {
   return [new AutocompleteProvider(clientResolver, {getTypescriptBuffer})]
 }
 
@@ -193,7 +191,7 @@ export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
 }
 
-export var config = {
+export const config = {
   unusedAsInfo: {
     title: "Show unused values with severity info",
     description: "Show unused values with severity 'info' instead of 'error'",
@@ -202,7 +200,7 @@ export var config = {
   },
 }
 
-export async function getProjectConfigPath(sourcePath: string): Promise<string> {
+async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
   const result = await client.executeProjectInfo({
     needFileNameList: false,
@@ -211,13 +209,20 @@ export async function getProjectConfigPath(sourcePath: string): Promise<string> 
   return result.body!.configFileName
 }
 
-export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<any> {
+interface TSConfig {
+  formatCodeOptions: protocol.FormatCodeSettings
+}
+
+export async function loadProjectConfig(
+  sourcePath: string,
+  configFile?: string,
+): Promise<TSConfig> {
   return tsconfig.readFile(configFile || (await getProjectConfigPath(sourcePath)))
 }
 
 // Get Typescript buffer for the given path
 async function getTypescriptBuffer(filePath: string) {
-  const pane = panes.find(pane => pane.filePath === filePath)
+  const pane = panes.find(p => p.filePath === filePath)
   if (pane) {
     return {
       buffer: pane.buffer,
@@ -226,19 +231,10 @@ async function getTypescriptBuffer(filePath: string) {
   }
 
   // Wait for the buffer to load before resolving the promise
-  const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
-    const buffer = new Atom.TextBuffer({
-      filePath,
-      load: true,
-    })
-
-    buffer.onDidReload(() => {
-      resolve(buffer)
-    })
-  })
+  const buffer = await Atom.TextBuffer.load(filePath)
 
   return {
-    buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
+    buffer: new TypescriptBuffer(buffer, fp => clientResolver.get(fp)),
     isOpen: false,
   }
 }

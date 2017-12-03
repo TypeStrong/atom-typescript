@@ -17,13 +17,17 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
             return;
         }
         const location = utils_1.getFilePathPosition();
+        if (!location) {
+            e.abortKeyBinding();
+            return;
+        }
         const client = yield deps.getClient(location.file);
         const result = yield client.executeDefinition(location);
         handleDefinitionResult(result, location);
     });
 });
-registry_1.commands.set("typescript:return-from-declaration", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+registry_1.commands.set("typescript:return-from-declaration", () => {
+    return () => tslib_1.__awaiter(this, void 0, void 0, function* () {
         const position = prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo("AtomTS: Previous position not found.");

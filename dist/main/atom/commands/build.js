@@ -8,7 +8,12 @@ registry_1.commands.set("typescript:build", deps => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const { file } = utils_1.getFilePathPosition();
+        const fpp = utils_1.getFilePathPosition();
+        if (!fpp) {
+            e.abortKeyBinding();
+            return;
+        }
+        const { file } = fpp;
         const client = yield deps.getClient(file);
         const projectInfo = yield client.executeProjectInfo({
             file,
@@ -16,10 +21,8 @@ registry_1.commands.set("typescript:build", deps => {
         });
         const files = new Set(projectInfo.body.fileNames);
         files.delete(projectInfo.body.configFileName);
-        const max = files.size;
-        const promises = [...files.values()].map(file => _finally(client.executeCompileOnSaveEmitFile({ file, forced: true }), () => {
+        const promises = [...files.values()].map(f => _finally(client.executeCompileOnSaveEmitFile({ file: f, forced: true }), () => {
             files.delete(file);
-            updateStatus();
         }));
         Promise.all(promises)
             .then(results => {
@@ -28,20 +31,11 @@ registry_1.commands.set("typescript:build", deps => {
             }
             deps.statusPanel.setBuildStatus({ success: true });
         })
-            .catch(e => {
-            console.error(e);
+            .catch(err => {
+            console.error(err);
             deps.statusPanel.setBuildStatus({ success: false });
         });
         deps.statusPanel.setBuildStatus(undefined);
-        deps.statusPanel.setProgress({ max, value: 0 });
-        function updateStatus() {
-            if (files.size === 0) {
-                deps.statusPanel.setProgress(undefined);
-            }
-            else {
-                deps.statusPanel.setProgress({ max, value: max - files.size });
-            }
-        }
     });
 });
 function _finally(promise, callback) {

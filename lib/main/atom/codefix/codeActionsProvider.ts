@@ -1,8 +1,9 @@
+import * as Atom from "atom"
 import {CodefixProvider} from "./codefixProvider"
 
 export interface Message {
   filePath: string
-  range?: TextBuffer.IRange
+  range?: Atom.Range
   // this interface is rater obviously incomplete
 }
 
@@ -16,8 +17,8 @@ export interface CodeActionProvider {
   grammarScopes: string[]
   priority: number
   getCodeActions(
-    editor: AtomCore.IEditor,
-    range: TextBuffer.IRange,
+    editor: Atom.TextEditor,
+    range: Atom.Range,
     diagnostics: Message[],
   ): Promise<CodeAction[]>
 }
@@ -29,9 +30,9 @@ export class CodeActionsProvider implements CodeActionProvider {
   constructor(private codefixProvider: CodefixProvider) {}
 
   async getCodeActions(
-    textEditor: AtomCore.IEditor,
-    range: TextBuffer.IRange,
-    diagnostics: Message[],
+    textEditor: Atom.TextEditor,
+    range: Atom.Range,
+    _diagnostics: Message[],
   ): Promise<CodeAction[]> {
     return (await this.codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
       getTitle: async () => fix.description,

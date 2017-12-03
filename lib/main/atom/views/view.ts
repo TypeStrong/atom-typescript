@@ -1,8 +1,9 @@
+// tslint:disable:max-classes-per-file
 import sp = require("atom-space-pen-views")
 
 export class View<Options> extends sp.View {
   get $(): JQuery {
-    return <any>this
+    return this as any
   }
 
   static content() {
@@ -13,16 +14,14 @@ export class View<Options> extends sp.View {
     super()
     this.init()
   }
-  init() {}
+  init() {
+    /* noop */
+  }
 }
 
-export var $ = sp.$
+export const $ = sp.$
 
 export class ScrollView<Options> extends sp.ScrollView {
-  get $(): JQuery {
-    return <any>this
-  }
-
   static content() {
     throw new Error("Must override the base View static content member")
   }
@@ -31,5 +30,7 @@ export class ScrollView<Options> extends sp.ScrollView {
     super()
     this.init()
   }
-  init() {}
+  init() {
+    /* noop */
+  }
 }

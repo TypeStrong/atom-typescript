@@ -46,8 +46,8 @@ export class ClientResolver extends events.EventEmitter {
     return super.on(event, callback)
   }
 
-  get(filePath: string): Promise<Client> {
-    return resolveServer(filePath)
+  get(pFilePath: string): Promise<Client> {
+    return resolveServer(pFilePath)
       .catch(() => defaultServer)
       .then(({serverPath, version}) => {
         if (this.clients[serverPath]) {

@@ -8,7 +8,12 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const { file } = utils_1.getFilePathPosition();
+        const fpp = utils_1.getFilePathPosition();
+        if (!fpp) {
+            e.abortKeyBinding();
+            return;
+        }
+        const { file } = fpp;
         const client = yield deps.getClient(file);
         const projectInfo = yield client.executeProjectInfo({
             file,
@@ -22,8 +27,9 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         // for some amount of time.
         let cancelTimeout;
         const unregister = client.on("syntaxDiag", evt => {
-            clearTimeout(cancelTimeout);
-            cancelTimeout = setTimeout(cancel, 500);
+            if (cancelTimeout !== undefined)
+                window.clearTimeout(cancelTimeout);
+            cancelTimeout = window.setTimeout(cancel, 500);
             files.delete(evt.file);
             updateStatus();
         });

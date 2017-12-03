@@ -7,7 +7,12 @@ commands.set("typescript:build", deps => {
       return
     }
 
-    const {file} = getFilePathPosition()
+    const fpp = getFilePathPosition()
+    if (!fpp) {
+      e.abortKeyBinding()
+      return
+    }
+    const {file} = fpp
     const client = await deps.getClient(file)
 
     const projectInfo = await client.executeProjectInfo({
@@ -17,11 +22,9 @@ commands.set("typescript:build", deps => {
 
     const files = new Set(projectInfo.body!.fileNames)
     files.delete(projectInfo.body!.configFileName)
-    const max = files.size
-    const promises = [...files.values()].map(file =>
-      _finally(client.executeCompileOnSaveEmitFile({file, forced: true}), () => {
+    const promises = [...files.values()].map(f =>
+      _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
         files.delete(file)
-        updateStatus()
       }),
     )
 
@@ -33,25 +36,16 @@ commands.set("typescript:build", deps => {
 
         deps.statusPanel.setBuildStatus({success: true})
       })
-      .catch(e => {
-        console.error(e)
+      .catch(err => {
+        console.error(err)
         deps.statusPanel.setBuildStatus({success: false})
       })
 
     deps.statusPanel.setBuildStatus(undefined)
-    deps.statusPanel.setProgress({max, value: 0})
-
-    function updateStatus() {
-      if (files.size === 0) {
-        deps.statusPanel.setProgress(undefined)
-      } else {
-        deps.statusPanel.setProgress({max, value: max - files.size})
-      }
-    }
   }
 })
 
-function _finally<T>(promise: Promise<T>, callback: (result: T) => any): Promise<T> {
+function _finally<T>(promise: Promise<T>, callback: (result: T) => void): Promise<T> {
   promise.then(callback, callback)
   return promise
 }

@@ -1,7 +1,7 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
 import {kindToType, FileLocationQuery} from "./utils"
-import {Provider, RequestOptions, Suggestion} from "../../typings/autocomplete"
+import * as ACP from "atom/autocomplete-plus"
 import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
@@ -9,11 +9,11 @@ import * as fuzzaldrin from "fuzzaldrin"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 
-type SuggestionWithDetails = Suggestion & {
+type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
 }
 
-type Options = {
+interface Options {
   getTypescriptBuffer: (
     filePath: string,
   ) => Promise<{
@@ -22,7 +22,7 @@ type Options = {
   }>
 }
 
-export class AutocompleteProvider implements Provider {
+export class AutocompleteProvider implements ACP.AutocompleteProvider {
   selector = ".source.ts, .source.tsx"
 
   disableForSelector = ".comment"
@@ -64,7 +64,7 @@ export class AutocompleteProvider implements Provider {
       const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
       const thisCol = getNormalizedCol(prefix, location.offset)
 
-      if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
         if (this.lastSuggestions.suggestions.length !== 0) {
           return this.lastSuggestions.suggestions
         }
@@ -93,11 +93,11 @@ export class AutocompleteProvider implements Provider {
     return suggestions
   }
 
-  async getSuggestions(opts: RequestOptions): Promise<Suggestion[]> {
+  async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
-    if (!location.file) {
+    if (!location) {
       return []
     }
 
@@ -129,27 +129,27 @@ export class AutocompleteProvider implements Provider {
     await buffer.flush()
 
     try {
-      var suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
+      let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
+
+      const alphaPrefix = prefix.replace(/\W/g, "")
+      if (alphaPrefix !== "") {
+        suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
+          key: "text",
+        })
+      }
+
+      // Get additional details for the first few suggestions
+      await this.getAdditionalDetails(suggestions.slice(0, 10), location)
+
+      const trimmed = prefix.trim()
+
+      return suggestions.map(suggestion => ({
+        replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
+        ...suggestion,
+      }))
     } catch (error) {
       return []
     }
-
-    const alphaPrefix = prefix.replace(/\W/g, "")
-    if (alphaPrefix !== "") {
-      suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
-        key: "text",
-      })
-    }
-
-    // Get additional details for the first few suggestions
-    await this.getAdditionalDetails(suggestions.slice(0, 10), location)
-
-    const trimmed = prefix.trim()
-
-    return suggestions.map(suggestion => ({
-      replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
-      ...suggestion,
-    }))
   }
 
   async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
@@ -202,19 +202,20 @@ function getNormalizedCol(prefix: string, col: number): number {
   return col - length
 }
 
-function getLocationQuery(opts: RequestOptions): FileLocationQuery {
+function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined {
+  const path = opts.editor.getPath()
+  if (!path) {
+    return undefined
+  }
   return {
-    file: opts.editor.getPath(),
+    file: path,
     line: opts.bufferPosition.row + 1,
     offset: opts.bufferPosition.column + 1,
   }
 }
 
-function getLastNonWhitespaceChar(
-  buffer: TextBuffer.ITextBuffer,
-  pos: TextBuffer.IPoint,
-): string | undefined {
-  let lastChar: string | undefined = undefined
+function getLastNonWhitespaceChar(buffer: Atom.TextBuffer, pos: Atom.Point): string | undefined {
+  let lastChar: string | undefined
   const range = new Atom.Range([0, 0], pos)
   buffer.backwardsScanInRange(
     /\S/,

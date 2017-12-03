@@ -9,6 +9,10 @@ commands.set("typescript:rename-refactor", deps => {
     }
 
     const location = getFilePathPosition()
+    if (!location) {
+      e.abortKeyBinding()
+      return
+    }
     const client = await deps.getClient(location.file)
     const response = await client.executeRename(location)
     const {info, locs} = response.body!

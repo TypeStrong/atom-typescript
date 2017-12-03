@@ -3,19 +3,19 @@
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const atomUtils = require("./utils"); ///ts:import:generated
+const atomUtils = require("./utils");
 const atomts_1 = require("../atomts");
 const path = require("path");
 const fs = require("fs");
 const emissary = require("emissary");
-var Subscriber = emissary.Subscriber;
+const Subscriber = emissary.Subscriber;
 const tooltipView = require("./views/tooltipView");
 var TooltipView = tooltipView.TooltipView;
 const atom_space_pen_views_1 = require("atom-space-pen-views");
 const escape = require("escape-html");
 function getFromShadowDom(element, selector) {
-    var el = element[0];
-    var found = el.querySelectorAll(selector);
+    const el = element[0];
+    const found = el.querySelectorAll(selector);
     return atom_space_pen_views_1.$(found[0]);
 }
 exports.getFromShadowDom = getFromShadowDom;
@@ -29,34 +29,38 @@ function bufferPositionFromMouseEvent(editor, event) {
 }
 exports.bufferPositionFromMouseEvent = bufferPositionFromMouseEvent;
 function attach(editorView, editor) {
-    var rawView = editorView[0];
+    const rawView = editorView[0];
     // Only on ".ts" files
-    var filePath = editor.getPath();
+    const filePath = editor.getPath();
     if (!filePath) {
         return;
     }
-    var filename = path.basename(filePath);
-    var ext = path.extname(filename);
-    if (!atomUtils.isAllowedExtension(ext))
+    const filename = path.basename(filePath);
+    const ext = path.extname(filename);
+    if (!atomUtils.isAllowedExtension(ext)) {
         return;
+    }
     // We only create a "program" once the file is persisted to disk
     if (!fs.existsSync(filePath)) {
         return;
     }
-    var clientPromise = atomts_1.clientResolver.get(filePath);
-    var scroll = getFromShadowDom(editorView, ".scroll-view");
-    var subscriber = new Subscriber();
-    var exprTypeTimeout;
-    var exprTypeTooltip;
+    const clientPromise = atomts_1.clientResolver.get(filePath);
+    const scroll = getFromShadowDom(editorView, ".scroll-view");
+    const subscriber = new Subscriber();
+    let exprTypeTimeout;
+    let exprTypeTooltip;
     // to debounce mousemove event's firing for some reason on some machines
-    var lastExprTypeBufferPt;
+    let lastExprTypeBufferPt;
     subscriber.subscribe(scroll, "mousemove", (e) => {
         const bufferPt = bufferPositionFromMouseEvent(editor, e);
-        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip)
+        if (!bufferPt)
             return;
+        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
+            return;
+        }
         lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
-        exprTypeTimeout = setTimeout(() => showExpressionType(e), 100);
+        exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100);
     });
     subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout());
     subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout());
@@ -65,38 +69,46 @@ function attach(editorView, editor) {
     function showExpressionType(e) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // If we are already showing we should wait for that to clear
-            if (exprTypeTooltip)
+            if (exprTypeTooltip) {
                 return;
+            }
             const bufferPt = bufferPositionFromMouseEvent(editor, e);
-            var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-            var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
+            if (!bufferPt)
+                return;
+            const curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
+            const nextCharPixelPt = rawView.pixelPositionForBufferPosition([
                 bufferPt.row,
                 bufferPt.column + 1,
             ]);
-            if (curCharPixelPt.left >= nextCharPixelPt.left)
+            if (curCharPixelPt.left >= nextCharPixelPt.left) {
                 return;
+            }
             // find out show position
-            var offset = editor.getLineHeightInPixels() * 0.7;
-            var tooltipRect = {
+            const offset = editor.getLineHeightInPixels() * 0.7;
+            const tooltipRect = {
                 left: e.clientX,
                 right: e.clientX,
                 top: e.clientY - offset,
                 bottom: e.clientY + offset,
             };
             exprTypeTooltip = new TooltipView(tooltipRect);
+            let result;
             const client = yield clientPromise;
-            const result = yield client
-                .executeQuickInfo({
-                file: filePath,
-                line: bufferPt.row + 1,
-                offset: bufferPt.column + 1,
-            })
-                .catch(err => undefined);
-            if (!result) {
+            try {
+                if (!filePath) {
+                    return;
+                }
+                result = yield client.executeQuickInfo({
+                    file: filePath,
+                    line: bufferPt.row + 1,
+                    offset: bufferPt.column + 1,
+                });
+            }
+            catch (e) {
                 return;
             }
             const { displayString, documentation } = result.body;
-            var message = `<b>${escape(displayString)}</b>`;
+            let message = `<b>${escape(displayString)}</b>`;
             if (documentation) {
                 message =
                     message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
@@ -114,23 +126,17 @@ function attach(editorView, editor) {
     function clearExprTypeTimeout() {
         if (exprTypeTimeout) {
             clearTimeout(exprTypeTimeout);
-            exprTypeTimeout = null;
+            exprTypeTimeout = undefined;
         }
         hideExpressionType();
     }
     function hideExpressionType() {
-        if (!exprTypeTooltip)
+        if (!exprTypeTooltip) {
             return;
+        }
         exprTypeTooltip.$.remove();
         exprTypeTooltip = undefined;
     }
 }
 exports.attach = attach;
-function pixelPositionFromMouseEvent(editorView, event) {
-    var clientX = event.clientX, clientY = event.clientY;
-    var linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect();
-    var top = clientY - linesClientRect.top;
-    var left = clientX - linesClientRect.left;
-    return { top: top, left: left };
-}
 //# sourceMappingURL=tooltipManager.js.map

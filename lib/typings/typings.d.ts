@@ -2,6 +2,10 @@ interface Window {
   atom_typescript_debug: boolean
 }
 
+interface Document {
+  registerElement(tagName: string, elementClass: typeof HTMLElement)
+}
+
 // escape-html
 declare module "escape-html" {
   function escape(html: string): string
@@ -9,15 +13,14 @@ declare module "escape-html" {
 }
 
 declare module "atom-space-pen-views" {
-  import atom = require("atom")
-  export class SelectListView extends atom.SelectListView {}
-  export class ScrollView extends atom.ScrollView {}
-  export class View extends atom.View {}
-  export var $: JQueryStatic
-}
-
-declare namespace AtomCore {
-  export interface IEditor {
-    element: any
+  import * as sp from "space-pen"
+  export class SelectListView {
+    storeFocusedElement(): void
+    focusFilterEditor(): void
+    restoreFocus(): void
+    setItems(items: any[]): void
   }
+  export class ScrollView {}
+  export class View extends sp.View {}
+  export var $: JQueryStatic
 }

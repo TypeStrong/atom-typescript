@@ -7,15 +7,19 @@ function getHyperclickProvider(clientResolver) {
     return {
         providerName: "typescript-hyperclick-provider",
         wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
-        getSuggestionForWord(editor, text, range) {
-            if (!utils_1.isTypescriptGrammar(editor.getGrammar())) {
+        getSuggestionForWord(editor, _text, range) {
+            if (!utils_1.isTypescriptGrammar(editor)) {
+                return null;
+            }
+            const filePath = editor.getPath();
+            if (!filePath) {
                 return null;
             }
             return {
-                range: range,
+                range,
                 callback: () => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const location = {
-                        file: editor.getPath(),
+                        file: filePath,
                         line: range.start.row + 1,
                         offset: range.start.column + 1,
                     };

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
-const atom_1 = require("atom");
+const Atom = require("atom");
 const events_1 = require("events");
 const utils_1 = require("./atom/utils");
 class TypescriptBuffer {
@@ -14,19 +14,22 @@ class TypescriptBuffer {
         this.changedAt = 0;
         this.changedAtBatch = 0;
         this.events = new events_1.EventEmitter();
-        this.subscriptions = new atom_1.CompositeDisposable();
+        this.subscriptions = new Atom.CompositeDisposable();
         this.dispose = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.subscriptions.dispose();
             if (this.isOpen && this.clientPromise) {
                 const client = yield this.clientPromise;
-                client.executeClose({ file: this.buffer.getPath() });
+                const file = this.buffer.getPath();
+                if (file) {
+                    client.executeClose({ file });
+                }
                 this.events.emit("closed", this.filePath);
             }
         });
         this.onDidChange = () => {
             this.changedAt = Date.now();
         };
-        this.onDidChangePath = (newPath) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        this.onDidChangePath = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.clientPromise && this.filePath) {
                 const client = yield this.clientPromise;
                 client.executeClose({ file: this.filePath });
@@ -48,8 +51,11 @@ class TypescriptBuffer {
                 return;
             }
             this.changedAtBatch = Date.now();
-            const client = yield this.clientPromise;
             const filePath = this.buffer.getPath();
+            if (!filePath) {
+                return;
+            }
+            const client = yield this.clientPromise;
             for (const change of changes) {
                 const { start, oldExtent, newText } = change;
                 const end = {
@@ -70,7 +76,7 @@ class TypescriptBuffer {
     open() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.filePath = this.buffer.getPath();
-            if (utils_1.isTypescriptFile(this.filePath)) {
+            if (this.filePath && utils_1.isTypescriptFile(this.filePath)) {
                 // Set isOpen before we actually open the file to enqueue any changed events
                 this.isOpen = true;
                 this.clientPromise = this.getClient(this.filePath);
@@ -87,16 +93,13 @@ class TypescriptBuffer {
     flush() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (this.changedAt > this.changedAtBatch) {
-                let sub;
                 yield new Promise(resolve => {
-                    sub = this.buffer.onDidStopChanging(() => {
+                    const sub = this.buffer.onDidStopChanging(() => {
+                        sub.dispose();
                         resolve();
                     });
                     this.buffer.emitDidStopChangingEvent();
                 });
-                if (sub) {
-                    sub.dispose();
-                }
             }
         });
     }

@@ -1,3 +1,3 @@
 export * from "./atom"
-export * from "./fs"
+export {systemPath} from "./fs"
 export * from "./ts"

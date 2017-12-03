@@ -22,7 +22,7 @@ class AutocompleteProvider {
                 const lastLoc = this.lastSuggestions.location;
                 const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
                 const thisCol = getNormalizedCol(prefix, location.offset);
-                if (lastLoc.file === location.file && lastLoc.line == location.line && lastCol === thisCol) {
+                if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
                     if (this.lastSuggestions.suggestions.length !== 0) {
                         return this.lastSuggestions.suggestions;
                     }
@@ -48,7 +48,7 @@ class AutocompleteProvider {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const location = getLocationQuery(opts);
             const { prefix } = opts;
-            if (!location.file) {
+            if (!location) {
                 return [];
             }
             // Don't show autocomplete if the previous character was a non word character except "."
@@ -73,21 +73,21 @@ class AutocompleteProvider {
             const { buffer } = yield this.opts.getTypescriptBuffer(location.file);
             yield buffer.flush();
             try {
-                var suggestions = yield this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
+                let suggestions = yield this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
+                const alphaPrefix = prefix.replace(/\W/g, "");
+                if (alphaPrefix !== "") {
+                    suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
+                        key: "text",
+                    });
+                }
+                // Get additional details for the first few suggestions
+                yield this.getAdditionalDetails(suggestions.slice(0, 10), location);
+                const trimmed = prefix.trim();
+                return suggestions.map(suggestion => (Object.assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
             }
             catch (error) {
                 return [];
             }
-            const alphaPrefix = prefix.replace(/\W/g, "");
-            if (alphaPrefix !== "") {
-                suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
-                    key: "text",
-                });
-            }
-            // Get additional details for the first few suggestions
-            yield this.getAdditionalDetails(suggestions.slice(0, 10), location);
-            const trimmed = prefix.trim();
-            return suggestions.map(suggestion => (Object.assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
         });
     }
     getAdditionalDetails(suggestions, location) {
@@ -135,14 +135,18 @@ function getNormalizedCol(prefix, col) {
     return col - length;
 }
 function getLocationQuery(opts) {
+    const path = opts.editor.getPath();
+    if (!path) {
+        return undefined;
+    }
     return {
-        file: opts.editor.getPath(),
+        file: path,
         line: opts.bufferPosition.row + 1,
         offset: opts.bufferPosition.column + 1,
     };
 }
 function getLastNonWhitespaceChar(buffer, pos) {
-    let lastChar = undefined;
+    let lastChar;
     const range = new Atom.Range([0, 0], pos);
     buffer.backwardsScanInRange(/\S/, range, ({ matchText, stop }) => {
         lastChar = matchText;

@@ -1,5 +1,5 @@
 import view = require("./view")
-var $ = view.$
+const $ = view.$
 
 interface Rect {
   left: number
@@ -29,14 +29,15 @@ export class TooltipView extends view.View<Rect> {
   }
 
   updatePosition() {
-    var offset = 10
-    var left = this.rect.right
-    var top = this.rect.bottom
-    var right: number | "" = ""
+    const offset = 10
+    let left = this.rect.right
+    let top = this.rect.bottom
+    let right: number | "" = ""
 
     // X axis adjust
-    if (left + this.$[0].offsetWidth >= view.$(document.body).width()!)
+    if (left + this.$[0].offsetWidth >= view.$(document.body).width()!) {
       left = view.$(document.body).width()! - this.$[0].offsetWidth - offset
+    }
     if (left < 0) {
       this.$.css({"white-space": "pre-wrap"})
       left = offset

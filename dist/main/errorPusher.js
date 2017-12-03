@@ -11,7 +11,7 @@ class ErrorPusher {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
                 for (const [filePath, diagnostics] of fileErrors) {
-                    const _filePath = utils_1.systemPath(filePath);
+                    const newFilePath = utils_1.systemPath(filePath);
                     for (const diagnostic of diagnostics) {
                         // Add a bit of extra validation that we have the necessary locations since linter v2
                         // does not allow range-less messages anymore. This happens with configFileDiagnostics.
@@ -23,7 +23,7 @@ class ErrorPusher {
                             severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
                             excerpt: diagnostic.text,
                             location: {
-                                file: _filePath,
+                                file: newFilePath,
                                 position: utils_1.locationsToRange(start, end),
                             },
                         });
@@ -48,7 +48,7 @@ class ErrorPusher {
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {
-        if (prefix == undefined || filePath == undefined) {
+        if (prefix === undefined || filePath === undefined) {
             console.warn("setErrors: prefix or filePath is undefined", prefix, filePath);
             return;
         }
@@ -61,7 +61,7 @@ class ErrorPusher {
         this.pushErrors();
     }
     setUnusedAsInfo(unusedAsInfo) {
-        this.unusedAsInfo = unusedAsInfo;
+        this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo;
     }
     /** Clear all errors */
     clear() {
