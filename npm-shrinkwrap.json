@@ -194,6 +194,11 @@
       "from": "tsconfig@>=6.0.0 <7.0.0",
       "resolved": "https://registry.npmjs.org/tsconfig/-/tsconfig-6.0.0.tgz"
     },
+    "tslib": {
+      "version": "1.8.0",
+      "from": "tslib@latest",
+      "resolved": "https://registry.npmjs.org/tslib/-/tslib-1.8.0.tgz"
+    },
     "typescript": {
       "version": "2.4.2",
       "from": "typescript@>=2.4.0 <2.5.0",
