@@ -6,7 +6,7 @@
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
   "activationHooks": [
-    "atom-typescript:grammar-used"
+    "language-typescript:grammar-used"
   ],
   "scripts": {
     "build": "tsc -p ./lib",
@@ -18,7 +18,7 @@
     "test": "npm run typecheck && npm run lint && npm run prettier-check"
   },
   "engines": {
-    "atom": ">=1.19.0 <2.0.0",
+    "atom": ">=1.21.0 <2.0.0",
     "node": "*"
   },
   "configSchema": {
