@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "build": "tsc -p ./lib",
-    "grammar": "ts-node scripts/grammar.ts",
     "prettier": "ts-node scripts/prettier.ts write",
     "prettier-check": "ts-node scripts/prettier.ts check",
     "typecheck": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && tsc --noEmit -p ./spec",
