@@ -12,7 +12,7 @@ describe("atom-typescript", function() {
     // Load package, but it won't activate until the Typescript grammar is used
     const promise = atom.packages.activatePackage(packagePath)
 
-    packages.triggerActivationHook("atom-typescript:grammar-used")
+    packages.triggerActivationHook("language-typescript:grammar-used")
     packages.triggerDeferredActivationHooks()
 
     await promise
