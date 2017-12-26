@@ -5,31 +5,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const atomUtils = require("./utils");
 const atomts_1 = require("../atomts");
+const Atom = require("atom");
 const path = require("path");
 const fs = require("fs");
-const emissary = require("emissary");
-const Subscriber = emissary.Subscriber;
+const element_listener_1 = require("./utils/element-listener");
 const tooltipView = require("./views/tooltipView");
 var TooltipView = tooltipView.TooltipView;
-const atom_space_pen_views_1 = require("atom-space-pen-views");
 const escape = require("escape-html");
-function getFromShadowDom(element, selector) {
-    const el = element[0];
-    const found = el.querySelectorAll(selector);
-    return atom_space_pen_views_1.$(found[0]);
-}
-exports.getFromShadowDom = getFromShadowDom;
+const tooltipMap = new WeakMap();
 // screen position from mouse event -- with <3 from Atom-Haskell
 function bufferPositionFromMouseEvent(editor, event) {
-    const sp = atom.views.getView(editor).component.screenPositionForMouseEvent(event);
+    const sp = atom.views
+        .getView(editor)
+        .getComponent()
+        .screenPositionForMouseEvent(event);
     if (isNaN(sp.row) || isNaN(sp.column)) {
         return;
     }
     return editor.bufferPositionForScreenPosition(sp);
 }
 exports.bufferPositionFromMouseEvent = bufferPositionFromMouseEvent;
-function attach(editorView, editor) {
-    const rawView = editorView[0];
+function showExpressionAt(editor, pt) {
+    const ed = tooltipMap.get(editor);
+    if (ed) {
+        return ed(pt);
+    }
+}
+exports.showExpressionAt = showExpressionAt;
+function attach(editor) {
+    const rawView = atom.views.getView(editor);
     // Only on ".ts" files
     const filePath = editor.getPath();
     if (!filePath) {
@@ -45,13 +49,12 @@ function attach(editorView, editor) {
         return;
     }
     const clientPromise = atomts_1.clientResolver.get(filePath);
-    const scroll = getFromShadowDom(editorView, ".scroll-view");
-    const subscriber = new Subscriber();
+    const subscriber = new Atom.CompositeDisposable();
     let exprTypeTimeout;
     let exprTypeTooltip;
     // to debounce mousemove event's firing for some reason on some machines
     let lastExprTypeBufferPt;
-    subscriber.subscribe(scroll, "mousemove", (e) => {
+    subscriber.add(element_listener_1.listen(rawView, "mousemove", ".scroll-view", (e) => {
         const bufferPt = bufferPositionFromMouseEvent(editor, e);
         if (!bufferPt)
             return;
@@ -61,11 +64,27 @@ function attach(editorView, editor) {
         lastExprTypeBufferPt = bufferPt;
         clearExprTypeTimeout();
         exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100);
-    });
-    subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout());
-    subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout());
+    }));
+    subscriber.add(element_listener_1.listen(rawView, "mouseout", ".scroll-view", () => clearExprTypeTimeout()));
+    subscriber.add(element_listener_1.listen(rawView, "keydown", ".scroll-view", () => clearExprTypeTimeout()));
     // Setup for clearing
     editor.onDidDestroy(() => deactivate());
+    tooltipMap.set(editor, showExpressionTypeKbd);
+    const lines = rawView.querySelector(".lines");
+    function mousePositionForPixelPosition(p) {
+        const linesRect = lines.getBoundingClientRect();
+        return {
+            clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
+            clientX: p.left + linesRect.left,
+        };
+    }
+    function showExpressionTypeKbd(pt) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const view = atom.views.getView(editor);
+            const px = view.pixelPositionForBufferPosition(pt);
+            return showExpressionType(mousePositionForPixelPosition(px));
+        });
+    }
     function showExpressionType(e) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // If we are already showing we should wait for that to clear
@@ -75,11 +94,8 @@ function attach(editorView, editor) {
             const bufferPt = bufferPositionFromMouseEvent(editor, e);
             if (!bufferPt)
                 return;
-            const curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column]);
-            const nextCharPixelPt = rawView.pixelPositionForBufferPosition([
-                bufferPt.row,
-                bufferPt.column + 1,
-            ]);
+            const curCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column]));
+            const nextCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]));
             if (curCharPixelPt.left >= nextCharPixelPt.left) {
                 return;
             }
@@ -119,7 +135,7 @@ function attach(editorView, editor) {
         });
     }
     function deactivate() {
-        subscriber.unsubscribe();
+        subscriber.dispose();
         clearExprTypeTimeout();
     }
     /** clears the timeout && the tooltip */

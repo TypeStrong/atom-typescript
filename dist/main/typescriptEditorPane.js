@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const atom_space_pen_views_1 = require("atom-space-pen-views");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
@@ -193,10 +192,7 @@ class TypescriptEditorPane {
         });
     }
     setupTooltipView() {
-        // subscribe for tooltips
-        // inspiration : https://github.com/chaika2013/ide-haskell
-        const editorView = atom_space_pen_views_1.$(atom.views.getView(this.editor));
-        tooltipManager.attach(editorView, this.editor);
+        tooltipManager.attach(this.editor);
     }
 }
 exports.TypescriptEditorPane = TypescriptEditorPane;
