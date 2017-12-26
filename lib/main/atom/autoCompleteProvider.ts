@@ -74,6 +74,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     const client = await this.clientResolver.get(location.file)
     const completions = await client.executeCompletions({
       prefix,
+      includeExternalModuleExports: false,
       ...location,
     })
 
