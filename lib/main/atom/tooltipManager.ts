@@ -11,6 +11,7 @@ import tooltipView = require("./views/tooltipView")
 import TooltipView = tooltipView.TooltipView
 import escape = require("escape-html")
 
+const tooltipMap = new WeakMap<Atom.TextEditor, (pt: Atom.Point) => Promise<void>>()
 
 // screen position from mouse event -- with <3 from Atom-Haskell
 export function bufferPositionFromMouseEvent(
@@ -25,6 +26,13 @@ export function bufferPositionFromMouseEvent(
     return
   }
   return editor.bufferPositionForScreenPosition(sp)
+}
+
+export function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) {
+  const ed = tooltipMap.get(editor)
+  if (ed) {
+    return ed(pt)
+  }
 }
 
 export function attach(editor: Atom.TextEditor) {
@@ -73,6 +81,24 @@ export function attach(editor: Atom.TextEditor) {
 
   // Setup for clearing
   editor.onDidDestroy(() => deactivate())
+
+  tooltipMap.set(editor, showExpressionTypeKbd)
+
+  const lines = rawView.querySelector(".lines")!
+
+  function mousePositionForPixelPosition(p: Atom.PixelPosition) {
+    const linesRect = lines.getBoundingClientRect()
+    return {
+      clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
+      clientX: p.left + linesRect.left,
+    }
+  }
+
+  async function showExpressionTypeKbd(pt: Atom.Point) {
+    const view = atom.views.getView(editor)
+    const px = view.pixelPositionForBufferPosition(pt)
+    return showExpressionType(mousePositionForPixelPosition(px))
+  }
 
   async function showExpressionType(e: {clientX: number; clientY: number}) {
     // If we are already showing we should wait for that to clear
