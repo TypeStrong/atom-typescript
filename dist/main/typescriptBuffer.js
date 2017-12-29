@@ -73,6 +73,16 @@ class TypescriptBuffer {
         this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging));
         this.open();
     }
+    static construct(buffer, getClient) {
+        const b = TypescriptBuffer.bufferMap.get(buffer);
+        if (b)
+            return b;
+        else {
+            const nb = new TypescriptBuffer(buffer, getClient);
+            TypescriptBuffer.bufferMap.set(buffer, nb);
+            return nb;
+        }
+    }
     open() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.filePath = this.buffer.getPath();
@@ -108,5 +118,6 @@ class TypescriptBuffer {
         return this;
     }
 }
+TypescriptBuffer.bufferMap = new WeakMap();
 exports.TypescriptBuffer = TypescriptBuffer;
 //# sourceMappingURL=typescriptBuffer.js.map

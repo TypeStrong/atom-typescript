@@ -184,7 +184,7 @@ function getTypescriptBuffer(filePath) {
         // Wait for the buffer to load before resolving the promise
         const buffer = yield Atom.TextBuffer.load(filePath);
         return {
-            buffer: new typescriptBuffer_1.TypescriptBuffer(buffer, fp => exports.clientResolver.get(fp)),
+            buffer: typescriptBuffer_1.TypescriptBuffer.construct(buffer, fp => exports.clientResolver.get(fp)),
             isOpen: false,
         };
     });

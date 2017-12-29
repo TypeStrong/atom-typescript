@@ -214,7 +214,7 @@ async function getTypescriptBuffer(filePath: string) {
   const buffer = await Atom.TextBuffer.load(filePath)
 
   return {
-    buffer: new TypescriptBuffer(buffer, fp => clientResolver.get(fp)),
+    buffer: TypescriptBuffer.construct(buffer, fp => clientResolver.get(fp)),
     isOpen: false,
   }
 }
