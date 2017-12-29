@@ -91,7 +91,7 @@
     "typescript": "^2.4.2"
   },
   "devDependencies": {
-    "@types/atom": "^1.21.8",
+    "@types/atom": "~1.21",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.0.4",
     "@types/cson": "0.0.30",
