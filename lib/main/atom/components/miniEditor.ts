@@ -7,7 +7,7 @@ interface Props extends JSX.Props {
   grammar?: string
 }
 
-export class MiniEditor {
+export class MiniEditor implements JSX.ElementClass {
   private model: TextEditor
   public element: TextEditorElement
 
