@@ -1,29 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class TsView extends HTMLElement {
-    createdCallback() {
-        const preview = this.innerText;
-        this.innerText = "";
-        this.editor = atom.workspace.buildTextEditor({
-            lineNumberGutterVisible: false,
-            softWrapped: true,
-            mini: true,
-        });
-        const editorElement = atom.views.getView(this.editor);
-        editorElement.removeAttribute("tabindex"); // make read-only
-        this.editor.setText(preview);
-        const grammar = atom.grammars.grammarForScopeName("source.tsx");
-        if (grammar) {
-            this.editor.setGrammar(grammar);
-        }
-        this.editor.scrollToBufferPosition([0, 0]);
-        this.appendChild(editorElement);
+const tslib_1 = require("tslib");
+const etch = require("etch");
+const mini_editor_component_1 = require("../views/mini-editor-component");
+class TsView {
+    constructor(props) {
+        this.props = props;
+        etch.initialize(this);
     }
-    // API
-    text(text) {
-        this.editor.setText(text);
+    render() {
+        return etch.dom(mini_editor_component_1.MiniEditor, { ref: "editor", initialText: this.props.text, grammar: "source.tsx", readOnly: true });
+    }
+    update(props) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (this.props.text !== props.text) {
+                this.props.text = props.text;
+                this.refs.editor.getModel().setText(props.text);
+            }
+        });
     }
 }
 exports.TsView = TsView;
-document.registerElement("ts-view", TsView);
 //# sourceMappingURL=tsView.js.map

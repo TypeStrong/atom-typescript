@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "atom-package-deps": "^4.6.0",
+    "atom-select-list": "^0.7.0",
     "atom-space-pen-views": "^2.0.4",
     "byline": "^5.0.0",
     "escape-html": "^1.0.1",

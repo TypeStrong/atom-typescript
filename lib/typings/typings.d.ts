@@ -2,10 +2,6 @@ interface Window {
   atom_typescript_debug: boolean
 }
 
-interface Document {
-  registerElement(tagName: string, elementClass: typeof HTMLElement)
-}
-
 // escape-html
 declare module "escape-html" {
   function escape(html: string): string

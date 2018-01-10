@@ -1,70 +1,58 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-let singleton;
-function simpleSelectionView(options) {
-    if (!singleton) {
-        singleton = new SimpleSelectListView(options);
-    }
-    else {
-        singleton.options = options;
-    }
-    singleton.setItems();
-    singleton.show();
-    return singleton;
+const tslib_1 = require("tslib");
+const SelectListView = require("atom-select-list");
+const etch = require("etch");
+function selectListView({ items, itemTemplate, itemFilterKey, }) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const elementForItem = (item) => etch.render(etch.dom("li", null, itemTemplate(item)));
+        const filterKeyForItem = (item) => {
+            if (typeof itemFilterKey === "function") {
+                // @ts-ignore // TODO: Complain to MS
+                return itemFilterKey(item);
+            }
+            else if (itemFilterKey) {
+                return `${item[itemFilterKey]}`;
+            }
+            else {
+                return `${item}`;
+            }
+        };
+        const myitems = yield Promise.resolve(items);
+        let panel;
+        let res;
+        const currentFocus = document.activeElement;
+        try {
+            res = yield new Promise(resolve => {
+                const select = new SelectListView({
+                    items: myitems,
+                    // infoMessage: heading,
+                    itemsClassList: ["atom-typescript"],
+                    elementForItem,
+                    filterKeyForItem,
+                    didCancelSelection: () => {
+                        resolve();
+                    },
+                    didConfirmSelection: (item) => {
+                        resolve(item);
+                    },
+                });
+                select.element.classList.add("ide-haskell");
+                panel = atom.workspace.addModalPanel({
+                    item: select,
+                    visible: true,
+                });
+                select.focus();
+            });
+        }
+        finally {
+            if (panel)
+                panel.destroy();
+            if (currentFocus)
+                currentFocus.focus();
+        }
+        return res;
+    });
 }
-exports.simpleSelectionView = simpleSelectionView;
-/**
- * Various Utility section
- */
-const sp = require("atom-space-pen-views");
-var $ = sp.$;
-class SimpleSelectListView extends sp.SelectListView {
-    constructor(options) {
-        super();
-        this.options = options;
-    }
-    setItems() {
-        super.setItems(this.options.items);
-    }
-    /** override */
-    viewForItem(item) {
-        const view = this.options.viewForItem(item);
-        if (typeof view === "string") {
-            return `<li>
-                ${view}
-            </li>`;
-        }
-        else {
-            return $("<li></li>").append(view);
-        }
-    }
-    /** override */
-    confirmed(item) {
-        this.options.confirmed(item);
-        this.hide();
-    }
-    /** override */
-    getFilterKey() {
-        return this.options.filterKey;
-    }
-    show() {
-        this.storeFocusedElement();
-        if (!this.panel) {
-            this.panel = atom.workspace.addModalPanel({ item: this });
-        }
-        this.panel.show();
-        this.focusFilterEditor();
-        // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
-    }
-    hide() {
-        if (this.panel) {
-            this.panel.hide();
-        }
-        this.restoreFocus();
-    }
-    cancelled() {
-        this.hide();
-    }
-}
-exports.SimpleSelectListView = SimpleSelectListView;
+exports.selectListView = selectListView;
 //# sourceMappingURL=simpleSelectionView.js.map

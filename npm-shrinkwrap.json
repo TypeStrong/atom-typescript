@@ -12,6 +12,11 @@
       "from": "atom-package-path@>=1.1.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/atom-package-path/-/atom-package-path-1.1.0.tgz"
     },
+    "atom-select-list": {
+      "version": "0.7.0",
+      "from": "atom-select-list@latest",
+      "resolved": "https://registry.npmjs.org/atom-select-list/-/atom-select-list-0.7.0.tgz"
+    },
     "atom-space-pen-views": {
       "version": "2.2.0",
       "from": "atom-space-pen-views@>=2.0.4 <3.0.0",

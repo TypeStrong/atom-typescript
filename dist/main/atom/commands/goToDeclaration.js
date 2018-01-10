@@ -4,6 +4,7 @@ const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
+const etch = require("etch");
 const prevCursorPositions = [];
 function open(item) {
     atom.workspace.open(item.file, {
@@ -40,29 +41,32 @@ registry_1.commands.set("typescript:return-from-declaration", () => {
     });
 });
 function handleDefinitionResult(result, location) {
-    if (!result.body) {
-        return;
-    }
-    else if (result.body.length > 1) {
-        simpleSelectionView_1.simpleSelectionView({
-            items: result.body,
-            viewForItem: item => {
-                return `
-            <span>${item.file}</span>
-            <div class="pull-right">line: ${item.start.line}</div>
-        `;
-            },
-            filterKey: "filePath",
-            confirmed: item => {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        if (!result.body) {
+            return;
+        }
+        else if (result.body.length > 1) {
+            const res = yield simpleSelectionView_1.selectListView({
+                items: result.body,
+                itemTemplate: item => {
+                    return (etch.dom("div", null,
+                        etch.dom("span", null, item.file),
+                        etch.dom("div", { class: "pull-right" },
+                            "line: ",
+                            item.start.line)));
+                },
+                itemFilterKey: "file",
+            });
+            if (res) {
                 prevCursorPositions.push(location);
-                open(item);
-            },
-        });
-    }
-    else {
-        prevCursorPositions.push(location);
-        open(result.body[0]);
-    }
+                open(res);
+            }
+        }
+        else {
+            prevCursorPositions.push(location);
+            open(result.body[0]);
+        }
+    });
 }
 exports.handleDefinitionResult = handleDefinitionResult;
 //# sourceMappingURL=goToDeclaration.js.map
