@@ -31,6 +31,8 @@ export async function activate() {
     await require("atom-package-deps").install("atom-typescript", true)
   }
 
+  require("etch").setScheduler(atom.views)
+
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
     atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
