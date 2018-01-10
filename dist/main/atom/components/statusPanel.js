@@ -23,7 +23,7 @@ class StatusPanel {
                     this.props[k] = props[k];
                 }
             }
-            etch.update(this);
+            yield etch.update(this);
         });
     }
     render() {

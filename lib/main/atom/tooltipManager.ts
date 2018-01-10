@@ -7,8 +7,7 @@ import * as Atom from "atom"
 import path = require("path")
 import fs = require("fs")
 import {listen} from "./utils/element-listener"
-import tooltipView = require("./views/tooltipView")
-import TooltipView = tooltipView.TooltipView
+import {TooltipView} from "./views/tooltipView"
 import escape = require("escape-html")
 
 const tooltipMap = new WeakMap<Atom.TextEditor, (pt: Atom.Point) => Promise<void>>()
@@ -127,7 +126,6 @@ export function attach(editor: Atom.TextEditor) {
       top: e.clientY - offset,
       bottom: e.clientY + offset,
     }
-    exprTypeTooltip = new TooltipView(tooltipRect)
     let result: protocol.QuickInfoResponse
     const client = await clientPromise
     try {
@@ -150,8 +148,10 @@ export function attach(editor: Atom.TextEditor) {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
     }
-    if (exprTypeTooltip) {
-      exprTypeTooltip.updateText(message)
+    if (!exprTypeTooltip) {
+      exprTypeTooltip = new TooltipView()
+      document.body.appendChild(exprTypeTooltip.refs.main)
+      exprTypeTooltip.update({...tooltipRect, text: message})
     }
   }
 
@@ -171,7 +171,7 @@ export function attach(editor: Atom.TextEditor) {
     if (!exprTypeTooltip) {
       return
     }
-    exprTypeTooltip.$.remove()
+    exprTypeTooltip.destroy()
     exprTypeTooltip = undefined
   }
 }

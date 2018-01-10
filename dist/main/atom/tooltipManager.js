@@ -9,8 +9,7 @@ const Atom = require("atom");
 const path = require("path");
 const fs = require("fs");
 const element_listener_1 = require("./utils/element-listener");
-const tooltipView = require("./views/tooltipView");
-var TooltipView = tooltipView.TooltipView;
+const tooltipView_1 = require("./views/tooltipView");
 const escape = require("escape-html");
 const tooltipMap = new WeakMap();
 // screen position from mouse event -- with <3 from Atom-Haskell
@@ -107,7 +106,6 @@ function attach(editor) {
                 top: e.clientY - offset,
                 bottom: e.clientY + offset,
             };
-            exprTypeTooltip = new TooltipView(tooltipRect);
             let result;
             const client = yield clientPromise;
             try {
@@ -129,8 +127,10 @@ function attach(editor) {
                 message =
                     message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
             }
-            if (exprTypeTooltip) {
-                exprTypeTooltip.updateText(message);
+            if (!exprTypeTooltip) {
+                exprTypeTooltip = new tooltipView_1.TooltipView();
+                document.body.appendChild(exprTypeTooltip.refs.main);
+                exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
             }
         });
     }
@@ -150,7 +150,7 @@ function attach(editor) {
         if (!exprTypeTooltip) {
             return;
         }
-        exprTypeTooltip.$.remove();
+        exprTypeTooltip.destroy();
         exprTypeTooltip = undefined;
     }
 }

@@ -34,7 +34,7 @@ export class StatusPanel implements JSX.ElementClass {
         this.props[k] = props[k]
       }
     }
-    etch.update(this)
+    await etch.update(this)
   }
 
   public render() {

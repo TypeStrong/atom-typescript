@@ -1,43 +1,68 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const view = require("./view");
-const $ = view.$;
-class TooltipView extends view.View {
-    constructor(rect) {
-        super(rect);
-        this.rect = rect;
-        $(document.body).append(this.$);
-        this.updatePosition();
+const tslib_1 = require("tslib");
+const etch = require("etch");
+class TooltipView {
+    constructor() {
+        this.props = {
+            ref: undefined,
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            text: undefined,
+        };
+        etch.initialize(this);
     }
-    static content() {
-        return this.div({ class: "atom-typescript-tooltip tooltip" }, () => {
-            this.div({ class: "tooltip-inner", outlet: "inner" });
+    destroy() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return etch.destroy(this);
         });
     }
-    updateText(text) {
-        this.inner.html(text);
-        this.updatePosition();
-        this.$.fadeTo(300, 1);
+    update(props) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            for (const k of Object.keys(this.props)) {
+                const val = props[k];
+                if (val !== undefined && val !== this.props[k]) {
+                    this.props[k] = val;
+                }
+            }
+            yield etch.update(this);
+        });
     }
-    updatePosition() {
+    writeAfterUpdate() {
         const offset = 10;
-        let left = this.rect.right;
-        let top = this.rect.bottom;
-        let right = "";
+        let left = this.props.right;
+        let top = this.props.bottom;
+        let right = false;
+        let whiteSpace = "";
+        const clientWidth = document.body.clientWidth;
+        const offsetWidth = this.refs.main.offsetWidth;
+        const clientHeight = document.body.clientHeight;
+        const offsetHeight = this.refs.main.offsetHeight;
         // X axis adjust
-        if (left + this.$[0].offsetWidth >= view.$(document.body).width()) {
-            left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
+        if (left + offsetWidth >= clientWidth) {
+            left = clientWidth - offsetWidth - offset;
         }
         if (left < 0) {
-            this.$.css({ "white-space": "pre-wrap" });
+            whiteSpace = "pre-wrap";
             left = offset;
             right = offset;
         }
         // Y axis adjust
-        if (top + this.$[0].offsetHeight >= $(document.body).height()) {
-            top = this.rect.top - this.$[0].offsetHeight;
+        if (top + offsetHeight >= clientHeight) {
+            top = this.props.top - offsetHeight;
         }
-        this.$.css({ left, top, right });
+        this.refs.main.style.left = `${left}px`;
+        this.refs.main.style.top = `${top}px`;
+        if (right !== false)
+            this.refs.main.style.right = `${right}px`;
+        if (whiteSpace)
+            this.refs.main.style.whiteSpace = whiteSpace;
+    }
+    render() {
+        return (etch.dom("div", { ref: "main", class: "atom-typescript-tooltip tooltip" },
+            etch.dom("div", { class: "tooltip-inner", innerHTML: this.props.text || "" })));
     }
 }
 exports.TooltipView = TooltipView;
