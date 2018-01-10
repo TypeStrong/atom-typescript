@@ -2,9 +2,19 @@
   "name": "atom-typescript",
   "version": "12.0.0",
   "dependencies": {
+    "@types/strip-bom": {
+      "version": "3.0.0",
+      "from": "@types/strip-bom@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/@types/strip-bom/-/strip-bom-3.0.0.tgz"
+    },
+    "@types/strip-json-comments": {
+      "version": "0.0.30",
+      "from": "@types/strip-json-comments@0.0.30",
+      "resolved": "https://registry.npmjs.org/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz"
+    },
     "atom-package-deps": {
       "version": "4.6.1",
-      "from": "atom-package-deps@4.6.1",
+      "from": "atom-package-deps@>=4.6.1 <5.0.0",
       "resolved": "https://registry.npmjs.org/atom-package-deps/-/atom-package-deps-4.6.1.tgz"
     },
     "atom-package-path": {
@@ -14,7 +24,7 @@
     },
     "atom-select-list": {
       "version": "0.7.0",
-      "from": "atom-select-list@latest",
+      "from": "atom-select-list@>=0.7.0 <0.8.0",
       "resolved": "https://registry.npmjs.org/atom-select-list/-/atom-select-list-0.7.0.tgz"
     },
     "byline": {
@@ -24,12 +34,12 @@
     },
     "escape-html": {
       "version": "1.0.3",
-      "from": "escape-html@>=1.0.1 <2.0.0",
+      "from": "escape-html@>=1.0.3 <2.0.0",
       "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz"
     },
     "etch": {
       "version": "0.12.7",
-      "from": "etch@latest",
+      "from": "etch@>=0.12.7 <0.13.0",
       "resolved": "https://registry.npmjs.org/etch/-/etch-0.12.7.tgz"
     },
     "fuzzaldrin": {
@@ -44,7 +54,7 @@
     },
     "lodash": {
       "version": "4.17.4",
-      "from": "lodash@>=4.17.2 <5.0.0",
+      "from": "lodash@>=4.17.4 <5.0.0",
       "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.4.tgz"
     },
     "path-parse": {
@@ -53,9 +63,9 @@
       "resolved": "https://registry.npmjs.org/path-parse/-/path-parse-1.0.5.tgz"
     },
     "resolve": {
-      "version": "1.3.3",
-      "from": "resolve@1.3.3",
-      "resolved": "https://registry.npmjs.org/resolve/-/resolve-1.3.3.tgz"
+      "version": "1.5.0",
+      "from": "resolve@1.5.0",
+      "resolved": "https://registry.npmjs.org/resolve/-/resolve-1.5.0.tgz"
     },
     "sb-callsite": {
       "version": "1.1.2",
@@ -73,9 +83,9 @@
       "resolved": "https://registry.npmjs.org/sb-promisify/-/sb-promisify-2.0.2.tgz"
     },
     "semver": {
-      "version": "5.3.0",
+      "version": "5.4.1",
       "from": "semver@>=5.3.0 <6.0.0",
-      "resolved": "https://registry.npmjs.org/semver/-/semver-5.3.0.tgz"
+      "resolved": "https://registry.npmjs.org/semver/-/semver-5.4.1.tgz"
     },
     "strip-bom": {
       "version": "3.0.0",
@@ -93,18 +103,18 @@
       "resolved": "https://registry.npmjs.org/strip-json-comments/-/strip-json-comments-2.0.1.tgz"
     },
     "tsconfig": {
-      "version": "6.0.0",
-      "from": "tsconfig@>=6.0.0 <7.0.0",
-      "resolved": "https://registry.npmjs.org/tsconfig/-/tsconfig-6.0.0.tgz"
+      "version": "7.0.0",
+      "from": "tsconfig@>=7.0.0 <8.0.0",
+      "resolved": "https://registry.npmjs.org/tsconfig/-/tsconfig-7.0.0.tgz"
     },
     "tslib": {
       "version": "1.8.1",
-      "from": "tslib@1.8.1",
+      "from": "tslib@>=1.8.1 <2.0.0",
       "resolved": "https://registry.npmjs.org/tslib/-/tslib-1.8.1.tgz"
     },
     "typescript": {
       "version": "2.6.2",
-      "from": "typescript@2.6.2",
+      "from": "typescript@>=2.6.2 <3.0.0",
       "resolved": "https://registry.npmjs.org/typescript/-/typescript-2.6.2.tgz"
     }
   }

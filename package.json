@@ -5,9 +5,7 @@
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
-  "activationHooks": [
-    "language-typescript:grammar-used"
-  ],
+  "activationHooks": ["language-typescript:grammar-used"],
   "scripts": {
     "build": "tsc -p ./lib",
     "prettier": "ts-node scripts/prettier.ts write",
@@ -83,44 +81,38 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
-    "atom-package-deps": "^4.6.0",
+    "atom-package-deps": "^4.6.1",
     "atom-select-list": "^0.7.0",
     "byline": "^5.0.0",
-    "escape-html": "^1.0.1",
+    "escape-html": "^1.0.3",
     "etch": "^0.12.7",
     "fuzzaldrin": "^2.1.0",
-    "lodash": "^4.17.2",
-    "resolve": "1.3.3",
-    "tsconfig": "^6.0.0",
-    "tslib": "^1.8.0",
-    "typescript": "^2.4.2"
+    "lodash": "^4.17.4",
+    "resolve": "1.5.0",
+    "tsconfig": "^7.0.0",
+    "tslib": "^1.8.1",
+    "typescript": "^2.6.2"
   },
   "devDependencies": {
     "@types/atom": "~1.23",
     "@types/byline": "^4.2.31",
-    "@types/chai": "^4.0.4",
-    "@types/cson": "0.0.30",
-    "@types/fuzzaldrin": "^2.1.0",
-    "@types/lodash": "^4.14.51",
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.47",
-    "@types/resolve": "0.0.4",
-    "atom-mocha-test-runner": "^1.0.1",
+    "@types/chai": "^4.1.0",
+    "@types/cson": "0.0.31",
+    "@types/fuzzaldrin": "^2.1.1",
+    "@types/lodash": "^4.14.92",
+    "@types/mocha": "^2.2.46",
+    "@types/node": "^7",
+    "@types/resolve": "0.0.5",
+    "atom-mocha-test-runner": "^1.2.0",
     "chai": "^4.1.2",
     "cson": "^4.1.0",
-    "mz": "^2.1.0",
+    "mz": "^2.7.0",
     "plist": "2.1.0",
-    "popsicle": "9.1.0",
-    "prettier": "^1.7.4",
-    "ts-node": "3.2.1",
-    "tslint": "^5.8.0"
+    "popsicle": "9.2.0",
+    "prettier": "^1.10.1",
+    "ts-node": "4.1.0",
+    "tslint": "^5.9.0"
   },
-  "package-deps": [
-    "atom-ide-ui:0.5.3"
-  ],
-  "keywords": [
-    "typescript",
-    "javascript",
-    "html"
-  ]
+  "package-deps": ["atom-ide-ui:0.5.3"],
+  "keywords": ["typescript", "javascript", "html"]
 }
