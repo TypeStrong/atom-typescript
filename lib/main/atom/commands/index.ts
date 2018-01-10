@@ -8,6 +8,7 @@ import "./formatCode"
 import "./findReferences"
 import "./goToDeclaration"
 import "./renameRefactor"
+import "./showTooltip"
 
 export function registerCommands(deps: Dependencies) {
   for (const [name, command] of commands) {

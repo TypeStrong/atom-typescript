@@ -1,5 +1,4 @@
 import * as Atom from "atom"
-import {$} from "atom-space-pen-views"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
 import {spanToRange, isTypescriptGrammar, getProjectCodeSettings} from "./atom/utils"
@@ -248,9 +247,6 @@ export class TypescriptEditorPane implements Atom.Disposable {
   }
 
   setupTooltipView() {
-    // subscribe for tooltips
-    // inspiration : https://github.com/chaika2013/ide-haskell
-    const editorView = $(atom.views.getView(this.editor))
-    tooltipManager.attach(editorView, this.editor)
+    tooltipManager.attach(this.editor)
   }
 }

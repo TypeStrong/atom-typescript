@@ -29,7 +29,7 @@ class AutocompleteProvider {
                 }
             }
             const client = yield this.clientResolver.get(location.file);
-            const completions = yield client.executeCompletions(Object.assign({ prefix }, location));
+            const completions = yield client.executeCompletions(Object.assign({ prefix, includeExternalModuleExports: false }, location));
             const suggestions = completions.body.map(entry => ({
                 text: entry.name,
                 leftLabel: entry.kind,
