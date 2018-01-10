@@ -22,7 +22,6 @@ const statusPanel = new statusPanel_1.StatusPanel();
 const errorPusher = new errorPusher_1.ErrorPusher();
 const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 // Register all custom components
-require("./atom/components");
 const commands_1 = require("./atom/commands");
 function activate() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {

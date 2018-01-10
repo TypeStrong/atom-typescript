@@ -23,7 +23,6 @@ const errorPusher: ErrorPusher = new ErrorPusher()
 const codefixProvider: CodefixProvider = new CodefixProvider(clientResolver)
 
 // Register all custom components
-import "./atom/components"
 import {registerCommands} from "./atom/commands"
 
 export async function activate() {
