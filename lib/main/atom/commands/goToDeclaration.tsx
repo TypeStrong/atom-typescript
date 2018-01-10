@@ -1,7 +1,6 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
-import {FileSpan} from "typescript/lib/protocol"
 import * as etch from "etch"
 
 const prevCursorPositions: FileLocationQuery[] = []
@@ -50,7 +49,7 @@ export async function handleDefinitionResult(
   if (!result.body) {
     return
   } else if (result.body.length > 1) {
-    const res = await selectListView<FileSpan>({
+    const res = await selectListView({
       items: result.body,
       itemTemplate: item => {
         return (
