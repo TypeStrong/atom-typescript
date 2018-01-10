@@ -2,16 +2,6 @@
   "name": "atom-typescript",
   "version": "12.0.0",
   "dependencies": {
-    "@types/strip-bom": {
-      "version": "3.0.0",
-      "from": "@types/strip-bom@>=3.0.0 <4.0.0",
-      "resolved": "https://registry.npmjs.org/@types/strip-bom/-/strip-bom-3.0.0.tgz"
-    },
-    "@types/strip-json-comments": {
-      "version": "0.0.30",
-      "from": "@types/strip-json-comments@0.0.30",
-      "resolved": "https://registry.npmjs.org/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz"
-    },
     "atom-package-deps": {
       "version": "4.6.1",
       "from": "atom-package-deps@>=4.6.1 <5.0.0",
