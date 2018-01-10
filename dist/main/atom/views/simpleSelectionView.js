@@ -26,8 +26,6 @@ function selectListView({ items, itemTemplate, itemFilterKey, }) {
             res = yield new Promise(resolve => {
                 const select = new SelectListView({
                     items: myitems,
-                    // infoMessage: heading,
-                    itemsClassList: ["atom-typescript"],
                     elementForItem,
                     filterKeyForItem,
                     didCancelSelection: () => {
@@ -37,7 +35,6 @@ function selectListView({ items, itemTemplate, itemFilterKey, }) {
                         resolve(item);
                     },
                 });
-                select.element.classList.add("ide-haskell");
                 panel = atom.workspace.addModalPanel({
                     item: select,
                     visible: true,
