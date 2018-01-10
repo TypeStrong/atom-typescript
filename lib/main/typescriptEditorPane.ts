@@ -102,7 +102,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     if (!this.client) return
     if (!this.filePath) return
 
-    this.opts.statusPanel.update({buildStatus: null})
+    this.opts.statusPanel.update({buildStatus: undefined})
 
     this.client.executeGetErr({
       files: [this.filePath],
@@ -221,7 +221,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       file: this.filePath,
     })
 
-    this.opts.statusPanel.update({buildStatus: null})
+    this.opts.statusPanel.update({buildStatus: undefined})
 
     const fileNames = flatten(result.body.map(project => project.fileNames))
 

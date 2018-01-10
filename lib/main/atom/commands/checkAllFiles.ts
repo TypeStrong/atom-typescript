@@ -48,7 +48,7 @@ commands.set("typescript:check-all-files", deps => {
     function updateStatus() {
       if (files.size === 0) {
         unregister()
-        deps.statusPanel.update({progress: null})
+        deps.statusPanel.update({progress: undefined})
       } else {
         deps.statusPanel.update({progress: {max, value: max - files.size}})
       }

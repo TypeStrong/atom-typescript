@@ -35,7 +35,7 @@ registry_1.commands.set("typescript:build", deps => {
             console.error(err);
             deps.statusPanel.update({ buildStatus: { success: false } });
         });
-        deps.statusPanel.update({ buildStatus: null });
+        deps.statusPanel.update({ buildStatus: undefined });
     });
 });
 function _finally(promise, callback) {

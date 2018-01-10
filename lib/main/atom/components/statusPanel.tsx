@@ -3,11 +3,11 @@ import {dirname} from "path"
 import {getFilePathRelativeToAtomProject, openFile} from "../utils"
 
 export interface Props extends JSX.Props {
-  version: string | undefined | null
-  pending: string[] | undefined | null
-  tsConfigPath: string | undefined | null
-  buildStatus: {success: boolean} | undefined | null
-  progress: {max: number; value: number} | undefined | null
+  version?: string
+  pending?: string[]
+  tsConfigPath?: string
+  buildStatus?: {success: boolean}
+  progress?: {max: number; value: number}
   visible: boolean
 }
 
@@ -18,22 +18,14 @@ export class StatusPanel implements JSX.ElementClass {
 
   constructor(props: Partial<Props> = {}) {
     this.props = {
-      version: props.version,
-      pending: props.pending,
-      tsConfigPath: props.tsConfigPath,
-      buildStatus: props.buildStatus,
-      progress: props.progress,
       visible: true,
+      ...props,
     }
     etch.initialize(this)
   }
 
   public async update(props: Partial<Props>) {
-    for (const k of Object.keys(this.props) as Array<keyof Props>) {
-      if (props[k] !== undefined && props[k] !== this.props[k]) {
-        this.props[k] = props[k]
-      }
-    }
+    this.props = {...this.props, ...props}
     await etch.update(this)
   }
 

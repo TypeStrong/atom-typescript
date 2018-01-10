@@ -6,23 +6,12 @@ const path_1 = require("path");
 const utils_1 = require("../utils");
 class StatusPanel {
     constructor(props = {}) {
-        this.props = {
-            version: props.version,
-            pending: props.pending,
-            tsConfigPath: props.tsConfigPath,
-            buildStatus: props.buildStatus,
-            progress: props.progress,
-            visible: true,
-        };
+        this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
     }
     update(props) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            for (const k of Object.keys(this.props)) {
-                if (props[k] !== undefined && props[k] !== this.props[k]) {
-                    this.props[k] = props[k];
-                }
-            }
+            this.props = Object.assign({}, this.props, props);
             yield etch.update(this);
         });
     }

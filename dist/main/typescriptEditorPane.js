@@ -36,7 +36,7 @@ class TypescriptEditorPane {
                 return;
             if (!this.filePath)
                 return;
-            this.opts.statusPanel.update({ buildStatus: null });
+            this.opts.statusPanel.update({ buildStatus: undefined });
             this.client.executeGetErr({
                 files: [this.filePath],
                 delay: 100,
@@ -169,7 +169,7 @@ class TypescriptEditorPane {
             const result = yield client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath,
             });
-            this.opts.statusPanel.update({ buildStatus: null });
+            this.opts.statusPanel.update({ buildStatus: undefined });
             const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
             if (fileNames.length === 0)
                 return;

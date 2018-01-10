@@ -41,7 +41,7 @@ commands.set("typescript:build", deps => {
         deps.statusPanel.update({buildStatus: {success: false}})
       })
 
-    deps.statusPanel.update({buildStatus: null})
+    deps.statusPanel.update({buildStatus: undefined})
   }
 })
 
