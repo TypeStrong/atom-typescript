@@ -3,6 +3,7 @@
   "extends": ["tslint:recommended"],
   "jsRules": {},
   "rules": {
+    "typeof-compare": false,
     "semicolon": [true, "never"],
     "object-literal-sort-keys": false,
     "member-access": false,
