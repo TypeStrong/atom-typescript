@@ -5,12 +5,10 @@ const etch = require("etch");
 class TooltipView {
     constructor() {
         this.props = {
-            ref: undefined,
             left: 0,
             right: 0,
             top: 0,
             bottom: 0,
-            text: undefined,
         };
         etch.initialize(this);
     }
@@ -21,12 +19,7 @@ class TooltipView {
     }
     update(props) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            for (const k of Object.keys(this.props)) {
-                const val = props[k];
-                if (val !== undefined && val !== this.props[k]) {
-                    this.props[k] = val;
-                }
-            }
+            this.props = Object.assign({}, this.props, props);
             yield etch.update(this);
         });
     }

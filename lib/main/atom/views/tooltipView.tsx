@@ -1,12 +1,11 @@
 import * as etch from "etch"
 
-interface Props {
-  ref: string | undefined
+interface Props extends JSX.Props {
   left: number
   right: number
   top: number
   bottom: number
-  text: string | undefined
+  text?: string
 }
 
 export class TooltipView implements JSX.ElementClass {
@@ -17,12 +16,10 @@ export class TooltipView implements JSX.ElementClass {
 
   constructor() {
     this.props = {
-      ref: undefined,
       left: 0,
       right: 0,
       top: 0,
       bottom: 0,
-      text: undefined,
     }
     etch.initialize(this)
   }
@@ -32,12 +29,7 @@ export class TooltipView implements JSX.ElementClass {
   }
 
   public async update(props: Partial<Props>) {
-    for (const k of Object.keys(this.props) as Array<keyof Props>) {
-      const val = props[k]
-      if (val !== undefined && val !== this.props[k]) {
-        this.props[k] = val
-      }
-    }
+    this.props = {...this.props, ...props}
     await etch.update(this)
   }
 
