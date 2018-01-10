@@ -24,35 +24,16 @@ export class MiniEditor {
     } else {
       this.model.getLastCursor().moveToEndOfScreenLine()
     }
-    if (props.readOnly) {
-      this.element.removeAttribute("tabindex") // make read-only
-    }
-    if (props.grammar) {
-      const grammar = atom.grammars.grammarForScopeName(props.grammar)
-      if (grammar) {
-        this.model.setGrammar(grammar)
-      }
-    }
+    this.setReadOnly()
+    this.setGrammar()
     this.model.scrollToBufferPosition([0, 0])
   }
 
-  public async update(props: Props) {
+  public async update(props: Partial<Props>) {
     this.element = atom.views.getView(this.model)
-    if (this.props.readOnly !== props.readOnly) {
-      this.props.readOnly = props.readOnly
-      if (props.readOnly) {
-        this.element.removeAttribute("tabindex") // make read-only
-      } else {
-        this.element.setAttribute("tabindex", "-1")
-      }
-    }
-    if (props.grammar && this.props.grammar !== props.grammar) {
-      this.props.readOnly = props.readOnly
-      const grammar = atom.grammars.grammarForScopeName(props.grammar)
-      if (grammar) {
-        this.model.setGrammar(grammar)
-      }
-    }
+    this.props = {...this.props, ...props}
+    this.setReadOnly()
+    this.setGrammar()
   }
 
   public focus() {
@@ -61,5 +42,22 @@ export class MiniEditor {
 
   public getModel() {
     return this.model
+  }
+
+  private setReadOnly() {
+    if (this.props.readOnly) {
+      this.element.removeAttribute("tabindex") // make read-only
+    } else {
+      this.element.setAttribute("tabindex", "-1")
+    }
+  }
+
+  private setGrammar() {
+    if (this.props.grammar) {
+      const grammar = atom.grammars.grammarForScopeName(this.props.grammar)
+      if (grammar) {
+        this.model.setGrammar(grammar)
+      }
+    }
   }
 }
