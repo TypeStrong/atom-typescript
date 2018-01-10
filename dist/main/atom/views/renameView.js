@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const etch = require("etch");
 const atom_1 = require("atom");
-const mini_editor_component_1 = require("./mini-editor-component");
+const miniEditor_1 = require("../components/miniEditor");
 class RenameView {
     constructor(props) {
         this.props = props;
@@ -34,7 +34,7 @@ class RenameView {
                         etch.dom("span", null, " key."))),
                 etch.dom("div", { class: "find-container block" },
                     etch.dom("div", { class: "editor-container" },
-                        etch.dom(mini_editor_component_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
+                        etch.dom(miniEditor_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
                 validationMessage)));
     }
     destroy() {

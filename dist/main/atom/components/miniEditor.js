@@ -57,4 +57,4 @@ class MiniEditor {
     }
 }
 exports.MiniEditor = MiniEditor;
-//# sourceMappingURL=mini-editor-component.js.map
+//# sourceMappingURL=miniEditor.js.map

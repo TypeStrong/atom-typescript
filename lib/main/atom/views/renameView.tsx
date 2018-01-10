@@ -1,6 +1,6 @@
 import * as etch from "etch"
 import {CompositeDisposable} from "atom"
-import {MiniEditor} from "./mini-editor-component"
+import {MiniEditor} from "../components/miniEditor"
 
 interface Props extends JSX.Props {
   validationMessage?: string

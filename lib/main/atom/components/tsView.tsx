@@ -1,5 +1,5 @@
 import * as etch from "etch"
-import {MiniEditor} from "../views/mini-editor-component"
+import {MiniEditor} from "./miniEditor"
 
 interface Props extends JSX.Props {
   text: string
