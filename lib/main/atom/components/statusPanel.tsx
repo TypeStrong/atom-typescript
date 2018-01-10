@@ -38,93 +38,13 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   public render() {
-    let version = null
-    if (this.props.version) {
-      version = (
-        <div ref="version" className="inline-block">
-          {this.props.version}
-        </div>
-      )
-    }
-    let pendingContainer = null
-    if (this.props.pending && this.props.pending.length) {
-      pendingContainer = (
-        <a
-          ref="pendingContainer"
-          className="inline-block"
-          href=""
-          on={{
-            click: evt => {
-              evt.preventDefault()
-              this.showPendingRequests()
-            },
-          }}>
-          <span ref="pendingCounter">{this.props.pending.length.toString()}</span>
-          <span
-            ref="pendingSpinner"
-            className="loading loading-spinner-tiny inline-block"
-            style={{marginLeft: "5px", opacity: "0.5", verticalAlign: "sub"}}
-          />
-        </a>
-      )
-    }
-    let configPathContainer = null
-    if (this.props.tsConfigPath) {
-      configPathContainer = (
-        <a
-          ref="configPathContainer"
-          className="inline-block"
-          href=""
-          on={{
-            click: evt => {
-              evt.preventDefault()
-              this.openConfigPath()
-            },
-          }}>
-          {this.props.tsConfigPath.startsWith("/dev/null")
-            ? "No project"
-            : dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))}
-        </a>
-      )
-    }
-    let statusContainer = null
-    if (this.props.buildStatus) {
-      let cls: string
-      let text: string
-      if (this.props.buildStatus.success) {
-        cls = "highlight-success"
-        text = "Emit Success"
-      } else {
-        cls = "highlight-error"
-        text = "Emit Failed"
-      }
-      statusContainer = (
-        <div ref="statusContainer" className="inline-block">
-          <span ref="statusText" class={cls}>
-            {text}
-          </span>
-        </div>
-      )
-    }
-    let progress = null
-    if (this.props.progress) {
-      progress = (
-        <progress
-          ref="progress"
-          style={{verticalAlign: "baseline"}}
-          className="inline-block"
-          max={this.props.progress.max}
-          value={this.props.progress.value}
-        />
-      )
-    }
     return (
       <ts-status-panel className={this.props.visible ? "" : "hide"}>
-        {version}
-        {pendingContainer}
-        {configPathContainer}
-        {statusContainer}
-        {progress}
+        {this.renderVersion()}
+        {this.renderPending()}
+        {this.renderConfigPath()}
+        {this.renderStatus()}
+        {this.renderProgress()}
       </ts-status-panel>
     )
   }
@@ -159,5 +79,100 @@ export class StatusPanel implements JSX.ElementClass {
 
   public hide() {
     this.update({visible: false})
+  }
+
+  private renderVersion(): JSX.Element | null {
+    if (this.props.version) {
+      return (
+        <div ref="version" className="inline-block">
+          {this.props.version}
+        </div>
+      )
+    }
+    return null
+  }
+
+  private renderPending(): JSX.Element | null {
+    if (this.props.pending && this.props.pending.length) {
+      return (
+        <a
+          ref="pendingContainer"
+          className="inline-block"
+          href=""
+          on={{
+            click: evt => {
+              evt.preventDefault()
+              this.showPendingRequests()
+            },
+          }}>
+          <span ref="pendingCounter">{this.props.pending.length.toString()}</span>
+          <span
+            ref="pendingSpinner"
+            className="loading loading-spinner-tiny inline-block"
+            style={{marginLeft: "5px", opacity: "0.5", verticalAlign: "sub"}}
+          />
+        </a>
+      )
+    }
+    return null
+  }
+
+  private renderConfigPath(): JSX.Element | null {
+    if (this.props.tsConfigPath) {
+      return (
+        <a
+          ref="configPathContainer"
+          className="inline-block"
+          href=""
+          on={{
+            click: evt => {
+              evt.preventDefault()
+              this.openConfigPath()
+            },
+          }}>
+          {this.props.tsConfigPath.startsWith("/dev/null")
+            ? "No project"
+            : dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))}
+        </a>
+      )
+    }
+    return null
+  }
+
+  private renderStatus(): JSX.Element | null {
+    if (this.props.buildStatus) {
+      let cls: string
+      let text: string
+      if (this.props.buildStatus.success) {
+        cls = "highlight-success"
+        text = "Emit Success"
+      } else {
+        cls = "highlight-error"
+        text = "Emit Failed"
+      }
+      return (
+        <div ref="statusContainer" className="inline-block">
+          <span ref="statusText" class={cls}>
+            {text}
+          </span>
+        </div>
+      )
+    }
+    return null
+  }
+
+  private renderProgress(): JSX.Element | null {
+    if (this.props.progress) {
+      return (
+        <progress
+          ref="progress"
+          style={{verticalAlign: "baseline"}}
+          className="inline-block"
+          max={this.props.progress.max}
+          value={this.props.progress.value}
+        />
+      )
+    }
+    return null
   }
 }
