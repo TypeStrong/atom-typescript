@@ -85,7 +85,6 @@
   "dependencies": {
     "atom-package-deps": "^4.6.0",
     "atom-select-list": "^0.7.0",
-    "atom-space-pen-views": "^2.0.4",
     "byline": "^5.0.0",
     "escape-html": "^1.0.1",
     "etch": "^0.12.7",
@@ -106,7 +105,6 @@
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.47",
     "@types/resolve": "0.0.4",
-    "@types/space-pen": "0.0.28",
     "atom-mocha-test-runner": "^1.0.1",
     "chai": "^4.1.2",
     "cson": "^4.1.0",
