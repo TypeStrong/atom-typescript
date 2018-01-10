@@ -1,6 +1,7 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {spanToRange} from "../utils"
+import {showRenameDialog} from "../views/renameView"
 
 commands.set("typescript:rename-refactor", deps => {
   return async e => {
@@ -21,7 +22,7 @@ commands.set("typescript:rename-refactor", deps => {
       return atom.notifications.addInfo("AtomTS: Rename not available at cursor location")
     }
 
-    const newName = await deps.renameView.showRenameDialog({
+    const newName = await showRenameDialog({
       autoSelect: true,
       title: "Rename Variable",
       text: info.displayName,

@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
-const renameView_1 = require("./atom/views/renameView");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
@@ -31,8 +30,6 @@ function activate() {
         if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
             yield require("atom-package-deps").install("atom-typescript", true);
         }
-        // Add the rename view
-        const { renameView } = renameView_1.attach();
         errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
         subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
             errorPusher.setUnusedAsInfo(val.newValue);
@@ -58,7 +55,6 @@ function activate() {
                     return exports.clientResolver.get(filePath);
                 });
             },
-            renameView,
             statusPanel,
         });
         let activePane;

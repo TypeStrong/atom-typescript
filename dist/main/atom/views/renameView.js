@@ -1,95 +1,94 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const view = require("./view");
-// tslint:disable-next-line:no-var-requires
-const html = require("../../../../views/renameView.html");
-const $ = view.$;
-class RenameView extends view.View {
-    init() {
-        $(atom.views.getView(atom.workspace)).on("keydown", e => {
-            if (e.keyCode === 27) {
-                // escape
-                if (this.options.onCancel) {
-                    this.options.onCancel();
-                    this.clearView();
-                }
-            }
-        });
-        this.newNameEditor.on("keydown", e => {
-            const newText = this.newNameEditor.model.getText();
-            if (e.keyCode === 13) {
-                // enter
-                const invalid = this.options.onValidate && this.options.onValidate(newText);
-                if (invalid) {
-                    this.validationMessage.text(invalid);
-                    this.validationMessage.show();
-                    return;
-                }
-                this.validationMessage.hide();
-                if (this.options.onCommit) {
-                    this.options.onCommit(newText);
-                    this.clearView();
-                }
-            }
-            if (e.keyCode === 27) {
-                // escape
-                if (this.options.onCancel) {
-                    this.options.onCancel();
-                    this.clearView();
-                }
-            }
+const tslib_1 = require("tslib");
+const etch = require("etch");
+const atom_1 = require("atom");
+const mini_editor_component_1 = require("./mini-editor-component");
+class RenameView {
+    constructor(props) {
+        this.props = props;
+        etch.initialize(this);
+    }
+    update(props) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.props.validationMessage = props.validationMessage;
+            if (props.title)
+                this.props.title = props.title;
+            yield etch.update(this);
         });
     }
-    setPanel(panel) {
-        this.panel = panel;
-    }
-    clearView() {
-        if (this.editorAtRenameStart && !this.editorAtRenameStart.isDestroyed()) {
-            const editorView = atom.views.getView(this.editorAtRenameStart);
-            editorView.focus();
+    render() {
+        let validationMessage = null;
+        if (this.props.validationMessage) {
+            validationMessage = etch.dom("div", { class: "highlight-error" }, this.props.validationMessage);
         }
-        this.panel.hide();
-        this.options = {};
-        this.editorAtRenameStart = undefined;
+        return (etch.dom("div", { tabIndex: "-1", class: "atomts-rename-view", ref: "main" },
+            etch.dom("div", { class: "block" },
+                etch.dom("div", null,
+                    etch.dom("span", { ref: "title" }, this.props.title),
+                    etch.dom("span", { class: "subtle-info-message" },
+                        etch.dom("span", null, "Close this panel with "),
+                        etch.dom("span", { class: "highlight" }, "esc"),
+                        etch.dom("span", null, " key. And commit with the "),
+                        etch.dom("span", { class: "highlight" }, "enter"),
+                        etch.dom("span", null, " key."))),
+                etch.dom("div", { class: "find-container block" },
+                    etch.dom("div", { class: "editor-container" },
+                        etch.dom(mini_editor_component_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
+                validationMessage)));
     }
-    renameThis(options) {
-        this.options = options;
-        this.editorAtRenameStart = atom.workspace.getActiveTextEditor();
-        this.panel.show();
-        this.newNameEditor.model.setText(options.text || "undefined");
-        if (this.options.autoSelect) {
-            this.newNameEditor.model.selectAll();
-        }
-        else {
-            this.newNameEditor.model.getLastCursor().moveToEndOfScreenLine();
-        }
-        this.title.text(this.options.title || "undefined");
-        this.newNameEditor.focus();
-        this.validationMessage.hide();
-    }
-    // Show the dialog and resolve the promise with the entered string
-    showRenameDialog(options) {
-        return new Promise((resolve, reject) => {
-            this.renameThis(Object.assign({}, options, { onCancel: reject, onCommit: resolve }));
+    destroy() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield etch.destroy(this);
         });
+    }
+    focus() {
+        return this.refs.editor.focus();
+    }
+    getText() {
+        return this.refs.editor.getModel().getText();
     }
 }
-RenameView.content = html;
-exports.RenameView = RenameView;
-function attach() {
-    const renameView = new RenameView({});
-    const panel = atom.workspace.addModalPanel({
-        item: renameView,
-        priority: 1000,
-        visible: false,
+// Show the dialog and resolve the promise with the entered string
+function showRenameDialog(options) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const item = new RenameView({
+            title: options.title,
+            initialText: options.text,
+            selectAll: options.autoSelect,
+        });
+        const panel = atom.workspace.addModalPanel({
+            item,
+            priority: 1000,
+        });
+        const currentFocus = document.activeElement;
+        item.focus();
+        const disposables = new atom_1.CompositeDisposable();
+        try {
+            return yield new Promise((resolve, reject) => {
+                disposables.add(atom.commands.add(item.refs.main, {
+                    "core:cancel": () => {
+                        reject();
+                    },
+                    "core:confirm": () => {
+                        const newText = item.getText();
+                        const invalid = options.onValidate && options.onValidate(newText);
+                        if (invalid) {
+                            item.update({ validationMessage: invalid });
+                            return;
+                        }
+                        resolve(newText);
+                    },
+                }));
+            });
+        }
+        finally {
+            panel.destroy();
+            disposables.dispose();
+            if (currentFocus)
+                currentFocus.focus();
+        }
     });
-    renameView.setPanel(panel);
-    return {
-        dispose() {
-            console.log("TODO: Detach the rename view: ", panel);
-        },
-        renameView,
-    };
 }
-exports.attach = attach;
+exports.showRenameDialog = showRenameDialog;
 //# sourceMappingURL=renameView.js.map

@@ -1,6 +1,5 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -33,9 +32,6 @@ export async function activate() {
     await require("atom-package-deps").install("atom-typescript", true)
   }
 
-  // Add the rename view
-  const {renameView} = attachRenameView()
-
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
     atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
@@ -65,7 +61,6 @@ export async function activate() {
 
       return clientResolver.get(filePath)
     },
-    renameView,
     statusPanel,
   })
 

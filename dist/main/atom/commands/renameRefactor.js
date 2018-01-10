@@ -4,6 +4,7 @@ const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const utils_2 = require("../utils");
+const renameView_1 = require("../views/renameView");
 registry_1.commands.set("typescript:rename-refactor", deps => {
     return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
         if (!utils_1.commandForTypeScript(e)) {
@@ -20,7 +21,7 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
         if (!info.canRename) {
             return atom.notifications.addInfo("AtomTS: Rename not available at cursor location");
         }
-        const newName = yield deps.renameView.showRenameDialog({
+        const newName = yield renameView_1.showRenameDialog({
             autoSelect: true,
             title: "Rename Variable",
             text: info.displayName,
