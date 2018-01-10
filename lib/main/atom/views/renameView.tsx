@@ -27,18 +27,13 @@ class RenameView implements JSX.ElementClass {
   }
 
   public async update(props: Partial<Props>) {
-    this.props.validationMessage = props.validationMessage
-    if (props.title) this.props.title = props.title
+    this.props = {...this.props, ...props}
     await etch.update(this)
   }
 
   public render() {
-    let validationMessage = null
-    if (this.props.validationMessage) {
-      validationMessage = <div class="highlight-error">{this.props.validationMessage}</div>
-    }
     return (
-      <div tabIndex="-1" class="atomts-rename-view" ref="main">
+      <div class="atomts-rename-view" ref="main">
         <div class="block">
           <div>
             <span ref="title">{this.props.title}</span>
@@ -59,7 +54,7 @@ class RenameView implements JSX.ElementClass {
               />
             </div>
           </div>
-          {validationMessage}
+          {this.renderValidationMessage()}
         </div>
       </div>
     )
@@ -75,6 +70,13 @@ class RenameView implements JSX.ElementClass {
 
   public getText() {
     return this.refs.editor.getModel().getText()
+  }
+
+  private renderValidationMessage(): JSX.Element | null {
+    if (this.props.validationMessage) {
+      return <div class="highlight-error">{this.props.validationMessage}</div>
+    }
+    return null
   }
 }
 

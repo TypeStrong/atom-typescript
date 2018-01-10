@@ -11,18 +11,12 @@ class RenameView {
     }
     update(props) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.props.validationMessage = props.validationMessage;
-            if (props.title)
-                this.props.title = props.title;
+            this.props = Object.assign({}, this.props, props);
             yield etch.update(this);
         });
     }
     render() {
-        let validationMessage = null;
-        if (this.props.validationMessage) {
-            validationMessage = etch.dom("div", { class: "highlight-error" }, this.props.validationMessage);
-        }
-        return (etch.dom("div", { tabIndex: "-1", class: "atomts-rename-view", ref: "main" },
+        return (etch.dom("div", { class: "atomts-rename-view", ref: "main" },
             etch.dom("div", { class: "block" },
                 etch.dom("div", null,
                     etch.dom("span", { ref: "title" }, this.props.title),
@@ -35,7 +29,7 @@ class RenameView {
                 etch.dom("div", { class: "find-container block" },
                     etch.dom("div", { class: "editor-container" },
                         etch.dom(miniEditor_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
-                validationMessage)));
+                this.renderValidationMessage())));
     }
     destroy() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -47,6 +41,12 @@ class RenameView {
     }
     getText() {
         return this.refs.editor.getModel().getText();
+    }
+    renderValidationMessage() {
+        if (this.props.validationMessage) {
+            return etch.dom("div", { class: "highlight-error" }, this.props.validationMessage);
+        }
+        return null;
     }
 }
 // Show the dialog and resolve the promise with the entered string
