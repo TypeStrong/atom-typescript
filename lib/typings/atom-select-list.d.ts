@@ -1,5 +1,5 @@
-declare module 'atom-select-list' {
-    export = SelectListView
+declare module "atom-select-list" {
+  export = SelectListView
 }
 declare class SelectListView<T> {
   constructor(props: IProps<T>)
@@ -32,7 +32,7 @@ declare interface IProps<T> {
   /** a string that needs to be set when you are loading items in the background. */
   loadingMessage?: string
   /** a string or number that needs to be set when the progress status changes (e.g. a percentage showing how many items have been loaded so far). */
-  loadingBadge?: string|number
+  loadingBadge?: string | number
   /** an array of strings that will be added as class names to the items element. */
   itemsClassList?: string[]
   /** a function that is called when the query changes. */
