@@ -19,7 +19,7 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 const subscriptions: CompositeDisposable = new CompositeDisposable()
 export const clientResolver: ClientResolver = new ClientResolver()
 const panes: TypescriptEditorPane[] = []
-const statusPanel: StatusPanel = StatusPanel.create()
+const statusPanel: StatusPanel = new StatusPanel()
 const errorPusher: ErrorPusher = new ErrorPusher()
 const codefixProvider: CodefixProvider = new CodefixProvider(clientResolver)
 
@@ -48,7 +48,7 @@ export async function activate() {
 
   clientResolver.on("pendingRequestsChange", () => {
     const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
-    statusPanel.setPending(pending)
+    statusPanel.update({pending})
   })
 
   // Register the commands

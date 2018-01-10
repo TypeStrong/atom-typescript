@@ -26,17 +26,17 @@ class TypescriptEditorPane {
                         files: [this.filePath],
                         delay: 100,
                     });
-                    this.opts.statusPanel.setVersion(this.client.version);
+                    this.opts.statusPanel.update({ version: this.client.version });
                 }
             }
-            this.opts.statusPanel.setTsConfigPath(this.configFile);
+            this.opts.statusPanel.update({ tsConfigPath: this.configFile });
         };
         this.onChanged = () => {
             if (!this.client)
                 return;
             if (!this.filePath)
                 return;
-            this.opts.statusPanel.setBuildStatus(undefined);
+            this.opts.statusPanel.update({ buildStatus: null });
             this.client.executeGetErr({
                 files: [this.filePath],
                 delay: 100,
@@ -94,7 +94,7 @@ class TypescriptEditorPane {
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
                 this.isActive = true;
-                this.opts.statusPanel.setVersion(this.client.version);
+                this.opts.statusPanel.update({ version: this.client.version });
             }
             if (this.isTypescript) {
                 this.client.executeGetErr({
@@ -109,7 +109,7 @@ class TypescriptEditorPane {
                     });
                     this.configFile = result.body.configFileName;
                     if (this.isActive) {
-                        this.opts.statusPanel.setTsConfigPath(this.configFile);
+                        this.opts.statusPanel.update({ tsConfigPath: this.configFile });
                     }
                     utils_1.getProjectCodeSettings(filePath, this.configFile).then(options => {
                         this.client.executeConfigure({
@@ -169,7 +169,7 @@ class TypescriptEditorPane {
             const result = yield client.executeCompileOnSaveAffectedFileList({
                 file: this.filePath,
             });
-            this.opts.statusPanel.setBuildStatus(undefined);
+            this.opts.statusPanel.update({ buildStatus: null });
             const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
             if (fileNames.length === 0)
                 return;
@@ -179,14 +179,18 @@ class TypescriptEditorPane {
                 if (!saved.every(res => !!res.body)) {
                     throw new Error("Some files failed to emit");
                 }
-                this.opts.statusPanel.setBuildStatus({
-                    success: true,
+                this.opts.statusPanel.update({
+                    buildStatus: {
+                        success: true,
+                    },
                 });
             }
             catch (error) {
                 console.error("Save failed with error", error);
-                this.opts.statusPanel.setBuildStatus({
-                    success: false,
+                this.opts.statusPanel.update({
+                    buildStatus: {
+                        success: false,
+                    },
                 });
             }
         });

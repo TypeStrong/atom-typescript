@@ -74,6 +74,11 @@
       "from": "escape-html@>=1.0.1 <2.0.0",
       "resolved": "https://registry.npmjs.org/escape-html/-/escape-html-1.0.3.tgz"
     },
+    "etch": {
+      "version": "0.12.7",
+      "from": "etch@latest",
+      "resolved": "https://registry.npmjs.org/etch/-/etch-0.12.7.tgz"
+    },
     "fuzzaldrin": {
       "version": "2.1.0",
       "from": "fuzzaldrin@>=2.1.0 <3.0.0",
@@ -93,11 +98,6 @@
       "version": "2.1.4",
       "from": "jquery@2.1.4",
       "resolved": "https://registry.npmjs.org/jquery/-/jquery-2.1.4.tgz"
-    },
-    "jsx-render-dom": {
-      "version": "0.1.2",
-      "from": "jsx-render-dom@0.1.2",
-      "resolved": "https://registry.npmjs.org/jsx-render-dom/-/jsx-render-dom-0.1.2.tgz"
     },
     "lodash": {
       "version": "4.17.4",

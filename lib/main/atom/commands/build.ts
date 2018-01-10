@@ -34,14 +34,14 @@ commands.set("typescript:build", deps => {
           throw new Error("Emit failed")
         }
 
-        deps.statusPanel.setBuildStatus({success: true})
+        deps.statusPanel.update({buildStatus: {success: true}})
       })
       .catch(err => {
         console.error(err)
-        deps.statusPanel.setBuildStatus({success: false})
+        deps.statusPanel.update({buildStatus: {success: false}})
       })
 
-    deps.statusPanel.setBuildStatus(undefined)
+    deps.statusPanel.update({buildStatus: null})
   }
 })
 

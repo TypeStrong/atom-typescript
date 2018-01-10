@@ -33,7 +33,7 @@ registry_1.commands.set("typescript:check-all-files", deps => {
             files.delete(evt.file);
             updateStatus();
         });
-        deps.statusPanel.setProgress({ max, value: 0 });
+        deps.statusPanel.update({ progress: { max, value: 0 } });
         client.executeGetErrForProject({ file, delay: 0 });
         function cancel() {
             files.clear();
@@ -42,10 +42,10 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         function updateStatus() {
             if (files.size === 0) {
                 unregister();
-                deps.statusPanel.setProgress(undefined);
+                deps.statusPanel.update({ progress: null });
             }
             else {
-                deps.statusPanel.setProgress({ max, value: max - files.size });
+                deps.statusPanel.update({ progress: { max, value: max - files.size } });
             }
         }
     });

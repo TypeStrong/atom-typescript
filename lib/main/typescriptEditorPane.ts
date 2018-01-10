@@ -91,18 +91,18 @@ export class TypescriptEditorPane implements Atom.Disposable {
           delay: 100,
         })
 
-        this.opts.statusPanel.setVersion(this.client.version)
+        this.opts.statusPanel.update({version: this.client.version})
       }
     }
 
-    this.opts.statusPanel.setTsConfigPath(this.configFile)
+    this.opts.statusPanel.update({tsConfigPath: this.configFile})
   }
 
   onChanged = () => {
     if (!this.client) return
     if (!this.filePath) return
 
-    this.opts.statusPanel.setBuildStatus(undefined)
+    this.opts.statusPanel.update({buildStatus: null})
 
     this.client.executeGetErr({
       files: [this.filePath],
@@ -172,7 +172,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     // onOpened might trigger before onActivated so we can't rely on isActive flag
     if (atom.workspace.getActiveTextEditor() === this.editor) {
       this.isActive = true
-      this.opts.statusPanel.setVersion(this.client.version)
+      this.opts.statusPanel.update({version: this.client.version})
     }
 
     if (this.isTypescript) {
@@ -191,7 +191,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
         this.configFile = result.body!.configFileName
 
         if (this.isActive) {
-          this.opts.statusPanel.setTsConfigPath(this.configFile)
+          this.opts.statusPanel.update({tsConfigPath: this.configFile})
         }
 
         getProjectCodeSettings(filePath, this.configFile).then(options => {
@@ -221,7 +221,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       file: this.filePath,
     })
 
-    this.opts.statusPanel.setBuildStatus(undefined)
+    this.opts.statusPanel.update({buildStatus: null})
 
     const fileNames = flatten(result.body.map(project => project.fileNames))
 
@@ -235,13 +235,17 @@ export class TypescriptEditorPane implements Atom.Disposable {
         throw new Error("Some files failed to emit")
       }
 
-      this.opts.statusPanel.setBuildStatus({
-        success: true,
+      this.opts.statusPanel.update({
+        buildStatus: {
+          success: true,
+        },
       })
     } catch (error) {
       console.error("Save failed with error", error)
-      this.opts.statusPanel.setBuildStatus({
-        success: false,
+      this.opts.statusPanel.update({
+        buildStatus: {
+          success: false,
+        },
       })
     }
   }

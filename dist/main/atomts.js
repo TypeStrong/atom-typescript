@@ -19,7 +19,7 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const subscriptions = new atom_1.CompositeDisposable();
 exports.clientResolver = new clientResolver_1.ClientResolver();
 const panes = [];
-const statusPanel = statusPanel_1.StatusPanel.create();
+const statusPanel = new statusPanel_1.StatusPanel();
 const errorPusher = new errorPusher_1.ErrorPusher();
 const codefixProvider = new codefix_1.CodefixProvider(exports.clientResolver);
 // Register all custom components
@@ -41,7 +41,7 @@ function activate() {
         codefixProvider.getTypescriptBuffer = getTypescriptBuffer;
         exports.clientResolver.on("pendingRequestsChange", () => {
             const pending = lodash_2.flatten(lodash_2.values(exports.clientResolver.clients).map(cl => cl.pending));
-            statusPanel.setPending(pending);
+            statusPanel.update({ pending });
         });
         // Register the commands
         commands_1.registerCommands({
