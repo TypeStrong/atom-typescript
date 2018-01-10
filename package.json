@@ -1,11 +1,13 @@
 {
   "name": "atom-typescript",
-  "version": "11.0.10",
+  "version": "12.0.0",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
-  "activationHooks": ["language-typescript:grammar-used"],
+  "activationHooks": [
+    "language-typescript:grammar-used"
+  ],
   "scripts": {
     "build": "tsc -p ./lib",
     "prettier": "ts-node scripts/prettier.ts write",
@@ -108,6 +110,12 @@
     "ts-node": "3.2.1",
     "tslint": "^5.8.0"
   },
-  "package-deps": ["atom-ide-ui:0.5.3"],
-  "keywords": ["typescript", "javascript", "html"]
+  "package-deps": [
+    "atom-ide-ui:0.5.3"
+  ],
+  "keywords": [
+    "typescript",
+    "javascript",
+    "html"
+  ]
 }
