@@ -6,6 +6,19 @@ import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
+  private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
+  public static construct(
+    buffer: Atom.TextBuffer,
+    getClient: (filePath: string) => Promise<Client>,
+  ) {
+    const b = TypescriptBuffer.bufferMap.get(buffer)
+    if (b) return b
+    else {
+      const nb = new TypescriptBuffer(buffer, getClient)
+      TypescriptBuffer.bufferMap.set(buffer, nb)
+      return nb
+    }
+  }
   // Timestamps for buffer events
   changedAt: number = 0
   changedAtBatch: number = 0
@@ -20,7 +33,7 @@ export class TypescriptBuffer {
   private subscriptions = new Atom.CompositeDisposable()
   private filePath: string | undefined
 
-  constructor(
+  private constructor(
     public buffer: Atom.TextBuffer,
     public getClient: (filePath: string) => Promise<Client>,
   ) {
