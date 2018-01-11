@@ -4,10 +4,9 @@ const SelectListView = require("atom-select-list");
 const etch = require("etch");
 async function selectListView({ items, itemTemplate, itemFilterKey, }) {
     let panel;
-    let res;
     const currentFocus = document.activeElement;
     try {
-        res = await new Promise(resolve => {
+        return await new Promise(resolve => {
             const select = new SelectListView({
                 items,
                 elementForItem: (item) => etch.render(etch.dom("li", null, itemTemplate(item))),
@@ -32,7 +31,6 @@ async function selectListView({ items, itemTemplate, itemFilterKey, }) {
         if (currentFocus)
             currentFocus.focus();
     }
-    return res;
 }
 exports.selectListView = selectListView;
 //# sourceMappingURL=simpleSelectionView.js.map

@@ -14,10 +14,9 @@ export async function selectListView<T>({
   itemFilterKey,
 }: SelectListViewOptions<T>): Promise<T | undefined> {
   let panel: Panel<SelectListView<T>> | undefined
-  let res: T | undefined
   const currentFocus = document.activeElement as HTMLElement
   try {
-    res = await new Promise<T | undefined>(resolve => {
+    return await new Promise<T | undefined>(resolve => {
       const select = new SelectListView({
         items,
         elementForItem: (item: T) => etch.render(<li>{itemTemplate(item)}</li>) as HTMLElement,
@@ -39,5 +38,4 @@ export async function selectListView<T>({
     if (panel) panel.destroy()
     if (currentFocus) currentFocus.focus()
   }
-  return res
 }
