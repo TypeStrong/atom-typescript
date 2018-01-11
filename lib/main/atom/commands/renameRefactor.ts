@@ -37,21 +37,21 @@ commands.set("typescript:rename-refactor", deps => {
       },
     })
 
-    locs.map(async loc => {
-      const {buffer, isOpen} = await deps.getTypescriptBuffer(loc.file)
+    if (newName !== undefined) {
+      locs.map(async loc => {
+        const {buffer, isOpen} = await deps.getTypescriptBuffer(loc.file)
 
-      buffer.buffer.transact(() => {
-        for (const span of loc.locs) {
-          buffer.buffer.setTextInRange(spanToRange(span), newName)
+        buffer.buffer.transact(() => {
+          for (const span of loc.locs) {
+            buffer.buffer.setTextInRange(spanToRange(span), newName)
+          }
+        })
+
+        if (!isOpen) {
+          await buffer.buffer.save()
+          buffer.buffer.destroy()
         }
       })
-
-      if (!isOpen) {
-        buffer.buffer.save()
-        buffer.on("saved", () => {
-          buffer.buffer.destroy()
-        })
-      }
-    })
+    }
   }
 })

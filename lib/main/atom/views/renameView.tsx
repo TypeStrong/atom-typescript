@@ -81,7 +81,7 @@ class RenameView implements JSX.ElementClass {
 }
 
 // Show the dialog and resolve the promise with the entered string
-export async function showRenameDialog(options: Options): Promise<string> {
+export async function showRenameDialog(options: Options): Promise<string | undefined> {
   const item = new RenameView({
     title: options.title,
     initialText: options.text,
@@ -98,11 +98,11 @@ export async function showRenameDialog(options: Options): Promise<string> {
 
   const disposables = new CompositeDisposable()
   try {
-    return await new Promise<string>((resolve, reject) => {
+    return await new Promise<string | undefined>(resolve => {
       disposables.add(
         atom.commands.add(item.refs.main, {
           "core:cancel": () => {
-            reject()
+            resolve(undefined)
           },
           "core:confirm": () => {
             const newText = item.getText()

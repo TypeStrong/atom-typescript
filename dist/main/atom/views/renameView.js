@@ -59,10 +59,10 @@ async function showRenameDialog(options) {
     item.focus();
     const disposables = new atom_1.CompositeDisposable();
     try {
-        return await new Promise((resolve, reject) => {
+        return await new Promise(resolve => {
             disposables.add(atom.commands.add(item.refs.main, {
                 "core:cancel": () => {
-                    reject();
+                    resolve(undefined);
                 },
                 "core:confirm": () => {
                     const newText = item.getText();

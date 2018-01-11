@@ -34,20 +34,20 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
                 return "";
             },
         });
-        locs.map(async (loc) => {
-            const { buffer, isOpen } = await deps.getTypescriptBuffer(loc.file);
-            buffer.buffer.transact(() => {
-                for (const span of loc.locs) {
-                    buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
+        if (newName !== undefined) {
+            locs.map(async (loc) => {
+                const { buffer, isOpen } = await deps.getTypescriptBuffer(loc.file);
+                buffer.buffer.transact(() => {
+                    for (const span of loc.locs) {
+                        buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
+                    }
+                });
+                if (!isOpen) {
+                    await buffer.buffer.save();
+                    buffer.buffer.destroy();
                 }
             });
-            if (!isOpen) {
-                buffer.buffer.save();
-                buffer.on("saved", () => {
-                    buffer.buffer.destroy();
-                });
-            }
-        });
+        }
     };
 });
 //# sourceMappingURL=renameRefactor.js.map
