@@ -65,7 +65,7 @@ export async function handleDefinitionResult(
       prevCursorPositions.push(location)
       open(res)
     }
-  } else {
+  } else if (result.body.length) {
     prevCursorPositions.push(location)
     open(result.body[0])
   }
