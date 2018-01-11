@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const atom_1 = require("atom");
 const callbacks_1 = require("./callbacks");
 const events_1 = require("events");
@@ -124,13 +123,11 @@ class TypescriptServiceClient {
     executeSaveTo(args) {
         return this.execute("saveto", args);
     }
-    execute(command, args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.serverPromise) {
-                throw new Error("Server is not running");
-            }
-            return this.sendRequest(yield this.serverPromise, command, args, exports.commandWithResponse.has(command));
-        });
+    async execute(command, args) {
+        if (!this.serverPromise) {
+            throw new Error("Server is not running");
+        }
+        return this.sendRequest(await this.serverPromise, command, args, exports.commandWithResponse.has(command));
     }
     on(name, listener) {
         this.events.on(name, listener);

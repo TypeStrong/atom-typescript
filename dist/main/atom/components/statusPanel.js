@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const etch = require("etch");
 const path_1 = require("path");
 const utils_1 = require("../utils");
@@ -9,11 +8,9 @@ class StatusPanel {
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
     }
-    update(props) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.props = Object.assign({}, this.props, props);
-            yield etch.update(this);
-        });
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        await etch.update(this);
     }
     render() {
         return (etch.dom("ts-status-panel", { className: this.props.visible ? "" : "hide" },
@@ -23,10 +20,8 @@ class StatusPanel {
             this.renderStatus(),
             this.renderProgress()));
     }
-    destroy() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield etch.destroy(this);
-        });
+    async destroy() {
+        await etch.destroy(this);
     }
     dispose() {
         this.destroy();

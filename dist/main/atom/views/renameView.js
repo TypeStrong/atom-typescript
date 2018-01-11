@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const etch = require("etch");
 const atom_1 = require("atom");
 const miniEditor_1 = require("../components/miniEditor");
@@ -9,11 +8,9 @@ class RenameView {
         this.props = props;
         etch.initialize(this);
     }
-    update(props) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.props = Object.assign({}, this.props, props);
-            yield etch.update(this);
-        });
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        await etch.update(this);
     }
     render() {
         return (etch.dom("div", { class: "atomts-rename-view", ref: "main" },
@@ -31,10 +28,8 @@ class RenameView {
                         etch.dom(miniEditor_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
                 this.renderValidationMessage())));
     }
-    destroy() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield etch.destroy(this);
-        });
+    async destroy() {
+        await etch.destroy(this);
     }
     focus() {
         return this.refs.editor.focus();
@@ -50,45 +45,43 @@ class RenameView {
     }
 }
 // Show the dialog and resolve the promise with the entered string
-function showRenameDialog(options) {
-    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const item = new RenameView({
-            title: options.title,
-            initialText: options.text,
-            selectAll: options.autoSelect,
-        });
-        const panel = atom.workspace.addModalPanel({
-            item,
-            priority: 1000,
-        });
-        const currentFocus = document.activeElement;
-        item.focus();
-        const disposables = new atom_1.CompositeDisposable();
-        try {
-            return yield new Promise((resolve, reject) => {
-                disposables.add(atom.commands.add(item.refs.main, {
-                    "core:cancel": () => {
-                        reject();
-                    },
-                    "core:confirm": () => {
-                        const newText = item.getText();
-                        const invalid = options.onValidate && options.onValidate(newText);
-                        if (invalid) {
-                            item.update({ validationMessage: invalid });
-                            return;
-                        }
-                        resolve(newText);
-                    },
-                }));
-            });
-        }
-        finally {
-            panel.destroy();
-            disposables.dispose();
-            if (currentFocus)
-                currentFocus.focus();
-        }
+async function showRenameDialog(options) {
+    const item = new RenameView({
+        title: options.title,
+        initialText: options.text,
+        selectAll: options.autoSelect,
     });
+    const panel = atom.workspace.addModalPanel({
+        item,
+        priority: 1000,
+    });
+    const currentFocus = document.activeElement;
+    item.focus();
+    const disposables = new atom_1.CompositeDisposable();
+    try {
+        return await new Promise((resolve, reject) => {
+            disposables.add(atom.commands.add(item.refs.main, {
+                "core:cancel": () => {
+                    reject();
+                },
+                "core:confirm": () => {
+                    const newText = item.getText();
+                    const invalid = options.onValidate && options.onValidate(newText);
+                    if (invalid) {
+                        item.update({ validationMessage: invalid });
+                        return;
+                    }
+                    resolve(newText);
+                },
+            }));
+        });
+    }
+    finally {
+        panel.destroy();
+        disposables.dispose();
+        if (currentFocus)
+            currentFocus.focus();
+    }
 }
 exports.showRenameDialog = showRenameDialog;
 //# sourceMappingURL=renameView.js.map

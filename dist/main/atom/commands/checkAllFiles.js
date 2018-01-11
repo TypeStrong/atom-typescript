@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 registry_1.commands.set("typescript:check-all-files", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+    return async (e) => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
@@ -14,8 +13,8 @@ registry_1.commands.set("typescript:check-all-files", deps => {
             return;
         }
         const { file } = fpp;
-        const client = yield deps.getClient(file);
-        const projectInfo = yield client.executeProjectInfo({
+        const client = await deps.getClient(file);
+        const projectInfo = await client.executeProjectInfo({
             file,
             needFileNameList: true,
         });
@@ -48,6 +47,6 @@ registry_1.commands.set("typescript:check-all-files", deps => {
                 deps.statusPanel.update({ progress: { max, value: max - files.size } });
             }
         }
-    });
+    };
 });
 //# sourceMappingURL=checkAllFiles.js.map

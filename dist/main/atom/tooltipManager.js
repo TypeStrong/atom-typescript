@@ -2,7 +2,6 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const atomUtils = require("./utils");
 const atomts_1 = require("../atomts");
 const Atom = require("atom");
@@ -77,62 +76,58 @@ function attach(editor) {
             clientX: p.left + linesRect.left,
         };
     }
-    function showExpressionTypeKbd(pt) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const view = atom.views.getView(editor);
-            const px = view.pixelPositionForBufferPosition(pt);
-            return showExpressionType(mousePositionForPixelPosition(px));
-        });
+    async function showExpressionTypeKbd(pt) {
+        const view = atom.views.getView(editor);
+        const px = view.pixelPositionForBufferPosition(pt);
+        return showExpressionType(mousePositionForPixelPosition(px));
     }
-    function showExpressionType(e) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // If we are already showing we should wait for that to clear
-            if (exprTypeTooltip) {
+    async function showExpressionType(e) {
+        // If we are already showing we should wait for that to clear
+        if (exprTypeTooltip) {
+            return;
+        }
+        const bufferPt = bufferPositionFromMouseEvent(editor, e);
+        if (!bufferPt)
+            return;
+        const curCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column]));
+        const nextCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]));
+        if (curCharPixelPt.left >= nextCharPixelPt.left) {
+            return;
+        }
+        // find out show position
+        const offset = editor.getLineHeightInPixels() * 0.7;
+        const tooltipRect = {
+            left: e.clientX,
+            right: e.clientX,
+            top: e.clientY - offset,
+            bottom: e.clientY + offset,
+        };
+        let result;
+        const client = await clientPromise;
+        try {
+            if (!filePath) {
                 return;
             }
-            const bufferPt = bufferPositionFromMouseEvent(editor, e);
-            if (!bufferPt)
-                return;
-            const curCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column]));
-            const nextCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]));
-            if (curCharPixelPt.left >= nextCharPixelPt.left) {
-                return;
-            }
-            // find out show position
-            const offset = editor.getLineHeightInPixels() * 0.7;
-            const tooltipRect = {
-                left: e.clientX,
-                right: e.clientX,
-                top: e.clientY - offset,
-                bottom: e.clientY + offset,
-            };
-            let result;
-            const client = yield clientPromise;
-            try {
-                if (!filePath) {
-                    return;
-                }
-                result = yield client.executeQuickInfo({
-                    file: filePath,
-                    line: bufferPt.row + 1,
-                    offset: bufferPt.column + 1,
-                });
-            }
-            catch (e) {
-                return;
-            }
-            const { displayString, documentation } = result.body;
-            let message = `<b>${escape(displayString)}</b>`;
-            if (documentation) {
-                message =
-                    message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
-            }
-            if (!exprTypeTooltip) {
-                exprTypeTooltip = new tooltipView_1.TooltipView();
-                document.body.appendChild(exprTypeTooltip.refs.main);
-                exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
-            }
-        });
+            result = await client.executeQuickInfo({
+                file: filePath,
+                line: bufferPt.row + 1,
+                offset: bufferPt.column + 1,
+            });
+        }
+        catch (e) {
+            return;
+        }
+        const { displayString, documentation } = result.body;
+        let message = `<b>${escape(displayString)}</b>`;
+        if (documentation) {
+            message =
+                message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
+        }
+        if (!exprTypeTooltip) {
+            exprTypeTooltip = new tooltipView_1.TooltipView();
+            document.body.appendChild(exprTypeTooltip.refs.main);
+            exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
+        }
     }
     function deactivate() {
         subscriber.dispose();

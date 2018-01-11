@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 class MiniEditor {
     constructor(props) {
         this.props = props;
@@ -21,13 +20,11 @@ class MiniEditor {
         this.setGrammar();
         this.model.scrollToBufferPosition([0, 0]);
     }
-    update(props) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.element = atom.views.getView(this.model);
-            this.props = Object.assign({}, this.props, props);
-            this.setReadOnly();
-            this.setGrammar();
-        });
+    async update(props) {
+        this.element = atom.views.getView(this.model);
+        this.props = Object.assign({}, this.props, props);
+        this.setReadOnly();
+        this.setGrammar();
     }
     focus() {
         this.element.focus();

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const etch = require("etch");
 class TooltipView {
     constructor() {
@@ -12,16 +11,12 @@ class TooltipView {
         };
         etch.initialize(this);
     }
-    destroy() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return etch.destroy(this);
-        });
+    async destroy() {
+        return etch.destroy(this);
     }
-    update(props) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.props = Object.assign({}, this.props, props);
-            yield etch.update(this);
-        });
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        await etch.update(this);
     }
     writeAfterUpdate() {
         const offset = 10;

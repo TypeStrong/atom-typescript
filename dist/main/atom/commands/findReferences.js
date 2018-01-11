@@ -1,13 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const tsView_1 = require("../components/tsView");
 registry_1.commands.set("typescript:find-references", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+    return async (e) => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
@@ -16,9 +15,9 @@ registry_1.commands.set("typescript:find-references", deps => {
             e.abortKeyBinding();
             return;
         }
-        const client = yield deps.getClient(location.file);
-        const result = yield client.executeReferences(location);
-        const res = yield simpleSelectionView_1.selectListView({
+        const client = await deps.getClient(location.file);
+        const result = await client.executeReferences(location);
+        const res = await simpleSelectionView_1.selectListView({
             items: result.body.refs,
             itemTemplate: item => {
                 return (etch.dom("div", null,
@@ -36,6 +35,6 @@ registry_1.commands.set("typescript:find-references", deps => {
                 initialColumn: res.start.offset - 1,
             });
         }
-    });
+    };
 });
 //# sourceMappingURL=findReferences.js.map
