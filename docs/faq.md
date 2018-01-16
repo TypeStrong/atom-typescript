@@ -4,6 +4,8 @@
 
 Since v12, we're discontinuing our grammar in favor of <https://github.com/atom/language-typescript>, which is itself downstream from <https://github.com/Microsoft/TypeScript-TmLanguage>.
 
+General grammar issues should go to <https://github.com/Microsoft/TypeScript-TmLanguage>, and ones specific to Atom to <https://github.com/atom/language-typescript>.
+
 ## Which version of TypeScript does atom-typescript use?
 Your current version installed in your `node_modules`. This gets determined once per open file so you might want to re-open your panes, if you've updated Typescript in your project.
 
