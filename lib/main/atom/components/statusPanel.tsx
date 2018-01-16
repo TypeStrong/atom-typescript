@@ -12,8 +12,6 @@ export interface Props extends JSX.Props {
 }
 
 export class StatusPanel implements JSX.ElementClass {
-  private configPath?: string
-  private pendingRequests: string[]
   public props: Props
 
   constructor(props: Partial<Props> = {}) {
@@ -50,18 +48,16 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private openConfigPath() {
-    if (this.configPath && !this.configPath.startsWith("/dev/null")) {
-      openFile(this.configPath)
+    if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+      openFile(this.props.tsConfigPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
     }
   }
 
   private showPendingRequests() {
-    if (this.pendingRequests) {
-      atom.notifications.addInfo(
-        "Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "),
-      )
+    if (this.props.pending) {
+      atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "))
     }
   }
 

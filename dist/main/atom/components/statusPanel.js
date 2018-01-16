@@ -27,16 +27,16 @@ class StatusPanel {
         this.destroy();
     }
     openConfigPath() {
-        if (this.configPath && !this.configPath.startsWith("/dev/null")) {
-            utils_1.openFile(this.configPath);
+        if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+            utils_1.openFile(this.props.tsConfigPath);
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
         }
     }
     showPendingRequests() {
-        if (this.pendingRequests) {
-            atom.notifications.addInfo("Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "));
+        if (this.props.pending) {
+            atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "));
         }
     }
     show() {
