@@ -47,7 +47,7 @@ Is rather simple. Here are some steps to get you running:
     the working copy (i.e. `atom-typescript` directory, the one
     containing `package.json`)
 
-3.  Create a new branch! `git checkout -b my-awsome-contribution`.
+3.  Create a new branch! `git checkout -b my-awesome-contribution`.
     Please use a meaningful name for your branch.
 
 4.  Install dependencies with `apm install`.
