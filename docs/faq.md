@@ -2,9 +2,7 @@
 
 ## Syntax Highlighting is bad
 
-For grammar issues go here : https://github.com/Microsoft/TypeScript-TmLanguage/issues and link back to us if you want us to pull from upstream 🌹.
-
-More on how our grammar is managed : https://github.com/TypeStrong/atom-typescript/blob/master/docs/grammar.md
+Since v12, we're discontinuing our grammar in favor of <https://github.com/atom/language-typescript>, which is itself downstream from <https://github.com/Microsoft/TypeScript-TmLanguage>.
 
 ## Which version of TypeScript does atom-typescript use?
 Your current version installed in your `node_modules`. This gets determined once per open file so you might want to re-open your panes, if you've updated Typescript in your project.
