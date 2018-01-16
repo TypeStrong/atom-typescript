@@ -142,9 +142,11 @@ Some shortcuts:
     open in another atom window as such: `atom --dev <examplesFolder>`
 3.  We make changes to `atom-typescript` and save to get the JS
     (optionally run `typescript:build` command to rebuild everything)
-4.  We reload the `atom-typescript-examples` (`ctrl+alt+r` or
+4.  We typecheck whole project with `typescript:check-all-files` command
+    to see if our changes accidentally broke anything.
+5.  We reload the `atom-typescript-examples` (`ctrl+alt+r` or
     `ctrl+shift+f5`) window to see the effects of our change.
-5.  Only reload the `atom-typescript` window once we are sure that our
+6.  Only reload the `atom-typescript` window once we are sure that our
     new code is functional.
 
 ### When you break atom-typescript during development
