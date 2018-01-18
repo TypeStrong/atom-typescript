@@ -98,7 +98,7 @@ export class ClientResolver extends events.EventEmitter {
 }
 
 // Promisify the async resolve function
-const resolveModule = (id: string, opts: Resolve.AsyncOpts): Promise<string> => {
+export const resolveModule = (id: string, opts: Resolve.AsyncOpts = {}): Promise<string> => {
   return new Promise<string>((resolve, reject) =>
     Resolve(id, opts, (err, result) => {
       if (err) {

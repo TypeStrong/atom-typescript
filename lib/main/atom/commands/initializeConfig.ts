@@ -1,55 +1,66 @@
 import {commands} from "./registry"
+import {resolveModule} from "../../../client/clientResolver"
 import {execFile} from "child_process"
-import * as Resolve from "resolve"
 
 commands.set("typescript:initialize-config", () => {
   return async e => {
-    const projectRootPaths = atom.project.getPaths()
+    const projectDirs = atom.project.getDirectories()
 
-    if (!projectRootPaths) {
+    if (projectDirs.length === 0) {
       e.abortKeyBinding()
       return
     }
 
-    const editor = atom.workspace.getActiveTextEditor()
-    let currentlyActivePath
+    let editor
+    let currentPath
 
-    if (editor !== undefined) {
-      currentlyActivePath = editor.getPath()
+    try {
+      editor = atom.workspace.getActiveTextEditor()
+
+      if (!editor) {
+        throw new Error("There is no active text editor available.")
+      }
+
+      currentPath = editor.getPath()
+
+      if (!currentPath) {
+        throw new Error("There is no active filepath available.")
+      }
+    } catch (e) {
+      console.error(e.message)
     }
 
-    const pathToTsc = await resolveModule("typescript/bin/tsc")
+    const pathToTsc = await resolveModule("typescript/bin/tsc").catch(() =>
+      require.resolve("typescript/bin/tsc"),
+    )
 
-    for (const projectRootPath of projectRootPaths) {
-      if (currentlyActivePath && currentlyActivePath.includes(projectRootPath)) {
-        await initConfig(pathToTsc, projectRootPath)
+    for (const projectDir of projectDirs) {
+      if (currentPath && projectDir.contains(currentPath)) {
+        await initConfig(pathToTsc, projectDir.getPath())
       }
     }
   }
 })
 
-// Promisify the async resolve function
-const resolveModule = (id: string): Promise<string> => {
-  return new Promise<string>((resolve, reject) =>
-    Resolve(id, (err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    }),
-  )
-}
-
 const initConfig = (tsc: string, projectRoot: string): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     try {
-      execFile(tsc, ["--init"], {
-        cwd: projectRoot,
-      })
-      resolve()
+      execFile(
+        tsc,
+        ["--init"],
+        {
+          cwd: projectRoot,
+        },
+        err => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        },
+      )
     } catch (e) {
-      reject(e)
+      // error handling is done within callback since operation is async
     }
   })
 }

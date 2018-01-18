@@ -61,7 +61,7 @@ class ClientResolver extends events.EventEmitter {
 }
 exports.ClientResolver = ClientResolver;
 // Promisify the async resolve function
-const resolveModule = (id, opts) => {
+exports.resolveModule = (id, opts = {}) => {
     return new Promise((resolve, reject) => Resolve(id, opts, (err, result) => {
         if (err) {
             reject(err);
@@ -74,7 +74,7 @@ const resolveModule = (id, opts) => {
 function resolveServer(sourcePath) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { NODE_PATH } = process.env;
-        const resolvedPath = yield resolveModule("typescript/bin/tsserver", {
+        const resolvedPath = yield exports.resolveModule("typescript/bin/tsserver", {
             basedir: path.dirname(sourcePath),
             paths: NODE_PATH && NODE_PATH.split(path.delimiter),
         });
