@@ -17,14 +17,9 @@ interface DiagnosticsPayload {
   type: DiagnosticTypes
 }
 
-interface Server {
+interface Binary {
   version: string
-  serverPath: string
-}
-
-const defaultServer: Server = {
-  serverPath: require.resolve("typescript/bin/tsserver"),
-  version: require("typescript").version,
+  pathToBin: string
 }
 
 /**
@@ -47,44 +42,42 @@ export class ClientResolver extends events.EventEmitter {
   }
 
   get(pFilePath: string): Promise<Client> {
-    return resolveServer(pFilePath)
-      .catch(() => defaultServer)
-      .then(({serverPath, version}) => {
-        if (this.clients[serverPath]) {
-          return this.clients[serverPath].client
-        }
+    return resolveBinary(pFilePath, "tsserver").then(({pathToBin, version}) => {
+      if (this.clients[pathToBin]) {
+        return this.clients[pathToBin].client
+      }
 
-        const entry = this.addClient(serverPath, new Client(serverPath, version))
+      const entry = this.addClient(pathToBin, new Client(pathToBin, version))
 
-        entry.client.startServer()
+      entry.client.startServer()
 
-        entry.client.on("pendingRequestsChange", pending => {
-          entry.pending = pending
-          this.emit("pendingRequestsChange")
-        })
-
-        const diagnosticHandler = (
-          type: string,
-          result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
-        ) => {
-          const filePath = isConfDiagBody(result) ? result.configFile : result.file
-
-          if (filePath) {
-            this.emit("diagnostics", {
-              type,
-              serverPath,
-              filePath,
-              diagnostics: result.diagnostics,
-            })
-          }
-        }
-
-        entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"))
-        entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"))
-        entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"))
-
-        return entry.client
+      entry.client.on("pendingRequestsChange", pending => {
+        entry.pending = pending
+        this.emit("pendingRequestsChange")
       })
+
+      const diagnosticHandler = (
+        type: string,
+        result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
+      ) => {
+        const filePath = isConfDiagBody(result) ? result.configFile : result.file
+
+        if (filePath) {
+          this.emit("diagnostics", {
+            type,
+            pathToBin,
+            filePath,
+            diagnostics: result.diagnostics,
+          })
+        }
+      }
+
+      entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"))
+      entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"))
+      entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"))
+
+      return entry.client
+    })
   }
 
   addClient(serverPath: string, client: Client) {
@@ -98,7 +91,7 @@ export class ClientResolver extends events.EventEmitter {
 }
 
 // Promisify the async resolve function
-export const resolveModule = (id: string, opts: Resolve.AsyncOpts = {}): Promise<string> => {
+const resolveModule = (id: string, opts: Resolve.AsyncOpts): Promise<string> => {
   return new Promise<string>((resolve, reject) =>
     Resolve(id, opts, (err, result) => {
       if (err) {
@@ -110,20 +103,21 @@ export const resolveModule = (id: string, opts: Resolve.AsyncOpts = {}): Promise
   )
 }
 
-export async function resolveServer(sourcePath: string): Promise<Server> {
+export async function resolveBinary(sourcePath: string, binName: string): Promise<Binary> {
   const {NODE_PATH} = process.env
+  const defaultPath = require.resolve(`typescript/bin/${binName}`)
 
-  const resolvedPath = await resolveModule("typescript/bin/tsserver", {
+  const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
     basedir: path.dirname(sourcePath),
     paths: NODE_PATH && NODE_PATH.split(path.delimiter),
-  })
+  }).catch(() => defaultPath)
 
   const packagePath = path.resolve(resolvedPath, "../../package.json")
   const version = require(packagePath).version
 
   return {
     version,
-    serverPath: resolvedPath,
+    pathToBin: resolvedPath,
   }
 }
 

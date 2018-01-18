@@ -1,42 +1,69 @@
 import {commands} from "./registry"
-import {resolveModule} from "../../../client/clientResolver"
+import {resolveBinary} from "../../../client/clientResolver"
 import {execFile} from "child_process"
 
 commands.set("typescript:initialize-config", () => {
-  return async e => {
-    const projectDirs = atom.project.getDirectories()
-
-    if (projectDirs.length === 0) {
-      e.abortKeyBinding()
-      return
-    }
-
+  return async ev => {
+    let projectDirs
     let editor
     let currentPath
+    let pathToTsc
 
     try {
+      projectDirs = atom.project.getDirectories()
+
+      if (projectDirs.length === 0) {
+        throw new Error("ENOPROJECT")
+      }
+
       editor = atom.workspace.getActiveTextEditor()
 
       if (!editor) {
-        throw new Error("There is no active text editor available.")
+        throw new Error("ENOEDITOR")
       }
 
       currentPath = editor.getPath()
 
       if (!currentPath) {
-        throw new Error("There is no active filepath available.")
+        throw new Error("ENOPATH")
       }
     } catch (e) {
-      console.error(e.message)
+      switch (e.message) {
+        case "ENOPROJECT":
+        case "ENOEDITOR":
+          ev.abortKeyBinding()
+          return
+        default:
+          if (e.stack) {
+            atom.notifications.addFatalError("Something went wrong, see details below.", {
+              detail: e.message,
+              dismissable: true,
+              stack: e.stack,
+            })
+          } else {
+            atom.notifications.addError("Unknown error has occured.", {
+              detail: e.message,
+              dismissable: true,
+            })
+          }
+      }
     }
 
-    const pathToTsc = await resolveModule("typescript/bin/tsc").catch(() =>
-      require.resolve("typescript/bin/tsc"),
-    )
+    if (currentPath) {
+      pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
+    }
 
-    for (const projectDir of projectDirs) {
-      if (currentPath && projectDir.contains(currentPath)) {
-        await initConfig(pathToTsc, projectDir.getPath())
+    if (projectDirs) {
+      for (const projectDir of projectDirs) {
+        if (currentPath && projectDir.contains(currentPath) && pathToTsc) {
+          await initConfig(pathToTsc, projectDir.getPath()).catch(e => {
+            atom.notifications.addFatalError("Something went wrong, see details below.", {
+              detail: e.message,
+              dismissable: true,
+              stack: e.stack,
+            })
+          })
+        }
       }
     }
   }
@@ -60,7 +87,7 @@ const initConfig = (tsc: string, projectRoot: string): Promise<void> => {
         },
       )
     } catch (e) {
-      // error handling is done within callback since operation is async
+      reject(e)
     }
   })
 }
