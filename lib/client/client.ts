@@ -30,19 +30,13 @@ export const commandWithResponse = new Set([
 
 export class TypescriptServiceClient {
   /** Callbacks that are waiting for responses */
-  callbacks: Callbacks
+  private callbacks: Callbacks
 
   private events = new EventEmitter()
   private seq = 0
 
-  /** The tsserver child process */
-  server: ChildProcess
-
   /** Promise that resolves when the server is ready to accept requests */
-  serverPromise?: Promise<ChildProcess>
-
-  /** Extra args passed to the tsserver executable */
-  readonly tsServerArgs: string[] = []
+  private serverPromise?: Promise<ChildProcess>
 
   constructor(public tsServerPath: string, public version: string) {
     this.callbacks = new Callbacks(this.emitPendingRequests)
@@ -337,7 +331,7 @@ export class TypescriptServiceClient {
           console.log("starting", this.tsServerPath)
         }
 
-        const cp = startServer(this.tsServerPath, this.tsServerArgs)
+        const cp = startServer(this.tsServerPath)
 
         cp.once("error", exitHandler)
         cp.once("exit", exitHandler)
@@ -357,7 +351,9 @@ export class TypescriptServiceClient {
   }
 }
 
-function startServer(tsServerPath: string, tsServerArgs: string[]): ChildProcess {
+function startServer(tsServerPath: string): ChildProcess {
+  const locale = atom.config.get("atom-typescript.locale")
+  const tsServerArgs: string[] = locale ? ["--locale", locale] : []
   if (INSPECT_TSSERVER) {
     return new BufferedProcess({
       command: "node",

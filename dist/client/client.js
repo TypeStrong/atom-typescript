@@ -31,8 +31,6 @@ class TypescriptServiceClient {
         this.version = version;
         this.events = new events_1.EventEmitter();
         this.seq = 0;
-        /** Extra args passed to the tsserver executable */
-        this.tsServerArgs = [];
         this.emitPendingRequests = (pending) => {
             this.events.emit("pendingRequestsChange", pending);
         };
@@ -193,7 +191,7 @@ class TypescriptServiceClient {
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
                 }
-                const cp = startServer(this.tsServerPath, this.tsServerArgs);
+                const cp = startServer(this.tsServerPath);
                 cp.once("error", exitHandler);
                 cp.once("exit", exitHandler);
                 // Pipe both stdout and stderr appropriately
@@ -211,7 +209,9 @@ class TypescriptServiceClient {
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
-function startServer(tsServerPath, tsServerArgs) {
+function startServer(tsServerPath) {
+    const locale = atom.config.get("atom-typescript.locale");
+    const tsServerArgs = locale ? ["--locale", locale] : [];
     if (INSPECT_TSSERVER) {
         return new atom_1.BufferedProcess({
             command: "node",
