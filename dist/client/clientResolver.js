@@ -5,10 +5,6 @@ const client_1 = require("./client");
 const events = require("events");
 const path = require("path");
 const Resolve = require("resolve");
-const defaultServer = {
-    serverPath: require.resolve("typescript/bin/tsserver"),
-    version: require("typescript").version,
-};
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.
@@ -22,32 +18,31 @@ class ClientResolver extends events.EventEmitter {
         return super.on(event, callback);
     }
     get(pFilePath) {
-        return resolveServer(pFilePath)
-            .catch(() => defaultServer)
-            .then(({ serverPath, version }) => {
-            if (this.clients[serverPath]) {
-                return this.clients[serverPath].client;
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { pathToBin, version } = yield resolveBinary(pFilePath, "tsserver");
+            if (this.clients[pathToBin]) {
+                return this.clients[pathToBin].client;
             }
-            const entry = this.addClient(serverPath, new client_1.TypescriptServiceClient(serverPath, version));
+            const entry = this.addClient(pathToBin, new client_1.TypescriptServiceClient(pathToBin, version));
             entry.client.startServer();
             entry.client.on("pendingRequestsChange", pending => {
                 entry.pending = pending;
                 this.emit("pendingRequestsChange");
             });
-            const diagnosticHandler = (type, result) => {
+            const diagnosticHandler = (type) => (result) => {
                 const filePath = isConfDiagBody(result) ? result.configFile : result.file;
                 if (filePath) {
                     this.emit("diagnostics", {
                         type,
-                        serverPath,
+                        pathToBin,
                         filePath,
                         diagnostics: result.diagnostics,
                     });
                 }
             };
-            entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"));
-            entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"));
-            entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"));
+            entry.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
+            entry.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
+            entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
             return entry.client;
         });
     }
@@ -71,22 +66,23 @@ const resolveModule = (id, opts) => {
         }
     }));
 };
-function resolveServer(sourcePath) {
+function resolveBinary(sourcePath, binName) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { NODE_PATH } = process.env;
-        const resolvedPath = yield resolveModule("typescript/bin/tsserver", {
+        const defaultPath = require.resolve(`typescript/bin/${binName}`);
+        const resolvedPath = yield resolveModule(`typescript/bin/${binName}`, {
             basedir: path.dirname(sourcePath),
             paths: NODE_PATH && NODE_PATH.split(path.delimiter),
-        });
+        }).catch(() => defaultPath);
         const packagePath = path.resolve(resolvedPath, "../../package.json");
         const version = require(packagePath).version;
         return {
             version,
-            serverPath: resolvedPath,
+            pathToBin: resolvedPath,
         };
     });
 }
-exports.resolveServer = resolveServer;
+exports.resolveBinary = resolveBinary;
 function isConfDiagBody(body) {
     return body && body.triggerFile && body.configFile;
 }
