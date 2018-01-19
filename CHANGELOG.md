@@ -1,3 +1,22 @@
+## Next (d6ab34d4)
+
+-   Show build error when "Emit failed" is clicked
+-   Re-add progress bar for emit
+-   Hide successful build status report "Emit success" after a
+    configurable delay
+-   Use [Etch](https://github.com/atom/etch) as the GUI framework
+    instead of deprecated space-pen or direct DOM manipulation
+-   Switch to ES2017 target
+-   Update dependencies
+-   Add `typescript:initialize-config` command
+    ([\#1248](https://github.com/TypeStrong/atom-typescript/issues/1248))
+    (by Paul Ermolin)
+-   Documentation updates
+-   Remove obsolete `filesGlob` snippet
+-   Don't use deprecated `.editor` class in grammar style
+-   Add locale setting to control TypeScript's message locale
+    ([\#1371](https://github.com/TypeStrong/atom-typescript/issues/1371))
+
 ## 12.0.0
 
 -   **Switch to Atom's TypeScript grammar** (potentially
