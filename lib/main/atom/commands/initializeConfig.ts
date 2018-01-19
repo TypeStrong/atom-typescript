@@ -6,22 +6,13 @@ commands.set("typescript:initialize-config", () => {
   return async ev => {
     try {
       const projectDirs = atom.project.getDirectories()
-
-      if (projectDirs.length === 0) {
-        throw new Error("ENOPROJECT")
-      }
+      if (projectDirs.length === 0) throw new Error("ENOPROJECT")
 
       const editor = atom.workspace.getActiveTextEditor()
-
-      if (!editor) {
-        throw new Error("ENOEDITOR")
-      }
+      if (!editor) throw new Error("ENOEDITOR")
 
       const currentPath = editor.getPath()
-
-      if (!currentPath) {
-        throw new Error("ENOPATH")
-      }
+      if (!currentPath) throw new Error("ENOPATH")
 
       const pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
 
@@ -55,23 +46,13 @@ commands.set("typescript:initialize-config", () => {
   }
 })
 
-const initConfig = (tsc: string, projectRoot: string): Promise<void> => {
+function initConfig(tsc: string, projectRoot: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     try {
-      execFile(
-        tsc,
-        ["--init"],
-        {
-          cwd: projectRoot,
-        },
-        err => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve()
-          }
-        },
-      )
+      execFile(tsc, ["--init"], {cwd: projectRoot}, err => {
+        if (err) reject(err)
+        else resolve()
+      })
     } catch (e) {
       reject(e)
     }

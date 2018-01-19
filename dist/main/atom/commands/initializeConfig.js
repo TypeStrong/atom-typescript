@@ -8,17 +8,14 @@ registry_1.commands.set("typescript:initialize-config", () => {
     return (ev) => tslib_1.__awaiter(this, void 0, void 0, function* () {
         try {
             const projectDirs = atom.project.getDirectories();
-            if (projectDirs.length === 0) {
+            if (projectDirs.length === 0)
                 throw new Error("ENOPROJECT");
-            }
             const editor = atom.workspace.getActiveTextEditor();
-            if (!editor) {
+            if (!editor)
                 throw new Error("ENOEDITOR");
-            }
             const currentPath = editor.getPath();
-            if (!currentPath) {
+            if (!currentPath)
                 throw new Error("ENOPATH");
-            }
             const pathToTsc = (yield clientResolver_1.resolveBinary(currentPath, "tsc")).pathToBin;
             for (const projectDir of projectDirs) {
                 if (projectDir.contains(currentPath)) {
@@ -47,23 +44,19 @@ registry_1.commands.set("typescript:initialize-config", () => {
         }
     });
 });
-const initConfig = (tsc, projectRoot) => {
+function initConfig(tsc, projectRoot) {
     return new Promise((resolve, reject) => {
         try {
-            child_process_1.execFile(tsc, ["--init"], {
-                cwd: projectRoot,
-            }, err => {
-                if (err) {
+            child_process_1.execFile(tsc, ["--init"], { cwd: projectRoot }, err => {
+                if (err)
                     reject(err);
-                }
-                else {
+                else
                     resolve();
-                }
             });
         }
         catch (e) {
             reject(e);
         }
     });
-};
+}
 //# sourceMappingURL=initializeConfig.js.map
