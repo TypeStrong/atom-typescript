@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const Atom = require("atom");
 const atomts_1 = require("../../atomts");
 function pointToLocation(point) {
@@ -53,12 +52,10 @@ function isLocationInRange(loc, range) {
     return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1;
 }
 exports.isLocationInRange = isLocationInRange;
-function getProjectCodeSettings(filePath, configFile) {
-    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const config = yield atomts_1.loadProjectConfig(filePath, configFile);
-        const options = config.formatCodeOptions;
-        return Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options);
-    });
+async function getProjectCodeSettings(filePath, configFile) {
+    const config = await atomts_1.loadProjectConfig(filePath, configFile);
+    const options = config.formatCodeOptions;
+    return Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options);
 }
 exports.getProjectCodeSettings = getProjectCodeSettings;
 //# sourceMappingURL=ts.js.map

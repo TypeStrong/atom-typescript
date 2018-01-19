@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
@@ -26,17 +25,17 @@ class TypescriptEditorPane {
                         files: [this.filePath],
                         delay: 100,
                     });
-                    this.opts.statusPanel.setVersion(this.client.version);
+                    this.opts.statusPanel.update({ version: this.client.version });
                 }
             }
-            this.opts.statusPanel.setTsConfigPath(this.configFile);
+            this.opts.statusPanel.update({ tsConfigPath: this.configFile });
         };
         this.onChanged = () => {
             if (!this.client)
                 return;
             if (!this.filePath)
                 return;
-            this.opts.statusPanel.setBuildStatus(undefined);
+            this.opts.statusPanel.update({ buildStatus: undefined });
             this.client.executeGetErr({
                 files: [this.filePath],
                 delay: 100,
@@ -46,14 +45,14 @@ class TypescriptEditorPane {
             this.isActive = false;
             this.opts.statusPanel.hide();
         };
-        this.updateMarkers = lodash_1.debounce(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        this.updateMarkers = lodash_1.debounce(async () => {
             if (!this.client)
                 return;
             if (!this.filePath)
                 return;
             const pos = this.editor.getLastCursor().getBufferPosition();
             try {
-                const result = yield this.client.executeOccurances({
+                const result = await this.client.executeOccurances({
                     file: this.filePath,
                     line: pos.row + 1,
                     offset: pos.column + 1,
@@ -72,7 +71,7 @@ class TypescriptEditorPane {
                     console.error(e);
             }
             this.clearOccurrenceMarkers();
-        }), 100);
+        }, 100);
         this.onDidChangeCursorPosition = ({ textChanged }) => {
             if (!this.isTypescript || !this.isOpen)
                 return;
@@ -85,16 +84,16 @@ class TypescriptEditorPane {
         this.onDidDestroy = () => {
             this.dispose();
         };
-        this.onOpened = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        this.onOpened = async () => {
             const filePath = this.editor.getPath();
             this.filePath = filePath;
             if (!filePath)
                 return;
-            this.client = yield this.opts.getClient(filePath);
+            this.client = await this.opts.getClient(filePath);
             // onOpened might trigger before onActivated so we can't rely on isActive flag
             if (atom.workspace.getActiveTextEditor() === this.editor) {
                 this.isActive = true;
-                this.opts.statusPanel.setVersion(this.client.version);
+                this.opts.statusPanel.update({ version: this.client.version });
             }
             if (this.isTypescript) {
                 this.client.executeGetErr({
@@ -103,13 +102,13 @@ class TypescriptEditorPane {
                 });
                 this.isOpen = true;
                 try {
-                    const result = yield this.client.executeProjectInfo({
+                    const result = await this.client.executeProjectInfo({
                         needFileNameList: false,
                         file: filePath,
                     });
                     this.configFile = result.body.configFileName;
                     if (this.isActive) {
-                        this.opts.statusPanel.setTsConfigPath(this.configFile);
+                        this.opts.statusPanel.update({ tsConfigPath: this.configFile });
                     }
                     utils_1.getProjectCodeSettings(filePath, this.configFile).then(options => {
                         this.client.executeConfigure({
@@ -123,7 +122,7 @@ class TypescriptEditorPane {
                         console.error(e);
                 }
             }
-        });
+        };
         this.onSaved = () => {
             this.filePath = this.editor.getPath();
             this.opts.onSave(this);
@@ -159,37 +158,31 @@ class TypescriptEditorPane {
             marker.destroy();
         }
     }
-    compileOnSave() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { client } = this;
-            if (!client)
-                return;
-            if (!this.filePath)
-                return;
-            const result = yield client.executeCompileOnSaveAffectedFileList({
-                file: this.filePath,
-            });
-            this.opts.statusPanel.setBuildStatus(undefined);
-            const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
-            if (fileNames.length === 0)
-                return;
-            try {
-                const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
-                const saved = yield Promise.all(promises);
-                if (!saved.every(res => !!res.body)) {
-                    throw new Error("Some files failed to emit");
-                }
-                this.opts.statusPanel.setBuildStatus({
-                    success: true,
-                });
-            }
-            catch (error) {
-                console.error("Save failed with error", error);
-                this.opts.statusPanel.setBuildStatus({
-                    success: false,
-                });
-            }
+    async compileOnSave() {
+        const { client } = this;
+        if (!client)
+            return;
+        if (!this.filePath)
+            return;
+        const result = await client.executeCompileOnSaveAffectedFileList({
+            file: this.filePath,
         });
+        this.opts.statusPanel.update({ buildStatus: undefined });
+        const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
+        if (fileNames.length === 0)
+            return;
+        try {
+            const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
+            const saved = await Promise.all(promises);
+            if (!saved.every(res => !!res.body)) {
+                throw new Error("Some files failed to emit");
+            }
+            this.opts.statusPanel.update({ buildStatus: { success: true } });
+        }
+        catch (error) {
+            console.error("Save failed with error", error);
+            this.opts.statusPanel.update({ buildStatus: { success: false, message: error.message } });
+        }
     }
     setupTooltipView() {
         tooltipManager.attach(this.editor);

@@ -1,6 +1,5 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachRenameView} from "./atom/views/renameView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -19,12 +18,11 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 const subscriptions: CompositeDisposable = new CompositeDisposable()
 export const clientResolver: ClientResolver = new ClientResolver()
 const panes: TypescriptEditorPane[] = []
-const statusPanel: StatusPanel = StatusPanel.create()
+const statusPanel: StatusPanel = new StatusPanel()
 const errorPusher: ErrorPusher = new ErrorPusher()
 const codefixProvider: CodefixProvider = new CodefixProvider(clientResolver)
 
 // Register all custom components
-import "./atom/components"
 import {registerCommands} from "./atom/commands"
 
 export async function activate() {
@@ -33,8 +31,7 @@ export async function activate() {
     await require("atom-package-deps").install("atom-typescript", true)
   }
 
-  // Add the rename view
-  const {renameView} = attachRenameView()
+  require("etch").setScheduler(atom.views)
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -48,7 +45,7 @@ export async function activate() {
 
   clientResolver.on("pendingRequestsChange", () => {
     const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
-    statusPanel.setPending(pending)
+    statusPanel.update({pending})
   })
 
   // Register the commands
@@ -65,7 +62,6 @@ export async function activate() {
 
       return clientResolver.get(filePath)
     },
-    renameView,
     statusPanel,
   })
 

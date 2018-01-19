@@ -1,6 +1,7 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {spanToRange} from "../utils"
+import {showRenameDialog} from "../views/renameView"
 
 commands.set("typescript:rename-refactor", deps => {
   return async e => {
@@ -21,7 +22,7 @@ commands.set("typescript:rename-refactor", deps => {
       return atom.notifications.addInfo("AtomTS: Rename not available at cursor location")
     }
 
-    const newName = await deps.renameView.showRenameDialog({
+    const newName = await showRenameDialog({
       autoSelect: true,
       title: "Rename Variable",
       text: info.displayName,
@@ -36,21 +37,21 @@ commands.set("typescript:rename-refactor", deps => {
       },
     })
 
-    locs.map(async loc => {
-      const {buffer, isOpen} = await deps.getTypescriptBuffer(loc.file)
+    if (newName !== undefined) {
+      locs.map(async loc => {
+        const {buffer, isOpen} = await deps.getTypescriptBuffer(loc.file)
 
-      buffer.buffer.transact(() => {
-        for (const span of loc.locs) {
-          buffer.buffer.setTextInRange(spanToRange(span), newName)
+        buffer.buffer.transact(() => {
+          for (const span of loc.locs) {
+            buffer.buffer.setTextInRange(spanToRange(span), newName)
+          }
+        })
+
+        if (!isOpen) {
+          await buffer.buffer.save()
+          buffer.buffer.destroy()
         }
       })
-
-      if (!isOpen) {
-        buffer.buffer.save()
-        buffer.on("saved", () => {
-          buffer.buffer.destroy()
-        })
-      }
-    })
+    }
   }
 })

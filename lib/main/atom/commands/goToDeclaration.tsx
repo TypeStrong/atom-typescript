@@ -1,6 +1,7 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
-import {simpleSelectionView} from "../views/simpleSelectionView"
+import {selectListView} from "../views/simpleSelectionView"
+import * as etch from "etch"
 
 const prevCursorPositions: FileLocationQuery[] = []
 
@@ -41,28 +42,30 @@ commands.set("typescript:return-from-declaration", () => {
   }
 })
 
-export function handleDefinitionResult(
+export async function handleDefinitionResult(
   result: protocol.DefinitionResponse,
   location: FileLocationQuery,
-): void {
+): Promise<void> {
   if (!result.body) {
     return
   } else if (result.body.length > 1) {
-    simpleSelectionView({
+    const res = await selectListView({
       items: result.body,
-      viewForItem: item => {
-        return `
-            <span>${item.file}</span>
-            <div class="pull-right">line: ${item.start.line}</div>
-        `
+      itemTemplate: item => {
+        return (
+          <div>
+            <span>{item.file}</span>
+            <div class="pull-right">line: {item.start.line}</div>
+          </div>
+        )
       },
-      filterKey: "filePath",
-      confirmed: item => {
-        prevCursorPositions.push(location)
-        open(item)
-      },
+      itemFilterKey: "file",
     })
-  } else {
+    if (res) {
+      prevCursorPositions.push(location)
+      open(res)
+    }
+  } else if (result.body.length) {
     prevCursorPositions.push(location)
     open(result.body[0])
   }

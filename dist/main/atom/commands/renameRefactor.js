@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const utils_2 = require("../utils");
+const renameView_1 = require("../views/renameView");
 registry_1.commands.set("typescript:rename-refactor", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+    return async (e) => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
@@ -14,13 +14,13 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
             e.abortKeyBinding();
             return;
         }
-        const client = yield deps.getClient(location.file);
-        const response = yield client.executeRename(location);
+        const client = await deps.getClient(location.file);
+        const response = await client.executeRename(location);
         const { info, locs } = response.body;
         if (!info.canRename) {
             return atom.notifications.addInfo("AtomTS: Rename not available at cursor location");
         }
-        const newName = yield deps.renameView.showRenameDialog({
+        const newName = await renameView_1.showRenameDialog({
             autoSelect: true,
             title: "Rename Variable",
             text: info.displayName,
@@ -34,20 +34,20 @@ registry_1.commands.set("typescript:rename-refactor", deps => {
                 return "";
             },
         });
-        locs.map((loc) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { buffer, isOpen } = yield deps.getTypescriptBuffer(loc.file);
-            buffer.buffer.transact(() => {
-                for (const span of loc.locs) {
-                    buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
+        if (newName !== undefined) {
+            locs.map(async (loc) => {
+                const { buffer, isOpen } = await deps.getTypescriptBuffer(loc.file);
+                buffer.buffer.transact(() => {
+                    for (const span of loc.locs) {
+                        buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
+                    }
+                });
+                if (!isOpen) {
+                    await buffer.buffer.save();
+                    buffer.buffer.destroy();
                 }
             });
-            if (!isOpen) {
-                buffer.buffer.save();
-                buffer.on("saved", () => {
-                    buffer.buffer.destroy();
-                });
-            }
-        }));
-    });
+        }
+    };
 });
 //# sourceMappingURL=renameRefactor.js.map
