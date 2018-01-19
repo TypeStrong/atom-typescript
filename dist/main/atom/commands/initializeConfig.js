@@ -33,19 +33,11 @@ registry_1.commands.set("typescript:initialize-config", () => {
                     ev.abortKeyBinding();
                     return;
                 default:
-                    if (e.stack) {
-                        atom.notifications.addFatalError("Something went wrong, see details below.", {
-                            detail: e.message,
-                            dismissable: true,
-                            stack: e.stack,
-                        });
-                    }
-                    else {
-                        atom.notifications.addError("Unknown error has occured.", {
-                            detail: e.message,
-                            dismissable: true,
-                        });
-                    }
+                    atom.notifications.addFatalError("Something went wrong, see details below.", {
+                        detail: e.message,
+                        dismissable: true,
+                        stack: e.stack,
+                    });
             }
         }
     });
