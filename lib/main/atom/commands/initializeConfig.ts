@@ -4,28 +4,31 @@ import {execFile} from "child_process"
 
 commands.set("typescript:initialize-config", () => {
   return async ev => {
-    let projectDirs
-    let editor
-    let currentPath
-    let pathToTsc
-
     try {
-      projectDirs = atom.project.getDirectories()
+      const projectDirs = atom.project.getDirectories()
 
       if (projectDirs.length === 0) {
         throw new Error("ENOPROJECT")
       }
 
-      editor = atom.workspace.getActiveTextEditor()
+      const editor = atom.workspace.getActiveTextEditor()
 
       if (!editor) {
         throw new Error("ENOEDITOR")
       }
 
-      currentPath = editor.getPath()
+      const currentPath = editor.getPath()
 
       if (!currentPath) {
         throw new Error("ENOPATH")
+      }
+
+      const pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
+
+      for (const projectDir of projectDirs) {
+        if (projectDir.contains(currentPath)) {
+          await initConfig(pathToTsc, projectDir.getPath())
+        }
       }
     } catch (e) {
       switch (e.message) {
@@ -46,24 +49,6 @@ commands.set("typescript:initialize-config", () => {
               dismissable: true,
             })
           }
-      }
-    }
-
-    if (currentPath) {
-      pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
-    }
-
-    if (projectDirs) {
-      for (const projectDir of projectDirs) {
-        if (currentPath && projectDir.contains(currentPath) && pathToTsc) {
-          await initConfig(pathToTsc, projectDir.getPath()).catch(e => {
-            atom.notifications.addFatalError("Something went wrong, see details below.", {
-              detail: e.message,
-              dismissable: true,
-              stack: e.stack,
-            })
-          })
-        }
       }
     }
   }

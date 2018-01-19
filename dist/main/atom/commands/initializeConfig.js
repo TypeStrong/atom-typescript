@@ -6,22 +6,24 @@ const clientResolver_1 = require("../../../client/clientResolver");
 const child_process_1 = require("child_process");
 registry_1.commands.set("typescript:initialize-config", () => {
     return (ev) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-        let projectDirs;
-        let editor;
-        let currentPath;
-        let pathToTsc;
         try {
-            projectDirs = atom.project.getDirectories();
+            const projectDirs = atom.project.getDirectories();
             if (projectDirs.length === 0) {
                 throw new Error("ENOPROJECT");
             }
-            editor = atom.workspace.getActiveTextEditor();
+            const editor = atom.workspace.getActiveTextEditor();
             if (!editor) {
                 throw new Error("ENOEDITOR");
             }
-            currentPath = editor.getPath();
+            const currentPath = editor.getPath();
             if (!currentPath) {
                 throw new Error("ENOPATH");
+            }
+            const pathToTsc = (yield clientResolver_1.resolveBinary(currentPath, "tsc")).pathToBin;
+            for (const projectDir of projectDirs) {
+                if (projectDir.contains(currentPath)) {
+                    yield initConfig(pathToTsc, projectDir.getPath());
+                }
             }
         }
         catch (e) {
@@ -44,22 +46,6 @@ registry_1.commands.set("typescript:initialize-config", () => {
                             dismissable: true,
                         });
                     }
-            }
-        }
-        if (currentPath) {
-            pathToTsc = (yield clientResolver_1.resolveBinary(currentPath, "tsc")).pathToBin;
-        }
-        if (projectDirs) {
-            for (const projectDir of projectDirs) {
-                if (currentPath && projectDir.contains(currentPath) && pathToTsc) {
-                    yield initConfig(pathToTsc, projectDir.getPath()).catch(e => {
-                        atom.notifications.addFatalError("Something went wrong, see details below.", {
-                            detail: e.message,
-                            dismissable: true,
-                            stack: e.stack,
-                        });
-                    });
-                }
             }
         }
     });
