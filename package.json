@@ -35,6 +35,13 @@
       "description": "Use this locale for TypeScript messages (e.g. 'de'). Requires Atom restart",
       "type": "string",
       "default": "en"
+    },
+    "buildStatusTimeout": {
+      "title": "Build status visibility timeout",
+      "description":
+        "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
+      "type": "number",
+      "default": "10"
     }
   },
   "consumedServices": {

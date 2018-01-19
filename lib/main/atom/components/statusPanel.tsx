@@ -13,6 +13,7 @@ export interface Props extends JSX.Props {
 
 export class StatusPanel implements JSX.ElementClass {
   public props: Props
+  private buildStatusTimeout?: number
 
   constructor(props: Partial<Props> = {}) {
     this.props = {
@@ -20,10 +21,12 @@ export class StatusPanel implements JSX.ElementClass {
       ...props,
     }
     etch.initialize(this)
+    this.resetBuildStatusTimeout()
   }
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
+    this.resetBuildStatusTimeout()
     await etch.update(this)
   }
 
@@ -45,6 +48,23 @@ export class StatusPanel implements JSX.ElementClass {
 
   public dispose() {
     this.destroy()
+  }
+
+  private resetBuildStatusTimeout() {
+    if (this.buildStatusTimeout) {
+      window.clearTimeout(this.buildStatusTimeout)
+      this.buildStatusTimeout = undefined
+    }
+    if (this.props.buildStatus && this.props.buildStatus.success) {
+      const timeout = atom.config.get("atom-typescript.buildStatusTimeout")
+      if (timeout > 0) {
+        this.buildStatusTimeout = window.setTimeout(() => {
+          this.update({buildStatus: undefined})
+        }, timeout * 1000)
+      } else if (timeout === 0) {
+        this.update({buildStatus: undefined})
+      }
+    }
   }
 
   private openConfigPath() {

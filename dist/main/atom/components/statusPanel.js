@@ -7,9 +7,11 @@ class StatusPanel {
     constructor(props = {}) {
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
+        this.resetBuildStatusTimeout();
     }
     async update(props) {
         this.props = Object.assign({}, this.props, props);
+        this.resetBuildStatusTimeout();
         await etch.update(this);
     }
     render() {
@@ -25,6 +27,23 @@ class StatusPanel {
     }
     dispose() {
         this.destroy();
+    }
+    resetBuildStatusTimeout() {
+        if (this.buildStatusTimeout) {
+            window.clearTimeout(this.buildStatusTimeout);
+            this.buildStatusTimeout = undefined;
+        }
+        if (this.props.buildStatus && this.props.buildStatus.success) {
+            const timeout = atom.config.get("atom-typescript.buildStatusTimeout");
+            if (timeout > 0) {
+                this.buildStatusTimeout = window.setTimeout(() => {
+                    this.update({ buildStatus: undefined });
+                }, timeout * 1000);
+            }
+            else if (timeout === 0) {
+                this.update({ buildStatus: undefined });
+            }
+        }
     }
     openConfigPath() {
         if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
