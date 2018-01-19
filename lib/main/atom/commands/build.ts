@@ -38,7 +38,7 @@ commands.set("typescript:build", deps => {
       deps.statusPanel.update({buildStatus: {success: true}})
     } catch (err) {
       console.error(err)
-      deps.statusPanel.update({buildStatus: {success: false}})
+      deps.statusPanel.update({buildStatus: {success: false, message: err.message}})
     }
   }
 })

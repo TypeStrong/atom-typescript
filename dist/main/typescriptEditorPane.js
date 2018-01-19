@@ -177,19 +177,11 @@ class TypescriptEditorPane {
             if (!saved.every(res => !!res.body)) {
                 throw new Error("Some files failed to emit");
             }
-            this.opts.statusPanel.update({
-                buildStatus: {
-                    success: true,
-                },
-            });
+            this.opts.statusPanel.update({ buildStatus: { success: true } });
         }
         catch (error) {
             console.error("Save failed with error", error);
-            this.opts.statusPanel.update({
-                buildStatus: {
-                    success: false,
-                },
-            });
+            this.opts.statusPanel.update({ buildStatus: { success: false, message: error.message } });
         }
     }
     setupTooltipView() {

@@ -5,6 +5,14 @@ const path_1 = require("path");
 const utils_1 = require("../utils");
 class StatusPanel {
     constructor(props = {}) {
+        this.buildStatusClicked = () => {
+            if (this.props.buildStatus && !this.props.buildStatus.success) {
+                atom.notifications.addError("Build failed", {
+                    detail: this.props.buildStatus.message,
+                    dismissable: true,
+                });
+            }
+        };
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
         this.resetBuildStatusTimeout();
@@ -109,7 +117,7 @@ class StatusPanel {
                 text = "Emit Failed";
             }
             return (etch.dom("div", { ref: "statusContainer", className: "inline-block" },
-                etch.dom("span", { ref: "statusText", class: cls }, text)));
+                etch.dom("span", { ref: "statusText", class: cls, on: { click: this.buildStatusClicked } }, text)));
         }
         return null;
     }

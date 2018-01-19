@@ -6,7 +6,7 @@ export interface Props extends JSX.Props {
   version?: string
   pending?: string[]
   tsConfigPath?: string
-  buildStatus?: {success: boolean}
+  buildStatus?: {success: true} | {success: false; message: string}
   progress?: {max: number; value: number}
   visible: boolean
 }
@@ -160,13 +160,22 @@ export class StatusPanel implements JSX.ElementClass {
       }
       return (
         <div ref="statusContainer" className="inline-block">
-          <span ref="statusText" class={cls}>
+          <span ref="statusText" class={cls} on={{click: this.buildStatusClicked}}>
             {text}
           </span>
         </div>
       )
     }
     return null
+  }
+
+  private buildStatusClicked = () => {
+    if (this.props.buildStatus && !this.props.buildStatus.success) {
+      atom.notifications.addError("Build failed", {
+        detail: this.props.buildStatus.message,
+        dismissable: true,
+      })
+    }
   }
 
   private renderProgress(): JSX.Element | null {
