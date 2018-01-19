@@ -32,6 +32,11 @@ registry_1.commands.set("typescript:initialize-config", () => {
                 case "ENOEDITOR":
                     ev.abortKeyBinding();
                     return;
+                case "ENOPATH":
+                    atom.notifications.addWarning("Current editor has no file path. Can not determine which project to initialize", {
+                        dismissable: true,
+                    });
+                    return;
                 default:
                     atom.notifications.addFatalError("Something went wrong, see details below.", {
                         detail: e.message,
