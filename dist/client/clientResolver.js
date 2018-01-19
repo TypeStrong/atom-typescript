@@ -18,7 +18,8 @@ class ClientResolver extends events.EventEmitter {
         return super.on(event, callback);
     }
     get(pFilePath) {
-        return resolveBinary(pFilePath, "tsserver").then(({ pathToBin, version }) => {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { pathToBin, version } = yield resolveBinary(pFilePath, "tsserver");
             if (this.clients[pathToBin]) {
                 return this.clients[pathToBin].client;
             }
@@ -28,7 +29,7 @@ class ClientResolver extends events.EventEmitter {
                 entry.pending = pending;
                 this.emit("pendingRequestsChange");
             });
-            const diagnosticHandler = (type, result) => {
+            const diagnosticHandler = (type) => (result) => {
                 const filePath = isConfDiagBody(result) ? result.configFile : result.file;
                 if (filePath) {
                     this.emit("diagnostics", {
@@ -39,9 +40,9 @@ class ClientResolver extends events.EventEmitter {
                     });
                 }
             };
-            entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"));
-            entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"));
-            entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"));
+            entry.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
+            entry.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
+            entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
             return entry.client;
         });
     }

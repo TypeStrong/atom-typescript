@@ -41,43 +41,42 @@ export class ClientResolver extends events.EventEmitter {
     return super.on(event, callback)
   }
 
-  get(pFilePath: string): Promise<Client> {
-    return resolveBinary(pFilePath, "tsserver").then(({pathToBin, version}) => {
-      if (this.clients[pathToBin]) {
-        return this.clients[pathToBin].client
-      }
+  async get(pFilePath: string): Promise<Client> {
+    const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
 
-      const entry = this.addClient(pathToBin, new Client(pathToBin, version))
+    if (this.clients[pathToBin]) {
+      return this.clients[pathToBin].client
+    }
 
-      entry.client.startServer()
+    const entry = this.addClient(pathToBin, new Client(pathToBin, version))
 
-      entry.client.on("pendingRequestsChange", pending => {
-        entry.pending = pending
-        this.emit("pendingRequestsChange")
-      })
+    entry.client.startServer()
 
-      const diagnosticHandler = (
-        type: string,
-        result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
-      ) => {
-        const filePath = isConfDiagBody(result) ? result.configFile : result.file
-
-        if (filePath) {
-          this.emit("diagnostics", {
-            type,
-            pathToBin,
-            filePath,
-            diagnostics: result.diagnostics,
-          })
-        }
-      }
-
-      entry.client.on("configFileDiag", diagnosticHandler.bind(this, "configFileDiag"))
-      entry.client.on("semanticDiag", diagnosticHandler.bind(this, "semanticDiag"))
-      entry.client.on("syntaxDiag", diagnosticHandler.bind(this, "syntaxDiag"))
-
-      return entry.client
+    entry.client.on("pendingRequestsChange", pending => {
+      entry.pending = pending
+      this.emit("pendingRequestsChange")
     })
+
+    const diagnosticHandler = (type: string) => (
+      result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
+    ) => {
+      const filePath = isConfDiagBody(result) ? result.configFile : result.file
+
+      if (filePath) {
+        this.emit("diagnostics", {
+          type,
+          pathToBin,
+          filePath,
+          diagnostics: result.diagnostics,
+        })
+      }
+    }
+
+    entry.client.on("configFileDiag", diagnosticHandler("configFileDiag"))
+    entry.client.on("semanticDiag", diagnosticHandler("semanticDiag"))
+    entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
+
+    return entry.client
   }
 
   addClient(serverPath: string, client: Client) {
