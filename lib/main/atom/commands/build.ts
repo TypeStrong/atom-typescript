@@ -22,26 +22,25 @@ commands.set("typescript:build", deps => {
 
     const files = new Set(projectInfo.body!.fileNames)
     files.delete(projectInfo.body!.configFileName)
+    let filesSoFar = 0
     const promises = [...files.values()].map(f =>
       _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
-        files.delete(file)
+        deps.statusPanel.update({progress: {max: files.size, value: (filesSoFar += 1)}})
       }),
     )
 
-    Promise.all(promises)
-      .then(results => {
-        if (results.some(result => result.body === false)) {
-          throw new Error("Emit failed")
-        }
+    try {
+      const results = await Promise.all(promises)
+      if (results.some(result => result.body === false)) {
+        throw new Error("Emit failed")
+      }
+      deps.statusPanel.update({buildStatus: {success: true}})
+    } catch (err) {
+      console.error(err)
+      deps.statusPanel.update({buildStatus: {success: false}})
+    }
 
-        deps.statusPanel.update({buildStatus: {success: true}})
-      })
-      .catch(err => {
-        console.error(err)
-        deps.statusPanel.update({buildStatus: {success: false}})
-      })
-
-    deps.statusPanel.update({buildStatus: undefined})
+    deps.statusPanel.update({progress: undefined})
   }
 })
 
