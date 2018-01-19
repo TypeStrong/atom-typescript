@@ -26,6 +26,7 @@ commands.set("typescript:build", deps => {
     const promises = [...files.values()].map(f =>
       _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
         deps.statusPanel.update({progress: {max: files.size, value: (filesSoFar += 1)}})
+        if (files.size <= filesSoFar) deps.statusPanel.update({progress: undefined})
       }),
     )
 
@@ -39,8 +40,6 @@ commands.set("typescript:build", deps => {
       console.error(err)
       deps.statusPanel.update({buildStatus: {success: false}})
     }
-
-    deps.statusPanel.update({progress: undefined})
   }
 })
 

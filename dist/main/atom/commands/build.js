@@ -23,6 +23,8 @@ registry_1.commands.set("typescript:build", deps => {
         let filesSoFar = 0;
         const promises = [...files.values()].map(f => _finally(client.executeCompileOnSaveEmitFile({ file: f, forced: true }), () => {
             deps.statusPanel.update({ progress: { max: files.size, value: (filesSoFar += 1) } });
+            if (files.size <= filesSoFar)
+                deps.statusPanel.update({ progress: undefined });
         }));
         try {
             const results = await Promise.all(promises);
@@ -35,7 +37,6 @@ registry_1.commands.set("typescript:build", deps => {
             console.error(err);
             deps.statusPanel.update({ buildStatus: { success: false } });
         }
-        deps.statusPanel.update({ progress: undefined });
     };
 });
 function _finally(promise, callback) {
