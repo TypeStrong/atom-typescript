@@ -19,6 +19,9 @@ commands.set("typescript:initialize-config", () => {
       for (const projectDir of projectDirs) {
         if (projectDir.contains(currentPath)) {
           await initConfig(pathToTsc, projectDir.getPath())
+          atom.notifications.addSuccess(
+            `Successfully created tsconfig.json in ${projectDir.getPath()}`,
+          )
         }
       }
     } catch (e) {
