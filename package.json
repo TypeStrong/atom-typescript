@@ -6,6 +6,9 @@
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
   "activationHooks": ["language-typescript:grammar-used"],
+  "activationCommands": {
+    "atom-workspace": ["typescript:initialize-config"]
+  },
   "scripts": {
     "build": "tsc -p ./lib",
     "prettier": "ts-node scripts/prettier.ts write",
