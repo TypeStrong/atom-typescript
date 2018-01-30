@@ -10,7 +10,7 @@ import byline = require("byline")
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-export const commandWithResponse = new Set([
+const commandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
   "compileOnSaveEmitFile",
   "completionEntryDetails",
