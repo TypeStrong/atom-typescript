@@ -132,6 +132,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
         offset: pos.column + 1,
       })
 
+      this.clearOccurrenceMarkers()
       for (const ref of result.body!) {
         const marker = this.editor.markBufferRange(spanToRange(ref))
         this.editor.decorateMarker(marker, {
@@ -143,7 +144,6 @@ export class TypescriptEditorPane implements Atom.Disposable {
     } catch (e) {
       if (window.atom_typescript_debug) console.error(e)
     }
-    this.clearOccurrenceMarkers()
   }
 
   private onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {

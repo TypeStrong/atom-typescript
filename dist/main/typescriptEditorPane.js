@@ -144,6 +144,7 @@ class TypescriptEditorPane {
                 line: pos.row + 1,
                 offset: pos.column + 1,
             });
+            this.clearOccurrenceMarkers();
             for (const ref of result.body) {
                 const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
                 this.editor.decorateMarker(marker, {
@@ -157,7 +158,6 @@ class TypescriptEditorPane {
             if (window.atom_typescript_debug)
                 console.error(e);
         }
-        this.clearOccurrenceMarkers();
     }
     async compileOnSave() {
         const { client } = this;
