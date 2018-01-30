@@ -1,4 +1,4 @@
-import {debounce} from "lodash-decorators"
+import {debounce} from "lodash"
 import {Diagnostic, Location} from "typescript/lib/protocol"
 import {IndieDelegate, Message} from "atom/linter"
 import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
@@ -17,6 +17,7 @@ export class ErrorPusher {
         this.unusedAsInfo = unusedAsInfo
       }),
     )
+    this.pushErrors = debounce(this.pushErrors.bind(this), 100)
   }
 
   /** Return any errors that cover the given location */
@@ -66,8 +67,7 @@ export class ErrorPusher {
     this.clear()
   }
 
-  @debounce(100)
-  private pushErrors = () => {
+  private pushErrors() {
     const errors: Message[] = []
 
     for (const fileErrors of this.errors.values()) {

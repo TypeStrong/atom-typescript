@@ -1,7 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {debounce} from "lodash-decorators"
-import {flatten} from "lodash"
+import {debounce, flatten} from "lodash"
 import {spanToRange, isTypescriptGrammar, getProjectCodeSettings} from "./atom/utils"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -41,6 +40,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   private readonly subscriptions = new CompositeDisposable()
 
   constructor(editor: Atom.TextEditor, opts: PaneOptions) {
+    this.updateMarkers = debounce(this.updateMarkers.bind(this), 100)
     this.editor = editor
     this.filePath = editor.getPath()
     this.opts = opts
@@ -119,8 +119,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     }
   }
 
-  @debounce(100)
-  private updateMarkers = async () => {
+  private async updateMarkers() {
     if (!this.client) return
     if (!this.filePath) return
 

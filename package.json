@@ -5,13 +5,9 @@
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
-  "activationHooks": [
-    "language-typescript:grammar-used"
-  ],
+  "activationHooks": ["language-typescript:grammar-used"],
   "activationCommands": {
-    "atom-workspace": [
-      "typescript:initialize-config"
-    ]
+    "atom-workspace": ["typescript:initialize-config"]
   },
   "scripts": {
     "build": "tsc -p ./lib",
@@ -45,7 +41,8 @@
     },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
-      "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
+      "description":
+        "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
       "type": "number",
       "default": "10"
     }
@@ -101,7 +98,6 @@
     "etch": "^0.12.7",
     "fuzzaldrin": "^2.1.0",
     "lodash": "^4.17.4",
-    "lodash-decorators": "^4.5.0",
     "resolve": "1.5.0",
     "tsconfig": "^7.0.0",
     "tslib": "^1.8.1",
@@ -127,12 +123,6 @@
     "ts-node": "4.1.0",
     "tslint": "^5.9.0"
   },
-  "package-deps": [
-    "atom-ide-ui:0.5.3"
-  ],
-  "keywords": [
-    "typescript",
-    "javascript",
-    "html"
-  ]
+  "package-deps": ["atom-ide-ui:0.5.3"],
+  "keywords": ["typescript", "javascript", "html"]
 }

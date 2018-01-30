@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const atom_1 = require("atom");
-const lodash_decorators_1 = require("lodash-decorators");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
@@ -46,33 +44,6 @@ class TypescriptEditorPane {
                 files: [this.filePath],
                 delay: 100,
             });
-        };
-        this.updateMarkers = async () => {
-            if (!this.client)
-                return;
-            if (!this.filePath)
-                return;
-            const pos = this.editor.getLastCursor().getBufferPosition();
-            try {
-                const result = await this.client.executeOccurances({
-                    file: this.filePath,
-                    line: pos.row + 1,
-                    offset: pos.column + 1,
-                });
-                for (const ref of result.body) {
-                    const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
-                    this.editor.decorateMarker(marker, {
-                        type: "highlight",
-                        class: "atom-typescript-occurrence",
-                    });
-                    this.occurrenceMarkers.push(marker);
-                }
-            }
-            catch (e) {
-                if (window.atom_typescript_debug)
-                    console.error(e);
-            }
-            this.clearOccurrenceMarkers();
         };
         this.onDidChangeCursorPosition = ({ textChanged }) => {
             if (!this.isTypescript || !this.isOpen)
@@ -130,6 +101,7 @@ class TypescriptEditorPane {
             this.opts.onSave(this);
             this.compileOnSave();
         };
+        this.updateMarkers = lodash_1.debounce(this.updateMarkers.bind(this), 100);
         this.editor = editor;
         this.filePath = editor.getPath();
         this.opts = opts;
@@ -160,6 +132,33 @@ class TypescriptEditorPane {
             marker.destroy();
         }
     }
+    async updateMarkers() {
+        if (!this.client)
+            return;
+        if (!this.filePath)
+            return;
+        const pos = this.editor.getLastCursor().getBufferPosition();
+        try {
+            const result = await this.client.executeOccurances({
+                file: this.filePath,
+                line: pos.row + 1,
+                offset: pos.column + 1,
+            });
+            for (const ref of result.body) {
+                const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
+                this.editor.decorateMarker(marker, {
+                    type: "highlight",
+                    class: "atom-typescript-occurrence",
+                });
+                this.occurrenceMarkers.push(marker);
+            }
+        }
+        catch (e) {
+            if (window.atom_typescript_debug)
+                console.error(e);
+        }
+        this.clearOccurrenceMarkers();
+    }
     async compileOnSave() {
         const { client } = this;
         if (!client)
@@ -187,8 +186,5 @@ class TypescriptEditorPane {
         }
     }
 }
-tslib_1.__decorate([
-    lodash_decorators_1.debounce(100)
-], TypescriptEditorPane.prototype, "updateMarkers", void 0);
 exports.TypescriptEditorPane = TypescriptEditorPane;
 //# sourceMappingURL=typescriptEditorPane.js.map

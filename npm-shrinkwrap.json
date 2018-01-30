@@ -47,11 +47,6 @@
       "from": "lodash@>=4.17.4 <5.0.0",
       "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.4.tgz"
     },
-    "lodash-decorators": {
-      "version": "4.5.0",
-      "from": "lodash-decorators",
-      "resolved": "https://registry.npmjs.org/lodash-decorators/-/lodash-decorators-4.5.0.tgz"
-    },
     "path-parse": {
       "version": "1.0.5",
       "from": "path-parse@>=1.0.5 <2.0.0",

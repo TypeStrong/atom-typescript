@@ -17,8 +17,7 @@
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
-    "noImplicitThis": true,
-    "experimentalDecorators": true
+    "noImplicitThis": true
   },
   "compileOnSave": true
 }
