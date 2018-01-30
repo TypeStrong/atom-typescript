@@ -14,33 +14,6 @@ class AutocompleteProvider {
         this.clientResolver = clientResolver;
         this.opts = opts;
     }
-    // Try to reuse the last completions we got from tsserver if they're for the same position.
-    async getSuggestionsWithCache(prefix, location, activatedManually) {
-        if (this.lastSuggestions && !activatedManually) {
-            const lastLoc = this.lastSuggestions.location;
-            const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
-            const thisCol = getNormalizedCol(prefix, location.offset);
-            if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
-                if (this.lastSuggestions.suggestions.length !== 0) {
-                    return this.lastSuggestions.suggestions;
-                }
-            }
-        }
-        const client = await this.clientResolver.get(location.file);
-        const completions = await client.executeCompletions(Object.assign({ prefix, includeExternalModuleExports: false }, location));
-        const suggestions = completions.body.map(entry => ({
-            text: entry.name,
-            leftLabel: entry.kind,
-            type: utils_1.kindToType(entry.kind),
-        }));
-        this.lastSuggestions = {
-            client,
-            location,
-            prefix,
-            suggestions,
-        };
-        return suggestions;
-    }
     async getSuggestions(opts) {
         const location = getLocationQuery(opts);
         const { prefix } = opts;
@@ -106,6 +79,33 @@ class AutocompleteProvider {
                 }
             });
         }
+    }
+    // Try to reuse the last completions we got from tsserver if they're for the same position.
+    async getSuggestionsWithCache(prefix, location, activatedManually) {
+        if (this.lastSuggestions && !activatedManually) {
+            const lastLoc = this.lastSuggestions.location;
+            const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
+            const thisCol = getNormalizedCol(prefix, location.offset);
+            if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
+                if (this.lastSuggestions.suggestions.length !== 0) {
+                    return this.lastSuggestions.suggestions;
+                }
+            }
+        }
+        const client = await this.clientResolver.get(location.file);
+        const completions = await client.executeCompletions(Object.assign({ prefix, includeExternalModuleExports: false }, location));
+        const suggestions = completions.body.map(entry => ({
+            text: entry.name,
+            leftLabel: entry.kind,
+            type: utils_1.kindToType(entry.kind),
+        }));
+        this.lastSuggestions = {
+            client,
+            location,
+            prefix,
+            suggestions,
+        };
+        return suggestions;
     }
 }
 exports.AutocompleteProvider = AutocompleteProvider;

@@ -6,7 +6,6 @@ import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
-  private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
   public static construct(
     buffer: Atom.TextBuffer,
     getClient: (filePath: string) => Promise<Client>,
@@ -19,15 +18,16 @@ export class TypescriptBuffer {
       return nb
     }
   }
+  private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
   // Timestamps for buffer events
-  changedAt: number = 0
-  changedAtBatch: number = 0
+  private changedAt: number = 0
+  private changedAtBatch: number = 0
 
   // Promise that resolves to the correct client for this filePath
   private clientPromise?: Promise<Client>
 
   // Flag that signifies if tsserver has an open view of this file
-  isOpen: boolean
+  private isOpen: boolean
 
   private events = new EventEmitter()
   private subscriptions = new Atom.CompositeDisposable()
@@ -46,7 +46,30 @@ export class TypescriptBuffer {
     this.open()
   }
 
-  async open() {
+  // If there are any pending changes, flush them out to the Typescript server
+  public async flush() {
+    if (this.changedAt > this.changedAtBatch) {
+      await new Promise(resolve => {
+        const sub = this.buffer.onDidStopChanging(() => {
+          sub.dispose()
+          resolve()
+        })
+        this.buffer.emitDidStopChangingEvent()
+      })
+    }
+  }
+
+  // saved after waiting for any pending changes
+  // the file is opened
+  // or tsserver view of the file has changed
+  public on(name: "saved" | "opened" | "changed", callback: () => void): this
+  public on(name: "closed", callback: (filePath: string) => void): this
+  public on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
+    this.events.on(name, callback)
+    return this
+  }
+
+  private async open() {
     this.filePath = this.buffer.getPath()
 
     if (this.filePath && isTypescriptFile(this.filePath)) {
@@ -65,20 +88,7 @@ export class TypescriptBuffer {
     }
   }
 
-  // If there are any pending changes, flush them out to the Typescript server
-  async flush() {
-    if (this.changedAt > this.changedAtBatch) {
-      await new Promise(resolve => {
-        const sub = this.buffer.onDidStopChanging(() => {
-          sub.dispose()
-          resolve()
-        })
-        this.buffer.emitDidStopChangingEvent()
-      })
-    }
-  }
-
-  dispose = async () => {
+  private dispose = async () => {
     this.subscriptions.dispose()
 
     if (this.isOpen && this.clientPromise) {
@@ -91,21 +101,11 @@ export class TypescriptBuffer {
     }
   }
 
-  // saved after waiting for any pending changes
-  // the file is opened
-  // or tsserver view of the file has changed
-  on(name: "saved" | "opened" | "changed", callback: () => void): this
-  on(name: "closed", callback: (filePath: string) => void): this // the file is closed
-  on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
-    this.events.on(name, callback)
-    return this
-  }
-
-  onDidChange = () => {
+  private onDidChange = () => {
     this.changedAt = Date.now()
   }
 
-  onDidChangePath = async () => {
+  private onDidChangePath = async () => {
     if (this.clientPromise && this.filePath) {
       const client = await this.clientPromise
       client.executeClose({file: this.filePath})
@@ -115,7 +115,7 @@ export class TypescriptBuffer {
     this.open()
   }
 
-  onDidSave = async () => {
+  private onDidSave = async () => {
     // Check if there isn't a onDidStopChanging event pending.
     const {changedAt, changedAtBatch} = this
     if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
@@ -125,7 +125,7 @@ export class TypescriptBuffer {
     this.events.emit("saved")
   }
 
-  onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
+  private onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
     // Don't update changedAt or emit any events if there are no actual changes or file isn't open
     if (changes.length === 0 || !this.isOpen || !this.clientPromise) {
       return

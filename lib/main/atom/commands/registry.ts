@@ -4,8 +4,8 @@ import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
 
 export interface Dependencies {
-  clearErrors(): void
   getTypescriptBuffer: GetTypescriptBuffer
+  clearErrors(): void
   getClient(filePath: string): Promise<TypescriptServiceClient>
   getStatusPanel(): StatusPanel
 }

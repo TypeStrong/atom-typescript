@@ -123,45 +123,6 @@ class TypescriptServiceClient {
     executeSaveTo(args) {
         return this.execute("saveto", args);
     }
-    async execute(command, args) {
-        if (!this.serverPromise) {
-            throw new Error("Server is not running");
-        }
-        return this.sendRequest(await this.serverPromise, command, args, exports.commandWithResponse.has(command));
-    }
-    on(name, listener) {
-        this.events.on(name, listener);
-        return () => {
-            this.events.removeListener(name, listener);
-        };
-    }
-    sendRequest(cp, command, args, expectResponse) {
-        const req = {
-            seq: this.seq++,
-            command,
-            arguments: args,
-        };
-        if (window.atom_typescript_debug) {
-            console.log("sending request", command, "with args", args);
-        }
-        setImmediate(() => {
-            try {
-                cp.stdin.write(JSON.stringify(req) + "\n");
-            }
-            catch (error) {
-                const callback = this.callbacks.remove(req.seq);
-                if (callback) {
-                    callback.reject(error);
-                }
-                else {
-                    console.error(error);
-                }
-            }
-        });
-        if (expectResponse) {
-            return this.callbacks.add(req.seq, command);
-        }
-    }
     startServer() {
         if (!this.serverPromise) {
             let lastStderrOutput;
@@ -202,6 +163,45 @@ class TypescriptServiceClient {
         }
         else {
             throw new Error(`Server already started: ${this.tsServerPath}`);
+        }
+    }
+    on(name, listener) {
+        this.events.on(name, listener);
+        return () => {
+            this.events.removeListener(name, listener);
+        };
+    }
+    async execute(command, args) {
+        if (!this.serverPromise) {
+            throw new Error("Server is not running");
+        }
+        return this.sendRequest(await this.serverPromise, command, args, exports.commandWithResponse.has(command));
+    }
+    sendRequest(cp, command, args, expectResponse) {
+        const req = {
+            seq: this.seq++,
+            command,
+            arguments: args,
+        };
+        if (window.atom_typescript_debug) {
+            console.log("sending request", command, "with args", args);
+        }
+        setImmediate(() => {
+            try {
+                cp.stdin.write(JSON.stringify(req) + "\n");
+            }
+            catch (error) {
+                const callback = this.callbacks.remove(req.seq);
+                if (callback) {
+                    callback.reject(error);
+                }
+                else {
+                    console.error(error);
+                }
+            }
+        });
+        if (expectResponse) {
+            return this.callbacks.add(req.seq, command);
         }
     }
 }

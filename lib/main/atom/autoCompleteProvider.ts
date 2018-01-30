@@ -23,13 +23,13 @@ interface Options {
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
-  selector = ".source.ts, .source.tsx"
+  public selector = ".source.ts, .source.tsx"
 
-  disableForSelector = ".comment"
+  public disableForSelector = ".comment"
 
-  inclusionPriority = 3
-  suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
-  excludeLowerPriority = false
+  public inclusionPriority = 3
+  public suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
+  public excludeLowerPriority = false
 
   private clientResolver: ClientResolver
   private lastSuggestions: {
@@ -53,48 +53,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     this.opts = opts
   }
 
-  // Try to reuse the last completions we got from tsserver if they're for the same position.
-  async getSuggestionsWithCache(
-    prefix: string,
-    location: FileLocationQuery,
-    activatedManually: boolean,
-  ): Promise<SuggestionWithDetails[]> {
-    if (this.lastSuggestions && !activatedManually) {
-      const lastLoc = this.lastSuggestions.location
-      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
-      const thisCol = getNormalizedCol(prefix, location.offset)
-
-      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
-        if (this.lastSuggestions.suggestions.length !== 0) {
-          return this.lastSuggestions.suggestions
-        }
-      }
-    }
-
-    const client = await this.clientResolver.get(location.file)
-    const completions = await client.executeCompletions({
-      prefix,
-      includeExternalModuleExports: false,
-      ...location,
-    })
-
-    const suggestions = completions.body!.map(entry => ({
-      text: entry.name,
-      leftLabel: entry.kind,
-      type: kindToType(entry.kind),
-    }))
-
-    this.lastSuggestions = {
-      client,
-      location,
-      prefix,
-      suggestions,
-    }
-
-    return suggestions
-  }
-
-  async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
+  public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
@@ -153,7 +112,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
   }
 
-  async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
+  private async getAdditionalDetails(
+    suggestions: SuggestionWithDetails[],
+    location: FileLocationQuery,
+  ) {
     if (suggestions.some(s => !s.details)) {
       const details = await this.lastSuggestions.client.executeCompletionDetails({
         entryNames: suggestions.map(s => s.text!),
@@ -182,6 +144,47 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         }
       })
     }
+  }
+
+  // Try to reuse the last completions we got from tsserver if they're for the same position.
+  private async getSuggestionsWithCache(
+    prefix: string,
+    location: FileLocationQuery,
+    activatedManually: boolean,
+  ): Promise<SuggestionWithDetails[]> {
+    if (this.lastSuggestions && !activatedManually) {
+      const lastLoc = this.lastSuggestions.location
+      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
+      const thisCol = getNormalizedCol(prefix, location.offset)
+
+      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
+        if (this.lastSuggestions.suggestions.length !== 0) {
+          return this.lastSuggestions.suggestions
+        }
+      }
+    }
+
+    const client = await this.clientResolver.get(location.file)
+    const completions = await client.executeCompletions({
+      prefix,
+      includeExternalModuleExports: false,
+      ...location,
+    })
+
+    const suggestions = completions.body!.map(entry => ({
+      text: entry.name,
+      leftLabel: entry.kind,
+      type: kindToType(entry.kind),
+    }))
+
+    this.lastSuggestions = {
+      client,
+      location,
+      prefix,
+      suggestions,
+    }
+
+    return suggestions
   }
 }
 

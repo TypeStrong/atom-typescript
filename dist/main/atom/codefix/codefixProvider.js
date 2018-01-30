@@ -37,19 +37,6 @@ class CodefixProvider {
         }
         return results;
     }
-    async getSupportedFixes(client) {
-        let codes = this.supportedFixes.get(client);
-        if (codes) {
-            return codes;
-        }
-        const result = await client.executeGetSupportedCodeFixes();
-        if (!result.body) {
-            throw new Error("No code fixes are supported");
-        }
-        codes = new Set(result.body.map(code => parseInt(code, 10)));
-        this.supportedFixes.set(client, codes);
-        return codes;
-    }
     async applyFix(fix) {
         for (const f of fix.changes) {
             const { buffer, isOpen } = await this.getTypescriptBuffer(f.fileName);
@@ -62,6 +49,19 @@ class CodefixProvider {
                 buffer.buffer.save().then(() => buffer.buffer.destroy());
             }
         }
+    }
+    async getSupportedFixes(client) {
+        let codes = this.supportedFixes.get(client);
+        if (codes) {
+            return codes;
+        }
+        const result = await client.executeGetSupportedCodeFixes();
+        if (!result.body) {
+            throw new Error("No code fixes are supported");
+        }
+        codes = new Set(result.body.map(code => parseInt(code, 10)));
+        this.supportedFixes.set(client, codes);
+        return codes;
     }
 }
 exports.CodefixProvider = CodefixProvider;

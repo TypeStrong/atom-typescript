@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const lodash_1 = require("lodash");
+const tslib_1 = require("tslib");
+const lodash_decorators_1 = require("lodash-decorators");
 const utils_1 = require("./atom/utils");
 const atom_1 = require("atom");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
@@ -9,7 +10,7 @@ class ErrorPusher {
         this.errors = new Map();
         this.unusedAsInfo = true;
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.pushErrors = lodash_1.debounce(() => {
+        this.pushErrors = () => {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
                 for (const [filePath, diagnostics] of fileErrors) {
@@ -35,7 +36,7 @@ class ErrorPusher {
             if (this.linter) {
                 this.linter.setAllMessages(errors);
             }
-        }, 100);
+        };
         this.subscriptions.add(atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo) => {
             this.unusedAsInfo = unusedAsInfo;
         }));
@@ -80,5 +81,8 @@ class ErrorPusher {
         this.clear();
     }
 }
+tslib_1.__decorate([
+    lodash_decorators_1.debounce(100)
+], ErrorPusher.prototype, "pushErrors", void 0);
 exports.ErrorPusher = ErrorPusher;
 //# sourceMappingURL=errorPusher.js.map

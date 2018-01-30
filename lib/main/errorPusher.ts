@@ -1,4 +1,4 @@
-import {debounce} from "lodash"
+import {debounce} from "lodash-decorators"
 import {Diagnostic, Location} from "typescript/lib/protocol"
 import {IndieDelegate, Message} from "atom/linter"
 import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
@@ -20,7 +20,7 @@ export class ErrorPusher {
   }
 
   /** Return any errors that cover the given location */
-  getErrorsAt(filePath: string, loc: Location): Diagnostic[] {
+  public getErrorsAt(filePath: string, loc: Location): Diagnostic[] {
     const result: Diagnostic[] = []
     for (const prefixed of this.errors.values()) {
       const errors = prefixed.get(filePath)
@@ -32,7 +32,7 @@ export class ErrorPusher {
   }
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-  setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
+  public setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
     if (prefix === undefined || filePath === undefined) {
       console.warn("setErrors: prefix or filePath is undefined", prefix, filePath)
       return
@@ -50,18 +50,24 @@ export class ErrorPusher {
   }
 
   /** Clear all errors */
-  clear() {
+  public clear() {
     if (this.linter) {
       this.linter.clearMessages()
     }
   }
 
-  setLinter(linter: IndieDelegate) {
+  public setLinter(linter: IndieDelegate) {
     this.linter = linter
     this.pushErrors()
   }
 
-  private pushErrors = debounce(() => {
+  public dispose() {
+    this.subscriptions.dispose()
+    this.clear()
+  }
+
+  @debounce(100)
+  private pushErrors = () => {
     const errors: Message[] = []
 
     for (const fileErrors of this.errors.values()) {
@@ -90,10 +96,5 @@ export class ErrorPusher {
     if (this.linter) {
       this.linter.setAllMessages(errors)
     }
-  }, 100)
-
-  dispose() {
-    this.subscriptions.dispose()
-    this.clear()
   }
 }

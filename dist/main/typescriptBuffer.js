@@ -82,20 +82,6 @@ class TypescriptBuffer {
             return nb;
         }
     }
-    async open() {
-        this.filePath = this.buffer.getPath();
-        if (this.filePath && utils_1.isTypescriptFile(this.filePath)) {
-            // Set isOpen before we actually open the file to enqueue any changed events
-            this.isOpen = true;
-            this.clientPromise = this.getClient(this.filePath);
-            const client = await this.clientPromise;
-            await client.executeOpen({
-                file: this.filePath,
-                fileContent: this.buffer.getText(),
-            });
-            this.events.emit("opened");
-        }
-    }
     // If there are any pending changes, flush them out to the Typescript server
     async flush() {
         if (this.changedAt > this.changedAtBatch) {
@@ -111,6 +97,20 @@ class TypescriptBuffer {
     on(name, callback) {
         this.events.on(name, callback);
         return this;
+    }
+    async open() {
+        this.filePath = this.buffer.getPath();
+        if (this.filePath && utils_1.isTypescriptFile(this.filePath)) {
+            // Set isOpen before we actually open the file to enqueue any changed events
+            this.isOpen = true;
+            this.clientPromise = this.getClient(this.filePath);
+            const client = await this.clientPromise;
+            await client.executeOpen({
+                file: this.filePath,
+                fileContent: this.buffer.getText(),
+            });
+            this.events.emit("opened");
+        }
     }
 }
 TypescriptBuffer.bufferMap = new WeakMap();

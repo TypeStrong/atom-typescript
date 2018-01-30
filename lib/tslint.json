@@ -5,9 +5,8 @@
   "rules": {
     "semicolon": false,
     "object-literal-sort-keys": false,
-    "member-access": false,
+    "member-access": true,
     "ordered-imports": false,
-    "member-ordering": false,
     "interface-name": [true, "never-prefix"],
     "no-console": false,
     "arrow-parens": false,

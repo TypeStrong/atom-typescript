@@ -55,6 +55,14 @@ export class StatusPanel implements JSX.ElementClass {
     this.destroy()
   }
 
+  public show() {
+    this.update({visible: true})
+  }
+
+  public hide() {
+    this.update({visible: false})
+  }
+
   private resetBuildStatusTimeout() {
     if (this.buildStatusTimeout) {
       window.clearTimeout(this.buildStatusTimeout)
@@ -84,14 +92,6 @@ export class StatusPanel implements JSX.ElementClass {
     if (this.props.pending) {
       atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "))
     }
-  }
-
-  public show() {
-    this.update({visible: true})
-  }
-
-  public hide() {
-    this.update({visible: false})
   }
 
   private renderVersion(): JSX.Element | null {

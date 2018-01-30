@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {debounce, flatten} from "lodash"
+import {debounce} from "lodash-decorators"
+import {flatten} from "lodash"
 import {spanToRange, isTypescriptGrammar, getProjectCodeSettings} from "./atom/utils"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -65,16 +66,16 @@ export class TypescriptEditorPane implements Atom.Disposable {
     this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
     this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
 
-    this.setupTooltipView()
+    tooltipManager.attach(this.editor, this.opts.getClient)
   }
 
-  dispose() {
+  public dispose() {
     atom.views.getView(this.editor).classList.remove("typescript-editor")
     this.subscriptions.dispose()
     this.opts.onDispose(this)
   }
 
-  onActivated = () => {
+  public onActivated = () => {
     this.activeAt = Date.now()
     this.isActive = true
 
@@ -95,7 +96,12 @@ export class TypescriptEditorPane implements Atom.Disposable {
     this.opts.statusPanel.update({tsConfigPath: this.configFile})
   }
 
-  onChanged = () => {
+  public onDeactivated = () => {
+    this.isActive = false
+    this.opts.statusPanel.hide()
+  }
+
+  private onChanged = () => {
     if (!this.client) return
     if (!this.filePath) return
 
@@ -107,18 +113,14 @@ export class TypescriptEditorPane implements Atom.Disposable {
     })
   }
 
-  onDeactivated = () => {
-    this.isActive = false
-    this.opts.statusPanel.hide()
-  }
-
-  clearOccurrenceMarkers() {
+  private clearOccurrenceMarkers() {
     for (const marker of this.occurrenceMarkers) {
       marker.destroy()
     }
   }
 
-  updateMarkers = debounce(async () => {
+  @debounce(100)
+  private updateMarkers = async () => {
     if (!this.client) return
     if (!this.filePath) return
 
@@ -143,9 +145,9 @@ export class TypescriptEditorPane implements Atom.Disposable {
       if (window.atom_typescript_debug) console.error(e)
     }
     this.clearOccurrenceMarkers()
-  }, 100)
+  }
 
-  onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
+  private onDidChangeCursorPosition = ({textChanged}: {textChanged: boolean}) => {
     if (!this.isTypescript || !this.isOpen) return
 
     if (textChanged) {
@@ -156,11 +158,11 @@ export class TypescriptEditorPane implements Atom.Disposable {
     this.updateMarkers()
   }
 
-  onDidDestroy = () => {
+  private onDidDestroy = () => {
     this.dispose()
   }
 
-  onOpened = async () => {
+  private onOpened = async () => {
     const filePath = this.editor.getPath()
     this.filePath = filePath
     if (!filePath) return
@@ -203,13 +205,13 @@ export class TypescriptEditorPane implements Atom.Disposable {
     }
   }
 
-  onSaved = () => {
+  private onSaved = () => {
     this.filePath = this.editor.getPath()
     this.opts.onSave(this)
     this.compileOnSave()
   }
 
-  async compileOnSave() {
+  private async compileOnSave() {
     const {client} = this
     if (!client) return
     if (!this.filePath) return
@@ -237,9 +239,5 @@ export class TypescriptEditorPane implements Atom.Disposable {
       console.error("Save failed with error", error)
       this.opts.statusPanel.update({buildStatus: {success: false, message: error.message}})
     }
-  }
-
-  setupTooltipView() {
-    tooltipManager.attach(this.editor, this.opts.getClient)
   }
 }

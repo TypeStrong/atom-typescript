@@ -42,6 +42,12 @@ class StatusPanel {
     dispose() {
         this.destroy();
     }
+    show() {
+        this.update({ visible: true });
+    }
+    hide() {
+        this.update({ visible: false });
+    }
     resetBuildStatusTimeout() {
         if (this.buildStatusTimeout) {
             window.clearTimeout(this.buildStatusTimeout);
@@ -71,12 +77,6 @@ class StatusPanel {
         if (this.props.pending) {
             atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "));
         }
-    }
-    show() {
-        this.update({ visible: true });
-    }
-    hide() {
-        this.update({ visible: false });
     }
     renderVersion() {
         if (this.props.version) {

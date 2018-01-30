@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const atom_1 = require("atom");
+const lodash_decorators_1 = require("lodash-decorators");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
@@ -30,6 +32,10 @@ class TypescriptEditorPane {
             }
             this.opts.statusPanel.update({ tsConfigPath: this.configFile });
         };
+        this.onDeactivated = () => {
+            this.isActive = false;
+            this.opts.statusPanel.hide();
+        };
         this.onChanged = () => {
             if (!this.client)
                 return;
@@ -41,11 +47,7 @@ class TypescriptEditorPane {
                 delay: 100,
             });
         };
-        this.onDeactivated = () => {
-            this.isActive = false;
-            this.opts.statusPanel.hide();
-        };
-        this.updateMarkers = lodash_1.debounce(async () => {
+        this.updateMarkers = async () => {
             if (!this.client)
                 return;
             if (!this.filePath)
@@ -71,7 +73,7 @@ class TypescriptEditorPane {
                     console.error(e);
             }
             this.clearOccurrenceMarkers();
-        }, 100);
+        };
         this.onDidChangeCursorPosition = ({ textChanged }) => {
             if (!this.isTypescript || !this.isOpen)
                 return;
@@ -146,7 +148,7 @@ class TypescriptEditorPane {
         }));
         this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
         this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
-        this.setupTooltipView();
+        tooltipManager.attach(this.editor, this.opts.getClient);
     }
     dispose() {
         atom.views.getView(this.editor).classList.remove("typescript-editor");
@@ -184,9 +186,9 @@ class TypescriptEditorPane {
             this.opts.statusPanel.update({ buildStatus: { success: false, message: error.message } });
         }
     }
-    setupTooltipView() {
-        tooltipManager.attach(this.editor, this.opts.getClient);
-    }
 }
+tslib_1.__decorate([
+    lodash_decorators_1.debounce(100)
+], TypescriptEditorPane.prototype, "updateMarkers", void 0);
 exports.TypescriptEditorPane = TypescriptEditorPane;
 //# sourceMappingURL=typescriptEditorPane.js.map

@@ -43,15 +43,15 @@ class ClientResolver extends events.EventEmitter {
         entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
         return entry.client;
     }
+    dispose() {
+        this.removeAllListeners();
+    }
     addClient(serverPath, client) {
         this.clients[serverPath] = {
             client,
             pending: [],
         };
         return this.clients[serverPath];
-    }
-    dispose() {
-        this.removeAllListeners();
     }
 }
 exports.ClientResolver = ClientResolver;
