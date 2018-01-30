@@ -2,11 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
+const atom_1 = require("atom");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
         this.unusedAsInfo = true;
+        this.subscriptions = new atom_1.CompositeDisposable();
         this.pushErrors = lodash_1.debounce(() => {
             const errors = [];
             for (const fileErrors of this.errors.values()) {
@@ -34,6 +36,9 @@ class ErrorPusher {
                 this.linter.setAllMessages(errors);
             }
         }, 100);
+        this.subscriptions.add(atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo) => {
+            this.unusedAsInfo = unusedAsInfo;
+        }));
     }
     /** Return any errors that cover the given location */
     getErrorsAt(filePath, loc) {
@@ -60,9 +65,6 @@ class ErrorPusher {
         prefixed.set(filePath, errors);
         this.pushErrors();
     }
-    setUnusedAsInfo(unusedAsInfo) {
-        this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo;
-    }
     /** Clear all errors */
     clear() {
         if (this.linter) {
@@ -72,6 +74,10 @@ class ErrorPusher {
     setLinter(linter) {
         this.linter = linter;
         this.pushErrors();
+    }
+    dispose() {
+        this.subscriptions.dispose();
+        this.clear();
     }
 }
 exports.ErrorPusher = ErrorPusher;

@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../utils");
 class CodefixProvider {
-    constructor(clientResolver) {
-        this.supportedFixes = new WeakMap();
+    constructor(clientResolver, errorPusher, getTypescriptBuffer) {
         this.clientResolver = clientResolver;
+        this.errorPusher = errorPusher;
+        this.getTypescriptBuffer = getTypescriptBuffer;
+        this.supportedFixes = new WeakMap();
     }
     async runCodeFix(textEditor, bufferPosition) {
         const filePath = textEditor.getPath();

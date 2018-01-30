@@ -1,6 +1,8 @@
 import * as etch from "etch"
 import {dirname} from "path"
 import {getFilePathRelativeToAtomProject, openFile} from "../utils"
+import {ClientResolver} from "../../../client/clientResolver"
+import {flatten, values} from "lodash"
 
 export interface Props extends JSX.Props {
   version?: string
@@ -8,20 +10,22 @@ export interface Props extends JSX.Props {
   tsConfigPath?: string
   buildStatus?: {success: true} | {success: false; message: string}
   progress?: {max: number; value: number}
-  visible: boolean
+  visible?: boolean
+  clientResolver: ClientResolver
 }
 
 export class StatusPanel implements JSX.ElementClass {
   public props: Props
   private buildStatusTimeout?: number
 
-  constructor(props: Partial<Props> = {}) {
+  constructor(props: Props) {
     this.props = {
       visible: true,
       ...props,
     }
     etch.initialize(this)
     this.resetBuildStatusTimeout()
+    this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests)
   }
 
   public async update(props: Partial<Props>) {
@@ -44,6 +48,7 @@ export class StatusPanel implements JSX.ElementClass {
 
   public async destroy() {
     await etch.destroy(this)
+    this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests)
   }
 
   public dispose() {
@@ -191,5 +196,9 @@ export class StatusPanel implements JSX.ElementClass {
       )
     }
     return null
+  }
+
+  private handlePendingRequests = () => {
+    this.update({pending: flatten(values(this.props.clientResolver.clients).map(cl => cl.pending))})
   }
 }

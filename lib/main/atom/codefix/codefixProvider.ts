@@ -6,14 +6,13 @@ import {GetTypescriptBuffer} from "../commands/registry"
 import {TypescriptServiceClient} from "../../../client/client"
 
 export class CodefixProvider {
-  clientResolver: ClientResolver
-  errorPusher: ErrorPusher
-  getTypescriptBuffer: GetTypescriptBuffer
-  supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
+  private supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
 
-  constructor(clientResolver: ClientResolver) {
-    this.clientResolver = clientResolver
-  }
+  constructor(
+    private clientResolver: ClientResolver,
+    private errorPusher: ErrorPusher,
+    private getTypescriptBuffer: GetTypescriptBuffer,
+  ) {}
 
   async runCodeFix(
     textEditor: Atom.TextEditor,

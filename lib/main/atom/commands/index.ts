@@ -1,4 +1,5 @@
 import {commands, Dependencies} from "./registry"
+import {CompositeDisposable} from "atom"
 
 // Import all of the command files for their side effects
 import "./build"
@@ -10,9 +11,16 @@ import "./goToDeclaration"
 import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
+import {CommandRegistryListener} from "atom"
 
 export function registerCommands(deps: Dependencies) {
-  for (const [name, command] of commands) {
-    atom.commands.add("atom-workspace", name, command(deps))
+  const disp = new CompositeDisposable()
+  for (const [selector, cmds] of Object.entries(commands)) {
+    for (const [command, desc] of Object.entries(cmds)) {
+      disp.add(
+        atom.commands.add(selector, command, desc(deps) as CommandRegistryListener<EventTarget>),
+      )
+    }
   }
+  return disp
 }

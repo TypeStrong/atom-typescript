@@ -23,24 +23,21 @@ interface PaneOptions {
 
 export class TypescriptEditorPane implements Atom.Disposable {
   // Timestamp for activated event
-  activeAt: number
-
-  buffer: TypescriptBuffer
-  client?: TypescriptServiceClient
+  public activeAt: number
+  public client?: TypescriptServiceClient
+  public filePath: string | undefined
+  public isTypescript = false
+  public readonly buffer: TypescriptBuffer
+  public readonly editor: Atom.TextEditor
 
   // Path to the project's tsconfig.json
-  configFile: string = ""
-
-  filePath: string | undefined
-  isActive = false
-  isTypescript = false
-
+  private configFile: string = ""
+  private isActive = false
   private opts: PaneOptions
   private isOpen = false
 
-  readonly occurrenceMarkers: Atom.DisplayMarker[] = []
-  readonly editor: Atom.TextEditor
-  readonly subscriptions = new CompositeDisposable()
+  private readonly occurrenceMarkers: Atom.DisplayMarker[] = []
+  private readonly subscriptions = new CompositeDisposable()
 
   constructor(editor: Atom.TextEditor, opts: PaneOptions) {
     this.editor = editor
@@ -194,7 +191,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
           this.opts.statusPanel.update({tsConfigPath: this.configFile})
         }
 
-        getProjectCodeSettings(filePath, this.configFile).then(options => {
+        getProjectCodeSettings(this.configFile).then(options => {
           this.client!.executeConfigure({
             file: filePath,
             formatOptions: options,
@@ -243,6 +240,6 @@ export class TypescriptEditorPane implements Atom.Disposable {
   }
 
   setupTooltipView() {
-    tooltipManager.attach(this.editor)
+    tooltipManager.attach(this.editor, this.opts.getClient)
   }
 }

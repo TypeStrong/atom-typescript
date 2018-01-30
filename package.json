@@ -70,7 +70,7 @@
     },
     "hyperclick": {
       "versions": {
-        "0.1.0": "hyperclickProvider"
+        "0.1.0": "provideHyperclick"
       }
     },
     "intentions:list": {

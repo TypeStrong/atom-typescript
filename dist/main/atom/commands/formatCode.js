@@ -2,12 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
-registry_1.commands.set("typescript:format-code", deps => {
-    return async (e) => {
+registry_1.commands["atom-text-editor"]["typescript:format-code"] = deps => ({
+    description: "Format code in currently active text editor",
+    async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const editor = atom.workspace.getActiveTextEditor();
+        const editor = e.currentTarget.getModel();
         if (!editor) {
             e.abortKeyBinding();
             return;
@@ -47,6 +48,6 @@ registry_1.commands.set("typescript:format-code", deps => {
                 utils_1.formatCode(editor, edits);
             });
         }
-    };
+    },
 });
 //# sourceMappingURL=formatCode.js.map

@@ -3,7 +3,6 @@
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
 const atomUtils = require("./utils");
-const atomts_1 = require("../atomts");
 const Atom = require("atom");
 const path = require("path");
 const fs = require("fs");
@@ -23,14 +22,14 @@ function bufferPositionFromMouseEvent(editor, event) {
     return editor.bufferPositionForScreenPosition(sp);
 }
 exports.bufferPositionFromMouseEvent = bufferPositionFromMouseEvent;
-function showExpressionAt(editor, pt) {
+async function showExpressionAt(editor, pt) {
     const ed = tooltipMap.get(editor);
     if (ed) {
         return ed(pt);
     }
 }
 exports.showExpressionAt = showExpressionAt;
-function attach(editor) {
+function attach(editor, getClient) {
     const rawView = atom.views.getView(editor);
     // Only on ".ts" files
     const filePath = editor.getPath();
@@ -46,7 +45,7 @@ function attach(editor) {
     if (!fs.existsSync(filePath)) {
         return;
     }
-    const clientPromise = atomts_1.clientResolver.get(filePath);
+    const clientPromise = getClient(filePath);
     const subscriber = new Atom.CompositeDisposable();
     let exprTypeTimeout;
     let exprTypeTooltip;

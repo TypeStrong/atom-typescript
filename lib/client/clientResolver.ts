@@ -87,6 +87,10 @@ export class ClientResolver extends events.EventEmitter {
 
     return this.clients[serverPath]
   }
+
+  dispose() {
+    this.removeAllListeners()
+  }
 }
 
 // Promisify the async resolve function

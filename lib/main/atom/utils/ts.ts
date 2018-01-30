@@ -1,6 +1,6 @@
 import {TextSpan, CodeEdit, FormatCodeSettings, Location} from "typescript/lib/protocol"
 import * as Atom from "atom"
-import {loadProjectConfig} from "../../atomts"
+import * as tsconfig from "tsconfig"
 
 export {TextSpan, CodeEdit, FormatCodeSettings, Location}
 
@@ -59,11 +59,8 @@ export function isLocationInRange(loc: Location, range: {start: Location; end: L
   return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1
 }
 
-export async function getProjectCodeSettings(
-  filePath: string,
-  configFile?: string,
-): Promise<FormatCodeSettings> {
-  const config = await loadProjectConfig(filePath, configFile)
+export async function getProjectCodeSettings(configFile: string): Promise<FormatCodeSettings> {
+  const {config} = await tsconfig.load(configFile)
   const options = config.formatCodeOptions
 
   return {

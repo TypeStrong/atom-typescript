@@ -7,13 +7,14 @@ import {
   rangeToLocationRange,
 } from "../utils"
 
-commands.set("typescript:format-code", deps => {
-  return async e => {
+commands["atom-text-editor"]["typescript:format-code"] = deps => ({
+  description: "Format code in currently active text editor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const editor = atom.workspace.getActiveTextEditor()
+    const editor = e.currentTarget.getModel()
     if (!editor) {
       e.abortKeyBinding()
       return
@@ -58,5 +59,5 @@ commands.set("typescript:format-code", deps => {
         formatCode(editor, edits)
       })
     }
-  }
+  },
 })

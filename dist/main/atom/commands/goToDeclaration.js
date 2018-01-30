@@ -11,12 +11,13 @@ function open(item) {
         initialColumn: item.start.offset - 1,
     });
 }
-registry_1.commands.set("typescript:go-to-declaration", deps => {
-    return async (e) => {
+registry_1.commands["atom-text-editor"]["typescript:go-to-declaration"] = deps => ({
+    description: "Go to declaration of symbol under text cursor",
+    async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const location = utils_1.getFilePathPosition();
+        const location = utils_1.getFilePathPosition(e.currentTarget.getModel());
         if (!location) {
             e.abortKeyBinding();
             return;
@@ -24,10 +25,11 @@ registry_1.commands.set("typescript:go-to-declaration", deps => {
         const client = await deps.getClient(location.file);
         const result = await client.executeDefinition(location);
         handleDefinitionResult(result, location);
-    };
+    },
 });
-registry_1.commands.set("typescript:return-from-declaration", () => {
-    return async () => {
+registry_1.commands["atom-workspace"]["typescript:return-from-declaration"] = () => ({
+    description: "If used `go-to-declaration`, return to previous text cursor position",
+    async didDispatch() {
         const position = prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo("AtomTS: Previous position not found.");
@@ -37,7 +39,7 @@ registry_1.commands.set("typescript:return-from-declaration", () => {
             file: position.file,
             start: { line: position.line, offset: position.offset },
         });
-    };
+    },
 });
 async function handleDefinitionResult(result, location) {
     if (!result.body) {

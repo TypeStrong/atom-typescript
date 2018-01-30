@@ -28,13 +28,10 @@ function isAllowedExtension(ext) {
     return ext === ".ts" || ext === ".tst" || ext === ".tsx";
 }
 exports.isAllowedExtension = isAllowedExtension;
-function getFilePathPosition() {
-    const editor = atom.workspace.getActiveTextEditor();
-    if (editor) {
-        const file = editor.getPath();
-        if (file) {
-            return Object.assign({ file }, getEditorPosition(editor));
-        }
+function getFilePathPosition(editor) {
+    const file = editor.getPath();
+    if (file) {
+        return Object.assign({ file }, getEditorPosition(editor));
     }
 }
 exports.getFilePathPosition = getFilePathPosition;
@@ -76,10 +73,7 @@ function kindToType(kind) {
 exports.kindToType = kindToType;
 /** Utility functions for commands */
 function commandForTypeScript(e) {
-    const editor = atom.workspace.getActiveTextEditor();
-    if (!editor) {
-        return e.abortKeyBinding() && false;
-    }
+    const editor = e.currentTarget.getModel();
     const filePath = editor.getPath();
     if (!filePath) {
         return e.abortKeyBinding() && false;

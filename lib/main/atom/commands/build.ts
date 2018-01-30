@@ -1,13 +1,14 @@
 import {commands} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 
-commands.set("typescript:build", deps => {
-  return async e => {
+commands["atom-text-editor"]["typescript:build"] = deps => ({
+  description: "Compile all files in project related to current active text editor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const fpp = getFilePathPosition()
+    const fpp = getFilePathPosition(e.currentTarget.getModel())
     if (!fpp) {
       e.abortKeyBinding()
       return
@@ -23,10 +24,11 @@ commands.set("typescript:build", deps => {
     const files = new Set(projectInfo.body!.fileNames)
     files.delete(projectInfo.body!.configFileName)
     let filesSoFar = 0
+    const stp = deps.getStatusPanel()
     const promises = [...files.values()].map(f =>
       _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
-        deps.statusPanel.update({progress: {max: files.size, value: (filesSoFar += 1)}})
-        if (files.size <= filesSoFar) deps.statusPanel.update({progress: undefined})
+        stp.update({progress: {max: files.size, value: (filesSoFar += 1)}})
+        if (files.size <= filesSoFar) stp.update({progress: undefined})
       }),
     )
 
@@ -35,12 +37,12 @@ commands.set("typescript:build", deps => {
       if (results.some(result => result.body === false)) {
         throw new Error("Emit failed")
       }
-      deps.statusPanel.update({buildStatus: {success: true}})
+      stp.update({buildStatus: {success: true}})
     } catch (err) {
       console.error(err)
-      deps.statusPanel.update({buildStatus: {success: false, message: err.message}})
+      stp.update({buildStatus: {success: false, message: err.message}})
     }
-  }
+  },
 })
 
 function _finally<T>(promise: Promise<T>, callback: (result: T) => void): Promise<T> {

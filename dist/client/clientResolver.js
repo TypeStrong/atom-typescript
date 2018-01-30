@@ -50,6 +50,9 @@ class ClientResolver extends events.EventEmitter {
         };
         return this.clients[serverPath];
     }
+    dispose() {
+        this.removeAllListeners();
+    }
 }
 exports.ClientResolver = ClientResolver;
 // Promisify the async resolve function

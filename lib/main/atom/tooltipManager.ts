@@ -2,13 +2,13 @@
 // and https://atom.io/packages/ide-flow
 
 import atomUtils = require("./utils")
-import {clientResolver} from "../atomts"
 import * as Atom from "atom"
 import path = require("path")
 import fs = require("fs")
 import {listen} from "./utils/element-listener"
 import {TooltipView} from "./views/tooltipView"
 import escape = require("escape-html")
+import {TypescriptServiceClient} from "../../client/client"
 
 const tooltipMap = new WeakMap<Atom.TextEditor, (pt: Atom.Point) => Promise<void>>()
 
@@ -27,14 +27,17 @@ export function bufferPositionFromMouseEvent(
   return editor.bufferPositionForScreenPosition(sp)
 }
 
-export function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) {
+export async function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) {
   const ed = tooltipMap.get(editor)
   if (ed) {
     return ed(pt)
   }
 }
 
-export function attach(editor: Atom.TextEditor) {
+export function attach(
+  editor: Atom.TextEditor,
+  getClient: (fp: string) => Promise<TypescriptServiceClient>,
+) {
   const rawView = atom.views.getView(editor)
 
   // Only on ".ts" files
@@ -53,7 +56,7 @@ export function attach(editor: Atom.TextEditor) {
     return
   }
 
-  const clientPromise = clientResolver.get(filePath)
+  const clientPromise = getClient(filePath)
   const subscriber = new Atom.CompositeDisposable()
   let exprTypeTimeout: number | undefined
   let exprTypeTooltip: TooltipView | undefined

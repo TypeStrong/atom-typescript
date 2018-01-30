@@ -2,12 +2,22 @@ import {debounce} from "lodash"
 import {Diagnostic, Location} from "typescript/lib/protocol"
 import {IndieDelegate, Message} from "atom/linter"
 import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
+import {CompositeDisposable} from "atom"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: IndieDelegate
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
   private unusedAsInfo = true
+  private subscriptions = new CompositeDisposable()
+
+  constructor() {
+    this.subscriptions.add(
+      atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo: boolean) => {
+        this.unusedAsInfo = unusedAsInfo
+      }),
+    )
+  }
 
   /** Return any errors that cover the given location */
   getErrorsAt(filePath: string, loc: Location): Diagnostic[] {
@@ -37,10 +47,6 @@ export class ErrorPusher {
     prefixed.set(filePath, errors)
 
     this.pushErrors()
-  }
-
-  setUnusedAsInfo(unusedAsInfo: boolean | undefined) {
-    this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo
   }
 
   /** Clear all errors */
@@ -85,4 +91,9 @@ export class ErrorPusher {
       this.linter.setAllMessages(errors)
     }
   }, 100)
+
+  dispose() {
+    this.subscriptions.dispose()
+    this.clear()
+  }
 }

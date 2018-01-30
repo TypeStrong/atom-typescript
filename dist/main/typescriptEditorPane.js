@@ -7,10 +7,10 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const tooltipManager = require("./atom/tooltipManager");
 class TypescriptEditorPane {
     constructor(editor, opts) {
+        this.isTypescript = false;
         // Path to the project's tsconfig.json
         this.configFile = "";
         this.isActive = false;
-        this.isTypescript = false;
         this.isOpen = false;
         this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
@@ -110,7 +110,7 @@ class TypescriptEditorPane {
                     if (this.isActive) {
                         this.opts.statusPanel.update({ tsConfigPath: this.configFile });
                     }
-                    utils_1.getProjectCodeSettings(filePath, this.configFile).then(options => {
+                    utils_1.getProjectCodeSettings(this.configFile).then(options => {
                         this.client.executeConfigure({
                             file: filePath,
                             formatOptions: options,
@@ -185,7 +185,7 @@ class TypescriptEditorPane {
         }
     }
     setupTooltipView() {
-        tooltipManager.attach(this.editor);
+        tooltipManager.attach(this.editor, this.opts.getClient);
     }
 }
 exports.TypescriptEditorPane = TypescriptEditorPane;
