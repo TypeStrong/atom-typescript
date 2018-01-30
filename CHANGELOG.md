@@ -1,4 +1,4 @@
-## Next (d6ab34d4)
+## 12.1.0
 
 -   Show build error when "Emit failed" is clicked
 -   Re-add progress bar for emit
@@ -11,6 +11,17 @@
 -   Add `typescript:initialize-config` command
     ([\#1248](https://github.com/TypeStrong/atom-typescript/issues/1248))
     (by Paul Ermolin)
+
+    Command is `typescript:initialize-config`, and it uses `tsc init`
+    under the hood. Note that this is also an activation command,
+    meaning you can use it without opening a TypeScript file first.
+    However, it determines the project path from currently-active text
+    editor -- if there aren't any text editors open, command doesn't do
+    anything.
+
+    No keybinding is assigned by default, since this is not a command
+    one would use often.
+
 -   Documentation updates
 -   Remove obsolete `filesGlob` snippet
 -   Don't use deprecated `.editor` class in grammar style
