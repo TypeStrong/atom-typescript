@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "12.1.0",
+  "version": "12.1.1",
   "dependencies": {
     "atom-package-deps": {
       "version": "4.6.1",
