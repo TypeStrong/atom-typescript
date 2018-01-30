@@ -138,13 +138,13 @@ class TypescriptEditorPane {
         if (!this.filePath)
             return;
         const pos = this.editor.getLastCursor().getBufferPosition();
+        this.clearOccurrenceMarkers();
         try {
             const result = await this.client.executeOccurences({
                 file: this.filePath,
                 line: pos.row + 1,
                 offset: pos.column + 1,
             });
-            this.clearOccurrenceMarkers();
             for (const ref of result.body) {
                 const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
                 this.editor.decorateMarker(marker, {

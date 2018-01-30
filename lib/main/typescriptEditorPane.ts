@@ -125,6 +125,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     const pos = this.editor.getLastCursor().getBufferPosition()
 
+    this.clearOccurrenceMarkers()
     try {
       const result = await this.client.executeOccurences({
         file: this.filePath,
@@ -132,7 +133,6 @@ export class TypescriptEditorPane implements Atom.Disposable {
         offset: pos.column + 1,
       })
 
-      this.clearOccurrenceMarkers()
       for (const ref of result.body!) {
         const marker = this.editor.markBufferRange(spanToRange(ref))
         this.editor.decorateMarker(marker, {
