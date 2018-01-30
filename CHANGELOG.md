@@ -1,3 +1,6 @@
+## 12.1.1
+* Fix occurence markers
+
 ## 12.1.0
 
 -   Show build error when "Emit failed" is clicked
