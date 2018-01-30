@@ -93,7 +93,7 @@ export class TypescriptServiceClient {
   public executeGetErrForProject(args: protocol.GeterrForProjectRequestArgs): Promise<undefined> {
     return this.execute("geterrForProject", args)
   }
-  public executeOccurances(
+  public executeOccurences(
     args: protocol.FileLocationRequestArgs,
   ): Promise<protocol.OccurrencesResponse> {
     return this.execute("occurrences", args)

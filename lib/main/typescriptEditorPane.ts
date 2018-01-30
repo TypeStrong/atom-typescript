@@ -126,7 +126,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     const pos = this.editor.getLastCursor().getBufferPosition()
 
     try {
-      const result = await this.client.executeOccurances({
+      const result = await this.client.executeOccurences({
         file: this.filePath,
         line: pos.row + 1,
         offset: pos.column + 1,

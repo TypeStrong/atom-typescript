@@ -99,7 +99,7 @@ class TypescriptServiceClient {
     executeGetErrForProject(args) {
         return this.execute("geterrForProject", args);
     }
-    executeOccurances(args) {
+    executeOccurences(args) {
         return this.execute("occurrences", args);
     }
     executeOpen(args) {
