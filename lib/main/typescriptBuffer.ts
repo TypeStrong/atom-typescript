@@ -1,11 +1,24 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
-import {CompositeDisposable, Disposable} from "atom"
+import * as Atom from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
 import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
+  private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
+  public static construct(
+    buffer: Atom.TextBuffer,
+    getClient: (filePath: string) => Promise<Client>,
+  ) {
+    const b = TypescriptBuffer.bufferMap.get(buffer)
+    if (b) return b
+    else {
+      const nb = new TypescriptBuffer(buffer, getClient)
+      TypescriptBuffer.bufferMap.set(buffer, nb)
+      return nb
+    }
+  }
   // Timestamps for buffer events
   changedAt: number = 0
   changedAtBatch: number = 0
@@ -17,11 +30,11 @@ export class TypescriptBuffer {
   isOpen: boolean
 
   private events = new EventEmitter()
-  private subscriptions = new CompositeDisposable()
-  private filePath: string
+  private subscriptions = new Atom.CompositeDisposable()
+  private filePath: string | undefined
 
-  constructor(
-    public buffer: TextBuffer.ITextBuffer,
+  private constructor(
+    public buffer: Atom.TextBuffer,
     public getClient: (filePath: string) => Promise<Client>,
   ) {
     this.subscriptions.add(buffer.onDidChange(this.onDidChange))
@@ -36,7 +49,7 @@ export class TypescriptBuffer {
   async open() {
     this.filePath = this.buffer.getPath()
 
-    if (isTypescriptFile(this.filePath)) {
+    if (this.filePath && isTypescriptFile(this.filePath)) {
       // Set isOpen before we actually open the file to enqueue any changed events
       this.isOpen = true
 
@@ -55,18 +68,13 @@ export class TypescriptBuffer {
   // If there are any pending changes, flush them out to the Typescript server
   async flush() {
     if (this.changedAt > this.changedAtBatch) {
-      let sub: Disposable | undefined
       await new Promise(resolve => {
-        sub = this.buffer.onDidStopChanging(() => {
+        const sub = this.buffer.onDidStopChanging(() => {
+          sub.dispose()
           resolve()
         })
-
         this.buffer.emitDidStopChangingEvent()
       })
-
-      if (sub) {
-        sub.dispose()
-      }
     }
   }
 
@@ -75,15 +83,19 @@ export class TypescriptBuffer {
 
     if (this.isOpen && this.clientPromise) {
       const client = await this.clientPromise
-      client.executeClose({file: this.buffer.getPath()})
+      const file = this.buffer.getPath()
+      if (file) {
+        client.executeClose({file})
+      }
       this.events.emit("closed", this.filePath)
     }
   }
 
-  on(name: "saved", callback: () => void): this // saved after waiting for any pending changes
-  on(name: "opened", callback: () => void): this // the file is opened
+  // saved after waiting for any pending changes
+  // the file is opened
+  // or tsserver view of the file has changed
+  on(name: "saved" | "opened" | "changed", callback: () => void): this
   on(name: "closed", callback: (filePath: string) => void): this // the file is closed
-  on(name: "changed", callback: () => void): this // tsserver view of the file has changed
   on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
     this.events.on(name, callback)
     return this
@@ -93,7 +105,7 @@ export class TypescriptBuffer {
     this.changedAt = Date.now()
   }
 
-  onDidChangePath = async (newPath: string) => {
+  onDidChangePath = async () => {
     if (this.clientPromise && this.filePath) {
       const client = await this.clientPromise
       client.executeClose({file: this.filePath})
@@ -113,7 +125,7 @@ export class TypescriptBuffer {
     this.events.emit("saved")
   }
 
-  onDidStopChanging = async ({changes}: {changes: any[]}) => {
+  onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
     // Don't update changedAt or emit any events if there are no actual changes or file isn't open
     if (changes.length === 0 || !this.isOpen || !this.clientPromise) {
       return
@@ -121,8 +133,11 @@ export class TypescriptBuffer {
 
     this.changedAtBatch = Date.now()
 
-    const client = await this.clientPromise
     const filePath = this.buffer.getPath()
+    if (!filePath) {
+      return
+    }
+    const client = await this.clientPromise
 
     for (const change of changes) {
       const {start, oldExtent, newText} = change

@@ -1,6 +1,6 @@
+import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
-import {RenameView} from "../views/renameView"
-import {SemanticViewPane} from "../views/semanticView"
+import {SemanticViewPane} from "../views/semanticViewPane"
 import {FileSymbolsView} from "../views/symbolsViewMain"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
@@ -9,7 +9,6 @@ export interface Dependencies {
   clearErrors(): void
   getTypescriptBuffer: GetTypescriptBuffer
   getClient(filePath: string): Promise<TypescriptServiceClient>
-  renameView: RenameView
   semanticView: SemanticViewPane
   fileSymbolsView: FileSymbolsView
   statusPanel: StatusPanel
@@ -19,9 +18,7 @@ export type GetTypescriptBuffer = (
   filePath: string,
 ) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
-export interface CommandConstructor {
-  (deps: Dependencies): (e: AtomCore.CommandEvent) => any
-}
+export type CommandConstructor = (deps: Dependencies) => (e: Atom.CommandEvent) => void
 
 // To allow using dependency injection, but avoid having to type a lot of boilerplate, we have the
 // individual command files register themselves in the below map. When the package is initializing,

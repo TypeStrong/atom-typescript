@@ -1,0 +1,4 @@
+{
+  "defaultSeverity": "warning",
+  "extends": ["../lib/tslint.json"]
+}

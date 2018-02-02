@@ -1,3 +1,4 @@
+// tslint:disable:max-classes-per-file
 import * as protocol from "typescript/lib/protocol"
 import {BufferedNodeProcess, BufferedProcess} from "atom"
 import {Callbacks} from "./callbacks"
@@ -9,7 +10,7 @@ import byline = require("byline")
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-export const CommandWithResponse = new Set([
+export const commandWithResponse = new Set([
   "compileOnSaveAffectedFileList",
   "compileOnSaveEmitFile",
   "completionEntryDetails",
@@ -30,19 +31,13 @@ export const CommandWithResponse = new Set([
 
 export class TypescriptServiceClient {
   /** Callbacks that are waiting for responses */
-  callbacks: Callbacks
+  private callbacks: Callbacks
 
   private events = new EventEmitter()
   private seq = 0
 
-  /** The tsserver child process */
-  server: ChildProcess
-
   /** Promise that resolves when the server is ready to accept requests */
-  serverPromise?: Promise<ChildProcess>
-
-  /** Extra args passed to the tsserver executable */
-  readonly tsServerArgs: string[] = []
+  private serverPromise?: Promise<ChildProcess>
 
   constructor(public tsServerPath: string, public version: string) {
     this.callbacks = new Callbacks(this.emitPendingRequests)
@@ -61,7 +56,7 @@ export class TypescriptServiceClient {
   }
   executeCompileOnSaveEmitFile(
     args: protocol.CompileOnSaveEmitFileRequestArgs,
-  ): Promise<protocol.Response & {body: boolean}> {
+  ): Promise<protocol.Response> {
     return this.execute("compileOnSaveEmitFile", args)
   }
   executeCompletions(args: protocol.CompletionsRequestArgs): Promise<protocol.CompletionsResponse> {
@@ -203,16 +198,17 @@ export class TypescriptServiceClient {
       await this.serverPromise,
       command,
       args,
-      CommandWithResponse.has(command),
+      commandWithResponse.has(command),
     )
   }
 
   /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
-  on(name: "configFileDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: "pendingRequestsChange", listener: (requests: string[]) => any): Function
-  on(name: "semanticDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: "syntaxDiag", listener: (result: protocol.DiagnosticEventBody) => any): Function
-  on(name: string, listener: (result: any) => any): Function {
+  on(
+    name: "configFileDiag" | "semanticDiag" | "syntaxDiag",
+    listener: (result: protocol.DiagnosticEventBody) => any,
+  ): () => void
+  on(name: "pendingRequestsChange", listener: (requests: string[]) => any): () => void
+  on(name: string, listener: (result: any) => any): () => void {
     this.events.on(name, listener)
 
     return () => {
@@ -336,14 +332,14 @@ export class TypescriptServiceClient {
         })
       }
 
-      return (this.serverPromise = new Promise<ChildProcess>((resolve, _reject) => {
-        reject = _reject
+      return (this.serverPromise = new Promise<ChildProcess>((resolve, pReject) => {
+        reject = pReject
 
         if (window.atom_typescript_debug) {
           console.log("starting", this.tsServerPath)
         }
 
-        const cp = startServer(this.tsServerPath, this.tsServerArgs)
+        const cp = startServer(this.tsServerPath)
 
         cp.once("error", exitHandler)
         cp.once("exit", exitHandler)
@@ -355,7 +351,7 @@ export class TypescriptServiceClient {
         })
 
         // We send an unknown command to verify that the server is working.
-        this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp))
+        this.sendRequest(cp, "ping", null, true).then(() => resolve(cp), () => resolve(cp))
       }))
     } else {
       throw new Error(`Server already started: ${this.tsServerPath}`)
@@ -363,7 +359,9 @@ export class TypescriptServiceClient {
   }
 }
 
-function startServer(tsServerPath: string, tsServerArgs: string[]): ChildProcess {
+function startServer(tsServerPath: string): ChildProcess {
+  const locale = atom.config.get("atom-typescript.locale")
+  const tsServerArgs: string[] = locale ? ["--locale", locale] : []
   if (INSPECT_TSSERVER) {
     return new BufferedProcess({
       command: "node",
@@ -395,7 +393,7 @@ class MessageStream extends Transform {
     super({objectMode: true})
   }
 
-  _transform(buf: Buffer, encoding: string, callback: Function) {
+  _transform(buf: Buffer, _encoding: string, callback: (n: null) => void) {
     const line = buf.toString()
 
     try {

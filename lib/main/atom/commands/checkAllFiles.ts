@@ -7,7 +7,12 @@ commands.set("typescript:check-all-files", deps => {
       return
     }
 
-    const {file} = getFilePathPosition()
+    const fpp = getFilePathPosition()
+    if (!fpp) {
+      e.abortKeyBinding()
+      return
+    }
+    const {file} = fpp
     const client = await deps.getClient(file)
 
     const projectInfo = await client.executeProjectInfo({
@@ -22,17 +27,17 @@ commands.set("typescript:check-all-files", deps => {
     // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
     // that, we cancel the listener and close the progress bar after no diagnostics have been received
     // for some amount of time.
-    let cancelTimeout: any
+    let cancelTimeout: number | undefined
 
     const unregister = client.on("syntaxDiag", evt => {
-      clearTimeout(cancelTimeout)
-      cancelTimeout = setTimeout(cancel, 500)
+      if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
+      cancelTimeout = window.setTimeout(cancel, 500)
 
       files.delete(evt.file)
       updateStatus()
     })
 
-    deps.statusPanel.setProgress({max, value: 0})
+    deps.statusPanel.update({progress: {max, value: 0}})
     client.executeGetErrForProject({file, delay: 0})
 
     function cancel() {
@@ -43,9 +48,9 @@ commands.set("typescript:check-all-files", deps => {
     function updateStatus() {
       if (files.size === 0) {
         unregister()
-        deps.statusPanel.setProgress(undefined)
+        deps.statusPanel.update({progress: undefined})
       } else {
-        deps.statusPanel.setProgress({max, value: max - files.size})
+        deps.statusPanel.update({progress: {max, value: max - files.size}})
       }
     }
   }

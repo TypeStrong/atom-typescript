@@ -4,13 +4,33 @@
 
 JavaScript developers can now just open a `.ts` file and start hacking away like they are used to. No `grunt` no `Visual Studio`. Just pure coding.
 
+**NOTE**: When updating to **v12**, make sure `language-typescript` core
+package is **enabled**. We're discontinuing our own grammar in favor of
+`language-typescript`. Both are very similar and are basically Microsoft's
+TextMate grammar repackaged, and there's little reason to bundle our own if
+there's one available by default.
+
 **NOTE**: This branch contains a major rewrite (**v11**) of the `atom-typescript` plugin that is lighter and faster, but lacks a few major features that you might miss. The previous version is still available in the `legacy` branch and will continue to receive minor bugfixes, but I wouldn't count on any new developments.
 
 ## Installation
 
 1. Install [atom](https://atom.io).
-2. `apm install atom-typescript` (`apm` needs `git` in your path)
-3. Fire up atom. Open a TypeScript file. Potentially wait for further installs (just `apm install linter` if its not there already).
+2. Install dependencies (see below)
+3. `apm install atom-typescript` (`apm` needs `git` in your path)
+4. Fire up atom. Open a TypeScript file.
+
+**Dependencies**:
+
+Atom-TypeScript relies on some external packages for providing some of its GUI. You basically have two options.
+
+**Option 1**: Install `atom-ide-ui` package.
+
+**Option 2**: Install the following packages:
+
+- `linter`
+- `linter-ui-default`
+- `hyperclick`
+- `intentions`
 
 **Additional Notes**: [Some packages we love](https://github.com/TypeStrong/atom-typescript/blob/master/docs/packages.md).
 
@@ -74,7 +94,7 @@ Shortcut `shift+F12`. Also called *find usages*.
 ![](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/screens/renameRefactoring.png)
 
 ## Quick Fix
-Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux.
+Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux when using `intentions`, `alt+a` when using `atom-ide-ui`.
 Currently available codefixes:
 https://github.com/Microsoft/TypeScript/tree/master/src/services/codefixes
 

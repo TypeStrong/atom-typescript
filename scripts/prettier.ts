@@ -35,12 +35,7 @@ function command(action: "write" | "check") {
     resolve(__dirname, "..", "node_modules", ".bin", "prettier"),
     ...[
       action === "write" ? "--write" : "--list-different",
-      "--print-width 100",
-      "--no-semi",
-      "--no-bracket-spacing",
-      "--jsx-bracket-same-line",
-      "--trailing-comma all",
-      '"./{lib,scripts}/**/*.{ts,tsx}"',
+      '"./{lib,scripts,spec}/**/*.{ts,tsx}"',
     ],
   ].join(" ")
 }
