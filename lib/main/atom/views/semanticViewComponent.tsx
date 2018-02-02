@@ -1,16 +1,16 @@
 import atomUtils = require("../utils")
-import {CompositeDisposable, Disposable, TextEditor, PaneItemObservedEvent} from "atom"
+import {Disposable, TextEditor} from "atom"
 import {clientResolver} from "../../atomts"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 
-interface Props extends JSX.Props {
+export interface Props extends JSX.Props {
   navTree: NavigationTreeExt
 }
 
 // interface for attaching some HELPER fields to the NavigationTree
-interface NavigationTreeExt extends NavigationTree {
+export interface NavigationTreeExt extends NavigationTree {
   styleClasses: string
   childItems?: NavigationTreeExt[]
 }
@@ -20,9 +20,7 @@ interface ElementExt extends Element {
   closest(seletor: string): Element | null
 }
 
-const VIEW_URI = "atomts-semantic-view"
-
-class SemanticViewComponent implements JSX.ElementClass {
+export class SemanticViewComponent implements JSX.ElementClass {
   private editor: TextEditor
   public refs: {
     main: HTMLDivElement
@@ -121,7 +119,8 @@ class SemanticViewComponent implements JSX.ElementClass {
       //     for now: sort ascending by line-number
       navTree.childItems.sort((a, b) => this.getNodeStartLine(a) - this.getNodeStartLine(b))
 
-      for (let child of navTree.childItems) {
+      let child: NavigationTreeExt
+      for (child of navTree.childItems) {
         this.prepareNavTree(child)
       }
     }
@@ -541,204 +540,5 @@ class SemanticViewComponent implements JSX.ElementClass {
   gotoNode(node: NavigationTree): void {
     const gotoLine = this.getNodeStartLine(node)
     this.editor.setCursorBufferPosition([gotoLine, 0])
-  }
-}
-
-export interface SemanticViewOptions {}
-
-export class SemanticView {
-  public get rootDomElement() {
-    return this.element
-  }
-  public element: HTMLElement
-  private comp: SemanticViewComponent | null
-
-  constructor(public config: SemanticViewOptions) {
-    // super(config)
-    this.element = document.createElement("div")
-    this.element.classList.add("atomts", "atomts-semantic-view", "native-key-bindings")
-  }
-
-  /**
-   * This function exists because the react component needs access to `panel` which needs access to `SemanticView`.
-   * So we lazily create react component after panel creation
-   */
-  started = false
-  start() {
-    if (this.started && this.comp) {
-      this.comp.forceUpdate()
-      return
-    }
-    this.started = true
-    this.comp = new SemanticViewComponent({navTree: {} as NavigationTreeExt})
-    this.comp.componentDidMount() //TODO is there a hook in etch that gets triggered after initializion finished?
-    this.rootDomElement.appendChild(this.comp.refs.main)
-  }
-
-  getElement() {
-    return this.rootDomElement
-  }
-
-  getTitle() {
-    return "TypeScript"
-  }
-
-  getURI() {
-    return "atom://" + VIEW_URI
-  }
-  // Tear down any state and detach
-  destroy() {
-    if (this.comp) {
-      this.comp.destroy()
-      this.comp = null
-    }
-    this.element.remove()
-  }
-
-  getDefaultLocation() {
-    return "right"
-  }
-
-  getAllowedLocations() {
-    // The locations into which the item can be moved.
-    return ["left", "right"]
-  }
-
-  // TODO activate serialization/deserialization
-  // add to package.json:
-  // "deserializers": {
-  //   "atomts-semantic-view/SemanticView": "deserializeSemanticView"
-  // },
-  //
-  // serialize() {
-  //   return {
-  //     // This is used to look up the deserializer function. It can be any string, but it needs to be
-  //     // unique across all packages!
-  //     deserializer: "atomts-semantic-view/SemanticView",
-  //     data: {},
-  //   }
-  // }
-  //
-  // static deserializeSemanticView(serialized: any) {
-  //   // TODO should store & restore the expansion-state of the nodes
-  //   return new SemanticView(serialized)
-  // }
-}
-
-export class SemanticViewPane {
-  isOpen: boolean = false
-  subscriptions: CompositeDisposable | null = null
-
-  public activate(state: any) {
-    if (!VIEW_URI && state) {
-      // NOTE is is just a dummy to avoid warning of unused variable state
-      console.log(state)
-    }
-    this.subscriptions = new CompositeDisposable()
-
-    this.subscriptions.add(
-      atom.workspace.addOpener((uri: string) => {
-        if (uri === "atom://" + VIEW_URI) {
-          this.isOpen = true
-          const view = new SemanticView({})
-          view.start()
-          return view
-        }
-      }),
-    )
-
-    this.subscriptions.add({
-      dispose() {
-        atom.workspace.getPaneItems().forEach(paneItem => {
-          if (paneItem instanceof SemanticView) {
-            paneItem.destroy()
-          }
-        })
-      },
-    })
-
-    this.subscriptions.add(
-      atom.workspace.onDidAddPaneItem((event: PaneItemObservedEvent) => {
-        if (event.item instanceof SemanticView) {
-          this.isOpen = true
-          atom.config.set<string>("atom-typescript.showSemanticView", true)
-          // console.log("TypeScript Semantic View was opened")
-        }
-      }),
-    )
-
-    this.subscriptions.add(
-      atom.workspace.onDidDestroyPaneItem((event: PaneItemObservedEvent) => {
-        if (event.item instanceof SemanticView) {
-          this.isOpen = false
-          atom.config.set<string>("atom-typescript.showSemanticView", false)
-          // console.log("TypeScript Semantic View was closed")
-        }
-      }),
-    )
-
-    this.subscriptions.add(
-      atom.config.onDidChange(
-        "atom-typescript.showSemanticView",
-        (val: {newValue: any; oldValue?: any}) => {
-          this.show(val.newValue as boolean)
-        },
-      ),
-    )
-
-    this.show(atom.config.get("atom-typescript.showSemanticView"))
-  }
-
-  deactivate() {
-    if (this.subscriptions !== null) {
-      this.subscriptions.dispose()
-    }
-  }
-
-  toggle(): void {
-    // console.log("TypeScript Semantic View was toggled")
-    atom.workspace.toggle("atom://" + VIEW_URI)
-  }
-
-  show(isShow?: boolean): void {
-    if (isShow === false) {
-      this.hide()
-      return
-    }
-    // console.log("TypeScript Semantic View was opened")
-    atom.workspace.open("atom://" + VIEW_URI, {})
-  }
-
-  hide(isHide?: boolean): void {
-    if (isHide === false) {
-      this.show()
-      return
-    }
-    // console.log("TypeScript Semantic View was hidden")
-    atom.workspace.hide("atom://" + VIEW_URI)
-  }
-}
-
-export let mainPane: SemanticViewPane
-export function attach(): {dispose(): void; semanticView: SemanticViewPane} {
-  // Only attach once
-  if (!mainPane) {
-    mainPane = new SemanticViewPane()
-    mainPane.activate({})
-  }
-
-  return {
-    dispose() {
-      mainPane.deactivate()
-    },
-    semanticView: mainPane,
-  }
-}
-
-export function toggle() {
-  if (mainPane) {
-    mainPane.toggle()
-  } else {
-    console.log(`cannot toggle: ${VIEW_URI} not initialized`)
   }
 }

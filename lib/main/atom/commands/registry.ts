@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
-import {SemanticViewPane} from "../views/semanticView"
+import {SemanticViewPane} from "../views/semanticViewPane"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
 
