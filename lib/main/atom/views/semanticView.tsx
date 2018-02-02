@@ -1,61 +1,52 @@
 import atomUtils = require("../utils")
-import {CompositeDisposable} from "atom"
+import {CompositeDisposable, Disposable, TextEditor, PaneItemObservedEvent} from "atom"
 import {clientResolver} from "../../atomts"
-import * as dom from "jsx-render-dom"
+import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 
-//add some missing interface definitions to IWorkspace TODO transfere to typings/atom*
-interface IWorkspaceExt extends AtomCore.IWorkspace {
-  getPaneItems(): Array<AtomCore.IPane>
-  toggle(item: AtomCore.IPane | string): Promise<void>
-  hide(item: AtomCore.IPane | string): boolean
-  onDidChangeActiveTextEditor(editor: any): AtomCore.Disposable
-  onDidAddPaneItem(callback: (itemInfo: PaneItemInfo) => void): AtomCore.Disposable
-  onDidDestroyPaneItem(callback: (itemInfo: PaneItemInfo) => void): AtomCore.Disposable
+interface Props extends JSX.Props {
+  navTree: NavigationTreeExt
 }
 
-//referenced by IWorkspaceExt:
-interface PaneItemInfo {
-  item: any
-  pane: AtomCore.IPane
-  index: number
-}
-
-//add some missing interface definitions to IConfig TODO transfere to typings/atom*
-interface IConfigExt extends AtomCore.IConfig {
-  set<T>(keyPath: string, value: T): any
-}
-
-//interface for attaching some HELPER fields to the NavigationTree
+// interface for attaching some HELPER fields to the NavigationTree
 interface NavigationTreeExt extends NavigationTree {
   styleClasses: string
   childItems?: NavigationTreeExt[]
 }
 
-//experimental interface for Element, see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+// experimental interface for Element, see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 interface ElementExt extends Element {
   closest(seletor: string): Element | null
 }
 
 const VIEW_URI = "atomts-semantic-view"
 
-class SemanticViewRenderer {
-  private editor: AtomCore.IEditor
-  private navTree: NavigationTree | null
-  private root: HTMLElement | null
+class SemanticViewComponent implements JSX.ElementClass {
+  private editor: TextEditor
+  public refs: {
+    main: HTMLDivElement
+  }
   private selectedNode: HTMLElement | null
 
-  private editorScrolling: AtomCore.Disposable
-  private editorChanging: AtomCore.Disposable
-  private activeEditorChanging: AtomCore.Disposable
+  private editorScrolling: Disposable
+  private editorChanging: Disposable
+  private activeEditorChanging: Disposable
 
-  constructor() {
-    this.navTree = null
+  constructor(public props: Props) {
     this.selectedNode = null
+    etch.initialize(this)
   }
 
-  destroy(): void {
+  public async update(props: Partial<Props>) {
+    if (props.navTree) {
+      this.prepareNavTree(props.navTree)
+    }
+    this.props = {...this.props, ...props}
+    await etch.update(this)
+  }
+
+  public async destroy() {
     if (this.editorScrolling) {
       this.editorScrolling.dispose()
     }
@@ -65,44 +56,42 @@ class SemanticViewRenderer {
     if (this.activeEditorChanging) {
       this.activeEditorChanging.dispose()
     }
-    this.navTree = null
     this.selectedNode = null
-    if (this.root) {
-      this.root.remove()
-      this.root = null
-    }
+    await etch.destroy(this)
   }
 
-  private setEditor(editor: AtomCore.IEditor) {
+  private setEditor(editor: TextEditor) {
     this.editor = editor
   }
 
-  private setNavTree(navTree: NavigationTree | null) {
+  private async setNavTree(navTree: NavigationTree | null) {
     this.prepareNavTree(navTree as NavigationTreeExt)
-    if (isEqual(navTree, this.navTree)) {
+    if (isEqual(navTree, this.props.navTree)) {
       return
     }
-    this.navTree = navTree
-    this._render()
+    this.props = {navTree: navTree as NavigationTreeExt}
+    await etch.update(this)
   }
 
-  public forceUpdate() {
-    this._render()
+  public async forceUpdate() {
+    await etch.update(this)
   }
 
   private async loadNavTree(filePath?: string) {
     filePath = filePath ? filePath : this.editor.getPath()
     // const client = await clientResolver.get(filePath);
-    try {
-      const client = await clientResolver.get(filePath)
-      await client.executeOpen({file: filePath})
-      const navtreeResult = await client.executeNavTree({file: filePath as string})
-      const navTree = navtreeResult ? navtreeResult.body as NavigationTree : void 0
-      if (navTree) {
-        this.setNavTree(navTree)
+    if (filePath) {
+      try {
+        const client = await clientResolver.get(filePath)
+        await client.executeOpen({file: filePath})
+        const navtreeResult = await client.executeNavTree({file: filePath as string})
+        const navTree = navtreeResult ? (navtreeResult.body as NavigationTree) : void 0
+        if (navTree) {
+          this.setNavTree(navTree)
+        }
+      } catch (err) {
+        console.error(err, filePath)
       }
-    } catch (err) {
-      console.error(err, filePath)
     }
   }
 
@@ -116,19 +105,19 @@ class SemanticViewRenderer {
    */
   private prepareNavTree(navTree: NavigationTreeExt): void {
     navTree.styleClasses = this.getIconForKind(navTree.kind)
-    let modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
+    const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
     if (modifiersClasses) {
       navTree.styleClasses += " " + modifiersClasses
     }
 
     if (navTree.childItems) {
       if (navTree.childItems.length < 1) {
-        //normalize: remove empty lists
+        // normalize: remove empty lists
         navTree.childItems = void 0
         return
       }
 
-      //TODO should there be a different sort-order?
+      // TODO should there be a different sort-order?
       //     for now: sort ascending by line-number
       navTree.childItems.sort((a, b) => this.getNodeStartLine(a) - this.getNodeStartLine(b))
 
@@ -138,16 +127,16 @@ class SemanticViewRenderer {
     }
   }
 
-  //TODO refactor/rename this function if/when React is abandoned
+  // TODO refactor/rename this function if/when React is abandoned
   componentDidMount() {
-    let subscribeToEditor = (editor: AtomCore.IEditor) => {
+    const subscribeToEditor = (editor: TextEditor) => {
       if (!editor) {
         unsubscribeFromEditor()
         return
       }
       this.setEditor(editor)
 
-      //set navTree
+      // set navTree
       const filePath = editor.getPath()
       this.loadNavTree(filePath)
 
@@ -163,14 +152,14 @@ class SemanticViewRenderer {
         this.editorChanging.dispose()
       }
       this.editorChanging = editor.onDidStopChanging(() => {
-        //set navTree
-        const filePath = editor.getPath()
-        this.loadNavTree(filePath)
+        // set navTree
+        const fPath = editor.getPath()
+        this.loadNavTree(fPath)
       })
     }
 
-    let unsubscribeFromEditor = () => {
-      //dispose subscriptions (except for editor-changing)
+    const unsubscribeFromEditor = () => {
+      // dispose subscriptions (except for editor-changing)
       if (this.editorScrolling) {
         this.editorScrolling.dispose()
       }
@@ -178,18 +167,22 @@ class SemanticViewRenderer {
         this.editorChanging.dispose()
       }
 
-      //clear view:
-      this.navTree = null
-      this.forceUpdate()
+      // clear view:
+      // this.navTree = null
+      // this.forceUpdate()
+      this.update({navTree: {} as NavigationTreeExt})
     }
 
     // We don't start unless there is work to do ... so work
-    subscribeToEditor(atomUtils.getActiveEditor())
+    const activeEditor = atom.workspace.getActiveTextEditor()
+    if (activeEditor) {
+      subscribeToEditor(activeEditor) // atomUtils.getActiveEditor())
+    }
 
     // Editor changing
-    this.activeEditorChanging = (atom.workspace as IWorkspaceExt).onDidChangeActiveTextEditor(
-      (editor: AtomCore.IEditor) => {
-        if (atomUtils.onDiskAndTs(editor)) {
+    this.activeEditorChanging = atom.workspace.onDidChangeActiveTextEditor(
+      (editor: TextEditor | undefined) => {
+        if (editor && atomUtils.onDiskAndTs(editor)) {
           subscribeToEditor(editor)
         } else {
           unsubscribeFromEditor()
@@ -198,21 +191,22 @@ class SemanticViewRenderer {
     )
   }
 
-  /**
-   * Actually component will never unmount ... so no unsubs for now
-   */
-  componentWillUnmount() {} //see destroy()
+  // /**
+  //  * Actually component will never unmount ... so no unsubs for now
+  //  */
+  // componentWillUnmount() {} // see destroy()
 
   whileRendering: {lastCursorLine: number | null} = {
     lastCursorLine: 0,
   }
 
-  _render(node?: HTMLElement): void {
-    this.root = node ? node : this.root
-    if (!this.root) {
-      console.error("cannot render: not initialized yet.")
-      return ////////////// EARLY EXIT /////////////////
-    }
+  render() {
+    // node?: HTMLElement): void {
+    // this.root = node ? node : this.root
+    // if (!this.root) {
+    //   console.error("cannot render: not initialized yet.")
+    //   return ////////////// EARLY EXIT /////////////////
+    // }
     this.whileRendering = {
       lastCursorLine:
         this.editor && this.editor.getLastCursor()
@@ -220,77 +214,87 @@ class SemanticViewRenderer {
           : null,
     }
     this.selectedNode = null
-    if (!this.navTree) {
-      if (this.navTree === null) {
-        let child = this.root.firstChild
-        if (child) this.root.removeChild(child)
-      }
-      return ////////////// EARLY EXIT /////////////////
-    }
-    let content = (
-      <ol className="list-tree has-collapsable-children focusable-panel">
-        {this.renderNode(this.navTree, 0)}
+    // if (!this.props.navTree) {
+    //   if (this.props.navTree === null) {
+    //     let child = this.refs.main.firstChild
+    //     if (child) this.refs.main.removeChild(child)
+    //   }
+    //   return ////////////// EARLY EXIT /////////////////
+    // }
+    // let content = (
+    //   <ol className="list-tree has-collapsable-children focusable-panel">
+    //     {this.renderNode(this.props.navTree, 0)}
+    //   </ol>
+    // )
+    // let child = this.root.firstChild
+    // if (child) this.root.replaceChild(content, child)
+    // else this.root.appendChild(content)
+    //
+    // if (this.selectedNode) this.scrollTo(this.selectedNode)
+    return (
+      <ol ref="main" className="list-tree has-collapsable-children focusable-panel">
+        {this.renderNode(this.props.navTree)}
       </ol>
     )
-    let child = this.root.firstChild
-    if (child) this.root.replaceChild(content, child)
-    else this.root.appendChild(content)
+  }
 
+  public writeAfterUpdate() {
+    // TODO should this use hook readAfterUpdate() instead?
     if (this.selectedNode) this.scrollTo(this.selectedNode)
   }
 
   private getNodeStartLine(node: NavigationTree): number {
-    return node.spans[0].start.line - 1
+    // console.log('getNodeStartLine.node -> ', node)
+    return node && node.spans ? node.spans[0].start.line - 1 : 0
   }
 
   private getNodeEndLine(node: NavigationTree): number {
-    let s = node.spans
-    return s[s.length - 1].end.line - 1
+    const s = node!.spans
+    return s ? s[s.length - 1].end.line - 1 : 0
   }
 
   private getDomNodeStartLine(elem: HTMLElement): number {
-    return parseInt(elem.dataset.start as string, 10)
+    // return parseInt(elem.dataset.start as string, 10)
+    return parseInt((elem as any)["data-start"] as string, 10)
   }
 
   private getDomNodeEndLine(elem: HTMLElement): number {
-    return parseInt(elem.dataset.end as string, 10)
+    // return parseInt(elem.dataset.end as string, 10)
+    return parseInt((elem as any)["data-end"] as string, 10)
   }
 
-  private renderNode(node: NavigationTree, indent: number): HTMLElement {
-    let selected = this.isSelected(node)
+  private renderNode(node: NavigationTree): JSX.Element {
+    // const selected = this.isSelected(node) TODO find way to set initial selection
 
-    let domNode = (
-      <li className={"node entry exanded list-" + (node.childItems ? "nested-" : "") + "item"}>
-        <div className="header list-item" onClick={event => this.entryClicked(event, node)}>
-          <span className={(node as NavigationTreeExt).styleClasses}>
-            {node.text}
-          </span>
+    const domNode: JSX.Element = (
+      <li
+        className={"node entry exanded list-" + (node.childItems ? "nested-" : "") + "item"}
+        data-start={this.getNodeStartLine(node) + ""}
+        data-end={this.getNodeEndLine(node) + ""}>
+        <div className="header list-item" on={{click: event => this.entryClicked(event, node)}}>
+          <span className={(node as NavigationTreeExt).styleClasses}>{node.text || ""}</span>
         </div>
         <ol className="entries list-tree">
-          {node.childItems ? node.childItems.map(sn => this.renderNode(sn, indent + 1)) : ""}
+          {node.childItems ? node.childItems.map(sn => this.renderNode(sn)) : ""}
         </ol>
       </li>
     )
 
-    //TODO if using change-aware renderer, these should propably set within HTML/template code:
-    domNode.dataset.start = this.getNodeStartLine(node) + ""
-    domNode.dataset.end = this.getNodeEndLine(node) + ""
-
-    //set selected
-    this.setSelected(domNode, selected)
+    // set selected
+    // this.setSelected(domNode, selected) TODO find way to set initial selection
 
     return domNode
   }
 
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
-    let target = (event.target as ElementExt).closest(".node")
-    let isToggle: boolean = this.isToggleEntry(target, event)
+    const target = (event.target as ElementExt).closest(".node")
+    const isToggle: boolean = this.isToggleEntry(target, event)
     // console.log(isToggle ? "click-toggle" : "click-scroll")
 
     if (!isToggle) {
       this.gotoNode(node)
     } else if (target) {
-      let isCollapsed = target.classList.contains("collapsed")
+      const isCollapsed = target.classList.contains("collapsed")
       if (isCollapsed) {
         this.expandEntry(target)
       } else {
@@ -326,10 +330,10 @@ class SemanticViewRenderer {
       return false
     }
     let isToggle: boolean = nodeEntry.classList.contains("list-nested-item")
-    //only continue, if entry as sub-entries (i.e. is nested list item):
+    // only continue, if entry as sub-entries (i.e. is nested list item):
     if (isToggle) {
-      let target = event.target as Element
-      //only toggle, if label-wrapper, i.e. element <span class="header list-item"> was clicked
+      const target = event.target as Element
+      // only toggle, if label-wrapper, i.e. element <span class="header list-item"> was clicked
       //  (since the "label-wrapper" has the expand/collapse icon attached via its ::before style)
       if (!target.classList.contains("header") || !target.classList.contains("list-item")) {
         isToggle = false
@@ -349,7 +353,10 @@ class SemanticViewRenderer {
     } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
       return `modifier-${kindModifiers}`
     } else {
-      return kindModifiers.split(/[, ]/).map(modifier => "modifier-" + modifier.trim()).join(" ")
+      return kindModifiers
+        .split(/[, ]/)
+        .map(modifier => "modifier-" + modifier.trim())
+        .join(" ")
     }
   }
 
@@ -382,7 +389,7 @@ class SemanticViewRenderer {
    *            the node to be tested
    * @return {Boolean} true, if the node's HTML representation should be selected
    */
-  private isSelected(node: NavigationTree): boolean {
+  protected isSelected(node: NavigationTree): boolean {
     if (this.whileRendering.lastCursorLine == null) return false
     else {
       if (
@@ -411,7 +418,7 @@ class SemanticViewRenderer {
     if (selected) {
       let setSelected: boolean = true
       if (this.selectedNode) {
-        //do not select, if there is a node selected "further down"
+        // do not select, if there is a node selected "further down"
         if (!forceSelection && this.isChild(this.selectedNode, domNode)) {
           setSelected = false
         }
@@ -444,12 +451,12 @@ class SemanticViewRenderer {
           : null,
     }
 
-    let cursorLine = this.whileRendering.lastCursorLine
-    if (!cursorLine || !this.navTree || !this.root) {
+    const cursorLine = this.whileRendering.lastCursorLine
+    if (!cursorLine || !this.props.navTree || !this.refs.main) {
       return
     }
 
-    let selectedChild = this.findNodeAtCursorLine(this.root, cursorLine)
+    const selectedChild = this.findNodeAtCursorLine(this.refs.main, cursorLine)
     if (selectedChild !== null) {
       // console.log('select at cursor-line '+cursorLine, selectedChild);
       this.setSelected(selectedChild, true, true)
@@ -475,11 +482,11 @@ class SemanticViewRenderer {
     }
 
     for (let i = 0, size = domNode.childElementCount; i < size; ++i) {
-      let elem = domNode.children[i] as HTMLElement
+      const elem = domNode.children[i] as HTMLElement
       let selectedChild: HTMLElement | null = null
       if (elem.dataset) {
-        let start: number = this.getDomNodeStartLine(elem)
-        let end: number = this.getDomNodeEndLine(elem)
+        const start: number = this.getDomNodeStartLine(elem)
+        const end: number = this.getDomNodeEndLine(elem)
         if (isFinite(start) && isFinite(end)) {
           if (cursorLine >= start && cursorLine <= end) {
             selectedChild = this.findNodeAtCursorLine(elem, cursorLine)
@@ -500,8 +507,8 @@ class SemanticViewRenderer {
     }
 
     if (domNode.dataset) {
-      let start: number = this.getDomNodeStartLine(domNode)
-      let end: number = this.getDomNodeEndLine(domNode)
+      const start: number = this.getDomNodeStartLine(domNode)
+      const end: number = this.getDomNodeEndLine(domNode)
       if (isFinite(start) && isFinite(end) && cursorLine >= start && cursorLine <= end) {
         return domNode
       }
@@ -516,12 +523,12 @@ class SemanticViewRenderer {
    * @param  {HTMLElement} domNode the HTMLElement that should be made visisble
    */
   scrollTo(domNode: HTMLElement): void {
-    let elem: any = domNode
+    const elem: any = domNode
     if (typeof elem.scrollIntoViewIfNeeded === "function") {
       elem.scrollIntoViewIfNeeded()
     } else if (typeof elem.scrollIntoView === "function") {
       elem.scrollIntoView()
-    } //TODO else: impl. scroll
+    } // TODO else: impl. scroll
   }
 
   /**
@@ -532,7 +539,7 @@ class SemanticViewRenderer {
    *              the node which's element should be made visible in the editor
    */
   gotoNode(node: NavigationTree): void {
-    var gotoLine = this.getNodeStartLine(node)
+    const gotoLine = this.getNodeStartLine(node)
     this.editor.setCursorBufferPosition([gotoLine, 0])
   }
 }
@@ -544,7 +551,7 @@ export class SemanticView {
     return this.element
   }
   public element: HTMLElement
-  private comp: SemanticViewRenderer | null
+  private comp: SemanticViewComponent | null
 
   constructor(public config: SemanticViewOptions) {
     // super(config)
@@ -563,9 +570,9 @@ export class SemanticView {
       return
     }
     this.started = true
-    this.comp = new SemanticViewRenderer()
-    this.comp.componentDidMount()
-    this.comp._render(this.rootDomElement)
+    this.comp = new SemanticViewComponent({navTree: {} as NavigationTreeExt})
+    this.comp.componentDidMount() //TODO is there a hook in etch that gets triggered after initializion finished?
+    this.rootDomElement.appendChild(this.comp.refs.main)
   }
 
   getElement() {
@@ -597,7 +604,7 @@ export class SemanticView {
     return ["left", "right"]
   }
 
-  //TODO activate serialization/deserialization
+  // TODO activate serialization/deserialization
   // add to package.json:
   // "deserializers": {
   //   "atomts-semantic-view/SemanticView": "deserializeSemanticView"
@@ -613,7 +620,7 @@ export class SemanticView {
   // }
   //
   // static deserializeSemanticView(serialized: any) {
-  //   //TODO should store & restore the expansion-state of the nodes
+  //   // TODO should store & restore the expansion-state of the nodes
   //   return new SemanticView(serialized)
   // }
 }
@@ -622,7 +629,11 @@ export class SemanticViewPane {
   isOpen: boolean = false
   subscriptions: CompositeDisposable | null = null
 
-  activate(state: any) {
+  public activate(state: any) {
+    if (!VIEW_URI && state) {
+      // NOTE is is just a dummy to avoid warning of unused variable state
+      console.log(state)
+    }
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(
@@ -637,8 +648,8 @@ export class SemanticViewPane {
     )
 
     this.subscriptions.add({
-      dispose: function() {
-        ;(atom.workspace as IWorkspaceExt).getPaneItems().forEach(paneItem => {
+      dispose() {
+        atom.workspace.getPaneItems().forEach(paneItem => {
           if (paneItem instanceof SemanticView) {
             paneItem.destroy()
           }
@@ -647,20 +658,20 @@ export class SemanticViewPane {
     })
 
     this.subscriptions.add(
-      (atom.workspace as IWorkspaceExt).onDidAddPaneItem((event: PaneItemInfo) => {
+      atom.workspace.onDidAddPaneItem((event: PaneItemObservedEvent) => {
         if (event.item instanceof SemanticView) {
           this.isOpen = true
-          ;(atom.config as IConfigExt).set<boolean>("atom-typescript.showSemanticView", true)
+          atom.config.set<string>("atom-typescript.showSemanticView", true)
           // console.log("TypeScript Semantic View was opened")
         }
       }),
     )
 
     this.subscriptions.add(
-      (atom.workspace as IWorkspaceExt).onDidDestroyPaneItem((event: PaneItemInfo) => {
+      atom.workspace.onDidDestroyPaneItem((event: PaneItemObservedEvent) => {
         if (event.item instanceof SemanticView) {
           this.isOpen = false
-          ;(atom.config as IConfigExt).set<boolean>("atom-typescript.showSemanticView", false)
+          atom.config.set<string>("atom-typescript.showSemanticView", false)
           // console.log("TypeScript Semantic View was closed")
         }
       }),
@@ -669,8 +680,8 @@ export class SemanticViewPane {
     this.subscriptions.add(
       atom.config.onDidChange(
         "atom-typescript.showSemanticView",
-        (val: {oldValue: boolean; newValue: boolean}) => {
-          this.show(val.newValue)
+        (val: {newValue: any; oldValue?: any}) => {
+          this.show(val.newValue as boolean)
         },
       ),
     )
@@ -686,7 +697,7 @@ export class SemanticViewPane {
 
   toggle(): void {
     // console.log("TypeScript Semantic View was toggled")
-    ;(atom.workspace as IWorkspaceExt).toggle("atom://" + VIEW_URI)
+    atom.workspace.toggle("atom://" + VIEW_URI)
   }
 
   show(isShow?: boolean): void {
@@ -704,11 +715,11 @@ export class SemanticViewPane {
       return
     }
     // console.log("TypeScript Semantic View was hidden")
-    ;(atom.workspace as IWorkspaceExt).hide("atom://" + VIEW_URI)
+    atom.workspace.hide("atom://" + VIEW_URI)
   }
 }
 
-export var mainPane: SemanticViewPane
+export let mainPane: SemanticViewPane
 export function attach(): {dispose(): void; semanticView: SemanticViewPane} {
   // Only attach once
   if (!mainPane) {

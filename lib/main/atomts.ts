@@ -33,7 +33,7 @@ export async function activate() {
   }
 
   require("etch").setScheduler(atom.views)
-    const {semanticView} = attachSemanticView()
+  const {semanticView} = attachSemanticView()
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -64,7 +64,7 @@ export async function activate() {
 
       return clientResolver.get(filePath)
     },
-      semanticView,
+    semanticView,
     statusPanel,
   })
 
@@ -177,12 +177,6 @@ export function provideCodeActions(): CodeActionsProvider {
 
 export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
-  },
-  showSemanticView: {
-    title: "Show semantic view",
-    description: "Show semantic view (outline) for typescript content",
-    type: "boolean",
-    default: false,
 }
 
 async function getProjectConfigPath(sourcePath: string): Promise<string> {

@@ -48,6 +48,12 @@
       "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
       "type": "number",
       "default": "10"
+    },
+    "showSemanticView": {
+      "title": "Show semantic view",
+      "description": "Show semantic view (outline) for typescript content",
+      "type": "boolean",
+      "default": false
     }
   },
   "consumedServices": {
