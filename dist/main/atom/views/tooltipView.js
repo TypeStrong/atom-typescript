@@ -1,42 +1,56 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const view = require("./view");
-var $ = view.$;
-class TooltipView extends view.View {
-    constructor(rect) {
-        super(rect);
-        this.rect = rect;
-        $(document.body).append(this.$);
-        this.updatePosition();
+const etch = require("etch");
+class TooltipView {
+    constructor() {
+        this.props = {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+        };
+        etch.initialize(this);
     }
-    static content() {
-        return this.div({ class: "atom-typescript-tooltip tooltip" }, () => {
-            this.div({ class: "tooltip-inner", outlet: "inner" });
-        });
+    async destroy() {
+        return etch.destroy(this);
     }
-    updateText(text) {
-        this.inner.html(text);
-        this.updatePosition();
-        this.$.fadeTo(300, 1);
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        await etch.update(this);
     }
-    updatePosition() {
-        var offset = 10;
-        var left = this.rect.right;
-        var top = this.rect.bottom;
-        var right = "";
+    writeAfterUpdate() {
+        const offset = 10;
+        let left = this.props.right;
+        let top = this.props.bottom;
+        let right = false;
+        let whiteSpace = "";
+        const clientWidth = document.body.clientWidth;
+        const offsetWidth = this.refs.main.offsetWidth;
+        const clientHeight = document.body.clientHeight;
+        const offsetHeight = this.refs.main.offsetHeight;
         // X axis adjust
-        if (left + this.$[0].offsetWidth >= view.$(document.body).width())
-            left = view.$(document.body).width() - this.$[0].offsetWidth - offset;
+        if (left + offsetWidth >= clientWidth) {
+            left = clientWidth - offsetWidth - offset;
+        }
         if (left < 0) {
-            this.$.css({ "white-space": "pre-wrap" });
+            whiteSpace = "pre-wrap";
             left = offset;
             right = offset;
         }
         // Y axis adjust
-        if (top + this.$[0].offsetHeight >= $(document.body).height()) {
-            top = this.rect.top - this.$[0].offsetHeight;
+        if (top + offsetHeight >= clientHeight) {
+            top = this.props.top - offsetHeight;
         }
-        this.$.css({ left, top, right });
+        this.refs.main.style.left = `${left}px`;
+        this.refs.main.style.top = `${top}px`;
+        if (right !== false)
+            this.refs.main.style.right = `${right}px`;
+        if (whiteSpace)
+            this.refs.main.style.whiteSpace = whiteSpace;
+    }
+    render() {
+        return (etch.dom("div", { ref: "main", class: "atom-typescript-tooltip tooltip" },
+            etch.dom("div", { class: "tooltip-inner", innerHTML: this.props.text || "" })));
     }
 }
 exports.TooltipView = TooltipView;

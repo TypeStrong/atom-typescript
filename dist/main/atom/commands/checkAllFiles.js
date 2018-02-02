@@ -1,16 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 registry_1.commands.set("typescript:check-all-files", deps => {
-    return (e) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+    return async (e) => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const { file } = utils_1.getFilePathPosition();
-        const client = yield deps.getClient(file);
-        const projectInfo = yield client.executeProjectInfo({
+        const fpp = utils_1.getFilePathPosition();
+        if (!fpp) {
+            e.abortKeyBinding();
+            return;
+        }
+        const { file } = fpp;
+        const client = await deps.getClient(file);
+        const projectInfo = await client.executeProjectInfo({
             file,
             needFileNameList: true,
         });
@@ -22,12 +26,13 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         // for some amount of time.
         let cancelTimeout;
         const unregister = client.on("syntaxDiag", evt => {
-            clearTimeout(cancelTimeout);
-            cancelTimeout = setTimeout(cancel, 500);
+            if (cancelTimeout !== undefined)
+                window.clearTimeout(cancelTimeout);
+            cancelTimeout = window.setTimeout(cancel, 500);
             files.delete(evt.file);
             updateStatus();
         });
-        deps.statusPanel.setProgress({ max, value: 0 });
+        deps.statusPanel.update({ progress: { max, value: 0 } });
         client.executeGetErrForProject({ file, delay: 0 });
         function cancel() {
             files.clear();
@@ -36,12 +41,12 @@ registry_1.commands.set("typescript:check-all-files", deps => {
         function updateStatus() {
             if (files.size === 0) {
                 unregister();
-                deps.statusPanel.setProgress(undefined);
+                deps.statusPanel.update({ progress: undefined });
             }
             else {
-                deps.statusPanel.setProgress({ max, value: max - files.size });
+                deps.statusPanel.update({ progress: { max, value: max - files.size } });
             }
         }
-    });
+    };
 });
 //# sourceMappingURL=checkAllFiles.js.map

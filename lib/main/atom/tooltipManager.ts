@@ -1,146 +1,177 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-import atomUtils = require("./utils") ///ts:import:generated
+import atomUtils = require("./utils")
 import {clientResolver} from "../atomts"
-
+import * as Atom from "atom"
 import path = require("path")
 import fs = require("fs")
-import emissary = require("emissary")
-var Subscriber = emissary.Subscriber
-import tooltipView = require("./views/tooltipView")
-import TooltipView = tooltipView.TooltipView
-import {$} from "atom-space-pen-views"
+import {listen} from "./utils/element-listener"
+import {TooltipView} from "./views/tooltipView"
 import escape = require("escape-html")
 
-export function getFromShadowDom(element: JQuery, selector: string): JQuery {
-  var el = element[0]
-  var found = (<any>el).querySelectorAll(selector)
-  return $(found[0])
-}
+const tooltipMap = new WeakMap<Atom.TextEditor, (pt: Atom.Point) => Promise<void>>()
 
 // screen position from mouse event -- with <3 from Atom-Haskell
-export function bufferPositionFromMouseEvent(editor: AtomCore.IEditor, event: MouseEvent) {
-  const sp = (atom.views.getView(editor) as any).component.screenPositionForMouseEvent(event)
+export function bufferPositionFromMouseEvent(
+  editor: Atom.TextEditor,
+  event: {clientX: number; clientY: number},
+) {
+  const sp = atom.views
+    .getView(editor)
+    .getComponent()
+    .screenPositionForMouseEvent(event)
   if (isNaN(sp.row) || isNaN(sp.column)) {
     return
   }
-  return (editor as any).bufferPositionForScreenPosition(sp)
+  return editor.bufferPositionForScreenPosition(sp)
 }
 
-export function attach(editorView: JQuery, editor: AtomCore.IEditor) {
-  var rawView: any = editorView[0]
+export function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) {
+  const ed = tooltipMap.get(editor)
+  if (ed) {
+    return ed(pt)
+  }
+}
+
+export function attach(editor: Atom.TextEditor) {
+  const rawView = atom.views.getView(editor)
 
   // Only on ".ts" files
-  var filePath = editor.getPath()
+  const filePath = editor.getPath()
   if (!filePath) {
     return
   }
-  var filename = path.basename(filePath)
-  var ext = path.extname(filename)
-  if (!atomUtils.isAllowedExtension(ext)) return
+  const filename = path.basename(filePath)
+  const ext = path.extname(filename)
+  if (!atomUtils.isAllowedExtension(ext)) {
+    return
+  }
 
   // We only create a "program" once the file is persisted to disk
   if (!fs.existsSync(filePath)) {
     return
   }
 
-  var clientPromise = clientResolver.get(filePath)
-  var scroll = getFromShadowDom(editorView, ".scroll-view")
-  var subscriber = new Subscriber()
-  var exprTypeTimeout: any | undefined
-  var exprTypeTooltip: TooltipView | undefined
+  const clientPromise = clientResolver.get(filePath)
+  const subscriber = new Atom.CompositeDisposable()
+  let exprTypeTimeout: number | undefined
+  let exprTypeTooltip: TooltipView | undefined
 
   // to debounce mousemove event's firing for some reason on some machines
-  var lastExprTypeBufferPt: any
+  let lastExprTypeBufferPt: Atom.Point
 
-  subscriber.subscribe(scroll, "mousemove", (e: MouseEvent) => {
-    const bufferPt = bufferPositionFromMouseEvent(editor, e)
-    if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) return
+  subscriber.add(
+    listen(rawView, "mousemove", ".scroll-view", (e: MouseEvent) => {
+      const bufferPt = bufferPositionFromMouseEvent(editor, e)
+      if (!bufferPt) return
+      if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
+        return
+      }
 
-    lastExprTypeBufferPt = bufferPt
+      lastExprTypeBufferPt = bufferPt
 
-    clearExprTypeTimeout()
-    exprTypeTimeout = setTimeout(() => showExpressionType(e), 100)
-  })
-  subscriber.subscribe(scroll, "mouseout", () => clearExprTypeTimeout())
-  subscriber.subscribe(scroll, "keydown", () => clearExprTypeTimeout())
+      clearExprTypeTimeout()
+      exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100)
+    }),
+  )
+  subscriber.add(listen(rawView, "mouseout", ".scroll-view", () => clearExprTypeTimeout()))
+  subscriber.add(listen(rawView, "keydown", ".scroll-view", () => clearExprTypeTimeout()))
 
   // Setup for clearing
   editor.onDidDestroy(() => deactivate())
 
-  async function showExpressionType(e: MouseEvent) {
+  tooltipMap.set(editor, showExpressionTypeKbd)
+
+  const lines = rawView.querySelector(".lines")!
+
+  function mousePositionForPixelPosition(p: Atom.PixelPosition) {
+    const linesRect = lines.getBoundingClientRect()
+    return {
+      clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
+      clientX: p.left + linesRect.left,
+    }
+  }
+
+  async function showExpressionTypeKbd(pt: Atom.Point) {
+    const view = atom.views.getView(editor)
+    const px = view.pixelPositionForBufferPosition(pt)
+    return showExpressionType(mousePositionForPixelPosition(px))
+  }
+
+  async function showExpressionType(e: {clientX: number; clientY: number}) {
     // If we are already showing we should wait for that to clear
-    if (exprTypeTooltip) return
+    if (exprTypeTooltip) {
+      return
+    }
 
     const bufferPt = bufferPositionFromMouseEvent(editor, e)
-    var curCharPixelPt = rawView.pixelPositionForBufferPosition([bufferPt.row, bufferPt.column])
-    var nextCharPixelPt = rawView.pixelPositionForBufferPosition([
-      bufferPt.row,
-      bufferPt.column + 1,
-    ])
+    if (!bufferPt) return
+    const curCharPixelPt = rawView.pixelPositionForBufferPosition(
+      Atom.Point.fromObject([bufferPt.row, bufferPt.column]),
+    )
+    const nextCharPixelPt = rawView.pixelPositionForBufferPosition(
+      Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]),
+    )
 
-    if (curCharPixelPt.left >= nextCharPixelPt.left) return
+    if (curCharPixelPt.left >= nextCharPixelPt.left) {
+      return
+    }
 
     // find out show position
-    var offset = editor.getLineHeightInPixels() * 0.7
-    var tooltipRect = {
+    const offset = editor.getLineHeightInPixels() * 0.7
+    const tooltipRect = {
       left: e.clientX,
       right: e.clientX,
       top: e.clientY - offset,
       bottom: e.clientY + offset,
     }
-    exprTypeTooltip = new TooltipView(tooltipRect)
-
+    let result: protocol.QuickInfoResponse
     const client = await clientPromise
-    const result = await client
-      .executeQuickInfo({
+    try {
+      if (!filePath) {
+        return
+      }
+      result = await client.executeQuickInfo({
         file: filePath,
         line: bufferPt.row + 1,
         offset: bufferPt.column + 1,
       })
-      .catch(err => undefined)
-
-    if (!result) {
+    } catch (e) {
       return
     }
 
     const {displayString, documentation} = result.body!
 
-    var message = `<b>${escape(displayString)}</b>`
+    let message = `<b>${escape(displayString)}</b>`
     if (documentation) {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
     }
-    if (exprTypeTooltip) {
-      exprTypeTooltip.updateText(message)
+    if (!exprTypeTooltip) {
+      exprTypeTooltip = new TooltipView()
+      document.body.appendChild(exprTypeTooltip.refs.main)
+      exprTypeTooltip.update({...tooltipRect, text: message})
     }
   }
 
   function deactivate() {
-    subscriber.unsubscribe()
+    subscriber.dispose()
     clearExprTypeTimeout()
   }
   /** clears the timeout && the tooltip */
   function clearExprTypeTimeout() {
     if (exprTypeTimeout) {
       clearTimeout(exprTypeTimeout)
-      exprTypeTimeout = null
+      exprTypeTimeout = undefined
     }
     hideExpressionType()
   }
   function hideExpressionType() {
-    if (!exprTypeTooltip) return
-    exprTypeTooltip.$.remove()
+    if (!exprTypeTooltip) {
+      return
+    }
+    exprTypeTooltip.destroy()
     exprTypeTooltip = undefined
   }
-}
-
-function pixelPositionFromMouseEvent(editorView: JQuery, event: MouseEvent) {
-  var clientX = event.clientX,
-    clientY = event.clientY
-  var linesClientRect = getFromShadowDom(editorView, ".lines")[0].getBoundingClientRect()
-  var top = clientY - linesClientRect.top
-  var left = clientX - linesClientRect.left
-  return {top: top, left: left}
 }

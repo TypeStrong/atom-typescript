@@ -1,223 +1,213 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachRenameView} from "./atom/views/renameView"
 import {attach as attachSemanticView} from "./atom/views/semanticView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
-import {CodefixProvider} from "./atom/codefixProvider"
+import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"
 import {debounce} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {flatten, values} from "lodash"
-import {RegisterLinter, Linter} from "../typings/linter"
-import {StatusBar} from "../typings/status_bar"
+import {IndieDelegate} from "atom/linter"
+import {StatusBar} from "atom/status-bar"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
 // globals
-const subscriptions = new CompositeDisposable()
-export const clientResolver = new ClientResolver()
+const subscriptions: CompositeDisposable = new CompositeDisposable()
+export const clientResolver: ClientResolver = new ClientResolver()
 const panes: TypescriptEditorPane[] = []
+const statusPanel: StatusPanel = new StatusPanel()
+const errorPusher: ErrorPusher = new ErrorPusher()
+const codefixProvider: CodefixProvider = new CodefixProvider(clientResolver)
 
 // Register all custom components
-import "./atom/components"
 import {registerCommands} from "./atom/commands"
 
-let linter: Linter
-let statusBar: StatusBar
-const codefixProvider = new CodefixProvider(clientResolver)
+export async function activate() {
+  const pns = atom.packages.getAvailablePackageNames()
+  if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
+    await require("atom-package-deps").install("atom-typescript", true)
+  }
 
-interface PackageState {}
+  require("etch").setScheduler(atom.views)
+    const {semanticView} = attachSemanticView()
 
-export function activate(state: PackageState) {
-  require("atom-package-deps").install("atom-typescript", true).then(() => {
-    let statusPriority = 100
-    for (const panel of statusBar.getRightTiles()) {
-      if (panel.getItem().tagName === "GRAMMAR-SELECTOR-STATUS") {
-        statusPriority = panel.getPriority() - 1
+  errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
+  subscriptions.add(
+    atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
+      errorPusher.setUnusedAsInfo(val.newValue)
+    }),
+  )
+
+  codefixProvider.errorPusher = errorPusher
+  codefixProvider.getTypescriptBuffer = getTypescriptBuffer
+
+  clientResolver.on("pendingRequestsChange", () => {
+    const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
+    statusPanel.update({pending})
+  })
+
+  // Register the commands
+  registerCommands({
+    clearErrors() {
+      errorPusher.clear()
+    },
+    getTypescriptBuffer,
+    async getClient(filePath: string) {
+      const pane = panes.find(p => p.filePath === filePath)
+      if (pane && pane.client) {
+        return pane.client
+      }
+
+      return clientResolver.get(filePath)
+    },
+      semanticView,
+    statusPanel,
+  })
+
+  let activePane: TypescriptEditorPane | undefined
+
+  const onSave = debounce((pane: TypescriptEditorPane) => {
+    if (!pane.client) {
+      return
+    }
+
+    const files: string[] = []
+    for (const p of panes.sort((a, b) => a.activeAt - b.activeAt)) {
+      if (p.filePath && p.isTypescript && p.client === p.client) {
+        files.push(p.filePath)
       }
     }
 
-    // Add the rename view
-    const {renameView} = attachRenameView()
-    const {semanticView} = attachSemanticView()
-    const statusPanel = StatusPanel.create()
+    pane.client.executeGetErr({files, delay: 100})
+  }, 50)
 
-    statusBar.addRightTile({
-      item: statusPanel,
-      priority: statusPriority,
-    })
+  subscriptions.add(
+    atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
+      panes.push(
+        new TypescriptEditorPane(editor, {
+          getClient: (filePath: string) => clientResolver.get(filePath),
+          onClose(filePath) {
+            // Clear errors if any from this file
+            errorPusher.setErrors("syntaxDiag", filePath, [])
+            errorPusher.setErrors("semanticDiag", filePath, [])
+          },
+          onDispose(pane) {
+            if (activePane === pane) {
+              activePane = undefined
+            }
 
-    subscriptions.add(statusPanel)
-    const errorPusher = new ErrorPusher()
-    errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
-    subscriptions.add(
-      atom.config.onDidChange(
-        "atom-typescript.unusedAsInfo",
-        (val: {oldValue: boolean; newValue: boolean}) => {
-          errorPusher.setUnusedAsInfo(val.newValue)
-        },
-      ),
-    )
+            panes.splice(panes.indexOf(pane), 1)
+          },
+          onSave,
+          statusPanel,
+        }),
+      )
+    }),
+  )
 
-    codefixProvider.errorPusher = errorPusher
-    codefixProvider.getTypescriptBuffer = getTypescriptBuffer
+  activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
 
-    clientResolver.on("pendingRequestsChange", () => {
-      const pending = flatten(values(clientResolver.clients).map(cl => cl.pending))
-      statusPanel.setPending(pending)
-    })
+  if (activePane) {
+    activePane.onActivated()
+  }
 
-    if (linter) {
-      errorPusher.setLinter(linter)
+  subscriptions.add(
+    atom.workspace.onDidChangeActiveTextEditor((editor?: Atom.TextEditor) => {
+      if (activePane) {
+        activePane.onDeactivated()
+        activePane = undefined
+      }
 
-      clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
-        errorPusher.setErrors(type, filePath, diagnostics)
-      })
-    }
-
-    // Register the commands
-    registerCommands({
-      clearErrors() {
-        errorPusher.clear()
-      },
-      getTypescriptBuffer,
-      async getClient(filePath: string) {
-        const pane = panes.find(pane => pane.filePath === filePath)
-        if (pane && pane.client) {
-          return pane.client
-        }
-
-        return clientResolver.get(filePath)
-      },
-      renameView,
-      semanticView,
-      statusPanel,
-    })
-
-    let activePane: TypescriptEditorPane | undefined
-
-    const onSave = debounce((pane: TypescriptEditorPane) => {
-      if (!pane.client) return
-
-      const files = panes
-        .sort((a, b) => a.activeAt - b.activeAt)
-        .filter(_pane => _pane.filePath && _pane.isTypescript && _pane.client === pane.client)
-        .map(pane => pane.filePath)
-
-      pane.client.executeGetErr({files, delay: 100})
-    }, 50)
-
-    subscriptions.add(
-      atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
-        panes.push(
-          new TypescriptEditorPane(editor, {
-            getClient: (filePath: string) => clientResolver.get(filePath),
-            onClose(filePath) {
-              // Clear errors if any from this file
-              errorPusher.setErrors("syntaxDiag", filePath, [])
-              errorPusher.setErrors("semanticDiag", filePath, [])
-            },
-            onDispose(pane) {
-              if (activePane === pane) {
-                activePane = undefined
-              }
-
-              panes.splice(panes.indexOf(pane), 1)
-            },
-            onSave,
-            statusPanel,
-          }),
-        )
-      }),
-    )
-
-    activePane = panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
-
-    if (activePane) {
-      activePane.onActivated()
-    }
-
-    subscriptions.add(
-      atom.workspace.onDidChangeActivePaneItem((editor: AtomCore.IEditor) => {
-        if (activePane) {
-          activePane.onDeactivated()
-          activePane = undefined
-        }
-
-        if (atom.workspace.isTextEditor(editor)) {
-          const pane = panes.find(pane => pane.editor === editor)
-          if (pane) {
-            activePane = pane
-            pane.onActivated()
-          }
-        }
-      }),
-    )
-  })
+      const pane = panes.find(p => p.editor === editor)
+      if (pane) {
+        activePane = pane
+        pane.onActivated()
+      }
+    }),
+  )
 }
 
 export function deactivate() {
   subscriptions.dispose()
 }
 
-export function serialize(): PackageState {
-  return {}
-}
-
-export function consumeLinter(register: RegisterLinter) {
-  linter = register({
+export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
+  const linter = register({
     name: "Typescript",
+  })
+
+  errorPusher.setLinter(linter)
+
+  clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+    errorPusher.setErrors(type, filePath, diagnostics)
   })
 }
 
-export function consumeStatusBar(_statusBar: StatusBar) {
-  statusBar = _statusBar
+export function consumeStatusBar(statusBar: StatusBar) {
+  let statusPriority = 100
+  for (const panel of statusBar.getRightTiles()) {
+    if (atom.views.getView(panel.getItem()).tagName === "GRAMMAR-SELECTOR-STATUS") {
+      statusPriority = panel.getPriority() - 1
+    }
+  }
+  statusBar.addRightTile({
+    item: statusPanel,
+    priority: statusPriority,
+  })
+
+  subscriptions.add(statusPanel)
 }
 
 // Registering an autocomplete provider
-export function provide() {
+export function provideAutocomplete() {
   return [new AutocompleteProvider(clientResolver, {getTypescriptBuffer})]
 }
 
 export function provideIntentions() {
-  return codefixProvider
+  return new IntentionsProvider(codefixProvider)
+}
+
+export function provideCodeActions(): CodeActionsProvider {
+  return new CodeActionsProvider(codefixProvider)
 }
 
 export function hyperclickProvider() {
   return getHyperclickProvider(clientResolver)
-}
-
-export var config = {
-  unusedAsInfo: {
-    title: "Show unused values with severity info",
-    description: "Show unused values with severity 'info' instead of 'error'",
-    type: "boolean",
-    default: true,
   },
   showSemanticView: {
     title: "Show semantic view",
     description: "Show semantic view (outline) for typescript content",
     type: "boolean",
     default: false,
-  },
 }
 
-export async function getProjectConfigPath(sourcePath: string): Promise<string> {
+async function getProjectConfigPath(sourcePath: string): Promise<string> {
   const client = await clientResolver.get(sourcePath)
-  const result = await client.executeProjectInfo({needFileNameList: false, file: sourcePath})
+  const result = await client.executeProjectInfo({
+    needFileNameList: false,
+    file: sourcePath,
+  })
   return result.body!.configFileName
 }
 
-export async function loadProjectConfig(sourcePath: string, configFile?: string): Promise<any> {
+interface TSConfig {
+  formatCodeOptions: protocol.FormatCodeSettings
+}
+
+export async function loadProjectConfig(
+  sourcePath: string,
+  configFile?: string,
+): Promise<TSConfig> {
   return tsconfig.readFile(configFile || (await getProjectConfigPath(sourcePath)))
 }
 
 // Get Typescript buffer for the given path
 async function getTypescriptBuffer(filePath: string) {
-  const pane = panes.find(pane => pane.filePath === filePath)
+  const pane = panes.find(p => p.filePath === filePath)
   if (pane) {
     return {
       buffer: pane.buffer,
@@ -226,19 +216,10 @@ async function getTypescriptBuffer(filePath: string) {
   }
 
   // Wait for the buffer to load before resolving the promise
-  const buffer = await new Promise<TextBuffer.ITextBuffer>(resolve => {
-    const buffer = new Atom.TextBuffer({
-      filePath,
-      load: true,
-    })
-
-    buffer.onDidReload(() => {
-      resolve(buffer)
-    })
-  })
+  const buffer = await Atom.TextBuffer.load(filePath)
 
   return {
-    buffer: new TypescriptBuffer(buffer, filePath => clientResolver.get(filePath)),
+    buffer: TypescriptBuffer.construct(buffer, fp => clientResolver.get(fp)),
     isOpen: false,
   }
 }

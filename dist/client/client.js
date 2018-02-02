@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const atom_1 = require("atom");
 const callbacks_1 = require("./callbacks");
 const events_1 = require("events");
@@ -8,7 +7,7 @@ const stream_1 = require("stream");
 const byline = require("byline");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
-exports.CommandWithResponse = new Set([
+exports.commandWithResponse = new Set([
     "compileOnSaveAffectedFileList",
     "compileOnSaveEmitFile",
     "completionEntryDetails",
@@ -32,8 +31,6 @@ class TypescriptServiceClient {
         this.version = version;
         this.events = new events_1.EventEmitter();
         this.seq = 0;
-        /** Extra args passed to the tsserver executable */
-        this.tsServerArgs = [];
         this.emitPendingRequests = (pending) => {
             this.events.emit("pendingRequestsChange", pending);
         };
@@ -130,13 +127,11 @@ class TypescriptServiceClient {
     executeNavTree(args) {
         return this.execute("navtree", args);
     }
-    execute(command, args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.serverPromise) {
-                throw new Error("Server is not running");
-            }
-            return this.sendRequest(yield this.serverPromise, command, args, exports.CommandWithResponse.has(command));
-        });
+    async execute(command, args) {
+        if (!this.serverPromise) {
+            throw new Error("Server is not running");
+        }
+        return this.sendRequest(await this.serverPromise, command, args, exports.commandWithResponse.has(command));
     }
     on(name, listener) {
         this.events.on(name, listener);
@@ -192,12 +187,12 @@ class TypescriptServiceClient {
                     });
                 });
             };
-            return (this.serverPromise = new Promise((resolve, _reject) => {
-                reject = _reject;
+            return (this.serverPromise = new Promise((resolve, pReject) => {
+                reject = pReject;
                 if (window.atom_typescript_debug) {
                     console.log("starting", this.tsServerPath);
                 }
-                const cp = startServer(this.tsServerPath, this.tsServerArgs);
+                const cp = startServer(this.tsServerPath);
                 cp.once("error", exitHandler);
                 cp.once("exit", exitHandler);
                 // Pipe both stdout and stderr appropriately
@@ -206,7 +201,7 @@ class TypescriptServiceClient {
                     console.warn("tsserver stderr:", (lastStderrOutput = data.toString()));
                 });
                 // We send an unknown command to verify that the server is working.
-                this.sendRequest(cp, "ping", null, true).then(res => resolve(cp), err => resolve(cp));
+                this.sendRequest(cp, "ping", null, true).then(() => resolve(cp), () => resolve(cp));
             }));
         }
         else {
@@ -215,7 +210,9 @@ class TypescriptServiceClient {
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
-function startServer(tsServerPath, tsServerArgs) {
+function startServer(tsServerPath) {
+    const locale = atom.config.get("atom-typescript.locale");
+    const tsServerArgs = locale ? ["--locale", locale] : [];
     if (INSPECT_TSSERVER) {
         return new atom_1.BufferedProcess({
             command: "node",
@@ -243,7 +240,7 @@ class MessageStream extends stream_1.Transform {
     constructor() {
         super({ objectMode: true });
     }
-    _transform(buf, encoding, callback) {
+    _transform(buf, _encoding, callback) {
         const line = buf.toString();
         try {
             if (line.startsWith("{")) {

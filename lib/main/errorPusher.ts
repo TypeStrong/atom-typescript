@@ -1,11 +1,11 @@
 import {debounce} from "lodash"
 import {Diagnostic, Location} from "typescript/lib/protocol"
-import {Linter, LinterMessage} from "../typings/linter"
+import {IndieDelegate, Message} from "atom/linter"
 import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
-  private linter?: Linter
+  private linter?: IndieDelegate
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
   private unusedAsInfo = true
 
@@ -23,7 +23,7 @@ export class ErrorPusher {
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
   setErrors(prefix: string | undefined, filePath: string | undefined, errors: Diagnostic[]) {
-    if (prefix == undefined || filePath == undefined) {
+    if (prefix === undefined || filePath === undefined) {
       console.warn("setErrors: prefix or filePath is undefined", prefix, filePath)
       return
     }
@@ -39,8 +39,8 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  setUnusedAsInfo(unusedAsInfo: boolean) {
-    this.unusedAsInfo = unusedAsInfo
+  setUnusedAsInfo(unusedAsInfo: boolean | undefined) {
+    this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo
   }
 
   /** Clear all errors */
@@ -50,17 +50,17 @@ export class ErrorPusher {
     }
   }
 
-  setLinter(linter: Linter) {
+  setLinter(linter: IndieDelegate) {
     this.linter = linter
     this.pushErrors()
   }
 
   private pushErrors = debounce(() => {
-    const errors: LinterMessage[] = []
+    const errors: Message[] = []
 
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, diagnostics] of fileErrors) {
-        const _filePath = systemPath(filePath)
+        const newFilePath = systemPath(filePath)
         for (const diagnostic of diagnostics) {
           // Add a bit of extra validation that we have the necessary locations since linter v2
           // does not allow range-less messages anymore. This happens with configFileDiagnostics.
@@ -73,7 +73,7 @@ export class ErrorPusher {
             severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
             excerpt: diagnostic.text,
             location: {
-              file: _filePath,
+              file: newFilePath,
               position: locationsToRange(start, end),
             },
           })

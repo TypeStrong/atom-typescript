@@ -1,168 +1,195 @@
-import * as dom from "jsx-render-dom"
+import * as etch from "etch"
 import {dirname} from "path"
 import {getFilePathRelativeToAtomProject, openFile} from "../utils"
 
-export class StatusPanel extends HTMLElement {
-  private pendingContainer: HTMLElement
-  private pendingCounter: HTMLElement
-  private pendingSpinner: HTMLElement
-  private configPathContainer: HTMLElement
-  private progress: HTMLProgressElement
-  private statusContainer: HTMLElement
-  private statusText: HTMLElement
-  private version: HTMLElement
+export interface Props extends JSX.Props {
+  version?: string
+  pending?: string[]
+  tsConfigPath?: string
+  buildStatus?: {success: true} | {success: false; message: string}
+  progress?: {max: number; value: number}
+  visible: boolean
+}
 
-  private configPath?: string
-  private pendingRequests: string[]
-  private pendingTimeout: any
+export class StatusPanel implements JSX.ElementClass {
+  public props: Props
+  private buildStatusTimeout?: number
 
-  createdCallback() {
-    const nodes = [
-      <div ref={el => (this.version = el)} className="inline-block" />,
-      <a
-        ref={el => (this.pendingContainer = el)}
-        className="inline-block"
-        href=""
-        onClick={evt => {
-          evt.preventDefault()
-          this.showPendingRequests()
-        }}>
-        <span ref={span => (this.pendingCounter = span)} />
-        <span
-          ref={span => (this.pendingSpinner = span)}
-          className="loading loading-spinner-tiny inline-block"
-          style={{marginLeft: "5px", opacity: 0.5, verticalAlign: "sub"}}
-        />
-      </a>,
-      <a
-        ref={el => (this.configPathContainer = el)}
-        className="inline-block"
-        href=""
-        onClick={evt => {
-          evt.preventDefault()
-          this.openConfigPath()
-        }}
-      />,
-      <div ref={el => (this.statusContainer = el)} className="inline-block">
-        <span ref={el => (this.statusText = el)} />
-      </div>,
-      <progress
-        ref={el => (this.progress = el)}
-        style={{verticalAlign: "baseline"}}
-        className="inline-block"
-      />,
-    ]
-
-    for (const node of nodes) {
-      this.appendChild(node)
+  constructor(props: Partial<Props> = {}) {
+    this.props = {
+      visible: true,
+      ...props,
     }
-
-    this.setVersion(undefined)
-    this.setPending([], true)
-    this.setTsConfigPath(undefined)
-    this.setBuildStatus(undefined)
-    this.setProgress(undefined)
+    etch.initialize(this)
+    this.resetBuildStatusTimeout()
   }
 
-  dispose() {
-    this.remove()
+  public async update(props: Partial<Props>) {
+    this.props = {...this.props, ...props}
+    this.resetBuildStatusTimeout()
+    await etch.update(this)
   }
 
-  openConfigPath() {
-    if (this.configPath && !this.configPath.startsWith("/dev/null")) {
-      openFile(this.configPath)
+  public render() {
+    return (
+      <ts-status-panel className={this.props.visible ? "" : "hide"}>
+        {this.renderVersion()}
+        {this.renderPending()}
+        {this.renderConfigPath()}
+        {this.renderStatus()}
+        {this.renderProgress()}
+      </ts-status-panel>
+    )
+  }
+
+  public async destroy() {
+    await etch.destroy(this)
+  }
+
+  public dispose() {
+    this.destroy()
+  }
+
+  private resetBuildStatusTimeout() {
+    if (this.buildStatusTimeout) {
+      window.clearTimeout(this.buildStatusTimeout)
+      this.buildStatusTimeout = undefined
+    }
+    if (this.props.buildStatus && this.props.buildStatus.success) {
+      const timeout = atom.config.get("atom-typescript.buildStatusTimeout")
+      if (timeout > 0) {
+        this.buildStatusTimeout = window.setTimeout(() => {
+          this.update({buildStatus: undefined})
+        }, timeout * 1000)
+      } else if (timeout === 0) {
+        this.update({buildStatus: undefined})
+      }
+    }
+  }
+
+  private openConfigPath() {
+    if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+      openFile(this.props.tsConfigPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
     }
   }
 
-  setBuildStatus(status?: {success: boolean}) {
-    const container = this.statusText
-    if (status) {
-      if (status.success) {
-        container.classList.remove("highlight-error")
-        container.classList.add("highlight-success")
-        container.textContent = "Emit Success"
-      } else {
-        container.classList.add("highlight-error")
-        container.classList.remove("highlight-success")
-        container.textContent = "Emit Failed"
-      }
-      this.statusContainer.classList.remove("hide")
-    } else {
-      this.statusContainer.classList.add("hide")
+  private showPendingRequests() {
+    if (this.props.pending) {
+      atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "))
     }
   }
 
-  setProgress(progress?: {max: number; value: number}) {
-    if (progress) {
-      this.progress.max = progress.max
-      this.progress.value = progress.value
-      this.progress.classList.remove("hide")
-    } else {
-      this.progress.classList.add("hide")
-    }
+  public show() {
+    this.update({visible: true})
   }
 
-  setTsConfigPath(configPath?: string) {
-    this.configPath = configPath
-
-    if (configPath) {
-      this.configPathContainer.textContent = configPath.startsWith("/dev/null")
-        ? "No project"
-        : dirname(getFilePathRelativeToAtomProject(configPath))
-
-      this.configPathContainer.classList.remove("hide")
-    } else {
-      this.configPathContainer.classList.add("hide")
-    }
+  public hide() {
+    this.update({visible: false})
   }
 
-  setVersion(version?: string) {
-    if (version) {
-      this.version.textContent = version
-      this.version.classList.remove("hide")
-    } else {
-      this.version.classList.add("hide")
-    }
-  }
-
-  private _setPending(pending: string[]) {
-    this.pendingRequests = pending
-
-    if (pending.length) {
-      this.pendingContainer.classList.remove("hide")
-      this.pendingCounter.textContent = pending.length.toString()
-    } else {
-      this.pendingContainer.classList.add("hide")
-    }
-  }
-
-  setPending(pending: string[], immediate = false) {
-    const timeout = immediate ? 0 : 100
-    clearTimeout(this.pendingTimeout)
-    this.pendingTimeout = setTimeout(() => this._setPending(pending), timeout)
-  }
-
-  showPendingRequests() {
-    if (this.pendingRequests) {
-      atom.notifications.addInfo(
-        "Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "),
+  private renderVersion(): JSX.Element | null {
+    if (this.props.version) {
+      return (
+        <div ref="version" className="inline-block">
+          {this.props.version}
+        </div>
       )
     }
+    return null
   }
 
-  show() {
-    this.classList.remove("hide")
+  private renderPending(): JSX.Element | null {
+    if (this.props.pending && this.props.pending.length) {
+      return (
+        <a
+          ref="pendingContainer"
+          className="inline-block"
+          href=""
+          on={{
+            click: evt => {
+              evt.preventDefault()
+              this.showPendingRequests()
+            },
+          }}>
+          <span ref="pendingCounter">{this.props.pending.length.toString()}</span>
+          <span
+            ref="pendingSpinner"
+            className="loading loading-spinner-tiny inline-block"
+            style={{marginLeft: "5px", opacity: "0.5", verticalAlign: "sub"}}
+          />
+        </a>
+      )
+    }
+    return null
   }
 
-  hide() {
-    this.classList.add("hide")
+  private renderConfigPath(): JSX.Element | null {
+    if (this.props.tsConfigPath) {
+      return (
+        <a
+          ref="configPathContainer"
+          className="inline-block"
+          href=""
+          on={{
+            click: evt => {
+              evt.preventDefault()
+              this.openConfigPath()
+            },
+          }}>
+          {this.props.tsConfigPath.startsWith("/dev/null")
+            ? "No project"
+            : dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))}
+        </a>
+      )
+    }
+    return null
   }
 
-  static create() {
-    return document.createElement("ts-status-panel") as StatusPanel
+  private renderStatus(): JSX.Element | null {
+    if (this.props.buildStatus) {
+      let cls: string
+      let text: string
+      if (this.props.buildStatus.success) {
+        cls = "highlight-success"
+        text = "Emit Success"
+      } else {
+        cls = "highlight-error"
+        text = "Emit Failed"
+      }
+      return (
+        <div ref="statusContainer" className="inline-block">
+          <span ref="statusText" class={cls} on={{click: this.buildStatusClicked}}>
+            {text}
+          </span>
+        </div>
+      )
+    }
+    return null
+  }
+
+  private buildStatusClicked = () => {
+    if (this.props.buildStatus && !this.props.buildStatus.success) {
+      atom.notifications.addError("Build failed", {
+        detail: this.props.buildStatus.message,
+        dismissable: true,
+      })
+    }
+  }
+
+  private renderProgress(): JSX.Element | null {
+    if (this.props.progress) {
+      return (
+        <progress
+          ref="progress"
+          style={{verticalAlign: "baseline"}}
+          className="inline-block"
+          max={this.props.progress.max}
+          value={this.props.progress.value}
+        />
+      )
+    }
+    return null
   }
 }
-
-;(document as any).registerElement("ts-status-panel", StatusPanel)
