@@ -1,10 +1,11 @@
 /** @babel */
 
-import {CompositeDisposable} from "atom"
+import {CompositeDisposable, TextEditor} from "atom"
 import SymbolsView from "./symbolsView"
 import {match} from "fuzzaldrin"
 import {clientResolver} from "../../atomts"
 import {NavigationTree} from "typescript/lib/protocol"
+import {Tag} from "./fileSymbolsTag"
 
 /**
  * this is a modified copy of symbols-view/lib/file-view.js
@@ -21,9 +22,12 @@ export class FileView extends SymbolsView {
     super(stack)
     this.cachedTags = {}
 
-    this.editorsSubscription = atom.workspace.observeTextEditors((editor: AtomCore.IEditor) => {
+    this.editorsSubscription = atom.workspace.observeTextEditors((editor: TextEditor) => {
       const removeFromCache = () => {
-        delete this.cachedTags[editor.getPath()]
+        const path = editor.getPath()
+        if (path) {
+          delete this.cachedTags[path]
+        }
       }
       const editorSubscriptions = new CompositeDisposable()
       editorSubscriptions.add(editor.onDidChangeGrammar(removeFromCache))
@@ -63,7 +67,7 @@ export class FileView extends SymbolsView {
   }
 
   didChangeSelection(item: any) {
-    //NOTE uses the "parent" package's setting (i.e. from symbols-view):
+    // NOTE uses the "parent" package's setting (i.e. from symbols-view):
     if (atom.config.get("symbols-view.quickJumpToFileSymbol") && item) {
       this.openTag(item)
     }
@@ -85,7 +89,7 @@ export class FileView extends SymbolsView {
     const filePath = this.getPath()
     if (filePath) {
       const editor = this.getEditor()
-      //NOTE uses the "parent" package's setting (i.e. from symbols-view):
+      // NOTE uses the "parent" package's setting (i.e. from symbols-view):
       if (atom.config.get("symbols-view.quickJumpToFileSymbol") && editor) {
         this.initialState = this.serializeEditorState(editor)
       }
@@ -94,7 +98,7 @@ export class FileView extends SymbolsView {
     }
   }
 
-  serializeEditorState(editor: AtomCore.IEditor) {
+  serializeEditorState(editor: TextEditor) {
     const editorElement = atom.views.getView(editor)
     const scrollTop = editorElement.getScrollTop()
 
@@ -104,7 +108,7 @@ export class FileView extends SymbolsView {
     }
   }
 
-  deserializeEditorState(editor: AtomCore.IEditor, {bufferRanges, scrollTop}: any) {
+  deserializeEditorState(editor: TextEditor, {bufferRanges, scrollTop}: any) {
     const editorElement = atom.views.getView(editor)
     ;(editor as any).setSelectedBufferRanges(bufferRanges)
     editorElement.setScrollTop(scrollTop)
@@ -115,15 +119,17 @@ export class FileView extends SymbolsView {
   }
 
   getPath() {
-    if (this.getEditor()) {
-      return this.getEditor().getPath()
+    const editor = this.getEditor()
+    if (editor) {
+      return editor.getPath()
     }
     return undefined
   }
 
   getScopeName() {
-    if (this.getEditor() && this.getEditor().getGrammar()) {
-      return this.getEditor().getGrammar().scopeName
+    const editor = this.getEditor()
+    if (editor && editor.getGrammar()) {
+      return editor.getGrammar().scopeName
     }
     return undefined
   }
@@ -146,27 +152,27 @@ export class FileView extends SymbolsView {
 
   async generateTags(filePath: string) {
     // const generator = new TagGenerator(filePath, this.getScopeName());
-    this.cachedTags[filePath] = await this.generate(filePath) //generator.generate();
+    this.cachedTags[filePath] = await this.generate(filePath) // generator.generate();
     return this.cachedTags[filePath]
   }
 
   async generate(filePath: string) {
-    let navtree = await this.getNavTree(filePath)
-    let tags: Array<Tag> = []
+    const navtree = await this.getNavTree(filePath)
+    const tags: Tag[] = []
     if (navtree && navtree.childItems) {
-      //NOTE omit root NavigationTree tree element (which corresponds to the file itself)
+      // NOTE omit root NavigationTree tree element (which corresponds to the file itself)
       this.parseNavTree(navtree.childItems, tags)
     }
     return tags
   }
 
   private parseNavTree(
-    navTree: NavigationTree | Array<NavigationTree>,
-    list: Array<Tag>,
+    navTree: NavigationTree | NavigationTree[],
+    list: Tag[],
     parent?: Tag | null,
   ) {
     let tag: Tag | null
-    let children: Array<NavigationTree> | null
+    let children: NavigationTree[] | null
     if (!Array.isArray(navTree)) {
       tag = new Tag(navTree, parent)
       list.push(tag)
@@ -177,7 +183,7 @@ export class FileView extends SymbolsView {
     }
 
     if (children) {
-      //sort children by their line-position
+      // sort children by their line-position
       children.sort((a, b) => a.spans[0].start.line - b.spans[0].start.line)
       for (let i = 0, size = children.length; i < size; ++i) {
         this.parseNavTree(children[i], list, tag)
@@ -185,13 +191,13 @@ export class FileView extends SymbolsView {
     }
   }
 
-  //TODO optimize? when semantic-view is open, and has the current navTree -> use that instead of requesting it again?
+  // TODO optimize? when semantic-view is open, and has the current navTree -> use that instead of requesting it again?
   private async getNavTree(filePath: string): Promise<NavigationTree | null> {
     try {
       const client = await clientResolver.get(filePath)
       await client.executeOpen({file: filePath})
       const navtreeResult = await client.executeNavTree({file: filePath as string})
-      const navTree = navtreeResult ? navtreeResult.body as NavigationTree : void 0
+      const navTree = navtreeResult ? (navtreeResult.body as NavigationTree) : void 0
       if (navTree) {
         return navTree
       }
@@ -199,54 +205,5 @@ export class FileView extends SymbolsView {
       console.error(err, filePath)
     }
     return null
-  }
-}
-
-export class Tag {
-  position: {row: number; column: number}
-  name: string
-  type: string
-  parent: any
-  constructor(navTree: NavigationTree, parent?: Tag | null) {
-    this.name = navTree.text
-    this.type = this.getType(navTree.kind)
-
-    const start = navTree.spans[0].start
-    this.position = {row: start.line - 1, column: start.offset}
-    this.parent = parent ? parent : null
-  }
-
-  getType(kind: string): string {
-    //TODO need to convert from ctag, but since this seem to be unused anyway...
-    // switch(kind){
-    //   case 'class':
-    //   case 'struct':
-    //   case 'interface':
-    //   case 'enum':
-    //   case 'typedef':
-    //   case 'macro':
-    //   case 'union':
-    //   case 'module':
-    //   case 'namespace':
-    //     return 'class';
-    //   case 'type':
-    //   case 'variable':
-    //   case 'field':
-    //   case 'member':
-    //   case 'var':
-    //   case 'property':
-    //   case 'alias':
-    //   case 'let':
-    //     return 'variable';
-    //   case 'const':
-    //     return 'const';
-    //   case 'function':
-    //   case 'constructor':
-    //   case 'method':
-    //   case 'setter':
-    //   case 'getter':
-    //     return 'function';
-    // }
-    return kind
   }
 }

@@ -7,14 +7,14 @@ import {FileView} from "./fileSymbolsView"
  */
 
 export class FileSymbolsView {
-  private stack: Array<Position>
+  private stack: Position[]
   editorSubscription: CompositeDisposable | null = null
   fileView: FileView | null
 
   activate() {
     this.stack = []
 
-    //FIXME registry.ts does not work (yet?) -> when it does, this must be removed/disabled
+    // FIXME registry.ts does not work (yet?) -> when it does, this must be removed/disabled
     this.editorSubscription = atom.commands.add("atom-text-editor", {
       "typescript:toggle-file-symbols": () => {
         this.createFileView().toggle()
@@ -44,7 +44,7 @@ export class FileSymbolsView {
   }
 }
 
-export var mainPane: FileSymbolsView
+export let mainPane: FileSymbolsView
 export function attach(): {dispose(): void; fileSymbolsView: FileSymbolsView} {
   // Only attach once
   if (!mainPane) {

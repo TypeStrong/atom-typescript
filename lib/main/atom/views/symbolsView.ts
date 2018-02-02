@@ -1,7 +1,8 @@
 import * as path from "path"
 import {Point} from "atom"
-import fs from "fs-plus"
+import {isFileSync, readFileSync} from "../utils/fs"
 import {match} from "fuzzaldrin"
+import SelectListView = require("atom-select-list")
 
 /**
  * this is a slightly modified copy of symbols-view/lib/symbols-view.js
@@ -16,6 +17,7 @@ export default class SymbolsView {
   isCanceling: boolean
   previouslyFocusedElement: HTMLElement | null = null
   static highlightMatches(context: any, name: any, matches: any, offsetIndex?: any) {
+    // tslint:disable-line
     if (!offsetIndex) {
       offsetIndex = 0
     }
@@ -57,9 +59,8 @@ export default class SymbolsView {
     return fragment
   }
 
-  constructor(stack: any, emptyMessage = "No symbols found", maxResults = null) {
+  constructor(stack: any, emptyMessage = "No symbols found", maxResults?: number) {
     this.stack = stack
-    const SelectListView = require("atom-select-list")
     this.selectListView = new SelectListView({
       maxResults,
       emptyMessage,
@@ -136,7 +137,7 @@ export default class SymbolsView {
   }
 
   async didConfirmSelection(tag: any) {
-    if (tag.file && !fs.isFileSync(path.join(tag.directory, tag.file))) {
+    if (tag.file && !isFileSync(path.join(tag.directory, tag.file))) {
       await this.selectListView.update({errorMessage: "Selected file does not exist"})
       setTimeout(() => {
         this.selectListView.update({errorMessage: null})
@@ -147,7 +148,9 @@ export default class SymbolsView {
     }
   }
 
+  /* tslint:disable */
   didChangeSelection(tag: any) {
+    /* tslint:enable */
     // no-op
   }
 
@@ -158,7 +161,7 @@ export default class SymbolsView {
       previous = {
         editorId: editor.id,
         position: editor.getCursorBufferPosition(),
-        file: editor.getURI(),
+        file: (editor as any).getURI(),
       }
     }
 
@@ -186,11 +189,11 @@ export default class SymbolsView {
       beginningOfLine = true
     }
     if (editor) {
-      editor.scrollToBufferPosition(position, {center: true})
-      editor.setCursorBufferPosition(position)
+      editor.setCursorBufferPosition(position, {autoscroll: false})
       if (beginningOfLine) {
-        ;(editor as any).moveToFirstCharacterOfLine()
+        editor.moveToFirstCharacterOfLine()
       }
+      editor.scrollToCursorPosition({center: true})
     }
   }
 
@@ -202,22 +205,30 @@ export default class SymbolsView {
   }
 
   getTagLine(tag: any) {
-    // Remove leading /^ and trailing $/
-    if (!tag || !tag.pattern) {
+    if (!tag) {
       return undefined
     }
-    const pattern = tag.pattern.replace(/(^^\/\^)|(\$\/$)/g, "").trim()
+
+    if (tag.lineNumber) {
+      return new Point(tag.lineNumber - 1, 0)
+    }
+
+    // Remove leading /^ and trailing $/
+    if (!tag.pattern) {
+      return undefined
+    }
+    const pattern = tag.pattern.replace(/(^\/\^)|(\$\/$)/g, "").trim()
 
     if (!pattern) {
       return undefined
     }
     const file = path.join(tag.directory, tag.file)
-    if (!fs.isFileSync(file)) {
+    if (!isFileSync(file)) {
       return undefined
     }
-    const iterable = fs.readFileSync(file, "utf8").split("\n")
+    const iterable = readFileSync(file, "utf8").split("\n")
     for (let index = 0; index < iterable.length; index++) {
-      let line = iterable[index]
+      const line = iterable[index]
       if (pattern === line.trim()) {
         return new Point(index, 0)
       }

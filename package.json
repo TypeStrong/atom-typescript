@@ -111,8 +111,6 @@
     "tsconfig": "^7.0.0",
     "tslib": "^1.8.1",
     "typescript": "^2.6.2"
-    "fs-plus": "^3.0.0",
-    "atom-select-list": "^0.1.0"
   },
   "devDependencies": {
     "@types/atom": "~1.23",

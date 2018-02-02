@@ -35,7 +35,7 @@ export async function activate() {
 
   require("etch").setScheduler(atom.views)
   const {semanticView} = attachSemanticView()
-    const {fileSymbolsView} = attachFileSymbolsView()
+  const {fileSymbolsView} = attachFileSymbolsView()
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -67,7 +67,7 @@ export async function activate() {
       return clientResolver.get(filePath)
     },
     semanticView,
-      fileSymbolsView,
+    fileSymbolsView,
     statusPanel,
   })
 
