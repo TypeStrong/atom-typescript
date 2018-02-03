@@ -29,7 +29,7 @@ async function activate() {
         await require("atom-package-deps").install("atom-typescript", true);
     }
     require("etch").setScheduler(atom.views);
-    const { semanticView } = semanticViewPane_1.attach();
+    subscriptions.add(semanticViewPane_1.initialize());
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
         errorPusher.setUnusedAsInfo(val.newValue);
@@ -53,7 +53,6 @@ async function activate() {
             }
             return exports.clientResolver.get(filePath);
         },
-        semanticView,
         statusPanel,
     });
     let activePane;

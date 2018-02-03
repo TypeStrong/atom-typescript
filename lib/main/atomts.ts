@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {attach as attachSemanticView} from "./atom/views/semanticViewPane"
+import {initialize as initializeSemanticView} from "./atom/views/semanticViewPane"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -33,7 +33,7 @@ export async function activate() {
   }
 
   require("etch").setScheduler(atom.views)
-  const {semanticView} = attachSemanticView()
+  subscriptions.add(initializeSemanticView())
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -64,7 +64,6 @@ export async function activate() {
 
       return clientResolver.get(filePath)
     },
-    semanticView,
     statusPanel,
   })
 

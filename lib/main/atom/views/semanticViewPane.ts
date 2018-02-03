@@ -1,120 +1,75 @@
 import {CompositeDisposable, PaneItemObservedEvent} from "atom"
-import {SemanticView, SEMANTIC_VIEW_URI} from "./semanticView"
+import {SemanticView} from "./semanticView"
+import {Disposable} from "atom"
 
-export class SemanticViewPane {
-  isOpen: boolean = false
-  subscriptions: CompositeDisposable | null = null
+class SemanticViewPane {
+  subscriptions: CompositeDisposable
+  view?: SemanticView
 
-  public activate(state: any) {
-    if (!SEMANTIC_VIEW_URI && state) {
-      // NOTE is is just a dummy to avoid warning of unused variable state
-      console.log(state)
-    }
+  constructor() {
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(
-      atom.workspace.addOpener((uri: string) => {
-        if (uri === "atom://" + SEMANTIC_VIEW_URI) {
-          this.isOpen = true
-          const view = new SemanticView({})
-          view.start()
-          return view
+      new Disposable(() => {
+        if (this.view) {
+          atom.workspace.hide(this.view)
+          this.view.destroy()
         }
       }),
-    )
-
-    this.subscriptions.add({
-      dispose() {
-        atom.workspace.getPaneItems().forEach(paneItem => {
-          if (paneItem instanceof SemanticView) {
-            paneItem.destroy()
-          }
-        })
-      },
-    })
-
-    this.subscriptions.add(
       atom.workspace.onDidAddPaneItem((event: PaneItemObservedEvent) => {
         if (event.item instanceof SemanticView) {
-          this.isOpen = true
-          atom.config.set<string>("atom-typescript.showSemanticView", true)
-          // console.log("TypeScript Semantic View was opened")
+          atom.config.set("atom-typescript.showSemanticView", true)
         }
       }),
-    )
-
-    this.subscriptions.add(
       atom.workspace.onDidDestroyPaneItem((event: PaneItemObservedEvent) => {
         if (event.item instanceof SemanticView) {
-          this.isOpen = false
-          atom.config.set<string>("atom-typescript.showSemanticView", false)
-          // console.log("TypeScript Semantic View was closed")
+          atom.config.set("atom-typescript.showSemanticView", false)
         }
       }),
+      atom.config.observe("atom-typescript.showSemanticView", val => {
+        if (val) this.show()
+        else this.hide()
+      }),
     )
-
-    this.subscriptions.add(
-      atom.config.onDidChange(
-        "atom-typescript.showSemanticView",
-        (val: {newValue: any; oldValue?: any}) => {
-          this.show(val.newValue as boolean)
-        },
-      ),
-    )
-
-    this.show(atom.config.get("atom-typescript.showSemanticView"))
   }
 
-  deactivate() {
-    if (this.subscriptions !== null) {
-      this.subscriptions.dispose()
-    }
+  destroy() {
+    this.subscriptions.dispose()
   }
 
-  toggle(): void {
-    // console.log("TypeScript Semantic View was toggled")
-    atom.workspace.toggle("atom://" + SEMANTIC_VIEW_URI)
+  async toggle(): Promise<void> {
+    if (!this.view) await this.show()
+    else await atom.workspace.toggle(this.view)
   }
 
-  show(isShow?: boolean): void {
-    if (isShow === false) {
-      this.hide()
-      return
-    }
-    // console.log("TypeScript Semantic View was opened")
-    atom.workspace.open("atom://" + SEMANTIC_VIEW_URI, {})
+  async show(): Promise<void> {
+    if (!this.view) this.view = new SemanticView({})
+    await atom.workspace.open(this.view, {searchAllPanes: true})
   }
 
-  hide(isHide?: boolean): void {
-    if (isHide === false) {
-      this.show()
-      return
-    }
-    // console.log("TypeScript Semantic View was hidden")
-    atom.workspace.hide("atom://" + SEMANTIC_VIEW_URI)
+  hide(): boolean {
+    if (!this.view) return false
+    else return atom.workspace.hide(this.view)
   }
 }
 
-export let mainPane: SemanticViewPane
-export function attach(): {dispose(): void; semanticView: SemanticViewPane} {
+let mainPane: SemanticViewPane | undefined
+export function initialize(): Disposable {
   // Only attach once
   if (!mainPane) {
     mainPane = new SemanticViewPane()
-    mainPane.activate({})
   }
 
-  return {
-    dispose() {
-      mainPane.deactivate()
-    },
-    semanticView: mainPane,
-  }
+  const pane = mainPane
+  return new Disposable(() => {
+    pane.destroy()
+  })
 }
 
 export function toggle() {
   if (mainPane) {
     mainPane.toggle()
   } else {
-    console.log(`cannot toggle: ${SEMANTIC_VIEW_URI} not initialized`)
+    throw new Error("cannot toggle: SemanticViewPane not initialized")
   }
 }

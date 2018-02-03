@@ -2,100 +2,69 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
+const atom_2 = require("atom");
 class SemanticViewPane {
     constructor() {
-        this.isOpen = false;
-        this.subscriptions = null;
-    }
-    activate(state) {
-        if (!semanticView_1.SEMANTIC_VIEW_URI && state) {
-            // NOTE is is just a dummy to avoid warning of unused variable state
-            console.log(state);
-        }
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.subscriptions.add(atom.workspace.addOpener((uri) => {
-            if (uri === "atom://" + semanticView_1.SEMANTIC_VIEW_URI) {
-                this.isOpen = true;
-                const view = new semanticView_1.SemanticView({});
-                view.start();
-                return view;
+        this.subscriptions.add(new atom_2.Disposable(() => {
+            if (this.view) {
+                atom.workspace.hide(this.view);
+                this.view.destroy();
             }
-        }));
-        this.subscriptions.add({
-            dispose() {
-                atom.workspace.getPaneItems().forEach(paneItem => {
-                    if (paneItem instanceof semanticView_1.SemanticView) {
-                        paneItem.destroy();
-                    }
-                });
-            },
-        });
-        this.subscriptions.add(atom.workspace.onDidAddPaneItem((event) => {
+        }), atom.workspace.onDidAddPaneItem((event) => {
             if (event.item instanceof semanticView_1.SemanticView) {
-                this.isOpen = true;
                 atom.config.set("atom-typescript.showSemanticView", true);
-                // console.log("TypeScript Semantic View was opened")
             }
-        }));
-        this.subscriptions.add(atom.workspace.onDidDestroyPaneItem((event) => {
+        }), atom.workspace.onDidDestroyPaneItem((event) => {
             if (event.item instanceof semanticView_1.SemanticView) {
-                this.isOpen = false;
                 atom.config.set("atom-typescript.showSemanticView", false);
-                // console.log("TypeScript Semantic View was closed")
             }
+        }), atom.config.observe("atom-typescript.showSemanticView", val => {
+            if (val)
+                this.show();
+            else
+                this.hide();
         }));
-        this.subscriptions.add(atom.config.onDidChange("atom-typescript.showSemanticView", (val) => {
-            this.show(val.newValue);
-        }));
-        this.show(atom.config.get("atom-typescript.showSemanticView"));
     }
-    deactivate() {
-        if (this.subscriptions !== null) {
-            this.subscriptions.dispose();
-        }
+    destroy() {
+        this.subscriptions.dispose();
     }
-    toggle() {
-        // console.log("TypeScript Semantic View was toggled")
-        atom.workspace.toggle("atom://" + semanticView_1.SEMANTIC_VIEW_URI);
+    async toggle() {
+        if (!this.view)
+            await this.show();
+        else
+            await atom.workspace.toggle(this.view);
     }
-    show(isShow) {
-        if (isShow === false) {
-            this.hide();
-            return;
-        }
-        // console.log("TypeScript Semantic View was opened")
-        atom.workspace.open("atom://" + semanticView_1.SEMANTIC_VIEW_URI, {});
+    async show() {
+        if (!this.view)
+            this.view = new semanticView_1.SemanticView({});
+        await atom.workspace.open(this.view, { searchAllPanes: true });
     }
-    hide(isHide) {
-        if (isHide === false) {
-            this.show();
-            return;
-        }
-        // console.log("TypeScript Semantic View was hidden")
-        atom.workspace.hide("atom://" + semanticView_1.SEMANTIC_VIEW_URI);
+    hide() {
+        if (!this.view)
+            return false;
+        else
+            return atom.workspace.hide(this.view);
     }
 }
-exports.SemanticViewPane = SemanticViewPane;
-function attach() {
+let mainPane;
+function initialize() {
     // Only attach once
-    if (!exports.mainPane) {
-        exports.mainPane = new SemanticViewPane();
-        exports.mainPane.activate({});
+    if (!mainPane) {
+        mainPane = new SemanticViewPane();
     }
-    return {
-        dispose() {
-            exports.mainPane.deactivate();
-        },
-        semanticView: exports.mainPane,
-    };
+    const pane = mainPane;
+    return new atom_2.Disposable(() => {
+        pane.destroy();
+    });
 }
-exports.attach = attach;
+exports.initialize = initialize;
 function toggle() {
-    if (exports.mainPane) {
-        exports.mainPane.toggle();
+    if (mainPane) {
+        mainPane.toggle();
     }
     else {
-        console.log(`cannot toggle: ${semanticView_1.SEMANTIC_VIEW_URI} not initialized`);
+        throw new Error("cannot toggle: SemanticViewPane not initialized");
     }
 }
 exports.toggle = toggle;

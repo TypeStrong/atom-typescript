@@ -14,8 +14,43 @@ class SemanticViewComponent {
         this.whileRendering = {
             lastCursorLine: 0,
         };
+        this.subscribeToEditor = (editor) => {
+            if (!editor || !atomUtils.onDiskAndTs(editor)) {
+                // unsubscribe from editor
+                // dispose subscriptions (except for editor-changing)
+                if (this.editorScrolling) {
+                    this.editorScrolling.dispose();
+                }
+                if (this.editorChanging) {
+                    this.editorChanging.dispose();
+                }
+                this.update({ navTree: null });
+                return;
+            }
+            this.setEditor(editor);
+            // set navTree
+            const filePath = editor.getPath();
+            this.loadNavTree(filePath);
+            // Subscribe to stop scrolling
+            if (this.editorScrolling) {
+                this.editorScrolling.dispose();
+            }
+            this.editorScrolling = editor.onDidChangeCursorPosition(() => {
+                this.selectAtCursorLine();
+            });
+            if (this.editorChanging) {
+                this.editorChanging.dispose();
+            }
+            this.editorChanging = editor.onDidStopChanging(() => {
+                // set navTree
+                const fPath = editor.getPath();
+                this.loadNavTree(fPath);
+            });
+        };
         this.selectedNode = null;
+        this.prepareNavTree(props.navTree);
         etch.initialize(this);
+        atom.workspace.observeActiveTextEditor(this.subscribeToEditor);
     }
     async update(props) {
         if (props.navTree) {
@@ -45,7 +80,7 @@ class SemanticViewComponent {
         if (lodash_1.isEqual(navTree, this.props.navTree)) {
             return;
         }
-        this.props = { navTree: navTree };
+        this.props = { navTree };
         await etch.update(this);
     }
     async forceUpdate() {
@@ -59,7 +94,7 @@ class SemanticViewComponent {
                 const client = await atomts_1.clientResolver.get(filePath);
                 await client.executeOpen({ file: filePath });
                 const navtreeResult = await client.executeNavTree({ file: filePath });
-                const navTree = navtreeResult ? navtreeResult.body : void 0;
+                const navTree = navtreeResult ? navtreeResult.body : undefined;
                 if (navTree) {
                     this.setNavTree(navTree);
                 }
@@ -78,6 +113,8 @@ class SemanticViewComponent {
      *            the NavigationTree that will be prepared for rendering
      */
     prepareNavTree(navTree) {
+        if (navTree === null)
+            return;
         navTree.styleClasses = this.getIconForKind(navTree.kind);
         const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers);
         if (modifiersClasses) {
@@ -86,7 +123,7 @@ class SemanticViewComponent {
         if (navTree.childItems) {
             if (navTree.childItems.length < 1) {
                 // normalize: remove empty lists
-                navTree.childItems = void 0;
+                navTree.childItems = undefined;
                 return;
             }
             // TODO should there be a different sort-order?
@@ -97,61 +134,6 @@ class SemanticViewComponent {
                 this.prepareNavTree(child);
             }
         }
-    }
-    // TODO refactor/rename this function if/when React is abandoned
-    componentDidMount() {
-        const subscribeToEditor = (editor) => {
-            if (!editor) {
-                unsubscribeFromEditor();
-                return;
-            }
-            this.setEditor(editor);
-            // set navTree
-            const filePath = editor.getPath();
-            this.loadNavTree(filePath);
-            // Subscribe to stop scrolling
-            if (this.editorScrolling) {
-                this.editorScrolling.dispose();
-            }
-            this.editorScrolling = editor.onDidChangeCursorPosition(() => {
-                this.selectAtCursorLine();
-            });
-            if (this.editorChanging) {
-                this.editorChanging.dispose();
-            }
-            this.editorChanging = editor.onDidStopChanging(() => {
-                // set navTree
-                const fPath = editor.getPath();
-                this.loadNavTree(fPath);
-            });
-        };
-        const unsubscribeFromEditor = () => {
-            // dispose subscriptions (except for editor-changing)
-            if (this.editorScrolling) {
-                this.editorScrolling.dispose();
-            }
-            if (this.editorChanging) {
-                this.editorChanging.dispose();
-            }
-            // clear view:
-            // this.navTree = null
-            // this.forceUpdate()
-            this.update({ navTree: {} });
-        };
-        // We don't start unless there is work to do ... so work
-        const activeEditor = atom.workspace.getActiveTextEditor();
-        if (activeEditor) {
-            subscribeToEditor(activeEditor); // atomUtils.getActiveEditor())
-        }
-        // Editor changing
-        this.activeEditorChanging = atom.workspace.onDidChangeActiveTextEditor((editor) => {
-            if (editor && atomUtils.onDiskAndTs(editor)) {
-                subscribeToEditor(editor);
-            }
-            else {
-                unsubscribeFromEditor();
-            }
-        });
     }
     render() {
         // node?: HTMLElement): void {
@@ -183,7 +165,8 @@ class SemanticViewComponent {
         // else this.root.appendChild(content)
         //
         // if (this.selectedNode) this.scrollTo(this.selectedNode)
-        return (etch.dom("ol", { ref: "main", className: "list-tree has-collapsable-children focusable-panel" }, this.renderNode(this.props.navTree)));
+        return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
+            etch.dom("ol", { ref: "main", className: "list-tree has-collapsable-children focusable-panel" }, this.renderNode(this.props.navTree))));
     }
     writeAfterUpdate() {
         // TODO should this use hook readAfterUpdate() instead?
@@ -199,16 +182,19 @@ class SemanticViewComponent {
         return s ? s[s.length - 1].end.line - 1 : 0;
     }
     getDomNodeStartLine(elem) {
-        // return parseInt(elem.dataset.start as string, 10)
-        return parseInt(elem["data-start"], 10);
+        return parseInt(elem.dataset.start, 10);
     }
     getDomNodeEndLine(elem) {
-        // return parseInt(elem.dataset.end as string, 10)
-        return parseInt(elem["data-end"], 10);
+        return parseInt(elem.dataset.end, 10);
     }
     renderNode(node) {
         // const selected = this.isSelected(node) TODO find way to set initial selection
-        const domNode = (etch.dom("li", { className: "node entry exanded list-" + (node.childItems ? "nested-" : "") + "item", "data-start": this.getNodeStartLine(node) + "", "data-end": this.getNodeEndLine(node) + "" },
+        if (node === null)
+            return null;
+        const domNode = (etch.dom("li", { className: "node entry exanded list-" + (node.childItems ? "nested-" : "") + "item", dataset: {
+                start: this.getNodeStartLine(node),
+                end: this.getNodeEndLine(node),
+            } },
             etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
                 etch.dom("span", { className: node.styleClasses }, node.text || "")),
             etch.dom("ol", { className: "entries list-tree" }, node.childItems ? node.childItems.map(sn => this.renderNode(sn)) : "")));
@@ -395,17 +381,15 @@ class SemanticViewComponent {
         if (!domNode.children) {
             return null;
         }
-        for (let i = 0, size = domNode.childElementCount; i < size; ++i) {
-            const elem = domNode.children[i];
-            let selectedChild = null;
+        for (const elem of Array.from(domNode.children)) {
             if (elem.dataset) {
                 const start = this.getDomNodeStartLine(elem);
                 const end = this.getDomNodeEndLine(elem);
                 if (isFinite(start) && isFinite(end)) {
                     if (cursorLine >= start && cursorLine <= end) {
-                        selectedChild = this.findNodeAtCursorLine(elem, cursorLine);
-                        if (selectedChild) {
-                            return selectedChild;
+                        const selected = this.findNodeAtCursorLine(elem, cursorLine);
+                        if (selected) {
+                            return selected;
                         }
                     }
                     else if (isFinite(end) && cursorLine < end) {
@@ -413,7 +397,7 @@ class SemanticViewComponent {
                     }
                 }
             }
-            selectedChild = this.findNodeAtCursorLine(elem, cursorLine);
+            const selectedChild = this.findNodeAtCursorLine(elem, cursorLine);
             if (selectedChild) {
                 return selectedChild;
             }

@@ -6,7 +6,7 @@ import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 
 export interface Props extends JSX.Props {
-  navTree: NavigationTreeExt
+  navTree: NavigationTreeExt | null
 }
 
 // interface for attaching some HELPER fields to the NavigationTree
@@ -15,15 +15,11 @@ export interface NavigationTreeExt extends NavigationTree {
   childItems?: NavigationTreeExt[]
 }
 
-// experimental interface for Element, see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-interface ElementExt extends Element {
-  closest(seletor: string): Element | null
-}
-
 export class SemanticViewComponent implements JSX.ElementClass {
   private editor: TextEditor
-  public refs: {
-    main: HTMLDivElement
+  public element: HTMLDivElement
+  private refs: {
+    main: HTMLOListElement
   }
   private selectedNode: HTMLElement | null
 
@@ -33,7 +29,9 @@ export class SemanticViewComponent implements JSX.ElementClass {
 
   constructor(public props: Props) {
     this.selectedNode = null
+    this.prepareNavTree(props.navTree)
     etch.initialize(this)
+    atom.workspace.observeActiveTextEditor(this.subscribeToEditor)
   }
 
   public async update(props: Partial<Props>) {
@@ -62,12 +60,12 @@ export class SemanticViewComponent implements JSX.ElementClass {
     this.editor = editor
   }
 
-  private async setNavTree(navTree: NavigationTree | null) {
-    this.prepareNavTree(navTree as NavigationTreeExt)
+  private async setNavTree(navTree: NavigationTreeExt | null) {
+    this.prepareNavTree(navTree)
     if (isEqual(navTree, this.props.navTree)) {
       return
     }
-    this.props = {navTree: navTree as NavigationTreeExt}
+    this.props = {navTree}
     await etch.update(this)
   }
 
@@ -83,9 +81,9 @@ export class SemanticViewComponent implements JSX.ElementClass {
         const client = await clientResolver.get(filePath)
         await client.executeOpen({file: filePath})
         const navtreeResult = await client.executeNavTree({file: filePath as string})
-        const navTree = navtreeResult ? (navtreeResult.body as NavigationTree) : void 0
+        const navTree = navtreeResult ? navtreeResult.body! : undefined
         if (navTree) {
-          this.setNavTree(navTree)
+          this.setNavTree(navTree as NavigationTreeExt)
         }
       } catch (err) {
         console.error(err, filePath)
@@ -101,7 +99,8 @@ export class SemanticViewComponent implements JSX.ElementClass {
    * @param {NavigationTreeExt} navTree
    *            the NavigationTree that will be prepared for rendering
    */
-  private prepareNavTree(navTree: NavigationTreeExt): void {
+  private prepareNavTree(navTree: NavigationTreeExt | null): void {
+    if (navTree === null) return
     navTree.styleClasses = this.getIconForKind(navTree.kind)
     const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
     if (modifiersClasses) {
@@ -111,7 +110,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
     if (navTree.childItems) {
       if (navTree.childItems.length < 1) {
         // normalize: remove empty lists
-        navTree.childItems = void 0
+        navTree.childItems = undefined
         return
       }
 
@@ -126,76 +125,12 @@ export class SemanticViewComponent implements JSX.ElementClass {
     }
   }
 
-  // TODO refactor/rename this function if/when React is abandoned
-  componentDidMount() {
-    const subscribeToEditor = (editor: TextEditor) => {
-      if (!editor) {
-        unsubscribeFromEditor()
-        return
-      }
-      this.setEditor(editor)
-
-      // set navTree
-      const filePath = editor.getPath()
-      this.loadNavTree(filePath)
-
-      // Subscribe to stop scrolling
-      if (this.editorScrolling) {
-        this.editorScrolling.dispose()
-      }
-      this.editorScrolling = editor.onDidChangeCursorPosition(() => {
-        this.selectAtCursorLine()
-      })
-
-      if (this.editorChanging) {
-        this.editorChanging.dispose()
-      }
-      this.editorChanging = editor.onDidStopChanging(() => {
-        // set navTree
-        const fPath = editor.getPath()
-        this.loadNavTree(fPath)
-      })
-    }
-
-    const unsubscribeFromEditor = () => {
-      // dispose subscriptions (except for editor-changing)
-      if (this.editorScrolling) {
-        this.editorScrolling.dispose()
-      }
-      if (this.editorChanging) {
-        this.editorChanging.dispose()
-      }
-
-      // clear view:
-      // this.navTree = null
-      // this.forceUpdate()
-      this.update({navTree: {} as NavigationTreeExt})
-    }
-
-    // We don't start unless there is work to do ... so work
-    const activeEditor = atom.workspace.getActiveTextEditor()
-    if (activeEditor) {
-      subscribeToEditor(activeEditor) // atomUtils.getActiveEditor())
-    }
-
-    // Editor changing
-    this.activeEditorChanging = atom.workspace.onDidChangeActiveTextEditor(
-      (editor: TextEditor | undefined) => {
-        if (editor && atomUtils.onDiskAndTs(editor)) {
-          subscribeToEditor(editor)
-        } else {
-          unsubscribeFromEditor()
-        }
-      },
-    )
-  }
-
   // /**
   //  * Actually component will never unmount ... so no unsubs for now
   //  */
   // componentWillUnmount() {} // see destroy()
 
-  whileRendering: {lastCursorLine: number | null} = {
+  private whileRendering: {lastCursorLine: number | null} = {
     lastCursorLine: 0,
   }
 
@@ -231,9 +166,11 @@ export class SemanticViewComponent implements JSX.ElementClass {
     //
     // if (this.selectedNode) this.scrollTo(this.selectedNode)
     return (
-      <ol ref="main" className="list-tree has-collapsable-children focusable-panel">
-        {this.renderNode(this.props.navTree)}
-      </ol>
+      <div class="atomts atomts-semantic-view native-key-bindings">
+        <ol ref="main" className="list-tree has-collapsable-children focusable-panel">
+          {this.renderNode(this.props.navTree)}
+        </ol>
+      </div>
     )
   }
 
@@ -253,25 +190,27 @@ export class SemanticViewComponent implements JSX.ElementClass {
   }
 
   private getDomNodeStartLine(elem: HTMLElement): number {
-    // return parseInt(elem.dataset.start as string, 10)
-    return parseInt((elem as any)["data-start"] as string, 10)
+    return parseInt(elem.dataset.start as string, 10)
   }
 
   private getDomNodeEndLine(elem: HTMLElement): number {
-    // return parseInt(elem.dataset.end as string, 10)
-    return parseInt((elem as any)["data-end"] as string, 10)
+    return parseInt(elem.dataset.end as string, 10)
   }
 
-  private renderNode(node: NavigationTree): JSX.Element {
+  private renderNode(node: NavigationTreeExt | null): JSX.Element | null {
     // const selected = this.isSelected(node) TODO find way to set initial selection
+
+    if (node === null) return null
 
     const domNode: JSX.Element = (
       <li
         className={"node entry exanded list-" + (node.childItems ? "nested-" : "") + "item"}
-        data-start={this.getNodeStartLine(node) + ""}
-        data-end={this.getNodeEndLine(node) + ""}>
+        dataset={{
+          start: this.getNodeStartLine(node),
+          end: this.getNodeEndLine(node),
+        }}>
         <div className="header list-item" on={{click: event => this.entryClicked(event, node)}}>
-          <span className={(node as NavigationTreeExt).styleClasses}>{node.text || ""}</span>
+          <span className={node.styleClasses}>{node.text || ""}</span>
         </div>
         <ol className="entries list-tree">
           {node.childItems ? node.childItems.map(sn => this.renderNode(sn)) : ""}
@@ -286,7 +225,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
   }
 
   private entryClicked(event: MouseEvent, node: NavigationTree): void {
-    const target = (event.target as ElementExt).closest(".node")
+    const target = (event.target as Element).closest(".node")
     const isToggle: boolean = this.isToggleEntry(target, event)
     // console.log(isToggle ? "click-toggle" : "click-scroll")
 
@@ -303,12 +242,12 @@ export class SemanticViewComponent implements JSX.ElementClass {
     event.stopPropagation()
   }
 
-  public collapseEntry(target: Element): void {
+  private collapseEntry(target: Element): void {
     target.classList.add("collapsed")
     target.classList.remove("expanded")
   }
 
-  public expandEntry(target: Element): void {
+  private expandEntry(target: Element): void {
     target.classList.add("expanded")
     target.classList.remove("collapsed")
   }
@@ -324,7 +263,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
    * @returns {Boolean} <code>true</code> if entry's expand/collapse state should be toggled
    *                                      (instead of navigating to its position in the text editor)
    */
-  private isToggleEntry(nodeEntry: ElementExt | null, event: MouseEvent): boolean {
+  private isToggleEntry(nodeEntry: Element | null, event: MouseEvent): boolean {
     if (!nodeEntry || !event.target) {
       return false
     }
@@ -413,7 +352,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
    *                                   node is a parent-node of a node that is already
    *                                   selected (i.e. there is a selected node "furhter down")
    */
-  setSelected(domNode: HTMLElement, selected: boolean, forceSelection?: boolean): void {
+  private setSelected(domNode: HTMLElement, selected: boolean, forceSelection?: boolean): void {
     if (selected) {
       let setSelected: boolean = true
       if (this.selectedNode) {
@@ -442,7 +381,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
    * HELPER select the node's HTML represenation which corresponds to the
    *        current cursor position
    */
-  selectAtCursorLine(): void {
+  private selectAtCursorLine(): void {
     this.whileRendering = {
       lastCursorLine:
         this.editor && this.editor.getLastCursor()
@@ -480,17 +419,15 @@ export class SemanticViewComponent implements JSX.ElementClass {
       return null
     }
 
-    for (let i = 0, size = domNode.childElementCount; i < size; ++i) {
-      const elem = domNode.children[i] as HTMLElement
-      let selectedChild: HTMLElement | null = null
+    for (const elem of Array.from(domNode.children) as HTMLElement[]) {
       if (elem.dataset) {
         const start: number = this.getDomNodeStartLine(elem)
         const end: number = this.getDomNodeEndLine(elem)
         if (isFinite(start) && isFinite(end)) {
           if (cursorLine >= start && cursorLine <= end) {
-            selectedChild = this.findNodeAtCursorLine(elem, cursorLine)
-            if (selectedChild) {
-              return selectedChild
+            const selected = this.findNodeAtCursorLine(elem, cursorLine)
+            if (selected) {
+              return selected
             }
           } else if (isFinite(end) && cursorLine < end) {
             break
@@ -498,7 +435,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
         }
       }
 
-      selectedChild = this.findNodeAtCursorLine(elem, cursorLine)
+      const selectedChild = this.findNodeAtCursorLine(elem, cursorLine)
 
       if (selectedChild) {
         return selectedChild
@@ -521,7 +458,7 @@ export class SemanticViewComponent implements JSX.ElementClass {
    *        (i.e. scroll the semantic-view's tree representation)
    * @param  {HTMLElement} domNode the HTMLElement that should be made visisble
    */
-  scrollTo(domNode: HTMLElement): void {
+  private scrollTo(domNode: HTMLElement): void {
     const elem: any = domNode
     if (typeof elem.scrollIntoViewIfNeeded === "function") {
       elem.scrollIntoViewIfNeeded()
@@ -537,8 +474,46 @@ export class SemanticViewComponent implements JSX.ElementClass {
    * @param  {NavigationTree} node
    *              the node which's element should be made visible in the editor
    */
-  gotoNode(node: NavigationTree): void {
+  private gotoNode(node: NavigationTree): void {
     const gotoLine = this.getNodeStartLine(node)
     this.editor.setCursorBufferPosition([gotoLine, 0])
+  }
+
+  private subscribeToEditor = (editor?: TextEditor) => {
+    if (!editor || !atomUtils.onDiskAndTs(editor)) {
+      // unsubscribe from editor
+      // dispose subscriptions (except for editor-changing)
+      if (this.editorScrolling) {
+        this.editorScrolling.dispose()
+      }
+      if (this.editorChanging) {
+        this.editorChanging.dispose()
+      }
+
+      this.update({navTree: null})
+      return
+    }
+    this.setEditor(editor)
+
+    // set navTree
+    const filePath = editor.getPath()
+    this.loadNavTree(filePath)
+
+    // Subscribe to stop scrolling
+    if (this.editorScrolling) {
+      this.editorScrolling.dispose()
+    }
+    this.editorScrolling = editor.onDidChangeCursorPosition(() => {
+      this.selectAtCursorLine()
+    })
+
+    if (this.editorChanging) {
+      this.editorChanging.dispose()
+    }
+    this.editorChanging = editor.onDidStopChanging(() => {
+      // set navTree
+      const fPath = editor.getPath()
+      this.loadNavTree(fPath)
+    })
   }
 }

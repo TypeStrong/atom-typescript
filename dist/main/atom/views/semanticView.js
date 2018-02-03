@@ -5,30 +5,10 @@ exports.SEMANTIC_VIEW_URI = "atomts-semantic-view";
 class SemanticView {
     constructor(config) {
         this.config = config;
-        /**
-         * This function exists because the react component needs access to `panel` which needs access to `SemanticView`.
-         * So we lazily create react component after panel creation
-         */
-        this.started = false;
-        // super(config)
-        this.element = document.createElement("div");
-        this.element.classList.add("atomts", "atomts-semantic-view", "native-key-bindings");
+        this.comp = new semanticViewComponent_1.SemanticViewComponent({ navTree: null });
     }
-    get rootDomElement() {
-        return this.element;
-    }
-    start() {
-        if (this.started && this.comp) {
-            this.comp.forceUpdate();
-            return;
-        }
-        this.started = true;
-        this.comp = new semanticViewComponent_1.SemanticViewComponent({ navTree: {} });
-        this.comp.componentDidMount(); // TODO is there a hook in etch that gets triggered after initializion finished?
-        this.rootDomElement.appendChild(this.comp.refs.main);
-    }
-    getElement() {
-        return this.rootDomElement;
+    get element() {
+        return this.comp.element;
     }
     getTitle() {
         return "TypeScript";
@@ -40,9 +20,7 @@ class SemanticView {
     destroy() {
         if (this.comp) {
             this.comp.destroy();
-            this.comp = null;
         }
-        this.element.remove();
     }
     getDefaultLocation() {
         return "right";

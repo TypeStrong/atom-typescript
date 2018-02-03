@@ -4,7 +4,7 @@ const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const semanticViewPane_1 = require("../views/semanticViewPane");
 registry_1.commands.set("typescript:toggle-semantic-view", () => {
-    return async (e) => {
+    return e => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
