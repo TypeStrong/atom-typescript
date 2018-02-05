@@ -1,4 +1,4 @@
-import {CompositeDisposable, PaneItemObservedEvent} from "atom"
+import {CompositeDisposable} from "atom"
 import {SemanticView} from "./semanticView"
 import {Disposable} from "atom"
 
@@ -14,16 +14,6 @@ class SemanticViewPane {
         if (this.view) {
           atom.workspace.hide(this.view)
           this.view.destroy()
-        }
-      }),
-      atom.workspace.onDidAddPaneItem((event: PaneItemObservedEvent) => {
-        if (event.item instanceof SemanticView) {
-          atom.config.set("atom-typescript.showSemanticView", true)
-        }
-      }),
-      atom.workspace.onDidDestroyPaneItem((event: PaneItemObservedEvent) => {
-        if (event.item instanceof SemanticView) {
-          atom.config.set("atom-typescript.showSemanticView", false)
         }
       }),
       atom.config.observe("atom-typescript.showSemanticView", val => {

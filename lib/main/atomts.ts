@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {initialize as initializeSemanticView} from "./atom/views/semanticViewPane"
+import {initialize as initializeSemanticView} from "./atom/views/outline/semanticViewPane"
+import {deserializeSemanticView} from "./atom/views/outline/semanticView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -216,3 +217,5 @@ async function getTypescriptBuffer(filePath: string) {
     isOpen: false,
   }
 }
+
+export {deserializeSemanticView}
