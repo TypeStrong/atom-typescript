@@ -2,6 +2,7 @@ import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
 import {initialize as initializeSemanticView} from "./atom/views/outline/semanticViewPane"
 import {deserializeSemanticView} from "./atom/views/outline/semanticView"
+import {initialize as initializeFileSymbolsView} from "./atom/views/symbols/symbolsViewMain"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -35,7 +36,7 @@ export async function activate() {
 
   require("etch").setScheduler(atom.views)
   subscriptions.add(initializeSemanticView())
-  const {fileSymbolsView} = attachFileSymbolsView()
+  subscriptions.add(initializeFileSymbolsView())
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -66,7 +67,6 @@ export async function activate() {
 
       return clientResolver.get(filePath)
     },
-    fileSymbolsView,
     statusPanel,
   })
 

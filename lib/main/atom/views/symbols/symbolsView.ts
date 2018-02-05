@@ -1,6 +1,6 @@
 import * as path from "path"
 import {Point} from "atom"
-import {isFileSync, readFileSync} from "../utils/fs"
+import {isFileSync, readFileSync} from "../../utils/fs"
 import {match} from "fuzzaldrin"
 import SelectListView = require("atom-select-list")
 
@@ -16,7 +16,7 @@ export default class SymbolsView {
   panel: any
   isCanceling: boolean
   previouslyFocusedElement: HTMLElement | null = null
-  static highlightMatches(context: any, name: any, matches: any, offsetIndex?: any) {
+  static highlightMatches(_context: any, name: any, matches: any, offsetIndex?: any) {
     // tslint:disable-line
     if (!offsetIndex) {
       offsetIndex = 0
@@ -149,7 +149,7 @@ export default class SymbolsView {
   }
 
   /* tslint:disable */
-  didChangeSelection(tag: any) {
+  didChangeSelection(_tag: any) {
     /* tslint:enable */
     // no-op
   }

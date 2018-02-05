@@ -13,7 +13,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "noUnusedParameters": false,
+    "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,

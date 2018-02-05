@@ -45,7 +45,7 @@ export class FileSymbolsView {
 }
 
 export let mainPane: FileSymbolsView
-export function attach(): {dispose(): void; fileSymbolsView: FileSymbolsView} {
+export function initialize(): {dispose(): void; fileSymbolsView: FileSymbolsView} {
   // Only attach once
   if (!mainPane) {
     mainPane = new FileSymbolsView()

@@ -3,7 +3,7 @@
 import {CompositeDisposable, TextEditor} from "atom"
 import SymbolsView from "./symbolsView"
 import {match} from "fuzzaldrin"
-import {clientResolver} from "../../atomts"
+import {clientResolver} from "../../../atomts"
 import {NavigationTree} from "typescript/lib/protocol"
 import {Tag} from "./fileSymbolsTag"
 
