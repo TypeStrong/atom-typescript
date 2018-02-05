@@ -11,14 +11,6 @@ class SemanticViewPane {
                 atom.workspace.hide(this.view);
                 this.view.destroy();
             }
-        }), atom.workspace.onDidAddPaneItem((event) => {
-            if (event.item instanceof semanticView_1.SemanticView) {
-                atom.config.set("atom-typescript.showSemanticView", true);
-            }
-        }), atom.workspace.onDidDestroyPaneItem((event) => {
-            if (event.item instanceof semanticView_1.SemanticView) {
-                atom.config.set("atom-typescript.showSemanticView", false);
-            }
         }), atom.config.observe("atom-typescript.showSemanticView", val => {
             if (val)
                 this.show();

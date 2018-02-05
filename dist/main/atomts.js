@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
-const semanticViewPane_1 = require("./atom/views/semanticViewPane");
+const semanticViewPane_1 = require("./atom/views/outline/semanticViewPane");
+const semanticView_1 = require("./atom/views/outline/semanticView");
+exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
