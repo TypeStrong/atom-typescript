@@ -1,6 +1,5 @@
 import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
-import {SemanticViewPane} from "../views/semanticViewPane"
 import {FileSymbolsView} from "../views/symbolsViewMain"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
@@ -9,7 +8,6 @@ export interface Dependencies {
   clearErrors(): void
   getTypescriptBuffer: GetTypescriptBuffer
   getClient(filePath: string): Promise<TypescriptServiceClient>
-  semanticView: SemanticViewPane
   fileSymbolsView: FileSymbolsView
   statusPanel: StatusPanel
 }

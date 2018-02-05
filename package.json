@@ -56,6 +56,10 @@
       "default": false
     }
   },
+  "deserializers": {
+    "atomts-semantic-view/SemanticView": "deserializeSemanticView",
+    "atomts-semantic-view/SemanticViewPane": "deserializeSemanticViewPane"
+  },
   "consumedServices": {
     "linter-indie": {
       "versions": {

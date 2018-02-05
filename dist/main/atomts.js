@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
-const semanticView_1 = require("./atom/views/semanticView");
-const symbolsViewMain_1 = require("./atom/views/symbolsViewMain");
+const semanticViewPane_1 = require("./atom/views/outline/semanticViewPane");
+const semanticView_1 = require("./atom/views/outline/semanticView");
+exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
@@ -30,7 +31,7 @@ async function activate() {
         await require("atom-package-deps").install("atom-typescript", true);
     }
     require("etch").setScheduler(atom.views);
-        const { semanticView } = semanticView_1.attach();
+    subscriptions.add(semanticViewPane_1.initialize());
         const { fileSymbolsView } = symbolsViewMain_1.attach();
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
@@ -55,7 +56,6 @@ async function activate() {
             }
             return exports.clientResolver.get(filePath);
         },
-            semanticView,
             fileSymbolsView,
         statusPanel,
     });
