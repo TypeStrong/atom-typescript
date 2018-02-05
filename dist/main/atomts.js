@@ -5,6 +5,7 @@ const tsconfig = require("tsconfig/dist/tsconfig");
 const semanticViewPane_1 = require("./atom/views/outline/semanticViewPane");
 const semanticView_1 = require("./atom/views/outline/semanticView");
 exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
+const symbolsViewMain_1 = require("./atom/views/symbols/symbolsViewMain");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const clientResolver_1 = require("../client/clientResolver");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
@@ -32,7 +33,7 @@ async function activate() {
     }
     require("etch").setScheduler(atom.views);
     subscriptions.add(semanticViewPane_1.initialize());
-        const { fileSymbolsView } = symbolsViewMain_1.attach();
+    subscriptions.add(symbolsViewMain_1.initialize());
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
         errorPusher.setUnusedAsInfo(val.newValue);
@@ -56,7 +57,6 @@ async function activate() {
             }
             return exports.clientResolver.get(filePath);
         },
-            fileSymbolsView,
         statusPanel,
     });
     let activePane;
@@ -157,12 +157,6 @@ async function getProjectConfigPath(sourcePath) {
     const result = await client.executeProjectInfo({
         needFileNameList: false,
         file: sourcePath,
-    },
-    showSemanticView: {
-        title: "Show semantic view",
-        description: "Show semantic view (outline) for typescript content",
-        type: "boolean",
-        default: false,
     });
     return result.body.configFileName;
 }
