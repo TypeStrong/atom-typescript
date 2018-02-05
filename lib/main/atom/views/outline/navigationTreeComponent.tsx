@@ -127,7 +127,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     newTree: NavigationTreeViewModel | null,
     oldTree: NavigationTreeViewModel | null,
   ): boolean {
-    if (!newTree || !oldTree) return newTree == oldTree
+    if (!newTree || !oldTree) return newTree === oldTree
 
     if (newTree.text === oldTree.text) {
       if (oldTree.collapsed) {
