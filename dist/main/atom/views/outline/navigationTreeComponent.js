@@ -140,7 +140,7 @@ class NavigationTreeComponent {
      */
     restoreCollapsed(newTree, oldTree) {
         if (!newTree || !oldTree)
-            return newTree == oldTree;
+            return newTree === oldTree;
         if (newTree.text === oldTree.text) {
             if (oldTree.collapsed) {
                 newTree.collapsed = true;

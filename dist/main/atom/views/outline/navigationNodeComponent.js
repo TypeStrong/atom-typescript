@@ -52,8 +52,8 @@ class NavigationNodeComponent {
         }
         else if (target) {
             this.toggleNode(node);
+            etch.update(this);
         }
-        etch.update(this);
     }
     toggleNode(node) {
         // console.log("toggle " + !!node.collapsed + " -> " + !node.collapsed + " ", node) // DEBUG
