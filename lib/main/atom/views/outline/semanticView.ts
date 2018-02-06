@@ -1,5 +1,6 @@
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
+import {initialize} from "./semanticViewPane"
 
 export const SEMANTIC_VIEW_URI = "atomts-semantic-view"
 
@@ -13,7 +14,10 @@ export interface SemanticViewSerializationData {
 }
 
 export function deserializeSemanticView(serialized: SemanticViewSerializationData) {
-  return new SemanticView(serialized.data)
+  // console.log('deserializeSemanticView -> ', serialized)// DEBUG
+  const view = new SemanticView(serialized.data)
+  initialize(view)
+  return view
 }
 
 export class SemanticView {

@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const navigationTreeComponent_1 = require("./navigationTreeComponent");
+const semanticViewPane_1 = require("./semanticViewPane");
 exports.SEMANTIC_VIEW_URI = "atomts-semantic-view";
 function deserializeSemanticView(serialized) {
-    return new SemanticView(serialized.data);
+    // console.log('deserializeSemanticView -> ', serialized)// DEBUG
+    const view = new SemanticView(serialized.data);
+    semanticViewPane_1.initialize(view);
+    return view;
 }
 exports.deserializeSemanticView = deserializeSemanticView;
 class SemanticView {

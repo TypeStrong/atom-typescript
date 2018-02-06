@@ -4,7 +4,8 @@ const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
 class SemanticViewPane {
-    constructor() {
+    constructor(view) {
+        this.view = view;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.subscriptions.add(new atom_2.Disposable(() => {
             if (this.view) {
@@ -38,12 +39,21 @@ class SemanticViewPane {
         else
             return atom.workspace.hide(this.view);
     }
+    setView(view) {
+        if (this.view) {
+            this.view.destroy();
+        }
+        this.view = view;
+    }
 }
 let mainPane;
-function initialize() {
-    // Only attach once
+function initialize(view) {
+    // console.log('initializeSemanticViewPane -> ', view)// DEBUG
     if (!mainPane) {
-        mainPane = new SemanticViewPane();
+        mainPane = new SemanticViewPane(view);
+    }
+    else if (view) {
+        mainPane.setView(view);
     }
     const pane = mainPane;
     return new atom_2.Disposable(() => {
