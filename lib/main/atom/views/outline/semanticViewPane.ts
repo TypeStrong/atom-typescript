@@ -4,9 +4,8 @@ import {Disposable} from "atom"
 
 class SemanticViewPane {
   subscriptions: CompositeDisposable
-  view?: SemanticView
 
-  constructor() {
+  constructor(public view?: SemanticView) {
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(
@@ -41,13 +40,23 @@ class SemanticViewPane {
     if (!this.view) return false
     else return atom.workspace.hide(this.view)
   }
+
+  setView(view: SemanticView): void {
+    if (this.view) {
+      this.view.destroy()
+    }
+    this.view = view
+  }
 }
 
 let mainPane: SemanticViewPane | undefined
-export function initialize(): Disposable {
-  // Only attach once
+export function initialize(view?: SemanticView): Disposable {
+  // console.log('initializeSemanticViewPane -> ', view)// DEBUG
+
   if (!mainPane) {
-    mainPane = new SemanticViewPane()
+    mainPane = new SemanticViewPane(view)
+  } else if (view) {
+    mainPane.setView(view)
   }
 
   const pane = mainPane

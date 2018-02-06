@@ -74,8 +74,8 @@ export class NavigationNodeComponent implements JSX.ElementClass {
       this.props.root.gotoNode(node)
     } else if (target) {
       this.toggleNode(node)
+      etch.update(this)
     }
-    etch.update(this)
   }
 
   private toggleNode(node: NavigationTreeViewModel) {
