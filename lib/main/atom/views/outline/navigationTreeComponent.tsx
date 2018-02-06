@@ -119,7 +119,8 @@ export class NavigationTreeComponent implements JSX.ElementClass {
   }
 
   /**
-   * HELPER transfere collapsed state from old NavigationTreeViewModel to new view model.
+   * HELPER transfere collapsed state from old NavigationTreeViewModel to
+   * new view model.
    *
    * @returns {boolean} TRUE, if newTree and oldTree matched title
    */
@@ -128,6 +129,21 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     oldTree: NavigationTreeViewModel | null,
   ): boolean {
     if (!newTree || !oldTree) return newTree === oldTree
+
+    // a bit of guess work here:
+    // there may have been additions/deletions in the children
+    // (in comparision to the previous navTree), so the tranfere of
+    // the collapsed state really is a heuristical process.
+    //
+    // For now, we assume, if the name (i.e. node.text) is the same
+    // then it refers to the same entity (i.e. it should get the same
+    // collapsed state); which is not true in case a variable/function/etc
+    // was renamed.
+    // But we do not want the get too elaborate and do expensive modification-
+    // detection here, so in case of renaming, we just reset the collapsed
+    // state to the default (i.e. expanded).
+    // Same for reordering etc. of children: for complex changes we just
+    // revert to the default state.
 
     if (newTree.text === oldTree.text) {
       if (oldTree.collapsed) {
@@ -140,11 +156,13 @@ export class NavigationTreeComponent implements JSX.ElementClass {
         for (let i = 0, size = newTree.childItems.length; i < size; ++i) {
           newChild = newTree.childItems[i]
           oldChild = oldTree.childItems[i]
+          // allow for one addition / deletion in the children
+          // (i.e. check if there's a match in the previous/next position)
           if (!this.restoreCollapsed(newChild, oldChild)) {
-            // try, if a child was added
+            // try, if a child was removed
             oldChild = oldTree.childItems[i + 1]
             if (!this.restoreCollapsed(newChild, oldChild)) {
-              // try, if a child was removed
+              // try, if a child was added
               oldChild = oldTree.childItems[i - 1]
               this.restoreCollapsed(newChild, oldChild)
             }
