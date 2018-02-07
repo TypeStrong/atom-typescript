@@ -33,3 +33,5 @@ export function isFileSync(filePath: string): boolean {
 }
 
 export const readFileSync = fs.readFileSync
+
+export const parsePath = path.parse

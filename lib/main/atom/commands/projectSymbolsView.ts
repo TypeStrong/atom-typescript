@@ -1,12 +1,12 @@
 import {commands} from "./registry"
 import {commandForTypeScript} from "../utils"
-import {toggleFileSymbols} from "../views/symbols/symbolsViewMain"
+import {toggleProjectSymbols} from "../views/symbols/symbolsViewMain"
 
-commands.set("typescript:toggle-file-symbols", () => {
+commands.set("typescript:toggle-project-symbols", () => {
   return async e => {
     if (!commandForTypeScript(e)) {
       return
     }
-    toggleFileSymbols()
+    toggleProjectSymbols()
   }
 })

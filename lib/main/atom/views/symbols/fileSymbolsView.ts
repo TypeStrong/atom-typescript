@@ -156,6 +156,8 @@ export class FileView extends SymbolsView {
     return this.cachedTags[filePath]
   }
 
+  /////////////// custom tag generation: use tsserver /////////////////////
+
   async generate(filePath: string) {
     const navtree = await this.getNavTree(filePath)
     const tags: Tag[] = []

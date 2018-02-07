@@ -1,5 +1,5 @@
-import {CompositeDisposable} from "atom"
 import {FileView} from "./fileSymbolsView"
+import ProjectView from "./projectSymbolsView"
 
 /**
  * this is a slightly modified copy of symbols-view/lib/main.js
@@ -8,18 +8,15 @@ import {FileView} from "./fileSymbolsView"
 
 export class FileSymbolsView {
   private stack: Position[]
-  editorSubscription: CompositeDisposable | null = null
   fileView: FileView | null
+  projectView: ProjectView | null
 
   activate() {
     this.stack = []
 
-    // FIXME registry.ts does not work (yet?) -> when it does, this must be removed/disabled
-    this.editorSubscription = atom.commands.add("atom-text-editor", {
-      "typescript:toggle-file-symbols": () => {
-        this.createFileView().toggle()
-      },
-    })
+    // NOTE commands are registered via
+    //        commands/**SybmolsView.ts
+    //      and commands/index.ts
   }
 
   deactivate() {
@@ -28,9 +25,9 @@ export class FileSymbolsView {
       this.fileView = null
     }
 
-    if (this.editorSubscription != null) {
-      this.editorSubscription.dispose()
-      this.editorSubscription = null
+    if (this.projectView != null) {
+      this.projectView.destroy()
+      this.projectView = null
     }
   }
 
@@ -41,6 +38,15 @@ export class FileSymbolsView {
     // const FileView  = require('./fileSymbolsView');
     this.fileView = new FileView(this.stack)
     return this.fileView
+  }
+
+  createProjectView() {
+    if (this.projectView) {
+      return this.projectView
+    }
+    // const ProjectView  = require('./project-view');
+    this.projectView = new ProjectView(this.stack)
+    return this.projectView
   }
 }
 
@@ -60,10 +66,18 @@ export function initialize(): {dispose(): void; fileSymbolsView: FileSymbolsView
   }
 }
 
-export function toggle() {
+export function toggleFileSymbols() {
   if (mainPane) {
     mainPane.createFileView().toggle()
   } else {
     console.log(`cannot toggle: typescript:toggle-file-symbols not initialized`)
+  }
+}
+
+export function toggleProjectSymbols() {
+  if (mainPane) {
+    mainPane.createProjectView().toggle()
+  } else {
+    console.log(`cannot toggle: typescript:toggle-project-symbols not initialized`)
   }
 }

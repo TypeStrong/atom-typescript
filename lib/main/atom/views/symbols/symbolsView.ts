@@ -71,6 +71,7 @@ export default class SymbolsView {
       didConfirmSelection: this.didConfirmSelection.bind(this),
       didConfirmEmptySelection: this.didConfirmEmptySelection.bind(this),
       didCancelSelection: this.didCancelSelection.bind(this),
+      didChangeQuery: this.didChangeQuery.bind(this),
     })
     this.element = this.selectListView.element
     this.element.classList.add("symbols-view")
@@ -148,9 +149,11 @@ export default class SymbolsView {
     }
   }
 
-  /* tslint:disable */
   didChangeSelection(_tag: any) {
-    /* tslint:enable */
+    // no-op
+  }
+
+  didChangeQuery(_query: string) {
     // no-op
   }
 

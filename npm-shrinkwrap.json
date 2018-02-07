@@ -2,6 +2,21 @@
   "name": "atom-typescript",
   "version": "12.1.1",
   "dependencies": {
+    "@types/humanize-plus": {
+      "version": "1.8.0",
+      "from": "@types/humanize-plus@>=1.8.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/@types/humanize-plus/-/humanize-plus-1.8.0.tgz"
+    },
+    "@types/strip-bom": {
+      "version": "3.0.0",
+      "from": "@types/strip-bom@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/@types/strip-bom/-/strip-bom-3.0.0.tgz"
+    },
+    "@types/strip-json-comments": {
+      "version": "0.0.30",
+      "from": "@types/strip-json-comments@0.0.30",
+      "resolved": "https://registry.npmjs.org/@types/strip-json-comments/-/strip-json-comments-0.0.30.tgz"
+    },
     "atom-package-deps": {
       "version": "4.6.1",
       "from": "atom-package-deps@>=4.6.1 <5.0.0",
@@ -36,6 +51,11 @@
       "version": "2.1.0",
       "from": "fuzzaldrin@>=2.1.0 <3.0.0",
       "resolved": "https://registry.npmjs.org/fuzzaldrin/-/fuzzaldrin-2.1.0.tgz"
+    },
+    "humanize-plus": {
+      "version": "1.8.2",
+      "from": "humanize-plus@1.8.2",
+      "resolved": "https://registry.npmjs.org/humanize-plus/-/humanize-plus-1.8.2.tgz"
     },
     "is-utf8": {
       "version": "0.2.1",

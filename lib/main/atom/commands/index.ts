@@ -11,6 +11,8 @@ import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
 import "./semanticView"
+import "./fileSymbolsView"
+import "./projectSymbolsView"
 
 export function registerCommands(deps: Dependencies) {
   for (const [name, command] of commands) {

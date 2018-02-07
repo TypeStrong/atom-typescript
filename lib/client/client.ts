@@ -27,6 +27,7 @@ export const commandWithResponse = new Set([
   "reload",
   "rename",
   "navtree",
+  "navto",
 ])
 
 export class TypescriptServiceClient {
@@ -115,6 +116,9 @@ export class TypescriptServiceClient {
   executeNavTree(args: protocol.FileRequestArgs): Promise<protocol.NavTreeResponse> {
     return this.execute("navtree", args)
   }
+  executeNavto(args: protocol.NavtoRequestArgs): Promise<protocol.NavtoResponse> {
+    return this.execute("navto", args)
+  }
 
   private async execute(command: "change", args: protocol.ChangeRequestArgs): Promise<undefined>
   private async execute(command: "close", args: protocol.FileRequestArgs): Promise<undefined>
@@ -189,6 +193,10 @@ export class TypescriptServiceClient {
     command: "navtree",
     args: protocol.FileRequestArgs,
   ): Promise<protocol.NavTreeResponse>
+  private async execute(
+    command: "navto",
+    args: protocol.NavtoRequestArgs,
+  ): Promise<protocol.NavtoResponse>
   private async execute(command: string, args: any) {
     if (!this.serverPromise) {
       throw new Error("Server is not running")
