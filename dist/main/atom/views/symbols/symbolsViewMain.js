@@ -1,31 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fileSymbolsView_1 = require("./fileSymbolsView");
+const projectSymbolsView_1 = require("./projectSymbolsView");
 /**
  * this is a slightly modified copy of symbols-view/lib/main.js
  * for support of searching file-symbols in typescript files.
  */
 class FileSymbolsView {
-    constructor() {
-        this.editorSubscription = null;
-    }
     activate() {
         this.stack = [];
-        // FIXME registry.ts does not work (yet?) -> when it does, this must be removed/disabled
-        this.editorSubscription = atom.commands.add("atom-text-editor", {
-            "typescript:toggle-file-symbols": () => {
-                this.createFileView().toggle();
-            },
-        });
+        // NOTE commands are registered via
+        //        commands/**SybmolsView.ts
+        //      and commands/index.ts
     }
     deactivate() {
         if (this.fileView != null) {
             this.fileView.destroy();
             this.fileView = null;
         }
-        if (this.editorSubscription != null) {
-            this.editorSubscription.dispose();
-            this.editorSubscription = null;
+        if (this.projectView != null) {
+            this.projectView.destroy();
+            this.projectView = null;
         }
     }
     createFileView() {
@@ -35,6 +30,14 @@ class FileSymbolsView {
         // const FileView  = require('./fileSymbolsView');
         this.fileView = new fileSymbolsView_1.FileView(this.stack);
         return this.fileView;
+    }
+    createProjectView() {
+        if (this.projectView) {
+            return this.projectView;
+        }
+        // const ProjectView  = require('./project-view');
+        this.projectView = new projectSymbolsView_1.default(this.stack);
+        return this.projectView;
     }
 }
 exports.FileSymbolsView = FileSymbolsView;
@@ -52,7 +55,7 @@ function initialize() {
     };
 }
 exports.initialize = initialize;
-function toggle() {
+function toggleFileSymbols() {
     if (exports.mainPane) {
         exports.mainPane.createFileView().toggle();
     }
@@ -60,5 +63,14 @@ function toggle() {
         console.log(`cannot toggle: typescript:toggle-file-symbols not initialized`);
     }
 }
-exports.toggle = toggle;
+exports.toggleFileSymbols = toggleFileSymbols;
+function toggleProjectSymbols() {
+    if (exports.mainPane) {
+        exports.mainPane.createProjectView().toggle();
+    }
+    else {
+        console.log(`cannot toggle: typescript:toggle-project-symbols not initialized`);
+    }
+}
+exports.toggleProjectSymbols = toggleProjectSymbols;
 //# sourceMappingURL=symbolsViewMain.js.map

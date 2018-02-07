@@ -33,4 +33,5 @@ function isFileSync(filePath) {
 }
 exports.isFileSync = isFileSync;
 exports.readFileSync = fs.readFileSync;
+exports.parsePath = path.parse;
 //# sourceMappingURL=fs.js.map

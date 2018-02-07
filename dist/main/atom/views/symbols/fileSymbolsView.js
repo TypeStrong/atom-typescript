@@ -132,6 +132,7 @@ class FileView extends symbolsView_1.default {
         this.cachedTags[filePath] = await this.generate(filePath); // generator.generate();
         return this.cachedTags[filePath];
     }
+    /////////////// custom tag generation: use tsserver /////////////////////
     async generate(filePath) {
         const navtree = await this.getNavTree(filePath);
         const tags = [];

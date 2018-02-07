@@ -23,6 +23,7 @@ class SymbolsView {
             didConfirmSelection: this.didConfirmSelection.bind(this),
             didConfirmEmptySelection: this.didConfirmEmptySelection.bind(this),
             didCancelSelection: this.didCancelSelection.bind(this),
+            didChangeQuery: this.didChangeQuery.bind(this),
         });
         this.element = this.selectListView.element;
         this.element.classList.add("symbols-view");
@@ -127,9 +128,10 @@ class SymbolsView {
             this.openTag(tag);
         }
     }
-    /* tslint:disable */
     didChangeSelection(_tag) {
-        /* tslint:enable */
+        // no-op
+    }
+    didChangeQuery(_query) {
         // no-op
     }
     openTag(tag) {
