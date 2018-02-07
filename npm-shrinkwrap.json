@@ -2,11 +2,6 @@
   "name": "atom-typescript",
   "version": "12.1.1",
   "dependencies": {
-    "@types/humanize-plus": {
-      "version": "1.8.0",
-      "from": "@types/humanize-plus@>=1.8.0 <2.0.0",
-      "resolved": "https://registry.npmjs.org/@types/humanize-plus/-/humanize-plus-1.8.0.tgz"
-    },
     "@types/strip-bom": {
       "version": "3.0.0",
       "from": "@types/strip-bom@>=3.0.0 <4.0.0",
