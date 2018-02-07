@@ -6,6 +6,7 @@ const humanize = require("humanize-plus");
 const symbolsView_1 = require("./symbolsView");
 const atomts_1 = require("../../../atomts");
 const fileSymbolsTag_1 = require("./fileSymbolsTag");
+const lodash_1 = require("lodash");
 /**
  * this is a modified copy of symbols-view/lib/project-view.js
  * for support of searching project-symbols in typescript files,
@@ -15,6 +16,7 @@ class ProjectView extends symbolsView_1.default {
     constructor(stack) {
         super(stack, "Project has no tags file or it is empty", 10);
         this.updatedTags = new atom_1.Emitter();
+        this.startTaskDelayed = lodash_1.debounce(this.startTask.bind(this), 250);
     }
     destroy() {
         this.stopTask();
@@ -58,17 +60,22 @@ class ProjectView extends symbolsView_1.default {
         this.updatedTags.emit("tags", this.tags);
     }
     stopTask() {
+        if (this.startTaskDelayed && this.startTaskDelayed.cancel) {
+            this.startTaskDelayed.cancel();
+        }
         if (this.loadTagsTask) {
-            // TODO cancel request -- would need Oberservable or similar instead of Promise
+            // TODO cancel pending request -- would need Oberservable or similar instead of Promise
             // this.loadTagsTask.terminate();
         }
     }
     startTask(searchValue) {
+        // console.log('new request for query: "'+searchValue+'"...')
         this.stopTask();
         // NOTE need file path when querying tsserver's "navto"
         const filePath = this.getPath();
         if (filePath) {
             this.loadTagsTask = this.generate(filePath, searchValue).then(tags => {
+                this.search = searchValue;
                 this.tags = tags;
                 const message = tags.length > 1 ? null : this.getEmptyResultMessage();
                 this.selectListView.update({
@@ -81,9 +88,8 @@ class ProjectView extends symbolsView_1.default {
         }
     }
     didChangeQuery(query) {
-        this.search = query;
         if (query) {
-            this.startTask(query);
+            this.startTaskDelayed(query);
         }
         else {
             this.updatedTags.emit("tags", []);

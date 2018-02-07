@@ -6,6 +6,7 @@ import SymbolsView from "./symbolsView"
 import {clientResolver} from "../../../atomts"
 import {NavtoItem} from "typescript/lib/protocol"
 import {Tag} from "./fileSymbolsTag"
+import {debounce, Cancelable} from "lodash"
 
 /**
  * this is a modified copy of symbols-view/lib/project-view.js
@@ -18,9 +19,11 @@ export default class ProjectView extends SymbolsView {
   updatedTags: Emitter<{tags: Tag[]}> = new Emitter<{tags: Tag[]}>()
   loadTagsTask: Promise<Tag[]>
   search: string | undefined
+  startTaskDelayed: ((searchValue: string) => void) & Cancelable
 
   constructor(stack: any) {
     super(stack, "Project has no tags file or it is empty", 10)
+    this.startTaskDelayed = debounce(this.startTask.bind(this), 250)
   }
 
   destroy() {
@@ -69,19 +72,24 @@ export default class ProjectView extends SymbolsView {
   }
 
   stopTask() {
+    if (this.startTaskDelayed && this.startTaskDelayed.cancel) {
+      this.startTaskDelayed.cancel()
+    }
     if (this.loadTagsTask) {
-      // TODO cancel request -- would need Oberservable or similar instead of Promise
+      // TODO cancel pending request -- would need Oberservable or similar instead of Promise
       // this.loadTagsTask.terminate();
     }
   }
 
-  startTask(searchValue: string) {
+  startTask(searchValue: string): void {
+    // console.log('new request for query: "'+searchValue+'"...')
     this.stopTask()
 
     // NOTE need file path when querying tsserver's "navto"
     const filePath = this.getPath()
     if (filePath) {
       this.loadTagsTask = this.generate(filePath, searchValue).then(tags => {
+        this.search = searchValue
         this.tags = tags
         const message: string | null = tags.length > 1 ? null : this.getEmptyResultMessage()
         this.selectListView.update({
@@ -95,9 +103,8 @@ export default class ProjectView extends SymbolsView {
   }
 
   didChangeQuery(query: string) {
-    this.search = query
     if (query) {
-      this.startTask(query)
+      this.startTaskDelayed(query)
     } else {
       this.updatedTags.emit("tags", [])
     }
