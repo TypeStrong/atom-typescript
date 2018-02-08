@@ -4,8 +4,36 @@ import {Props, NavigationTreeViewModel} from "./semanticViewModel"
 
 export class NavigationNodeComponent implements JSX.ElementClass {
   constructor(public props: Props) {
+    // this.init(props.navTree);
     etch.initialize(this)
   }
+
+  // private init(navTree: NavigationTreeViewModel|null){
+  //   if(navTree){
+  //     navTree.styleClasses = this.getIconForKind(navTree.kind)
+  //     const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
+  //     if (modifiersClasses) {
+  //       navTree.styleClasses += " " + modifiersClasses
+  //     }
+  //   }
+  // }
+
+  // private getIconForKind(kind: string): string {
+  //   return `icon icon-${kind}`
+  // }
+  //
+  // private getClassForKindModifiers(kindModifiers: string): string {
+  //   if (!kindModifiers) {
+  //     return ""
+  //   } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
+  //     return `modifier-${kindModifiers}`
+  //   } else {
+  //     return kindModifiers
+  //       .split(/[, ]/)
+  //       .map(modifier => "modifier-" + modifier.trim())
+  //       .join(" ")
+  //   }
+  // }
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
@@ -42,22 +70,18 @@ export class NavigationNodeComponent implements JSX.ElementClass {
       (node.collapsed ? " collapsed" : " expanded") +
       (selected ? " selected" : "")
 
-    const domNode: JSX.Element = (
+    return (
       <li className={"node entry exanded list-" + classes}>
         <div className="header list-item" on={{click: event => this.entryClicked(event, node)}}>
           <span className={node.styleClasses}>{node.text || ""}</span>
         </div>
         <ol className="entries list-tree">
-          {node.childItems ? (
-            node.childItems.map(sn => <NavigationNodeComponent {...{navTree: sn, root: _root}} />)
-          ) : (
-            <div />
-          )}
+          {node.childItems
+            ? node.childItems.map(sn => <NavigationNodeComponent navTree={sn} root={_root} />)
+            : null}
         </ol>
       </li>
     )
-
-    return domNode
   }
 
   private isSameNode(n1: NavigationTreeViewModel, n2: NavigationTreeViewModel): boolean {

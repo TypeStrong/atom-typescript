@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const tsconfig = require("tsconfig/dist/tsconfig");
-const semanticViewPane_1 = require("./atom/views/outline/semanticViewPane");
+const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const semanticView_1 = require("./atom/views/outline/semanticView");
 exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
@@ -31,7 +31,7 @@ async function activate() {
         await require("atom-package-deps").install("atom-typescript", true);
     }
     require("etch").setScheduler(atom.views);
-    subscriptions.add(semanticViewPane_1.initialize());
+    subscriptions.add(semanticViewController_1.initialize());
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
         errorPusher.setUnusedAsInfo(val.newValue);

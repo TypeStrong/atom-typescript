@@ -5,8 +5,34 @@ const lodash_1 = require("lodash");
 class NavigationNodeComponent {
     constructor(props) {
         this.props = props;
+        // this.init(props.navTree);
         etch.initialize(this);
     }
+    // private init(navTree: NavigationTreeViewModel|null){
+    //   if(navTree){
+    //     navTree.styleClasses = this.getIconForKind(navTree.kind)
+    //     const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
+    //     if (modifiersClasses) {
+    //       navTree.styleClasses += " " + modifiersClasses
+    //     }
+    //   }
+    // }
+    // private getIconForKind(kind: string): string {
+    //   return `icon icon-${kind}`
+    // }
+    //
+    // private getClassForKindModifiers(kindModifiers: string): string {
+    //   if (!kindModifiers) {
+    //     return ""
+    //   } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
+    //     return `modifier-${kindModifiers}`
+    //   } else {
+    //     return kindModifiers
+    //       .split(/[, ]/)
+    //       .map(modifier => "modifier-" + modifier.trim())
+    //       .join(" ")
+    //   }
+    // }
     async update(props) {
         this.props = Object.assign({}, this.props, props);
         await etch.update(this);
@@ -34,11 +60,12 @@ class NavigationNodeComponent {
             "item" +
             (node.collapsed ? " collapsed" : " expanded") +
             (selected ? " selected" : "");
-        const domNode = (etch.dom("li", { className: "node entry exanded list-" + classes },
+        return (etch.dom("li", { className: "node entry exanded list-" + classes },
             etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
                 etch.dom("span", { className: node.styleClasses }, node.text || "")),
-            etch.dom("ol", { className: "entries list-tree" }, node.childItems ? (node.childItems.map(sn => etch.dom(NavigationNodeComponent, Object.assign({}, { navTree: sn, root: _root })))) : (etch.dom("div", null)))));
-        return domNode;
+            etch.dom("ol", { className: "entries list-tree" }, node.childItems
+                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, root: _root }))
+                : null)));
     }
     isSameNode(n1, n2) {
         return n1.text === n2.text && lodash_1.isEqual(n1.spans, n2.spans);

@@ -17,7 +17,6 @@ export class NavigationTreeComponent implements JSX.ElementClass {
 
   private editorScrolling: Disposable
   private editorChanging: Disposable
-  private activeEditorChanging: Disposable
 
   constructor(public props: Props) {
     this.selectedNode = null
@@ -41,9 +40,6 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     if (this.editorChanging) {
       this.editorChanging.dispose()
     }
-    if (this.activeEditorChanging) {
-      this.activeEditorChanging.dispose()
-    }
     this.selectedNode = null
     await etch.destroy(this)
   }
@@ -63,18 +59,14 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     await etch.update(this)
   }
 
-  public async forceUpdate() {
-    await etch.update(this)
-  }
-
-  private async loadNavTree(filePath?: string) {
-    filePath = filePath ? filePath : this.editor.getPath()
+  private async loadNavTree() {
+    const filePath = this.editor.getPath()
     if (filePath) {
       try {
         const client = await clientResolver.get(filePath)
         await client.executeOpen({file: filePath})
-        const navtreeResult = await client.executeNavTree({file: filePath as string})
-        const navTree = navtreeResult ? navtreeResult.body! : undefined
+        const navtreeResult = await client.executeNavTree({file: filePath})
+        const navTree = navtreeResult.body
         if (navTree) {
           this.setNavTree(navTree as NavigationTreeViewModel)
         }
@@ -111,8 +103,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
       //     for now: sort ascending by line-number
       navTree.childItems.sort((a, b) => this.getNodeStartLine(a) - this.getNodeStartLine(b))
 
-      let child: NavigationTreeViewModel
-      for (child of navTree.childItems) {
+      for (const child of navTree.childItems) {
         this.prepareNavTree(child)
       }
     }
@@ -189,7 +180,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     return (
       <div class="atomts atomts-semantic-view native-key-bindings">
         <ol ref="main" className="list-tree has-collapsable-children focusable-panel">
-          <NavigationNodeComponent {...{navTree: this.props.navTree, root: this}} />
+          <NavigationNodeComponent navTree={this.props.navTree} root={this} />
         </ol>
       </div>
     )
@@ -348,12 +339,12 @@ export class NavigationTreeComponent implements JSX.ElementClass {
    * @param  {Element} domNode the HTMLElement that should be made visisble
    */
   private scrollTo(domNode: Element): void {
-    const elem: any = domNode
+    const elem: ElementExp = domNode as ElementExp
     if (typeof elem.scrollIntoViewIfNeeded === "function") {
       elem.scrollIntoViewIfNeeded()
-    } else if (typeof elem.scrollIntoView === "function") {
+    } else {
       elem.scrollIntoView()
-    } // TODO else: impl. scroll
+    }
   }
 
   /**
@@ -386,8 +377,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     this.setEditor(editor)
 
     // set navTree
-    const filePath = editor.getPath()
-    this.loadNavTree(filePath)
+    this.loadNavTree()
 
     // Subscribe to stop scrolling
     if (this.editorScrolling) {
@@ -402,8 +392,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     }
     this.editorChanging = editor.onDidStopChanging(() => {
       // set navTree
-      const fPath = editor.getPath()
-      this.loadNavTree(fPath)
+      this.loadNavTree()
     })
   }
 }

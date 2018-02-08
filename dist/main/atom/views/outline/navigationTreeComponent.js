@@ -26,8 +26,7 @@ class NavigationTreeComponent {
             }
             this.setEditor(editor);
             // set navTree
-            const filePath = editor.getPath();
-            this.loadNavTree(filePath);
+            this.loadNavTree();
             // Subscribe to stop scrolling
             if (this.editorScrolling) {
                 this.editorScrolling.dispose();
@@ -40,8 +39,7 @@ class NavigationTreeComponent {
             }
             this.editorChanging = editor.onDidStopChanging(() => {
                 // set navTree
-                const fPath = editor.getPath();
-                this.loadNavTree(fPath);
+                this.loadNavTree();
             });
         };
         this.selectedNode = null;
@@ -63,9 +61,6 @@ class NavigationTreeComponent {
         if (this.editorChanging) {
             this.editorChanging.dispose();
         }
-        if (this.activeEditorChanging) {
-            this.activeEditorChanging.dispose();
-        }
         this.selectedNode = null;
         await etch.destroy(this);
     }
@@ -82,17 +77,14 @@ class NavigationTreeComponent {
         this.selectedNode = null;
         await etch.update(this);
     }
-    async forceUpdate() {
-        await etch.update(this);
-    }
-    async loadNavTree(filePath) {
-        filePath = filePath ? filePath : this.editor.getPath();
+    async loadNavTree() {
+        const filePath = this.editor.getPath();
         if (filePath) {
             try {
                 const client = await atomts_1.clientResolver.get(filePath);
                 await client.executeOpen({ file: filePath });
                 const navtreeResult = await client.executeNavTree({ file: filePath });
-                const navTree = navtreeResult ? navtreeResult.body : undefined;
+                const navTree = navtreeResult.body;
                 if (navTree) {
                     this.setNavTree(navTree);
                 }
@@ -127,8 +119,7 @@ class NavigationTreeComponent {
             // TODO should there be a different sort-order?
             //     for now: sort ascending by line-number
             navTree.childItems.sort((a, b) => this.getNodeStartLine(a) - this.getNodeStartLine(b));
-            let child;
-            for (child of navTree.childItems) {
+            for (const child of navTree.childItems) {
                 this.prepareNavTree(child);
             }
         }
@@ -191,7 +182,7 @@ class NavigationTreeComponent {
         };
         return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
             etch.dom("ol", { ref: "main", className: "list-tree has-collapsable-children focusable-panel" },
-                etch.dom(navigationNodeComponent_1.NavigationNodeComponent, Object.assign({}, { navTree: this.props.navTree, root: this })))));
+                etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, root: this }))));
     }
     readAfterUpdate() {
         // scroll to selected node:
@@ -334,9 +325,9 @@ class NavigationTreeComponent {
         if (typeof elem.scrollIntoViewIfNeeded === "function") {
             elem.scrollIntoViewIfNeeded();
         }
-        else if (typeof elem.scrollIntoView === "function") {
+        else {
             elem.scrollIntoView();
-        } // TODO else: impl. scroll
+        }
     }
     /**
      * HELPER scroll the current editor so that the node's representation becomes

@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {initialize as initializeSemanticView} from "./atom/views/outline/semanticViewPane"
+import {initialize as initializeSemanticView} from "./atom/views/outline/semanticViewController"
 import {deserializeSemanticView} from "./atom/views/outline/semanticView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"

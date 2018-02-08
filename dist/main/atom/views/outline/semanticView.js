@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const navigationTreeComponent_1 = require("./navigationTreeComponent");
-const semanticViewPane_1 = require("./semanticViewPane");
+const semanticViewController_1 = require("./semanticViewController");
 exports.SEMANTIC_VIEW_URI = "atomts-semantic-view";
 function deserializeSemanticView(serialized) {
     // console.log('deserializeSemanticView -> ', serialized)// DEBUG
     const view = new SemanticView(serialized.data);
-    semanticViewPane_1.initialize(view);
+    semanticViewController_1.initialize(view);
     return view;
 }
 exports.deserializeSemanticView = deserializeSemanticView;
 class SemanticView {
     constructor(config) {
         this.config = config;
-        this.comp = new navigationTreeComponent_1.NavigationTreeComponent({ navTree: (config && config.navTree) || null });
+        this.comp = new navigationTreeComponent_1.NavigationTreeComponent({ navTree: config.navTree || null });
     }
     get element() {
         return this.comp.element;
@@ -22,7 +22,7 @@ class SemanticView {
         return "TypeScript";
     }
     getURI() {
-        return "atom://" + exports.SEMANTIC_VIEW_URI;
+        return SemanticView.URI;
     }
     // Tear down any state and detach
     destroy() {
@@ -45,5 +45,6 @@ class SemanticView {
         };
     }
 }
+SemanticView.URI = "atom://" + exports.SEMANTIC_VIEW_URI;
 exports.SemanticView = SemanticView;
 //# sourceMappingURL=semanticView.js.map

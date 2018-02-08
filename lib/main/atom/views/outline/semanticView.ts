@@ -1,15 +1,15 @@
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
-import {initialize} from "./semanticViewPane"
+import {initialize} from "./semanticViewController"
 
 export const SEMANTIC_VIEW_URI = "atomts-semantic-view"
 
 export interface SemanticViewOptions {
-  navTree?: NavigationTreeViewModel | null
+  navTree: NavigationTreeViewModel | null
 }
 
 export interface SemanticViewSerializationData {
-  data: {navTree: NavigationTreeViewModel | null}
+  data: SemanticViewOptions
   deserializer: "atomts-semantic-view/SemanticView"
 }
 
@@ -23,12 +23,14 @@ export function deserializeSemanticView(serialized: SemanticViewSerializationDat
 export class SemanticView {
   private comp: NavigationTreeComponent
 
+  public static readonly URI = "atom://" + SEMANTIC_VIEW_URI
+
   public get element() {
     return this.comp.element
   }
 
   constructor(public config: SemanticViewOptions) {
-    this.comp = new NavigationTreeComponent({navTree: (config && config.navTree) || null})
+    this.comp = new NavigationTreeComponent({navTree: config.navTree || null})
   }
 
   getTitle() {
@@ -36,7 +38,7 @@ export class SemanticView {
   }
 
   getURI() {
-    return "atom://" + SEMANTIC_VIEW_URI
+    return SemanticView.URI
   }
   // Tear down any state and detach
   destroy() {

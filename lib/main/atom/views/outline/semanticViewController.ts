@@ -2,7 +2,7 @@ import {CompositeDisposable} from "atom"
 import {SemanticView} from "./semanticView"
 import {Disposable} from "atom"
 
-class SemanticViewPane {
+class SemanticViewController {
   subscriptions: CompositeDisposable
 
   constructor(public view?: SemanticView) {
@@ -32,7 +32,19 @@ class SemanticViewPane {
   }
 
   async show(): Promise<void> {
-    if (!this.view) this.view = new SemanticView({})
+    if (!this.view) {
+      // make sure, SemanticView is singleton: check if there is a SemanticView in any Pane
+      const pane = atom.workspace.paneForURI(SemanticView.URI)
+      if (pane) {
+        this.view = pane.itemForURI(SemanticView.URI) as SemanticView
+      }
+
+      // create new, if none-exists
+      if (!this.view) {
+        this.view = new SemanticView({navTree: null})
+      }
+    }
+
     await atom.workspace.open(this.view, {searchAllPanes: true})
   }
 
@@ -49,12 +61,10 @@ class SemanticViewPane {
   }
 }
 
-let mainPane: SemanticViewPane | undefined
+let mainPane: SemanticViewController | undefined
 export function initialize(view?: SemanticView): Disposable {
-  // console.log('initializeSemanticViewPane -> ', view)// DEBUG
-
   if (!mainPane) {
-    mainPane = new SemanticViewPane(view)
+    mainPane = new SemanticViewController(view)
   } else if (view) {
     mainPane.setView(view)
   }
@@ -69,6 +79,6 @@ export function toggle() {
   if (mainPane) {
     mainPane.toggle()
   } else {
-    throw new Error("cannot toggle: SemanticViewPane not initialized")
+    throw new Error("cannot toggle: SemanticViewController not initialized")
   }
 }
