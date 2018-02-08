@@ -1,47 +1,51 @@
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {Props, NavigationTreeViewModel} from "./semanticViewModel"
+import {isSelected} from "./navTreeUtils"
 
 export class NavigationNodeComponent implements JSX.ElementClass {
   constructor(public props: Props) {
-    // this.init(props.navTree);
+    this.updateStyles(props.navTree)
     etch.initialize(this)
   }
 
-  // private init(navTree: NavigationTreeViewModel|null){
-  //   if(navTree){
-  //     navTree.styleClasses = this.getIconForKind(navTree.kind)
-  //     const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
-  //     if (modifiersClasses) {
-  //       navTree.styleClasses += " " + modifiersClasses
-  //     }
-  //   }
-  // }
+  private updateStyles(navTree: NavigationTreeViewModel | null) {
+    if (navTree) {
+      navTree.styleClasses = this.getIconForKind(navTree.kind)
+      const modifiersClasses = this.getClassForKindModifiers(navTree.kindModifiers)
+      if (modifiersClasses) {
+        navTree.styleClasses += " " + modifiersClasses
+      }
+    }
+  }
 
-  // private getIconForKind(kind: string): string {
-  //   return `icon icon-${kind}`
-  // }
-  //
-  // private getClassForKindModifiers(kindModifiers: string): string {
-  //   if (!kindModifiers) {
-  //     return ""
-  //   } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
-  //     return `modifier-${kindModifiers}`
-  //   } else {
-  //     return kindModifiers
-  //       .split(/[, ]/)
-  //       .map(modifier => "modifier-" + modifier.trim())
-  //       .join(" ")
-  //   }
-  // }
+  private getIconForKind(kind: string): string {
+    return `icon icon-${kind}`
+  }
+
+  private getClassForKindModifiers(kindModifiers: string): string {
+    if (!kindModifiers) {
+      return ""
+    } else if (kindModifiers.indexOf(" ") === -1 && kindModifiers.indexOf(",") === -1) {
+      return `modifier-${kindModifiers}`
+    } else {
+      return kindModifiers
+        .split(/[, ]/)
+        .map(modifier => "modifier-" + modifier.trim())
+        .join(" ")
+    }
+  }
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
+    if (props.navTree) {
+      this.updateStyles(props.navTree)
+    }
     await etch.update(this)
   }
 
   public async destroy() {
-    this.props.root = null
+    this.props.root = undefined
     await etch.destroy(this)
   }
 
@@ -52,16 +56,16 @@ export class NavigationNodeComponent implements JSX.ElementClass {
   private renderNode(node: NavigationTreeViewModel | null): JSX.Element {
     if (node === null) return <div />
 
-    const _root = this.props.root
-    if (!_root) return <div />
+    const _pos = this.props.pos
+    if (!_pos) return <div />
 
     const selected =
-      (_root.selectedNode && this.isSameNode(node, _root.selectedNode)) ||
-      (!_root.selectedNode && _root.isSelected(node))
+      (_pos.selectedNode && this.isSameNode(node, _pos.selectedNode)) ||
+      (!_pos.selectedNode && isSelected(node, _pos))
 
     if (selected) {
       // console.log("selecting node ", node) // DEBUG
-      _root.selectedNode = node
+      _pos.selectedNode = node
     }
 
     const classes =
@@ -77,7 +81,9 @@ export class NavigationNodeComponent implements JSX.ElementClass {
         </div>
         <ol className="entries list-tree">
           {node.childItems
-            ? node.childItems.map(sn => <NavigationNodeComponent navTree={sn} root={_root} />)
+            ? node.childItems.map(sn => (
+                <NavigationNodeComponent navTree={sn} root={this.props.root} pos={_pos} />
+              ))
             : null}
         </ol>
       </li>
@@ -91,48 +97,31 @@ export class NavigationNodeComponent implements JSX.ElementClass {
   private entryClicked(event: MouseEvent, node: NavigationTreeViewModel): void {
     event.stopPropagation()
 
-    const target = (event.target as Element).closest(".node")
-    const isToggle: boolean = this.isToggleEntry(target, event)
-
+    const isToggle: boolean = this.isToggleEntry(node, event)
     if (!isToggle && this.props.root) {
       this.props.root.gotoNode(node)
-    } else if (target) {
+    } else {
       this.toggleNode(node)
       etch.update(this)
     }
   }
 
   private toggleNode(node: NavigationTreeViewModel) {
-    // console.log("toggle " + !!node.collapsed + " -> " + !node.collapsed + " ", node) // DEBUG
     node.collapsed = !node.collapsed
   }
 
   /**
-   * HACK detect click on collapse-/expand-icon
+   * HACK workaround for detecting click on collapse-/expand-icon
    *      (cannot directly register/detect click on icons, since inserted via ::before style)
    *
-   * @param {ElementExt} nodeEntry
-   *                        the HTML element representing the NavigationTree node
+   * @param {NavigationTreeViewModel} node
+   *                        the corresponding NavTree node
    * @param {MouseEvent} event
    *                        the mouse event
-   * @returns {Boolean} <code>true</code> if entry's expand/collapse state should be toggled
+   * @returns {Boolean} <code>true</code> if entry's expand/collapse state should be toggled for nodeEntry
    *                                      (instead of navigating to its position in the text editor)
    */
-  private isToggleEntry(nodeEntry: Element | null, event: MouseEvent): boolean {
-    if (!nodeEntry || !event.target) {
-      return false
-    }
-    let isToggle: boolean = nodeEntry.classList.contains("list-nested-item")
-    // only continue, if entry as sub-entries (i.e. is nested list item):
-    if (isToggle) {
-      const target = event.target as Element
-      // only toggle, if label-wrapper, i.e. element <span class="header list-item"> was clicked
-      //  (since the "label-wrapper" has the expand/collapse icon attached via its ::before style)
-      if (!target.classList.contains("header") || !target.classList.contains("list-item")) {
-        isToggle = false
-      }
-    }
-
-    return isToggle
+  private isToggleEntry(node: NavigationTreeViewModel, event: MouseEvent): boolean {
+    return !!node.childItems && event.target === event.currentTarget
   }
 }

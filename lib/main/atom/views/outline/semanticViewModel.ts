@@ -3,7 +3,22 @@ import {NavigationTreeComponent} from "./navigationTreeComponent"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
-  root?: NavigationTreeComponent | null
+  root?: NavigationTreeComponent
+  pos?: PositionState
+}
+
+/**
+ * Holds the current "position state":
+ *  * the last cursor position in the editor
+ *  * the currently selected node in the NavigationTree
+ *
+ * Usually, the selected node
+ * (i.e. the start-/end-range of its code-representation)
+ * corresponds to the cursor position.
+ */
+export interface PositionState {
+  lastCursorLine: number | null
+  selectedNode: NavigationTreeViewModel | null
 }
 
 /**
