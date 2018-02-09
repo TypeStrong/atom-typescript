@@ -165,6 +165,8 @@ exports.prepareNavTree = prepareNavTree;
  *
  * @param  {NavigationTreeViewModel} node
  *            the node to be tested
+ * @param  {number} pos
+ *            the cursor (line) position in the editor
  * @return {Boolean} true, if the node's HTML representation should be selected
  */
 function isSelected(node, pos) {
@@ -180,6 +182,10 @@ function isSelected(node, pos) {
     return false;
 }
 exports.isSelected = isSelected;
+/**
+ * compare nodes base on their label & code-position
+ * (i.e. ignoring modifiers, children etc)
+ */
 function isSameNode(n1, n2) {
     return n1.text === n2.text && lodash_1.isEqual(n1.spans, n2.spans);
 }

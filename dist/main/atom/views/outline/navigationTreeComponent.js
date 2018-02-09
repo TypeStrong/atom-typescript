@@ -21,6 +21,7 @@ class NavigationTreeComponent {
                     const navTree = navtreeResult.body;
                     if (navTree) {
                         this.setNavTree(navTree);
+                        await etch.update(this);
                     }
                 }
                 catch (err) {
@@ -77,7 +78,7 @@ class NavigationTreeComponent {
     }
     async update(props) {
         if (props.navTree) {
-            navTreeUtils_1.prepareNavTree(props.navTree);
+            this.setNavTree(props.navTree);
         }
         this.props = Object.assign({}, this.props, props);
         await etch.update(this);
@@ -99,8 +100,14 @@ class NavigationTreeComponent {
         }
         navTreeUtils_1.restoreCollapsed(navTree, this.props.navTree);
         this.props.navTree = navTree;
-        this.setSelectedNode(null);
-        await etch.update(this);
+        let selectedNode = null;
+        if (navTree !== null) {
+            const cursorLine = this.getCursorLine();
+            if (cursorLine !== null) {
+                selectedNode = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, navTree);
+            }
+        }
+        this.setSelectedNode(selectedNode);
     }
     get selectedNode() {
         return this._selectedNode;
@@ -109,7 +116,7 @@ class NavigationTreeComponent {
         this._selectedNode = selectedNode;
     }
     render() {
-        const maybeNavNodeComp = this.props.navTree ? (etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, root: this })) : null;
+        const maybeNavNodeComp = this.props.navTree ? (etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, ctrl: this })) : null;
         return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
             etch.dom("ol", { className: "list-tree has-collapsable-children focusable-panel" }, maybeNavNodeComp)));
     }
@@ -118,6 +125,11 @@ class NavigationTreeComponent {
         const selectedElement = this.element.querySelector(".selected");
         if (selectedElement)
             this.scrollTo(selectedElement);
+    }
+    getCursorLine() {
+        return this.editor && this.editor.getLastCursor()
+            ? this.editor.getLastCursor().getBufferRow()
+            : null;
     }
     /**
      * HELPER scroll the node's HTML representation (i.e. domNode) into view

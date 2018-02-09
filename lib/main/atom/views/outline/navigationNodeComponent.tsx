@@ -1,11 +1,10 @@
 import * as etch from "etch"
-import {NavigationTreeViewModel} from "./semanticViewModel"
+import {NavigationTreeViewModel, ToNodeScrollableEditor, SelectableNode} from "./semanticViewModel"
 import {isSameNode, isToggleEntry} from "./navTreeUtils"
-import {NavigationTreeComponent} from "./navigationTreeComponent"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel
-  root: NavigationTreeComponent
+  ctrl: ToNodeScrollableEditor & SelectableNode
 }
 
 export class NavigationNodeComponent implements JSX.ElementClass {
@@ -39,8 +38,8 @@ export class NavigationNodeComponent implements JSX.ElementClass {
 
   render(): JSX.Element {
     const node = this.props.navTree
-    const {root} = this.props
-    const selected = root.selectedNode && isSameNode(node, root.selectedNode)
+    const {ctrl} = this.props
+    const selected = ctrl.selectedNode && isSameNode(node, ctrl.selectedNode)
     const classes =
       (node.childItems ? "nested-" : "") +
       "item" +
@@ -55,7 +54,7 @@ export class NavigationNodeComponent implements JSX.ElementClass {
         </div>
         <ol className="entries list-tree">
           {node.childItems
-            ? node.childItems.map(sn => <NavigationNodeComponent navTree={sn} root={root} />)
+            ? node.childItems.map(sn => <NavigationNodeComponent navTree={sn} ctrl={ctrl} />)
             : null}
         </ol>
       </li>
@@ -67,7 +66,7 @@ export class NavigationNodeComponent implements JSX.ElementClass {
 
     const isToggle: boolean = isToggleEntry(node, event)
     if (!isToggle) {
-      this.props.root.gotoNode(node)
+      this.props.ctrl.gotoNode(node)
     } else {
       node.collapsed = !node.collapsed
       etch.update(this)

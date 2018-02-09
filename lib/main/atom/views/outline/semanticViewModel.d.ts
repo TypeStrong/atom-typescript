@@ -13,3 +13,17 @@ export interface NavigationTreeViewModel extends NavigationTree {
    */
   collapsed: boolean | undefined
 }
+
+export interface ToNodeScrollableEditor {
+  /**
+   * Scroll the editor to line/column that corresponds to the staring-position
+   * of the node.
+   *
+   * @param {NavigationTree} node the NavigationTree node to which to scroll the editor
+   */
+  gotoNode(node: NavigationTree): void
+}
+
+export interface SelectableNode {
+  readonly selectedNode: NavigationTreeViewModel | null
+}

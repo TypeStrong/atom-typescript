@@ -4,7 +4,7 @@ import {clientResolver} from "../../../atomts"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
-import {NavigationTreeViewModel} from "./semanticViewModel"
+import {NavigationTreeViewModel, ToNodeScrollableEditor, SelectableNode} from "./semanticViewModel"
 import {NavigationNodeComponent} from "./navigationNodeComponent"
 import {
   findNodeAt,
@@ -18,7 +18,8 @@ export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
 }
 
-export class NavigationTreeComponent implements JSX.ElementClass {
+export class NavigationTreeComponent
+  implements JSX.ElementClass, ToNodeScrollableEditor, SelectableNode {
   public element: HTMLDivElement
   private editor?: TextEditor
   private editorScrolling?: Disposable
@@ -33,7 +34,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
 
   public async update(props: Partial<Props>) {
     if (props.navTree) {
-      prepareNavTree(props.navTree)
+      this.setNavTree(props.navTree)
     }
     this.props = {...this.props, ...props}
     await etch.update(this)
@@ -57,8 +58,15 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     }
     restoreCollapsed(navTree, this.props.navTree)
     this.props.navTree = navTree
-    this.setSelectedNode(null)
-    await etch.update(this)
+
+    let selectedNode: NavigationTreeViewModel | null = null
+    if (navTree !== null) {
+      const cursorLine = this.getCursorLine()
+      if (cursorLine !== null) {
+        selectedNode = findNodeAt(cursorLine, cursorLine, navTree)
+      }
+    }
+    this.setSelectedNode(selectedNode)
   }
 
   private loadNavTree = async () => {
@@ -72,6 +80,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
         const navTree = navtreeResult.body
         if (navTree) {
           this.setNavTree(navTree as NavigationTreeViewModel)
+          await etch.update(this)
         }
       } catch (err) {
         console.error(err, filePath)
@@ -90,7 +99,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
 
   render() {
     const maybeNavNodeComp = this.props.navTree ? (
-      <NavigationNodeComponent navTree={this.props.navTree} root={this} />
+      <NavigationNodeComponent navTree={this.props.navTree} ctrl={this} />
     ) : null
     return (
       <div class="atomts atomts-semantic-view native-key-bindings">
@@ -103,6 +112,12 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     // scroll to selected node:
     const selectedElement = this.element.querySelector(".selected")
     if (selectedElement) this.scrollTo(selectedElement)
+  }
+
+  private getCursorLine(): number | null {
+    return this.editor && this.editor.getLastCursor()
+      ? this.editor.getLastCursor().getBufferRow()
+      : null
   }
 
   /**

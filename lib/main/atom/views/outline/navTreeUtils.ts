@@ -180,6 +180,8 @@ export function prepareNavTree(navTree: NavigationTreeViewModel | null): void {
  *
  * @param  {NavigationTreeViewModel} node
  *            the node to be tested
+ * @param  {number} pos
+ *            the cursor (line) position in the editor
  * @return {Boolean} true, if the node's HTML representation should be selected
  */
 export function isSelected(node: NavigationTreeViewModel, pos: number): boolean {
@@ -195,6 +197,10 @@ export function isSelected(node: NavigationTreeViewModel, pos: number): boolean 
   return false
 }
 
+/**
+ * compare nodes base on their label & code-position
+ * (i.e. ignoring modifiers, children etc)
+ */
 export function isSameNode(n1: NavigationTreeViewModel, n2: NavigationTreeViewModel): boolean {
   return n1.text === n2.text && isEqual(n1.spans, n2.spans)
 }

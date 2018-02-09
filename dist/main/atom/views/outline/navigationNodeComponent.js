@@ -30,8 +30,8 @@ class NavigationNodeComponent {
     }
     render() {
         const node = this.props.navTree;
-        const { root } = this.props;
-        const selected = root.selectedNode && navTreeUtils_1.isSameNode(node, root.selectedNode);
+        const { ctrl } = this.props;
+        const selected = ctrl.selectedNode && navTreeUtils_1.isSameNode(node, ctrl.selectedNode);
         const classes = (node.childItems ? "nested-" : "") +
             "item" +
             (node.collapsed ? " collapsed" : " expanded") +
@@ -41,14 +41,14 @@ class NavigationNodeComponent {
             etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
                 etch.dom("span", { className: styleClasses }, node.text)),
             etch.dom("ol", { className: "entries list-tree" }, node.childItems
-                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, root: root }))
+                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, ctrl: ctrl }))
                 : null)));
     }
     entryClicked(event, node) {
         event.stopPropagation();
         const isToggle = navTreeUtils_1.isToggleEntry(node, event);
         if (!isToggle) {
-            this.props.root.gotoNode(node);
+            this.props.ctrl.gotoNode(node);
         }
         else {
             node.collapsed = !node.collapsed;
