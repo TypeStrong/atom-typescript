@@ -8,7 +8,7 @@ registry_1.commands.set("typescript:toggle-semantic-view", () => {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        semanticViewController_1.toggle();
+        semanticViewController_1.SemanticViewController.toggle();
     };
 });
 //# sourceMappingURL=semanticView.js.map

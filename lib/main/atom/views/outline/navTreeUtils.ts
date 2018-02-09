@@ -1,5 +1,6 @@
-import {NavigationTreeViewModel, PositionState} from "./semanticViewModel"
+import {NavigationTreeViewModel} from "./semanticViewModel"
 import {NavigationTree} from "typescript/lib/protocol"
+import {isEqual} from "lodash"
 
 /**
  * HELPER find the node that is "furthest down" the
@@ -60,7 +61,7 @@ export function findNodeAt(
  */
 export function getNodeStartLine(node: NavigationTree): number {
   // console.log('getNodeStartLine.node -> ', node)
-  return node && node.spans ? node.spans[0].start.line - 1 : 0
+  return node.spans.length ? node.spans[0].start.line - 1 : 0
 }
 
 /**
@@ -70,7 +71,7 @@ export function getNodeStartLine(node: NavigationTree): number {
  */
 export function getNodeStartOffset(node: NavigationTree): number {
   // console.log('getNodeStartLine.node -> ', node)
-  return node && node.spans ? node.spans[0].start.offset - 1 : 0
+  return node.spans.length ? node.spans[0].start.offset - 1 : 0
 }
 
 /**
@@ -79,8 +80,8 @@ export function getNodeStartOffset(node: NavigationTree): number {
  * @return the end line for the NavTree node, or 0, if none could be determined
  */
 export function getNodeEndLine(node: NavigationTree): number {
-  const s = node!.spans
-  return s ? s[s.length - 1].end.line - 1 : 0
+  const s = node.spans
+  return s.length ? s[s.length - 1].end.line - 1 : 0
 }
 
 /**
@@ -181,21 +182,34 @@ export function prepareNavTree(navTree: NavigationTreeViewModel | null): void {
  *            the node to be tested
  * @return {Boolean} true, if the node's HTML representation should be selected
  */
-export function isSelected(node: NavigationTreeViewModel, pos: PositionState): boolean {
-  if (pos.lastCursorLine == null) return false
-  else {
-    if (
-      getNodeStartLine(node) <= pos.lastCursorLine &&
-      getNodeEndLine(node) >= pos.lastCursorLine
-    ) {
-      const start: number = getNodeStartLine(node)
-      const end: number = getNodeEndLine(node)
-      if (findNodeAt(start, end, node)) {
-        // -> there is a node "further down" that should get selected
-        return false
-      }
-      return true
+export function isSelected(node: NavigationTreeViewModel, pos: number): boolean {
+  if (getNodeStartLine(node) <= pos && getNodeEndLine(node) >= pos) {
+    const start: number = getNodeStartLine(node)
+    const end: number = getNodeEndLine(node)
+    if (findNodeAt(start, end, node)) {
+      // -> there is a node "further down" that should get selected
+      return false
     }
-    return false
+    return true
   }
+  return false
+}
+
+export function isSameNode(n1: NavigationTreeViewModel, n2: NavigationTreeViewModel): boolean {
+  return n1.text === n2.text && isEqual(n1.spans, n2.spans)
+}
+
+/**
+ * HACK workaround for detecting click on collapse-/expand-icon
+ *      (cannot directly register/detect click on icons, since inserted via ::before style)
+ *
+ * @param {NavigationTreeViewModel} node
+ *                        the corresponding NavTree node
+ * @param {MouseEvent} event
+ *                        the mouse event
+ * @returns {Boolean} <code>true</code> if entry's expand/collapse state should be toggled for nodeEntry
+ *                                      (instead of navigating to its position in the text editor)
+ */
+export function isToggleEntry(node: NavigationTreeViewModel, event: MouseEvent): boolean {
+  return !!node.childItems && event.target === event.currentTarget
 }

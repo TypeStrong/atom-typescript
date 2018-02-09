@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const lodash_1 = require("lodash");
 /**
  * HELPER find the node that is "furthest down" the
  *        node hiearchy, i.e. which's start-, end-position contains the
@@ -53,7 +54,7 @@ exports.findNodeAt = findNodeAt;
  */
 function getNodeStartLine(node) {
     // console.log('getNodeStartLine.node -> ', node)
-    return node && node.spans ? node.spans[0].start.line - 1 : 0;
+    return node.spans.length ? node.spans[0].start.line - 1 : 0;
 }
 exports.getNodeStartLine = getNodeStartLine;
 /**
@@ -63,7 +64,7 @@ exports.getNodeStartLine = getNodeStartLine;
  */
 function getNodeStartOffset(node) {
     // console.log('getNodeStartLine.node -> ', node)
-    return node && node.spans ? node.spans[0].start.offset - 1 : 0;
+    return node.spans.length ? node.spans[0].start.offset - 1 : 0;
 }
 exports.getNodeStartOffset = getNodeStartOffset;
 /**
@@ -73,7 +74,7 @@ exports.getNodeStartOffset = getNodeStartOffset;
  */
 function getNodeEndLine(node) {
     const s = node.spans;
-    return s ? s[s.length - 1].end.line - 1 : 0;
+    return s.length ? s[s.length - 1].end.line - 1 : 0;
 }
 exports.getNodeEndLine = getNodeEndLine;
 /**
@@ -167,21 +168,35 @@ exports.prepareNavTree = prepareNavTree;
  * @return {Boolean} true, if the node's HTML representation should be selected
  */
 function isSelected(node, pos) {
-    if (pos.lastCursorLine == null)
-        return false;
-    else {
-        if (getNodeStartLine(node) <= pos.lastCursorLine &&
-            getNodeEndLine(node) >= pos.lastCursorLine) {
-            const start = getNodeStartLine(node);
-            const end = getNodeEndLine(node);
-            if (findNodeAt(start, end, node)) {
-                // -> there is a node "further down" that should get selected
-                return false;
-            }
-            return true;
+    if (getNodeStartLine(node) <= pos && getNodeEndLine(node) >= pos) {
+        const start = getNodeStartLine(node);
+        const end = getNodeEndLine(node);
+        if (findNodeAt(start, end, node)) {
+            // -> there is a node "further down" that should get selected
+            return false;
         }
-        return false;
+        return true;
     }
+    return false;
 }
 exports.isSelected = isSelected;
+function isSameNode(n1, n2) {
+    return n1.text === n2.text && lodash_1.isEqual(n1.spans, n2.spans);
+}
+exports.isSameNode = isSameNode;
+/**
+ * HACK workaround for detecting click on collapse-/expand-icon
+ *      (cannot directly register/detect click on icons, since inserted via ::before style)
+ *
+ * @param {NavigationTreeViewModel} node
+ *                        the corresponding NavTree node
+ * @param {MouseEvent} event
+ *                        the mouse event
+ * @returns {Boolean} <code>true</code> if entry's expand/collapse state should be toggled for nodeEntry
+ *                                      (instead of navigating to its position in the text editor)
+ */
+function isToggleEntry(node, event) {
+    return !!node.childItems && event.target === event.currentTarget;
+}
+exports.isToggleEntry = isToggleEntry;
 //# sourceMappingURL=navTreeUtils.js.map

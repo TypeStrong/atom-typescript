@@ -2,10 +2,18 @@ import {CompositeDisposable} from "atom"
 import {SemanticView} from "./semanticView"
 import {Disposable} from "atom"
 
-class SemanticViewController {
-  subscriptions: CompositeDisposable
+export class SemanticViewController {
+  private static instance: SemanticViewController | null = null
+  public static create() {
+    if (!SemanticViewController.instance) {
+      SemanticViewController.instance = new SemanticViewController()
+    }
+    return SemanticViewController.instance
+  }
+  private subscriptions: CompositeDisposable
+  public view?: SemanticView
 
-  constructor(public view?: SemanticView) {
+  private constructor() {
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(
@@ -22,28 +30,25 @@ class SemanticViewController {
     )
   }
 
-  destroy() {
+  dispose() {
     this.subscriptions.dispose()
   }
 
-  async toggle(): Promise<void> {
+  static async toggle(): Promise<void> {
+    if (SemanticViewController.instance) {
+      return SemanticViewController.instance.toggleImpl()
+    } else {
+      throw new Error("cannot toggle: SemanticViewController not initialized")
+    }
+  }
+
+  private async toggleImpl(): Promise<void> {
     if (!this.view) await this.show()
     else await atom.workspace.toggle(this.view)
   }
 
   async show(): Promise<void> {
-    if (!this.view) {
-      // make sure, SemanticView is singleton: check if there is a SemanticView in any Pane
-      const pane = atom.workspace.paneForURI(SemanticView.URI)
-      if (pane) {
-        this.view = pane.itemForURI(SemanticView.URI) as SemanticView
-      }
-
-      // create new, if none-exists
-      if (!this.view) {
-        this.view = new SemanticView({navTree: null})
-      }
-    }
+    if (!this.view) this.view = SemanticView.create({navTree: null})
 
     await atom.workspace.open(this.view, {searchAllPanes: true})
   }
@@ -58,27 +63,5 @@ class SemanticViewController {
       this.view.destroy()
     }
     this.view = view
-  }
-}
-
-let mainPane: SemanticViewController | undefined
-export function initialize(view?: SemanticView): Disposable {
-  if (!mainPane) {
-    mainPane = new SemanticViewController(view)
-  } else if (view) {
-    mainPane.setView(view)
-  }
-
-  const pane = mainPane
-  return new Disposable(() => {
-    pane.destroy()
-  })
-}
-
-export function toggle() {
-  if (mainPane) {
-    mainPane.toggle()
-  } else {
-    throw new Error("cannot toggle: SemanticViewController not initialized")
   }
 }

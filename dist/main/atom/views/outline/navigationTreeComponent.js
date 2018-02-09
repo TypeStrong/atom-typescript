@@ -9,9 +9,40 @@ const navTreeUtils_1 = require("./navTreeUtils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;
-        this.positionState = {
-            lastCursorLine: 0,
-            selectedNode: null,
+        this.loadNavTree = async () => {
+            if (!this.editor)
+                return;
+            const filePath = this.editor.getPath();
+            if (filePath) {
+                try {
+                    const client = await atomts_1.clientResolver.get(filePath);
+                    await client.executeOpen({ file: filePath });
+                    const navtreeResult = await client.executeNavTree({ file: filePath });
+                    const navTree = navtreeResult.body;
+                    if (navTree) {
+                        this.setNavTree(navTree);
+                    }
+                }
+                catch (err) {
+                    console.error(err, filePath);
+                }
+            }
+        };
+        /**
+         * HELPER select the node's HTML represenation which corresponds to the
+         *        current cursor position
+         */
+        this.selectAtCursorLine = ({ newBufferPosition }) => {
+            if (!this.props.navTree) {
+                return;
+            }
+            const cursorLine = newBufferPosition.row;
+            const selectedChild = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, this.props.navTree);
+            if (selectedChild !== null) {
+                // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
+                this.setSelectedNode(selectedChild);
+                etch.update(this);
+            }
         };
         this.subscribeToEditor = (editor) => {
             if (!editor || !atomUtils.onDiskAndTs(editor)) {
@@ -26,23 +57,18 @@ class NavigationTreeComponent {
                 this.update({ navTree: null });
                 return;
             }
-            this.setEditor(editor);
+            this.editor = editor;
             // set navTree
             this.loadNavTree();
             // Subscribe to stop scrolling
             if (this.editorScrolling) {
                 this.editorScrolling.dispose();
             }
-            this.editorScrolling = editor.onDidChangeCursorPosition(() => {
-                this.selectAtCursorLine();
-            });
+            this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine);
             if (this.editorChanging) {
                 this.editorChanging.dispose();
             }
-            this.editorChanging = editor.onDidStopChanging(() => {
-                // set navTree
-                this.loadNavTree();
-            });
+            this.editorChanging = editor.onDidStopChanging(this.loadNavTree);
         };
         this.setSelectedNode(null);
         navTreeUtils_1.prepareNavTree(props.navTree);
@@ -66,9 +92,6 @@ class NavigationTreeComponent {
         this.setSelectedNode(null);
         await etch.destroy(this);
     }
-    setEditor(editor) {
-        this.editor = editor;
-    }
     async setNavTree(navTree) {
         navTreeUtils_1.prepareNavTree(navTree);
         if (lodash_1.isEqual(navTree, this.props.navTree)) {
@@ -79,58 +102,22 @@ class NavigationTreeComponent {
         this.setSelectedNode(null);
         await etch.update(this);
     }
-    async loadNavTree() {
-        const filePath = this.editor.getPath();
-        if (filePath) {
-            try {
-                const client = await atomts_1.clientResolver.get(filePath);
-                await client.executeOpen({ file: filePath });
-                const navtreeResult = await client.executeNavTree({ file: filePath });
-                const navTree = navtreeResult.body;
-                if (navTree) {
-                    this.setNavTree(navTree);
-                }
-            }
-            catch (err) {
-                console.error(err, filePath);
-            }
-        }
-    }
-    updateLastCursorPosition() {
-        this.positionState.lastCursorLine =
-            this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null;
+    get selectedNode() {
+        return this._selectedNode;
     }
     setSelectedNode(selectedNode) {
-        this.positionState.selectedNode = selectedNode;
+        this._selectedNode = selectedNode;
     }
     render() {
-        this.updateLastCursorPosition();
+        const maybeNavNodeComp = this.props.navTree ? (etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, root: this })) : null;
         return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
-            etch.dom("ol", { ref: "main", className: "list-tree has-collapsable-children focusable-panel" },
-                etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, root: this }))));
+            etch.dom("ol", { className: "list-tree has-collapsable-children focusable-panel" }, maybeNavNodeComp)));
     }
     readAfterUpdate() {
         // scroll to selected node:
-        const selectedElement = this.refs.main.getElementsByClassName("selected")[0];
+        const selectedElement = this.element.querySelector(".selected");
         if (selectedElement)
             this.scrollTo(selectedElement);
-    }
-    /**
-     * HELPER select the node's HTML represenation which corresponds to the
-     *        current cursor position
-     */
-    selectAtCursorLine() {
-        this.updateLastCursorPosition();
-        const cursorLine = this.positionState.lastCursorLine;
-        if (!cursorLine || !this.props.navTree || !this.refs.main) {
-            return;
-        }
-        const selectedChild = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, this.props.navTree);
-        if (selectedChild !== null) {
-            // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
-            this.setSelectedNode(selectedChild);
-            etch.update(this);
-        }
     }
     /**
      * HELPER scroll the node's HTML representation (i.e. domNode) into view
@@ -154,6 +141,8 @@ class NavigationTreeComponent {
      *              the node which's element should be made visible in the editor
      */
     gotoNode(node) {
+        if (!this.editor)
+            return;
         const gotoLine = navTreeUtils_1.getNodeStartLine(node);
         const gotoOffset = navTreeUtils_1.getNodeStartOffset(node);
         this.editor.setCursorBufferPosition([gotoLine, gotoOffset]);

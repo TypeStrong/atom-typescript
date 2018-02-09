@@ -4,8 +4,7 @@ const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
 class SemanticViewController {
-    constructor(view) {
-        this.view = view;
+    constructor() {
         this.subscriptions = new atom_1.CompositeDisposable();
         this.subscriptions.add(new atom_2.Disposable(() => {
             if (this.view) {
@@ -19,27 +18,32 @@ class SemanticViewController {
                 this.hide();
         }));
     }
-    destroy() {
+    static create() {
+        if (!SemanticViewController.instance) {
+            SemanticViewController.instance = new SemanticViewController();
+        }
+        return SemanticViewController.instance;
+    }
+    dispose() {
         this.subscriptions.dispose();
     }
-    async toggle() {
+    static async toggle() {
+        if (SemanticViewController.instance) {
+            return SemanticViewController.instance.toggleImpl();
+        }
+        else {
+            throw new Error("cannot toggle: SemanticViewController not initialized");
+        }
+    }
+    async toggleImpl() {
         if (!this.view)
             await this.show();
         else
             await atom.workspace.toggle(this.view);
     }
     async show() {
-        if (!this.view) {
-            // make sure, SemanticView is singleton: check if there is a SemanticView in any Pane
-            const pane = atom.workspace.paneForURI(semanticView_1.SemanticView.URI);
-            if (pane) {
-                this.view = pane.itemForURI(semanticView_1.SemanticView.URI);
-            }
-            // create new, if none-exists
-            if (!this.view) {
-                this.view = new semanticView_1.SemanticView({ navTree: null });
-            }
-        }
+        if (!this.view)
+            this.view = semanticView_1.SemanticView.create({ navTree: null });
         await atom.workspace.open(this.view, { searchAllPanes: true });
     }
     hide() {
@@ -55,27 +59,6 @@ class SemanticViewController {
         this.view = view;
     }
 }
-let mainPane;
-function initialize(view) {
-    if (!mainPane) {
-        mainPane = new SemanticViewController(view);
-    }
-    else if (view) {
-        mainPane.setView(view);
-    }
-    const pane = mainPane;
-    return new atom_2.Disposable(() => {
-        pane.destroy();
-    });
-}
-exports.initialize = initialize;
-function toggle() {
-    if (mainPane) {
-        mainPane.toggle();
-    }
-    else {
-        throw new Error("cannot toggle: SemanticViewController not initialized");
-    }
-}
-exports.toggle = toggle;
+SemanticViewController.instance = null;
+exports.SemanticViewController = SemanticViewController;
 //# sourceMappingURL=semanticViewController.js.map

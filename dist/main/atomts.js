@@ -31,7 +31,7 @@ async function activate() {
         await require("atom-package-deps").install("atom-typescript", true);
     }
     require("etch").setScheduler(atom.views);
-    subscriptions.add(semanticViewController_1.initialize());
+    subscriptions.add(semanticViewController_1.SemanticViewController.create());
     errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"));
     subscriptions.add(atom.config.onDidChange("atom-typescript.unusedAsInfo", val => {
         errorPusher.setUnusedAsInfo(val.newValue);

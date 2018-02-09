@@ -1,10 +1,10 @@
 import atomUtils = require("../../utils")
-import {Disposable, TextEditor} from "atom"
+import {Disposable, TextEditor, CursorPositionChangedEvent} from "atom"
 import {clientResolver} from "../../../atomts"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
-import {NavigationTreeViewModel, Props, PositionState} from "./semanticViewModel"
+import {NavigationTreeViewModel} from "./semanticViewModel"
 import {NavigationNodeComponent} from "./navigationNodeComponent"
 import {
   findNodeAt,
@@ -14,15 +14,15 @@ import {
   prepareNavTree,
 } from "./navTreeUtils"
 
-export class NavigationTreeComponent implements JSX.ElementClass {
-  private editor: TextEditor
-  public element: HTMLDivElement
-  private refs: {
-    main: HTMLOListElement
-  }
+export interface Props extends JSX.Props {
+  navTree: NavigationTreeViewModel | null
+}
 
-  private editorScrolling: Disposable
-  private editorChanging: Disposable
+export class NavigationTreeComponent implements JSX.ElementClass {
+  public element: HTMLDivElement
+  private editor?: TextEditor
+  private editorScrolling?: Disposable
+  private editorChanging?: Disposable
 
   constructor(public props: Props) {
     this.setSelectedNode(null)
@@ -50,10 +50,6 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     await etch.destroy(this)
   }
 
-  private setEditor(editor: TextEditor) {
-    this.editor = editor
-  }
-
   private async setNavTree(navTree: NavigationTreeViewModel | null) {
     prepareNavTree(navTree)
     if (isEqual(navTree, this.props.navTree)) {
@@ -65,7 +61,8 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     await etch.update(this)
   }
 
-  private async loadNavTree() {
+  private loadNavTree = async () => {
+    if (!this.editor) return
     const filePath = this.editor.getPath()
     if (filePath) {
       try {
@@ -82,34 +79,29 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     }
   }
 
-  private positionState: PositionState = {
-    lastCursorLine: 0,
-    selectedNode: null,
-  }
-
-  private updateLastCursorPosition() {
-    this.positionState.lastCursorLine =
-      this.editor && this.editor.getLastCursor() ? this.editor.getLastCursor().getBufferRow() : null
+  private _selectedNode: NavigationTreeViewModel | null
+  public get selectedNode() {
+    return this._selectedNode
   }
 
   private setSelectedNode(selectedNode: NavigationTreeViewModel | null) {
-    this.positionState.selectedNode = selectedNode
+    this._selectedNode = selectedNode
   }
 
   render() {
-    this.updateLastCursorPosition()
+    const maybeNavNodeComp = this.props.navTree ? (
+      <NavigationNodeComponent navTree={this.props.navTree} root={this} />
+    ) : null
     return (
       <div class="atomts atomts-semantic-view native-key-bindings">
-        <ol ref="main" className="list-tree has-collapsable-children focusable-panel">
-          <NavigationNodeComponent navTree={this.props.navTree} root={this} />
-        </ol>
+        <ol className="list-tree has-collapsable-children focusable-panel">{maybeNavNodeComp}</ol>
       </div>
     )
   }
 
   public readAfterUpdate() {
     // scroll to selected node:
-    const selectedElement = this.refs.main.getElementsByClassName("selected")[0]
+    const selectedElement = this.element.querySelector(".selected")
     if (selectedElement) this.scrollTo(selectedElement)
   }
 
@@ -117,13 +109,11 @@ export class NavigationTreeComponent implements JSX.ElementClass {
    * HELPER select the node's HTML represenation which corresponds to the
    *        current cursor position
    */
-  private selectAtCursorLine(): void {
-    this.updateLastCursorPosition()
-
-    const cursorLine = this.positionState.lastCursorLine
-    if (!cursorLine || !this.props.navTree || !this.refs.main) {
+  private selectAtCursorLine = ({newBufferPosition}: CursorPositionChangedEvent) => {
+    if (!this.props.navTree) {
       return
     }
+    const cursorLine = newBufferPosition.row
 
     const selectedChild = findNodeAt(cursorLine, cursorLine, this.props.navTree)
     if (selectedChild !== null) {
@@ -154,7 +144,8 @@ export class NavigationTreeComponent implements JSX.ElementClass {
    * @param  {NavigationTree} node
    *              the node which's element should be made visible in the editor
    */
-  gotoNode(node: NavigationTree): void {
+  public gotoNode(node: NavigationTree): void {
+    if (!this.editor) return
     const gotoLine = getNodeStartLine(node)
     const gotoOffset = getNodeStartOffset(node)
     this.editor.setCursorBufferPosition([gotoLine, gotoOffset])
@@ -174,7 +165,7 @@ export class NavigationTreeComponent implements JSX.ElementClass {
       this.update({navTree: null})
       return
     }
-    this.setEditor(editor)
+    this.editor = editor
 
     // set navTree
     this.loadNavTree()
@@ -183,16 +174,11 @@ export class NavigationTreeComponent implements JSX.ElementClass {
     if (this.editorScrolling) {
       this.editorScrolling.dispose()
     }
-    this.editorScrolling = editor.onDidChangeCursorPosition(() => {
-      this.selectAtCursorLine()
-    })
+    this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
 
     if (this.editorChanging) {
       this.editorChanging.dispose()
     }
-    this.editorChanging = editor.onDidStopChanging(() => {
-      // set navTree
-      this.loadNavTree()
-    })
+    this.editorChanging = editor.onDidStopChanging(this.loadNavTree)
   }
 }

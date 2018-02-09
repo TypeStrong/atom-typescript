@@ -1,6 +1,5 @@
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
-import {initialize} from "./semanticViewController"
 
 export const SEMANTIC_VIEW_URI = "atomts-semantic-view"
 
@@ -14,13 +13,15 @@ export interface SemanticViewSerializationData {
 }
 
 export function deserializeSemanticView(serialized: SemanticViewSerializationData) {
-  // console.log('deserializeSemanticView -> ', serialized)// DEBUG
-  const view = new SemanticView(serialized.data)
-  initialize(view)
-  return view
+  return SemanticView.create(serialized.data)
 }
 
 export class SemanticView {
+  private static instance: SemanticView | null = null
+  public static create(config: SemanticViewOptions) {
+    if (!SemanticView.instance) SemanticView.instance = new SemanticView(config)
+    return SemanticView.instance
+  }
   private comp: NavigationTreeComponent
 
   public static readonly URI = "atom://" + SEMANTIC_VIEW_URI
@@ -29,8 +30,8 @@ export class SemanticView {
     return this.comp.element
   }
 
-  constructor(public config: SemanticViewOptions) {
-    this.comp = new NavigationTreeComponent({navTree: config.navTree || null})
+  private constructor(public config: SemanticViewOptions) {
+    this.comp = new NavigationTreeComponent({navTree: config.navTree})
   }
 
   getTitle() {
@@ -40,11 +41,10 @@ export class SemanticView {
   getURI() {
     return SemanticView.URI
   }
-  // Tear down any state and detach
+
   destroy() {
-    if (this.comp) {
-      this.comp.destroy()
-    }
+    SemanticView.instance = null
+    this.comp.destroy()
   }
 
   getDefaultLocation() {
