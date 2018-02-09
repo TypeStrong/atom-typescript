@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
-import {initialize as initializeSemanticView} from "./atom/views/outline/semanticViewPane"
+import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {deserializeSemanticView} from "./atom/views/outline/semanticView"
 import {initialize as initializeFileSymbolsView} from "./atom/views/symbols/symbolsViewMain"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
@@ -35,7 +35,7 @@ export async function activate() {
   }
 
   require("etch").setScheduler(atom.views)
-  subscriptions.add(initializeSemanticView())
+  subscriptions.add(SemanticViewController.create())
   subscriptions.add(initializeFileSymbolsView())
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))

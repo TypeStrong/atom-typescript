@@ -3,9 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
-class SemanticViewPane {
-    constructor(view) {
-        this.view = view;
+class SemanticViewController {
+    constructor() {
         this.subscriptions = new atom_1.CompositeDisposable();
         this.subscriptions.add(new atom_2.Disposable(() => {
             if (this.view) {
@@ -19,10 +18,24 @@ class SemanticViewPane {
                 this.hide();
         }));
     }
-    destroy() {
+    static create() {
+        if (!SemanticViewController.instance) {
+            SemanticViewController.instance = new SemanticViewController();
+        }
+        return SemanticViewController.instance;
+    }
+    dispose() {
         this.subscriptions.dispose();
     }
-    async toggle() {
+    static async toggle() {
+        if (SemanticViewController.instance) {
+            return SemanticViewController.instance.toggleImpl();
+        }
+        else {
+            throw new Error("cannot toggle: SemanticViewController not initialized");
+        }
+    }
+    async toggleImpl() {
         if (!this.view)
             await this.show();
         else
@@ -30,7 +43,7 @@ class SemanticViewPane {
     }
     async show() {
         if (!this.view)
-            this.view = new semanticView_1.SemanticView({});
+            this.view = semanticView_1.SemanticView.create({ navTree: null });
         await atom.workspace.open(this.view, { searchAllPanes: true });
     }
     hide() {
@@ -46,28 +59,6 @@ class SemanticViewPane {
         this.view = view;
     }
 }
-let mainPane;
-function initialize(view) {
-    // console.log('initializeSemanticViewPane -> ', view)// DEBUG
-    if (!mainPane) {
-        mainPane = new SemanticViewPane(view);
-    }
-    else if (view) {
-        mainPane.setView(view);
-    }
-    const pane = mainPane;
-    return new atom_2.Disposable(() => {
-        pane.destroy();
-    });
-}
-exports.initialize = initialize;
-function toggle() {
-    if (mainPane) {
-        mainPane.toggle();
-    }
-    else {
-        throw new Error("cannot toggle: SemanticViewPane not initialized");
-    }
-}
-exports.toggle = toggle;
-//# sourceMappingURL=semanticViewPane.js.map
+SemanticViewController.instance = null;
+exports.SemanticViewController = SemanticViewController;
+//# sourceMappingURL=semanticViewController.js.map

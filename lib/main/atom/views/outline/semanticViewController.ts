@@ -2,10 +2,18 @@ import {CompositeDisposable} from "atom"
 import {SemanticView} from "./semanticView"
 import {Disposable} from "atom"
 
-class SemanticViewPane {
-  subscriptions: CompositeDisposable
+export class SemanticViewController {
+  private static instance: SemanticViewController | null = null
+  public static create() {
+    if (!SemanticViewController.instance) {
+      SemanticViewController.instance = new SemanticViewController()
+    }
+    return SemanticViewController.instance
+  }
+  private subscriptions: CompositeDisposable
+  public view?: SemanticView
 
-  constructor(public view?: SemanticView) {
+  private constructor() {
     this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(
@@ -22,17 +30,26 @@ class SemanticViewPane {
     )
   }
 
-  destroy() {
+  dispose() {
     this.subscriptions.dispose()
   }
 
-  async toggle(): Promise<void> {
+  static async toggle(): Promise<void> {
+    if (SemanticViewController.instance) {
+      return SemanticViewController.instance.toggleImpl()
+    } else {
+      throw new Error("cannot toggle: SemanticViewController not initialized")
+    }
+  }
+
+  private async toggleImpl(): Promise<void> {
     if (!this.view) await this.show()
     else await atom.workspace.toggle(this.view)
   }
 
   async show(): Promise<void> {
-    if (!this.view) this.view = new SemanticView({})
+    if (!this.view) this.view = SemanticView.create({navTree: null})
+
     await atom.workspace.open(this.view, {searchAllPanes: true})
   }
 
@@ -46,29 +63,5 @@ class SemanticViewPane {
       this.view.destroy()
     }
     this.view = view
-  }
-}
-
-let mainPane: SemanticViewPane | undefined
-export function initialize(view?: SemanticView): Disposable {
-  // console.log('initializeSemanticViewPane -> ', view)// DEBUG
-
-  if (!mainPane) {
-    mainPane = new SemanticViewPane(view)
-  } else if (view) {
-    mainPane.setView(view)
-  }
-
-  const pane = mainPane
-  return new Disposable(() => {
-    pane.destroy()
-  })
-}
-
-export function toggle() {
-  if (mainPane) {
-    mainPane.toggle()
-  } else {
-    throw new Error("cannot toggle: SemanticViewPane not initialized")
   }
 }

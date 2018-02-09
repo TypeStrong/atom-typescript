@@ -1,6 +1,6 @@
 import {commands} from "./registry"
 import {commandForTypeScript} from "../utils"
-import {toggle} from "../views/outline/semanticViewPane"
+import {SemanticViewController} from "../views/outline/semanticViewController"
 
 commands.set("typescript:toggle-semantic-view", () => {
   return e => {
@@ -8,6 +8,6 @@ commands.set("typescript:toggle-semantic-view", () => {
       return
     }
 
-    toggle()
+    SemanticViewController.toggle()
   }
 })
