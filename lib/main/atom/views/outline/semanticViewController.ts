@@ -1,11 +1,12 @@
 import {CompositeDisposable} from "atom"
-import {SemanticView} from "./semanticView"
+import {SemanticView, SEMANTIC_VIEW_URI} from "./semanticView"
 import {Disposable} from "atom"
+import {ClientResolver} from "../../../../client/clientResolver"
 
 export class SemanticViewController {
-  public static create() {
+  public static create(clientResolver: ClientResolver) {
     if (!SemanticViewController.instance) {
-      SemanticViewController.instance = new SemanticViewController()
+      SemanticViewController.instance = new SemanticViewController(clientResolver)
     }
     return SemanticViewController.instance
   }
@@ -20,8 +21,12 @@ export class SemanticViewController {
   public view?: SemanticView
   private subscriptions: CompositeDisposable
 
-  private constructor() {
+  private constructor(private clientResolver: ClientResolver) {
     this.subscriptions = new CompositeDisposable()
+
+    const pane = atom.workspace.paneForURI(SEMANTIC_VIEW_URI)
+    if (pane) this.view = pane.itemForURI(SEMANTIC_VIEW_URI) as SemanticView | undefined
+    if (this.view) this.view.setClientResolver(this.clientResolver)
 
     this.subscriptions.add(
       new Disposable(() => {
@@ -39,6 +44,7 @@ export class SemanticViewController {
 
   public dispose() {
     this.subscriptions.dispose()
+    SemanticViewController.instance = null
   }
 
   private async toggleImpl(): Promise<void> {
@@ -47,7 +53,10 @@ export class SemanticViewController {
   }
 
   private async show(): Promise<void> {
-    if (!this.view) this.view = SemanticView.create({navTree: null})
+    if (!this.view) {
+      this.view = SemanticView.create({navTree: null})
+      this.view.setClientResolver(this.clientResolver)
+    }
 
     await atom.workspace.open(this.view, {searchAllPanes: true})
   }

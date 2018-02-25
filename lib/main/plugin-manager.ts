@@ -36,7 +36,7 @@ export class PluginManager {
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
-    this.subscriptions.add(SemanticViewController.create())
+    this.subscriptions.add(SemanticViewController.create(this.clientResolver))
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))

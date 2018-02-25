@@ -4,8 +4,14 @@ const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
 class SemanticViewController {
-    constructor() {
+    constructor(clientResolver) {
+        this.clientResolver = clientResolver;
         this.subscriptions = new atom_1.CompositeDisposable();
+        const pane = atom.workspace.paneForURI(semanticView_1.SEMANTIC_VIEW_URI);
+        if (pane)
+            this.view = pane.itemForURI(semanticView_1.SEMANTIC_VIEW_URI);
+        if (this.view)
+            this.view.setClientResolver(this.clientResolver);
         this.subscriptions.add(new atom_2.Disposable(() => {
             if (this.view) {
                 atom.workspace.hide(this.view);
@@ -18,9 +24,9 @@ class SemanticViewController {
                 this.hide();
         }));
     }
-    static create() {
+    static create(clientResolver) {
         if (!SemanticViewController.instance) {
-            SemanticViewController.instance = new SemanticViewController();
+            SemanticViewController.instance = new SemanticViewController(clientResolver);
         }
         return SemanticViewController.instance;
     }
@@ -34,6 +40,7 @@ class SemanticViewController {
     }
     dispose() {
         this.subscriptions.dispose();
+        SemanticViewController.instance = null;
     }
     async toggleImpl() {
         if (!this.view)
@@ -42,8 +49,10 @@ class SemanticViewController {
             await atom.workspace.toggle(this.view);
     }
     async show() {
-        if (!this.view)
+        if (!this.view) {
             this.view = semanticView_1.SemanticView.create({ navTree: null });
+            this.view.setClientResolver(this.clientResolver);
+        }
         await atom.workspace.open(this.view, { searchAllPanes: true });
     }
     hide() {

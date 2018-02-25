@@ -50,7 +50,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
         this.subscriptions.add(this.errorPusher);
-        this.subscriptions.add(semanticViewController_1.SemanticViewController.create());
+        this.subscriptions.add(semanticViewController_1.SemanticViewController.create(this.clientResolver));
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
         let activePane;

@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const navigationTreeComponent_1 = require("./navigationTreeComponent");
-const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view";
+exports.SEMANTIC_VIEW_URI = "atom-typescript://semantic-view";
 function deserializeSemanticView(serialized) {
     return SemanticView.create(serialized.data);
 }
 exports.deserializeSemanticView = deserializeSemanticView;
 class SemanticView {
     constructor(config) {
-        this.config = config;
         this.comp = new navigationTreeComponent_1.NavigationTreeComponent({ navTree: config.navTree });
     }
     static create(config) {
@@ -21,12 +20,13 @@ class SemanticView {
     }
     setClientResolver(cr) {
         this.comp.setClientResolver(cr);
+        this.comp.update({});
     }
     getTitle() {
         return "TypeScript";
     }
     getURI() {
-        return SEMANTIC_VIEW_URI;
+        return exports.SEMANTIC_VIEW_URI;
     }
     destroy() {
         SemanticView.instance = null;

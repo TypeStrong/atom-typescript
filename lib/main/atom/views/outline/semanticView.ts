@@ -2,7 +2,7 @@ import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
 import {ClientResolver} from "../../../../client/clientResolver"
 
-const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view"
+export const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view"
 
 export interface SemanticViewOptions {
   navTree: NavigationTreeViewModel | null
@@ -29,12 +29,13 @@ export class SemanticView {
     return this.comp.element
   }
 
-  private constructor(public config: SemanticViewOptions) {
+  private constructor(config: SemanticViewOptions) {
     this.comp = new NavigationTreeComponent({navTree: config.navTree})
   }
 
   public setClientResolver(cr: ClientResolver) {
     this.comp.setClientResolver(cr)
+    this.comp.update({})
   }
 
   public getTitle() {
