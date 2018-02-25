@@ -1,4 +1,4 @@
-import {commands, Dependencies} from "./registry"
+import {getCommands, Dependencies} from "./registry"
 import {CompositeDisposable} from "atom"
 
 // Import all of the command files for their side effects
@@ -12,16 +12,11 @@ import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
 import "./semanticView"
-import {CommandRegistryListener} from "atom"
 
 export function registerCommands(deps: Dependencies) {
   const disp = new CompositeDisposable()
-  for (const [selector, cmds] of Object.entries(commands)) {
-    for (const [command, desc] of Object.entries(cmds)) {
-      disp.add(
-        atom.commands.add(selector, command, desc(deps) as CommandRegistryListener<EventTarget>),
-      )
-    }
+  for (const {selector, command, desc} of getCommands()) {
+    disp.add(atom.commands.add(selector, command, desc(deps)))
   }
   return disp
 }

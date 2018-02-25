@@ -1,7 +1,7 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 
-commands["atom-text-editor"]["typescript:build"] = deps => ({
+addCommand("atom-text-editor", "typescript:build", deps => ({
   description: "Compile all files in project related to current active text editor",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
@@ -43,7 +43,7 @@ commands["atom-text-editor"]["typescript:build"] = deps => ({
       stp.update({buildStatus: {success: false, message: err.message}})
     }
   },
-})
+}))
 
 function _finally<T>(promise: Promise<T>, callback: (result: T) => void): Promise<T> {
   promise.then(callback, callback)

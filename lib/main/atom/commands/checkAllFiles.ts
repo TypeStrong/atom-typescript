@@ -1,7 +1,7 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 
-commands["atom-text-editor"]["typescript:check-all-files"] = deps => ({
+addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
   description: "Typecheck all files in project related to current active text editor",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
@@ -57,4 +57,4 @@ commands["atom-text-editor"]["typescript:check-all-files"] = deps => ({
       }
     }
   },
-})
+}))

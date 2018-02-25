@@ -1,9 +1,9 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {spanToRange} from "../utils"
 import {showRenameDialog} from "../views/renameView"
 
-commands["atom-text-editor"]["typescript:rename-refactor"] = deps => ({
+addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
   description: "Rename symbol under text cursor everywhere it is used",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
@@ -55,4 +55,4 @@ commands["atom-text-editor"]["typescript:rename-refactor"] = deps => ({
       })
     }
   },
-})
+}))

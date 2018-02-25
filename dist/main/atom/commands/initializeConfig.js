@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const clientResolver_1 = require("../../../client/clientResolver");
 const atom_1 = require("atom");
-registry_1.commands["atom-text-editor"]["typescript:initialize-config"] = () => ({
+registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => ({
     description: "Create tsconfig.json in the project related to currently-active text edtior",
     async didDispatch(e) {
         try {
@@ -41,7 +41,7 @@ registry_1.commands["atom-text-editor"]["typescript:initialize-config"] = () => 
             }
         }
     },
-});
+}));
 function initConfig(tsc, projectRoot) {
     return new Promise((resolve, reject) => {
         try {

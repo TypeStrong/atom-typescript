@@ -1,4 +1,4 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
@@ -15,7 +15,7 @@ async function open(item: {file: string; start: {line: number; offset: number}})
   }
 }
 
-commands["atom-text-editor"]["typescript:go-to-declaration"] = deps => ({
+addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
   description: "Go to declaration of symbol under text cursor",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
@@ -30,9 +30,9 @@ commands["atom-text-editor"]["typescript:go-to-declaration"] = deps => ({
     const result = await client.executeDefinition(location)
     handleDefinitionResult(result, location)
   },
-})
+}))
 
-commands["atom-workspace"]["typescript:return-from-declaration"] = () => ({
+addCommand("atom-workspace", "typescript:return-from-declaration", () => ({
   description: "If used `go-to-declaration`, return to previous text cursor position",
   async didDispatch() {
     const position = prevCursorPositions.pop()
@@ -45,7 +45,7 @@ commands["atom-workspace"]["typescript:return-from-declaration"] = () => ({
       start: {line: position.line, offset: position.offset},
     })
   },
-})
+}))
 
 export async function handleDefinitionResult(
   result: protocol.DefinitionResponse,

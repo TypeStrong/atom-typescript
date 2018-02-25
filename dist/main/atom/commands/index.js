@@ -15,10 +15,8 @@ require("./initializeConfig");
 require("./semanticView");
 function registerCommands(deps) {
     const disp = new atom_1.CompositeDisposable();
-    for (const [selector, cmds] of Object.entries(registry_1.commands)) {
-        for (const [command, desc] of Object.entries(cmds)) {
-            disp.add(atom.commands.add(selector, command, desc(deps)));
-        }
+    for (const { selector, command, desc } of registry_1.getCommands()) {
+        disp.add(atom.commands.add(selector, command, desc(deps)));
     }
     return disp;
 }

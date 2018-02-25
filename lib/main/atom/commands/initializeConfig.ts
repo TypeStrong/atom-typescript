@@ -1,9 +1,9 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {resolveBinary} from "../../../client/clientResolver"
 import {BufferedNodeProcess} from "atom"
 import {CommandEvent, TextEditorElement} from "atom"
 
-commands["atom-text-editor"]["typescript:initialize-config"] = () => ({
+addCommand("atom-text-editor", "typescript:initialize-config", () => ({
   description: "Create tsconfig.json in the project related to currently-active text edtior",
   async didDispatch(e: CommandEvent<TextEditorElement>) {
     try {
@@ -47,7 +47,7 @@ commands["atom-text-editor"]["typescript:initialize-config"] = () => ({
       }
     }
   },
-})
+}))
 
 function initConfig(tsc: string, projectRoot: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {

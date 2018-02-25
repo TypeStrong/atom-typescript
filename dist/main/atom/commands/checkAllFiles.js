@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
-registry_1.commands["atom-text-editor"]["typescript:check-all-files"] = deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     description: "Typecheck all files in project related to current active text editor",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
@@ -50,5 +50,5 @@ registry_1.commands["atom-text-editor"]["typescript:check-all-files"] = deps => 
             }
         }
     },
-});
+}));
 //# sourceMappingURL=checkAllFiles.js.map

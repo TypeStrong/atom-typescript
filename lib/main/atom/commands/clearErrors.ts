@@ -1,8 +1,8 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 
-commands["atom-workspace"]["typescript:clear-errors"] = deps => ({
+addCommand("atom-workspace", "typescript:clear-errors", deps => ({
   description: "Clear error messages",
   didDispatch() {
     deps.clearErrors()
   },
-})
+}))

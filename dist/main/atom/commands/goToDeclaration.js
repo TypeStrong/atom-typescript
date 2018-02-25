@@ -14,7 +14,7 @@ async function open(item) {
         editor.scrollToCursorPosition({ center: true });
     }
 }
-registry_1.commands["atom-text-editor"]["typescript:go-to-declaration"] = deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
     description: "Go to declaration of symbol under text cursor",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
@@ -29,8 +29,8 @@ registry_1.commands["atom-text-editor"]["typescript:go-to-declaration"] = deps =
         const result = await client.executeDefinition(location);
         handleDefinitionResult(result, location);
     },
-});
-registry_1.commands["atom-workspace"]["typescript:return-from-declaration"] = () => ({
+}));
+registry_1.addCommand("atom-workspace", "typescript:return-from-declaration", () => ({
     description: "If used `go-to-declaration`, return to previous text cursor position",
     async didDispatch() {
         const position = prevCursorPositions.pop();
@@ -43,7 +43,7 @@ registry_1.commands["atom-workspace"]["typescript:return-from-declaration"] = ()
             start: { line: position.line, offset: position.offset },
         });
     },
-});
+}));
 async function handleDefinitionResult(result, location) {
     if (!result.body) {
         return;

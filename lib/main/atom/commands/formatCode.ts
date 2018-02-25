@@ -1,4 +1,4 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {
   CodeEdit,
   commandForTypeScript,
@@ -7,7 +7,7 @@ import {
   rangeToLocationRange,
 } from "../utils"
 
-commands["atom-text-editor"]["typescript:format-code"] = deps => ({
+addCommand("atom-text-editor", "typescript:format-code", deps => ({
   description: "Format code in currently active text editor",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
@@ -60,4 +60,4 @@ commands["atom-text-editor"]["typescript:format-code"] = deps => ({
       })
     }
   },
-})
+}))

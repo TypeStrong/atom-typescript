@@ -5,7 +5,7 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const tsView_1 = require("../components/tsView");
-registry_1.commands["atom-text-editor"]["typescript:find-references"] = deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
     description: "Find where symbol under text cursor is referenced",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
@@ -37,5 +37,5 @@ registry_1.commands["atom-text-editor"]["typescript:find-references"] = deps => 
             });
         }
     },
-});
+}));
 //# sourceMappingURL=findReferences.js.map

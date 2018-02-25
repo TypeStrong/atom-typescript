@@ -4,7 +4,7 @@ const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const utils_2 = require("../utils");
 const renameView_1 = require("../views/renameView");
-registry_1.commands["atom-text-editor"]["typescript:rename-refactor"] = deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
     description: "Rename symbol under text cursor everywhere it is used",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
@@ -50,5 +50,5 @@ registry_1.commands["atom-text-editor"]["typescript:rename-refactor"] = deps => 
             });
         }
     },
-});
+}));
 //# sourceMappingURL=renameRefactor.js.map
