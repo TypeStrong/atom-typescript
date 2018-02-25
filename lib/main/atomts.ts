@@ -1,5 +1,7 @@
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig/dist/tsconfig"
+import {SemanticViewController} from "./atom/views/outline/semanticViewController"
+import {deserializeSemanticView} from "./atom/views/outline/semanticView"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {ClientResolver} from "../client/clientResolver"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -32,6 +34,7 @@ export async function activate() {
   }
 
   require("etch").setScheduler(atom.views)
+  subscriptions.add(SemanticViewController.create())
 
   errorPusher.setUnusedAsInfo(atom.config.get("atom-typescript.unusedAsInfo"))
   subscriptions.add(
@@ -214,3 +217,5 @@ async function getTypescriptBuffer(filePath: string) {
     isOpen: false,
   }
 }
+
+export {deserializeSemanticView}

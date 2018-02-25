@@ -11,6 +11,7 @@ require("./goToDeclaration");
 require("./renameRefactor");
 require("./showTooltip");
 require("./initializeConfig");
+require("./semanticView");
 function registerCommands(deps) {
     for (const [name, command] of registry_1.commands) {
         atom.commands.add("atom-workspace", name, command(deps));
