@@ -5,11 +5,15 @@ import * as etch from "etch"
 
 const prevCursorPositions: FileLocationQuery[] = []
 
-function open(item: {file: string; start: {line: number; offset: number}}) {
-  atom.workspace.open(item.file, {
+async function open(item: {file: string; start: {line: number; offset: number}}) {
+  await atom.workspace.open(item.file, {
     initialLine: item.start.line - 1,
     initialColumn: item.start.offset - 1,
   })
+  const activeEditor = atom.workspace.getActiveTextEditor()
+  if (activeEditor) {
+    activeEditor.scrollToCursorPosition({center: true})
+  }
 }
 
 commands.set("typescript:go-to-declaration", deps => {

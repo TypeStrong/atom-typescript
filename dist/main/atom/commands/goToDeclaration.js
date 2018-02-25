@@ -5,11 +5,15 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const prevCursorPositions = [];
-function open(item) {
-    atom.workspace.open(item.file, {
+async function open(item) {
+    await atom.workspace.open(item.file, {
         initialLine: item.start.line - 1,
         initialColumn: item.start.offset - 1,
     });
+    const activeEditor = atom.workspace.getActiveTextEditor();
+    if (activeEditor) {
+        activeEditor.scrollToCursorPosition({ center: true });
+    }
 }
 registry_1.commands.set("typescript:go-to-declaration", deps => {
     return async (e) => {
