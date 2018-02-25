@@ -189,7 +189,7 @@ export class PluginManager {
     const buffer = await Atom.TextBuffer.load(filePath)
 
     return {
-      buffer: TypescriptBuffer.construct(buffer, fp => this.clientResolver.get(fp)),
+      buffer: TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp)),
       isOpen: false,
     }
   }

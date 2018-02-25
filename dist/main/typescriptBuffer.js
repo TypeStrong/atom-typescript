@@ -72,7 +72,7 @@ class TypescriptBuffer {
         this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging));
         this.open();
     }
-    static construct(buffer, getClient) {
+    static create(buffer, getClient) {
         const b = TypescriptBuffer.bufferMap.get(buffer);
         if (b)
             return b;

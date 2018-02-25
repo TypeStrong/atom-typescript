@@ -44,7 +44,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     this.editor = editor
     this.filePath = editor.getPath()
     this.opts = opts
-    this.buffer = TypescriptBuffer.construct(editor.buffer, opts.getClient)
+    this.buffer = TypescriptBuffer.create(editor.buffer, opts.getClient)
       .on("changed", this.onChanged)
       .on("closed", this.opts.onClose)
       .on("opened", this.onOpened)

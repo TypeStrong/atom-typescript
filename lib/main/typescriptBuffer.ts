@@ -6,10 +6,7 @@ import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
-  public static construct(
-    buffer: Atom.TextBuffer,
-    getClient: (filePath: string) => Promise<Client>,
-  ) {
+  public static create(buffer: Atom.TextBuffer, getClient: (filePath: string) => Promise<Client>) {
     const b = TypescriptBuffer.bufferMap.get(buffer)
     if (b) return b
     else {

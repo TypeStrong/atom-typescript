@@ -105,7 +105,7 @@ class TypescriptEditorPane {
         this.editor = editor;
         this.filePath = editor.getPath();
         this.opts = opts;
-        this.buffer = typescriptBuffer_1.TypescriptBuffer.construct(editor.buffer, opts.getClient)
+        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.buffer, opts.getClient)
             .on("changed", this.onChanged)
             .on("closed", this.opts.onClose)
             .on("opened", this.onOpened)
