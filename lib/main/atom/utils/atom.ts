@@ -17,10 +17,10 @@ export function isTypescriptFile(filePath: string | undefined): boolean {
 }
 
 export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
-  return isTypescriptFile(editor.getPath())
+  return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor)
 }
 
-export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
+function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
   return ["source.ts", "source.tsx"].includes(scopeName)
 }

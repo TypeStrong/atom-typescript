@@ -52,8 +52,9 @@ export class PluginManager {
 
       const files: string[] = []
       for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-        if (p.filePath && p.isTypescript && p.client === p.client) {
-          files.push(p.filePath)
+        const filePath = p.buffer.getPath()
+        if (filePath && p.isTypescript && p.client === p.client) {
+          files.push(filePath)
         }
       }
 
@@ -166,7 +167,7 @@ export class PluginManager {
   }
 
   public getClient = async (filePath: string) => {
-    const pane = this.panes.find(p => p.filePath === filePath)
+    const pane = this.panes.find(p => p.buffer.getPath() === filePath)
     if (pane && pane.client) {
       return pane.client
     }
@@ -177,7 +178,7 @@ export class PluginManager {
   public getStatusPanel = () => this.statusPanel
 
   public getTypescriptBuffer = async (filePath: string) => {
-    const pane = this.panes.find(p => p.filePath === filePath)
+    const pane = this.panes.find(p => p.buffer.getPath() === filePath)
     if (pane) {
       return {
         buffer: pane.buffer,

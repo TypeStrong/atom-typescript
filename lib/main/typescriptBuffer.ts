@@ -53,6 +53,10 @@ export class TypescriptBuffer {
     this.open()
   }
 
+  public getPath() {
+    return this.buffer.getPath()
+  }
+
   // If there are any pending changes, flush them out to the Typescript server
   public async flush() {
     if (this.changedAt > this.changedAtBatch) {

@@ -78,6 +78,9 @@ class TypescriptBuffer {
             return nb;
         }
     }
+    getPath() {
+        return this.buffer.getPath();
+    }
     // If there are any pending changes, flush them out to the Typescript server
     async flush() {
         if (this.changedAt > this.changedAtBatch) {

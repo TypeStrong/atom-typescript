@@ -20,7 +20,7 @@ class PluginManager {
             this.errorPusher.clear();
         };
         this.getClient = async (filePath) => {
-            const pane = this.panes.find(p => p.filePath === filePath);
+            const pane = this.panes.find(p => p.buffer.getPath() === filePath);
             if (pane && pane.client) {
                 return pane.client;
             }
@@ -28,7 +28,7 @@ class PluginManager {
         };
         this.getStatusPanel = () => this.statusPanel;
         this.getTypescriptBuffer = async (filePath) => {
-            const pane = this.panes.find(p => p.filePath === filePath);
+            const pane = this.panes.find(p => p.buffer.getPath() === filePath);
             if (pane) {
                 return {
                     buffer: pane.buffer,
@@ -62,8 +62,9 @@ class PluginManager {
             }
             const files = [];
             for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-                if (p.filePath && p.isTypescript && p.client === p.client) {
-                    files.push(p.filePath);
+                const filePath = p.buffer.getPath();
+                if (filePath && p.isTypescript && p.client === p.client) {
+                    files.push(filePath);
                 }
             }
             pane.client.executeGetErr({ files, delay: 100 });
