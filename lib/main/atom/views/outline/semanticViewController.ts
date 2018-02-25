@@ -3,15 +3,22 @@ import {SemanticView} from "./semanticView"
 import {Disposable} from "atom"
 
 export class SemanticViewController {
-  private static instance: SemanticViewController | null = null
   public static create() {
     if (!SemanticViewController.instance) {
       SemanticViewController.instance = new SemanticViewController()
     }
     return SemanticViewController.instance
   }
-  private subscriptions: CompositeDisposable
+  public static async toggle(): Promise<void> {
+    if (SemanticViewController.instance) {
+      return SemanticViewController.instance.toggleImpl()
+    } else {
+      throw new Error("cannot toggle: SemanticViewController not initialized")
+    }
+  }
+  private static instance: SemanticViewController | null = null
   public view?: SemanticView
+  private subscriptions: CompositeDisposable
 
   private constructor() {
     this.subscriptions = new CompositeDisposable()
@@ -30,16 +37,8 @@ export class SemanticViewController {
     )
   }
 
-  dispose() {
+  public dispose() {
     this.subscriptions.dispose()
-  }
-
-  static async toggle(): Promise<void> {
-    if (SemanticViewController.instance) {
-      return SemanticViewController.instance.toggleImpl()
-    } else {
-      throw new Error("cannot toggle: SemanticViewController not initialized")
-    }
   }
 
   private async toggleImpl(): Promise<void> {
@@ -47,21 +46,14 @@ export class SemanticViewController {
     else await atom.workspace.toggle(this.view)
   }
 
-  async show(): Promise<void> {
+  private async show(): Promise<void> {
     if (!this.view) this.view = SemanticView.create({navTree: null})
 
     await atom.workspace.open(this.view, {searchAllPanes: true})
   }
 
-  hide(): boolean {
+  private hide(): boolean {
     if (!this.view) return false
     else return atom.workspace.hide(this.view)
-  }
-
-  setView(view: SemanticView): void {
-    if (this.view) {
-      this.view.destroy()
-    }
-    this.view = view
   }
 }

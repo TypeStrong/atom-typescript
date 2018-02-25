@@ -2,7 +2,7 @@ import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
 import {ClientResolver} from "../../../../client/clientResolver"
 
-export const SEMANTIC_VIEW_URI = "atomts-semantic-view"
+const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view"
 
 export interface SemanticViewOptions {
   navTree: NavigationTreeViewModel | null
@@ -18,14 +18,12 @@ export function deserializeSemanticView(serialized: SemanticViewSerializationDat
 }
 
 export class SemanticView {
-  private static instance: SemanticView | null = null
   public static create(config: SemanticViewOptions) {
     if (!SemanticView.instance) SemanticView.instance = new SemanticView(config)
     return SemanticView.instance
   }
+  private static instance: SemanticView | null = null
   private comp: NavigationTreeComponent
-
-  public static readonly URI = "atom://" + SEMANTIC_VIEW_URI
 
   public get element() {
     return this.comp.element
@@ -39,29 +37,29 @@ export class SemanticView {
     this.comp.setClientResolver(cr)
   }
 
-  getTitle() {
+  public getTitle() {
     return "TypeScript"
   }
 
-  getURI() {
-    return SemanticView.URI
+  public getURI() {
+    return SEMANTIC_VIEW_URI
   }
 
-  destroy() {
+  public destroy() {
     SemanticView.instance = null
     this.comp.destroy()
   }
 
-  getDefaultLocation() {
+  public getDefaultLocation() {
     return "right"
   }
 
-  getAllowedLocations() {
+  public getAllowedLocations() {
     // The locations into which the item can be moved.
     return ["left", "right"]
   }
 
-  serialize(): SemanticViewSerializationData {
+  public serialize(): SemanticViewSerializationData {
     // console.log("SemanticView.serialize()") // DEBUG
     return {
       deserializer: "atomts-semantic-view/SemanticView",

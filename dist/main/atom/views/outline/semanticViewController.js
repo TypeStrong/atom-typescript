@@ -24,9 +24,6 @@ class SemanticViewController {
         }
         return SemanticViewController.instance;
     }
-    dispose() {
-        this.subscriptions.dispose();
-    }
     static async toggle() {
         if (SemanticViewController.instance) {
             return SemanticViewController.instance.toggleImpl();
@@ -34,6 +31,9 @@ class SemanticViewController {
         else {
             throw new Error("cannot toggle: SemanticViewController not initialized");
         }
+    }
+    dispose() {
+        this.subscriptions.dispose();
     }
     async toggleImpl() {
         if (!this.view)
@@ -51,12 +51,6 @@ class SemanticViewController {
             return false;
         else
             return atom.workspace.hide(this.view);
-    }
-    setView(view) {
-        if (this.view) {
-            this.view.destroy();
-        }
-        this.view = view;
     }
 }
 SemanticViewController.instance = null;

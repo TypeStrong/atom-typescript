@@ -8,6 +8,7 @@ const navTreeUtils_1 = require("./navTreeUtils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;
+        this.selectedNode = null;
         this.loadNavTree = async () => {
             if (!this.editor)
                 return;
@@ -42,7 +43,7 @@ class NavigationTreeComponent {
             const selectedChild = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, this.props.navTree);
             if (selectedChild !== null) {
                 // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
-                this.setSelectedNode(selectedChild);
+                this.selectedNode = selectedChild;
                 etch.update(this);
             }
         };
@@ -72,7 +73,6 @@ class NavigationTreeComponent {
             }
             this.editorChanging = editor.onDidStopChanging(this.loadNavTree);
         };
-        this.setSelectedNode(null);
         navTreeUtils_1.prepareNavTree(props.navTree);
         etch.initialize(this);
         atom.workspace.observeActiveTextEditor(this.subscribeToEditor);
@@ -91,11 +91,44 @@ class NavigationTreeComponent {
         if (this.editorChanging) {
             this.editorChanging.dispose();
         }
-        this.setSelectedNode(null);
+        this.selectedNode = null;
         await etch.destroy(this);
     }
     setClientResolver(cr) {
         this.clientResolver = cr;
+    }
+    getSelectedNode() {
+        return this.selectedNode;
+    }
+    render() {
+        const maybeNavNodeComp = this.props.navTree ? (etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, ctrl: this })) : null;
+        return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
+            etch.dom("ol", { className: "list-tree has-collapsable-children focusable-panel" }, maybeNavNodeComp)));
+    }
+    readAfterUpdate() {
+        // scroll to selected node:
+        const selectedElement = this.element.querySelector(".selected");
+        if (selectedElement)
+            this.scrollTo(selectedElement);
+    }
+    /**
+     * HELPER scroll the current editor so that the node's representation becomes
+     *        visible
+     *        (i.e. scroll the text/typescript editor)
+     * @param  {NavigationTree} node
+     *              the node which's element should be made visible in the editor
+     */
+    gotoNode(node) {
+        if (!this.editor)
+            return;
+        const gotoLine = navTreeUtils_1.getNodeStartLine(node);
+        const gotoOffset = navTreeUtils_1.getNodeStartOffset(node);
+        this.editor.setCursorBufferPosition([gotoLine, gotoOffset]);
+    }
+    getCursorLine() {
+        return this.editor && this.editor.getLastCursor()
+            ? this.editor.getLastCursor().getBufferRow()
+            : null;
     }
     async setNavTree(navTree) {
         navTreeUtils_1.prepareNavTree(navTree);
@@ -111,29 +144,7 @@ class NavigationTreeComponent {
                 selectedNode = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, navTree);
             }
         }
-        this.setSelectedNode(selectedNode);
-    }
-    get selectedNode() {
-        return this._selectedNode;
-    }
-    setSelectedNode(selectedNode) {
-        this._selectedNode = selectedNode;
-    }
-    render() {
-        const maybeNavNodeComp = this.props.navTree ? (etch.dom(navigationNodeComponent_1.NavigationNodeComponent, { navTree: this.props.navTree, ctrl: this })) : null;
-        return (etch.dom("div", { class: "atomts atomts-semantic-view native-key-bindings" },
-            etch.dom("ol", { className: "list-tree has-collapsable-children focusable-panel" }, maybeNavNodeComp)));
-    }
-    readAfterUpdate() {
-        // scroll to selected node:
-        const selectedElement = this.element.querySelector(".selected");
-        if (selectedElement)
-            this.scrollTo(selectedElement);
-    }
-    getCursorLine() {
-        return this.editor && this.editor.getLastCursor()
-            ? this.editor.getLastCursor().getBufferRow()
-            : null;
+        this.selectedNode = selectedNode;
     }
     /**
      * HELPER scroll the node's HTML representation (i.e. domNode) into view
@@ -148,20 +159,6 @@ class NavigationTreeComponent {
         else {
             elem.scrollIntoView();
         }
-    }
-    /**
-     * HELPER scroll the current editor so that the node's representation becomes
-     *        visible
-     *        (i.e. scroll the text/typescript editor)
-     * @param  {NavigationTree} node
-     *              the node which's element should be made visible in the editor
-     */
-    gotoNode(node) {
-        if (!this.editor)
-            return;
-        const gotoLine = navTreeUtils_1.getNodeStartLine(node);
-        const gotoOffset = navTreeUtils_1.getNodeStartOffset(node);
-        this.editor.setCursorBufferPosition([gotoLine, gotoOffset]);
     }
 }
 exports.NavigationTreeComponent = NavigationTreeComponent;

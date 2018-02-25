@@ -7,6 +7,30 @@ class NavigationNodeComponent {
         this.props = props;
         etch.initialize(this);
     }
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        await etch.update(this);
+    }
+    async destroy() {
+        await etch.destroy(this);
+    }
+    render() {
+        const node = this.props.navTree;
+        const { ctrl } = this.props;
+        const selectedNode = ctrl.getSelectedNode();
+        const selected = selectedNode && navTreeUtils_1.isSameNode(node, selectedNode);
+        const classes = (node.childItems ? "nested-" : "") +
+            "item" +
+            (node.collapsed ? " collapsed" : " expanded") +
+            (selected ? " selected" : "");
+        const styleClasses = this.getStyles();
+        return (etch.dom("li", { className: "node entry exanded list-" + classes },
+            etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
+                etch.dom("span", { className: styleClasses }, node.text)),
+            etch.dom("ol", { className: "entries list-tree" }, node.childItems
+                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, ctrl: ctrl }))
+                : null)));
+    }
     getStyles() {
         const { kind } = this.props.navTree;
         let styles = `icon icon-${kind}`;
@@ -20,29 +44,6 @@ class NavigationNodeComponent {
                         .join(" ");
         }
         return styles;
-    }
-    async update(props) {
-        this.props = Object.assign({}, this.props, props);
-        await etch.update(this);
-    }
-    async destroy() {
-        await etch.destroy(this);
-    }
-    render() {
-        const node = this.props.navTree;
-        const { ctrl } = this.props;
-        const selected = ctrl.selectedNode && navTreeUtils_1.isSameNode(node, ctrl.selectedNode);
-        const classes = (node.childItems ? "nested-" : "") +
-            "item" +
-            (node.collapsed ? " collapsed" : " expanded") +
-            (selected ? " selected" : "");
-        const styleClasses = this.getStyles();
-        return (etch.dom("li", { className: "node entry exanded list-" + classes },
-            etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
-                etch.dom("span", { className: styleClasses }, node.text)),
-            etch.dom("ol", { className: "entries list-tree" }, node.childItems
-                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, ctrl: ctrl }))
-                : null)));
     }
     entryClicked(event, node) {
         event.stopPropagation();
