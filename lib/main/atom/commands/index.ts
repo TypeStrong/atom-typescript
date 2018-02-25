@@ -10,6 +10,7 @@ import "./goToDeclaration"
 import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
+import "./semanticView"
 
 export function registerCommands(deps: Dependencies) {
   for (const [name, command] of commands) {

@@ -23,6 +23,7 @@ exports.commandWithResponse = new Set([
     "references",
     "reload",
     "rename",
+    "navtree",
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
@@ -122,6 +123,9 @@ class TypescriptServiceClient {
     }
     executeSaveTo(args) {
         return this.execute("saveto", args);
+    }
+    executeNavTree(args) {
+        return this.execute("navtree", args);
     }
     async execute(command, args) {
         if (!this.serverPromise) {
