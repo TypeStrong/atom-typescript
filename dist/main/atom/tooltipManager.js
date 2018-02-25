@@ -4,7 +4,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const atomUtils = require("./utils");
 const Atom = require("atom");
-const path = require("path");
 const fs = require("fs");
 const element_listener_1 = require("./utils/element-listener");
 const tooltipView_1 = require("./views/tooltipView");
@@ -33,18 +32,13 @@ function attach(editor, getClient) {
     const rawView = atom.views.getView(editor);
     // Only on ".ts" files
     const filePath = editor.getPath();
-    if (!filePath) {
+    if (!filePath)
         return;
-    }
-    const filename = path.basename(filePath);
-    const ext = path.extname(filename);
-    if (!atomUtils.isAllowedExtension(ext)) {
+    if (!atomUtils.isTypescriptEditorWithPath(editor))
         return;
-    }
     // We only create a "program" once the file is persisted to disk
-    if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(filePath))
         return;
-    }
     const clientPromise = getClient(filePath);
     const subscriber = new Atom.CompositeDisposable();
     let exprTypeTimeout;

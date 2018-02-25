@@ -1,6 +1,6 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {kindToType, FileLocationQuery} from "./utils"
+import {FileLocationQuery} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
 import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
@@ -240,4 +240,33 @@ function containsScope(scopes: string[], matchScope: string): boolean {
   }
 
   return false
+}
+
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
+export function kindToType(kind: string) {
+  // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
+  switch (kind) {
+    case "const":
+      return "constant"
+    case "interface":
+      return "type"
+    case "identifier":
+      return "variable"
+    case "local function":
+      return "function"
+    case "local var":
+      return "variable"
+    case "let":
+    case "var":
+    case "parameter":
+      return "variable"
+    case "alias":
+      return "import"
+    case "type parameter":
+      return "type"
+    default:
+      return kind.split(" ")[0]
+  }
 }

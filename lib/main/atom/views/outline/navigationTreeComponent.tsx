@@ -168,7 +168,7 @@ export class NavigationTreeComponent
   }
 
   private subscribeToEditor = (editor?: TextEditor) => {
-    if (!editor || !atomUtils.onDiskAndTs(editor)) {
+    if (!editor || !atomUtils.isTypescriptEditorWithPath(editor)) {
       // unsubscribe from editor
       // dispose subscriptions (except for editor-changing)
       if (this.editorScrolling) {

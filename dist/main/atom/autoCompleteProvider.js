@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("./utils");
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
@@ -97,7 +96,7 @@ class AutocompleteProvider {
         const suggestions = completions.body.map(entry => ({
             text: entry.name,
             leftLabel: entry.kind,
-            type: utils_1.kindToType(entry.kind),
+            type: kindToType(entry.kind),
         }));
         this.lastSuggestions = {
             client,
@@ -155,4 +154,33 @@ function containsScope(scopes, matchScope) {
     }
     return false;
 }
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
+function kindToType(kind) {
+    // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
+    switch (kind) {
+        case "const":
+            return "constant";
+        case "interface":
+            return "type";
+        case "identifier":
+            return "variable";
+        case "local function":
+            return "function";
+        case "local var":
+            return "variable";
+        case "let":
+        case "var":
+        case "parameter":
+            return "variable";
+        case "alias":
+            return "import";
+        case "type parameter":
+            return "type";
+        default:
+            return kind.split(" ")[0];
+    }
+}
+exports.kindToType = kindToType;
 //# sourceMappingURL=autoCompleteProvider.js.map

@@ -48,7 +48,7 @@ class NavigationTreeComponent {
             }
         };
         this.subscribeToEditor = (editor) => {
-            if (!editor || !atomUtils.onDiskAndTs(editor)) {
+            if (!editor || !atomUtils.isTypescriptEditorWithPath(editor)) {
                 // unsubscribe from editor
                 // dispose subscriptions (except for editor-changing)
                 if (this.editorScrolling) {

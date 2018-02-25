@@ -1,6 +1,5 @@
 import * as etch from "etch"
 import {dirname} from "path"
-import {getFilePathRelativeToAtomProject, openFile} from "../utils"
 import {ClientResolver} from "../../../client/clientResolver"
 import {flatten, values} from "lodash"
 
@@ -82,7 +81,7 @@ export class StatusPanel implements JSX.ElementClass {
 
   private openConfigPath() {
     if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
-      openFile(this.props.tsConfigPath)
+      atom.workspace.open(this.props.tsConfigPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
     }
@@ -201,4 +200,11 @@ export class StatusPanel implements JSX.ElementClass {
   private handlePendingRequests = () => {
     this.update({pending: flatten(values(this.props.clientResolver.clients).map(cl => cl.pending))})
   }
+}
+
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+function getFilePathRelativeToAtomProject(filePath: string) {
+  return "~" + atom.project.relativize(filePath)
 }

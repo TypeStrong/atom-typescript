@@ -3,7 +3,6 @@
 
 import atomUtils = require("./utils")
 import * as Atom from "atom"
-import path = require("path")
 import fs = require("fs")
 import {listen} from "./utils/element-listener"
 import {TooltipView} from "./views/tooltipView"
@@ -42,19 +41,10 @@ export function attach(
 
   // Only on ".ts" files
   const filePath = editor.getPath()
-  if (!filePath) {
-    return
-  }
-  const filename = path.basename(filePath)
-  const ext = path.extname(filename)
-  if (!atomUtils.isAllowedExtension(ext)) {
-    return
-  }
-
+  if (!filePath) return
+  if (!atomUtils.isTypescriptEditorWithPath(editor)) return
   // We only create a "program" once the file is persisted to disk
-  if (!fs.existsSync(filePath)) {
-    return
-  }
+  if (!fs.existsSync(filePath)) return
 
   const clientPromise = getClient(filePath)
   const subscriber = new Atom.CompositeDisposable()

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 const atom_1 = require("atom");
+const path = require("path");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 class ErrorPusher {
     constructor() {
@@ -57,7 +58,7 @@ class ErrorPusher {
         const errors = [];
         for (const fileErrors of this.errors.values()) {
             for (const [filePath, diagnostics] of fileErrors) {
-                const newFilePath = utils_1.systemPath(filePath);
+                const normalizedFilePath = path.normalize(filePath);
                 for (const diagnostic of diagnostics) {
                     // Add a bit of extra validation that we have the necessary locations since linter v2
                     // does not allow range-less messages anymore. This happens with configFileDiagnostics.
@@ -69,7 +70,7 @@ class ErrorPusher {
                         severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
                         excerpt: diagnostic.text,
                         location: {
-                            file: newFilePath,
+                            file: normalizedFilePath,
                             position: utils_1.locationsToRange(start, end),
                         },
                     });

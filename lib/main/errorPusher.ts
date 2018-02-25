@@ -1,8 +1,9 @@
 import {debounce} from "lodash"
 import {Diagnostic, Location} from "typescript/lib/protocol"
 import {IndieDelegate, Message} from "atom/linter"
-import {locationsToRange, systemPath, isLocationInRange} from "./atom/utils"
+import {locationsToRange, isLocationInRange} from "./atom/utils"
 import {CompositeDisposable} from "atom"
+import * as path from "path"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
@@ -72,7 +73,7 @@ export class ErrorPusher {
 
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, diagnostics] of fileErrors) {
-        const newFilePath = systemPath(filePath)
+        const normalizedFilePath = path.normalize(filePath)
         for (const diagnostic of diagnostics) {
           // Add a bit of extra validation that we have the necessary locations since linter v2
           // does not allow range-less messages anymore. This happens with configFileDiagnostics.
@@ -85,7 +86,7 @@ export class ErrorPusher {
             severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
             excerpt: diagnostic.text,
             location: {
-              file: newFilePath,
+              file: normalizedFilePath,
               position: locationsToRange(start, end),
             },
           })

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const path_1 = require("path");
-const utils_1 = require("../utils");
 const lodash_1 = require("lodash");
 class StatusPanel {
     constructor(props) {
@@ -67,7 +66,7 @@ class StatusPanel {
     }
     openConfigPath() {
         if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
-            utils_1.openFile(this.props.tsConfigPath);
+            atom.workspace.open(this.props.tsConfigPath);
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
@@ -106,7 +105,7 @@ class StatusPanel {
                     },
                 } }, this.props.tsConfigPath.startsWith("/dev/null")
                 ? "No project"
-                : path_1.dirname(utils_1.getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
+                : path_1.dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
         }
         return null;
     }
@@ -135,4 +134,10 @@ class StatusPanel {
     }
 }
 exports.StatusPanel = StatusPanel;
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+function getFilePathRelativeToAtomProject(filePath) {
+    return "~" + atom.project.relativize(filePath);
+}
 //# sourceMappingURL=statusPanel.js.map
