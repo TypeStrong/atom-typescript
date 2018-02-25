@@ -11,6 +11,7 @@ import "./goToDeclaration"
 import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
+import "./semanticView"
 import {CommandRegistryListener} from "atom"
 
 export function registerCommands(deps: Dependencies) {

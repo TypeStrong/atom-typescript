@@ -19,6 +19,22 @@ function isTypescriptFile(filePath) {
     return ext === ".ts" || ext === ".tsx";
 }
 exports.isTypescriptFile = isTypescriptFile;
+function onDiskAndTs(editor) {
+    if (editor instanceof require("atom").TextEditor) {
+        const filePath = editor.getPath();
+        if (!filePath) {
+            return false;
+        }
+        const ext = path.extname(filePath);
+        if (isAllowedExtension(ext)) {
+            // if (fs.existsSync(filePath)) {
+            return true;
+            // }
+        }
+    }
+    return false;
+}
+exports.onDiskAndTs = onDiskAndTs;
 function isTypescriptGrammar(editor) {
     const [scopeName] = editor.getRootScopeDescriptor().getScopesArray();
     return scopeName === "source.ts" || scopeName === "source.tsx";

@@ -1,6 +1,7 @@
 import {PluginManager} from "./plugin-manager"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
+export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 
 let pluginManager: PluginManager | undefined
 

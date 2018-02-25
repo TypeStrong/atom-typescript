@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var semanticView_1 = require("./atom/views/outline/semanticView");
+exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 let pluginManager;
 async function activate() {
     const pns = atom.packages.getAvailablePackageNames();

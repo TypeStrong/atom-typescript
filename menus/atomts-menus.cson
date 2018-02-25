@@ -8,6 +8,7 @@
         { 'label': 'Build', 'command': 'typescript:build' }
         { 'label': 'Go To Declaration', 'command': 'typescript:go-to-declaration' }
         { 'label': 'Return From Declaration', 'command': 'typescript:return-from-declaration' }
+        { 'label': 'Toggle Semantic View', 'command': 'typescript:toggle-semantic-view' }
       ]
     ]
   }

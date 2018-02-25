@@ -12,6 +12,7 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {registerCommands} from "./atom/commands"
+import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 
 export class PluginManager {
   // components
@@ -35,6 +36,7 @@ export class PluginManager {
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
+    this.subscriptions.add(SemanticViewController.create())
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))

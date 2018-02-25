@@ -1,6 +1,6 @@
 import {commands} from "./registry"
 import {resolveBinary} from "../../../client/clientResolver"
-import {execFile} from "child_process"
+import {BufferedNodeProcess} from "atom"
 import {CommandEvent, TextEditorElement} from "atom"
 
 commands["atom-text-editor"]["typescript:initialize-config"] = () => ({
@@ -52,10 +52,16 @@ commands["atom-text-editor"]["typescript:initialize-config"] = () => ({
 function initConfig(tsc: string, projectRoot: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     try {
-      execFile(tsc, ["--init"], {cwd: projectRoot}, err => {
-        if (err) reject(err)
-        else resolve()
+      const bnp = new BufferedNodeProcess({
+        command: tsc,
+        args: ["--init"],
+        options: {cwd: projectRoot},
+        exit: code => {
+          if (code === 0) resolve()
+          else reject(new Error(`Tsc ended with nonzero exit code ${code}`))
+        },
       })
+      bnp.onWillThrowError(reject)
     } catch (e) {
       reject(e)
     }

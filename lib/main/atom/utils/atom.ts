@@ -21,6 +21,22 @@ export function isTypescriptFile(filePath: string): boolean {
   return ext === ".ts" || ext === ".tsx"
 }
 
+export function onDiskAndTs(editor: Atom.TextEditor) {
+  if (editor instanceof require("atom").TextEditor) {
+    const filePath = editor.getPath()
+    if (!filePath) {
+      return false
+    }
+    const ext = path.extname(filePath)
+    if (isAllowedExtension(ext)) {
+      // if (fs.existsSync(filePath)) {
+      return true
+      // }
+    }
+  }
+  return false
+}
+
 export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
   return scopeName === "source.ts" || scopeName === "source.tsx"

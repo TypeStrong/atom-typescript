@@ -12,6 +12,7 @@ const statusPanel_1 = require("./atom/components/statusPanel");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
 const typescriptBuffer_1 = require("./typescriptBuffer");
 const commands_1 = require("./atom/commands");
+const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 class PluginManager {
     constructor() {
         this.panes = []; // TODO: do we need it?
@@ -49,6 +50,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
         this.subscriptions.add(this.errorPusher);
+        this.subscriptions.add(semanticViewController_1.SemanticViewController.create());
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
         let activePane;

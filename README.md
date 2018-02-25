@@ -54,6 +54,7 @@ Atom-TypeScript relies on some external packages for providing some of its GUI. 
 * `package.json` Support
 * Goto Declaration
 * Find References
+* Semantic view
 * Block comment and uncomment
 * Rename refactoring
 * Common Snippets
@@ -86,6 +87,11 @@ Shortcut : `F12`. Will open the *first* declaration of the said item for now. (N
 
 ## Find References
 Shortcut `shift+F12`. Also called *find usages*.
+
+## Semantic View
+A bird's eye view of the current file. Use command `toggle semantic view`. The view updates while you edit the code. You can also click to jump to any portion of the file.
+
+![](https://raw.githubusercontent.com/TypeStrong/atom-typescript-examples/master/screens/semanticView.png)
 
 ## Refactoring
 
