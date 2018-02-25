@@ -24,25 +24,10 @@ class SemanticViewController {
                 this.hide();
         }));
     }
-    static create(clientResolver) {
-        if (!SemanticViewController.instance) {
-            SemanticViewController.instance = new SemanticViewController(clientResolver);
-        }
-        return SemanticViewController.instance;
-    }
-    static async toggle() {
-        if (SemanticViewController.instance) {
-            return SemanticViewController.instance.toggleImpl();
-        }
-        else {
-            throw new Error("cannot toggle: SemanticViewController not initialized");
-        }
-    }
     dispose() {
         this.subscriptions.dispose();
-        SemanticViewController.instance = null;
     }
-    async toggleImpl() {
+    async toggle() {
         if (!this.view)
             await this.show();
         else
@@ -62,6 +47,5 @@ class SemanticViewController {
             return atom.workspace.hide(this.view);
     }
 }
-SemanticViewController.instance = null;
 exports.SemanticViewController = SemanticViewController;
 //# sourceMappingURL=semanticViewController.js.map

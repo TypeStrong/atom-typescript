@@ -21,6 +21,7 @@ export class PluginManager {
   private statusPanel: StatusPanel
   private errorPusher: ErrorPusher
   private codefixProvider: CodefixProvider
+  private semanticViewController: SemanticViewController
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
 
   public constructor() {
@@ -33,10 +34,11 @@ export class PluginManager {
       this.errorPusher,
       this.getTypescriptBuffer,
     )
+    this.semanticViewController = new SemanticViewController(this.clientResolver)
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
-    this.subscriptions.add(SemanticViewController.create(this.clientResolver))
+    this.subscriptions.add(this.semanticViewController)
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))
@@ -191,4 +193,6 @@ export class PluginManager {
       isOpen: false,
     }
   }
+
+  public getSemanticViewController = () => this.semanticViewController
 }

@@ -2,12 +2,14 @@ import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {TypescriptBuffer} from "../../typescriptBuffer"
+import {SemanticViewController} from "../views/outline/semanticViewController"
 
 export interface Dependencies {
   getTypescriptBuffer: GetTypescriptBuffer
   clearErrors(): void
   getClient(filePath: string): Promise<TypescriptServiceClient>
   getStatusPanel(): StatusPanel
+  getSemanticViewController(): SemanticViewController
 }
 
 export type GetTypescriptBuffer = (

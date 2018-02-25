@@ -42,15 +42,17 @@ class PluginManager {
                 isOpen: false,
             };
         };
+        this.getSemanticViewController = () => this.semanticViewController;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new clientResolver_1.ClientResolver();
         this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.getTypescriptBuffer);
+        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.clientResolver);
         this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
         this.subscriptions.add(this.errorPusher);
-        this.subscriptions.add(semanticViewController_1.SemanticViewController.create(this.clientResolver));
+        this.subscriptions.add(this.semanticViewController);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
         let activePane;

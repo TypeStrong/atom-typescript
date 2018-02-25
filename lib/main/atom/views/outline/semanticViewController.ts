@@ -4,24 +4,10 @@ import {Disposable} from "atom"
 import {ClientResolver} from "../../../../client/clientResolver"
 
 export class SemanticViewController {
-  public static create(clientResolver: ClientResolver) {
-    if (!SemanticViewController.instance) {
-      SemanticViewController.instance = new SemanticViewController(clientResolver)
-    }
-    return SemanticViewController.instance
-  }
-  public static async toggle(): Promise<void> {
-    if (SemanticViewController.instance) {
-      return SemanticViewController.instance.toggleImpl()
-    } else {
-      throw new Error("cannot toggle: SemanticViewController not initialized")
-    }
-  }
-  private static instance: SemanticViewController | null = null
-  public view?: SemanticView
+  private view?: SemanticView
   private subscriptions: CompositeDisposable
 
-  private constructor(private clientResolver: ClientResolver) {
+  constructor(private clientResolver: ClientResolver) {
     this.subscriptions = new CompositeDisposable()
 
     const pane = atom.workspace.paneForURI(SEMANTIC_VIEW_URI)
@@ -44,10 +30,9 @@ export class SemanticViewController {
 
   public dispose() {
     this.subscriptions.dispose()
-    SemanticViewController.instance = null
   }
 
-  private async toggleImpl(): Promise<void> {
+  public async toggle(): Promise<void> {
     if (!this.view) await this.show()
     else await atom.workspace.toggle(this.view)
   }
