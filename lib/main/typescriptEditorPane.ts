@@ -5,7 +5,7 @@ import {spanToRange, isTypescriptGrammar, getProjectCodeSettings} from "./atom/u
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptServiceClient} from "../client/client"
-import * as tooltipManager from "./atom/tooltipManager"
+import {TooltipManager} from "./atom/tooltipManager"
 
 interface PaneOptions {
   getClient: (filePath: string) => Promise<TypescriptServiceClient>
@@ -28,27 +28,25 @@ export class TypescriptEditorPane implements Atom.Disposable {
   public filePath: string | undefined
   public isTypescript = false
   public readonly buffer: TypescriptBuffer
-  public readonly editor: Atom.TextEditor
 
   // Path to the project's tsconfig.json
   private configFile: string = ""
   private isActive = false
-  private opts: PaneOptions
   private isOpen = false
 
   private readonly occurrenceMarkers: Atom.DisplayMarker[] = []
   private readonly subscriptions = new CompositeDisposable()
 
-  constructor(editor: Atom.TextEditor, opts: PaneOptions) {
+  constructor(public readonly editor: Atom.TextEditor, private opts: PaneOptions) {
     this.updateMarkers = debounce(this.updateMarkers.bind(this), 100)
-    this.editor = editor
     this.filePath = editor.getPath()
-    this.opts = opts
     this.buffer = TypescriptBuffer.create(editor.buffer, opts.getClient)
-      .on("changed", this.onChanged)
-      .on("closed", this.opts.onClose)
-      .on("opened", this.onOpened)
-      .on("saved", this.onSaved)
+    this.subscriptions.add(
+      this.buffer.events.on("changed", this.onChanged),
+      this.buffer.events.on("closed", this.opts.onClose),
+      this.buffer.events.on("opened", this.onOpened),
+      this.buffer.events.on("saved", this.onSaved),
+    )
 
     this.isTypescript = isTypescriptGrammar(editor)
 
@@ -61,12 +59,11 @@ export class TypescriptEditorPane implements Atom.Disposable {
       editor.onDidChangeGrammar(() => {
         this.isTypescript = isTypescriptGrammar(editor)
       }),
+      this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition),
+      this.editor.onDidDestroy(this.onDidDestroy),
     )
 
-    this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition))
-    this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy))
-
-    tooltipManager.attach(this.editor, this.opts.getClient)
+    this.subscriptions.add(new TooltipManager(this.editor, opts.getClient))
   }
 
   public dispose() {

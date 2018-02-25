@@ -2,7 +2,6 @@
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 import * as Atom from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
-import {EventEmitter} from "events"
 import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
@@ -16,6 +15,18 @@ export class TypescriptBuffer {
     }
   }
   private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
+
+  public readonly events = new Atom.Emitter<
+    {
+      saved: void
+      opened: void
+      changed: void
+    },
+    {
+      closed: string
+    }
+  >()
+
   // Timestamps for buffer events
   private changedAt: number = 0
   private changedAtBatch: number = 0
@@ -25,20 +36,19 @@ export class TypescriptBuffer {
 
   // Flag that signifies if tsserver has an open view of this file
   private isOpen: boolean
-
-  private events = new EventEmitter()
   private subscriptions = new Atom.CompositeDisposable()
-  private filePath: string | undefined
 
   private constructor(
     public buffer: Atom.TextBuffer,
     public getClient: (filePath: string) => Promise<Client>,
   ) {
-    this.subscriptions.add(buffer.onDidChange(this.onDidChange))
-    this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath))
-    this.subscriptions.add(buffer.onDidDestroy(this.dispose))
-    this.subscriptions.add(buffer.onDidSave(this.onDidSave))
-    this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging))
+    this.subscriptions.add(
+      buffer.onDidChange(this.onDidChange),
+      buffer.onDidChangePath(this.onDidChangePath),
+      buffer.onDidDestroy(this.dispose),
+      buffer.onDidSave(this.onDidSave),
+      buffer.onDidStopChanging(this.onDidStopChanging),
+    )
 
     this.open()
   }
@@ -56,28 +66,18 @@ export class TypescriptBuffer {
     }
   }
 
-  // saved after waiting for any pending changes
-  // the file is opened
-  // or tsserver view of the file has changed
-  public on(name: "saved" | "opened" | "changed", callback: () => void): this
-  public on(name: "closed", callback: (filePath: string) => void): this
-  public on(name: string, callback: (() => void) | ((filePath: string) => void)): this {
-    this.events.on(name, callback)
-    return this
-  }
-
   private async open() {
-    this.filePath = this.buffer.getPath()
+    const filePath = this.buffer.getPath()
 
-    if (this.filePath && isTypescriptFile(this.filePath)) {
+    if (filePath && isTypescriptFile(filePath)) {
       // Set isOpen before we actually open the file to enqueue any changed events
       this.isOpen = true
 
-      this.clientPromise = this.getClient(this.filePath)
+      this.clientPromise = this.getClient(filePath)
       const client = await this.clientPromise
 
       await client.executeOpen({
-        file: this.filePath,
+        file: filePath,
         fileContent: this.buffer.getText(),
       })
 
@@ -93,8 +93,8 @@ export class TypescriptBuffer {
       const file = this.buffer.getPath()
       if (file) {
         client.executeClose({file})
+        this.events.emit("closed", file)
       }
-      this.events.emit("closed", this.filePath)
     }
   }
 
@@ -103,10 +103,11 @@ export class TypescriptBuffer {
   }
 
   private onDidChangePath = async () => {
-    if (this.clientPromise && this.filePath) {
+    const filePath = this.buffer.getPath()
+    if (this.clientPromise && filePath) {
       const client = await this.clientPromise
-      client.executeClose({file: this.filePath})
-      this.events.emit("closed", this.filePath)
+      client.executeClose({file: filePath})
+      this.events.emit("closed", filePath)
     }
 
     this.open()
@@ -116,7 +117,7 @@ export class TypescriptBuffer {
     // Check if there isn't a onDidStopChanging event pending.
     const {changedAt, changedAtBatch} = this
     if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
-      await new Promise(resolve => this.events.once("changed", resolve))
+      await new Promise<void>(resolve => this.events.once("changed", resolve))
     }
 
     this.events.emit("saved")

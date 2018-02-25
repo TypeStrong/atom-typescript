@@ -4,9 +4,11 @@ const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
-const tooltipManager = require("./atom/tooltipManager");
+const tooltipManager_1 = require("./atom/tooltipManager");
 class TypescriptEditorPane {
     constructor(editor, opts) {
+        this.editor = editor;
+        this.opts = opts;
         this.isTypescript = false;
         // Path to the project's tsconfig.json
         this.configFile = "";
@@ -102,14 +104,9 @@ class TypescriptEditorPane {
             this.compileOnSave();
         };
         this.updateMarkers = lodash_1.debounce(this.updateMarkers.bind(this), 100);
-        this.editor = editor;
         this.filePath = editor.getPath();
-        this.opts = opts;
-        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.buffer, opts.getClient)
-            .on("changed", this.onChanged)
-            .on("closed", this.opts.onClose)
-            .on("opened", this.onOpened)
-            .on("saved", this.onSaved);
+        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.buffer, opts.getClient);
+        this.subscriptions.add(this.buffer.events.on("changed", this.onChanged), this.buffer.events.on("closed", this.opts.onClose), this.buffer.events.on("opened", this.onOpened), this.buffer.events.on("saved", this.onSaved));
         this.isTypescript = utils_1.isTypescriptGrammar(editor);
         // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
         if (this.isTypescript) {
@@ -117,10 +114,8 @@ class TypescriptEditorPane {
         }
         this.subscriptions.add(editor.onDidChangeGrammar(() => {
             this.isTypescript = utils_1.isTypescriptGrammar(editor);
-        }));
-        this.subscriptions.add(this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition));
-        this.subscriptions.add(this.editor.onDidDestroy(this.onDidDestroy));
-        tooltipManager.attach(this.editor, this.opts.getClient);
+        }), this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition), this.editor.onDidDestroy(this.onDidDestroy));
+        this.subscriptions.add(new tooltipManager_1.TooltipManager(this.editor, opts.getClient));
     }
     dispose() {
         atom.views.getView(this.editor).classList.remove("typescript-editor");

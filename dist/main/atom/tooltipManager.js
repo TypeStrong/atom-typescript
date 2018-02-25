@@ -20,75 +20,84 @@ function bufferPositionFromMouseEvent(editor, event) {
     }
     return editor.bufferPositionForScreenPosition(sp);
 }
-exports.bufferPositionFromMouseEvent = bufferPositionFromMouseEvent;
 async function showExpressionAt(editor, pt) {
     const ed = tooltipMap.get(editor);
     if (ed) {
-        return ed(pt);
+        return ed.showExpressionTypeKbd(pt);
     }
 }
 exports.showExpressionAt = showExpressionAt;
-function attach(editor, getClient) {
-    const rawView = atom.views.getView(editor);
-    // Only on ".ts" files
-    const filePath = editor.getPath();
-    if (!filePath)
-        return;
-    if (!atomUtils.isTypescriptEditorWithPath(editor))
-        return;
-    // We only create a "program" once the file is persisted to disk
-    if (!fs.existsSync(filePath))
-        return;
-    const clientPromise = getClient(filePath);
-    const subscriber = new Atom.CompositeDisposable();
-    let exprTypeTimeout;
-    let exprTypeTooltip;
-    // to debounce mousemove event's firing for some reason on some machines
-    let lastExprTypeBufferPt;
-    subscriber.add(element_listener_1.listen(rawView, "mousemove", ".scroll-view", (e) => {
-        const bufferPt = bufferPositionFromMouseEvent(editor, e);
-        if (!bufferPt)
-            return;
-        if (lastExprTypeBufferPt && lastExprTypeBufferPt.isEqual(bufferPt) && exprTypeTooltip) {
-            return;
-        }
-        lastExprTypeBufferPt = bufferPt;
-        clearExprTypeTimeout();
-        exprTypeTimeout = window.setTimeout(() => showExpressionType(e), 100);
-    }));
-    subscriber.add(element_listener_1.listen(rawView, "mouseout", ".scroll-view", () => clearExprTypeTimeout()));
-    subscriber.add(element_listener_1.listen(rawView, "keydown", ".scroll-view", () => clearExprTypeTimeout()));
-    // Setup for clearing
-    editor.onDidDestroy(() => deactivate());
-    tooltipMap.set(editor, showExpressionTypeKbd);
-    const lines = rawView.querySelector(".lines");
-    function mousePositionForPixelPosition(p) {
-        const linesRect = lines.getBoundingClientRect();
+class TooltipManager {
+    constructor(editor, getClient) {
+        this.editor = editor;
+        this.getClient = getClient;
+        this.subscriptions = new Atom.CompositeDisposable();
+        this.reinitialize = () => {
+            this.clientPromise = undefined;
+            // Only on ".ts" files
+            const filePath = this.editor.getPath();
+            if (!filePath)
+                return;
+            if (!atomUtils.isTypescriptEditorWithPath(this.editor))
+                return;
+            // We only create a "program" once the file is persisted to disk
+            if (!fs.existsSync(filePath))
+                return;
+            this.clientPromise = this.getClient(filePath);
+        };
+        this.trackMouseMovement = (e) => {
+            const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
+            if (!bufferPt)
+                return;
+            if (this.lastExprTypeBufferPt &&
+                this.lastExprTypeBufferPt.isEqual(bufferPt) &&
+                this.exprTypeTooltip) {
+                return;
+            }
+            this.lastExprTypeBufferPt = bufferPt;
+            this.clearExprTypeTimeout();
+            this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(e), 100);
+        };
+        this.rawView = atom.views.getView(editor);
+        this.lines = this.rawView.querySelector(".lines");
+        tooltipMap.set(editor, this);
+        this.subscriptions.add(element_listener_1.listen(this.rawView, "mousemove", ".scroll-view", this.trackMouseMovement), element_listener_1.listen(this.rawView, "mouseout", ".scroll-view", () => this.clearExprTypeTimeout()), element_listener_1.listen(this.rawView, "keydown", ".scroll-view", () => this.clearExprTypeTimeout()));
+        this.subscriptions.add(this.editor.onDidChangePath(this.reinitialize));
+        this.reinitialize();
+    }
+    dispose() {
+        this.subscriptions.dispose();
+        this.clearExprTypeTimeout();
+    }
+    async showExpressionTypeKbd(pt) {
+        const view = atom.views.getView(this.editor);
+        const px = view.pixelPositionForBufferPosition(pt);
+        return this.showExpressionType(this.mousePositionForPixelPosition(px));
+    }
+    mousePositionForPixelPosition(p) {
+        const linesRect = this.lines.getBoundingClientRect();
         return {
-            clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
+            clientY: p.top + linesRect.top + this.editor.getLineHeightInPixels() / 2,
             clientX: p.left + linesRect.left,
         };
     }
-    async function showExpressionTypeKbd(pt) {
-        const view = atom.views.getView(editor);
-        const px = view.pixelPositionForBufferPosition(pt);
-        return showExpressionType(mousePositionForPixelPosition(px));
-    }
-    async function showExpressionType(e) {
+    async showExpressionType(e) {
+        if (!this.clientPromise)
+            return;
         // If we are already showing we should wait for that to clear
-        if (exprTypeTooltip) {
+        if (this.exprTypeTooltip) {
             return;
         }
-        const bufferPt = bufferPositionFromMouseEvent(editor, e);
+        const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
         if (!bufferPt)
             return;
-        const curCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column]));
-        const nextCharPixelPt = rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]));
+        const curCharPixelPt = this.rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column]));
+        const nextCharPixelPt = this.rawView.pixelPositionForBufferPosition(Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]));
         if (curCharPixelPt.left >= nextCharPixelPt.left) {
             return;
         }
         // find out show position
-        const offset = editor.getLineHeightInPixels() * 0.7;
+        const offset = this.editor.getLineHeightInPixels() * 0.7;
         const tooltipRect = {
             left: e.clientX,
             right: e.clientX,
@@ -96,7 +105,8 @@ function attach(editor, getClient) {
             bottom: e.clientY + offset,
         };
         let result;
-        const client = await clientPromise;
+        const client = await this.clientPromise;
+        const filePath = this.editor.getPath();
         try {
             if (!filePath) {
                 return;
@@ -116,31 +126,27 @@ function attach(editor, getClient) {
             message =
                 message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
         }
-        if (!exprTypeTooltip) {
-            exprTypeTooltip = new tooltipView_1.TooltipView();
-            document.body.appendChild(exprTypeTooltip.refs.main);
-            exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
+        if (!this.exprTypeTooltip) {
+            this.exprTypeTooltip = new tooltipView_1.TooltipView();
+            document.body.appendChild(this.exprTypeTooltip.element);
+            this.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
         }
-    }
-    function deactivate() {
-        subscriber.dispose();
-        clearExprTypeTimeout();
     }
     /** clears the timeout && the tooltip */
-    function clearExprTypeTimeout() {
-        if (exprTypeTimeout) {
-            clearTimeout(exprTypeTimeout);
-            exprTypeTimeout = undefined;
+    clearExprTypeTimeout() {
+        if (this.exprTypeTimeout) {
+            clearTimeout(this.exprTypeTimeout);
+            this.exprTypeTimeout = undefined;
         }
-        hideExpressionType();
+        this.hideExpressionType();
     }
-    function hideExpressionType() {
-        if (!exprTypeTooltip) {
+    hideExpressionType() {
+        if (!this.exprTypeTooltip) {
             return;
         }
-        exprTypeTooltip.destroy();
-        exprTypeTooltip = undefined;
+        this.exprTypeTooltip.destroy();
+        this.exprTypeTooltip = undefined;
     }
 }
-exports.attach = attach;
+exports.TooltipManager = TooltipManager;
 //# sourceMappingURL=tooltipManager.js.map

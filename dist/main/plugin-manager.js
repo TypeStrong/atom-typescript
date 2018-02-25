@@ -38,7 +38,7 @@ class PluginManager {
             // Wait for the buffer to load before resolving the promise
             const buffer = await Atom.TextBuffer.load(filePath);
             return {
-                buffer: typescriptBuffer_1.TypescriptBuffer.construct(buffer, fp => this.clientResolver.get(fp)),
+                buffer: typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp)),
                 isOpen: false,
             };
         };
