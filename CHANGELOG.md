@@ -1,3 +1,8 @@
+## 12.2.0
+
+-   Merge pull request #1402 "Center cursor after open in goToDeclaration" by Kai Curtis
+-   Merge pull request #1280 "Re-adding semantic view" by russaa
+
 ## 12.1.2
 
 -   Use BufferedNodeProcess to spawn tsc (fixes 'init tsconfig' on
