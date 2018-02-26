@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const clientResolver_1 = require("../../../client/clientResolver");
-const child_process_1 = require("child_process");
+const atom_1 = require("atom");
 registry_1.commands.set("typescript:initialize-config", () => {
     return async (ev) => {
         try {
@@ -47,12 +47,18 @@ registry_1.commands.set("typescript:initialize-config", () => {
 function initConfig(tsc, projectRoot) {
     return new Promise((resolve, reject) => {
         try {
-            child_process_1.execFile(tsc, ["--init"], { cwd: projectRoot }, err => {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
+            const bnp = new atom_1.BufferedNodeProcess({
+                command: tsc,
+                args: ["--init"],
+                options: { cwd: projectRoot },
+                exit: code => {
+                    if (code === 0)
+                        resolve();
+                    else
+                        reject(new Error(`Tsc ended with nonzero exit code ${code}`));
+                },
             });
+            bnp.onWillThrowError(reject);
         }
         catch (e) {
             reject(e);

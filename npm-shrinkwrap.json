@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "12.1.1",
+  "version": "12.2.0",
   "dependencies": {
     "@types/strip-bom": {
       "version": "3.0.0",
