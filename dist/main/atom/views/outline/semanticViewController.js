@@ -4,8 +4,14 @@ const atom_1 = require("atom");
 const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
 class SemanticViewController {
-    constructor() {
+    constructor(clientResolver) {
+        this.clientResolver = clientResolver;
         this.subscriptions = new atom_1.CompositeDisposable();
+        const pane = atom.workspace.paneForURI(semanticView_1.SEMANTIC_VIEW_URI);
+        if (pane)
+            this.view = pane.itemForURI(semanticView_1.SEMANTIC_VIEW_URI);
+        if (this.view)
+            this.view.setClientResolver(this.clientResolver);
         this.subscriptions.add(new atom_2.Disposable(() => {
             if (this.view) {
                 atom.workspace.hide(this.view);
@@ -18,32 +24,20 @@ class SemanticViewController {
                 this.hide();
         }));
     }
-    static create() {
-        if (!SemanticViewController.instance) {
-            SemanticViewController.instance = new SemanticViewController();
-        }
-        return SemanticViewController.instance;
-    }
     dispose() {
         this.subscriptions.dispose();
     }
-    static async toggle() {
-        if (SemanticViewController.instance) {
-            return SemanticViewController.instance.toggleImpl();
-        }
-        else {
-            throw new Error("cannot toggle: SemanticViewController not initialized");
-        }
-    }
-    async toggleImpl() {
+    async toggle() {
         if (!this.view)
             await this.show();
         else
             await atom.workspace.toggle(this.view);
     }
     async show() {
-        if (!this.view)
+        if (!this.view) {
             this.view = semanticView_1.SemanticView.create({ navTree: null });
+            this.view.setClientResolver(this.clientResolver);
+        }
         await atom.workspace.open(this.view, { searchAllPanes: true });
     }
     hide() {
@@ -52,13 +46,6 @@ class SemanticViewController {
         else
             return atom.workspace.hide(this.view);
     }
-    setView(view) {
-        if (this.view) {
-            this.view.destroy();
-        }
-        this.view = view;
-    }
 }
-SemanticViewController.instance = null;
 exports.SemanticViewController = SemanticViewController;
 //# sourceMappingURL=semanticViewController.js.map

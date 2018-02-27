@@ -9,9 +9,7 @@ interface Props extends JSX.Props {
 }
 
 export class TooltipView implements JSX.ElementClass {
-  public refs: {
-    main: HTMLDivElement
-  }
+  public readonly element: HTMLDivElement
   public props: Props
 
   constructor() {
@@ -42,9 +40,9 @@ export class TooltipView implements JSX.ElementClass {
     let whiteSpace = ""
 
     const clientWidth = document.body.clientWidth
-    const offsetWidth = this.refs.main.offsetWidth
+    const offsetWidth = this.element.offsetWidth
     const clientHeight = document.body.clientHeight
-    const offsetHeight = this.refs.main.offsetHeight
+    const offsetHeight = this.element.offsetHeight
 
     // X axis adjust
     if (left + offsetWidth >= clientWidth) {
@@ -61,15 +59,15 @@ export class TooltipView implements JSX.ElementClass {
       top = this.props.top - offsetHeight
     }
 
-    this.refs.main.style.left = `${left}px`
-    this.refs.main.style.top = `${top}px`
-    if (right !== false) this.refs.main.style.right = `${right}px`
-    if (whiteSpace) this.refs.main.style.whiteSpace = whiteSpace
+    this.element.style.left = `${left}px`
+    this.element.style.top = `${top}px`
+    if (right !== false) this.element.style.right = `${right}px`
+    if (whiteSpace) this.element.style.whiteSpace = whiteSpace
   }
 
   public render() {
     return (
-      <div ref="main" class="atom-typescript-tooltip tooltip">
+      <div class="atom-typescript-tooltip tooltip">
         <div class="tooltip-inner" innerHTML={this.props.text || ""} />
       </div>
     )

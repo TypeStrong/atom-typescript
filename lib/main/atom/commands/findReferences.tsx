@@ -1,16 +1,17 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {TsView} from "../components/tsView"
 
-commands.set("typescript:find-references", deps => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:find-references", deps => ({
+  description: "Find where symbol under text cursor is referenced",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const location = getFilePathPosition()
+    const location = getFilePathPosition(e.currentTarget.getModel())
     if (!location) {
       e.abortKeyBinding()
       return
@@ -37,5 +38,5 @@ commands.set("typescript:find-references", deps => {
         initialColumn: res.start.offset - 1,
       })
     }
-  }
-})
+  },
+}))

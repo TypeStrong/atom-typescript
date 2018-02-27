@@ -1,19 +1,21 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {
   CodeEdit,
   commandForTypeScript,
-  formatCode,
   LocationRangeQuery,
   rangeToLocationRange,
+  spanToRange,
 } from "../utils"
+import {TextEditor} from "atom"
 
-commands.set("typescript:format-code", deps => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:format-code", deps => ({
+  description: "Format code in currently active text editor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const editor = atom.workspace.getActiveTextEditor()
+    const editor = e.currentTarget.getModel()
     if (!editor) {
       e.abortKeyBinding()
       return
@@ -58,5 +60,12 @@ commands.set("typescript:format-code", deps => {
         formatCode(editor, edits)
       })
     }
+  },
+}))
+
+function formatCode(editor: TextEditor, edits: CodeEdit[]) {
+  // The code edits need to be applied in reverse order
+  for (let i = edits.length - 1; i >= 0; i--) {
+    editor.setTextInBufferRange(spanToRange(edits[i]), edits[i].newText)
   }
-})
+}

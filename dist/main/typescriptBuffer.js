@@ -3,16 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 const Atom = require("atom");
-const events_1 = require("events");
 const utils_1 = require("./atom/utils");
 class TypescriptBuffer {
     constructor(buffer, getClient) {
         this.buffer = buffer;
         this.getClient = getClient;
+        this.events = new Atom.Emitter();
         // Timestamps for buffer events
         this.changedAt = 0;
         this.changedAtBatch = 0;
-        this.events = new events_1.EventEmitter();
         this.subscriptions = new Atom.CompositeDisposable();
         this.dispose = async () => {
             this.subscriptions.dispose();
@@ -21,18 +20,19 @@ class TypescriptBuffer {
                 const file = this.buffer.getPath();
                 if (file) {
                     client.executeClose({ file });
+                    this.events.emit("closed", file);
                 }
-                this.events.emit("closed", this.filePath);
             }
         };
         this.onDidChange = () => {
             this.changedAt = Date.now();
         };
         this.onDidChangePath = async () => {
-            if (this.clientPromise && this.filePath) {
+            const filePath = this.buffer.getPath();
+            if (this.clientPromise && filePath) {
                 const client = await this.clientPromise;
-                client.executeClose({ file: this.filePath });
-                this.events.emit("closed", this.filePath);
+                client.executeClose({ file: filePath });
+                this.events.emit("closed", filePath);
             }
             this.open();
         };
@@ -65,14 +65,10 @@ class TypescriptBuffer {
             }
             this.events.emit("changed");
         };
-        this.subscriptions.add(buffer.onDidChange(this.onDidChange));
-        this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath));
-        this.subscriptions.add(buffer.onDidDestroy(this.dispose));
-        this.subscriptions.add(buffer.onDidSave(this.onDidSave));
-        this.subscriptions.add(buffer.onDidStopChanging(this.onDidStopChanging));
+        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(this.onDidSave), buffer.onDidStopChanging(this.onDidStopChanging));
         this.open();
     }
-    static construct(buffer, getClient) {
+    static create(buffer, getClient) {
         const b = TypescriptBuffer.bufferMap.get(buffer);
         if (b)
             return b;
@@ -82,19 +78,8 @@ class TypescriptBuffer {
             return nb;
         }
     }
-    async open() {
-        this.filePath = this.buffer.getPath();
-        if (this.filePath && utils_1.isTypescriptFile(this.filePath)) {
-            // Set isOpen before we actually open the file to enqueue any changed events
-            this.isOpen = true;
-            this.clientPromise = this.getClient(this.filePath);
-            const client = await this.clientPromise;
-            await client.executeOpen({
-                file: this.filePath,
-                fileContent: this.buffer.getText(),
-            });
-            this.events.emit("opened");
-        }
+    getPath() {
+        return this.buffer.getPath();
     }
     // If there are any pending changes, flush them out to the Typescript server
     async flush() {
@@ -108,9 +93,19 @@ class TypescriptBuffer {
             });
         }
     }
-    on(name, callback) {
-        this.events.on(name, callback);
-        return this;
+    async open() {
+        const filePath = this.buffer.getPath();
+        if (filePath && utils_1.isTypescriptFile(filePath)) {
+            // Set isOpen before we actually open the file to enqueue any changed events
+            this.isOpen = true;
+            this.clientPromise = this.getClient(filePath);
+            const client = await this.clientPromise;
+            await client.executeOpen({
+                file: filePath,
+                fileContent: this.buffer.getText(),
+            });
+            this.events.emit("opened");
+        }
     }
 }
 TypescriptBuffer.bufferMap = new WeakMap();

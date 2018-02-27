@@ -3,15 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const clientResolver_1 = require("../../../client/clientResolver");
 const atom_1 = require("atom");
-registry_1.commands.set("typescript:initialize-config", () => {
-    return async (ev) => {
+registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => ({
+    description: "Create tsconfig.json in the project related to currently-active text edtior",
+    async didDispatch(e) {
         try {
+            const editor = e.currentTarget.getModel();
             const projectDirs = atom.project.getDirectories();
             if (projectDirs.length === 0)
                 throw new Error("ENOPROJECT");
-            const editor = atom.workspace.getActiveTextEditor();
-            if (!editor)
-                throw new Error("ENOEDITOR");
             const currentPath = editor.getPath();
             if (!currentPath)
                 throw new Error("ENOPATH");
@@ -26,8 +25,7 @@ registry_1.commands.set("typescript:initialize-config", () => {
         catch (e) {
             switch (e.message) {
                 case "ENOPROJECT":
-                case "ENOEDITOR":
-                    ev.abortKeyBinding();
+                    e.abortKeyBinding();
                     return;
                 case "ENOPATH":
                     atom.notifications.addWarning("Current editor has no file path. Can not determine which project to initialize", {
@@ -42,8 +40,8 @@ registry_1.commands.set("typescript:initialize-config", () => {
                     });
             }
         }
-    };
-});
+    },
+}));
 function initConfig(tsc, projectRoot) {
     return new Promise((resolve, reject) => {
         try {

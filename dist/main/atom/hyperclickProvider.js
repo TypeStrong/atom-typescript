@@ -7,7 +7,7 @@ function getHyperclickProvider(clientResolver) {
         providerName: "typescript-hyperclick-provider",
         wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
         getSuggestionForWord(editor, _text, range) {
-            if (!utils_1.isTypescriptGrammar(editor)) {
+            if (!utils_1.isTypescriptEditorWithPath(editor)) {
                 return null;
             }
             const filePath = editor.getPath();

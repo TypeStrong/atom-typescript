@@ -29,7 +29,7 @@ export class CodeActionsProvider implements CodeActionProvider {
 
   constructor(private codefixProvider: CodefixProvider) {}
 
-  async getCodeActions(
+  public async getCodeActions(
     textEditor: Atom.TextEditor,
     range: Atom.Range,
     _diagnostics: Message[],

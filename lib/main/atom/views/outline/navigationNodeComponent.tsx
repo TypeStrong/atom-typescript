@@ -12,21 +12,6 @@ export class NavigationNodeComponent implements JSX.ElementClass {
     etch.initialize(this)
   }
 
-  private getStyles(): string {
-    const {kind} = this.props.navTree
-    let styles = `icon icon-${kind}`
-    const {kindModifiers} = this.props.navTree
-    if (kindModifiers) {
-      styles +=
-        " " +
-        kindModifiers
-          .split(/[, ]/)
-          .map(modifier => `modifier-${modifier.trim()}`)
-          .join(" ")
-    }
-    return styles
-  }
-
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
     await etch.update(this)
@@ -36,10 +21,11 @@ export class NavigationNodeComponent implements JSX.ElementClass {
     await etch.destroy(this)
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     const node = this.props.navTree
     const {ctrl} = this.props
-    const selected = ctrl.selectedNode && isSameNode(node, ctrl.selectedNode)
+    const selectedNode = ctrl.getSelectedNode()
+    const selected = selectedNode && isSameNode(node, selectedNode)
     const classes =
       (node.childItems ? "nested-" : "") +
       "item" +
@@ -59,6 +45,21 @@ export class NavigationNodeComponent implements JSX.ElementClass {
         </ol>
       </li>
     )
+  }
+
+  private getStyles(): string {
+    const {kind} = this.props.navTree
+    let styles = `icon icon-${kind}`
+    const {kindModifiers} = this.props.navTree
+    if (kindModifiers) {
+      styles +=
+        " " +
+        kindModifiers
+          .split(/[, ]/)
+          .map(modifier => `modifier-${modifier.trim()}`)
+          .join(" ")
+    }
+    return styles
   }
 
   private entryClicked(event: MouseEvent, node: NavigationTreeViewModel): void {

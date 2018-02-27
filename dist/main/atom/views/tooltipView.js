@@ -25,9 +25,9 @@ class TooltipView {
         let right = false;
         let whiteSpace = "";
         const clientWidth = document.body.clientWidth;
-        const offsetWidth = this.refs.main.offsetWidth;
+        const offsetWidth = this.element.offsetWidth;
         const clientHeight = document.body.clientHeight;
-        const offsetHeight = this.refs.main.offsetHeight;
+        const offsetHeight = this.element.offsetHeight;
         // X axis adjust
         if (left + offsetWidth >= clientWidth) {
             left = clientWidth - offsetWidth - offset;
@@ -41,15 +41,15 @@ class TooltipView {
         if (top + offsetHeight >= clientHeight) {
             top = this.props.top - offsetHeight;
         }
-        this.refs.main.style.left = `${left}px`;
-        this.refs.main.style.top = `${top}px`;
+        this.element.style.left = `${left}px`;
+        this.element.style.top = `${top}px`;
         if (right !== false)
-            this.refs.main.style.right = `${right}px`;
+            this.element.style.right = `${right}px`;
         if (whiteSpace)
-            this.refs.main.style.whiteSpace = whiteSpace;
+            this.element.style.whiteSpace = whiteSpace;
     }
     render() {
-        return (etch.dom("div", { ref: "main", class: "atom-typescript-tooltip tooltip" },
+        return (etch.dom("div", { class: "atom-typescript-tooltip tooltip" },
             etch.dom("div", { class: "tooltip-inner", innerHTML: this.props.text || "" })));
     }
 }

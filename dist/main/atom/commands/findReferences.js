@@ -5,12 +5,13 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const tsView_1 = require("../components/tsView");
-registry_1.commands.set("typescript:find-references", deps => {
-    return async (e) => {
+registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
+    description: "Find where symbol under text cursor is referenced",
+    async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const location = utils_1.getFilePathPosition();
+        const location = utils_1.getFilePathPosition(e.currentTarget.getModel());
         if (!location) {
             e.abortKeyBinding();
             return;
@@ -35,6 +36,6 @@ registry_1.commands.set("typescript:find-references", deps => {
                 initialColumn: res.start.offset - 1,
             });
         }
-    };
-});
+    },
+}));
 //# sourceMappingURL=findReferences.js.map

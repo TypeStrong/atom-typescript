@@ -20,11 +20,14 @@ interface GetIntentionsOptions {
 }
 
 export class IntentionsProvider implements IntentionsProviderInterface {
-  grammarScopes = ["*"]
+  public grammarScopes = ["*"]
 
   constructor(private codefixProvider: CodefixProvider) {}
 
-  async getIntentions({bufferPosition, textEditor}: GetIntentionsOptions): Promise<Intention[]> {
+  public async getIntentions({
+    bufferPosition,
+    textEditor,
+  }: GetIntentionsOptions): Promise<Intention[]> {
     return (await this.codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
       priority: 100,
       title: fix.description,

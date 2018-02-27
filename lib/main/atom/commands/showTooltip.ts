@@ -1,10 +1,11 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {showExpressionAt} from "../tooltipManager"
+import {CommandEvent, TextEditorElement} from "atom"
 
-commands.set("typescript:show-tooltip", _deps => {
-  return async () => {
-    const ed = atom.workspace.getActiveTextEditor()
-    if (!ed) return
+addCommand("atom-text-editor", "typescript:show-tooltip", () => ({
+  description: "Show type tooltip at current text cursor position",
+  async didDispatch(e: CommandEvent<TextEditorElement>) {
+    const ed = e.currentTarget.getModel()
     return showExpressionAt(ed, ed.getLastCursor().getBufferPosition())
-  }
-})
+  },
+}))
