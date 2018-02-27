@@ -2,38 +2,18 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
+const atom_1 = require("atom");
+const path = require("path");
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
         this.unusedAsInfo = true;
-        this.pushErrors = lodash_1.debounce(() => {
-            const errors = [];
-            for (const fileErrors of this.errors.values()) {
-                for (const [filePath, diagnostics] of fileErrors) {
-                    const newFilePath = utils_1.systemPath(filePath);
-                    for (const diagnostic of diagnostics) {
-                        // Add a bit of extra validation that we have the necessary locations since linter v2
-                        // does not allow range-less messages anymore. This happens with configFileDiagnostics.
-                        let { start, end } = diagnostic;
-                        if (!start || !end) {
-                            start = end = { line: 1, offset: 1 };
-                        }
-                        errors.push({
-                            severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
-                            excerpt: diagnostic.text,
-                            location: {
-                                file: newFilePath,
-                                position: utils_1.locationsToRange(start, end),
-                            },
-                        });
-                    }
-                }
-            }
-            if (this.linter) {
-                this.linter.setAllMessages(errors);
-            }
-        }, 100);
+        this.subscriptions = new atom_1.CompositeDisposable();
+        this.subscriptions.add(atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo) => {
+            this.unusedAsInfo = unusedAsInfo;
+        }));
+        this.pushErrors = lodash_1.debounce(this.pushErrors.bind(this), 100);
     }
     /** Return any errors that cover the given location */
     getErrorsAt(filePath, loc) {
@@ -60,9 +40,6 @@ class ErrorPusher {
         prefixed.set(filePath, errors);
         this.pushErrors();
     }
-    setUnusedAsInfo(unusedAsInfo) {
-        this.unusedAsInfo = unusedAsInfo === undefined ? true : unusedAsInfo;
-    }
     /** Clear all errors */
     clear() {
         if (this.linter) {
@@ -72,6 +49,37 @@ class ErrorPusher {
     setLinter(linter) {
         this.linter = linter;
         this.pushErrors();
+    }
+    dispose() {
+        this.subscriptions.dispose();
+        this.clear();
+    }
+    pushErrors() {
+        const errors = [];
+        for (const fileErrors of this.errors.values()) {
+            for (const [filePath, diagnostics] of fileErrors) {
+                const normalizedFilePath = path.normalize(filePath);
+                for (const diagnostic of diagnostics) {
+                    // Add a bit of extra validation that we have the necessary locations since linter v2
+                    // does not allow range-less messages anymore. This happens with configFileDiagnostics.
+                    let { start, end } = diagnostic;
+                    if (!start || !end) {
+                        start = end = { line: 1, offset: 1 };
+                    }
+                    errors.push({
+                        severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
+                        excerpt: diagnostic.text,
+                        location: {
+                            file: normalizedFilePath,
+                            position: utils_1.locationsToRange(start, end),
+                        },
+                    });
+                }
+            }
+        }
+        if (this.linter) {
+            this.linter.setAllMessages(errors);
+        }
     }
 }
 exports.ErrorPusher = ErrorPusher;

@@ -1,15 +1,16 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {resolveBinary} from "../../../client/clientResolver"
 import {BufferedNodeProcess} from "atom"
+import {CommandEvent, TextEditorElement} from "atom"
 
-commands.set("typescript:initialize-config", () => {
-  return async ev => {
+addCommand("atom-text-editor", "typescript:initialize-config", () => ({
+  description: "Create tsconfig.json in the project related to currently-active text edtior",
+  async didDispatch(e: CommandEvent<TextEditorElement>) {
     try {
+      const editor = e.currentTarget.getModel()
+
       const projectDirs = atom.project.getDirectories()
       if (projectDirs.length === 0) throw new Error("ENOPROJECT")
-
-      const editor = atom.workspace.getActiveTextEditor()
-      if (!editor) throw new Error("ENOEDITOR")
 
       const currentPath = editor.getPath()
       if (!currentPath) throw new Error("ENOPATH")
@@ -27,8 +28,7 @@ commands.set("typescript:initialize-config", () => {
     } catch (e) {
       switch (e.message) {
         case "ENOPROJECT":
-        case "ENOEDITOR":
-          ev.abortKeyBinding()
+          e.abortKeyBinding()
           return
         case "ENOPATH":
           atom.notifications.addWarning(
@@ -46,8 +46,8 @@ commands.set("typescript:initialize-config", () => {
           })
       }
     }
-  }
-})
+  },
+}))
 
 function initConfig(tsc: string, projectRoot: string): Promise<void> {
   return new Promise<void>((resolve, reject) => {

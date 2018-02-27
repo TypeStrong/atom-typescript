@@ -9,9 +9,9 @@ const projectSymbolsView_1 = require("./projectSymbolsView");
 class SymbolsViewController {
     constructor(clientResolver) {
         this.clientResolver = clientResolver;
+        this.stack = [];
     }
     activate() {
-        this.stack = [];
         // NOTE commands are registered via
         //        commands/**SybmolsView.ts
         //      and commands/index.ts
@@ -48,6 +48,9 @@ class SymbolsViewController {
     toggleProjectView() {
         this.createProjectView().toggle();
     }
+    dispose() {
+        this.deactivate();
+    }
 }
 exports.SymbolsViewController = SymbolsViewController;
-//# sourceMappingURL=symbolsViewMain.js.map
+//# sourceMappingURL=symbolsViewController.js.map

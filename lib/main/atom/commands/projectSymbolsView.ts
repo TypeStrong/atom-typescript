@@ -1,12 +1,12 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript} from "../utils"
-import {toggleProjectSymbols} from "../views/symbols/symbolsViewMain"
 
-commands.set("typescript:toggle-project-symbols", () => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:toggle-project-symbols", deps => ({
+  description: "Toggle view for finding file symbols",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
-    toggleProjectSymbols()
-  }
-})
+    deps.getSymbolsViewController().toggleProjectView()
+  },
+}))

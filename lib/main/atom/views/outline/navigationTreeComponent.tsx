@@ -1,6 +1,5 @@
 import atomUtils = require("../../utils")
 import {Disposable, TextEditor, CursorPositionChangedEvent} from "atom"
-import {clientResolver} from "../../../atomts"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
@@ -13,6 +12,7 @@ import {
   restoreCollapsed,
   prepareNavTree,
 } from "./navTreeUtils"
+import {ClientResolver} from "../../../../client/clientResolver"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
@@ -24,9 +24,10 @@ export class NavigationTreeComponent
   private editor?: TextEditor
   private editorScrolling?: Disposable
   private editorChanging?: Disposable
+  private clientResolver?: ClientResolver
+  private selectedNode: NavigationTreeViewModel | null = null
 
   constructor(public props: Props) {
-    this.setSelectedNode(null)
     prepareNavTree(props.navTree)
     etch.initialize(this)
     atom.workspace.observeActiveTextEditor(this.subscribeToEditor)
@@ -47,8 +48,53 @@ export class NavigationTreeComponent
     if (this.editorChanging) {
       this.editorChanging.dispose()
     }
-    this.setSelectedNode(null)
+    this.selectedNode = null
     await etch.destroy(this)
+  }
+
+  public setClientResolver(cr: ClientResolver) {
+    this.clientResolver = cr
+  }
+
+  public getSelectedNode() {
+    return this.selectedNode
+  }
+
+  public render() {
+    const maybeNavNodeComp = this.props.navTree ? (
+      <NavigationNodeComponent navTree={this.props.navTree} ctrl={this} />
+    ) : null
+    return (
+      <div class="atomts atomts-semantic-view native-key-bindings">
+        <ol className="list-tree has-collapsable-children focusable-panel">{maybeNavNodeComp}</ol>
+      </div>
+    )
+  }
+
+  public readAfterUpdate() {
+    // scroll to selected node:
+    const selectedElement = this.element.querySelector(".selected")
+    if (selectedElement) this.scrollTo(selectedElement)
+  }
+
+  /**
+   * HELPER scroll the current editor so that the node's representation becomes
+   *        visible
+   *        (i.e. scroll the text/typescript editor)
+   * @param  {NavigationTree} node
+   *              the node which's element should be made visible in the editor
+   */
+  public gotoNode(node: NavigationTree): void {
+    if (!this.editor) return
+    const gotoLine = getNodeStartLine(node)
+    const gotoOffset = getNodeStartOffset(node)
+    this.editor.setCursorBufferPosition([gotoLine, gotoOffset])
+  }
+
+  private getCursorLine(): number | null {
+    return this.editor && this.editor.getLastCursor()
+      ? this.editor.getLastCursor().getBufferRow()
+      : null
   }
 
   private async setNavTree(navTree: NavigationTreeViewModel | null) {
@@ -66,15 +112,16 @@ export class NavigationTreeComponent
         selectedNode = findNodeAt(cursorLine, cursorLine, navTree)
       }
     }
-    this.setSelectedNode(selectedNode)
+    this.selectedNode = selectedNode
   }
 
   private loadNavTree = async () => {
     if (!this.editor) return
+    if (!this.clientResolver) return
     const filePath = this.editor.getPath()
     if (filePath) {
       try {
-        const client = await clientResolver.get(filePath)
+        const client = await this.clientResolver.get(filePath)
         await client.executeOpen({file: filePath})
         const navtreeResult = await client.executeNavTree({file: filePath})
         const navTree = navtreeResult.body
@@ -86,38 +133,6 @@ export class NavigationTreeComponent
         console.error(err, filePath)
       }
     }
-  }
-
-  private _selectedNode: NavigationTreeViewModel | null
-  public get selectedNode() {
-    return this._selectedNode
-  }
-
-  private setSelectedNode(selectedNode: NavigationTreeViewModel | null) {
-    this._selectedNode = selectedNode
-  }
-
-  render() {
-    const maybeNavNodeComp = this.props.navTree ? (
-      <NavigationNodeComponent navTree={this.props.navTree} ctrl={this} />
-    ) : null
-    return (
-      <div class="atomts atomts-semantic-view native-key-bindings">
-        <ol className="list-tree has-collapsable-children focusable-panel">{maybeNavNodeComp}</ol>
-      </div>
-    )
-  }
-
-  public readAfterUpdate() {
-    // scroll to selected node:
-    const selectedElement = this.element.querySelector(".selected")
-    if (selectedElement) this.scrollTo(selectedElement)
-  }
-
-  private getCursorLine(): number | null {
-    return this.editor && this.editor.getLastCursor()
-      ? this.editor.getLastCursor().getBufferRow()
-      : null
   }
 
   /**
@@ -133,7 +148,7 @@ export class NavigationTreeComponent
     const selectedChild = findNodeAt(cursorLine, cursorLine, this.props.navTree)
     if (selectedChild !== null) {
       // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
-      this.setSelectedNode(selectedChild)
+      this.selectedNode = selectedChild
       etch.update(this)
     }
   }
@@ -152,22 +167,8 @@ export class NavigationTreeComponent
     }
   }
 
-  /**
-   * HELPER scroll the current editor so that the node's representation becomes
-   *        visible
-   *        (i.e. scroll the text/typescript editor)
-   * @param  {NavigationTree} node
-   *              the node which's element should be made visible in the editor
-   */
-  public gotoNode(node: NavigationTree): void {
-    if (!this.editor) return
-    const gotoLine = getNodeStartLine(node)
-    const gotoOffset = getNodeStartOffset(node)
-    this.editor.setCursorBufferPosition([gotoLine, gotoOffset])
-  }
-
   private subscribeToEditor = (editor?: TextEditor) => {
-    if (!editor || !atomUtils.onDiskAndTs(editor)) {
+    if (!editor || !atomUtils.isTypescriptEditorWithPath(editor)) {
       // unsubscribe from editor
       // dispose subscriptions (except for editor-changing)
       if (this.editorScrolling) {

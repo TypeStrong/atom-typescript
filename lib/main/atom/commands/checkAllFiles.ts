@@ -1,13 +1,14 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 
-commands.set("typescript:check-all-files", deps => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
+  description: "Typecheck all files in project related to current active text editor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const fpp = getFilePathPosition()
+    const fpp = getFilePathPosition(e.currentTarget.getModel())
     if (!fpp) {
       e.abortKeyBinding()
       return
@@ -37,7 +38,9 @@ commands.set("typescript:check-all-files", deps => {
       updateStatus()
     })
 
-    deps.statusPanel.update({progress: {max, value: 0}})
+    const stp = deps.getStatusPanel()
+
+    stp.update({progress: {max, value: 0}})
     client.executeGetErrForProject({file, delay: 0})
 
     function cancel() {
@@ -48,10 +51,10 @@ commands.set("typescript:check-all-files", deps => {
     function updateStatus() {
       if (files.size === 0) {
         unregister()
-        deps.statusPanel.update({progress: undefined})
+        stp.update({progress: undefined})
       } else {
-        deps.statusPanel.update({progress: {max, value: max - files.size}})
+        stp.update({progress: {max, value: max - files.size}})
       }
     }
-  }
-})
+  },
+}))

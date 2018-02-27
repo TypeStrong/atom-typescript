@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const humanize = require("humanize-plus");
 const symbolsView_1 = require("./symbolsView");
-const atomts_1 = require("../../../atomts");
 const fileSymbolsTag_1 = require("./fileSymbolsTag");
 const lodash_1 = require("lodash");
 /**
@@ -13,8 +12,9 @@ const lodash_1 = require("lodash");
  * utilizing the typescript service instead of ctag.
  */
 class ProjectView extends symbolsView_1.default {
-    constructor(stack) {
+    constructor(stack, clientResolver) {
         super(stack, "Project has no tags file or it is empty", 10);
+        this.clientResolver = clientResolver;
         this.updatedTags = new atom_1.Emitter();
         this.startTaskDelayed = lodash_1.debounce(this.startTask.bind(this), 250);
     }
@@ -32,6 +32,26 @@ class ProjectView extends symbolsView_1.default {
             this.attach();
         }
     }
+    didChangeQuery(query) {
+        if (query) {
+            this.startTaskDelayed(query);
+        }
+        else {
+            this.updatedTags.emit("tags", []);
+        }
+    }
+    //////////////// START: copied from fileSymbolsView /////////////////////////////
+    getEditor() {
+        return atom.workspace.getActiveTextEditor();
+    }
+    getPath() {
+        const editor = this.getEditor();
+        if (editor) {
+            return editor.getPath();
+        }
+        return undefined;
+    }
+    //////////////// END: copied from fileSymbolsView /////////////////////////////
     async populate() {
         if (this.tags) {
             await this.selectListView.update({ items: this.tags });
@@ -87,27 +107,8 @@ class ProjectView extends symbolsView_1.default {
             });
         }
     }
-    didChangeQuery(query) {
-        if (query) {
-            this.startTaskDelayed(query);
-        }
-        else {
-            this.updatedTags.emit("tags", []);
-        }
-    }
     getEmptyResultMessage() {
         return this.search ? "No symbols found" : "Please enter search value";
-    }
-    //////////////// copied from fileSymbolsView /////////////////////////////
-    getEditor() {
-        return atom.workspace.getActiveTextEditor();
-    }
-    getPath() {
-        const editor = this.getEditor();
-        if (editor) {
-            return editor.getPath();
-        }
-        return undefined;
     }
     /////////////// custom tag generation: use tsserver /////////////////////
     async generate(filePath, searchValue) {
@@ -138,7 +139,7 @@ class ProjectView extends symbolsView_1.default {
     }
     async getNavTo(filePath, query) {
         try {
-            const client = await atomts_1.clientResolver.get(filePath);
+            const client = await this.clientResolver.get(filePath);
             await client.executeOpen({ file: filePath });
             const navtoResult = await client.executeNavto({
                 file: filePath,

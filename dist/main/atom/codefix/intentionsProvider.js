@@ -5,7 +5,7 @@ class IntentionsProvider {
         this.codefixProvider = codefixProvider;
         this.grammarScopes = ["*"];
     }
-    async getIntentions({ bufferPosition, textEditor }) {
+    async getIntentions({ bufferPosition, textEditor, }) {
         return (await this.codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
             priority: 100,
             title: fix.description,

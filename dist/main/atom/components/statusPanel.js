@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const path_1 = require("path");
-const utils_1 = require("../utils");
+const lodash_1 = require("lodash");
 class StatusPanel {
-    constructor(props = {}) {
+    constructor(props) {
         this.buildStatusClicked = () => {
             if (this.props.buildStatus && !this.props.buildStatus.success) {
                 atom.notifications.addError("Build failed", {
@@ -13,9 +13,13 @@ class StatusPanel {
                 });
             }
         };
+        this.handlePendingRequests = () => {
+            this.update({ pending: lodash_1.flatten(lodash_1.values(this.props.clientResolver.clients).map(cl => cl.pending)) });
+        };
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
         this.resetBuildStatusTimeout();
+        this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests);
     }
     async update(props) {
         this.props = Object.assign({}, this.props, props);
@@ -32,9 +36,16 @@ class StatusPanel {
     }
     async destroy() {
         await etch.destroy(this);
+        this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests);
     }
     dispose() {
         this.destroy();
+    }
+    show() {
+        this.update({ visible: true });
+    }
+    hide() {
+        this.update({ visible: false });
     }
     resetBuildStatusTimeout() {
         if (this.buildStatusTimeout) {
@@ -55,7 +66,7 @@ class StatusPanel {
     }
     openConfigPath() {
         if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
-            utils_1.openFile(this.props.tsConfigPath);
+            atom.workspace.open(this.props.tsConfigPath);
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
@@ -65,12 +76,6 @@ class StatusPanel {
         if (this.props.pending) {
             atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "));
         }
-    }
-    show() {
-        this.update({ visible: true });
-    }
-    hide() {
-        this.update({ visible: false });
     }
     renderVersion() {
         if (this.props.version) {
@@ -100,7 +105,7 @@ class StatusPanel {
                     },
                 } }, this.props.tsConfigPath.startsWith("/dev/null")
                 ? "No project"
-                : path_1.dirname(utils_1.getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
+                : path_1.dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
         }
         return null;
     }
@@ -129,4 +134,10 @@ class StatusPanel {
     }
 }
 exports.StatusPanel = StatusPanel;
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+function getFilePathRelativeToAtomProject(filePath) {
+    return "~" + atom.project.relativize(filePath);
+}
 //# sourceMappingURL=statusPanel.js.map

@@ -17,14 +17,6 @@ class Callbacks {
             this.onPendingChange(this.pending());
         });
     }
-    // pending returns names of requests waiting for a response
-    pending() {
-        const pending = [];
-        for (const { name } of this.callbacks.values()) {
-            pending.push(name);
-        }
-        return pending;
-    }
     rejectAll(error) {
         for (const { reject } of this.callbacks.values()) {
             reject(error);
@@ -40,6 +32,14 @@ class Callbacks {
             this.onPendingChange(this.pending());
         }
         return req;
+    }
+    // pending returns names of requests waiting for a response
+    pending() {
+        const pending = [];
+        for (const { name } of this.callbacks.values()) {
+            pending.push(name);
+        }
+        return pending;
     }
 }
 exports.Callbacks = Callbacks;

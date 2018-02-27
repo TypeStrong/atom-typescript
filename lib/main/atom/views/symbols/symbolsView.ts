@@ -10,13 +10,12 @@ import SelectListView = require("atom-select-list")
  */
 
 export default class SymbolsView {
-  stack: any
-  selectListView: any
-  element: any
-  panel: any
-  isCanceling: boolean
-  previouslyFocusedElement: HTMLElement | null = null
-  static highlightMatches(_context: any, name: any, matches: any, offsetIndex?: any) {
+  public selectListView: any
+  public element: any
+  public panel: any
+  private isCanceling: boolean
+  private previouslyFocusedElement: HTMLElement | null = null
+  public static highlightMatches(_context: any, name: any, matches: any, offsetIndex?: any) {
     // tslint:disable-line
     if (!offsetIndex) {
       offsetIndex = 0
@@ -59,8 +58,7 @@ export default class SymbolsView {
     return fragment
   }
 
-  constructor(stack: any, emptyMessage = "No symbols found", maxResults?: number) {
-    this.stack = stack
+  constructor(public stack: any, emptyMessage = "No symbols found", maxResults?: number) {
     this.selectListView = new SelectListView({
       maxResults,
       emptyMessage,
@@ -78,17 +76,17 @@ export default class SymbolsView {
     this.panel = atom.workspace.addModalPanel({item: this, visible: false})
   }
 
-  async destroy() {
+  public async destroy() {
     await this.cancel()
     this.panel.destroy()
     return this.selectListView.destroy()
   }
 
-  getFilterKey() {
+  public getFilterKey() {
     return "name"
   }
 
-  elementForItem({position, name, file, directory}: any) {
+  public elementForItem({position, name, file, directory}: any) {
     // Style matched characters in search results
     const matches = match(name, this.selectListView.getFilterQuery())
 
@@ -116,7 +114,7 @@ export default class SymbolsView {
     return li
   }
 
-  async cancel() {
+  public async cancel() {
     if (!this.isCanceling) {
       this.isCanceling = true
       await this.selectListView.update({items: []})
@@ -129,15 +127,15 @@ export default class SymbolsView {
     }
   }
 
-  didCancelSelection() {
+  public didCancelSelection() {
     this.cancel()
   }
 
-  didConfirmEmptySelection() {
+  public didConfirmEmptySelection() {
     this.cancel()
   }
 
-  async didConfirmSelection(tag: any) {
+  public async didConfirmSelection(tag: any) {
     if (tag.file && !isFileSync(path.join(tag.directory, tag.file))) {
       await this.selectListView.update({errorMessage: "Selected file does not exist"})
       setTimeout(() => {
@@ -149,15 +147,15 @@ export default class SymbolsView {
     }
   }
 
-  didChangeSelection(_tag: any) {
+  public didChangeSelection(_tag: any) {
     // no-op
   }
 
-  didChangeQuery(_query: string) {
+  public didChangeQuery(_query: string) {
     // no-op
   }
 
-  openTag(tag: any) {
+  public openTag(tag: any) {
     const editor = atom.workspace.getActiveTextEditor()
     let previous
     if (editor) {
@@ -186,7 +184,7 @@ export default class SymbolsView {
     this.stack.push(previous)
   }
 
-  moveToPosition(position: any, beginningOfLine?: any) {
+  public moveToPosition(position: any, beginningOfLine?: any) {
     const editor = atom.workspace.getActiveTextEditor()
     if (beginningOfLine == null) {
       beginningOfLine = true
@@ -200,14 +198,14 @@ export default class SymbolsView {
     }
   }
 
-  attach() {
+  public attach() {
     this.previouslyFocusedElement = document.activeElement as HTMLElement
     this.panel.show()
     this.selectListView.reset()
     this.selectListView.focus()
   }
 
-  getTagLine(tag: any) {
+  private getTagLine(tag: any) {
     if (!tag) {
       return undefined
     }

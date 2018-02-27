@@ -4,7 +4,7 @@
     "importHelpers": true,
     "jsx": "react",
     "jsxFactory": "etch.dom",
-    "lib": ["es7", "dom"],
+    "lib": ["es7", "dom", "ES2017.object"],
     "module": "commonjs",
     "noLib": false,
     "outDir": "../dist",

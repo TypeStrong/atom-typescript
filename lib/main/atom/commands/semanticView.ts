@@ -1,13 +1,13 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript} from "../utils"
-import {SemanticViewController} from "../views/outline/semanticViewController"
 
-commands.set("typescript:toggle-semantic-view", () => {
-  return e => {
+addCommand("atom-text-editor", "typescript:toggle-semantic-view", deps => ({
+  description: "Toggle semantic view outline",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    SemanticViewController.toggle()
-  }
-})
+    deps.getSemanticViewController().toggle()
+  },
+}))

@@ -8,12 +8,12 @@ import {parsePath} from "../../utils/fs"
  */
 
 export class Tag {
-  position: {row: number; column: number}
-  name: string
-  type: string
-  parent: Tag | null
-  directory?: string
-  file?: string
+  public position: {row: number; column: number}
+  public name: string
+  public type: string
+  public parent: Tag | null
+  public directory?: string
+  public file?: string
 
   constructor(navItem: NavigationTree | NavtoItem, parent?: Tag | null) {
     if ((navItem as NavigationTree).text) {
@@ -25,7 +25,7 @@ export class Tag {
     }
   }
 
-  getType(kind: string): string {
+  public getType(kind: string): string {
     // TODO need to convert from ctag, but since this seem to be unused anyway...
     // switch(kind){
     //   case 'class':

@@ -6,7 +6,6 @@ interface Props extends JSX.Props {
 }
 
 export class TsView implements JSX.ElementClass {
-  editorElement: HTMLElement
   private refs: {
     editor: MiniEditor
   }

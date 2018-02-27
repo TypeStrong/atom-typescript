@@ -1,6 +1,7 @@
 import * as etch from "etch"
 import {dirname} from "path"
-import {getFilePathRelativeToAtomProject, openFile} from "../utils"
+import {ClientResolver} from "../../../client/clientResolver"
+import {flatten, values} from "lodash"
 
 export interface Props extends JSX.Props {
   version?: string
@@ -8,20 +9,22 @@ export interface Props extends JSX.Props {
   tsConfigPath?: string
   buildStatus?: {success: true} | {success: false; message: string}
   progress?: {max: number; value: number}
-  visible: boolean
+  visible?: boolean
+  clientResolver: ClientResolver
 }
 
 export class StatusPanel implements JSX.ElementClass {
   public props: Props
   private buildStatusTimeout?: number
 
-  constructor(props: Partial<Props> = {}) {
+  constructor(props: Props) {
     this.props = {
       visible: true,
       ...props,
     }
     etch.initialize(this)
     this.resetBuildStatusTimeout()
+    this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests)
   }
 
   public async update(props: Partial<Props>) {
@@ -44,10 +47,19 @@ export class StatusPanel implements JSX.ElementClass {
 
   public async destroy() {
     await etch.destroy(this)
+    this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests)
   }
 
   public dispose() {
     this.destroy()
+  }
+
+  public show() {
+    this.update({visible: true})
+  }
+
+  public hide() {
+    this.update({visible: false})
   }
 
   private resetBuildStatusTimeout() {
@@ -69,7 +81,7 @@ export class StatusPanel implements JSX.ElementClass {
 
   private openConfigPath() {
     if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
-      openFile(this.props.tsConfigPath)
+      atom.workspace.open(this.props.tsConfigPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
     }
@@ -79,14 +91,6 @@ export class StatusPanel implements JSX.ElementClass {
     if (this.props.pending) {
       atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "))
     }
-  }
-
-  public show() {
-    this.update({visible: true})
-  }
-
-  public hide() {
-    this.update({visible: false})
   }
 
   private renderVersion(): JSX.Element | null {
@@ -192,4 +196,15 @@ export class StatusPanel implements JSX.ElementClass {
     }
     return null
   }
+
+  private handlePendingRequests = () => {
+    this.update({pending: flatten(values(this.props.clientResolver.clients).map(cl => cl.pending))})
+  }
+}
+
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+function getFilePathRelativeToAtomProject(filePath: string) {
+  return "~" + atom.project.relativize(filePath)
 }

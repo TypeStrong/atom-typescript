@@ -11,8 +11,8 @@ const SelectListView = require("atom-select-list");
  */
 class SymbolsView {
     constructor(stack, emptyMessage = "No symbols found", maxResults) {
-        this.previouslyFocusedElement = null;
         this.stack = stack;
+        this.previouslyFocusedElement = null;
         this.selectListView = new SelectListView({
             maxResults,
             emptyMessage,

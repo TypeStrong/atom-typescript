@@ -8,8 +8,8 @@ interface Props extends JSX.Props {
 }
 
 export class MiniEditor implements JSX.ElementClass {
-  private model: TextEditor
   public element: TextEditorElement
+  private model: TextEditor
 
   constructor(public props: Props) {
     this.model = atom.workspace.buildTextEditor({

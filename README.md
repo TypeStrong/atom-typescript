@@ -109,4 +109,4 @@ https://github.com/Microsoft/TypeScript/tree/master/src/services/codefixes
 Look at [CONTRIBUTING.md](https://github.com/TypeStrong/atom-typescript/blob/master/CONTRIBUTING.md) for curiosity. We work hard to keep the code as approachable as possible and are highly keen on helping you help us.
 
 ## Changelog
-Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/docs/CHANGELOG.md).
+Breaking changes [available online](https://github.com/TypeStrong/atom-typescript/blob/master/CHANGELOG.md).

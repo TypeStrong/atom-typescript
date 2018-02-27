@@ -6,16 +6,15 @@ import {GetTypescriptBuffer} from "../commands/registry"
 import {TypescriptServiceClient} from "../../../client/client"
 
 export class CodefixProvider {
-  clientResolver: ClientResolver
-  errorPusher: ErrorPusher
-  getTypescriptBuffer: GetTypescriptBuffer
-  supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
+  private supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
 
-  constructor(clientResolver: ClientResolver) {
-    this.clientResolver = clientResolver
-  }
+  constructor(
+    private clientResolver: ClientResolver,
+    private errorPusher: ErrorPusher,
+    private getTypescriptBuffer: GetTypescriptBuffer,
+  ) {}
 
-  async runCodeFix(
+  public async runCodeFix(
     textEditor: Atom.TextEditor,
     bufferPosition: Atom.PointLike,
   ): Promise<protocol.CodeAction[]> {
@@ -56,7 +55,23 @@ export class CodefixProvider {
     return results
   }
 
-  async getSupportedFixes(client: TypescriptServiceClient) {
+  public async applyFix(fix: protocol.CodeAction) {
+    for (const f of fix.changes) {
+      const {buffer, isOpen} = await this.getTypescriptBuffer(f.fileName)
+
+      buffer.buffer.transact(() => {
+        for (const edit of f.textChanges.reverse()) {
+          buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
+        }
+      })
+
+      if (!isOpen) {
+        buffer.buffer.save().then(() => buffer.buffer.destroy())
+      }
+    }
+  }
+
+  private async getSupportedFixes(client: TypescriptServiceClient) {
     let codes = this.supportedFixes.get(client)
     if (codes) {
       return codes
@@ -71,21 +86,5 @@ export class CodefixProvider {
     codes = new Set(result.body.map(code => parseInt(code, 10)))
     this.supportedFixes.set(client, codes)
     return codes
-  }
-
-  async applyFix(fix: protocol.CodeAction) {
-    for (const f of fix.changes) {
-      const {buffer, isOpen} = await this.getTypescriptBuffer(f.fileName)
-
-      buffer.buffer.transact(() => {
-        for (const edit of f.textChanges.reverse()) {
-          buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
-        }
-      })
-
-      if (!isOpen) {
-        buffer.buffer.save().then(() => buffer.buffer.destroy())
-      }
-    }
   }
 }

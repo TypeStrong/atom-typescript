@@ -3,7 +3,7 @@
 import {Emitter} from "atom"
 import * as humanize from "humanize-plus"
 import SymbolsView from "./symbolsView"
-import {clientResolver} from "../../../atomts"
+import {ClientResolver} from "../../../../client/clientResolver"
 import {NavtoItem} from "typescript/lib/protocol"
 import {Tag} from "./fileSymbolsTag"
 import {debounce, Cancelable} from "lodash"
@@ -15,24 +15,24 @@ import {debounce, Cancelable} from "lodash"
  */
 
 export default class ProjectView extends SymbolsView {
-  tags: Tag[]
-  updatedTags: Emitter<{tags: Tag[]}> = new Emitter<{tags: Tag[]}>()
-  loadTagsTask: Promise<Tag[]>
-  search: string | undefined
-  startTaskDelayed: ((searchValue: string) => void) & Cancelable
+  private tags: Tag[]
+  private updatedTags: Emitter<{tags: Tag[]}> = new Emitter<{tags: Tag[]}>()
+  private loadTagsTask: Promise<Tag[]>
+  private search: string | undefined
+  private startTaskDelayed: ((searchValue: string) => void) & Cancelable
 
-  constructor(stack: any) {
+  constructor(stack: any, private clientResolver: ClientResolver) {
     super(stack, "Project has no tags file or it is empty", 10)
     this.startTaskDelayed = debounce(this.startTask.bind(this), 250)
   }
 
-  destroy() {
+  public destroy() {
     this.stopTask()
     this.updatedTags.dispose()
     return super.destroy()
   }
 
-  toggle() {
+  public toggle() {
     if (this.panel.isVisible()) {
       this.cancel()
     } else {
@@ -41,7 +41,29 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  async populate() {
+  public didChangeQuery(query: string) {
+    if (query) {
+      this.startTaskDelayed(query)
+    } else {
+      this.updatedTags.emit("tags", [])
+    }
+  }
+
+  //////////////// START: copied from fileSymbolsView /////////////////////////////
+  public getEditor() {
+    return atom.workspace.getActiveTextEditor()
+  }
+
+  public getPath() {
+    const editor = this.getEditor()
+    if (editor) {
+      return editor.getPath()
+    }
+    return undefined
+  }
+  //////////////// END: copied from fileSymbolsView /////////////////////////////
+
+  private async populate() {
     if (this.tags) {
       await this.selectListView.update({items: this.tags})
     }
@@ -71,7 +93,7 @@ export default class ProjectView extends SymbolsView {
     this.updatedTags.emit("tags", this.tags)
   }
 
-  stopTask() {
+  private stopTask() {
     if (this.startTaskDelayed && this.startTaskDelayed.cancel) {
       this.startTaskDelayed.cancel()
     }
@@ -81,7 +103,7 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  startTask(searchValue: string): void {
+  private startTask(searchValue: string): void {
     // console.log('new request for query: "'+searchValue+'"...')
     this.stopTask()
 
@@ -102,35 +124,13 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  didChangeQuery(query: string) {
-    if (query) {
-      this.startTaskDelayed(query)
-    } else {
-      this.updatedTags.emit("tags", [])
-    }
-  }
-
   private getEmptyResultMessage() {
     return this.search ? "No symbols found" : "Please enter search value"
   }
 
-  //////////////// copied from fileSymbolsView /////////////////////////////
-
-  getEditor() {
-    return atom.workspace.getActiveTextEditor()
-  }
-
-  getPath() {
-    const editor = this.getEditor()
-    if (editor) {
-      return editor.getPath()
-    }
-    return undefined
-  }
-
   /////////////// custom tag generation: use tsserver /////////////////////
 
-  async generate(filePath: string, searchValue: string) {
+  private async generate(filePath: string, searchValue: string) {
     const navto = await this.getNavTo(filePath, searchValue)
     const tags: Tag[] = []
     if (navto && navto.length > 0) {
@@ -160,7 +160,7 @@ export default class ProjectView extends SymbolsView {
 
   private async getNavTo(filePath: string, query: string): Promise<NavtoItem[] | null> {
     try {
-      const client = await clientResolver.get(filePath)
+      const client = await this.clientResolver.get(filePath)
       await client.executeOpen({file: filePath})
       const navtoResult = await client.executeNavto({
         file: filePath,

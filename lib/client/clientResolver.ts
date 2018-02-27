@@ -27,7 +27,7 @@ interface Binary {
  * require("typescript") from the same source file would resolve.
  */
 export class ClientResolver extends events.EventEmitter {
-  clients: {
+  public clients: {
     [tsServerPath: string]: {
       client: Client
       pending: string[]
@@ -35,13 +35,13 @@ export class ClientResolver extends events.EventEmitter {
   } = {}
 
   // This is just here so Typescript can infer the types of the callbacks when using "on" method
-  on(event: "diagnostics", callback: (result: DiagnosticsPayload) => void): this
-  on(event: "pendingRequestsChange", callback: () => void): this
-  on(event: string, callback: (() => void) | ((result: DiagnosticsPayload) => void)): this {
+  public on(event: "diagnostics", callback: (result: DiagnosticsPayload) => void): this
+  public on(event: "pendingRequestsChange", callback: () => void): this
+  public on(event: string, callback: (() => void) | ((result: DiagnosticsPayload) => void)): this {
     return super.on(event, callback)
   }
 
-  async get(pFilePath: string): Promise<Client> {
+  public async get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
 
     if (this.clients[pathToBin]) {
@@ -79,7 +79,11 @@ export class ClientResolver extends events.EventEmitter {
     return entry.client
   }
 
-  addClient(serverPath: string, client: Client) {
+  public dispose() {
+    this.removeAllListeners()
+  }
+
+  private addClient(serverPath: string, client: Client) {
     this.clients[serverPath] = {
       client,
       pending: [],

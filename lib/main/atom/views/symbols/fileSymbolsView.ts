@@ -3,7 +3,7 @@
 import {CompositeDisposable, TextEditor} from "atom"
 import SymbolsView from "./symbolsView"
 import {match} from "fuzzaldrin"
-import {clientResolver} from "../../../atomts"
+import {ClientResolver} from "../../../../client/clientResolver"
 import {NavigationTree} from "typescript/lib/protocol"
 import {Tag} from "./fileSymbolsTag"
 
@@ -14,11 +14,11 @@ import {Tag} from "./fileSymbolsTag"
  */
 
 export class FileView extends SymbolsView {
-  cachedTags: any
-  editorsSubscription: any
-  initialState: any
+  private cachedTags: any
+  private editorsSubscription: any
+  private initialState: any
 
-  constructor(stack: any) {
+  constructor(stack: any, private clientResolver: ClientResolver) {
     super(stack)
     this.cachedTags = {}
 
@@ -41,12 +41,12 @@ export class FileView extends SymbolsView {
     })
   }
 
-  destroy() {
+  public destroy() {
     this.editorsSubscription.dispose()
     return super.destroy()
   }
 
-  elementForItem({position, name}: any) {
+  public elementForItem({position, name}: any) {
     // Style matched characters in search results
     const matches = match(name, this.selectListView.getFilterQuery())
 
@@ -66,14 +66,14 @@ export class FileView extends SymbolsView {
     return li
   }
 
-  didChangeSelection(item: any) {
+  public didChangeSelection(item: any) {
     // NOTE uses the "parent" package's setting (i.e. from symbols-view):
     if (atom.config.get("symbols-view.quickJumpToFileSymbol") && item) {
       this.openTag(item)
     }
   }
 
-  async didCancelSelection() {
+  public async didCancelSelection() {
     await this.cancel()
     const editor = this.getEditor()
     if (this.initialState && editor) {
@@ -82,7 +82,7 @@ export class FileView extends SymbolsView {
     this.initialState = null
   }
 
-  async toggle() {
+  public async toggle() {
     if (this.panel.isVisible()) {
       await this.cancel()
     }
@@ -98,7 +98,7 @@ export class FileView extends SymbolsView {
     }
   }
 
-  serializeEditorState(editor: TextEditor) {
+  public serializeEditorState(editor: TextEditor) {
     const editorElement = atom.views.getView(editor)
     const scrollTop = editorElement.getScrollTop()
 
@@ -108,17 +108,17 @@ export class FileView extends SymbolsView {
     }
   }
 
-  deserializeEditorState(editor: TextEditor, {bufferRanges, scrollTop}: any) {
+  public deserializeEditorState(editor: TextEditor, {bufferRanges, scrollTop}: any) {
     const editorElement = atom.views.getView(editor)
     ;(editor as any).setSelectedBufferRanges(bufferRanges)
     editorElement.setScrollTop(scrollTop)
   }
 
-  getEditor() {
+  public getEditor() {
     return atom.workspace.getActiveTextEditor()
   }
 
-  getPath() {
+  public getPath() {
     const editor = this.getEditor()
     if (editor) {
       return editor.getPath()
@@ -126,7 +126,7 @@ export class FileView extends SymbolsView {
     return undefined
   }
 
-  getScopeName() {
+  public getScopeName() {
     const editor = this.getEditor()
     if (editor && editor.getGrammar()) {
       return editor.getGrammar().scopeName
@@ -134,7 +134,7 @@ export class FileView extends SymbolsView {
     return undefined
   }
 
-  async populate(filePath: string) {
+  private async populate(filePath: string) {
     const tags = this.cachedTags[filePath]
     if (tags) {
       await this.selectListView.update({items: tags})
@@ -150,7 +150,7 @@ export class FileView extends SymbolsView {
     }
   }
 
-  async generateTags(filePath: string) {
+  private async generateTags(filePath: string) {
     // const generator = new TagGenerator(filePath, this.getScopeName());
     this.cachedTags[filePath] = await this.generate(filePath) // generator.generate();
     return this.cachedTags[filePath]
@@ -158,7 +158,7 @@ export class FileView extends SymbolsView {
 
   /////////////// custom tag generation: use tsserver /////////////////////
 
-  async generate(filePath: string) {
+  private async generate(filePath: string) {
     const navtree = await this.getNavTree(filePath)
     const tags: Tag[] = []
     if (navtree && navtree.childItems) {
@@ -196,7 +196,7 @@ export class FileView extends SymbolsView {
   // TODO optimize? when semantic-view is open, and has the current navTree -> use that instead of requesting it again?
   private async getNavTree(filePath: string): Promise<NavigationTree | null> {
     try {
-      const client = await clientResolver.get(filePath)
+      const client = await this.clientResolver.get(filePath)
       await client.executeOpen({file: filePath})
       const navtreeResult = await client.executeNavTree({file: filePath as string})
       const navTree = navtreeResult ? (navtreeResult.body as NavigationTree) : void 0

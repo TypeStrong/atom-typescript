@@ -25,5 +25,5 @@ export interface ToNodeScrollableEditor {
 }
 
 export interface SelectableNode {
-  readonly selectedNode: NavigationTreeViewModel | null
+  getSelectedNode(): NavigationTreeViewModel | null
 }

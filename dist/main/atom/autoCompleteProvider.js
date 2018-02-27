@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("./utils");
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
@@ -13,33 +12,6 @@ class AutocompleteProvider {
         this.excludeLowerPriority = false;
         this.clientResolver = clientResolver;
         this.opts = opts;
-    }
-    // Try to reuse the last completions we got from tsserver if they're for the same position.
-    async getSuggestionsWithCache(prefix, location, activatedManually) {
-        if (this.lastSuggestions && !activatedManually) {
-            const lastLoc = this.lastSuggestions.location;
-            const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
-            const thisCol = getNormalizedCol(prefix, location.offset);
-            if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
-                if (this.lastSuggestions.suggestions.length !== 0) {
-                    return this.lastSuggestions.suggestions;
-                }
-            }
-        }
-        const client = await this.clientResolver.get(location.file);
-        const completions = await client.executeCompletions(Object.assign({ prefix, includeExternalModuleExports: false }, location));
-        const suggestions = completions.body.map(entry => ({
-            text: entry.name,
-            leftLabel: entry.kind,
-            type: utils_1.kindToType(entry.kind),
-        }));
-        this.lastSuggestions = {
-            client,
-            location,
-            prefix,
-            suggestions,
-        };
-        return suggestions;
     }
     async getSuggestions(opts) {
         const location = getLocationQuery(opts);
@@ -107,6 +79,33 @@ class AutocompleteProvider {
             });
         }
     }
+    // Try to reuse the last completions we got from tsserver if they're for the same position.
+    async getSuggestionsWithCache(prefix, location, activatedManually) {
+        if (this.lastSuggestions && !activatedManually) {
+            const lastLoc = this.lastSuggestions.location;
+            const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset);
+            const thisCol = getNormalizedCol(prefix, location.offset);
+            if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
+                if (this.lastSuggestions.suggestions.length !== 0) {
+                    return this.lastSuggestions.suggestions;
+                }
+            }
+        }
+        const client = await this.clientResolver.get(location.file);
+        const completions = await client.executeCompletions(Object.assign({ prefix, includeExternalModuleExports: false }, location));
+        const suggestions = completions.body.map(entry => ({
+            text: entry.name,
+            leftLabel: entry.kind,
+            type: kindToType(entry.kind),
+        }));
+        this.lastSuggestions = {
+            client,
+            location,
+            prefix,
+            suggestions,
+        };
+        return suggestions;
+    }
 }
 exports.AutocompleteProvider = AutocompleteProvider;
 // Decide what needs to be replaced in the editor buffer when inserting the completion
@@ -155,4 +154,33 @@ function containsScope(scopes, matchScope) {
     }
     return false;
 }
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
+function kindToType(kind) {
+    // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
+    switch (kind) {
+        case "const":
+            return "constant";
+        case "interface":
+            return "type";
+        case "identifier":
+            return "variable";
+        case "local function":
+            return "function";
+        case "local var":
+            return "variable";
+        case "let":
+        case "var":
+        case "parameter":
+            return "variable";
+        case "alias":
+            return "import";
+        case "type parameter":
+            return "type";
+        default:
+            return kind.split(" ")[0];
+    }
+}
+exports.kindToType = kindToType;
 //# sourceMappingURL=autoCompleteProvider.js.map

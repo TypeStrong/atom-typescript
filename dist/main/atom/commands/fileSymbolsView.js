@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
-const symbolsViewMain_1 = require("../views/symbols/symbolsViewMain");
-registry_1.commands.set("typescript:toggle-file-symbols", () => {
-    return async (e) => {
+registry_1.addCommand("atom-text-editor", "typescript:toggle-file-symbols", deps => ({
+    description: "Toggle view for finding file symbols",
+    async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        symbolsViewMain_1.toggleFileSymbols();
-    };
-});
+        deps.getSymbolsViewController().toggleFileView();
+    },
+}));
 //# sourceMappingURL=fileSymbolsView.js.map

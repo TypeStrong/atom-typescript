@@ -1,4 +1,4 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
@@ -15,12 +15,13 @@ async function open(item: {file: string; start: {line: number; offset: number}})
   }
 }
 
-commands.set("typescript:go-to-declaration", deps => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
+  description: "Go to declaration of symbol under text cursor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
-    const location = getFilePathPosition()
+    const location = getFilePathPosition(e.currentTarget.getModel())
     if (!location) {
       e.abortKeyBinding()
       return
@@ -28,11 +29,12 @@ commands.set("typescript:go-to-declaration", deps => {
     const client = await deps.getClient(location.file)
     const result = await client.executeDefinition(location)
     handleDefinitionResult(result, location)
-  }
-})
+  },
+}))
 
-commands.set("typescript:return-from-declaration", () => {
-  return async () => {
+addCommand("atom-workspace", "typescript:return-from-declaration", () => ({
+  description: "If used `go-to-declaration`, return to previous text cursor position",
+  async didDispatch() {
     const position = prevCursorPositions.pop()
     if (!position) {
       atom.notifications.addInfo("AtomTS: Previous position not found.")
@@ -42,8 +44,8 @@ commands.set("typescript:return-from-declaration", () => {
       file: position.file,
       start: {line: position.line, offset: position.offset},
     })
-  }
-})
+  },
+}))
 
 export async function handleDefinitionResult(
   result: protocol.DefinitionResponse,

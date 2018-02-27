@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const symbolsView_1 = require("./symbolsView");
 const fuzzaldrin_1 = require("fuzzaldrin");
-const atomts_1 = require("../../../atomts");
 const fileSymbolsTag_1 = require("./fileSymbolsTag");
 /**
  * this is a modified copy of symbols-view/lib/file-view.js
@@ -12,8 +11,9 @@ const fileSymbolsTag_1 = require("./fileSymbolsTag");
  * utilizing the typescript service instead of ctag.
  */
 class FileView extends symbolsView_1.default {
-    constructor(stack) {
+    constructor(stack, clientResolver) {
         super(stack);
+        this.clientResolver = clientResolver;
         this.cachedTags = {};
         this.editorsSubscription = atom.workspace.observeTextEditors((editor) => {
             const removeFromCache = () => {
@@ -165,7 +165,7 @@ class FileView extends symbolsView_1.default {
     // TODO optimize? when semantic-view is open, and has the current navTree -> use that instead of requesting it again?
     async getNavTree(filePath) {
         try {
-            const client = await atomts_1.clientResolver.get(filePath);
+            const client = await this.clientResolver.get(filePath);
             await client.executeOpen({ file: filePath });
             const navtreeResult = await client.executeNavTree({ file: filePath });
             const navTree = navtreeResult ? navtreeResult.body : void 0;

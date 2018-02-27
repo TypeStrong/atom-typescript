@@ -2,9 +2,9 @@ import * as protocol from "typescript/lib/protocol"
 
 interface Request {
   name: string
+  started: number
   reject(err: Error): void
   resolve(res: protocol.Response): void
-  started: number
 }
 
 // Callbacks keeps track of all the outstanding requests
@@ -13,7 +13,7 @@ export class Callbacks {
 
   constructor(private onPendingChange: (pending: string[]) => void) {}
 
-  add(seq: number, command: string) {
+  public add(seq: number, command: string) {
     return new Promise<protocol.Response>((resolve, reject) => {
       this.callbacks.set(seq, {
         name: command,
@@ -26,18 +26,7 @@ export class Callbacks {
     })
   }
 
-  // pending returns names of requests waiting for a response
-  pending(): string[] {
-    const pending: string[] = []
-
-    for (const {name} of this.callbacks.values()) {
-      pending.push(name)
-    }
-
-    return pending
-  }
-
-  rejectAll(error: any) {
+  public rejectAll(error: any) {
     for (const {reject} of this.callbacks.values()) {
       reject(error)
     }
@@ -47,12 +36,23 @@ export class Callbacks {
   }
 
   // Remove and return a Request object, if one exists
-  remove(seq: number): Request | undefined {
+  public remove(seq: number): Request | undefined {
     const req = this.callbacks.get(seq)
     this.callbacks.delete(seq)
     if (req) {
       this.onPendingChange(this.pending())
     }
     return req
+  }
+
+  // pending returns names of requests waiting for a response
+  private pending(): string[] {
+    const pending: string[] = []
+
+    for (const {name} of this.callbacks.values()) {
+      pending.push(name)
+    }
+
+    return pending
   }
 }
