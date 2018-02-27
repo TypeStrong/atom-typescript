@@ -32,26 +32,6 @@ class ProjectView extends symbolsView_1.default {
             this.attach();
         }
     }
-    didChangeQuery(query) {
-        if (query) {
-            this.startTaskDelayed(query);
-        }
-        else {
-            this.updatedTags.emit("tags", []);
-        }
-    }
-    //////////////// START: copied from fileSymbolsView /////////////////////////////
-    getEditor() {
-        return atom.workspace.getActiveTextEditor();
-    }
-    getPath() {
-        const editor = this.getEditor();
-        if (editor) {
-            return editor.getPath();
-        }
-        return undefined;
-    }
-    //////////////// END: copied from fileSymbolsView /////////////////////////////
     async populate() {
         if (this.tags) {
             await this.selectListView.update({ items: this.tags });
@@ -68,6 +48,7 @@ class ProjectView extends symbolsView_1.default {
                 this.selectListView.update({ loadingBadge: humanize.intComma(tagsRead) });
             }
             else {
+                // MOD added case for handling empty tag-list
                 this.tags = [];
                 const message = this.getEmptyResultMessage();
                 this.selectListView.update({
@@ -79,6 +60,7 @@ class ProjectView extends symbolsView_1.default {
         });
         this.updatedTags.emit("tags", this.tags);
     }
+    //////////////// significantly changed methods ///////////////////////////////
     stopTask() {
         if (this.startTaskDelayed && this.startTaskDelayed.cancel) {
             this.startTaskDelayed.cancel();
@@ -107,8 +89,28 @@ class ProjectView extends symbolsView_1.default {
             });
         }
     }
+    ///////////// custom code for using "navto" instead of files/ctags /////////////
     getEmptyResultMessage() {
         return this.search ? "No symbols found" : "Please enter search value";
+    }
+    didChangeQuery(query) {
+        if (query) {
+            this.startTaskDelayed(query);
+        }
+        else {
+            this.updatedTags.emit("tags", []);
+        }
+    }
+    //////////////// copied from fileSymbolsView /////////////////////////////
+    getEditor() {
+        return atom.workspace.getActiveTextEditor();
+    }
+    getPath() {
+        const editor = this.getEditor();
+        if (editor) {
+            return editor.getPath();
+        }
+        return undefined;
     }
     /////////////// custom tag generation: use tsserver /////////////////////
     async generate(filePath, searchValue) {

@@ -149,7 +149,6 @@ class SymbolsView {
             position = this.getTagLine(tag);
         }
         if (tag.file) {
-            ;
             atom.workspace.open(path.join(tag.directory, tag.file)).then(() => {
                 if (position) {
                     return this.moveToPosition(position);

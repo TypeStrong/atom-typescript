@@ -17,12 +17,15 @@ export class FileView extends SymbolsView {
   private cachedTags: any
   private editorsSubscription: any
   private initialState: any
+  private watchedEditors: WeakSet<TextEditor>
 
   constructor(stack: any, private clientResolver: ClientResolver) {
     super(stack)
     this.cachedTags = {}
+    this.watchedEditors = new WeakSet<TextEditor>()
 
     this.editorsSubscription = atom.workspace.observeTextEditors((editor: TextEditor) => {
+      if (this.watchedEditors.has(editor)) return
       const removeFromCache = () => {
         const path = editor.getPath()
         if (path) {
@@ -32,12 +35,15 @@ export class FileView extends SymbolsView {
       const editorSubscriptions = new CompositeDisposable()
       editorSubscriptions.add(editor.onDidChangeGrammar(removeFromCache))
       editorSubscriptions.add(editor.onDidSave(removeFromCache))
-      editorSubscriptions.add((editor as any).onDidChangePath(removeFromCache))
+      editorSubscriptions.add(editor.onDidChangePath(removeFromCache))
       editorSubscriptions.add(editor.getBuffer().onDidReload(removeFromCache))
       editorSubscriptions.add(editor.getBuffer().onDidDestroy(removeFromCache))
       editor.onDidDestroy(() => {
+        this.watchedEditors.delete(editor)
         editorSubscriptions.dispose()
       })
+
+      this.watchedEditors.add(editor)
     })
   }
 
@@ -110,7 +116,7 @@ export class FileView extends SymbolsView {
 
   public deserializeEditorState(editor: TextEditor, {bufferRanges, scrollTop}: any) {
     const editorElement = atom.views.getView(editor)
-    ;(editor as any).setSelectedBufferRanges(bufferRanges)
+    editor.setSelectedBufferRanges(bufferRanges)
     editorElement.setScrollTop(scrollTop)
   }
 

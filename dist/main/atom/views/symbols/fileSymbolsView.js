@@ -15,7 +15,10 @@ class FileView extends symbolsView_1.default {
         super(stack);
         this.clientResolver = clientResolver;
         this.cachedTags = {};
+        this.watchedEditors = new WeakSet();
         this.editorsSubscription = atom.workspace.observeTextEditors((editor) => {
+            if (this.watchedEditors.has(editor))
+                return;
             const removeFromCache = () => {
                 const path = editor.getPath();
                 if (path) {
@@ -29,8 +32,10 @@ class FileView extends symbolsView_1.default {
             editorSubscriptions.add(editor.getBuffer().onDidReload(removeFromCache));
             editorSubscriptions.add(editor.getBuffer().onDidDestroy(removeFromCache));
             editor.onDidDestroy(() => {
+                this.watchedEditors.delete(editor);
                 editorSubscriptions.dispose();
             });
+            this.watchedEditors.add(editor);
         });
     }
     destroy() {

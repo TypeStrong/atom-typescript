@@ -6,5 +6,6 @@ declare module "atom" {
 
   interface TextEditor {
     isDestroyed(): boolean
+    getURI(): string
   }
 }

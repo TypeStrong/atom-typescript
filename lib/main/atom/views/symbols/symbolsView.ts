@@ -90,7 +90,7 @@ export default class SymbolsView {
     // Style matched characters in search results
     const matches = match(name, this.selectListView.getFilterQuery())
 
-    if ((atom.project as any).getPaths().length > 1) {
+    if (atom.project.getPaths().length > 1) {
       file = path.join(path.basename(directory), file)
     }
 
@@ -162,7 +162,7 @@ export default class SymbolsView {
       previous = {
         editorId: editor.id,
         position: editor.getCursorBufferPosition(),
-        file: (editor as any).getURI(),
+        file: editor.getURI(),
       }
     }
 
@@ -171,7 +171,7 @@ export default class SymbolsView {
       position = this.getTagLine(tag)
     }
     if (tag.file) {
-      ;(atom.workspace as any).open(path.join(tag.directory, tag.file)).then(() => {
+      atom.workspace.open(path.join(tag.directory, tag.file)).then(() => {
         if (position) {
           return this.moveToPosition(position)
         }

@@ -41,29 +41,7 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  public didChangeQuery(query: string) {
-    if (query) {
-      this.startTaskDelayed(query)
-    } else {
-      this.updatedTags.emit("tags", [])
-    }
-  }
-
-  //////////////// START: copied from fileSymbolsView /////////////////////////////
-  public getEditor() {
-    return atom.workspace.getActiveTextEditor()
-  }
-
-  public getPath() {
-    const editor = this.getEditor()
-    if (editor) {
-      return editor.getPath()
-    }
-    return undefined
-  }
-  //////////////// END: copied from fileSymbolsView /////////////////////////////
-
-  private async populate() {
+  public async populate() {
     if (this.tags) {
       await this.selectListView.update({items: this.tags})
     }
@@ -80,6 +58,7 @@ export default class ProjectView extends SymbolsView {
         tagsRead += tags.length
         this.selectListView.update({loadingBadge: humanize.intComma(tagsRead)})
       } else {
+        // MOD added case for handling empty tag-list
         this.tags = []
         const message = this.getEmptyResultMessage()
         this.selectListView.update({
@@ -93,7 +72,9 @@ export default class ProjectView extends SymbolsView {
     this.updatedTags.emit("tags", this.tags)
   }
 
-  private stopTask() {
+  //////////////// significantly changed methods ///////////////////////////////
+
+  public stopTask() {
     if (this.startTaskDelayed && this.startTaskDelayed.cancel) {
       this.startTaskDelayed.cancel()
     }
@@ -103,7 +84,7 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  private startTask(searchValue: string): void {
+  public startTask(searchValue: string): void {
     // console.log('new request for query: "'+searchValue+'"...')
     this.stopTask()
 
@@ -124,8 +105,32 @@ export default class ProjectView extends SymbolsView {
     }
   }
 
-  private getEmptyResultMessage() {
+  ///////////// custom code for using "navto" instead of files/ctags /////////////
+
+  public getEmptyResultMessage() {
     return this.search ? "No symbols found" : "Please enter search value"
+  }
+
+  public didChangeQuery(query: string) {
+    if (query) {
+      this.startTaskDelayed(query)
+    } else {
+      this.updatedTags.emit("tags", [])
+    }
+  }
+
+  //////////////// copied from fileSymbolsView /////////////////////////////
+
+  public getEditor() {
+    return atom.workspace.getActiveTextEditor()
+  }
+
+  public getPath() {
+    const editor = this.getEditor()
+    if (editor) {
+      return editor.getPath()
+    }
+    return undefined
   }
 
   /////////////// custom tag generation: use tsserver /////////////////////
