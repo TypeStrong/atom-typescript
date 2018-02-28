@@ -7,9 +7,8 @@ const generator_1 = require("./generator");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
     if (filePath) {
-        // NOTE uses the "parent" package's setting (i.e. from symbols-view):
         const tag = await simpleSelectionView_1.selectListView({
-            items: generator_1.generate(filePath, true, deps),
+            items: (search) => generator_1.generateProject(filePath, search, deps),
             itemTemplate({ name, position, file }) {
                 const relfile = atom.project.relativize(file);
                 return (etch.dom("li", { class: "two-lines" },

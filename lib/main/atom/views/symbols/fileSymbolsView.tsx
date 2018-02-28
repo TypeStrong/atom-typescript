@@ -1,7 +1,7 @@
 import {TextEditor} from "atom"
 import {selectListView} from "../simpleSelectionView"
 import * as etch from "etch"
-import {generate} from "./generator"
+import {generateFile} from "./generator"
 import * as utils from "./utils"
 import {Tag} from "./fileSymbolsTag"
 import {Deps} from "./deps"
@@ -15,7 +15,7 @@ export async function toggle(editor: TextEditor, deps: Deps) {
       initialState = utils.serializeEditorState(editor)
     }
     const tag = await selectListView({
-      items: generate(filePath, false, deps),
+      items: generateFile(filePath, deps),
       itemTemplate: ({name, position}) => (
         <li class="two-lines">
           <div class="primary-line">{name}</div>

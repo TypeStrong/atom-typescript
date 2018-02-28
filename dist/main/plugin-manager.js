@@ -53,7 +53,6 @@ class PluginManager {
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
         this.symbolsViewController = new symbolsViewController_1.SymbolsViewController({
-            clientResolver: this.clientResolver,
             withTypescriptBuffer: this.withTypescriptBuffer,
         });
         this.subscriptions.add(this.statusPanel);

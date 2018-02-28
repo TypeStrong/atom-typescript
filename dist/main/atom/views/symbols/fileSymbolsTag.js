@@ -1,16 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Tag {
-    constructor(file, navTree, parent) {
-        this.file = file;
-        this.name = navTree.text;
-        this.type = this.getType(navTree.kind);
+    static fromNavTree(navTree, parent) {
         const start = navTree.spans[0].start;
-        this.position = { row: start.line - 1, column: start.offset };
-        this.parent = parent ? parent : null;
+        return new Tag({
+            name: navTree.text,
+            type: navTree.kind,
+            position: { row: start.line - 1, column: start.offset },
+            parent: parent ? parent : null,
+        });
     }
-    getType(kind) {
-        return kind;
+    static fromNavto(navTo, parent) {
+        const start = navTo.start;
+        return new Tag({
+            name: navTo.name,
+            type: navTo.kind,
+            position: { row: start.line - 1, column: start.offset },
+            parent: parent ? parent : null,
+            file: navTo.file,
+        });
+    }
+    constructor(props) {
+        this.position = props.position;
+        this.name = props.name;
+        this.type = props.type;
+        this.parent = props.parent;
+        this.file = props.file;
     }
 }
 exports.Tag = Tag;

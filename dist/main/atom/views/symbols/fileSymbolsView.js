@@ -13,7 +13,7 @@ async function toggle(editor, deps) {
             initialState = utils.serializeEditorState(editor);
         }
         const tag = await simpleSelectionView_1.selectListView({
-            items: generator_1.generate(filePath, false, deps),
+            items: generator_1.generateFile(filePath, deps),
             itemTemplate: ({ name, position }) => (etch.dom("li", { class: "two-lines" },
                 etch.dom("div", { class: "primary-line" }, name),
                 etch.dom("div", { class: "secondary-line" }, `Line ${position.row + 1}`))),

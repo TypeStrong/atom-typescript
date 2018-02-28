@@ -84,6 +84,25 @@ export class TypescriptBuffer {
     return
   }
 
+  public async getNavTo(search: string) {
+    const filePath = this.buffer.getPath()
+    if (!filePath) return
+    const client = await this.clientPromise
+    if (!client) return
+    try {
+      const navtoResult = await client.executeNavto({
+        file: filePath,
+        currentFileOnly: false,
+        searchValue: search,
+        maxResultCount: 1000,
+      })
+      return navtoResult.body!
+    } catch (err) {
+      console.error(err, filePath)
+    }
+    return
+  }
+
   private async open() {
     const filePath = this.buffer.getPath()
 
