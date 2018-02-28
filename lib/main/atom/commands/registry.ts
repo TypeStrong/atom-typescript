@@ -1,22 +1,18 @@
 import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
 import {StatusPanel} from "../../atom/components/statusPanel"
-import {TypescriptBuffer} from "../../typescriptBuffer"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
+import {WithTypescriptBuffer} from "../../plugin-manager"
 
 export interface Dependencies {
-  getTypescriptBuffer: GetTypescriptBuffer
+  withTypescriptBuffer: WithTypescriptBuffer
   clearErrors(): void
   getClient(filePath: string): Promise<TypescriptServiceClient>
   getStatusPanel(): StatusPanel
   getSemanticViewController(): SemanticViewController
   getSymbolsViewController(): SymbolsViewController
 }
-
-export type GetTypescriptBuffer = (
-  filePath: string,
-) => Promise<{buffer: TypescriptBuffer; isOpen: boolean}>
 
 export type AllowedSelectors = "atom-text-editor" | "atom-workspace"
 

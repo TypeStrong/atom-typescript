@@ -2,8 +2,8 @@ import * as Atom from "atom"
 import {ClientResolver} from "../../../client/clientResolver"
 import {ErrorPusher} from "../../errorPusher"
 import {spanToRange, pointToLocation} from "../utils"
-import {GetTypescriptBuffer} from "../commands/registry"
 import {TypescriptServiceClient} from "../../../client/client"
+import {WithTypescriptBuffer} from "../../plugin-manager"
 
 export class CodefixProvider {
   private supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
@@ -11,7 +11,7 @@ export class CodefixProvider {
   constructor(
     private clientResolver: ClientResolver,
     private errorPusher: ErrorPusher,
-    private getTypescriptBuffer: GetTypescriptBuffer,
+    private getTypescriptBuffer: WithTypescriptBuffer,
   ) {}
 
   public async runCodeFix(
@@ -57,17 +57,14 @@ export class CodefixProvider {
 
   public async applyFix(fix: protocol.CodeAction) {
     for (const f of fix.changes) {
-      const {buffer, isOpen} = await this.getTypescriptBuffer(f.fileName)
-
-      buffer.buffer.transact(() => {
-        for (const edit of f.textChanges.reverse()) {
-          buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
-        }
+      await this.getTypescriptBuffer(f.fileName, async (buffer, isOpen) => {
+        buffer.buffer.transact(() => {
+          for (const edit of f.textChanges.reverse()) {
+            buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
+          }
+        })
+        if (!isOpen) await buffer.buffer.save()
       })
-
-      if (!isOpen) {
-        buffer.buffer.save().then(() => buffer.buffer.destroy())
-      }
     }
   }
 

@@ -15,6 +15,11 @@ import {registerCommands} from "./atom/commands"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 
+export type WithTypescriptBuffer = <T>(
+  filePath: string,
+  action: (buffer: TypescriptBuffer, isOpen: boolean) => Promise<T>,
+) => Promise<T>
+
 export class PluginManager {
   // components
   private subscriptions: CompositeDisposable
@@ -34,10 +39,10 @@ export class PluginManager {
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
       this.errorPusher,
-      this.getTypescriptBuffer,
+      this.withTypescriptBuffer,
     )
-    this.semanticViewController = new SemanticViewController(this.clientResolver)
     this.symbolsViewController = new SymbolsViewController(this.clientResolver)
+    this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
@@ -149,7 +154,7 @@ export class PluginManager {
   public provideAutocomplete() {
     return [
       new AutocompleteProvider(this.clientResolver, {
-        getTypescriptBuffer: this.getTypescriptBuffer,
+        withTypescriptBuffer: this.withTypescriptBuffer,
       }),
     ]
   }
@@ -181,21 +186,17 @@ export class PluginManager {
 
   public getStatusPanel = () => this.statusPanel
 
-  public getTypescriptBuffer = async (filePath: string) => {
+  public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
     const pane = this.panes.find(p => p.buffer.getPath() === filePath)
-    if (pane) {
-      return {
-        buffer: pane.buffer,
-        isOpen: true,
-      }
-    }
+    if (pane) return action(pane.buffer, true)
 
-    // Wait for the buffer to load before resolving the promise
+    // no open buffer
     const buffer = await Atom.TextBuffer.load(filePath)
-
-    return {
-      buffer: TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp)),
-      isOpen: false,
+    try {
+      const tsbuffer = TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp))
+      return await action(tsbuffer, false)
+    } finally {
+      buffer.destroy()
     }
   }
 
