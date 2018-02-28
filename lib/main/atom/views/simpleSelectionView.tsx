@@ -4,7 +4,7 @@ import * as etch from "etch"
 
 export interface SelectListViewOptions<T> {
   items: T[] | Promise<T[]> | ((filterText: string) => T[]) | ((filterText: string) => Promise<T[]>)
-  itemTemplate: (item: T) => JSX.Element
+  itemTemplate: (item: T, context: SelectListView<T>) => JSX.Element
   itemFilterKey: keyof T
   didChangeSelection?: (item: T) => void
 }
@@ -36,9 +36,10 @@ export async function selectListView<T>({
         loadingMessage = undefined
         emptyMessage = "Please enter a search value"
       }
-      const select = new SelectListView({
+      const select: SelectListView<T> = new SelectListView({
         items: [] as T[],
-        elementForItem: (item: T) => etch.render(<li>{itemTemplate(item)}</li>) as HTMLElement,
+        elementForItem: (item: T) =>
+          etch.render(<li>{itemTemplate(item, select)}</li>) as HTMLElement,
         filterKeyForItem: (item: T) => `${item[itemFilterKey]}`,
         didChangeSelection,
         didCancelSelection: () => {
@@ -51,6 +52,7 @@ export async function selectListView<T>({
         didChangeQuery,
         emptyMessage,
       })
+      select.element.classList.add("atom-typescript")
       if (typeof items !== "function") {
         Promise.resolve(items).then(is => {
           select.update({items: is, loadingMessage: undefined})

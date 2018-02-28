@@ -6,6 +6,7 @@ declare class SelectListView<T> {
   element: HTMLElement
   focus(): void
   update(props: Partial<IProps<T>>): Promise<void>
+  getFilterQuery(): string
 }
 declare interface IProps<T> {
   /** an array containing the objects you want to show in the select list. */

@@ -5,6 +5,7 @@ import {generateFile} from "./generator"
 import * as utils from "./utils"
 import {Tag} from "./fileSymbolsTag"
 import {Deps} from "./deps"
+import {HighlightComponent} from "./highlightComponent"
 
 export async function toggle(editor: TextEditor, deps: Deps) {
   const filePath = editor.getPath()
@@ -16,9 +17,12 @@ export async function toggle(editor: TextEditor, deps: Deps) {
     }
     const tag = await selectListView({
       items: generateFile(filePath, deps),
-      itemTemplate: ({name, position}) => (
+      itemTemplate: ({name, position}, ctx) => (
         <li class="two-lines">
-          <div class="primary-line">{name}</div>
+          <HighlightComponent
+            styleClass="primary-line"
+            matches={utils.highlightMatches(name, ctx.getFilterQuery())}
+          />
           <div class="secondary-line">{`Line ${position.row + 1}`}</div>
         </li>
       ),

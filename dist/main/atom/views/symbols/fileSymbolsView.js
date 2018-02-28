@@ -4,6 +4,7 @@ const simpleSelectionView_1 = require("../simpleSelectionView");
 const etch = require("etch");
 const generator_1 = require("./generator");
 const utils = require("./utils");
+const highlightComponent_1 = require("./highlightComponent");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
     if (filePath) {
@@ -14,8 +15,8 @@ async function toggle(editor, deps) {
         }
         const tag = await simpleSelectionView_1.selectListView({
             items: generator_1.generateFile(filePath, deps),
-            itemTemplate: ({ name, position }) => (etch.dom("li", { class: "two-lines" },
-                etch.dom("div", { class: "primary-line" }, name),
+            itemTemplate: ({ name, position }, ctx) => (etch.dom("li", { class: "two-lines" },
+                etch.dom(highlightComponent_1.HighlightComponent, { styleClass: "primary-line", matches: utils.highlightMatches(name, ctx.getFilterQuery()) }),
                 etch.dom("div", { class: "secondary-line" }, `Line ${position.row + 1}`))),
             didChangeSelection(item) {
                 // NOTE uses the "parent" package's setting (i.e. from symbols-view):
