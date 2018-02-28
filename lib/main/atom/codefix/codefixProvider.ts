@@ -11,7 +11,7 @@ export class CodefixProvider {
   constructor(
     private clientResolver: ClientResolver,
     private errorPusher: ErrorPusher,
-    private getTypescriptBuffer: WithTypescriptBuffer,
+    private withTypescriptBuffer: WithTypescriptBuffer,
   ) {}
 
   public async runCodeFix(
@@ -20,7 +20,7 @@ export class CodefixProvider {
   ): Promise<protocol.CodeAction[]> {
     const filePath = textEditor.getPath()
 
-    if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
+    if (!filePath || !this.errorPusher || !this.clientResolver || !this.withTypescriptBuffer) {
       return []
     }
 
@@ -57,13 +57,12 @@ export class CodefixProvider {
 
   public async applyFix(fix: protocol.CodeAction) {
     for (const f of fix.changes) {
-      await this.getTypescriptBuffer(f.fileName, async (buffer, isOpen) => {
+      await this.withTypescriptBuffer(f.fileName, async buffer => {
         buffer.buffer.transact(() => {
           for (const edit of f.textChanges.reverse()) {
             buffer.buffer.setTextInRange(spanToRange(edit), edit.newText)
           }
         })
-        if (!isOpen) await buffer.buffer.save()
       })
     }
   }

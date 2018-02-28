@@ -40,13 +40,12 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
 
     if (newName !== undefined) {
       locs.map(async loc => {
-        await deps.withTypescriptBuffer(loc.file, async (buffer, isOpen) => {
+        await deps.withTypescriptBuffer(loc.file, async buffer => {
           buffer.buffer.transact(() => {
             for (const span of loc.locs) {
               buffer.buffer.setTextInRange(spanToRange(span), newName)
             }
           })
-          if (!isOpen) await buffer.buffer.save()
         })
       })
     }
