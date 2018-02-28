@@ -30,14 +30,16 @@ class PluginManager {
         this.withTypescriptBuffer = async (filePath, action) => {
             const pane = this.panes.find(p => p.buffer.getPath() === filePath);
             if (pane)
-                return action(pane.buffer, true);
+                return action(pane.buffer);
             // no open buffer
             const buffer = await Atom.TextBuffer.load(filePath);
             try {
                 const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp));
-                return await action(tsbuffer, false);
+                return await action(tsbuffer);
             }
             finally {
+                if (buffer.isModified())
+                    await buffer.save();
                 buffer.destroy();
             }
         };

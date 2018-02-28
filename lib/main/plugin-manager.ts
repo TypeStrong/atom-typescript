@@ -16,7 +16,7 @@ import {SemanticViewController} from "./atom/views/outline/semanticViewControlle
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
-  action: (buffer: TypescriptBuffer, isOpen: boolean) => Promise<T>,
+  action: (buffer: TypescriptBuffer) => Promise<T>,
 ) => Promise<T>
 
 export class PluginManager {
@@ -184,14 +184,15 @@ export class PluginManager {
 
   public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
     const pane = this.panes.find(p => p.buffer.getPath() === filePath)
-    if (pane) return action(pane.buffer, true)
+    if (pane) return action(pane.buffer)
 
     // no open buffer
     const buffer = await Atom.TextBuffer.load(filePath)
     try {
       const tsbuffer = TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp))
-      return await action(tsbuffer, false)
+      return await action(tsbuffer)
     } finally {
+      if (buffer.isModified()) await buffer.save()
       buffer.destroy()
     }
   }

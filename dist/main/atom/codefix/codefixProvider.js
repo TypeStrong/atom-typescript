@@ -2,15 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../utils");
 class CodefixProvider {
-    constructor(clientResolver, errorPusher, getTypescriptBuffer) {
+    constructor(clientResolver, errorPusher, withTypescriptBuffer) {
         this.clientResolver = clientResolver;
         this.errorPusher = errorPusher;
-        this.getTypescriptBuffer = getTypescriptBuffer;
+        this.withTypescriptBuffer = withTypescriptBuffer;
         this.supportedFixes = new WeakMap();
     }
     async runCodeFix(textEditor, bufferPosition) {
         const filePath = textEditor.getPath();
-        if (!filePath || !this.errorPusher || !this.clientResolver || !this.getTypescriptBuffer) {
+        if (!filePath || !this.errorPusher || !this.clientResolver || !this.withTypescriptBuffer) {
             return [];
         }
         const client = await this.clientResolver.get(filePath);
@@ -39,14 +39,12 @@ class CodefixProvider {
     }
     async applyFix(fix) {
         for (const f of fix.changes) {
-            await this.getTypescriptBuffer(f.fileName, async (buffer, isOpen) => {
+            await this.withTypescriptBuffer(f.fileName, async (buffer) => {
                 buffer.buffer.transact(() => {
                     for (const edit of f.textChanges.reverse()) {
                         buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
                     }
                 });
-                if (!isOpen)
-                    await buffer.buffer.save();
             });
         }
     }
