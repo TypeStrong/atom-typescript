@@ -2,10 +2,10 @@
 import {ClientResolver} from "../../client/clientResolver"
 import {FileLocationQuery} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
-import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
+import {WithTypescriptBuffer} from "../plugin-manager"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 
@@ -14,12 +14,7 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
 }
 
 interface Options {
-  getTypescriptBuffer: (
-    filePath: string,
-  ) => Promise<{
-    buffer: TypescriptBuffer
-    isOpen: boolean
-  }>
+  withTypescriptBuffer: WithTypescriptBuffer
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
@@ -85,8 +80,9 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     // Flush any pending changes for this buffer to get up to date completions
-    const {buffer} = await this.opts.getTypescriptBuffer(location.file)
-    await buffer.flush()
+    await this.opts.withTypescriptBuffer(location.file, async buffer => {
+      await buffer.flush()
+    })
 
     try {
       let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)

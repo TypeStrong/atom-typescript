@@ -27,27 +27,26 @@ class PluginManager {
             return this.clientResolver.get(filePath);
         };
         this.getStatusPanel = () => this.statusPanel;
-        this.getTypescriptBuffer = async (filePath) => {
+        this.withTypescriptBuffer = async (filePath, action) => {
             const pane = this.panes.find(p => p.buffer.getPath() === filePath);
-            if (pane) {
-                return {
-                    buffer: pane.buffer,
-                    isOpen: true,
-                };
-            }
-            // Wait for the buffer to load before resolving the promise
+            if (pane)
+                return action(pane.buffer, true);
+            // no open buffer
             const buffer = await Atom.TextBuffer.load(filePath);
-            return {
-                buffer: typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp)),
-                isOpen: false,
-            };
+            try {
+                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp));
+                return await action(tsbuffer, false);
+            }
+            finally {
+                buffer.destroy();
+            }
         };
         this.getSemanticViewController = () => this.semanticViewController;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new clientResolver_1.ClientResolver();
         this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
         this.errorPusher = new errorPusher_1.ErrorPusher();
-        this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.getTypescriptBuffer);
+        this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.clientResolver);
         this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
@@ -136,7 +135,7 @@ class PluginManager {
     provideAutocomplete() {
         return [
             new autoCompleteProvider_1.AutocompleteProvider(this.clientResolver, {
-                getTypescriptBuffer: this.getTypescriptBuffer,
+                withTypescriptBuffer: this.withTypescriptBuffer,
             }),
         ];
     }
