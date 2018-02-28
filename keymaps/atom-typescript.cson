@@ -10,10 +10,10 @@
   'f12': 'typescript:go-to-declaration'
 
 # Bindings for file symbols
-'.platform-darwin atom-text-editor:not([mini])[data-grammar^="source ts"]':
+'.platform-darwin atom-text-editor:not([mini]).typescript-editor':
   'cmd-r': 'typescript:toggle-file-symbols'
   'cmd-shift-r': 'typescript:toggle-project-symbols'
 
-'.platform-win32 atom-text-editor:not([mini])[data-grammar^="source ts"], .platform-linux atom-text-editor:not([mini])[data-grammar^="source ts"]':
+'.platform-win32 atom-text-editor:not([mini]).typescript-editor, .platform-linux atom-text-editor:not([mini]).typescript-editor':
   'ctrl-r': 'typescript:toggle-file-symbols'
   'ctrl-shift-r': 'typescript:toggle-project-symbols'

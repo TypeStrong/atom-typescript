@@ -2,21 +2,26 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const SelectListView = require("atom-select-list");
 const etch = require("etch");
-async function selectListView({ items, itemTemplate, itemFilterKey, }) {
+async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, }) {
     let panel;
     const currentFocus = document.activeElement;
     try {
         return await new Promise(resolve => {
             const select = new SelectListView({
-                items,
+                items: [],
                 elementForItem: (item) => etch.render(etch.dom("li", null, itemTemplate(item))),
                 filterKeyForItem: (item) => `${item[itemFilterKey]}`,
+                didChangeSelection,
                 didCancelSelection: () => {
                     resolve();
                 },
                 didConfirmSelection: (item) => {
                     resolve(item);
                 },
+                loadingMessage: "Loading...",
+            });
+            Promise.resolve(items).then(is => {
+                select.update({ items: is, loadingMessage: undefined });
             });
             panel = atom.workspace.addModalPanel({
                 item: select,

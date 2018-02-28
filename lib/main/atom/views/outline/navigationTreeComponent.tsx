@@ -12,7 +12,7 @@ import {
   restoreCollapsed,
   prepareNavTree,
 } from "./navTreeUtils"
-import {ClientResolver} from "../../../../client/clientResolver"
+import {WithTypescriptBuffer} from "../../../plugin-manager"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
@@ -24,8 +24,8 @@ export class NavigationTreeComponent
   private editor?: TextEditor
   private editorScrolling?: Disposable
   private editorChanging?: Disposable
-  private clientResolver?: ClientResolver
   private selectedNode: NavigationTreeViewModel | null = null
+  private withTypescriptBuffer?: WithTypescriptBuffer
 
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
@@ -52,8 +52,8 @@ export class NavigationTreeComponent
     await etch.destroy(this)
   }
 
-  public setClientResolver(cr: ClientResolver) {
-    this.clientResolver = cr
+  public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
+    this.withTypescriptBuffer = wtb
   }
 
   public getSelectedNode() {
@@ -117,21 +117,19 @@ export class NavigationTreeComponent
 
   private loadNavTree = async () => {
     if (!this.editor) return
-    if (!this.clientResolver) return
+    if (!this.withTypescriptBuffer) return
     const filePath = this.editor.getPath()
-    if (filePath) {
-      try {
-        const client = await this.clientResolver.get(filePath)
-        await client.executeOpen({file: filePath})
-        const navtreeResult = await client.executeNavTree({file: filePath})
-        const navTree = navtreeResult.body
+    if (!filePath) return
+    try {
+      return await this.withTypescriptBuffer(filePath, async buffer => {
+        const navTree = await buffer.getNavTree()
         if (navTree) {
           this.setNavTree(navTree as NavigationTreeViewModel)
           await etch.update(this)
         }
-      } catch (err) {
-        console.error(err, filePath)
-      }
+      })
+    } catch (err) {
+      console.error(err, filePath)
     }
   }
 

@@ -130,7 +130,7 @@ export class TypescriptServiceClient {
   public executeNavTree(args: protocol.FileRequestArgs): Promise<protocol.NavTreeResponse> {
     return this.execute("navtree", args)
   }
-  executeNavto(args: protocol.NavtoRequestArgs): Promise<protocol.NavtoResponse> {
+  public executeNavto(args: protocol.NavtoRequestArgs): Promise<protocol.NavtoResponse> {
     return this.execute("navto", args)
   }
 

@@ -7,6 +7,6 @@ addCommand("atom-text-editor", "typescript:toggle-project-symbols", deps => ({
     if (!commandForTypeScript(e)) {
       return
     }
-    deps.getSymbolsViewController().toggleProjectView()
+    deps.getSymbolsViewController().toggleProjectView(e.currentTarget.getModel())
   },
 }))

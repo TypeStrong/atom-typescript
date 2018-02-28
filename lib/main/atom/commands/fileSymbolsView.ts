@@ -7,6 +7,6 @@ addCommand("atom-text-editor", "typescript:toggle-file-symbols", deps => ({
     if (!commandForTypeScript(e)) {
       return
     }
-    deps.getSymbolsViewController().toggleFileView()
+    deps.getSymbolsViewController().toggleFileView(e.currentTarget.getModel())
   },
 }))

@@ -70,6 +70,20 @@ export class TypescriptBuffer {
     }
   }
 
+  public async getNavTree() {
+    const filePath = this.buffer.getPath()
+    if (!filePath) return
+    const client = await this.clientPromise
+    if (!client) return
+    try {
+      const navtreeResult = await client.executeNavTree({file: filePath})
+      return navtreeResult.body!
+    } catch (err) {
+      console.error(err, filePath)
+    }
+    return
+  }
+
   private async open() {
     const filePath = this.buffer.getPath()
 

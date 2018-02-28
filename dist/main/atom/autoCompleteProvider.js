@@ -38,8 +38,9 @@ class AutocompleteProvider {
             }
         }
         // Flush any pending changes for this buffer to get up to date completions
-        const { buffer } = await this.opts.getTypescriptBuffer(location.file);
-        await buffer.flush();
+        await this.opts.withTypescriptBuffer(location.file, async (buffer) => {
+            await buffer.flush();
+        });
         try {
             let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
             const alphaPrefix = prefix.replace(/\W/g, "");

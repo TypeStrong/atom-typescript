@@ -1,6 +1,6 @@
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
-import {ClientResolver} from "../../../../client/clientResolver"
+import {WithTypescriptBuffer} from "../../../plugin-manager"
 
 export const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view"
 
@@ -33,8 +33,8 @@ export class SemanticView {
     this.comp = new NavigationTreeComponent({navTree: config.navTree})
   }
 
-  public setClientResolver(cr: ClientResolver) {
-    this.comp.setClientResolver(cr)
+  public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
+    this.comp.setWithTypescriptBuffer(wtb)
     this.comp.update({})
   }
 

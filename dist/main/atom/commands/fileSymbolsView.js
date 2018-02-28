@@ -8,7 +8,7 @@ registry_1.addCommand("atom-text-editor", "typescript:toggle-file-symbols", deps
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        deps.getSymbolsViewController().toggleFileView();
+        deps.getSymbolsViewController().toggleFileView(e.currentTarget.getModel());
     },
 }));
 //# sourceMappingURL=fileSymbolsView.js.map

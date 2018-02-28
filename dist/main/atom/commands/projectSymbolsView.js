@@ -8,7 +8,7 @@ registry_1.addCommand("atom-text-editor", "typescript:toggle-project-symbols", d
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        deps.getSymbolsViewController().toggleProjectView();
+        deps.getSymbolsViewController().toggleProjectView(e.currentTarget.getModel());
     },
 }));
 //# sourceMappingURL=projectSymbolsView.js.map

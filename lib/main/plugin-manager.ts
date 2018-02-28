@@ -41,8 +41,11 @@ export class PluginManager {
       this.errorPusher,
       this.withTypescriptBuffer,
     )
-    this.symbolsViewController = new SymbolsViewController(this.clientResolver)
     this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
+    this.symbolsViewController = new SymbolsViewController({
+      clientResolver: this.clientResolver,
+      withTypescriptBuffer: this.withTypescriptBuffer,
+    })
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
