@@ -29,4 +29,4 @@ class Tag {
     }
 }
 exports.Tag = Tag;
-//# sourceMappingURL=fileSymbolsTag.js.map
+//# sourceMappingURL=symbolsTag.js.map

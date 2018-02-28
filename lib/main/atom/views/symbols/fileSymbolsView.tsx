@@ -3,7 +3,7 @@ import {selectListView} from "../simpleSelectionView"
 import * as etch from "etch"
 import {generateFile} from "./generator"
 import * as utils from "./utils"
-import {Tag} from "./fileSymbolsTag"
+import {Tag} from "./symbolsTag"
 import {Deps} from "./deps"
 import {HighlightComponent} from "./highlightComponent"
 

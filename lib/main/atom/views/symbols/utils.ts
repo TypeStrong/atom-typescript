@@ -1,4 +1,4 @@
-import {Tag} from "./fileSymbolsTag"
+import {Tag} from "./symbolsTag"
 import {TextEditor} from "atom"
 import {match} from "fuzzaldrin"
 import {QueryMatch} from "./match.d"

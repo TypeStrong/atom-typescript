@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const fileSymbolsTag_1 = require("./fileSymbolsTag");
+const symbolsTag_1 = require("./symbolsTag");
 async function generateFile(filePath, deps) {
     const navtree = await getNavTree(filePath, deps);
     if (navtree && navtree.childItems) {
@@ -23,7 +23,7 @@ exports.generateProject = generateProject;
 function* parseNavTree(navTree, parent) {
     navTree.sort((a, b) => a.spans[0].start.line - b.spans[0].start.line);
     for (const item of navTree) {
-        const tag = fileSymbolsTag_1.Tag.fromNavTree(item, parent);
+        const tag = symbolsTag_1.Tag.fromNavTree(item, parent);
         yield tag;
         if (item.childItems)
             yield* parseNavTree(item.childItems, tag);
@@ -31,7 +31,7 @@ function* parseNavTree(navTree, parent) {
 }
 function* parseNavTo(navTree, parent) {
     for (const item of navTree) {
-        yield fileSymbolsTag_1.Tag.fromNavto(item, parent);
+        yield symbolsTag_1.Tag.fromNavto(item, parent);
     }
 }
 async function getNavTree(filePath, deps) {
