@@ -26,14 +26,13 @@ function deserializeEditorState(editor, { bufferRanges, scrollTop }) {
 }
 exports.deserializeEditorState = deserializeEditorState;
 // extracted/adapted from symbols-view package (symbols-view.js::SymbolsView.highlightMatches)
-function highlightMatches(name, query, offsetIndex = 0) {
+function highlightMatches(name, query) {
     let lastIndex = 0;
     let matchedChars = []; // Build up a set of matched chars to be more semantic
     const queryMatches = [];
     const matches = fuzzaldrin_1.match(name, query);
     let matchIndex;
-    for (matchIndex of Array.from(matches)) {
-        matchIndex -= offsetIndex;
+    for (matchIndex of matches) {
         if (matchIndex < 0) {
             continue; // If marking up the basename, omit name matches
         }

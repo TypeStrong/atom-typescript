@@ -19,10 +19,9 @@ export async function toggle(editor: TextEditor, deps: Deps) {
       items: generateFile(filePath, deps),
       itemTemplate: ({name, position}, ctx) => (
         <li class="two-lines">
-          <HighlightComponent
-            styleClass="primary-line"
-            matches={utils.highlightMatches(name, ctx.getFilterQuery())}
-          />
+          <div class="primary-line">
+            <HighlightComponent label={name} query={ctx.getFilterQuery()} />
+          </div>
           <div class="secondary-line">{`Line ${position.row + 1}`}</div>
         </li>
       ),
@@ -33,6 +32,7 @@ export async function toggle(editor: TextEditor, deps: Deps) {
         }
       },
       itemFilterKey: "name",
+      itemsClassList: ["atom-typescript"],
     })
     if (tag) utils.openTag(tag)
     else if (initialState) utils.deserializeEditorState(editor, initialState)
