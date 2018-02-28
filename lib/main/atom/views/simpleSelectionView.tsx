@@ -7,6 +7,7 @@ export interface SelectListViewOptions<T> {
   itemTemplate: (item: T, context: SelectListView<T>) => JSX.Element
   itemFilterKey: keyof T
   didChangeSelection?: (item: T) => void
+  itemsClassList?: string[]
 }
 
 export async function selectListView<T>({
@@ -14,6 +15,7 @@ export async function selectListView<T>({
   itemTemplate,
   itemFilterKey,
   didChangeSelection,
+  itemsClassList,
 }: SelectListViewOptions<T>): Promise<T | undefined> {
   let panel: Panel<SelectListView<T>> | undefined
   const currentFocus = document.activeElement as HTMLElement
@@ -51,8 +53,8 @@ export async function selectListView<T>({
         loadingMessage,
         didChangeQuery,
         emptyMessage,
+        itemsClassList,
       })
-      select.element.classList.add("atom-typescript")
       if (typeof items !== "function") {
         Promise.resolve(items).then(is => {
           select.update({items: is, loadingMessage: undefined})

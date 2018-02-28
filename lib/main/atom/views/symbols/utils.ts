@@ -29,19 +29,14 @@ export function deserializeEditorState(editor: TextEditor, {bufferRanges, scroll
 }
 
 // extracted/adapted from symbols-view package (symbols-view.js::SymbolsView.highlightMatches)
-export function highlightMatches(
-  name: string,
-  query: string,
-  offsetIndex: number = 0,
-): QueryMatch[] {
+export function highlightMatches(name: string, query: string): QueryMatch[] {
   let lastIndex: number = 0
   let matchedChars: string[] = [] // Build up a set of matched chars to be more semantic
   const queryMatches: QueryMatch[] = []
 
   const matches: number[] = match(name, query)
   let matchIndex: number
-  for (matchIndex of Array.from(matches)) {
-    matchIndex -= offsetIndex
+  for (matchIndex of matches) {
     if (matchIndex < 0) {
       continue // If marking up the basename, omit name matches
     }

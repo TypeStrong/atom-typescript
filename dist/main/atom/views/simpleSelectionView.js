@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const SelectListView = require("atom-select-list");
 const etch = require("etch");
-async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, }) {
+async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, itemsClassList, }) {
     let panel;
     const currentFocus = document.activeElement;
     try {
@@ -38,8 +38,8 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 loadingMessage,
                 didChangeQuery,
                 emptyMessage,
+                itemsClassList,
             });
-            select.element.classList.add("atom-typescript");
             if (typeof items !== "function") {
                 Promise.resolve(items).then(is => {
                     select.update({ items: is, loadingMessage: undefined });
