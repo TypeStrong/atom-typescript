@@ -26,7 +26,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
             }
             const select = new SelectListView({
                 items: [],
-                elementForItem: (item) => etch.render(etch.dom("li", null, itemTemplate(item))),
+                elementForItem: (item) => etch.render(etch.dom("li", null, itemTemplate(item, select))),
                 filterKeyForItem: (item) => `${item[itemFilterKey]}`,
                 didChangeSelection,
                 didCancelSelection: () => {
@@ -39,6 +39,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 didChangeQuery,
                 emptyMessage,
             });
+            select.element.classList.add("atom-typescript");
             if (typeof items !== "function") {
                 Promise.resolve(items).then(is => {
                     select.update({ items: is, loadingMessage: undefined });
