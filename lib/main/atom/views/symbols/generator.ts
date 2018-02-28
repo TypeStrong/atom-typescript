@@ -1,4 +1,4 @@
-import {Tag} from "./fileSymbolsTag"
+import {Tag} from "./symbolsTag"
 import {NavigationTree, NavtoItem} from "typescript/lib/protocol"
 import {Deps} from "./deps"
 
