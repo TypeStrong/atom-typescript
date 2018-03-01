@@ -4,7 +4,7 @@ const simpleSelectionView_1 = require("../simpleSelectionView");
 const etch = require("etch");
 const generator_1 = require("./generator");
 const utils = require("./utils");
-const highlightComponent_1 = require("./highlightComponent");
+const highlightComponent_1 = require("../highlightComponent");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
     if (filePath) {
@@ -26,7 +26,6 @@ async function toggle(editor, deps) {
                 }
             },
             itemFilterKey: "name",
-            itemsClassList: ["atom-typescript"],
         });
         if (tag)
             utils.openTag(tag);

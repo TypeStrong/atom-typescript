@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const SelectListView = require("atom-select-list");
 const etch = require("etch");
-async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, itemsClassList, }) {
+async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, }) {
     let panel;
     const currentFocus = document.activeElement;
     try {
@@ -26,7 +26,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
             }
             const select = new SelectListView({
                 items: [],
-                elementForItem: (item) => etch.render(etch.dom("li", null, itemTemplate(item, select))),
+                elementForItem: (item) => etch.render(itemTemplate(item, select)),
                 filterKeyForItem: (item) => `${item[itemFilterKey]}`,
                 didChangeSelection,
                 didCancelSelection: () => {
@@ -38,7 +38,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 loadingMessage,
                 didChangeQuery,
                 emptyMessage,
-                itemsClassList,
+                itemsClassList: ["atom-typescript"],
             });
             if (typeof items !== "function") {
                 Promise.resolve(items).then(is => {

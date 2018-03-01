@@ -4,6 +4,7 @@ const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
+const highlightComponent_1 = require("../views/highlightComponent");
 const prevCursorPositions = [];
 async function open(item) {
     const editor = await atom.workspace.open(item.file, {
@@ -51,9 +52,9 @@ async function handleDefinitionResult(result, location) {
     else if (result.body.length > 1) {
         const res = await simpleSelectionView_1.selectListView({
             items: result.body,
-            itemTemplate: item => {
-                return (etch.dom("div", null,
-                    etch.dom("span", null, item.file),
+            itemTemplate: (item, ctx) => {
+                return (etch.dom("li", null,
+                    etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() }),
                     etch.dom("div", { class: "pull-right" },
                         "line: ",
                         item.start.line)));

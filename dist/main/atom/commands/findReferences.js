@@ -5,6 +5,7 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const tsView_1 = require("../components/tsView");
+const highlightComponent_1 = require("../views/highlightComponent");
 registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
     description: "Find where symbol under text cursor is referenced",
     async didDispatch(e) {
@@ -19,10 +20,10 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
         const client = await deps.getClient(location.file);
         const result = await client.executeReferences(location);
         const res = await simpleSelectionView_1.selectListView({
-            items: result.body.refs,
-            itemTemplate: item => {
-                return (etch.dom("div", null,
-                    etch.dom("span", null, atom.project.relativize(item.file)),
+            items: result.body.refs.map(r => (Object.assign({}, r, { file: atom.project.relativize(r.file) }))),
+            itemTemplate: (item, ctx) => {
+                return (etch.dom("li", null,
+                    etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() }),
                     etch.dom("div", { class: "pull-right" },
                         "line: $",
                         item.start.line),
