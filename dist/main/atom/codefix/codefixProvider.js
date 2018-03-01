@@ -48,6 +48,9 @@ class CodefixProvider {
             });
         }
     }
+    dispose() {
+        // NOOP
+    }
     async getSupportedFixes(client) {
         let codes = this.supportedFixes.get(client);
         if (codes) {

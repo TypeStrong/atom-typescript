@@ -8,10 +8,13 @@ import "./clearErrors"
 import "./formatCode"
 import "./findReferences"
 import "./goToDeclaration"
+import "./returnFromDeclaration"
 import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
 import "./semanticView"
+import "./fileSymbolsView"
+import "./projectSymbolsView"
 
 export function registerCommands(deps: Dependencies) {
   const disp = new CompositeDisposable()

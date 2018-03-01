@@ -13,6 +13,9 @@ import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {registerCommands} from "./atom/commands"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
+import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
+import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
+import {State} from "./packageState"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -27,23 +30,37 @@ export class PluginManager {
   private errorPusher: ErrorPusher
   private codefixProvider: CodefixProvider
   private semanticViewController: SemanticViewController
+  private symbolsViewController: SymbolsViewController
+  private editorPosHist: EditorPositionHistoryManager
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
 
-  public constructor() {
+  public constructor(state?: State) {
     this.subscriptions = new CompositeDisposable()
+
     this.clientResolver = new ClientResolver()
+    this.subscriptions.add(this.clientResolver)
+
     this.statusPanel = new StatusPanel({clientResolver: this.clientResolver})
+    this.subscriptions.add(this.statusPanel)
+
     this.errorPusher = new ErrorPusher()
+    this.subscriptions.add(this.errorPusher)
+
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
       this.errorPusher,
       this.withTypescriptBuffer,
     )
-    this.semanticViewController = new SemanticViewController(this.clientResolver)
-    this.subscriptions.add(this.statusPanel)
-    this.subscriptions.add(this.clientResolver)
-    this.subscriptions.add(this.errorPusher)
+    this.subscriptions.add(this.codefixProvider)
+
+    this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
     this.subscriptions.add(this.semanticViewController)
+
+    this.symbolsViewController = new SymbolsViewController(this)
+    this.subscriptions.add(this.symbolsViewController)
+
+    this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)
+    this.subscriptions.add(this.editorPosHist)
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))
@@ -116,6 +133,13 @@ export class PluginManager {
     this.subscriptions.dispose()
   }
 
+  public serialize(): State {
+    return {
+      version: "0.1",
+      editorPosHistState: this.editorPosHist.serialize(),
+    }
+  }
+
   public consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
     const linter = register({
       name: "Typescript",
@@ -164,7 +188,7 @@ export class PluginManager {
   }
 
   public provideHyperclick() {
-    return getHyperclickProvider(this.clientResolver)
+    return getHyperclickProvider(this.clientResolver, this.editorPosHist)
   }
 
   public clearErrors = () => {
@@ -198,4 +222,8 @@ export class PluginManager {
   }
 
   public getSemanticViewController = () => this.semanticViewController
+
+  public getSymbolsViewController = () => this.symbolsViewController
+
+  public getEditorPositionHistoryManager = () => this.editorPosHist
 }

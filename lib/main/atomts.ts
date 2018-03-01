@@ -1,11 +1,12 @@
-import {PluginManager} from "./plugin-manager"
+import {PluginManager} from "./pluginManager"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
+import {State} from "./packageState"
 export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 
 let pluginManager: PluginManager | undefined
 
-export async function activate() {
+export async function activate(state: State) {
   const pns = atom.packages.getAvailablePackageNames()
   if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
     await require("atom-package-deps").install("atom-typescript", true)
@@ -14,13 +15,18 @@ export async function activate() {
   require("etch").setScheduler(atom.views)
 
   // tslint:disable-next-line:no-shadowed-variable
-  const {PluginManager} = require("./plugin-manager")
-  pluginManager = new PluginManager()
+  const {PluginManager} = require("./pluginManager")
+  pluginManager = new PluginManager(state)
 }
 
 export function deactivate() {
   if (pluginManager) pluginManager.destroy()
   pluginManager = undefined
+}
+
+export function serialize() {
+  if (pluginManager) return pluginManager.serialize()
+  else return undefined
 }
 
 ////////////////////////////////// Consumers ///////////////////////////////////

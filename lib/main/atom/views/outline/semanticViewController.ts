@@ -1,18 +1,18 @@
 import {CompositeDisposable} from "atom"
 import {SemanticView, SEMANTIC_VIEW_URI} from "./semanticView"
 import {Disposable} from "atom"
-import {ClientResolver} from "../../../../client/clientResolver"
+import {WithTypescriptBuffer} from "../../../pluginManager"
 
 export class SemanticViewController {
   private view?: SemanticView
   private subscriptions: CompositeDisposable
 
-  constructor(private clientResolver: ClientResolver) {
+  constructor(private withTypescriptBuffer: WithTypescriptBuffer) {
     this.subscriptions = new CompositeDisposable()
 
     const pane = atom.workspace.paneForURI(SEMANTIC_VIEW_URI)
     if (pane) this.view = pane.itemForURI(SEMANTIC_VIEW_URI) as SemanticView | undefined
-    if (this.view) this.view.setClientResolver(this.clientResolver)
+    if (this.view) this.view.setWithTypescriptBuffer(this.withTypescriptBuffer)
 
     this.subscriptions.add(
       new Disposable(() => {
@@ -40,7 +40,7 @@ export class SemanticViewController {
   private async show(): Promise<void> {
     if (!this.view) {
       this.view = SemanticView.create({navTree: null})
-      this.view.setClientResolver(this.clientResolver)
+      this.view.setWithTypescriptBuffer(this.withTypescriptBuffer)
     }
 
     await atom.workspace.open(this.view, {searchAllPanes: true})

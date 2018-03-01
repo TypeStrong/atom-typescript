@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const goToDeclaration_1 = require("./commands/goToDeclaration");
 const utils_1 = require("./utils");
-function getHyperclickProvider(clientResolver) {
+function getHyperclickProvider(clientResolver, editorPosHist) {
     return {
         providerName: "typescript-hyperclick-provider",
         wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
@@ -24,7 +24,7 @@ function getHyperclickProvider(clientResolver) {
                     };
                     const client = await clientResolver.get(location.file);
                     const result = await client.executeDefinition(location);
-                    goToDeclaration_1.handleDefinitionResult(result, location);
+                    goToDeclaration_1.handleDefinitionResult(result, editor, editorPosHist);
                 },
             };
         },

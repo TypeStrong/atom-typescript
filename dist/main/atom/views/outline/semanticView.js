@@ -18,8 +18,8 @@ class SemanticView {
     get element() {
         return this.comp.element;
     }
-    setClientResolver(cr) {
-        this.comp.setClientResolver(cr);
+    setWithTypescriptBuffer(wtb) {
+        this.comp.setWithTypescriptBuffer(wtb);
         this.comp.update({});
     }
     getTitle() {

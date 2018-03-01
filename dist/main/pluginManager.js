@@ -13,8 +13,10 @@ const typescriptEditorPane_1 = require("./typescriptEditorPane");
 const typescriptBuffer_1 = require("./typescriptBuffer");
 const commands_1 = require("./atom/commands");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
+const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
+const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 class PluginManager {
-    constructor() {
+    constructor(state) {
         this.panes = []; // TODO: do we need it?
         this.clearErrors = () => {
             this.errorPusher.clear();
@@ -44,16 +46,23 @@ class PluginManager {
             }
         };
         this.getSemanticViewController = () => this.semanticViewController;
+        this.getSymbolsViewController = () => this.symbolsViewController;
+        this.getEditorPositionHistoryManager = () => this.editorPosHist;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new clientResolver_1.ClientResolver();
-        this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
-        this.errorPusher = new errorPusher_1.ErrorPusher();
-        this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
-        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.clientResolver);
-        this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
+        this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
+        this.subscriptions.add(this.statusPanel);
+        this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
+        this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
+        this.subscriptions.add(this.codefixProvider);
+        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
         this.subscriptions.add(this.semanticViewController);
+        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController(this);
+        this.subscriptions.add(this.symbolsViewController);
+        this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
+        this.subscriptions.add(this.editorPosHist);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
         let activePane;
@@ -107,6 +116,12 @@ class PluginManager {
     destroy() {
         this.subscriptions.dispose();
     }
+    serialize() {
+        return {
+            version: "0.1",
+            editorPosHistState: this.editorPosHist.serialize(),
+        };
+    }
     consumeLinter(register) {
         const linter = register({
             name: "Typescript",
@@ -148,8 +163,8 @@ class PluginManager {
         return new codefix_1.CodeActionsProvider(this.codefixProvider);
     }
     provideHyperclick() {
-        return hyperclickProvider_1.getHyperclickProvider(this.clientResolver);
+        return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
     }
 }
 exports.PluginManager = PluginManager;
-//# sourceMappingURL=plugin-manager.js.map
+//# sourceMappingURL=pluginManager.js.map

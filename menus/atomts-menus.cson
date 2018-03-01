@@ -9,6 +9,8 @@
         { 'label': 'Go To Declaration', 'command': 'typescript:go-to-declaration' }
         { 'label': 'Return From Declaration', 'command': 'typescript:return-from-declaration' }
         { 'label': 'Toggle Semantic View', 'command': 'typescript:toggle-semantic-view' }
+        { 'label': 'Toggle File Symbols', 'command': 'typescript:toggle-file-symbols' }
+        { 'label': 'Toggle Project Symbols', 'command': 'typescript:toggle-project-symbols' }
       ]
     ]
   }

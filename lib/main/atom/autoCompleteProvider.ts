@@ -5,7 +5,7 @@ import * as ACP from "atom/autocomplete-plus"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
-import {WithTypescriptBuffer} from "../plugin-manager"
+import {WithTypescriptBuffer} from "../pluginManager"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 
