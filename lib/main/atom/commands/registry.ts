@@ -4,6 +4,7 @@ import {StatusPanel} from "../../atom/components/statusPanel"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
 import {WithTypescriptBuffer} from "../../plugin-manager"
+import {EditorPositionHistoryManager} from "../EditorPositionHistoryManager"
 
 export interface Dependencies {
   withTypescriptBuffer: WithTypescriptBuffer
@@ -12,6 +13,7 @@ export interface Dependencies {
   getStatusPanel(): StatusPanel
   getSemanticViewController(): SemanticViewController
   getSymbolsViewController(): SymbolsViewController
+  getEditorPositionHistoryManager(): EditorPositionHistoryManager
 }
 
 export type AllowedSelectors = "atom-text-editor" | "atom-workspace"

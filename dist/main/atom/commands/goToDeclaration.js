@@ -5,47 +5,24 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const highlightComponent_1 = require("../views/highlightComponent");
-const prevCursorPositions = [];
-async function open(item) {
-    const editor = await atom.workspace.open(item.file, {
-        initialLine: item.start.line - 1,
-        initialColumn: item.start.offset - 1,
-    });
-    if (atom.workspace.isTextEditor(editor)) {
-        editor.scrollToCursorPosition({ center: true });
-    }
-}
 registry_1.addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
     description: "Go to declaration of symbol under text cursor",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const location = utils_1.getFilePathPosition(e.currentTarget.getModel());
+        const editor = e.currentTarget.getModel();
+        const location = utils_1.getFilePathPosition(editor);
         if (!location) {
             e.abortKeyBinding();
             return;
         }
         const client = await deps.getClient(location.file);
         const result = await client.executeDefinition(location);
-        handleDefinitionResult(result, location);
+        handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager());
     },
 }));
-registry_1.addCommand("atom-workspace", "typescript:return-from-declaration", () => ({
-    description: "If used `go-to-declaration`, return to previous text cursor position",
-    async didDispatch() {
-        const position = prevCursorPositions.pop();
-        if (!position) {
-            atom.notifications.addInfo("AtomTS: Previous position not found.");
-            return;
-        }
-        open({
-            file: position.file,
-            start: { line: position.line, offset: position.offset },
-        });
-    },
-}));
-async function handleDefinitionResult(result, location) {
+async function handleDefinitionResult(result, editor, hist) {
     if (!result.body) {
         return;
     }
@@ -61,14 +38,11 @@ async function handleDefinitionResult(result, location) {
             },
             itemFilterKey: "file",
         });
-        if (res) {
-            prevCursorPositions.push(location);
-            open(res);
-        }
+        if (res)
+            hist.goForward(editor, res);
     }
     else if (result.body.length) {
-        prevCursorPositions.push(location);
-        open(result.body[0]);
+        hist.goForward(editor, result.body[0]);
     }
 }
 exports.handleDefinitionResult = handleDefinitionResult;

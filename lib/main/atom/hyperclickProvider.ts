@@ -2,8 +2,12 @@ import * as Atom from "atom"
 import {ClientResolver} from "../../client/clientResolver"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
 import {isTypescriptEditorWithPath} from "./utils"
+import {EditorPositionHistoryManager} from "./EditorPositionHistoryManager"
 
-export function getHyperclickProvider(clientResolver: ClientResolver) {
+export function getHyperclickProvider(
+  clientResolver: ClientResolver,
+  editorPosHist: EditorPositionHistoryManager,
+) {
   return {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
@@ -26,7 +30,7 @@ export function getHyperclickProvider(clientResolver: ClientResolver) {
           }
           const client = await clientResolver.get(location.file)
           const result = await client.executeDefinition(location)
-          handleDefinitionResult(result, location)
+          handleDefinitionResult(result, editor, editorPosHist)
         },
       }
     },

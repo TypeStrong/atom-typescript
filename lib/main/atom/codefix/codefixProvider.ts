@@ -67,6 +67,10 @@ export class CodefixProvider {
     }
   }
 
+  public dispose() {
+    // NOOP
+  }
+
   private async getSupportedFixes(client: TypescriptServiceClient) {
     let codes = this.supportedFixes.get(client)
     if (codes) {
