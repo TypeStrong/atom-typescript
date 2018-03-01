@@ -16,7 +16,7 @@ const semanticViewController_1 = require("./atom/views/outline/semanticViewContr
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
 const EditorPositionHistoryManager_1 = require("./atom/EditorPositionHistoryManager");
 class PluginManager {
-    constructor() {
+    constructor(state) {
         this.panes = []; // TODO: do we need it?
         this.clearErrors = () => {
             this.errorPusher.clear();
@@ -63,7 +63,7 @@ class PluginManager {
             withTypescriptBuffer: this.withTypescriptBuffer,
         });
         this.subscriptions.add(this.symbolsViewController);
-        this.editorPosHist = new EditorPositionHistoryManager_1.EditorPositionHistoryManager();
+        this.editorPosHist = new EditorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
@@ -117,6 +117,12 @@ class PluginManager {
     }
     destroy() {
         this.subscriptions.dispose();
+    }
+    serialize() {
+        return {
+            version: "0.1",
+            editorPosHistState: this.editorPosHist.serialize(),
+        };
     }
     consumeLinter(register) {
         const linter = register({

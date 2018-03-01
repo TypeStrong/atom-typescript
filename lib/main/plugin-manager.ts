@@ -15,6 +15,7 @@ import {registerCommands} from "./atom/commands"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 import {EditorPositionHistoryManager} from "./atom/EditorPositionHistoryManager"
+import {State} from "./package-state"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -33,7 +34,7 @@ export class PluginManager {
   private editorPosHist: EditorPositionHistoryManager
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
 
-  public constructor() {
+  public constructor(state?: State) {
     this.subscriptions = new CompositeDisposable()
 
     this.clientResolver = new ClientResolver()
@@ -60,7 +61,7 @@ export class PluginManager {
     })
     this.subscriptions.add(this.symbolsViewController)
 
-    this.editorPosHist = new EditorPositionHistoryManager()
+    this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)
     this.subscriptions.add(this.editorPosHist)
 
     // Register the commands
@@ -132,6 +133,13 @@ export class PluginManager {
 
   public destroy() {
     this.subscriptions.dispose()
+  }
+
+  public serialize(): State {
+    return {
+      version: "0.1",
+      editorPosHistState: this.editorPosHist.serialize(),
+    }
   }
 
   public consumeLinter(register: (opts: {name: string}) => IndieDelegate) {

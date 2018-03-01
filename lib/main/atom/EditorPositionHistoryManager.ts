@@ -31,6 +31,10 @@ export class EditorPositionHistoryManager {
     // NOOP
   }
 
+  public serialize() {
+    return this.prevCursorPositions
+  }
+
   private async open(item: OpenParams) {
     const editor = await atom.workspace.open(item.file, {
       initialLine: item.start.line - 1,

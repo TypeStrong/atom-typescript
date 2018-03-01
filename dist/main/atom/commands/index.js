@@ -9,6 +9,7 @@ require("./clearErrors");
 require("./formatCode");
 require("./findReferences");
 require("./goToDeclaration");
+require("./returnFromDeclaration");
 require("./renameRefactor");
 require("./showTooltip");
 require("./initializeConfig");

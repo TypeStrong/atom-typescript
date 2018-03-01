@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var semanticView_1 = require("./atom/views/outline/semanticView");
 exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 let pluginManager;
-async function activate() {
+async function activate(state) {
     const pns = atom.packages.getAvailablePackageNames();
     if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
         await require("atom-package-deps").install("atom-typescript", true);
@@ -11,7 +11,7 @@ async function activate() {
     require("etch").setScheduler(atom.views);
     // tslint:disable-next-line:no-shadowed-variable
     const { PluginManager } = require("./plugin-manager");
-    pluginManager = new PluginManager();
+    pluginManager = new PluginManager(state);
 }
 exports.activate = activate;
 function deactivate() {
@@ -20,6 +20,13 @@ function deactivate() {
     pluginManager = undefined;
 }
 exports.deactivate = deactivate;
+function serialize() {
+    if (pluginManager)
+        return pluginManager.serialize();
+    else
+        return undefined;
+}
+exports.serialize = serialize;
 ////////////////////////////////// Consumers ///////////////////////////////////
 function consumeLinter(register) {
     if (pluginManager)

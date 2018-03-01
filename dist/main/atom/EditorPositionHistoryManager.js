@@ -25,6 +25,9 @@ class EditorPositionHistoryManager {
     dispose() {
         // NOOP
     }
+    serialize() {
+        return this.prevCursorPositions;
+    }
     async open(item) {
         const editor = await atom.workspace.open(item.file, {
             initialLine: item.start.line - 1,
