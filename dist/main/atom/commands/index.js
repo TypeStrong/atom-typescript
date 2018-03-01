@@ -13,6 +13,8 @@ require("./renameRefactor");
 require("./showTooltip");
 require("./initializeConfig");
 require("./semanticView");
+require("./fileSymbolsView");
+require("./projectSymbolsView");
 function registerCommands(deps) {
     const disp = new atom_1.CompositeDisposable();
     for (const { selector, command, desc } of registry_1.getCommands()) {

@@ -24,6 +24,7 @@ const commandWithResponse = new Set([
     "reload",
     "rename",
     "navtree",
+    "navto",
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
@@ -126,6 +127,9 @@ class TypescriptServiceClient {
     }
     executeNavTree(args) {
         return this.execute("navtree", args);
+    }
+    executeNavto(args) {
+        return this.execute("navto", args);
     }
     startServer() {
         if (!this.serverPromise) {

@@ -2,6 +2,7 @@ import * as Atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {SemanticViewController} from "../views/outline/semanticViewController"
+import {SymbolsViewController} from "../views/symbols/symbolsViewController"
 import {WithTypescriptBuffer} from "../../plugin-manager"
 
 export interface Dependencies {
@@ -10,6 +11,7 @@ export interface Dependencies {
   getClient(filePath: string): Promise<TypescriptServiceClient>
   getStatusPanel(): StatusPanel
   getSemanticViewController(): SemanticViewController
+  getSymbolsViewController(): SymbolsViewController
 }
 
 export type AllowedSelectors = "atom-text-editor" | "atom-workspace"

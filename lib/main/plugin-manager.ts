@@ -13,6 +13,7 @@ import {TypescriptEditorPane} from "./typescriptEditorPane"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {registerCommands} from "./atom/commands"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
+import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -27,6 +28,7 @@ export class PluginManager {
   private errorPusher: ErrorPusher
   private codefixProvider: CodefixProvider
   private semanticViewController: SemanticViewController
+  private symbolsViewController: SymbolsViewController
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
 
   public constructor() {
@@ -39,11 +41,15 @@ export class PluginManager {
       this.errorPusher,
       this.withTypescriptBuffer,
     )
-    this.semanticViewController = new SemanticViewController(this.clientResolver)
+    this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
+    this.symbolsViewController = new SymbolsViewController({
+      withTypescriptBuffer: this.withTypescriptBuffer,
+    })
     this.subscriptions.add(this.statusPanel)
     this.subscriptions.add(this.clientResolver)
     this.subscriptions.add(this.errorPusher)
     this.subscriptions.add(this.semanticViewController)
+    this.subscriptions.add(this.symbolsViewController)
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))
@@ -198,4 +204,6 @@ export class PluginManager {
   }
 
   public getSemanticViewController = () => this.semanticViewController
+
+  public getSymbolsViewController = () => this.symbolsViewController
 }

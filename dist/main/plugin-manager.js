@@ -13,6 +13,7 @@ const typescriptEditorPane_1 = require("./typescriptEditorPane");
 const typescriptBuffer_1 = require("./typescriptBuffer");
 const commands_1 = require("./atom/commands");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
+const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
 class PluginManager {
     constructor() {
         this.panes = []; // TODO: do we need it?
@@ -44,16 +45,21 @@ class PluginManager {
             }
         };
         this.getSemanticViewController = () => this.semanticViewController;
+        this.getSymbolsViewController = () => this.symbolsViewController;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new clientResolver_1.ClientResolver();
         this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
-        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.clientResolver);
+        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
+        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController({
+            withTypescriptBuffer: this.withTypescriptBuffer,
+        });
         this.subscriptions.add(this.statusPanel);
         this.subscriptions.add(this.clientResolver);
         this.subscriptions.add(this.errorPusher);
         this.subscriptions.add(this.semanticViewController);
+        this.subscriptions.add(this.symbolsViewController);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
         let activePane;
