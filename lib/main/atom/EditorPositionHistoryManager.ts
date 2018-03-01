@@ -10,7 +10,12 @@ export class EditorPositionHistoryManager {
   constructor(private prevCursorPositions: FileLocationQuery[] = []) {}
 
   public async goBack(): Promise<object | undefined> {
-    const position = this.prevCursorPositions.pop()
+    return this.goHistory(1)
+  }
+
+  public async goHistory(depth: number): Promise<object | undefined> {
+    let position
+    while (depth-- > 0) position = this.prevCursorPositions.pop()
     if (!position) {
       atom.notifications.addInfo("AtomTS: Previous position not found.")
       return
@@ -25,6 +30,10 @@ export class EditorPositionHistoryManager {
     const location = getFilePathPosition(currentEditor)
     if (location) this.prevCursorPositions.push(location)
     return this.open(item)
+  }
+
+  public getHistory() {
+    return this.prevCursorPositions
   }
 
   public dispose() {

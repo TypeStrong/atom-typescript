@@ -6,7 +6,12 @@ class EditorPositionHistoryManager {
         this.prevCursorPositions = prevCursorPositions;
     }
     async goBack() {
-        const position = this.prevCursorPositions.pop();
+        return this.goHistory(1);
+    }
+    async goHistory(depth) {
+        let position;
+        while (depth-- > 0)
+            position = this.prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo("AtomTS: Previous position not found.");
             return;
@@ -21,6 +26,9 @@ class EditorPositionHistoryManager {
         if (location)
             this.prevCursorPositions.push(location);
         return this.open(item);
+    }
+    getHistory() {
+        return this.prevCursorPositions;
     }
     dispose() {
         // NOOP

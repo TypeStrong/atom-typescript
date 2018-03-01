@@ -7,6 +7,7 @@
 'atom-workspace':
   'f6': 'typescript:build'
   'f10': 'typescript:return-from-declaration'
+  'shift-f10': 'typescript:show-editor-position-history'
   'f12': 'typescript:go-to-declaration'
 
 # Bindings for file symbols
