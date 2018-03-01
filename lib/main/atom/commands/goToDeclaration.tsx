@@ -2,6 +2,7 @@ import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition, FileLocationQuery} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
+import {HighlightComponent} from "../views/highlightComponent"
 
 const prevCursorPositions: FileLocationQuery[] = []
 
@@ -56,10 +57,10 @@ export async function handleDefinitionResult(
   } else if (result.body.length > 1) {
     const res = await selectListView({
       items: result.body,
-      itemTemplate: item => {
+      itemTemplate: (item, ctx) => {
         return (
-            <span>{item.file}</span>
           <li>
+            <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
             <div class="pull-right">line: {item.start.line}</div>
           </li>
         )

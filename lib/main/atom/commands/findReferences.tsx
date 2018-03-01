@@ -3,6 +3,7 @@ import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {TsView} from "../components/tsView"
+import {HighlightComponent} from "../views/highlightComponent"
 
 addCommand("atom-text-editor", "typescript:find-references", deps => ({
   description: "Find where symbol under text cursor is referenced",
@@ -20,11 +21,11 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
     const result = await client.executeReferences(location)
 
     const res = await selectListView({
-      items: result.body!.refs,
-      itemTemplate: item => {
+      items: result.body!.refs.map(r => ({...r, file: atom.project.relativize(r.file)})),
+      itemTemplate: (item, ctx) => {
         return (
-            <span>{atom.project.relativize(item.file)}</span>
           <li>
+            <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
             <div class="pull-right">line: ${item.start.line}</div>
             <TsView text={item.lineText.trim()} />
           </li>
