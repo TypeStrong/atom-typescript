@@ -23,11 +23,11 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
       items: result.body!.refs,
       itemTemplate: item => {
         return (
-          <div>
             <span>{atom.project.relativize(item.file)}</span>
+          <li>
             <div class="pull-right">line: ${item.start.line}</div>
             <TsView text={item.lineText.trim()} />
-          </div>
+          </li>
         )
       },
       itemFilterKey: "file",

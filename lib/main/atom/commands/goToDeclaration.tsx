@@ -58,10 +58,10 @@ export async function handleDefinitionResult(
       items: result.body,
       itemTemplate: item => {
         return (
-          <div>
             <span>{item.file}</span>
+          <li>
             <div class="pull-right">line: {item.start.line}</div>
-          </div>
+          </li>
         )
       },
       itemFilterKey: "file",

@@ -38,8 +38,7 @@ export async function selectListView<T>({
       }
       const select: SelectListView<T> = new SelectListView({
         items: [] as T[],
-        elementForItem: (item: T) =>
-          etch.render(<li>{itemTemplate(item, select)}</li>) as HTMLElement,
+        elementForItem: (item: T) => etch.render(itemTemplate(item, select)) as HTMLElement,
         filterKeyForItem: (item: T) => `${item[itemFilterKey]}`,
         didChangeSelection,
         didCancelSelection: () => {
