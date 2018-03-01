@@ -4,7 +4,7 @@ import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {HighlightComponent} from "../views/highlightComponent"
 import {TextEditor} from "atom"
-import {EditorPositionHistoryManager} from "../EditorPositionHistoryManager"
+import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 
 addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
   description: "Go to declaration of symbol under text cursor",

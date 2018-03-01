@@ -1,7 +1,7 @@
-import {PluginManager} from "./plugin-manager"
+import {PluginManager} from "./pluginManager"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
-import {State} from "./package-state"
+import {State} from "./packageState"
 export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 
 let pluginManager: PluginManager | undefined
@@ -15,7 +15,7 @@ export async function activate(state: State) {
   require("etch").setScheduler(atom.views)
 
   // tslint:disable-next-line:no-shadowed-variable
-  const {PluginManager} = require("./plugin-manager")
+  const {PluginManager} = require("./pluginManager")
   pluginManager = new PluginManager(state)
 }
 

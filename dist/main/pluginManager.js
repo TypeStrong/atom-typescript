@@ -14,7 +14,7 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const commands_1 = require("./atom/commands");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
-const EditorPositionHistoryManager_1 = require("./atom/EditorPositionHistoryManager");
+const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
@@ -61,7 +61,7 @@ class PluginManager {
         this.subscriptions.add(this.semanticViewController);
         this.symbolsViewController = new symbolsViewController_1.SymbolsViewController(this);
         this.subscriptions.add(this.symbolsViewController);
-        this.editorPosHist = new EditorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
+        this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
@@ -167,4 +167,4 @@ class PluginManager {
     }
 }
 exports.PluginManager = PluginManager;
-//# sourceMappingURL=plugin-manager.js.map
+//# sourceMappingURL=pluginManager.js.map

@@ -3,8 +3,8 @@ import {TypescriptServiceClient} from "../../../client/client"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
-import {WithTypescriptBuffer} from "../../plugin-manager"
-import {EditorPositionHistoryManager} from "../EditorPositionHistoryManager"
+import {WithTypescriptBuffer} from "../../pluginManager"
+import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 
 export interface Dependencies {
   withTypescriptBuffer: WithTypescriptBuffer

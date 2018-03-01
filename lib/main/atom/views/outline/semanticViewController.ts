@@ -1,7 +1,7 @@
 import {CompositeDisposable} from "atom"
 import {SemanticView, SEMANTIC_VIEW_URI} from "./semanticView"
 import {Disposable} from "atom"
-import {WithTypescriptBuffer} from "../../../plugin-manager"
+import {WithTypescriptBuffer} from "../../../pluginManager"
 
 export class SemanticViewController {
   private view?: SemanticView

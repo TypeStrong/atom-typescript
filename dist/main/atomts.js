@@ -10,7 +10,7 @@ async function activate(state) {
     }
     require("etch").setScheduler(atom.views);
     // tslint:disable-next-line:no-shadowed-variable
-    const { PluginManager } = require("./plugin-manager");
+    const { PluginManager } = require("./pluginManager");
     pluginManager = new PluginManager(state);
 }
 exports.activate = activate;

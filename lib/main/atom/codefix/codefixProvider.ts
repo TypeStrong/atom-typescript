@@ -3,7 +3,7 @@ import {ClientResolver} from "../../../client/clientResolver"
 import {ErrorPusher} from "../../errorPusher"
 import {spanToRange, pointToLocation} from "../utils"
 import {TypescriptServiceClient} from "../../../client/client"
-import {WithTypescriptBuffer} from "../../plugin-manager"
+import {WithTypescriptBuffer} from "../../pluginManager"
 
 export class CodefixProvider {
   private supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()

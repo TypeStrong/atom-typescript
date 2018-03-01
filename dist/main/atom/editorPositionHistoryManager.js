@@ -53,4 +53,4 @@ class EditorPositionHistoryManager {
     }
 }
 exports.EditorPositionHistoryManager = EditorPositionHistoryManager;
-//# sourceMappingURL=EditorPositionHistoryManager.js.map
+//# sourceMappingURL=editorPositionHistoryManager.js.map

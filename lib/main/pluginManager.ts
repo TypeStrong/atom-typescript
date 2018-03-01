@@ -14,8 +14,8 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 import {registerCommands} from "./atom/commands"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
-import {EditorPositionHistoryManager} from "./atom/EditorPositionHistoryManager"
-import {State} from "./package-state"
+import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
+import {State} from "./packageState"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,

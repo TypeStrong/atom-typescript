@@ -12,7 +12,7 @@ import {
   restoreCollapsed,
   prepareNavTree,
 } from "./navTreeUtils"
-import {WithTypescriptBuffer} from "../../../plugin-manager"
+import {WithTypescriptBuffer} from "../../../pluginManager"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
