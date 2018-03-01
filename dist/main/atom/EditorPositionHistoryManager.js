@@ -5,22 +5,22 @@ class EditorPositionHistoryManager {
     constructor(prevCursorPositions = []) {
         this.prevCursorPositions = prevCursorPositions;
     }
-    goBack() {
+    async goBack() {
         const position = this.prevCursorPositions.pop();
         if (!position) {
             atom.notifications.addInfo("AtomTS: Previous position not found.");
             return;
         }
-        this.open({
+        return this.open({
             file: position.file,
             start: { line: position.line, offset: position.offset },
         });
     }
-    goForward(currentEditor, item) {
+    async goForward(currentEditor, item) {
         const location = utils_1.getFilePathPosition(currentEditor);
         if (location)
             this.prevCursorPositions.push(location);
-        this.open(item);
+        return this.open(item);
     }
     dispose() {
         // NOOP
@@ -36,6 +36,7 @@ class EditorPositionHistoryManager {
         if (atom.workspace.isTextEditor(editor)) {
             editor.scrollToCursorPosition({ center: true });
         }
+        return editor;
     }
 }
 exports.EditorPositionHistoryManager = EditorPositionHistoryManager;

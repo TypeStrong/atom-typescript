@@ -12,7 +12,8 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
         if (!utils_1.commandForTypeScript(e)) {
             return;
         }
-        const location = utils_1.getFilePathPosition(e.currentTarget.getModel());
+        const editor = e.currentTarget.getModel();
+        const location = utils_1.getFilePathPosition(editor);
         if (!location) {
             e.abortKeyBinding();
             return;
@@ -31,12 +32,8 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
             },
             itemFilterKey: "file",
         });
-        if (res) {
-            atom.workspace.open(res.file, {
-                initialLine: res.start.line - 1,
-                initialColumn: res.start.offset - 1,
-            });
-        }
+        if (res)
+            deps.getEditorPositionHistoryManager().goForward(editor, res);
     },
 }));
 //# sourceMappingURL=findReferences.js.map

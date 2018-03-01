@@ -56,9 +56,7 @@ export class PluginManager {
     this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
     this.subscriptions.add(this.semanticViewController)
 
-    this.symbolsViewController = new SymbolsViewController({
-      withTypescriptBuffer: this.withTypescriptBuffer,
-    })
+    this.symbolsViewController = new SymbolsViewController(this)
     this.subscriptions.add(this.symbolsViewController)
 
     this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)

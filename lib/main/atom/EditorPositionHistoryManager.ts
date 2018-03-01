@@ -9,22 +9,22 @@ interface OpenParams {
 export class EditorPositionHistoryManager {
   constructor(private prevCursorPositions: FileLocationQuery[] = []) {}
 
-  public goBack() {
+  public async goBack(): Promise<object | undefined> {
     const position = this.prevCursorPositions.pop()
     if (!position) {
       atom.notifications.addInfo("AtomTS: Previous position not found.")
       return
     }
-    this.open({
+    return this.open({
       file: position.file,
       start: {line: position.line, offset: position.offset},
     })
   }
 
-  public goForward(currentEditor: TextEditor, item: OpenParams) {
+  public async goForward(currentEditor: TextEditor, item: OpenParams): Promise<object> {
     const location = getFilePathPosition(currentEditor)
     if (location) this.prevCursorPositions.push(location)
-    this.open(item)
+    return this.open(item)
   }
 
   public dispose() {
@@ -35,7 +35,7 @@ export class EditorPositionHistoryManager {
     return this.prevCursorPositions
   }
 
-  private async open(item: OpenParams) {
+  private async open(item: OpenParams): Promise<object> {
     const editor = await atom.workspace.open(item.file, {
       initialLine: item.start.line - 1,
       initialColumn: item.start.offset - 1,
@@ -43,5 +43,6 @@ export class EditorPositionHistoryManager {
     if (atom.workspace.isTextEditor(editor)) {
       editor.scrollToCursorPosition({center: true})
     }
+    return editor
   }
 }

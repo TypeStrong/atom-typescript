@@ -59,9 +59,7 @@ class PluginManager {
         this.subscriptions.add(this.codefixProvider);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
         this.subscriptions.add(this.semanticViewController);
-        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController({
-            withTypescriptBuffer: this.withTypescriptBuffer,
-        });
+        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController(this);
         this.subscriptions.add(this.symbolsViewController);
         this.editorPosHist = new EditorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);

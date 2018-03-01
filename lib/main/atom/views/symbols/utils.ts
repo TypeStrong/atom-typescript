@@ -1,11 +1,15 @@
 import {Tag} from "./symbolsTag"
 import {TextEditor} from "atom"
+import {EditorPositionHistoryManager} from "../../EditorPositionHistoryManager"
 
-// TODO: Hook this into return-from-declaration and findReferences
-export async function openTag(tag: Tag) {
+export async function openTag(tag: Tag, editor: TextEditor, ephm: EditorPositionHistoryManager) {
   if (tag.file) {
-    return atom.workspace.open(tag.file, {
-      initialLine: tag.position.row,
+    return ephm.goForward(editor, {
+      file: tag.file,
+      start: {
+        line: tag.position.row + 1,
+        offset: tag.position.column + 1,
+      },
     })
   }
 }

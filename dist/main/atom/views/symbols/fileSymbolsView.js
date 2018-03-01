@@ -28,7 +28,7 @@ async function toggle(editor, deps) {
             itemFilterKey: "name",
         });
         if (tag)
-            utils.openTag(tag);
+            utils.openTag(tag, editor, deps.getEditorPositionHistoryManager());
         else if (initialState)
             utils.deserializeEditorState(editor, initialState);
     }

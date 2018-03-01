@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// TODO: Hook this into return-from-declaration and findReferences
-async function openTag(tag) {
+async function openTag(tag, editor, ephm) {
     if (tag.file) {
-        return atom.workspace.open(tag.file, {
-            initialLine: tag.position.row,
+        return ephm.goForward(editor, {
+            file: tag.file,
+            start: {
+                line: tag.position.row + 1,
+                offset: tag.position.column + 1,
+            },
         });
     }
 }
