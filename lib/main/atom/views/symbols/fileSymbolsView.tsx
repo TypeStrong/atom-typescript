@@ -5,7 +5,7 @@ import {generateFile} from "./generator"
 import * as utils from "./utils"
 import {Tag} from "./symbolsTag"
 import {Deps} from "./deps"
-import {HighlightComponent} from "./highlightComponent"
+import {HighlightComponent} from "../highlightComponent"
 
 export async function toggle(editor: TextEditor, deps: Deps) {
   const filePath = editor.getPath()
