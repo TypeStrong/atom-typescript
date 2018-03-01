@@ -23,8 +23,13 @@ class EditorPositionHistoryManager {
     }
     async goForward(currentEditor, item) {
         const location = utils_1.getFilePathPosition(currentEditor);
-        if (location)
+        if (location) {
             this.prevCursorPositions.push(location);
+            const maxItems = 100;
+            if (this.prevCursorPositions.length > maxItems) {
+                this.prevCursorPositions.splice(0, this.prevCursorPositions.length - maxItems);
+            }
+        }
         return this.open(item);
     }
     getHistory() {
