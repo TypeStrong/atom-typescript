@@ -32,7 +32,6 @@ export async function toggle(editor: TextEditor, deps: Deps) {
         }
       },
       itemFilterKey: "name",
-      itemsClassList: ["atom-typescript"],
     })
     if (tag) utils.openTag(tag)
     else if (initialState) utils.deserializeEditorState(editor, initialState)
