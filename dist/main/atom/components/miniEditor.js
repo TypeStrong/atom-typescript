@@ -33,12 +33,7 @@ class MiniEditor {
         return this.model;
     }
     setReadOnly() {
-        if (this.props.readOnly) {
-            this.element.removeAttribute("tabindex"); // make read-only
-        }
-        else {
-            this.element.setAttribute("tabindex", "-1");
-        }
+        this.model.setReadOnly(!!this.props.readOnly);
     }
     setGrammar() {
         if (this.props.grammar) {
