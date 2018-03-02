@@ -1,20 +1,19 @@
-'atom-workspace atom-text-editor:not([mini])[data-grammar^="source ts"]':
-  'alt-cmd-l': 'typescript:format-code'
-  'alt-ctrl-l': 'typescript:format-code'
+'atom-text-editor:not([mini]).typescript-editor':
   'f2': 'typescript:rename-refactor'
   'shift-f12': 'typescript:find-references'
-
-'atom-workspace':
   'f6': 'typescript:build'
-  'f10': 'typescript:return-from-declaration'
-  'shift-f10': 'typescript:show-editor-position-history'
   'f12': 'typescript:go-to-declaration'
 
-# Bindings for file symbols
+'atom-workspace':
+  'f10': 'typescript:return-from-declaration'
+  'shift-f10': 'typescript:show-editor-position-history'
+
 '.platform-darwin atom-text-editor:not([mini]).typescript-editor':
+  'alt-cmd-l': 'typescript:format-code'
   'cmd-r': 'typescript:toggle-file-symbols'
   'cmd-shift-r': 'typescript:toggle-project-symbols'
 
 '.platform-win32 atom-text-editor:not([mini]).typescript-editor, .platform-linux atom-text-editor:not([mini]).typescript-editor':
+  'alt-ctrl-l': 'typescript:format-code'
   'ctrl-r': 'typescript:toggle-file-symbols'
   'ctrl-shift-r': 'typescript:toggle-project-symbols'
