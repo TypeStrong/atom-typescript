@@ -1,7 +1,6 @@
 ## 12.3.0
 
--   Added an alternative to symbols-view (by
-    russa)
+-   Added an alternative to symbols-view (by russa)
     -   For file symbols, the same engine is used as for outline view
     -   For project symbols, `nav-to` tsserver command is used. It
         requires at least one symbol to search for.
@@ -14,6 +13,9 @@
     -   Editor position history is persisted across Atom restarts (per
         project). To avoid bloating, total number of history items is
         limited to 100
+-   Added `typescript:reload-projects` command
+    -   Useful when tsserver isn't aware of new or removed files --
+        previously this required Atom restart
 -   Matched substring is highlighted in all select views (like Atom's
     bundled symbols-view)
 -   Streamlined TypeScript file detection
@@ -21,7 +23,7 @@
         ".tsx"
     -   If it's open in editor, grammar is assumed to be one of
         "source.ts", "source.tsx"
-    -   A file has to be saved (i.e. have a file path)
+    -   A file has to be saved (i.e. have a file path)
 -   Many internal improvements
     -   Completely reworked tooltip management
     -   Most commands are bound to text-editor instead of the workspace
