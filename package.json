@@ -1,13 +1,17 @@
 {
   "name": "atom-typescript",
-  "version": "12.3.0",
+  "version": "12.3.1",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./spec/runner.js",
-  "activationHooks": ["language-typescript:grammar-used"],
+  "activationHooks": [
+    "language-typescript:grammar-used"
+  ],
   "activationCommands": {
-    "atom-workspace": ["typescript:initialize-config"]
+    "atom-workspace": [
+      "typescript:initialize-config"
+    ]
   },
   "scripts": {
     "build": "tsc -p ./lib",
@@ -41,8 +45,7 @@
     },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
-      "description":
-        "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
+      "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
       "type": "number",
       "default": "10"
     },
@@ -133,6 +136,12 @@
     "ts-node": "4.1.0",
     "tslint": "^5.9.0"
   },
-  "package-deps": ["atom-ide-ui:0.5.3"],
-  "keywords": ["typescript", "javascript", "html"]
+  "package-deps": [
+    "atom-ide-ui:0.5.3"
+  ],
+  "keywords": [
+    "typescript",
+    "javascript",
+    "html"
+  ]
 }
