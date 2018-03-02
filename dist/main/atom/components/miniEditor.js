@@ -42,10 +42,10 @@ class MiniEditor {
     }
     setGrammar() {
         if (this.props.grammar) {
-            const grammar = atom.grammars.grammarForScopeName(this.props.grammar);
-            if (grammar) {
-                this.model.setGrammar(grammar);
-            }
+            atom.textEditors.setGrammarOverride(this.model, this.props.grammar);
+        }
+        else {
+            atom.textEditors.clearGrammarOverride(this.model);
         }
     }
 }

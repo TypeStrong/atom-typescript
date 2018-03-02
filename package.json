@@ -22,7 +22,7 @@
     "test": "npm run typecheck && npm run lint && npm run prettier-check"
   },
   "engines": {
-    "atom": ">=1.23.0 <2.0.0",
+    "atom": ">=1.24.0 <2.0.0",
     "node": "*"
   },
   "configSchema": {
@@ -116,7 +116,7 @@
     "typescript": "^2.6.2"
   },
   "devDependencies": {
-    "@types/atom": "~1.23",
+    "@types/atom": "~1.24",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.1.0",
     "@types/cson": "0.0.31",
