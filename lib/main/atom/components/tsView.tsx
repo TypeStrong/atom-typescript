@@ -1,27 +1,32 @@
+import highlight = require("atom-highlight")
 import * as etch from "etch"
-import {MiniEditor} from "./miniEditor"
 
 interface Props extends JSX.Props {
   text: string
 }
 
 export class TsView implements JSX.ElementClass {
-  private refs: {
-    editor: MiniEditor
-  }
-
   constructor(public props: Props) {
     etch.initialize(this)
   }
 
-  public render() {
-    return <MiniEditor ref="editor" initialText={this.props.text} grammar="source.tsx" readOnly />
+  public async update(props: Partial<Props>) {
+    this.props = {...this.props, ...props}
+    return etch.update(this)
   }
 
-  public async update(props: Props) {
-    if (this.props.text !== props.text) {
-      this.props.text = props.text
-      this.refs.editor.getModel().setText(props.text)
+  public render() {
+    const html = highlight({
+      fileContents: this.props.text,
+      scopeName: "source.tsx",
+      editorDiv: false,
+      wrapCode: false,
+      nbsp: false,
+      lineDivs: false,
+    })
+    const style = {
+      fontFamily: atom.config.get("editor.fontFamily"),
     }
+    return <div class="editor editor-colors" style={style} innerHTML={html} />
   }
 }

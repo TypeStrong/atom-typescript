@@ -1,20 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const highlight = require("atom-highlight");
 const etch = require("etch");
-const miniEditor_1 = require("./miniEditor");
 class TsView {
     constructor(props) {
         this.props = props;
         etch.initialize(this);
     }
-    render() {
-        return etch.dom(miniEditor_1.MiniEditor, { ref: "editor", initialText: this.props.text, grammar: "source.tsx", readOnly: true });
-    }
     async update(props) {
-        if (this.props.text !== props.text) {
-            this.props.text = props.text;
-            this.refs.editor.getModel().setText(props.text);
-        }
+        this.props = Object.assign({}, this.props, props);
+        return etch.update(this);
+    }
+    render() {
+        const html = highlight({
+            fileContents: this.props.text,
+            scopeName: "source.tsx",
+            editorDiv: false,
+            wrapCode: false,
+            nbsp: false,
+            lineDivs: false,
+        });
+        const style = {
+            fontFamily: atom.config.get("editor.fontFamily"),
+        };
+        return etch.dom("div", { class: "editor editor-colors", style: style, innerHTML: html });
     }
 }
 exports.TsView = TsView;
