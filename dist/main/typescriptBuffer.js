@@ -17,9 +17,9 @@ class TypescriptBuffer {
             this.subscriptions.dispose();
             if (this.isOpen && this.clientPromise) {
                 const client = await this.clientPromise;
-                const file = this.buffer.getPath();
+                const file = this.filePath;
                 if (file) {
-                    client.executeClose({ file });
+                    client.execute("close", { file });
                     this.events.emit("closed", file);
                 }
             }
@@ -28,11 +28,11 @@ class TypescriptBuffer {
             this.changedAt = Date.now();
         };
         this.onDidChangePath = async () => {
-            const filePath = this.buffer.getPath();
-            if (this.clientPromise && filePath) {
+            if (this.clientPromise && this.filePath) {
                 const client = await this.clientPromise;
-                client.executeClose({ file: filePath });
-                this.events.emit("closed", filePath);
+                client.execute("close", { file: this.filePath });
+                this.events.emit("closed", this.filePath);
+                this.filePath = undefined;
             }
             this.open();
         };
@@ -50,8 +50,7 @@ class TypescriptBuffer {
                 return;
             }
             this.changedAtBatch = Date.now();
-            const filePath = this.buffer.getPath();
-            if (!filePath) {
+            if (!this.filePath) {
                 return;
             }
             const client = await this.clientPromise;
@@ -61,7 +60,7 @@ class TypescriptBuffer {
                     endLine: start.row + oldExtent.row + 1,
                     endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
                 };
-                await client.executeChange(Object.assign({}, end, { file: filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
+                await client.execute("change", Object.assign({}, end, { file: this.filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
             }
             this.events.emit("changed");
         };
@@ -79,7 +78,7 @@ class TypescriptBuffer {
         }
     }
     getPath() {
-        return this.buffer.getPath();
+        return this.filePath;
     }
     // If there are any pending changes, flush them out to the Typescript server
     async flush() {
@@ -94,31 +93,29 @@ class TypescriptBuffer {
         }
     }
     async getNavTree() {
-        const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (!this.filePath)
             return;
         const client = await this.clientPromise;
         if (!client)
             return;
         try {
-            const navtreeResult = await client.executeNavTree({ file: filePath });
+            const navtreeResult = await client.execute("navtree", { file: this.filePath });
             return navtreeResult.body;
         }
         catch (err) {
-            console.error(err, filePath);
+            console.error(err, this.filePath);
         }
         return;
     }
     async getNavTo(search) {
-        const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (!this.filePath)
             return;
         const client = await this.clientPromise;
         if (!client)
             return;
         try {
-            const navtoResult = await client.executeNavto({
-                file: filePath,
+            const navtoResult = await client.execute("navto", {
+                file: this.filePath,
                 currentFileOnly: false,
                 searchValue: search,
                 maxResultCount: 1000,
@@ -126,19 +123,19 @@ class TypescriptBuffer {
             return navtoResult.body;
         }
         catch (err) {
-            console.error(err, filePath);
+            console.error(err, this.filePath);
         }
         return;
     }
     async open() {
-        const filePath = this.buffer.getPath();
-        if (filePath && utils_1.isTypescriptFile(filePath)) {
+        this.filePath = this.buffer.getPath();
+        if (this.filePath && utils_1.isTypescriptFile(this.filePath)) {
             // Set isOpen before we actually open the file to enqueue any changed events
             this.isOpen = true;
-            this.clientPromise = this.getClient(filePath);
+            this.clientPromise = this.getClient(this.filePath);
             const client = await this.clientPromise;
-            await client.executeOpen({
-                file: filePath,
+            await client.execute("open", {
+                file: this.filePath,
                 fileContent: this.buffer.getText(),
             });
             this.events.emit("opened");

@@ -36,6 +36,7 @@ export class TypescriptBuffer {
 
   // Flag that signifies if tsserver has an open view of this file
   private isOpen: boolean
+  private filePath: string | undefined
   private subscriptions = new Atom.CompositeDisposable()
 
   private constructor(
@@ -54,7 +55,7 @@ export class TypescriptBuffer {
   }
 
   public getPath() {
-    return this.buffer.getPath()
+    return this.filePath
   }
 
   // If there are any pending changes, flush them out to the Typescript server
@@ -71,50 +72,48 @@ export class TypescriptBuffer {
   }
 
   public async getNavTree() {
-    const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (!this.filePath) return
     const client = await this.clientPromise
     if (!client) return
     try {
-      const navtreeResult = await client.execute("navtree", {file: filePath})
+      const navtreeResult = await client.execute("navtree", {file: this.filePath})
       return navtreeResult.body!
     } catch (err) {
-      console.error(err, filePath)
+      console.error(err, this.filePath)
     }
     return
   }
 
   public async getNavTo(search: string) {
-    const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (!this.filePath) return
     const client = await this.clientPromise
     if (!client) return
     try {
       const navtoResult = await client.execute("navto", {
-        file: filePath,
+        file: this.filePath,
         currentFileOnly: false,
         searchValue: search,
         maxResultCount: 1000,
       })
       return navtoResult.body!
     } catch (err) {
-      console.error(err, filePath)
+      console.error(err, this.filePath)
     }
     return
   }
 
   private async open() {
-    const filePath = this.buffer.getPath()
+    this.filePath = this.buffer.getPath()
 
-    if (filePath && isTypescriptFile(filePath)) {
+    if (this.filePath && isTypescriptFile(this.filePath)) {
       // Set isOpen before we actually open the file to enqueue any changed events
       this.isOpen = true
 
-      this.clientPromise = this.getClient(filePath)
+      this.clientPromise = this.getClient(this.filePath)
       const client = await this.clientPromise
 
       await client.execute("open", {
-        file: filePath,
+        file: this.filePath,
         fileContent: this.buffer.getText(),
       })
 
@@ -127,7 +126,7 @@ export class TypescriptBuffer {
 
     if (this.isOpen && this.clientPromise) {
       const client = await this.clientPromise
-      const file = this.buffer.getPath()
+      const file = this.filePath
       if (file) {
         client.execute("close", {file})
         this.events.emit("closed", file)
@@ -140,11 +139,11 @@ export class TypescriptBuffer {
   }
 
   private onDidChangePath = async () => {
-    const filePath = this.buffer.getPath()
-    if (this.clientPromise && filePath) {
+    if (this.clientPromise && this.filePath) {
       const client = await this.clientPromise
-      client.execute("close", {file: filePath})
-      this.events.emit("closed", filePath)
+      client.execute("close", {file: this.filePath})
+      this.events.emit("closed", this.filePath)
+      this.filePath = undefined
     }
 
     this.open()
@@ -168,8 +167,7 @@ export class TypescriptBuffer {
 
     this.changedAtBatch = Date.now()
 
-    const filePath = this.buffer.getPath()
-    if (!filePath) {
+    if (!this.filePath) {
       return
     }
     const client = await this.clientPromise
@@ -184,7 +182,7 @@ export class TypescriptBuffer {
 
       await client.execute("change", {
         ...end,
-        file: filePath,
+        file: this.filePath,
         line: start.row + 1,
         offset: start.column + 1,
         insertString: newText,
