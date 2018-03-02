@@ -13,8 +13,7 @@ import "./renameRefactor"
 import "./showTooltip"
 import "./initializeConfig"
 import "./semanticView"
-import "./fileSymbolsView"
-import "./projectSymbolsView"
+import "./symbolsView"
 
 export function registerCommands(deps: Dependencies) {
   const disp = new CompositeDisposable()

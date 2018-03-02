@@ -11,4 +11,13 @@ registry_1.addCommand("atom-text-editor", "typescript:toggle-file-symbols", deps
         deps.getSymbolsViewController().toggleFileView(e.currentTarget.getModel());
     },
 }));
-//# sourceMappingURL=fileSymbolsView.js.map
+registry_1.addCommand("atom-text-editor", "typescript:toggle-project-symbols", deps => ({
+    description: "Toggle view for finding file symbols",
+    async didDispatch(e) {
+        if (!utils_1.commandForTypeScript(e)) {
+            return;
+        }
+        deps.getSymbolsViewController().toggleProjectView(e.currentTarget.getModel());
+    },
+}));
+//# sourceMappingURL=symbolsView.js.map
