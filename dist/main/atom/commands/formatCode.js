@@ -38,7 +38,7 @@ registry_1.addCommand("atom-text-editor", "typescript:format-code", deps => ({
         const edits = [];
         // Collect all edits together so we can update everything in a single transaction
         for (const range of ranges) {
-            const result = await client.executeFormat(Object.assign({}, range, { file: filePath }));
+            const result = await client.execute("format", Object.assign({}, range, { file: filePath }));
             if (result.body) {
                 edits.push(...result.body);
             }

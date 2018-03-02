@@ -23,7 +23,7 @@ function getHyperclickProvider(clientResolver, editorPosHist) {
                         offset: range.start.column + 1,
                     };
                     const client = await clientResolver.get(location.file);
-                    const result = await client.executeDefinition(location);
+                    const result = await client.execute("definition", location);
                     goToDeclaration_1.handleDefinitionResult(result, editor, editorPosHist);
                 },
             };

@@ -77,7 +77,7 @@ class PluginManager {
                     files.push(filePath);
                 }
             }
-            pane.client.executeGetErr({ files, delay: 100 });
+            pane.client.execute("geterr", { files, delay: 100 });
         }, 50);
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             this.panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {

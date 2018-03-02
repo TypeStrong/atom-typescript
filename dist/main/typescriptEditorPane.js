@@ -24,7 +24,7 @@ class TypescriptEditorPane {
                 this.opts.statusPanel.show();
                 // The first activation might happen before we even have a client
                 if (this.client) {
-                    this.client.executeGetErr({
+                    this.client.execute("geterr", {
                         files: [filePath],
                         delay: 100,
                     });
@@ -44,7 +44,7 @@ class TypescriptEditorPane {
             if (!filePath)
                 return;
             this.opts.statusPanel.update({ buildStatus: undefined });
-            this.client.executeGetErr({
+            this.client.execute("geterr", {
                 files: [filePath],
                 delay: 100,
             });
@@ -72,13 +72,13 @@ class TypescriptEditorPane {
                 this.opts.statusPanel.update({ version: this.client.version });
             }
             if (this.isTypescript) {
-                this.client.executeGetErr({
+                this.client.execute("geterr", {
                     files: [filePath],
                     delay: 100,
                 });
                 this.isOpen = true;
                 try {
-                    const result = await this.client.executeProjectInfo({
+                    const result = await this.client.execute("projectInfo", {
                         needFileNameList: false,
                         file: filePath,
                     });
@@ -87,7 +87,7 @@ class TypescriptEditorPane {
                         this.opts.statusPanel.update({ tsConfigPath: this.configFile });
                     }
                     utils_1.getProjectCodeSettings(this.configFile).then(options => {
-                        this.client.executeConfigure({
+                        this.client.execute("configure", {
                             file: filePath,
                             formatOptions: options,
                         });
@@ -136,7 +136,7 @@ class TypescriptEditorPane {
         const pos = this.editor.getLastCursor().getBufferPosition();
         this.clearOccurrenceMarkers();
         try {
-            const result = await this.client.executeOccurences({
+            const result = await this.client.execute("occurrences", {
                 file: filePath,
                 line: pos.row + 1,
                 offset: pos.column + 1,
@@ -162,7 +162,7 @@ class TypescriptEditorPane {
         const filePath = this.buffer.getPath();
         if (!filePath)
             return;
-        const result = await client.executeCompileOnSaveAffectedFileList({
+        const result = await client.execute("compileOnSaveAffectedFileList", {
             file: filePath,
         });
         this.opts.statusPanel.update({ buildStatus: undefined });
@@ -170,7 +170,7 @@ class TypescriptEditorPane {
         if (fileNames.length === 0)
             return;
         try {
-            const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({ file }));
+            const promises = fileNames.map(file => client.execute("compileOnSaveEmitFile", { file }));
             const saved = await Promise.all(promises);
             if (!saved.every(res => !!res.body)) {
                 throw new Error("Some files failed to emit");

@@ -19,7 +19,7 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
             return;
         }
         const client = await deps.getClient(location.file);
-        const result = await client.executeReferences(location);
+        const result = await client.execute("references", location);
         const res = await simpleSelectionView_1.selectListView({
             items: result.body.refs.map(r => (Object.assign({}, r, { file: atom.project.relativize(r.file) }))),
             itemTemplate: (item, ctx) => {

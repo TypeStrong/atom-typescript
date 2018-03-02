@@ -62,74 +62,11 @@ class TypescriptServiceClient {
         };
         this.callbacks = new callbacks_1.Callbacks(this.emitPendingRequests);
     }
-    executeChange(args) {
-        return this.execute("change", args);
-    }
-    executeClose(args) {
-        return this.execute("close", args);
-    }
-    executeCompileOnSaveAffectedFileList(args) {
-        return this.execute("compileOnSaveAffectedFileList", args);
-    }
-    executeCompileOnSaveEmitFile(args) {
-        return this.execute("compileOnSaveEmitFile", args);
-    }
-    executeCompletions(args) {
-        return this.execute("completions", args);
-    }
-    executeCompletionDetails(args) {
-        return this.execute("completionEntryDetails", args);
-    }
-    executeConfigure(args) {
-        return this.execute("configure", args);
-    }
-    executeDefinition(args) {
-        return this.execute("definition", args);
-    }
-    executeFormat(args) {
-        return this.execute("format", args);
-    }
-    executeGetCodeFixes(args) {
-        return this.execute("getCodeFixes", args);
-    }
-    executeGetSupportedCodeFixes() {
-        return this.execute("getSupportedCodeFixes", undefined);
-    }
-    executeGetErr(args) {
-        return this.execute("geterr", args);
-    }
-    executeGetErrForProject(args) {
-        return this.execute("geterrForProject", args);
-    }
-    executeOccurences(args) {
-        return this.execute("occurrences", args);
-    }
-    executeOpen(args) {
-        return this.execute("open", args);
-    }
-    executeProjectInfo(args) {
-        return this.execute("projectInfo", args);
-    }
-    executeQuickInfo(args) {
-        return this.execute("quickinfo", args);
-    }
-    executeReferences(args) {
-        return this.execute("references", args);
-    }
-    executeReload(args) {
-        return this.execute("reload", args);
-    }
-    executeRename(args) {
-        return this.execute("rename", args);
-    }
-    executeSaveTo(args) {
-        return this.execute("saveto", args);
-    }
-    executeNavTree(args) {
-        return this.execute("navtree", args);
-    }
-    executeNavto(args) {
-        return this.execute("navto", args);
+    async execute(command, args) {
+        if (!this.serverPromise) {
+            throw new Error("Server is not running");
+        }
+        return this.sendRequest(await this.serverPromise, command, args, commandWithResponse.has(command));
     }
     startServer() {
         if (!this.serverPromise) {
@@ -178,12 +115,6 @@ class TypescriptServiceClient {
         return () => {
             this.events.removeListener(name, listener);
         };
-    }
-    async execute(command, args) {
-        if (!this.serverPromise) {
-            throw new Error("Server is not running");
-        }
-        return this.sendRequest(await this.serverPromise, command, args, commandWithResponse.has(command));
     }
     sendRequest(cp, command, args, expectResponse) {
         const req = {

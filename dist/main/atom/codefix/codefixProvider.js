@@ -18,7 +18,7 @@ class CodefixProvider {
         const requests = this.errorPusher
             .getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
             .filter(error => error.code && supportedCodes.has(error.code))
-            .map(error => client.executeGetCodeFixes({
+            .map(error => client.execute("getCodeFixes", {
             file: filePath,
             startLine: error.start.line,
             startOffset: error.start.offset,
@@ -56,7 +56,7 @@ class CodefixProvider {
         if (codes) {
             return codes;
         }
-        const result = await client.executeGetSupportedCodeFixes();
+        const result = await client.execute("getSupportedCodeFixes", undefined);
         if (!result.body) {
             throw new Error("No code fixes are supported");
         }

@@ -15,7 +15,7 @@ registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
         }
         const { file } = fpp;
         const client = await deps.getClient(file);
-        const projectInfo = await client.executeProjectInfo({
+        const projectInfo = await client.execute("projectInfo", {
             file,
             needFileNameList: true,
         });
@@ -23,7 +23,7 @@ registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
         files.delete(projectInfo.body.configFileName);
         let filesSoFar = 0;
         const stp = deps.getStatusPanel();
-        const promises = [...files.values()].map(f => _finally(client.executeCompileOnSaveEmitFile({ file: f, forced: true }), () => {
+        const promises = [...files.values()].map(f => _finally(client.execute("compileOnSaveEmitFile", { file: f, forced: true }), () => {
             stp.update({ progress: { max: files.size, value: (filesSoFar += 1) } });
             if (files.size <= filesSoFar)
                 stp.update({ progress: undefined });
