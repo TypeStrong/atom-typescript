@@ -10,12 +10,18 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
             let didChangeQuery;
             let loadingMessage = "Loading...";
             let emptyMessage;
+            let resolved = false;
+            const update = (props) => {
+                if (resolved)
+                    return;
+                select.update(props);
+            };
             if (typeof items === "function") {
                 didChangeQuery = async (query) => {
-                    const timeout = setTimeout(() => select.update({ loadingMessage: "Loading..." }), 300);
+                    const timeout = setTimeout(() => update({ loadingMessage: "Loading..." }), 300);
                     const is = await items(query);
                     clearTimeout(timeout);
-                    select.update({
+                    update({
                         items: is,
                         emptyMessage: "Nothing matches the search value",
                         loadingMessage: undefined,
@@ -30,9 +36,11 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 filterKeyForItem: (item) => `${item[itemFilterKey]}`,
                 didChangeSelection,
                 didCancelSelection: () => {
+                    resolved = true;
                     resolve();
                 },
                 didConfirmSelection: (item) => {
+                    resolved = true;
                     resolve(item);
                 },
                 loadingMessage,
@@ -42,7 +50,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
             });
             if (typeof items !== "function") {
                 Promise.resolve(items).then(is => {
-                    select.update({ items: is, loadingMessage: undefined });
+                    update({ items: is, loadingMessage: undefined });
                 });
             }
             panel = atom.workspace.addModalPanel({
