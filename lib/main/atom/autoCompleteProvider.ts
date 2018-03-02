@@ -113,7 +113,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     location: FileLocationQuery,
   ) {
     if (suggestions.some(s => !s.details)) {
-      const details = await this.lastSuggestions.client.executeCompletionDetails({
+      const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map(s => s.text!),
         ...location,
       })
@@ -161,7 +161,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     const client = await this.clientResolver.get(location.file)
-    const completions = await client.executeCompletions({
+    const completions = await client.execute("completions", {
       prefix,
       includeExternalModuleExports: false,
       ...location,

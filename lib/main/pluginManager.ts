@@ -80,7 +80,7 @@ export class PluginManager {
         }
       }
 
-      pane.client.executeGetErr({files, delay: 100})
+      pane.client.execute("geterr", {files, delay: 100})
     }, 50)
 
     this.subscriptions.add(

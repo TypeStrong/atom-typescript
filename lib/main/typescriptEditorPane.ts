@@ -74,7 +74,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
       // The first activation might happen before we even have a client
       if (this.client) {
-        this.client.executeGetErr({
+        this.client.execute("geterr", {
           files: [filePath],
           delay: 100,
         })
@@ -98,7 +98,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     this.opts.statusPanel.update({buildStatus: undefined})
 
-    this.client.executeGetErr({
+    this.client.execute("geterr", {
       files: [filePath],
       delay: 100,
     })
@@ -119,7 +119,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     this.clearOccurrenceMarkers()
     try {
-      const result = await this.client.executeOccurences({
+      const result = await this.client.execute("occurrences", {
         file: filePath,
         line: pos.row + 1,
         offset: pos.column + 1,
@@ -165,7 +165,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     }
 
     if (this.isTypescript) {
-      this.client.executeGetErr({
+      this.client.execute("geterr", {
         files: [filePath],
         delay: 100,
       })
@@ -173,7 +173,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       this.isOpen = true
 
       try {
-        const result = await this.client.executeProjectInfo({
+        const result = await this.client.execute("projectInfo", {
           needFileNameList: false,
           file: filePath,
         })
@@ -184,7 +184,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
         }
 
         getProjectCodeSettings(this.configFile).then(options => {
-          this.client!.executeConfigure({
+          this.client!.execute("configure", {
             file: filePath,
             formatOptions: options,
           })
@@ -206,7 +206,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     const filePath = this.buffer.getPath()
     if (!filePath) return
 
-    const result = await client.executeCompileOnSaveAffectedFileList({
+    const result = await client.execute("compileOnSaveAffectedFileList", {
       file: filePath,
     })
 
@@ -217,7 +217,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     if (fileNames.length === 0) return
 
     try {
-      const promises = fileNames.map(file => client.executeCompileOnSaveEmitFile({file}))
+      const promises = fileNames.map(file => client.execute("compileOnSaveEmitFile", {file}))
       const saved = await Promise.all(promises)
 
       if (!saved.every(res => !!res.body)) {

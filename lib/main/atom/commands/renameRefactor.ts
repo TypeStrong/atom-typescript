@@ -16,7 +16,7 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
       return
     }
     const client = await deps.getClient(location.file)
-    const response = await client.executeRename(location)
+    const response = await client.execute("rename", location)
     const {info, locs} = response.body!
 
     if (!info.canRename) {

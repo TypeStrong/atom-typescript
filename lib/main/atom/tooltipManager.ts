@@ -127,7 +127,7 @@ export class TooltipManager {
       if (!filePath) {
         return
       }
-      result = await client.executeQuickInfo({
+      result = await client.execute("quickinfo", {
         file: filePath,
         line: bufferPt.row + 1,
         offset: bufferPt.column + 1,

@@ -19,7 +19,7 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
       return
     }
     const client = await deps.getClient(location.file)
-    const result = await client.executeReferences(location)
+    const result = await client.execute("references", location)
 
     const res = await selectListView({
       items: result.body!.refs.map(r => ({...r, file: atom.project.relativize(r.file)})),

@@ -19,7 +19,7 @@ addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
       return
     }
     const client = await deps.getClient(location.file)
-    const result = await client.executeDefinition(location)
+    const result = await client.execute("definition", location)
     handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager())
   },
 }))

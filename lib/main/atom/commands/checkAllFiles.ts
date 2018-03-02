@@ -16,7 +16,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     const {file} = fpp
     const client = await deps.getClient(file)
 
-    const projectInfo = await client.executeProjectInfo({
+    const projectInfo = await client.execute("projectInfo", {
       file,
       needFileNameList: true,
     })
@@ -41,7 +41,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     const stp = deps.getStatusPanel()
 
     stp.update({progress: {max, value: 0}})
-    client.executeGetErrForProject({file, delay: 0})
+    client.execute("geterrForProject", {file, delay: 0})
 
     function cancel() {
       files.clear()

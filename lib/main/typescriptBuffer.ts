@@ -76,7 +76,7 @@ export class TypescriptBuffer {
     const client = await this.clientPromise
     if (!client) return
     try {
-      const navtreeResult = await client.executeNavTree({file: filePath})
+      const navtreeResult = await client.execute("navtree", {file: filePath})
       return navtreeResult.body!
     } catch (err) {
       console.error(err, filePath)
@@ -90,7 +90,7 @@ export class TypescriptBuffer {
     const client = await this.clientPromise
     if (!client) return
     try {
-      const navtoResult = await client.executeNavto({
+      const navtoResult = await client.execute("navto", {
         file: filePath,
         currentFileOnly: false,
         searchValue: search,
@@ -113,7 +113,7 @@ export class TypescriptBuffer {
       this.clientPromise = this.getClient(filePath)
       const client = await this.clientPromise
 
-      await client.executeOpen({
+      await client.execute("open", {
         file: filePath,
         fileContent: this.buffer.getText(),
       })
@@ -129,7 +129,7 @@ export class TypescriptBuffer {
       const client = await this.clientPromise
       const file = this.buffer.getPath()
       if (file) {
-        client.executeClose({file})
+        client.execute("close", {file})
         this.events.emit("closed", file)
       }
     }
@@ -143,7 +143,7 @@ export class TypescriptBuffer {
     const filePath = this.buffer.getPath()
     if (this.clientPromise && filePath) {
       const client = await this.clientPromise
-      client.executeClose({file: filePath})
+      client.execute("close", {file: filePath})
       this.events.emit("closed", filePath)
     }
 
@@ -182,7 +182,7 @@ export class TypescriptBuffer {
         endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
       }
 
-      await client.executeChange({
+      await client.execute("change", {
         ...end,
         file: filePath,
         line: start.row + 1,

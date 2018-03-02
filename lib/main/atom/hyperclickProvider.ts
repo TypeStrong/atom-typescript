@@ -29,7 +29,7 @@ export function getHyperclickProvider(
             offset: range.start.column + 1,
           }
           const client = await clientResolver.get(location.file)
-          const result = await client.executeDefinition(location)
+          const result = await client.execute("definition", location)
           handleDefinitionResult(result, editor, editorPosHist)
         },
       }

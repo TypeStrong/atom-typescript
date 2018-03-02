@@ -49,7 +49,7 @@ addCommand("atom-text-editor", "typescript:format-code", deps => ({
 
     // Collect all edits together so we can update everything in a single transaction
     for (const range of ranges) {
-      const result = await client.executeFormat({...range, file: filePath})
+      const result = await client.execute("format", {...range, file: filePath})
       if (result.body) {
         edits.push(...result.body)
       }
