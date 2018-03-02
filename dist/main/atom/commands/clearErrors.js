@@ -16,7 +16,6 @@ registry_1.addCommand("atom-text-editor", "typescript:reload-projects", deps => 
             return;
         const client = await deps.getClient(path);
         client.execute("reloadProjects", undefined);
-        deps.clearErrors();
     },
 }));
 //# sourceMappingURL=clearErrors.js.map

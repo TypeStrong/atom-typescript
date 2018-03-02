@@ -93,4 +93,8 @@ export interface CommandArgResponseMap {
     args: protocol.NavtoRequestArgs
     res: protocol.NavtoResponse
   }
+  reloadProjects: {
+    args: undefined
+    res: void
+  }
 }
