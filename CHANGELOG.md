@@ -1,3 +1,17 @@
+## 12.3.1
+
+-   Use external highlighter in tsView instead of MiniEditor
+    -   Should be a little bit more efficient and avoids flickering due
+        to asynchronous tokenization
+-   Remove \$ from find-references line number
+-   Do not update selectView after resolution
+    -   Avoids unexpected behavior when selectView is canceled before it
+        loads
+-   Fix symbols-view offset
+    -   Going to an item from symbols-view was offset by 1 character to
+        the right
+-   Updates for Atom 1.24
+
 ## 12.3.0
 
 -   Added an alternative to symbols-view (by russa)
