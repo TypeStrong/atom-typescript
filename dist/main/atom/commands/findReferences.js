@@ -26,7 +26,7 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
                 return (etch.dom("li", null,
                     etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() }),
                     etch.dom("div", { class: "pull-right" },
-                        "line: $",
+                        "line: ",
                         item.start.line),
                     etch.dom(tsView_1.TsView, { text: item.lineText.trim() })));
             },

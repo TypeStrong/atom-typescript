@@ -27,7 +27,7 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
         return (
           <li>
             <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
-            <div class="pull-right">line: ${item.start.line}</div>
+            <div class="pull-right">line: {item.start.line}</div>
             <TsView text={item.lineText.trim()} />
           </li>
         )
