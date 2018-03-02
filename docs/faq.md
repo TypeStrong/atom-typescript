@@ -10,6 +10,14 @@ General grammar issues should go to
 <https://github.com/Microsoft/TypeScript-TmLanguage>, and ones specific
 to Atom to <https://github.com/atom/language-typescript>.
 
+## Atom can't find modules/files that I just added
+
+## Atom complains about errors that shouldn't happen with my tsconfig on new files
+
+Tsserver can be lazy in reindexing project files for performance
+reasons. You can manually tell it to refresh by running
+`typescript:reload-projects` command
+
 ## Which version of TypeScript does atom-typescript use?
 
 Your current version installed in your `node_modules`. This gets
