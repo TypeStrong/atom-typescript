@@ -58,6 +58,7 @@ Atom-TypeScript relies on some external packages for providing some of its GUI. 
 * Block comment and uncomment
 * Rename refactoring
 * Common Snippets
+* Alternative to symbols-view
 
 # FAQ
 Located online : https://github.com/TypeStrong/atom-typescript/blob/master/docs/faq.md
@@ -103,6 +104,18 @@ A bird's eye view of the current file. Use command `toggle semantic view`. The v
 Shortcut : `ctrl+enter` on a Mac and `alt+enter` for Windows and Linux when using `intentions`, `alt+a` when using `atom-ide-ui`.
 Currently available codefixes:
 https://github.com/Microsoft/TypeScript/tree/master/src/services/codefixes
+
+## Alternative to symbols-view
+
+Atom's `symbols-view` package only works with `ctags`. This is obviously unsuitable for TypeScript. Hence, we provide two commands to emulate `symbols-view`:
+
+-   `typescript:toggle-file-symbols`
+-   `typescript:toggle-project-symbols`
+
+Both are bound to the same keys as corresponding `symbols-view` commands by default:
+
+-   `ctrl-r` and `ctrl-shift-r` on PC
+-   `cmd-r` and `cmd-shift-r` on Mac
 
 ## Contributing
 
