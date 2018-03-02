@@ -1,1 +1,0 @@
-{"version":3,"file":"clearErrors.js","sourceRoot":"","sources":["../../../../../lib/main/atom/commands/clearErrors.ts"],"names":[],"mappings":";;AAAA,yCAAqC;AAErC,qBAAU,CAAC,gBAAgB,EAAE,yBAAyB,EAAE,IAAI,CAAC,EAAE,CAAC,CAAC;IAC/D,WAAW,EAAE,sBAAsB;IACnC,WAAW;QACT,IAAI,CAAC,WAAW,EAAE,CAAA;IACpB,CAAC;CACF,CAAC,CAAC,CAAA"}
