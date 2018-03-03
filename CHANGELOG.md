@@ -1,3 +1,7 @@
+## 12.3.2
+
+-   Fix TypeScript dependency
+
 ## 12.3.1
 
 -   Use external highlighter in tsView instead of MiniEditor
