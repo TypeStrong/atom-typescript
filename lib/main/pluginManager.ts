@@ -75,7 +75,7 @@ export class PluginManager {
       const files: string[] = []
       for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
         const filePath = p.buffer.getPath()
-        if (filePath && p.isTypescript && p.client === p.client) {
+        if (filePath && p.isTypescript && p.client === pane.client) {
           files.push(filePath)
         }
       }
