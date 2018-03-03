@@ -1,3 +1,7 @@
+## 12.3.3
+
+-   [Bufgix] invalid comparison
+
 ## 12.3.2
 
 -   Fix TypeScript dependency
