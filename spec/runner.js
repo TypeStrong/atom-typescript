@@ -15,17 +15,17 @@ if (require.extensions[".ts"]) {
 const {register} = require("ts-node")
 
 register({
-  project: __dirname
+  project: path.join(__dirname, "tsconfig.json"),
 })
 
 // Configure test runner and export the runner function
-const createRunner = require('atom-mocha-test-runner').createRunner
+const createRunner = require("atom-mocha-test-runner").createRunner
 
 const extraOptions = {
-  testSuffixes: ['spec.js', 'spec.coffee', 'spec.ts']
+  testSuffixes: ["spec.js", "spec.coffee", "spec.ts"],
 }
 
-const optionalConfigurationFunction = function (mocha) {
+const optionalConfigurationFunction = function(mocha) {
   // If provided, atom-mocha-test-runner will pass the mocha instance
   // to this function, so you can do whatever you'd like to it.
 }
