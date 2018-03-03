@@ -17,7 +17,7 @@ export interface Options {
 }
 
 class RenameView implements JSX.ElementClass {
-  public refs: {
+  public refs!: {
     editor: MiniEditor
     main: HTMLElement
   }

@@ -27,7 +27,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public excludeLowerPriority = false
 
   private clientResolver: ClientResolver
-  private lastSuggestions: {
+  private lastSuggestions?: {
     // Client used to get the suggestions
     client: TypescriptServiceClient
 
@@ -112,7 +112,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[],
     location: FileLocationQuery,
   ) {
-    if (suggestions.some(s => !s.details)) {
+    if (suggestions.some(s => !s.details) && this.lastSuggestions) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map(s => s.text!),
         ...location,
@@ -164,6 +164,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     const completions = await client.execute("completions", {
       prefix,
       includeExternalModuleExports: false,
+      includeInsertTextCompletions: false,
       ...location,
     })
 

@@ -40,7 +40,7 @@ export class TooltipManager {
   private subscriptions = new Atom.CompositeDisposable()
   private exprTypeTimeout: number | undefined
   private exprTypeTooltip: TooltipView | undefined
-  private lastExprTypeBufferPt: Atom.Point
+  private lastExprTypeBufferPt?: Atom.Point
 
   constructor(
     private editor: Atom.TextEditor,

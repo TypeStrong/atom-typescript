@@ -9,6 +9,8 @@ class TypescriptEditorPane {
     constructor(editor, opts) {
         this.editor = editor;
         this.opts = opts;
+        // Timestamp for activated event
+        this.activeAt = 0;
         this.isTypescript = false;
         // Path to the project's tsconfig.json
         this.configFile = "";

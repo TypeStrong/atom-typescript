@@ -20,7 +20,7 @@ export interface Props extends JSX.Props {
 
 export class NavigationTreeComponent
   implements JSX.ElementClass, ToNodeScrollableEditor, SelectableNode {
-  public element: HTMLDivElement
+  public element!: HTMLDivElement
   private editor?: TextEditor
   private editorScrolling?: Disposable
   private editorChanging?: Disposable

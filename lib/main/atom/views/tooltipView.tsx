@@ -9,7 +9,7 @@ interface Props extends JSX.Props {
 }
 
 export class TooltipView implements JSX.ElementClass {
-  public readonly element: HTMLDivElement
+  public readonly element!: HTMLDivElement
   public props: Props
 
   constructor() {

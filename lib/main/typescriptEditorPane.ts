@@ -23,7 +23,7 @@ interface PaneOptions {
 
 export class TypescriptEditorPane implements Atom.Disposable {
   // Timestamp for activated event
-  public activeAt: number
+  public activeAt: number = 0
   public client?: TypescriptServiceClient
   public isTypescript = false
   public readonly buffer: TypescriptBuffer

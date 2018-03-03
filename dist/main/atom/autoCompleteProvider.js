@@ -59,7 +59,7 @@ class AutocompleteProvider {
         }
     }
     async getAdditionalDetails(suggestions, location) {
-        if (suggestions.some(s => !s.details)) {
+        if (suggestions.some(s => !s.details) && this.lastSuggestions) {
             const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map(s => s.text) }, location));
             details.body.forEach((detail, i) => {
                 const suggestion = suggestions[i];
@@ -93,7 +93,7 @@ class AutocompleteProvider {
             }
         }
         const client = await this.clientResolver.get(location.file);
-        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false }, location));
+        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: false }, location));
         const suggestions = completions.body.map(entry => ({
             text: entry.name,
             leftLabel: entry.kind,
