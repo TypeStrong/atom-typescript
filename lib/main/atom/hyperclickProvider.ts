@@ -16,7 +16,7 @@ export function getHyperclickProvider(
         return null
       }
       const filePath = editor.getPath()
-      if (!filePath) {
+      if (filePath === undefined) {
         return null
       }
 

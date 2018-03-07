@@ -86,7 +86,6 @@ export class TypescriptBuffer {
   public async getNavTo(search: string) {
     if (!this.state) return
     const client = await this.state.client
-    if (!client) return
     try {
       const navtoResult = await client.execute("navto", {
         file: this.state.filePath,
@@ -104,7 +103,7 @@ export class TypescriptBuffer {
   private async open() {
     const filePath = this.buffer.getPath()
 
-    if (filePath && isTypescriptFile(filePath)) {
+    if (filePath !== undefined && isTypescriptFile(filePath)) {
       this.state = {
         client: this.getClient(filePath),
         filePath,
@@ -149,7 +148,7 @@ export class TypescriptBuffer {
   private onDidSave = async () => {
     // Check if there isn't a onDidStopChanging event pending.
     const {changedAt, changedAtBatch} = this
-    if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
+    if (changedAtBatch > 0 && changedAt > changedAtBatch) {
       await new Promise<void>(resolve => this.events.once("changed", resolve))
     }
 

@@ -54,7 +54,7 @@ export function highlightMatches(name: string, query: string): QueryMatch[] {
     }
     const unmatched = name.substring(lastIndex, matchIndex)
     if (unmatched) {
-      if (matchedChars.length) {
+      if (matchedChars.length > 0) {
         queryMatches.push({text: matchedChars.join(""), type: "character-match"})
       }
       matchedChars = []
@@ -64,7 +64,7 @@ export function highlightMatches(name: string, query: string): QueryMatch[] {
     lastIndex = matchIndex + 1
   }
 
-  if (matchedChars.length) {
+  if (matchedChars.length > 0) {
     queryMatches.push({text: matchedChars.join(""), type: "character-match"})
   }
 

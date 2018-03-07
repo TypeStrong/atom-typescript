@@ -16,12 +16,8 @@ addCommand("atom-text-editor", "typescript:format-code", deps => ({
     }
 
     const editor = e.currentTarget.getModel()
-    if (!editor) {
-      e.abortKeyBinding()
-      return
-    }
     const filePath = editor.getPath()
-    if (!filePath) {
+    if (filePath === undefined) {
       e.abortKeyBinding()
       return
     }

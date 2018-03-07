@@ -22,7 +22,7 @@ class TypescriptEditorPane {
             this.activeAt = Date.now();
             this.isActive = true;
             const filePath = this.buffer.getPath();
-            if (this.isTypescript && filePath) {
+            if (this.isTypescript && filePath !== undefined) {
                 this.opts.statusPanel.show();
                 // The first activation might happen before we even have a client
                 if (this.client) {
@@ -43,7 +43,7 @@ class TypescriptEditorPane {
             if (!this.client)
                 return;
             const filePath = this.buffer.getPath();
-            if (!filePath)
+            if (filePath === undefined)
                 return;
             this.opts.statusPanel.update({ buildStatus: undefined });
             this.client.execute("geterr", {
@@ -65,7 +65,7 @@ class TypescriptEditorPane {
         };
         this.onOpened = async () => {
             const filePath = this.buffer.getPath();
-            if (!filePath)
+            if (filePath === undefined)
                 return;
             this.client = await this.opts.getClient(filePath);
             // onOpened might trigger before onActivated so we can't rely on isActive flag
@@ -133,7 +133,7 @@ class TypescriptEditorPane {
         if (!this.client)
             return;
         const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (filePath === undefined)
             return;
         const pos = this.editor.getLastCursor().getBufferPosition();
         this.clearOccurrenceMarkers();
@@ -162,7 +162,7 @@ class TypescriptEditorPane {
         if (!client)
             return;
         const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (filePath === undefined)
             return;
         const result = await client.execute("compileOnSaveAffectedFileList", {
             file: filePath,

@@ -17,7 +17,15 @@
     "trailing-comma": false,
     "whitespace": false,
     "curly": [true, "ignore-same-line"],
-    "object-literal-key-quotes": false
+    "object-literal-key-quotes": false,
+    "strict-boolean-expressions": [
+      true,
+      "allow-null-union",
+      "allow-undefined-union",
+      "allow-string",
+      "allow-boolean-or-undefined"
+    ],
+    "strict-type-predicates": true
   },
   "rulesDirectory": []
 }

@@ -10,7 +10,7 @@ function getEditorPosition(editor) {
     };
 }
 function isTypescriptFile(filePath) {
-    if (!filePath)
+    if (filePath === undefined)
         return false;
     return isAllowedExtension(path.extname(filePath));
 }
@@ -28,7 +28,7 @@ function isAllowedExtension(ext) {
 }
 function getFilePathPosition(editor) {
     const file = editor.getPath();
-    if (file) {
+    if (file !== undefined) {
         return Object.assign({ file }, getEditorPosition(editor));
     }
 }

@@ -58,7 +58,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
     // Don't show autocomplete if the previous character was a non word character except "."
     const lastChar = getLastNonWhitespaceChar(opts.editor.buffer, opts.bufferPosition)
-    if (lastChar && !opts.activatedManually) {
+    if (lastChar !== undefined && !opts.activatedManually) {
       if (/\W/i.test(lastChar) && lastChar !== ".") {
         return []
       }
@@ -124,20 +124,16 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         suggestion.details = detail
         let parts = detail.displayParts
         if (
-          parts[1] &&
-          parts[1].text === suggestion.leftLabel &&
-          parts[0] &&
+          parts.length >= 3 &&
           parts[0].text === "(" &&
-          parts[2] &&
+          parts[1].text === suggestion.leftLabel &&
           parts[2].text === ")"
         ) {
           parts = parts.slice(3)
         }
         suggestion.rightLabel = parts.map(d => d.text).join("")
 
-        if (detail.documentation) {
-          suggestion.description = detail.documentation.map(d => d.text).join(" ")
-        }
+        suggestion.description = detail.documentation.map(d => d.text).join(" ")
       })
     }
   }
@@ -205,7 +201,7 @@ function getNormalizedCol(prefix: string, col: number): number {
 
 function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined {
   const path = opts.editor.getPath()
-  if (!path) {
+  if (path === undefined) {
     return undefined
   }
   return {

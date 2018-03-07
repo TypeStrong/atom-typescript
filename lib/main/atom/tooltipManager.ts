@@ -11,6 +11,13 @@ import {TypescriptServiceClient} from "../../client/client"
 
 const tooltipMap = new WeakMap<Atom.TextEditor, TooltipManager>()
 
+interface Rect {
+  left: number
+  right: number
+  top: number
+  bottom: number
+}
+
 // screen position from mouse event -- with <3 from Atom-Haskell
 function bufferPositionFromMouseEvent(
   editor: Atom.TextEditor,
@@ -78,7 +85,7 @@ export class TooltipManager {
     this.clientPromise = undefined
     // Only on ".ts" files
     const filePath = this.editor.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
     if (!atomUtils.isTypescriptEditorWithPath(this.editor)) return
     // We only create a "program" once the file is persisted to disk
     if (!fs.existsSync(filePath)) return
@@ -103,12 +110,8 @@ export class TooltipManager {
 
     const bufferPt = bufferPositionFromMouseEvent(this.editor, e)
     if (!bufferPt) return
-    const curCharPixelPt = this.rawView.pixelPositionForBufferPosition(
-      Atom.Point.fromObject([bufferPt.row, bufferPt.column]),
-    )
-    const nextCharPixelPt = this.rawView.pixelPositionForBufferPosition(
-      Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]),
-    )
+    const curCharPixelPt = this.rawView.pixelPositionForBufferPosition(bufferPt)
+    const nextCharPixelPt = this.rawView.pixelPositionForBufferPosition(bufferPt.traverse([0, 1]))
 
     if (curCharPixelPt.left >= nextCharPixelPt.left) {
       return
@@ -122,11 +125,18 @@ export class TooltipManager {
       top: e.clientY - offset,
       bottom: e.clientY + offset,
     }
+
+    const msg = await this.getMessage(bufferPt)
+    if (msg !== undefined) this.showTooltip(tooltipRect, msg)
+  }
+
+  private async getMessage(bufferPt: Atom.Point) {
     let result: protocol.QuickInfoResponse
+    if (!this.clientPromise) return
     const client = await this.clientPromise
     const filePath = this.editor.getPath()
     try {
-      if (!filePath) {
+      if (filePath === undefined) {
         return
       }
       result = await client.execute("quickinfo", {
@@ -145,6 +155,10 @@ export class TooltipManager {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
     }
+    return message
+  }
+
+  private showTooltip(tooltipRect: Rect, message: string) {
     if (!TooltipManager.exprTypeTooltip) {
       TooltipManager.exprTypeTooltip = new TooltipView()
       document.body.appendChild(TooltipManager.exprTypeTooltip.element)
@@ -154,7 +168,7 @@ export class TooltipManager {
 
   /** clears the timeout && the tooltip */
   private clearExprTypeTimeout = () => {
-    if (this.exprTypeTimeout) {
+    if (this.exprTypeTimeout !== undefined) {
       clearTimeout(this.exprTypeTimeout)
       this.exprTypeTimeout = undefined
     }

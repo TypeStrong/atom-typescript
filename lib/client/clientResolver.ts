@@ -22,17 +22,17 @@ interface Binary {
   pathToBin: string
 }
 
+interface ClientRec {
+  client: Client
+  pending: string[]
+}
+
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.
  */
 export class ClientResolver extends events.EventEmitter {
-  public clients: {
-    [tsServerPath: string]: {
-      client: Client
-      pending: string[]
-    }
-  } = {}
+  public clients = new Map<string, ClientRec>()
 
   // This is just here so Typescript can infer the types of the callbacks when using "on" method
   public on(event: "diagnostics", callback: (result: DiagnosticsPayload) => void): this
@@ -44,16 +44,19 @@ export class ClientResolver extends events.EventEmitter {
   public async get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
 
-    if (this.clients[pathToBin]) {
-      return this.clients[pathToBin].client
+    const clientRec = this.clients.get(pathToBin)
+    if (clientRec) return clientRec.client
+
+    const newClientRec: ClientRec = {
+      client: new Client(pathToBin, version),
+      pending: [],
     }
+    this.clients.set(pathToBin, newClientRec)
 
-    const entry = this.addClient(pathToBin, new Client(pathToBin, version))
+    newClientRec.client.startServer()
 
-    entry.client.startServer()
-
-    entry.client.on("pendingRequestsChange", pending => {
-      entry.pending = pending
+    newClientRec.client.on("pendingRequestsChange", pending => {
+      newClientRec.pending = pending
       this.emit("pendingRequestsChange")
     })
 
@@ -72,24 +75,15 @@ export class ClientResolver extends events.EventEmitter {
       }
     }
 
-    entry.client.on("configFileDiag", diagnosticHandler("configFileDiag"))
-    entry.client.on("semanticDiag", diagnosticHandler("semanticDiag"))
-    entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
+    newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"))
+    newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"))
+    newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
 
-    return entry.client
+    return newClientRec.client
   }
 
   public dispose() {
     this.removeAllListeners()
-  }
-
-  private addClient(serverPath: string, client: Client) {
-    this.clients[serverPath] = {
-      client,
-      pending: [],
-    }
-
-    return this.clients[serverPath]
   }
 }
 

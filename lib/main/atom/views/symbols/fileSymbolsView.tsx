@@ -9,7 +9,7 @@ import {HighlightComponent} from "../highlightComponent"
 
 export async function toggle(editor: TextEditor, deps: Deps) {
   const filePath = editor.getPath()
-  if (filePath) {
+  if (filePath !== undefined) {
     // NOTE uses the "parent" package's setting (i.e. from symbols-view):
     let initialState
     if (atom.config.get("symbols-view.quickJumpToFileSymbol")) {
@@ -25,7 +25,7 @@ export async function toggle(editor: TextEditor, deps: Deps) {
           <div class="secondary-line">{`Line ${position.row + 1}`}</div>
         </li>
       ),
-      didChangeSelection(item: Tag) {
+      didChangeSelection(item?: Tag) {
         // NOTE uses the "parent" package's setting (i.e. from symbols-view):
         if (atom.config.get("symbols-view.quickJumpToFileSymbol") && item) {
           editor.setCursorBufferPosition(item.position)

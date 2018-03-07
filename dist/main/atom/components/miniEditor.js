@@ -36,7 +36,7 @@ class MiniEditor {
         this.model.setReadOnly(!!this.props.readOnly);
     }
     setGrammar() {
-        if (this.props.grammar) {
+        if (this.props.grammar !== undefined) {
             atom.textEditors.setGrammarOverride(this.model, this.props.grammar);
         }
         else {

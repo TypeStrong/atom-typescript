@@ -8,6 +8,7 @@ class TooltipView {
             right: 0,
             top: 0,
             bottom: 0,
+            text: "",
         };
         etch.initialize(this);
     }
@@ -50,7 +51,7 @@ class TooltipView {
     }
     render() {
         return (etch.dom("div", { class: "atom-typescript-tooltip tooltip" },
-            etch.dom("div", { class: "tooltip-inner", innerHTML: this.props.text || "" })));
+            etch.dom("div", { class: "tooltip-inner", innerHTML: this.props.text })));
     }
 }
 exports.TooltipView = TooltipView;

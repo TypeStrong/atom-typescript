@@ -11,7 +11,7 @@ function getHyperclickProvider(clientResolver, editorPosHist) {
                 return null;
             }
             const filePath = editor.getPath();
-            if (!filePath) {
+            if (filePath === undefined) {
                 return null;
             }
             return {

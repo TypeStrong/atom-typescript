@@ -45,7 +45,7 @@ export async function handleDefinitionResult(
       itemFilterKey: "file",
     })
     if (res) hist.goForward(editor, res)
-  } else if (result.body.length) {
+  } else if (result.body.length > 0) {
     hist.goForward(editor, result.body[0])
   }
 }

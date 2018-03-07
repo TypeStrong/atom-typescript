@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const path_1 = require("path");
-const lodash_1 = require("lodash");
 class StatusPanel {
     constructor(props) {
         this.buildStatusClicked = () => {
@@ -14,7 +13,9 @@ class StatusPanel {
             }
         };
         this.handlePendingRequests = () => {
-            this.update({ pending: lodash_1.flatten(lodash_1.values(this.props.clientResolver.clients).map(cl => cl.pending)) });
+            this.update({
+                pending: [].concat(...Array.from(this.props.clientResolver.clients.values()).map(el => el.pending)),
+            });
         };
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
@@ -48,7 +49,7 @@ class StatusPanel {
         this.update({ visible: false });
     }
     resetBuildStatusTimeout() {
-        if (this.buildStatusTimeout) {
+        if (this.buildStatusTimeout !== undefined) {
             window.clearTimeout(this.buildStatusTimeout);
             this.buildStatusTimeout = undefined;
         }
@@ -65,7 +66,7 @@ class StatusPanel {
         }
     }
     openConfigPath() {
-        if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+        if (this.props.tsConfigPath !== undefined && !this.props.tsConfigPath.startsWith("/dev/null")) {
             atom.workspace.open(this.props.tsConfigPath);
         }
         else {
@@ -78,13 +79,13 @@ class StatusPanel {
         }
     }
     renderVersion() {
-        if (this.props.version) {
+        if (this.props.version !== undefined) {
             return (etch.dom("div", { ref: "version", className: "inline-block" }, this.props.version));
         }
         return null;
     }
     renderPending() {
-        if (this.props.pending && this.props.pending.length) {
+        if (this.props.pending && this.props.pending.length > 0) {
             return (etch.dom("a", { ref: "pendingContainer", className: "inline-block", href: "", on: {
                     click: evt => {
                         evt.preventDefault();
@@ -97,7 +98,7 @@ class StatusPanel {
         return null;
     }
     renderConfigPath() {
-        if (this.props.tsConfigPath) {
+        if (this.props.tsConfigPath !== undefined) {
             return (etch.dom("a", { ref: "configPathContainer", className: "inline-block", href: "", on: {
                     click: evt => {
                         evt.preventDefault();

@@ -36,7 +36,7 @@ class TypescriptBuffer {
         this.onDidSave = async () => {
             // Check if there isn't a onDidStopChanging event pending.
             const { changedAt, changedAtBatch } = this;
-            if (changedAt && changedAtBatch && changedAt > changedAtBatch) {
+            if (changedAtBatch > 0 && changedAt > changedAtBatch) {
                 await new Promise(resolve => this.events.once("changed", resolve));
             }
             this.events.emit("saved");
@@ -102,8 +102,6 @@ class TypescriptBuffer {
         if (!this.state)
             return;
         const client = await this.state.client;
-        if (!client)
-            return;
         try {
             const navtoResult = await client.execute("navto", {
                 file: this.state.filePath,
@@ -120,7 +118,7 @@ class TypescriptBuffer {
     }
     async open() {
         const filePath = this.buffer.getPath();
-        if (filePath && utils_1.isTypescriptFile(filePath)) {
+        if (filePath !== undefined && utils_1.isTypescriptFile(filePath)) {
             this.state = {
                 client: this.getClient(filePath),
                 filePath,

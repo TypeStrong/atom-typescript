@@ -1,7 +1,6 @@
 import * as etch from "etch"
 import {dirname} from "path"
 import {ClientResolver} from "../../../client/clientResolver"
-import {flatten, values} from "lodash"
 
 export interface Props extends JSX.Props {
   version?: string
@@ -63,7 +62,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private resetBuildStatusTimeout() {
-    if (this.buildStatusTimeout) {
+    if (this.buildStatusTimeout !== undefined) {
       window.clearTimeout(this.buildStatusTimeout)
       this.buildStatusTimeout = undefined
     }
@@ -80,7 +79,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private openConfigPath() {
-    if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+    if (this.props.tsConfigPath !== undefined && !this.props.tsConfigPath.startsWith("/dev/null")) {
       atom.workspace.open(this.props.tsConfigPath)
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
@@ -94,7 +93,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderVersion(): JSX.Element | null {
-    if (this.props.version) {
+    if (this.props.version !== undefined) {
       return (
         <div ref="version" className="inline-block">
           {this.props.version}
@@ -105,7 +104,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderPending(): JSX.Element | null {
-    if (this.props.pending && this.props.pending.length) {
+    if (this.props.pending && this.props.pending.length > 0) {
       return (
         <a
           ref="pendingContainer"
@@ -130,7 +129,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderConfigPath(): JSX.Element | null {
-    if (this.props.tsConfigPath) {
+    if (this.props.tsConfigPath !== undefined) {
       return (
         <a
           ref="configPathContainer"
@@ -198,7 +197,11 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private handlePendingRequests = () => {
-    this.update({pending: flatten(values(this.props.clientResolver.clients).map(cl => cl.pending))})
+    this.update({
+      pending: ([] as string[]).concat(
+        ...Array.from(this.props.clientResolver.clients.values()).map(el => el.pending),
+      ),
+    })
   }
 }
 

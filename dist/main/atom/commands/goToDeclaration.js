@@ -41,7 +41,7 @@ async function handleDefinitionResult(result, editor, hist) {
         if (res)
             hist.goForward(editor, res);
     }
-    else if (result.body.length) {
+    else if (result.body.length > 0) {
         hist.goForward(editor, result.body[0]);
     }
 }

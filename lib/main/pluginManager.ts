@@ -34,7 +34,7 @@ export class PluginManager {
   private editorPosHist: EditorPositionHistoryManager
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
 
-  public constructor(state?: State) {
+  public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
 
     this.clientResolver = new ClientResolver()
@@ -75,7 +75,7 @@ export class PluginManager {
       const files: string[] = []
       for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
         const filePath = p.buffer.getPath()
-        if (filePath && p.isTypescript && p.client === pane.client) {
+        if (filePath !== undefined && p.isTypescript && p.client === pane.client) {
           files.push(filePath)
         }
       }

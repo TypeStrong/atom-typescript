@@ -40,7 +40,7 @@ declare interface IProps<T> {
   /** a function that is called when the query changes. */
   didChangeQuery?: (query: string) => void
   /** a function that is called when the selected item changes. */
-  didChangeSelection?: (item: T) => void
+  didChangeSelection?: (item?: T) => void
   /** a function that is called when the user clicks or presses enter on an item. */
   didConfirmSelection?: (item: T) => void
   /** a function that is called when the user presses Enter but the list is empty. */

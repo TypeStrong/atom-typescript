@@ -69,7 +69,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     this.isActive = true
 
     const filePath = this.buffer.getPath()
-    if (this.isTypescript && filePath) {
+    if (this.isTypescript && filePath !== undefined) {
       this.opts.statusPanel.show()
 
       // The first activation might happen before we even have a client
@@ -94,7 +94,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   private onChanged = () => {
     if (!this.client) return
     const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
 
     this.opts.statusPanel.update({buildStatus: undefined})
 
@@ -113,7 +113,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   private async updateMarkers() {
     if (!this.client) return
     const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
 
     const pos = this.editor.getLastCursor().getBufferPosition()
 
@@ -155,7 +155,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
   private onOpened = async () => {
     const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
     this.client = await this.opts.getClient(filePath)
 
     // onOpened might trigger before onActivated so we can't rely on isActive flag
@@ -204,7 +204,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
     const {client} = this
     if (!client) return
     const filePath = this.buffer.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
 
     const result = await client.execute("compileOnSaveAffectedFileList", {
       file: filePath,

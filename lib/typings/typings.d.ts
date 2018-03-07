@@ -12,5 +12,5 @@ declare module "escape-html" {
 // (do not use without checking existence of property/method first)
 interface ElementExp extends Element {
   //experimental feature in Chrome, see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
-  scrollIntoViewIfNeeded: (opt_center?: boolean) => void
+  scrollIntoViewIfNeeded?: (opt_center?: boolean) => void
 }

@@ -38,7 +38,7 @@ class RenameView {
         return this.refs.editor.getModel().getText();
     }
     renderValidationMessage() {
-        if (this.props.validationMessage) {
+        if (this.props.validationMessage !== undefined) {
             return etch.dom("div", { class: "highlight-error" }, this.props.validationMessage);
         }
         return null;
@@ -66,7 +66,7 @@ async function showRenameDialog(options) {
                 },
                 "core:confirm": () => {
                     const newText = item.getText();
-                    const invalid = options.onValidate && options.onValidate(newText);
+                    const invalid = options.onValidate(newText);
                     if (invalid) {
                         item.update({ validationMessage: invalid });
                         return;
