@@ -54,6 +54,7 @@ export class NavigationTreeComponent
 
   public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
     this.withTypescriptBuffer = wtb
+    this.loadNavTree()
   }
 
   public getSelectedNode() {

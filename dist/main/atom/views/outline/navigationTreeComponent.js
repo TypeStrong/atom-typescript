@@ -95,6 +95,7 @@ class NavigationTreeComponent {
     }
     setWithTypescriptBuffer(wtb) {
         this.withTypescriptBuffer = wtb;
+        this.loadNavTree();
     }
     getSelectedNode() {
         return this.selectedNode;
