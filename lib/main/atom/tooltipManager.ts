@@ -34,13 +34,13 @@ export async function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) 
 }
 
 export class TooltipManager {
+  private static exprTypeTooltip: TooltipView | undefined
   private clientPromise?: Promise<TypescriptServiceClient>
   private rawView: Atom.TextEditorElement
   private lines: Element
   private subscriptions = new Atom.CompositeDisposable()
   private exprTypeTimeout: number | undefined
-  private exprTypeTooltip: TooltipView | undefined
-  private lastExprTypeBufferPt: Atom.Point
+  private lastExprTypeBufferPt?: Atom.Point
 
   constructor(
     private editor: Atom.TextEditor,
@@ -52,8 +52,10 @@ export class TooltipManager {
 
     this.subscriptions.add(
       listen(this.rawView, "mousemove", ".scroll-view", this.trackMouseMovement),
-      listen(this.rawView, "mouseout", ".scroll-view", () => this.clearExprTypeTimeout()),
-      listen(this.rawView, "keydown", ".scroll-view", () => this.clearExprTypeTimeout()),
+      listen(this.rawView, "mouseout", ".scroll-view", this.clearExprTypeTimeout),
+      listen(this.rawView, "keydown", ".scroll-view", this.clearExprTypeTimeout),
+      this.rawView.onDidChangeScrollTop(this.clearExprTypeTimeout),
+      this.rawView.onDidChangeScrollLeft(this.clearExprTypeTimeout),
     )
 
     this.subscriptions.add(this.editor.onDidChangePath(this.reinitialize))
@@ -95,7 +97,7 @@ export class TooltipManager {
   private async showExpressionType(e: {clientX: number; clientY: number}) {
     if (!this.clientPromise) return
     // If we are already showing we should wait for that to clear
-    if (this.exprTypeTooltip) {
+    if (TooltipManager.exprTypeTooltip) {
       return
     }
 
@@ -143,15 +145,15 @@ export class TooltipManager {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
     }
-    if (!this.exprTypeTooltip) {
-      this.exprTypeTooltip = new TooltipView()
-      document.body.appendChild(this.exprTypeTooltip.element)
-      this.exprTypeTooltip.update({...tooltipRect, text: message})
+    if (!TooltipManager.exprTypeTooltip) {
+      TooltipManager.exprTypeTooltip = new TooltipView()
+      document.body.appendChild(TooltipManager.exprTypeTooltip.element)
+      TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
     }
   }
 
   /** clears the timeout && the tooltip */
-  private clearExprTypeTimeout() {
+  private clearExprTypeTimeout = () => {
     if (this.exprTypeTimeout) {
       clearTimeout(this.exprTypeTimeout)
       this.exprTypeTimeout = undefined
@@ -160,11 +162,11 @@ export class TooltipManager {
   }
 
   private hideExpressionType() {
-    if (!this.exprTypeTooltip) {
+    if (!TooltipManager.exprTypeTooltip) {
       return
     }
-    this.exprTypeTooltip.destroy()
-    this.exprTypeTooltip = undefined
+    TooltipManager.exprTypeTooltip.destroy()
+    TooltipManager.exprTypeTooltip = undefined
   }
 
   private trackMouseMovement = (e: MouseEvent) => {
@@ -173,7 +175,7 @@ export class TooltipManager {
     if (
       this.lastExprTypeBufferPt &&
       this.lastExprTypeBufferPt.isEqual(bufferPt) &&
-      this.exprTypeTooltip
+      TooltipManager.exprTypeTooltip
     ) {
       return
     }
