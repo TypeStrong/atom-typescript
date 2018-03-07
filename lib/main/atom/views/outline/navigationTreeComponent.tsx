@@ -54,6 +54,7 @@ export class NavigationTreeComponent
 
   public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
     this.withTypescriptBuffer = wtb
+    this.loadNavTree()
   }
 
   public getSelectedNode() {
@@ -174,7 +175,7 @@ export class NavigationTreeComponent
         this.editorChanging.dispose()
       }
 
-      this.update({navTree: undefined})
+      this.update({navTree: null})
       return
     }
     this.editor = editor
