@@ -1,3 +1,7 @@
+## 12.3.5
+
+-   Fix semantic view display on initial creation
+
 ## 12.3.4
 
 -   Track exprTypeTooltip globally
