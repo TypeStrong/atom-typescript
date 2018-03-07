@@ -1,3 +1,9 @@
+## 12.3.4
+
+-   Track exprTypeTooltip globally
+
+    This should help with tooltips getting "stuck" occasionally.
+
 ## 12.3.3
 
 -   [Bufgix] invalid comparison

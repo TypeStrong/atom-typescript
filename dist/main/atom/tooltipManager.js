@@ -45,13 +45,21 @@ class TooltipManager {
                 return;
             this.clientPromise = this.getClient(filePath);
         };
+        /** clears the timeout && the tooltip */
+        this.clearExprTypeTimeout = () => {
+            if (this.exprTypeTimeout) {
+                clearTimeout(this.exprTypeTimeout);
+                this.exprTypeTimeout = undefined;
+            }
+            this.hideExpressionType();
+        };
         this.trackMouseMovement = (e) => {
             const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
             if (!bufferPt)
                 return;
             if (this.lastExprTypeBufferPt &&
                 this.lastExprTypeBufferPt.isEqual(bufferPt) &&
-                this.exprTypeTooltip) {
+                TooltipManager.exprTypeTooltip) {
                 return;
             }
             this.lastExprTypeBufferPt = bufferPt;
@@ -61,7 +69,7 @@ class TooltipManager {
         this.rawView = atom.views.getView(editor);
         this.lines = this.rawView.querySelector(".lines");
         tooltipMap.set(editor, this);
-        this.subscriptions.add(element_listener_1.listen(this.rawView, "mousemove", ".scroll-view", this.trackMouseMovement), element_listener_1.listen(this.rawView, "mouseout", ".scroll-view", () => this.clearExprTypeTimeout()), element_listener_1.listen(this.rawView, "keydown", ".scroll-view", () => this.clearExprTypeTimeout()));
+        this.subscriptions.add(element_listener_1.listen(this.rawView, "mousemove", ".scroll-view", this.trackMouseMovement), element_listener_1.listen(this.rawView, "mouseout", ".scroll-view", this.clearExprTypeTimeout), element_listener_1.listen(this.rawView, "keydown", ".scroll-view", this.clearExprTypeTimeout), this.rawView.onDidChangeScrollTop(this.clearExprTypeTimeout), this.rawView.onDidChangeScrollLeft(this.clearExprTypeTimeout));
         this.subscriptions.add(this.editor.onDidChangePath(this.reinitialize));
         this.reinitialize();
     }
@@ -85,7 +93,7 @@ class TooltipManager {
         if (!this.clientPromise)
             return;
         // If we are already showing we should wait for that to clear
-        if (this.exprTypeTooltip) {
+        if (TooltipManager.exprTypeTooltip) {
             return;
         }
         const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
@@ -126,26 +134,18 @@ class TooltipManager {
             message =
                 message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
         }
-        if (!this.exprTypeTooltip) {
-            this.exprTypeTooltip = new tooltipView_1.TooltipView();
-            document.body.appendChild(this.exprTypeTooltip.element);
-            this.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
+        if (!TooltipManager.exprTypeTooltip) {
+            TooltipManager.exprTypeTooltip = new tooltipView_1.TooltipView();
+            document.body.appendChild(TooltipManager.exprTypeTooltip.element);
+            TooltipManager.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
         }
-    }
-    /** clears the timeout && the tooltip */
-    clearExprTypeTimeout() {
-        if (this.exprTypeTimeout) {
-            clearTimeout(this.exprTypeTimeout);
-            this.exprTypeTimeout = undefined;
-        }
-        this.hideExpressionType();
     }
     hideExpressionType() {
-        if (!this.exprTypeTooltip) {
+        if (!TooltipManager.exprTypeTooltip) {
             return;
         }
-        this.exprTypeTooltip.destroy();
-        this.exprTypeTooltip = undefined;
+        TooltipManager.exprTypeTooltip.destroy();
+        TooltipManager.exprTypeTooltip = undefined;
     }
 }
 exports.TooltipManager = TooltipManager;
