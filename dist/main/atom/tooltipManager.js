@@ -51,6 +51,8 @@ class TooltipManager {
                 clearTimeout(this.exprTypeTimeout);
                 this.exprTypeTimeout = undefined;
             }
+            if (this.cancelShowTooltip)
+                this.cancelShowTooltip();
             this.hideExpressionType();
         };
         this.trackMouseMovement = (e) => {
@@ -95,6 +97,13 @@ class TooltipManager {
         // If we are already showing we should wait for that to clear
         if (TooltipManager.exprTypeTooltip)
             return;
+        if (this.cancelShowTooltip)
+            this.cancelShowTooltip();
+        let cancelled = false;
+        this.cancelShowTooltip = () => {
+            cancelled = true;
+            this.cancelShowTooltip = undefined;
+        };
         const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
         if (!bufferPt)
             return;
@@ -112,6 +121,9 @@ class TooltipManager {
             bottom: e.clientY + offset,
         };
         const msg = await this.getMessage(bufferPt);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (cancelled)
+            return;
         if (msg !== undefined)
             this.showTooltip(tooltipRect, msg);
     }
