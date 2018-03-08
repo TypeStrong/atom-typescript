@@ -93,9 +93,8 @@ class TooltipManager {
         if (!this.clientPromise)
             return;
         // If we are already showing we should wait for that to clear
-        if (TooltipManager.exprTypeTooltip) {
+        if (TooltipManager.exprTypeTooltip)
             return;
-        }
         const bufferPt = bufferPositionFromMouseEvent(this.editor, e);
         if (!bufferPt)
             return;
@@ -144,16 +143,15 @@ class TooltipManager {
         return message;
     }
     showTooltip(tooltipRect, message) {
-        if (!TooltipManager.exprTypeTooltip) {
-            TooltipManager.exprTypeTooltip = new tooltipView_1.TooltipView();
-            document.body.appendChild(TooltipManager.exprTypeTooltip.element);
-            TooltipManager.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
-        }
+        if (TooltipManager.exprTypeTooltip)
+            return;
+        TooltipManager.exprTypeTooltip = new tooltipView_1.TooltipView();
+        document.body.appendChild(TooltipManager.exprTypeTooltip.element);
+        TooltipManager.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
     }
     hideExpressionType() {
-        if (!TooltipManager.exprTypeTooltip) {
+        if (!TooltipManager.exprTypeTooltip)
             return;
-        }
         TooltipManager.exprTypeTooltip.destroy();
         TooltipManager.exprTypeTooltip = undefined;
     }

@@ -104,9 +104,7 @@ export class TooltipManager {
   private async showExpressionType(e: {clientX: number; clientY: number}) {
     if (!this.clientPromise) return
     // If we are already showing we should wait for that to clear
-    if (TooltipManager.exprTypeTooltip) {
-      return
-    }
+    if (TooltipManager.exprTypeTooltip) return
 
     const bufferPt = bufferPositionFromMouseEvent(this.editor, e)
     if (!bufferPt) return
@@ -159,11 +157,10 @@ export class TooltipManager {
   }
 
   private showTooltip(tooltipRect: Rect, message: string) {
-    if (!TooltipManager.exprTypeTooltip) {
-      TooltipManager.exprTypeTooltip = new TooltipView()
-      document.body.appendChild(TooltipManager.exprTypeTooltip.element)
-      TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
-    }
+    if (TooltipManager.exprTypeTooltip) return
+    TooltipManager.exprTypeTooltip = new TooltipView()
+    document.body.appendChild(TooltipManager.exprTypeTooltip.element)
+    TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
   }
 
   /** clears the timeout && the tooltip */
@@ -176,9 +173,7 @@ export class TooltipManager {
   }
 
   private hideExpressionType() {
-    if (!TooltipManager.exprTypeTooltip) {
-      return
-    }
+    if (!TooltipManager.exprTypeTooltip) return
     TooltipManager.exprTypeTooltip.destroy()
     TooltipManager.exprTypeTooltip = undefined
   }
