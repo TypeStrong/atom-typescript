@@ -1,3 +1,8 @@
+## 12.3.7
+
+-   Avoid duplicate `open` command (which confuses tsserver)
+-   Normalize errorPusher path on storage
+
 ## 12.3.6
 
 -   Fix #1413
