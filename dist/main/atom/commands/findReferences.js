@@ -21,10 +21,10 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
         const client = await deps.getClient(location.file);
         const result = await client.execute("references", location);
         const res = await simpleSelectionView_1.selectListView({
-            items: result.body.refs.map(r => (Object.assign({}, r, { file: atom.project.relativize(r.file) }))),
+            items: result.body.refs,
             itemTemplate: (item, ctx) => {
                 return (etch.dom("li", null,
-                    etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() }),
+                    etch.dom(highlightComponent_1.HighlightComponent, { label: atom.project.relativize(item.file), query: ctx.getFilterQuery() }),
                     etch.dom("div", { class: "pull-right" },
                         "line: ",
                         item.start.line),
