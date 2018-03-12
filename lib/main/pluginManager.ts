@@ -46,6 +46,9 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
+    // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
+    this.subscribeEditors()
+
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
       this.errorPusher,
@@ -64,69 +67,6 @@ export class PluginManager {
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))
-
-    let activePane: TypescriptEditorPane | undefined
-
-    const onSave = debounce((pane: TypescriptEditorPane) => {
-      if (!pane.client) {
-        return
-      }
-
-      const files: string[] = []
-      for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-        const filePath = p.buffer.getPath()
-        if (filePath && p.isTypescript && p.client === pane.client) {
-          files.push(filePath)
-        }
-      }
-
-      pane.client.execute("geterr", {files, delay: 100})
-    }, 50)
-
-    this.subscriptions.add(
-      atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
-        this.panes.push(
-          new TypescriptEditorPane(editor, {
-            getClient: (filePath: string) => this.clientResolver.get(filePath),
-            onClose: filePath => {
-              // Clear errors if any from this file
-              this.errorPusher.setErrors("syntaxDiag", filePath, [])
-              this.errorPusher.setErrors("semanticDiag", filePath, [])
-            },
-            onDispose: pane => {
-              if (activePane === pane) {
-                activePane = undefined
-              }
-
-              this.panes.splice(this.panes.indexOf(pane), 1)
-            },
-            onSave,
-            statusPanel: this.statusPanel,
-          }),
-        )
-      }),
-    )
-
-    activePane = this.panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor())
-
-    if (activePane) {
-      activePane.onActivated()
-    }
-
-    this.subscriptions.add(
-      atom.workspace.onDidChangeActiveTextEditor((editor?: Atom.TextEditor) => {
-        if (activePane) {
-          activePane.onDeactivated()
-          activePane = undefined
-        }
-
-        const pane = this.panes.find(p => p.editor === editor)
-        if (pane) {
-          activePane = pane
-          pane.onActivated()
-        }
-      }),
-    )
   }
 
   public destroy() {
@@ -226,4 +166,61 @@ export class PluginManager {
   public getSymbolsViewController = () => this.symbolsViewController
 
   public getEditorPositionHistoryManager = () => this.editorPosHist
+
+  private subscribeEditors() {
+    let activePane: TypescriptEditorPane | undefined
+
+    this.subscriptions.add(
+      atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
+        this.panes.push(
+          new TypescriptEditorPane(editor, {
+            getClient: (filePath: string) => this.clientResolver.get(filePath),
+            onClose: filePath => {
+              // Clear errors if any from this file
+              this.errorPusher.setErrors("syntaxDiag", filePath, [])
+              this.errorPusher.setErrors("semanticDiag", filePath, [])
+            },
+            onDispose: pane => {
+              if (activePane === pane) {
+                activePane = undefined
+              }
+
+              this.panes.splice(this.panes.indexOf(pane), 1)
+            },
+            onSave: debounce((pane: TypescriptEditorPane) => {
+              if (!pane.client) {
+                return
+              }
+
+              const files: string[] = []
+              for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
+                const filePath = p.buffer.getPath()
+                if (filePath && p.isTypescript && p.client === pane.client) {
+                  files.push(filePath)
+                }
+              }
+
+              pane.client.execute("geterr", {files, delay: 100})
+            }, 50),
+            statusPanel: this.statusPanel,
+          }),
+        )
+      }),
+    )
+
+    this.subscriptions.add(
+      atom.workspace.observeActiveTextEditor((editor?: Atom.TextEditor) => {
+        if (activePane) {
+          activePane.onDeactivated()
+          activePane = undefined
+        }
+
+        const pane = this.panes.find(p => p.editor === editor)
+        if (pane) {
+          activePane = pane
+          pane.onActivated()
+        }
+      }),
+    )
+  }
 }

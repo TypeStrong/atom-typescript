@@ -55,6 +55,8 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
+        // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
+        this.subscribeEditors();
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.withTypescriptBuffer);
         this.subscriptions.add(this.codefixProvider);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
@@ -65,53 +67,6 @@ class PluginManager {
         this.subscriptions.add(this.editorPosHist);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
-        let activePane;
-        const onSave = lodash_1.debounce((pane) => {
-            if (!pane.client) {
-                return;
-            }
-            const files = [];
-            for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-                const filePath = p.buffer.getPath();
-                if (filePath && p.isTypescript && p.client === pane.client) {
-                    files.push(filePath);
-                }
-            }
-            pane.client.execute("geterr", { files, delay: 100 });
-        }, 50);
-        this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
-            this.panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
-                getClient: (filePath) => this.clientResolver.get(filePath),
-                onClose: filePath => {
-                    // Clear errors if any from this file
-                    this.errorPusher.setErrors("syntaxDiag", filePath, []);
-                    this.errorPusher.setErrors("semanticDiag", filePath, []);
-                },
-                onDispose: pane => {
-                    if (activePane === pane) {
-                        activePane = undefined;
-                    }
-                    this.panes.splice(this.panes.indexOf(pane), 1);
-                },
-                onSave,
-                statusPanel: this.statusPanel,
-            }));
-        }));
-        activePane = this.panes.find(pane => pane.editor === atom.workspace.getActiveTextEditor());
-        if (activePane) {
-            activePane.onActivated();
-        }
-        this.subscriptions.add(atom.workspace.onDidChangeActiveTextEditor((editor) => {
-            if (activePane) {
-                activePane.onDeactivated();
-                activePane = undefined;
-            }
-            const pane = this.panes.find(p => p.editor === editor);
-            if (pane) {
-                activePane = pane;
-                pane.onActivated();
-            }
-        }));
     }
     destroy() {
         this.subscriptions.dispose();
@@ -164,6 +119,50 @@ class PluginManager {
     }
     provideHyperclick() {
         return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
+    }
+    subscribeEditors() {
+        let activePane;
+        this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
+            this.panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
+                getClient: (filePath) => this.clientResolver.get(filePath),
+                onClose: filePath => {
+                    // Clear errors if any from this file
+                    this.errorPusher.setErrors("syntaxDiag", filePath, []);
+                    this.errorPusher.setErrors("semanticDiag", filePath, []);
+                },
+                onDispose: pane => {
+                    if (activePane === pane) {
+                        activePane = undefined;
+                    }
+                    this.panes.splice(this.panes.indexOf(pane), 1);
+                },
+                onSave: lodash_1.debounce((pane) => {
+                    if (!pane.client) {
+                        return;
+                    }
+                    const files = [];
+                    for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
+                        const filePath = p.buffer.getPath();
+                        if (filePath && p.isTypescript && p.client === pane.client) {
+                            files.push(filePath);
+                        }
+                    }
+                    pane.client.execute("geterr", { files, delay: 100 });
+                }, 50),
+                statusPanel: this.statusPanel,
+            }));
+        }));
+        this.subscriptions.add(atom.workspace.observeActiveTextEditor((editor) => {
+            if (activePane) {
+                activePane.onDeactivated();
+                activePane = undefined;
+            }
+            const pane = this.panes.find(p => p.editor === editor);
+            if (pane) {
+                activePane = pane;
+                pane.onActivated();
+            }
+        }));
     }
 }
 exports.PluginManager = PluginManager;
