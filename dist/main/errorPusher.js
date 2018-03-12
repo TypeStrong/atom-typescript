@@ -19,7 +19,7 @@ class ErrorPusher {
     getErrorsAt(filePath, loc) {
         const result = [];
         for (const prefixed of this.errors.values()) {
-            const errors = prefixed.get(filePath);
+            const errors = prefixed.get(path.normalize(filePath));
             if (errors) {
                 result.push(...errors.filter(err => utils_1.isLocationInRange(loc, err)));
             }
