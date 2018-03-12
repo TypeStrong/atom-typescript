@@ -1,3 +1,7 @@
+## 12.3.6
+
+-   Fix #1413
+
 ## 12.3.5
 
 -   Fix semantic view display on initial creation
