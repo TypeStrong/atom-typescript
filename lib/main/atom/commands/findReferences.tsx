@@ -22,11 +22,14 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
     const result = await client.execute("references", location)
 
     const res = await selectListView({
-      items: result.body!.refs.map(r => ({...r, file: atom.project.relativize(r.file)})),
+      items: result.body!.refs,
       itemTemplate: (item, ctx) => {
         return (
           <li>
-            <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
+            <HighlightComponent
+              label={atom.project.relativize(item.file)}
+              query={ctx.getFilterQuery()}
+            />
             <div class="pull-right">line: {item.start.line}</div>
             <TsView text={item.lineText.trim()} />
           </li>
