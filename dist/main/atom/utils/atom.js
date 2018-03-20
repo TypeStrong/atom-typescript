@@ -21,7 +21,7 @@ function isTypescriptEditorWithPath(editor) {
 exports.isTypescriptEditorWithPath = isTypescriptEditorWithPath;
 function isTypescriptGrammar(editor) {
     const [scopeName] = editor.getRootScopeDescriptor().getScopesArray();
-    return ["source.ts", "source.tsx"].includes(scopeName);
+    return ["source.ts", "source.tsx", "typescript"].includes(scopeName);
 }
 function isAllowedExtension(ext) {
     return [".ts", ".tst", ".tsx"].includes(ext);

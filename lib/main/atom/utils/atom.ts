@@ -22,7 +22,7 @@ export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
 
 function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
-  return ["source.ts", "source.tsx"].includes(scopeName)
+  return ["source.ts", "source.tsx", "typescript"].includes(scopeName)
 }
 
 function isAllowedExtension(ext: string) {
