@@ -20,20 +20,20 @@ class AutocompleteProvider {
             return [];
         }
         // Don't show autocomplete if the previous character was a non word character except "."
-        const lastChar = getLastNonWhitespaceChar(opts.editor.buffer, opts.bufferPosition);
+        const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition);
         if (lastChar !== undefined && !opts.activatedManually) {
             if (/\W/i.test(lastChar) && lastChar !== ".") {
                 return [];
             }
         }
         // Don't show autocomplete if we're in a string.template and not in a template expression
-        if (containsScope(opts.scopeDescriptor.scopes, "string.template.") &&
-            !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
+        if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.template.") &&
+            !containsScope(opts.scopeDescriptor.getScopesArray(), "template.expression.")) {
             return [];
         }
         // Don't show autocomplete if we're in a string and it's not an import path
-        if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
-            if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
+        if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.quoted.")) {
+            if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.getScopesArray(), scope))) {
                 return [];
             }
         }

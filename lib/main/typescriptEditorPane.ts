@@ -38,7 +38,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
   constructor(public readonly editor: Atom.TextEditor, private opts: PaneOptions) {
     this.updateMarkers = debounce(this.updateMarkers.bind(this), 100)
-    this.buffer = TypescriptBuffer.create(editor.buffer, opts.getClient)
+    this.buffer = TypescriptBuffer.create(editor.getBuffer(), opts.getClient)
     this.subscriptions.add(
       this.buffer.events.on("changed", this.onChanged),
       this.buffer.events.on("closed", this.opts.onClose),

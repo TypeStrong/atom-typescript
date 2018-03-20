@@ -113,7 +113,7 @@ class TypescriptEditorPane {
             }
         };
         this.updateMarkers = lodash_1.debounce(this.updateMarkers.bind(this), 100);
-        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.buffer, opts.getClient);
+        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts.getClient);
         this.subscriptions.add(this.buffer.events.on("changed", this.onChanged), this.buffer.events.on("closed", this.opts.onClose), this.buffer.events.on("opened", this.onOpened), this.buffer.events.on("saved", this.onSaved));
         this.checkIfTypescript();
         this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition), this.editor.onDidDestroy(this.onDidDestroy));
