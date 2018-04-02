@@ -16,12 +16,8 @@ addCommand("atom-text-editor", "typescript:format-code", deps => ({
     }
 
     const editor = e.currentTarget.getModel()
-    if (!editor) {
-      e.abortKeyBinding()
-      return
-    }
     const filePath = editor.getPath()
-    if (!filePath) {
+    if (filePath === undefined) {
       e.abortKeyBinding()
       return
     }
@@ -35,7 +31,7 @@ addCommand("atom-text-editor", "typescript:format-code", deps => ({
 
     // Format the whole document if there are no ranges added
     if (ranges.length === 0) {
-      const end = editor.buffer.getEndPosition()
+      const end = editor.getBuffer().getEndPosition()
       ranges.push({
         line: 1,
         offset: 1,

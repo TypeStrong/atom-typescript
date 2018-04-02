@@ -9,6 +9,8 @@ class TypescriptEditorPane {
     constructor(editor, opts) {
         this.editor = editor;
         this.opts = opts;
+        // Timestamp for activated event
+        this.activeAt = 0;
         this.isTypescript = false;
         // Path to the project's tsconfig.json
         this.configFile = "";
@@ -20,7 +22,7 @@ class TypescriptEditorPane {
             this.activeAt = Date.now();
             this.isActive = true;
             const filePath = this.buffer.getPath();
-            if (this.isTypescript && filePath) {
+            if (this.isTypescript && filePath !== undefined) {
                 this.opts.statusPanel.show();
                 // The first activation might happen before we even have a client
                 if (this.client) {
@@ -41,7 +43,7 @@ class TypescriptEditorPane {
             if (!this.client)
                 return;
             const filePath = this.buffer.getPath();
-            if (!filePath)
+            if (filePath === undefined)
                 return;
             this.opts.statusPanel.update({ buildStatus: undefined });
             this.client.execute("geterr", {
@@ -63,7 +65,7 @@ class TypescriptEditorPane {
         };
         this.onOpened = async () => {
             const filePath = this.buffer.getPath();
-            if (!filePath)
+            if (filePath === undefined)
                 return;
             this.client = await this.opts.getClient(filePath);
             // onOpened might trigger before onActivated so we can't rely on isActive flag
@@ -111,7 +113,7 @@ class TypescriptEditorPane {
             }
         };
         this.updateMarkers = lodash_1.debounce(this.updateMarkers.bind(this), 100);
-        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.buffer, opts.getClient);
+        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts.getClient);
         this.subscriptions.add(this.buffer.events.on("changed", this.onChanged), this.buffer.events.on("closed", this.opts.onClose), this.buffer.events.on("opened", this.onOpened), this.buffer.events.on("saved", this.onSaved));
         this.checkIfTypescript();
         this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition), this.editor.onDidDestroy(this.onDidDestroy));
@@ -131,7 +133,7 @@ class TypescriptEditorPane {
         if (!this.client)
             return;
         const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (filePath === undefined)
             return;
         const pos = this.editor.getLastCursor().getBufferPosition();
         this.clearOccurrenceMarkers();
@@ -160,7 +162,7 @@ class TypescriptEditorPane {
         if (!client)
             return;
         const filePath = this.buffer.getPath();
-        if (!filePath)
+        if (filePath === undefined)
             return;
         const result = await client.execute("compileOnSaveAffectedFileList", {
             file: filePath,

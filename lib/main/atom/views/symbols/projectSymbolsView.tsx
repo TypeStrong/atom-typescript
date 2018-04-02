@@ -8,7 +8,7 @@ import {HighlightComponent} from "../highlightComponent"
 
 export async function toggle(editor: TextEditor, deps: Deps) {
   const filePath = editor.getPath()
-  if (filePath) {
+  if (filePath !== undefined) {
     const tag = await selectListView({
       items: (search: string) => generateProject(filePath, search, deps),
       itemTemplate({name, position, file}, ctx) {

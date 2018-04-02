@@ -11,20 +11,24 @@ const Resolve = require("resolve");
 class ClientResolver extends events.EventEmitter {
     constructor() {
         super(...arguments);
-        this.clients = {};
+        this.clients = new Map();
     }
     on(event, callback) {
         return super.on(event, callback);
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
-        if (this.clients[pathToBin]) {
-            return this.clients[pathToBin].client;
-        }
-        const entry = this.addClient(pathToBin, new client_1.TypescriptServiceClient(pathToBin, version));
-        entry.client.startServer();
-        entry.client.on("pendingRequestsChange", pending => {
-            entry.pending = pending;
+        const clientRec = this.clients.get(pathToBin);
+        if (clientRec)
+            return clientRec.client;
+        const newClientRec = {
+            client: new client_1.TypescriptServiceClient(pathToBin, version),
+            pending: [],
+        };
+        this.clients.set(pathToBin, newClientRec);
+        newClientRec.client.startServer();
+        newClientRec.client.on("pendingRequestsChange", pending => {
+            newClientRec.pending = pending;
             this.emit("pendingRequestsChange");
         });
         const diagnosticHandler = (type) => (result) => {
@@ -38,20 +42,13 @@ class ClientResolver extends events.EventEmitter {
                 });
             }
         };
-        entry.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
-        entry.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
-        entry.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
-        return entry.client;
+        newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
+        newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
+        newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
+        return newClientRec.client;
     }
     dispose() {
         this.removeAllListeners();
-    }
-    addClient(serverPath, client) {
-        this.clients[serverPath] = {
-            client,
-            pending: [],
-        };
-        return this.clients[serverPath];
     }
 }
 exports.ClientResolver = ClientResolver;

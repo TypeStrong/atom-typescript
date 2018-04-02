@@ -19,7 +19,7 @@ class ErrorPusher {
     getErrorsAt(filePath, loc) {
         const result = [];
         for (const prefixed of this.errors.values()) {
-            const errors = prefixed.get(filePath);
+            const errors = prefixed.get(path.normalize(filePath));
             if (errors) {
                 result.push(...errors.filter(err => utils_1.isLocationInRange(loc, err)));
             }
@@ -58,6 +58,7 @@ class ErrorPusher {
                     // Add a bit of extra validation that we have the necessary locations since linter v2
                     // does not allow range-less messages anymore. This happens with configFileDiagnostics.
                     let { start, end } = diagnostic;
+                    // tslint:disable-next-line: strict-boolean-expressions
                     if (!start || !end) {
                         start = end = { line: 1, offset: 1 };
                     }

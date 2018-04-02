@@ -12,7 +12,7 @@ registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => 
             if (projectDirs.length === 0)
                 throw new Error("ENOPROJECT");
             const currentPath = editor.getPath();
-            if (!currentPath)
+            if (currentPath === undefined)
                 throw new Error("ENOPATH");
             const pathToTsc = (await clientResolver_1.resolveBinary(currentPath, "tsc")).pathToBin;
             for (const projectDir of projectDirs) {

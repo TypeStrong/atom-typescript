@@ -11,6 +11,13 @@ import {TypescriptServiceClient} from "../../client/client"
 
 const tooltipMap = new WeakMap<Atom.TextEditor, TooltipManager>()
 
+interface Rect {
+  left: number
+  right: number
+  top: number
+  bottom: number
+}
+
 // screen position from mouse event -- with <3 from Atom-Haskell
 function bufferPositionFromMouseEvent(
   editor: Atom.TextEditor,
@@ -41,6 +48,7 @@ export class TooltipManager {
   private subscriptions = new Atom.CompositeDisposable()
   private exprTypeTimeout: number | undefined
   private lastExprTypeBufferPt?: Atom.Point
+  private cancelShowTooltip?: () => void
 
   constructor(
     private editor: Atom.TextEditor,
@@ -78,7 +86,7 @@ export class TooltipManager {
     this.clientPromise = undefined
     // Only on ".ts" files
     const filePath = this.editor.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
     if (!atomUtils.isTypescriptEditorWithPath(this.editor)) return
     // We only create a "program" once the file is persisted to disk
     if (!fs.existsSync(filePath)) return
@@ -97,18 +105,20 @@ export class TooltipManager {
   private async showExpressionType(e: {clientX: number; clientY: number}) {
     if (!this.clientPromise) return
     // If we are already showing we should wait for that to clear
-    if (TooltipManager.exprTypeTooltip) {
-      return
+    if (TooltipManager.exprTypeTooltip) return
+
+    if (this.cancelShowTooltip) this.cancelShowTooltip()
+
+    let cancelled = false
+    this.cancelShowTooltip = () => {
+      cancelled = true
+      this.cancelShowTooltip = undefined
     }
 
     const bufferPt = bufferPositionFromMouseEvent(this.editor, e)
     if (!bufferPt) return
-    const curCharPixelPt = this.rawView.pixelPositionForBufferPosition(
-      Atom.Point.fromObject([bufferPt.row, bufferPt.column]),
-    )
-    const nextCharPixelPt = this.rawView.pixelPositionForBufferPosition(
-      Atom.Point.fromObject([bufferPt.row, bufferPt.column + 1]),
-    )
+    const curCharPixelPt = this.rawView.pixelPositionForBufferPosition(bufferPt)
+    const nextCharPixelPt = this.rawView.pixelPositionForBufferPosition(bufferPt.traverse([0, 1]))
 
     if (curCharPixelPt.left >= nextCharPixelPt.left) {
       return
@@ -122,11 +132,20 @@ export class TooltipManager {
       top: e.clientY - offset,
       bottom: e.clientY + offset,
     }
+
+    const msg = await this.getMessage(bufferPt)
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    if (cancelled) return
+    if (msg !== undefined) this.showTooltip(tooltipRect, msg)
+  }
+
+  private async getMessage(bufferPt: Atom.Point) {
     let result: protocol.QuickInfoResponse
+    if (!this.clientPromise) return
     const client = await this.clientPromise
     const filePath = this.editor.getPath()
     try {
-      if (!filePath) {
+      if (filePath === undefined) {
         return
       }
       result = await client.execute("quickinfo", {
@@ -145,26 +164,28 @@ export class TooltipManager {
       message =
         message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
     }
-    if (!TooltipManager.exprTypeTooltip) {
-      TooltipManager.exprTypeTooltip = new TooltipView()
-      document.body.appendChild(TooltipManager.exprTypeTooltip.element)
-      TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
-    }
+    return message
+  }
+
+  private showTooltip(tooltipRect: Rect, message: string) {
+    if (TooltipManager.exprTypeTooltip) return
+    TooltipManager.exprTypeTooltip = new TooltipView()
+    document.body.appendChild(TooltipManager.exprTypeTooltip.element)
+    TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
   }
 
   /** clears the timeout && the tooltip */
   private clearExprTypeTimeout = () => {
-    if (this.exprTypeTimeout) {
+    if (this.exprTypeTimeout !== undefined) {
       clearTimeout(this.exprTypeTimeout)
       this.exprTypeTimeout = undefined
     }
+    if (this.cancelShowTooltip) this.cancelShowTooltip()
     this.hideExpressionType()
   }
 
   private hideExpressionType() {
-    if (!TooltipManager.exprTypeTooltip) {
-      return
-    }
+    if (!TooltipManager.exprTypeTooltip) return
     TooltipManager.exprTypeTooltip.destroy()
     TooltipManager.exprTypeTooltip = undefined
   }

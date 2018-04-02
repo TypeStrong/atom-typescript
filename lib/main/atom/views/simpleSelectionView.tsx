@@ -6,7 +6,7 @@ export interface SelectListViewOptions<T> {
   items: T[] | Promise<T[]> | ((filterText: string) => T[]) | ((filterText: string) => Promise<T[]>)
   itemTemplate: (item: T, context: SelectListView<T>) => JSX.Element
   itemFilterKey: keyof T
-  didChangeSelection?: (item: T) => void
+  didChangeSelection?: (item?: T) => void
 }
 
 export async function selectListView<T>({
@@ -16,7 +16,7 @@ export async function selectListView<T>({
   didChangeSelection,
 }: SelectListViewOptions<T>): Promise<T | undefined> {
   let panel: Panel<SelectListView<T>> | undefined
-  const currentFocus = document.activeElement as HTMLElement
+  const currentFocus = document.activeElement as HTMLElement | void
   try {
     return await new Promise<T | undefined>(resolve => {
       let didChangeQuery

@@ -10,14 +10,13 @@ class CodefixProvider {
     }
     async runCodeFix(textEditor, bufferPosition) {
         const filePath = textEditor.getPath();
-        if (!filePath || !this.errorPusher || !this.clientResolver || !this.withTypescriptBuffer) {
+        if (filePath === undefined)
             return [];
-        }
         const client = await this.clientResolver.get(filePath);
         const supportedCodes = await this.getSupportedFixes(client);
         const requests = this.errorPusher
             .getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
-            .filter(error => error.code && supportedCodes.has(error.code))
+            .filter(error => error.code !== undefined && supportedCodes.has(error.code))
             .map(error => client.execute("getCodeFixes", {
             file: filePath,
             startLine: error.start.line,

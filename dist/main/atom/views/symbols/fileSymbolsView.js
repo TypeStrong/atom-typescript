@@ -7,7 +7,7 @@ const utils = require("./utils");
 const highlightComponent_1 = require("../highlightComponent");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
-    if (filePath) {
+    if (filePath !== undefined) {
         // NOTE uses the "parent" package's setting (i.e. from symbols-view):
         let initialState;
         if (atom.config.get("symbols-view.quickJumpToFileSymbol")) {

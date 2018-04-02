@@ -12,7 +12,7 @@ function getEditorPosition(editor: Atom.TextEditor): Location {
 }
 
 export function isTypescriptFile(filePath: string | undefined): boolean {
-  if (!filePath) return false
+  if (filePath === undefined) return false
   return isAllowedExtension(path.extname(filePath))
 }
 
@@ -31,7 +31,7 @@ function isAllowedExtension(ext: string) {
 
 export function getFilePathPosition(editor: Atom.TextEditor): FileLocationQuery | undefined {
   const file = editor.getPath()
-  if (file) {
+  if (file !== undefined) {
     return {file, ...getEditorPosition(editor)}
   }
 }

@@ -3,7 +3,7 @@ import {TextEditor} from "atom"
 import {EditorPositionHistoryManager} from "../../editorPositionHistoryManager"
 
 export async function openTag(tag: Tag, editor: TextEditor, ephm: EditorPositionHistoryManager) {
-  if (tag.file) {
+  if (tag.file !== undefined) {
     return ephm.goForward(editor, {
       file: tag.file,
       start: {

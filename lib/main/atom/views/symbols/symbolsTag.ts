@@ -7,7 +7,7 @@ export class Tag {
       name: navTree.text,
       type: navTree.kind,
       position: {row: start.line - 1, column: start.offset - 1},
-      parent: parent ? parent : null,
+      parent: parent != null ? parent : null,
     })
   }
 
@@ -17,7 +17,7 @@ export class Tag {
       name: navTo.name,
       type: navTo.kind,
       position: {row: start.line - 1, column: start.offset - 1},
-      parent: parent ? parent : null,
+      parent: parent != null ? parent : null,
       file: navTo.file,
     })
   }

@@ -20,20 +20,20 @@ class AutocompleteProvider {
             return [];
         }
         // Don't show autocomplete if the previous character was a non word character except "."
-        const lastChar = getLastNonWhitespaceChar(opts.editor.buffer, opts.bufferPosition);
-        if (lastChar && !opts.activatedManually) {
+        const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition);
+        if (lastChar !== undefined && !opts.activatedManually) {
             if (/\W/i.test(lastChar) && lastChar !== ".") {
                 return [];
             }
         }
         // Don't show autocomplete if we're in a string.template and not in a template expression
-        if (containsScope(opts.scopeDescriptor.scopes, "string.template.") &&
-            !containsScope(opts.scopeDescriptor.scopes, "template.expression.")) {
+        if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.template.") &&
+            !containsScope(opts.scopeDescriptor.getScopesArray(), "template.expression.")) {
             return [];
         }
         // Don't show autocomplete if we're in a string and it's not an import path
-        if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
-            if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
+        if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.quoted.")) {
+            if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.getScopesArray(), scope))) {
                 return [];
             }
         }
@@ -59,24 +59,20 @@ class AutocompleteProvider {
         }
     }
     async getAdditionalDetails(suggestions, location) {
-        if (suggestions.some(s => !s.details)) {
+        if (suggestions.some(s => !s.details) && this.lastSuggestions) {
             const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map(s => s.text) }, location));
             details.body.forEach((detail, i) => {
                 const suggestion = suggestions[i];
                 suggestion.details = detail;
                 let parts = detail.displayParts;
-                if (parts[1] &&
-                    parts[1].text === suggestion.leftLabel &&
-                    parts[0] &&
+                if (parts.length >= 3 &&
                     parts[0].text === "(" &&
-                    parts[2] &&
+                    parts[1].text === suggestion.leftLabel &&
                     parts[2].text === ")") {
                     parts = parts.slice(3);
                 }
                 suggestion.rightLabel = parts.map(d => d.text).join("");
-                if (detail.documentation) {
-                    suggestion.description = detail.documentation.map(d => d.text).join(" ");
-                }
+                suggestion.description = detail.documentation.map(d => d.text).join(" ");
             });
         }
     }
@@ -93,7 +89,7 @@ class AutocompleteProvider {
             }
         }
         const client = await this.clientResolver.get(location.file);
-        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false }, location));
+        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: false }, location));
         const suggestions = completions.body.map(entry => ({
             text: entry.name,
             leftLabel: entry.kind,
@@ -129,7 +125,7 @@ function getNormalizedCol(prefix, col) {
 }
 function getLocationQuery(opts) {
     const path = opts.editor.getPath();
-    if (!path) {
+    if (path === undefined) {
         return undefined;
     }
     return {

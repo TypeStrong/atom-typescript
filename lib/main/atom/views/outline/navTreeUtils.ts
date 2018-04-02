@@ -18,9 +18,9 @@ export function findNodeAt(
   startLine: number,
   endLine: number,
   node: NavigationTreeViewModel,
-): NavigationTreeViewModel | null {
+): NavigationTreeViewModel | undefined {
   if (!node.childItems) {
-    return null
+    return undefined
   }
 
   for (const elem of node.childItems) {
@@ -51,7 +51,7 @@ export function findNodeAt(
   if (isFinite(nstart) && isFinite(nend) && startLine >= nstart && endLine <= nend) {
     return node
   }
-  return null
+  return undefined
 }
 
 /**
@@ -61,7 +61,7 @@ export function findNodeAt(
  */
 export function getNodeStartLine(node: NavigationTree): number {
   // console.log('getNodeStartLine.node -> ', node)
-  return node.spans.length ? node.spans[0].start.line - 1 : 0
+  return node.spans.length > 0 ? node.spans[0].start.line - 1 : 0
 }
 
 /**
@@ -71,7 +71,7 @@ export function getNodeStartLine(node: NavigationTree): number {
  */
 export function getNodeStartOffset(node: NavigationTree): number {
   // console.log('getNodeStartLine.node -> ', node)
-  return node.spans.length ? node.spans[0].start.offset - 1 : 0
+  return node.spans.length > 0 ? node.spans[0].start.offset - 1 : 0
 }
 
 /**
@@ -81,7 +81,7 @@ export function getNodeStartOffset(node: NavigationTree): number {
  */
 export function getNodeEndLine(node: NavigationTree): number {
   const s = node.spans
-  return s.length ? s[s.length - 1].end.line - 1 : 0
+  return s.length > 0 ? s[s.length - 1].end.line - 1 : 0
 }
 
 /**

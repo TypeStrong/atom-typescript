@@ -5,11 +5,11 @@ interface Props extends JSX.Props {
   right: number
   top: number
   bottom: number
-  text?: string
+  text: string
 }
 
 export class TooltipView implements JSX.ElementClass {
-  public readonly element: HTMLDivElement
+  public readonly element!: HTMLDivElement
   public props: Props
 
   constructor() {
@@ -18,6 +18,7 @@ export class TooltipView implements JSX.ElementClass {
       right: 0,
       top: 0,
       bottom: 0,
+      text: "",
     }
     etch.initialize(this)
   }
@@ -68,7 +69,7 @@ export class TooltipView implements JSX.ElementClass {
   public render() {
     return (
       <div class="atom-typescript-tooltip tooltip">
-        <div class="tooltip-inner" innerHTML={this.props.text || ""} />
+        <div class="tooltip-inner" innerHTML={this.props.text} />
       </div>
     )
   }

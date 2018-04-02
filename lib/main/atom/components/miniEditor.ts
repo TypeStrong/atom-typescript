@@ -49,7 +49,7 @@ export class MiniEditor implements JSX.ElementClass {
   }
 
   private setGrammar() {
-    if (this.props.grammar) {
+    if (this.props.grammar !== undefined) {
       atom.textEditors.setGrammarOverride(this.model, this.props.grammar)
     } else {
       atom.textEditors.clearGrammarOverride(this.model)

@@ -15,7 +15,7 @@ const lodash_1 = require("lodash");
  */
 function findNodeAt(startLine, endLine, node) {
     if (!node.childItems) {
-        return null;
+        return undefined;
     }
     for (const elem of node.childItems) {
         const start = getNodeStartLine(elem);
@@ -44,7 +44,7 @@ function findNodeAt(startLine, endLine, node) {
     if (isFinite(nstart) && isFinite(nend) && startLine >= nstart && endLine <= nend) {
         return node;
     }
-    return null;
+    return undefined;
 }
 exports.findNodeAt = findNodeAt;
 /**
@@ -54,7 +54,7 @@ exports.findNodeAt = findNodeAt;
  */
 function getNodeStartLine(node) {
     // console.log('getNodeStartLine.node -> ', node)
-    return node.spans.length ? node.spans[0].start.line - 1 : 0;
+    return node.spans.length > 0 ? node.spans[0].start.line - 1 : 0;
 }
 exports.getNodeStartLine = getNodeStartLine;
 /**
@@ -64,7 +64,7 @@ exports.getNodeStartLine = getNodeStartLine;
  */
 function getNodeStartOffset(node) {
     // console.log('getNodeStartLine.node -> ', node)
-    return node.spans.length ? node.spans[0].start.offset - 1 : 0;
+    return node.spans.length > 0 ? node.spans[0].start.offset - 1 : 0;
 }
 exports.getNodeStartOffset = getNodeStartOffset;
 /**
@@ -74,7 +74,7 @@ exports.getNodeStartOffset = getNodeStartOffset;
  */
 function getNodeEndLine(node) {
     const s = node.spans;
-    return s.length ? s[s.length - 1].end.line - 1 : 0;
+    return s.length > 0 ? s[s.length - 1].end.line - 1 : 0;
 }
 exports.getNodeEndLine = getNodeEndLine;
 /**

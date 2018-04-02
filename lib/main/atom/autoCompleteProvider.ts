@@ -27,7 +27,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public excludeLowerPriority = false
 
   private clientResolver: ClientResolver
-  private lastSuggestions: {
+  private lastSuggestions?: {
     // Client used to get the suggestions
     client: TypescriptServiceClient
 
@@ -57,8 +57,8 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     // Don't show autocomplete if the previous character was a non word character except "."
-    const lastChar = getLastNonWhitespaceChar(opts.editor.buffer, opts.bufferPosition)
-    if (lastChar && !opts.activatedManually) {
+    const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition)
+    if (lastChar !== undefined && !opts.activatedManually) {
       if (/\W/i.test(lastChar) && lastChar !== ".") {
         return []
       }
@@ -66,15 +66,17 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
     // Don't show autocomplete if we're in a string.template and not in a template expression
     if (
-      containsScope(opts.scopeDescriptor.scopes, "string.template.") &&
-      !containsScope(opts.scopeDescriptor.scopes, "template.expression.")
+      containsScope(opts.scopeDescriptor.getScopesArray(), "string.template.") &&
+      !containsScope(opts.scopeDescriptor.getScopesArray(), "template.expression.")
     ) {
       return []
     }
 
     // Don't show autocomplete if we're in a string and it's not an import path
-    if (containsScope(opts.scopeDescriptor.scopes, "string.quoted.")) {
-      if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.scopes, scope))) {
+    if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.quoted.")) {
+      if (
+        !importPathScopes.some(scope => containsScope(opts.scopeDescriptor.getScopesArray(), scope))
+      ) {
         return []
       }
     }
@@ -112,7 +114,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[],
     location: FileLocationQuery,
   ) {
-    if (suggestions.some(s => !s.details)) {
+    if (suggestions.some(s => !s.details) && this.lastSuggestions) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map(s => s.text!),
         ...location,
@@ -124,20 +126,16 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         suggestion.details = detail
         let parts = detail.displayParts
         if (
-          parts[1] &&
-          parts[1].text === suggestion.leftLabel &&
-          parts[0] &&
+          parts.length >= 3 &&
           parts[0].text === "(" &&
-          parts[2] &&
+          parts[1].text === suggestion.leftLabel &&
           parts[2].text === ")"
         ) {
           parts = parts.slice(3)
         }
         suggestion.rightLabel = parts.map(d => d.text).join("")
 
-        if (detail.documentation) {
-          suggestion.description = detail.documentation.map(d => d.text).join(" ")
-        }
+        suggestion.description = detail.documentation.map(d => d.text).join(" ")
       })
     }
   }
@@ -164,6 +162,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     const completions = await client.execute("completions", {
       prefix,
       includeExternalModuleExports: false,
+      includeInsertTextCompletions: false,
       ...location,
     })
 
@@ -204,7 +203,7 @@ function getNormalizedCol(prefix: string, col: number): number {
 
 function getLocationQuery(opts: ACP.SuggestionsRequestedEvent): FileLocationQuery | undefined {
   const path = opts.editor.getPath()
-  if (!path) {
+  if (path === undefined) {
     return undefined
   }
   return {
@@ -228,7 +227,7 @@ function getLastNonWhitespaceChar(buffer: Atom.TextBuffer, pos: Atom.Point): str
   return lastChar
 }
 
-function containsScope(scopes: string[], matchScope: string): boolean {
+function containsScope(scopes: ReadonlyArray<string>, matchScope: string): boolean {
   for (const scope of scopes) {
     if (scope.includes(matchScope)) {
       return true

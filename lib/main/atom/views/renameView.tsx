@@ -17,7 +17,7 @@ export interface Options {
 }
 
 class RenameView implements JSX.ElementClass {
-  public refs: {
+  public refs!: {
     editor: MiniEditor
     main: HTMLElement
   }
@@ -73,7 +73,7 @@ class RenameView implements JSX.ElementClass {
   }
 
   private renderValidationMessage(): JSX.Element | null {
-    if (this.props.validationMessage) {
+    if (this.props.validationMessage !== undefined) {
       return <div class="highlight-error">{this.props.validationMessage}</div>
     }
     return null
@@ -92,7 +92,7 @@ export async function showRenameDialog(options: Options): Promise<string | undef
     priority: 1000,
   })
 
-  const currentFocus = document.activeElement as HTMLElement
+  const currentFocus = document.activeElement as HTMLElement | void
 
   item.focus()
 
@@ -106,7 +106,7 @@ export async function showRenameDialog(options: Options): Promise<string | undef
           },
           "core:confirm": () => {
             const newText = item.getText()
-            const invalid = options.onValidate && options.onValidate(newText)
+            const invalid = options.onValidate(newText)
             if (invalid) {
               item.update({validationMessage: invalid})
               return

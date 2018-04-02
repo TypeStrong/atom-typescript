@@ -20,11 +20,11 @@ export interface Props extends JSX.Props {
 
 export class NavigationTreeComponent
   implements JSX.ElementClass, ToNodeScrollableEditor, SelectableNode {
-  public element: HTMLDivElement
+  public element!: HTMLDivElement
   private editor?: TextEditor
   private editorScrolling?: Disposable
   private editorChanging?: Disposable
-  private selectedNode: NavigationTreeViewModel | null = null
+  private selectedNode?: NavigationTreeViewModel
   private withTypescriptBuffer?: WithTypescriptBuffer
 
   constructor(public props: Props) {
@@ -34,7 +34,7 @@ export class NavigationTreeComponent
   }
 
   public async update(props: Partial<Props>) {
-    if (props.navTree) {
+    if (props.navTree !== undefined) {
       this.setNavTree(props.navTree)
     }
     this.props = {...this.props, ...props}
@@ -48,7 +48,7 @@ export class NavigationTreeComponent
     if (this.editorChanging) {
       this.editorChanging.dispose()
     }
-    this.selectedNode = null
+    this.selectedNode = undefined
     await etch.destroy(this)
   }
 
@@ -92,10 +92,9 @@ export class NavigationTreeComponent
     this.editor.setCursorBufferPosition([gotoLine, gotoOffset])
   }
 
-  private getCursorLine(): number | null {
-    return this.editor && this.editor.getLastCursor()
-      ? this.editor.getLastCursor().getBufferRow()
-      : null
+  private getCursorLine(): number | undefined {
+    if (this.editor) return this.editor.getLastCursor().getBufferRow()
+    else return undefined
   }
 
   private async setNavTree(navTree: NavigationTreeViewModel | null) {
@@ -106,10 +105,10 @@ export class NavigationTreeComponent
     restoreCollapsed(navTree, this.props.navTree)
     this.props.navTree = navTree
 
-    let selectedNode: NavigationTreeViewModel | null = null
-    if (navTree !== null) {
+    let selectedNode: NavigationTreeViewModel | undefined
+    if (navTree) {
       const cursorLine = this.getCursorLine()
-      if (cursorLine !== null) {
+      if (cursorLine !== undefined) {
         selectedNode = findNodeAt(cursorLine, cursorLine, navTree)
       }
     }
@@ -120,7 +119,7 @@ export class NavigationTreeComponent
     if (!this.editor) return
     if (!this.withTypescriptBuffer) return
     const filePath = this.editor.getPath()
-    if (!filePath) return
+    if (filePath === undefined) return
     try {
       return await this.withTypescriptBuffer(filePath, async buffer => {
         const navTree = await buffer.getNavTree()
@@ -145,8 +144,7 @@ export class NavigationTreeComponent
     const cursorLine = newBufferPosition.row
 
     const selectedChild = findNodeAt(cursorLine, cursorLine, this.props.navTree)
-    if (selectedChild !== null) {
-      // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
+    if (selectedChild !== this.selectedNode) {
       this.selectedNode = selectedChild
       etch.update(this)
     }

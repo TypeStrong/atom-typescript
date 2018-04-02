@@ -8,14 +8,13 @@ const navTreeUtils_1 = require("./navTreeUtils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;
-        this.selectedNode = null;
         this.loadNavTree = async () => {
             if (!this.editor)
                 return;
             if (!this.withTypescriptBuffer)
                 return;
             const filePath = this.editor.getPath();
-            if (!filePath)
+            if (filePath === undefined)
                 return;
             try {
                 return await this.withTypescriptBuffer(filePath, async (buffer) => {
@@ -40,8 +39,7 @@ class NavigationTreeComponent {
             }
             const cursorLine = newBufferPosition.row;
             const selectedChild = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, this.props.navTree);
-            if (selectedChild !== null) {
-                // console.log("select at cursor-line " + cursorLine, selectedChild) // DEBUG
+            if (selectedChild !== this.selectedNode) {
                 this.selectedNode = selectedChild;
                 etch.update(this);
             }
@@ -77,7 +75,7 @@ class NavigationTreeComponent {
         atom.workspace.observeActiveTextEditor(this.subscribeToEditor);
     }
     async update(props) {
-        if (props.navTree) {
+        if (props.navTree !== undefined) {
             this.setNavTree(props.navTree);
         }
         this.props = Object.assign({}, this.props, props);
@@ -90,7 +88,7 @@ class NavigationTreeComponent {
         if (this.editorChanging) {
             this.editorChanging.dispose();
         }
-        this.selectedNode = null;
+        this.selectedNode = undefined;
         await etch.destroy(this);
     }
     setWithTypescriptBuffer(wtb) {
@@ -126,9 +124,10 @@ class NavigationTreeComponent {
         this.editor.setCursorBufferPosition([gotoLine, gotoOffset]);
     }
     getCursorLine() {
-        return this.editor && this.editor.getLastCursor()
-            ? this.editor.getLastCursor().getBufferRow()
-            : null;
+        if (this.editor)
+            return this.editor.getLastCursor().getBufferRow();
+        else
+            return undefined;
     }
     async setNavTree(navTree) {
         navTreeUtils_1.prepareNavTree(navTree);
@@ -137,10 +136,10 @@ class NavigationTreeComponent {
         }
         navTreeUtils_1.restoreCollapsed(navTree, this.props.navTree);
         this.props.navTree = navTree;
-        let selectedNode = null;
-        if (navTree !== null) {
+        let selectedNode;
+        if (navTree) {
             const cursorLine = this.getCursorLine();
-            if (cursorLine !== null) {
+            if (cursorLine !== undefined) {
                 selectedNode = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, navTree);
             }
         }

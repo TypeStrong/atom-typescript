@@ -7,7 +7,7 @@ const generator_1 = require("./generator");
 const highlightComponent_1 = require("../highlightComponent");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
-    if (filePath) {
+    if (filePath !== undefined) {
         const tag = await simpleSelectionView_1.selectListView({
             items: (search) => generator_1.generateProject(filePath, search, deps),
             itemTemplate({ name, position, file }, ctx) {

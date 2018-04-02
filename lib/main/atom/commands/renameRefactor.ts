@@ -20,7 +20,8 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
     const {info, locs} = response.body!
 
     if (!info.canRename) {
-      return atom.notifications.addInfo("AtomTS: Rename not available at cursor location")
+      atom.notifications.addInfo("AtomTS: Rename not available at cursor location")
+      return
     }
 
     const newName = await showRenameDialog({

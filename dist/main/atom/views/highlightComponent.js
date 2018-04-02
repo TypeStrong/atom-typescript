@@ -40,7 +40,7 @@ function highlightMatches(name, query) {
         }
         const unmatched = name.substring(lastIndex, matchIndex);
         if (unmatched) {
-            if (matchedChars.length) {
+            if (matchedChars.length > 0) {
                 queryMatches.push({ text: matchedChars.join(""), type: "character-match" });
             }
             matchedChars = [];
@@ -49,7 +49,7 @@ function highlightMatches(name, query) {
         matchedChars.push(name[matchIndex]);
         lastIndex = matchIndex + 1;
     }
-    if (matchedChars.length) {
+    if (matchedChars.length > 0) {
         queryMatches.push({ text: matchedChars.join(""), type: "character-match" });
     }
     // Remaining characters are plain text

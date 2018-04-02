@@ -12,7 +12,7 @@ addCommand("atom-text-editor", "typescript:reload-projects", deps => ({
   async didDispatch(e) {
     const editor = e.currentTarget.getModel()
     const path = editor.getPath()
-    if (!path) return
+    if (path === undefined) return
     const client = await deps.getClient(path)
     client.execute("reloadProjects", undefined)
   },

@@ -13,7 +13,7 @@ addCommand("atom-text-editor", "typescript:initialize-config", () => ({
       if (projectDirs.length === 0) throw new Error("ENOPROJECT")
 
       const currentPath = editor.getPath()
-      if (!currentPath) throw new Error("ENOPATH")
+      if (currentPath === undefined) throw new Error("ENOPATH")
 
       const pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
 
