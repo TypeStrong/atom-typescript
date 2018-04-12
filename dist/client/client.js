@@ -25,6 +25,8 @@ const commandWithResponse = new Set([
     "rename",
     "navtree",
     "navto",
+    "getApplicableRefactors",
+    "getEditsForRefactor",
 ]);
 class TypescriptServiceClient {
     constructor(tsServerPath, version) {
