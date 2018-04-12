@@ -5,8 +5,8 @@ const utils_1 = require("../utils");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const highlightComponent_1 = require("../views/highlightComponent");
-registry_1.addCommand("atom-text-editor", "typescript:refactor-code", deps => ({
-    description: "Get a list of applicable refactors",
+registry_1.addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
+    description: "Get a list of applicable refactors to selected code",
     async didDispatch(e) {
         if (!utils_1.commandForTypeScript(e)) {
             return;

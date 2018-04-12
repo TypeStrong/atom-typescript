@@ -15,8 +15,8 @@ interface RefactorAction {
   inlineable: boolean
 }
 
-addCommand("atom-text-editor", "typescript:refactor-code", deps => ({
-  description: "Get a list of applicable refactors",
+addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
+  description: "Get a list of applicable refactors to selected code",
   async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
