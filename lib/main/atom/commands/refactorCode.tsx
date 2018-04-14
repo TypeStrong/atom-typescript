@@ -4,7 +4,6 @@ import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {HighlightComponent} from "../views/highlightComponent"
 import * as protocol from "typescript/lib/protocol"
-import * as atom from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
 
 interface RefactorAction {
@@ -46,8 +45,7 @@ addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
     const actions = await getApplicableRefactorsActions(client, fileRange)
 
     if (actions.length === 0) {
-      // TODO Show a "no applicable refactors here" message
-      e.abortKeyBinding()
+      atom.notifications.addInfo("AtomTS: No applicable refactors for the selection")
       return
     }
 
@@ -66,12 +64,8 @@ addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
       itemFilterKey: "actionDescription",
     })
 
-    if (selectedAction !== undefined) {
-      await applyRefactors(selectedAction, fileRange, client, deps, editor, e)
-
-      // TODO responseEdits could have renameFilename and renameLocation properties
-      // so we can call a rename command.
-    }
+    if (selectedAction === undefined) return
+    await applyRefactors(selectedAction, fileRange, client, deps)
   },
 }))
 
@@ -85,8 +79,8 @@ async function getApplicableRefactorsActions(
   }
 
   const actions: RefactorAction[] = []
-  responseApplicable.body.forEach(refactor => {
-    refactor.actions.forEach(action => {
+  for (const refactor of responseApplicable.body) {
+    for (const action of refactor.actions) {
       actions.push({
         refactorName: refactor.name,
         refactorDescription: refactor.description,
@@ -94,8 +88,8 @@ async function getApplicableRefactorsActions(
         actionDescription: action.description,
         inlineable: refactor.inlineable !== undefined ? refactor.inlineable : true,
       })
-    })
-  })
+    }
+  }
 
   return actions
 }
@@ -105,8 +99,6 @@ async function applyRefactors(
   range: protocol.FileRangeRequestArgs,
   client: TypescriptServiceClient,
   deps: Dependencies,
-  editor: atom.TextEditor,
-  e: atom.CommandEvent,
 ) {
   const responseEdits = await client.execute("getEditsForRefactor", {
     ...range,
@@ -114,18 +106,27 @@ async function applyRefactors(
     action: selectedAction.actionName,
   })
 
-  if (responseEdits.body === undefined) {
-    e.abortKeyBinding()
-    return
-  }
+  if (responseEdits.body === undefined) return
+  const {edits, renameFilename, renameLocation} = responseEdits.body
 
-  for (const edit of responseEdits.body.edits) {
+  for (const edit of edits) {
     await deps.withTypescriptBuffer(edit.fileName, async buffer => {
       buffer.buffer.transact(() => {
         for (const change of edit.textChanges.reverse()) {
-          editor.setTextInBufferRange(spanToRange(change), change.newText)
+          buffer.buffer.setTextInRange(spanToRange(change), change.newText)
         }
       })
     })
   }
+
+  if (renameFilename === undefined || renameLocation === undefined) return
+
+  await new Promise(resolve => setTimeout(resolve, 500)) // HACK ?
+
+  const editor = await atom.workspace.open(renameFilename, {
+    searchAllPanes: true,
+    initialLine: renameLocation.line - 1,
+    initialColumn: renameLocation.offset - 1,
+  })
+  await atom.commands.dispatch(atom.views.getView(editor), "typescript:rename-refactor")
 }

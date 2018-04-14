@@ -32,8 +32,7 @@ registry_1.addCommand("atom-text-editor", "typescript:refactor-selection", deps 
         };
         const actions = await getApplicableRefactorsActions(client, fileRange);
         if (actions.length === 0) {
-            // TODO Show a "no applicable refactors here" message
-            e.abortKeyBinding();
+            atom.notifications.addInfo("AtomTS: No applicable refactors for the selection");
             return;
         }
         const selectedAction = await simpleSelectionView_1.selectListView({
@@ -44,11 +43,9 @@ registry_1.addCommand("atom-text-editor", "typescript:refactor-selection", deps 
             },
             itemFilterKey: "actionDescription",
         });
-        if (selectedAction !== undefined) {
-            await applyRefactors(selectedAction, fileRange, client, deps, editor, e);
-            // TODO responseEdits could have renameFilename and renameLocation properties
-            // so we can call a rename command.
-        }
+        if (selectedAction === undefined)
+            return;
+        await applyRefactors(selectedAction, fileRange, client, deps);
     },
 }));
 async function getApplicableRefactorsActions(client, range) {
@@ -57,8 +54,8 @@ async function getApplicableRefactorsActions(client, range) {
         return [];
     }
     const actions = [];
-    responseApplicable.body.forEach(refactor => {
-        refactor.actions.forEach(action => {
+    for (const refactor of responseApplicable.body) {
+        for (const action of refactor.actions) {
             actions.push({
                 refactorName: refactor.name,
                 refactorDescription: refactor.description,
@@ -66,24 +63,32 @@ async function getApplicableRefactorsActions(client, range) {
                 actionDescription: action.description,
                 inlineable: refactor.inlineable !== undefined ? refactor.inlineable : true,
             });
-        });
-    });
+        }
+    }
     return actions;
 }
-async function applyRefactors(selectedAction, range, client, deps, editor, e) {
+async function applyRefactors(selectedAction, range, client, deps) {
     const responseEdits = await client.execute("getEditsForRefactor", Object.assign({}, range, { refactor: selectedAction.refactorName, action: selectedAction.actionName }));
-    if (responseEdits.body === undefined) {
-        e.abortKeyBinding();
+    if (responseEdits.body === undefined)
         return;
-    }
-    for (const edit of responseEdits.body.edits) {
+    const { edits, renameFilename, renameLocation } = responseEdits.body;
+    for (const edit of edits) {
         await deps.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
                 for (const change of edit.textChanges.reverse()) {
-                    editor.setTextInBufferRange(utils_1.spanToRange(change), change.newText);
+                    buffer.buffer.setTextInRange(utils_1.spanToRange(change), change.newText);
                 }
             });
         });
     }
+    if (renameFilename === undefined || renameLocation === undefined)
+        return;
+    await new Promise(resolve => setTimeout(resolve, 500)); // HACK ?
+    const editor = await atom.workspace.open(renameFilename, {
+        searchAllPanes: true,
+        initialLine: renameLocation.line - 1,
+        initialColumn: renameLocation.offset - 1,
+    });
+    await atom.commands.dispatch(atom.views.getView(editor), "typescript:rename-refactor");
 }
 //# sourceMappingURL=refactorCode.js.map
