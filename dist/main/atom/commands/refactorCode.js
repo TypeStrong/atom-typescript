@@ -49,7 +49,9 @@ registry_1.addCommand("atom-text-editor", "typescript:refactor-selection", deps 
     },
 }));
 async function getApplicableRefactorsActions(client, range) {
-    const responseApplicable = await client.execute("getApplicableRefactors", range);
+    const responseApplicable = await getApplicabeRefactors(client, range);
+    if (!responseApplicable)
+        return [];
     if (responseApplicable.body === undefined || responseApplicable.body.length === 0) {
         return [];
     }
@@ -67,23 +69,22 @@ async function getApplicableRefactorsActions(client, range) {
     }
     return actions;
 }
+async function getApplicabeRefactors(client, range) {
+    try {
+        return await client.execute("getApplicableRefactors", range);
+    }
+    catch (_a) {
+        return undefined;
+    }
+}
 async function applyRefactors(selectedAction, range, client, deps) {
     const responseEdits = await client.execute("getEditsForRefactor", Object.assign({}, range, { refactor: selectedAction.refactorName, action: selectedAction.actionName }));
     if (responseEdits.body === undefined)
         return;
     const { edits, renameFilename, renameLocation } = responseEdits.body;
-    for (const edit of edits) {
-        await deps.withTypescriptBuffer(edit.fileName, async (buffer) => {
-            buffer.buffer.transact(() => {
-                for (const change of edit.textChanges.reverse()) {
-                    buffer.buffer.setTextInRange(utils_1.spanToRange(change), change.newText);
-                }
-            });
-        });
-    }
+    await deps.applyEdits(edits);
     if (renameFilename === undefined || renameLocation === undefined)
         return;
-    await new Promise(resolve => setTimeout(resolve, 500)); // HACK ?
     const editor = await atom.workspace.open(renameFilename, {
         searchAllPanes: true,
         initialLine: renameLocation.line - 1,

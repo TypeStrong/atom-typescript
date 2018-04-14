@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../utils");
 class CodefixProvider {
-    constructor(clientResolver, errorPusher, withTypescriptBuffer) {
+    constructor(clientResolver, errorPusher, applyEdits) {
         this.clientResolver = clientResolver;
         this.errorPusher = errorPusher;
-        this.withTypescriptBuffer = withTypescriptBuffer;
+        this.applyEdits = applyEdits;
         this.supportedFixes = new WeakMap();
     }
     async runCodeFix(textEditor, bufferPosition) {
@@ -37,15 +37,7 @@ class CodefixProvider {
         return results;
     }
     async applyFix(fix) {
-        for (const f of fix.changes) {
-            await this.withTypescriptBuffer(f.fileName, async (buffer) => {
-                buffer.buffer.transact(() => {
-                    for (const edit of f.textChanges.reverse()) {
-                        buffer.buffer.setTextInRange(utils_1.spanToRange(edit), edit.newText);
-                    }
-                });
-            });
-        }
+        return this.applyEdits(fix.changes);
     }
     dispose() {
         // NOOP

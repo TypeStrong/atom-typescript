@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
 const utils_1 = require("../utils");
-const utils_2 = require("../utils");
 const renameView_1 = require("../views/renameView");
 registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
     description: "Rename symbol under text cursor everywhere it is used",
@@ -37,15 +36,10 @@ registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => 
             },
         });
         if (newName !== undefined) {
-            locs.map(async (loc) => {
-                await deps.withTypescriptBuffer(loc.file, async (buffer) => {
-                    buffer.buffer.transact(() => {
-                        for (const span of loc.locs) {
-                            buffer.buffer.setTextInRange(utils_2.spanToRange(span), newName);
-                        }
-                    });
-                });
-            });
+            await deps.applyEdits(locs.map(span => ({
+                fileName: span.file,
+                textChanges: span.locs.map(loc => (Object.assign({}, loc, { newText: newName }))),
+            })));
         }
     },
 }));
