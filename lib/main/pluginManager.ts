@@ -16,11 +16,22 @@ import {SemanticViewController} from "./atom/views/outline/semanticViewControlle
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {State} from "./packageState"
+import {TextSpan, spanToRange} from "./atom/utils"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
   action: (buffer: TypescriptBuffer) => Promise<T>,
 ) => Promise<T>
+
+export interface Change extends TextSpan {
+  newText: string
+}
+export interface Edit {
+  fileName: string
+  textChanges: ReadonlyArray<Readonly<Change>>
+}
+export type Edits = ReadonlyArray<Readonly<Edit>>
+export type ApplyEdits = (edits: Edits) => Promise<void>
 
 export class PluginManager {
   // components
@@ -160,6 +171,20 @@ export class PluginManager {
       buffer.destroy()
     }
   }
+
+  public applyEdits: ApplyEdits = async edits =>
+    void Promise.all(
+      edits.map(edit =>
+        this.withTypescriptBuffer(edit.fileName, async buffer => {
+          buffer.buffer.transact(() => {
+            for (const change of edit.textChanges.slice().reverse()) {
+              buffer.buffer.setTextInRange(spanToRange(change), change.newText)
+            }
+          })
+          return buffer.flush()
+        }),
+      ),
+    )
 
   public getSemanticViewController = () => this.semanticViewController
 
