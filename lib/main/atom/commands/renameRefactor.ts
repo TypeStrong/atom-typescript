@@ -1,6 +1,5 @@
 import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
-import {spanToRange} from "../utils"
 import {showRenameDialog} from "../views/renameView"
 
 addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
@@ -40,15 +39,12 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
     })
 
     if (newName !== undefined) {
-      locs.map(async loc => {
-        await deps.withTypescriptBuffer(loc.file, async buffer => {
-          buffer.buffer.transact(() => {
-            for (const span of loc.locs) {
-              buffer.buffer.setTextInRange(spanToRange(span), newName)
-            }
-          })
-        })
-      })
+      await deps.applyEdits(
+        locs.map(span => ({
+          fileName: span.file,
+          textChanges: span.locs.map(loc => ({...loc, newText: newName})),
+        })),
+      )
     }
   },
 }))

@@ -1,5 +1,5 @@
 import {addCommand, Dependencies} from "./registry"
-import {commandForTypeScript, getFilePathPosition, spanToRange} from "../utils"
+import {commandForTypeScript, getFilePathPosition} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {HighlightComponent} from "../views/highlightComponent"
@@ -109,19 +109,9 @@ async function applyRefactors(
   if (responseEdits.body === undefined) return
   const {edits, renameFilename, renameLocation} = responseEdits.body
 
-  for (const edit of edits) {
-    await deps.withTypescriptBuffer(edit.fileName, async buffer => {
-      buffer.buffer.transact(() => {
-        for (const change of edit.textChanges.reverse()) {
-          buffer.buffer.setTextInRange(spanToRange(change), change.newText)
-        }
-      })
-    })
-  }
+  await deps.applyEdits(edits)
 
   if (renameFilename === undefined || renameLocation === undefined) return
-
-  await new Promise(resolve => setTimeout(resolve, 500)) // HACK ?
 
   const editor = await atom.workspace.open(renameFilename, {
     searchAllPanes: true,

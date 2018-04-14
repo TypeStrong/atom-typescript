@@ -63,7 +63,7 @@ export class PluginManager {
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
       this.errorPusher,
-      this.withTypescriptBuffer,
+      this.applyEdits,
     )
     this.subscriptions.add(this.codefixProvider)
 
