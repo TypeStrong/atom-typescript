@@ -73,7 +73,8 @@ async function getApplicableRefactorsActions(
   client: TypescriptServiceClient,
   range: protocol.FileRangeRequestArgs,
 ) {
-  const responseApplicable = await client.execute("getApplicableRefactors", range)
+  const responseApplicable = await getApplicabeRefactors(client, range)
+  if (!responseApplicable) return []
   if (responseApplicable.body === undefined || responseApplicable.body.length === 0) {
     return []
   }
@@ -92,6 +93,17 @@ async function getApplicableRefactorsActions(
   }
 
   return actions
+}
+
+async function getApplicabeRefactors(
+  client: TypescriptServiceClient,
+  range: protocol.FileRangeRequestArgs,
+) {
+  try {
+    return await client.execute("getApplicableRefactors", range)
+  } catch {
+    return undefined
+  }
 }
 
 async function applyRefactors(
