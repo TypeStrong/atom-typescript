@@ -27,7 +27,7 @@ export interface CommandArgResponseMap {
   }
   configure: {
     args: protocol.ConfigureRequestArguments
-    res: void
+    res: protocol.ConfigureResponse
   }
   definition: {
     args: protocol.FileLocationRequestArgs

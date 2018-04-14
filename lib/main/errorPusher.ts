@@ -78,7 +78,7 @@ export class ErrorPusher {
           }
 
           errors.push({
-            severity: this.unusedAsInfo && diagnostic.code === 6133 ? "info" : "error",
+            severity: this.getSeverity(diagnostic),
             excerpt: diagnostic.text,
             location: {
               file: filePath,
@@ -91,6 +91,18 @@ export class ErrorPusher {
 
     if (this.linter) {
       this.linter.setAllMessages(errors)
+    }
+  }
+
+  private getSeverity(diagnostic: Diagnostic) {
+    if (this.unusedAsInfo && diagnostic.code === 6133) return "info"
+    switch (diagnostic.category) {
+      case "error":
+        return "error"
+      case "warning":
+        return "warning"
+      default:
+        return "info"
     }
   }
 }

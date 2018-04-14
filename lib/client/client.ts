@@ -1,55 +1,63 @@
 // tslint:disable:max-classes-per-file
 import * as protocol from "typescript/lib/protocol"
 import {CommandArgResponseMap} from "./commandArgsResponseMap"
-import {BufferedNodeProcess, BufferedProcess} from "atom"
+import {BufferedNodeProcess, BufferedProcess, Emitter} from "atom"
 import {Callbacks} from "./callbacks"
 import {ChildProcess} from "child_process"
-import {EventEmitter} from "events"
 import {Transform, Readable} from "stream"
 import byline = require("byline")
+import {EventTypes} from "./events"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-const commandWithResponse = new Set<keyof CommandArgResponseMap>([
-  "compileOnSaveAffectedFileList",
-  "compileOnSaveEmitFile",
-  "completionEntryDetails",
-  "completions",
-  "configure",
-  "definition",
-  "format",
-  "getCodeFixes",
-  "getSupportedCodeFixes",
-  "occurrences",
-  "projectInfo",
-  "quickinfo",
-  "references",
-  "reload",
-  "rename",
-  "navtree",
-  "navto",
-])
+type CommandArgResponseKeysWithArgs = {
+  [K in keyof CommandArgResponseMap]: CommandArgResponseMap[K]["res"] extends void ? never : K
+}[keyof CommandArgResponseMap]
+
+const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: true} = {
+  compileOnSaveAffectedFileList: true,
+  compileOnSaveEmitFile: true,
+  completionEntryDetails: true,
+  completions: true,
+  configure: true,
+  definition: true,
+  format: true,
+  getCodeFixes: true,
+  getSupportedCodeFixes: true,
+  occurrences: true,
+  projectInfo: true,
+  quickinfo: true,
+  references: true,
+  reload: true,
+  rename: true,
+  navtree: true,
+  navto: true,
+}
+
+const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
 
 export class TypescriptServiceClient {
   /** Callbacks that are waiting for responses */
-  private callbacks: Callbacks
+  private readonly callbacks: Callbacks
 
-  private events = new EventEmitter()
+  private readonly emitter = new Emitter<{}, EventTypes>()
   private seq = 0
 
-  /** Promise that resolves when the server is ready to accept requests */
-  private serverPromise?: Promise<ChildProcess>
+  private readonly serverPromise: Promise<ChildProcess>
+  private running = false
+  private lastStderrOutput = ""
 
   constructor(public tsServerPath: string, public version: string) {
     this.callbacks = new Callbacks(this.emitPendingRequests)
+    this.serverPromise = this.startServer()
   }
 
   public async execute<T extends keyof CommandArgResponseMap>(
     command: T,
     args: CommandArgResponseMap[T]["args"],
   ): Promise<CommandArgResponseMap[T]["res"]> {
-    if (!this.serverPromise) {
+    if (!this.running) {
       throw new Error("Server is not running")
     }
 
@@ -61,133 +69,107 @@ export class TypescriptServiceClient {
     )
   }
 
-  public startServer() {
-    if (!this.serverPromise) {
-      let lastStderrOutput: string
-      let reject: (err: Error) => void
-
-      const exitHandler = (result: Error | number) => {
-        const err = typeof result === "number" ? new Error("exited with code: " + result) : result
-
-        console.error("tsserver: ", err)
-        this.callbacks.rejectAll(err)
-        reject(err)
-        this.serverPromise = undefined
-
-        setImmediate(() => {
-          let detail = err.message
-          if (lastStderrOutput) {
-            detail = `Last output from tsserver:\n${lastStderrOutput}\n\n${detail}`
-          }
-          atom.notifications.addError("Typescript quit unexpectedly", {
-            detail,
-            stack: err.stack,
-            dismissable: true,
-          })
-        })
-      }
-
-      return (this.serverPromise = new Promise<ChildProcess>((resolve, pReject) => {
-        reject = pReject
-
-        if (window.atom_typescript_debug) {
-          console.log("starting", this.tsServerPath)
-        }
-
-        const cp = startServer(this.tsServerPath)
-
-        cp.once("error", exitHandler)
-        cp.once("exit", exitHandler)
-
-        // Pipe both stdout and stderr appropriately
-        messageStream(cp.stdout).on("data", this.onMessage)
-        cp.stderr.on("data", data => {
-          console.warn("tsserver stderr:", (lastStderrOutput = data.toString()))
-        })
-
-        // We send an unknown command to verify that the server is working.
-        this.sendRequest(cp, "ping", null, true).then(() => resolve(cp), () => resolve(cp))
-      }))
-    } else {
-      throw new Error(`Server already started: ${this.tsServerPath}`)
-    }
+  public on<T extends keyof EventTypes>(name: T, listener: (result: EventTypes[T]) => void) {
+    return this.emitter.on(name, listener)
   }
 
-  /** Adds an event listener for tsserver or other events. Returns an unsubscribe function */
-  public on(
-    name: "configFileDiag" | "semanticDiag" | "syntaxDiag",
-    listener: (result: protocol.DiagnosticEventBody) => any,
-  ): () => void
-  public on(name: "pendingRequestsChange", listener: (requests: string[]) => any): () => void
-  public on(name: string, listener: (result: any) => any): () => void {
-    this.events.on(name, listener)
+  private startServer() {
+    return new Promise<ChildProcess>((resolve, reject) => {
+      this.running = true
+      if (window.atom_typescript_debug) {
+        console.log("starting", this.tsServerPath)
+      }
 
-    return () => {
-      this.events.removeListener(name, listener)
-    }
+      const cp = startServer(this.tsServerPath)
+
+      if (!cp) {
+        this.exitHandler(reject)(new Error("ChildProcess failed to start"))
+        return
+      }
+
+      cp.once("error", this.exitHandler(reject))
+      cp.once("exit", this.exitHandler(reject))
+
+      // Pipe both stdout and stderr appropriately
+      messageStream(cp.stdout).on("data", this.onMessage)
+      cp.stderr.on("data", data => {
+        console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()))
+      })
+
+      this.sendRequest(cp, "ping", undefined, true).then(() => resolve(cp), () => resolve(cp))
+    })
+  }
+
+  private exitHandler = (reject: (err: Error) => void) => (result: Error | number) => {
+    const err = typeof result === "number" ? new Error("exited with code: " + result) : result
+
+    console.error("tsserver: ", err)
+    this.callbacks.rejectAll(err)
+    this.emitter.dispose()
+    reject(err)
+    this.running = false
+
+    setImmediate(() => {
+      let detail = err.message
+      if (this.lastStderrOutput) {
+        detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`
+      }
+      atom.notifications.addError("Typescript quit unexpectedly", {
+        detail,
+        stack: err.stack,
+        dismissable: true,
+      })
+    })
   }
 
   private emitPendingRequests = (pending: string[]) => {
-    this.events.emit("pendingRequestsChange", pending)
+    this.emitter.emit("pendingRequestsChange", pending)
   }
 
   private onMessage = (res: protocol.Response | protocol.Event) => {
-    if (isResponse(res)) {
-      const req = this.callbacks.remove(res.request_seq)
-      if (req) {
-        if (window.atom_typescript_debug) {
-          console.log(
-            "received response for",
-            res.command,
-            "in",
-            Date.now() - req.started,
-            "ms",
-            "with data",
-            res.body,
-          )
-        }
+    if (res.type === "response") this.onResponse(res)
+    else this.onEvent(res)
+  }
 
-        if (res.success) {
-          req.resolve(res)
-        } else {
-          req.reject(new Error(res.message))
-        }
-      } else {
-        console.warn("unexpected response:", res)
-      }
-    } else if (isEvent(res)) {
+  private onResponse(res: protocol.Response) {
+    const req = this.callbacks.remove(res.request_seq)
+    if (req) {
       if (window.atom_typescript_debug) {
-        console.log("received event", res)
+        console.log(
+          "received response for",
+          res.command,
+          "in",
+          Date.now() - req.started,
+          "ms",
+          "with data",
+          res.body,
+        )
       }
 
-      this.events.emit(res.event, res.body)
+      if (res.success) {
+        req.resolve(res)
+      } else {
+        req.reject(new Error(res.message))
+      }
+    } else {
+      console.warn("unexpected response:", res)
     }
   }
 
-  private sendRequest(
+  private onEvent(res: protocol.Event) {
+    if (window.atom_typescript_debug) {
+      console.log("received event", res)
+    }
+
+    this.emitter.emit(res.event as keyof EventTypes, res.body)
+  }
+
+  private async sendRequest<T extends keyof CommandArgResponseMap>(
     cp: ChildProcess,
     command: string,
-    args: any,
-    expectResponse: true,
-  ): Promise<protocol.Response>
-  private sendRequest(
-    cp: ChildProcess,
-    command: string,
-    args: any,
-    expectResponse: false,
-  ): undefined
-  private sendRequest(
-    cp: ChildProcess,
-    command: string,
-    args: any,
+    args: CommandArgResponseMap[T]["args"],
     expectResponse: boolean,
-  ): Promise<protocol.Response> | undefined
-  private sendRequest(
-    cp: ChildProcess,
-    command: string,
-    args: any,
-    expectResponse: boolean,
-  ): Promise<protocol.Response> | undefined {
+  ): Promise<CommandArgResponseMap[T]["res"]> {
     const req = {
       seq: this.seq++,
       command,
@@ -217,28 +199,20 @@ export class TypescriptServiceClient {
   }
 }
 
-function startServer(tsServerPath: string): ChildProcess {
+function startServer(tsServerPath: string): ChildProcess | undefined {
   const locale = atom.config.get("atom-typescript.locale")
   const tsServerArgs: string[] = locale ? ["--locale", locale] : []
   if (INSPECT_TSSERVER) {
     return new BufferedProcess({
       command: "node",
       args: ["--inspect", tsServerPath].concat(tsServerArgs),
-    }).process as any
+    }).process
   } else {
     return new BufferedNodeProcess({
       command: tsServerPath,
       args: tsServerArgs,
-    }).process as any
+    }).process
   }
-}
-
-function isEvent(res: protocol.Response | protocol.Event): res is protocol.Event {
-  return res.type === "event"
-}
-
-function isResponse(res: protocol.Response | protocol.Event): res is protocol.Response {
-  return res.type === "response"
 }
 
 function messageStream(input: Readable) {

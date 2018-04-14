@@ -30,7 +30,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     // for some amount of time.
     let cancelTimeout: number | undefined
 
-    const unregister = client.on("syntaxDiag", evt => {
+    const disp = client.on("syntaxDiag", evt => {
       if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
       cancelTimeout = window.setTimeout(cancel, 500)
 
@@ -50,7 +50,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
 
     function updateStatus() {
       if (files.size === 0) {
-        unregister()
+        disp.dispose()
         stp.update({progress: undefined})
       } else {
         stp.update({progress: {max, value: max - files.size}})
