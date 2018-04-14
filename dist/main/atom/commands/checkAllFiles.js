@@ -26,7 +26,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         // that, we cancel the listener and close the progress bar after no diagnostics have been received
         // for some amount of time.
         let cancelTimeout;
-        const unregister = client.on("syntaxDiag", evt => {
+        const disp = client.on("syntaxDiag", evt => {
             if (cancelTimeout !== undefined)
                 window.clearTimeout(cancelTimeout);
             cancelTimeout = window.setTimeout(cancel, 500);
@@ -42,7 +42,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         }
         function updateStatus() {
             if (files.size === 0) {
-                unregister();
+                disp.dispose();
                 stp.update({ progress: undefined });
             }
             else {
