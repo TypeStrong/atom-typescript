@@ -114,7 +114,7 @@
     "resolve": "1.6.0",
     "tsconfig": "^7.0.0",
     "tslib": "^1.9.0",
-    "typescript": "~2.7.2"
+    "typescript": "~2.8.1"
   },
   "devDependencies": {
     "@types/atom": "~1.25",
