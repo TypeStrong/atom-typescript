@@ -44,6 +44,7 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
           fileName: span.file,
           textChanges: span.locs.map(loc => ({...loc, newText: newName})),
         })),
+        false,
       )
     }
   },
