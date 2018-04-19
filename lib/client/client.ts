@@ -29,6 +29,8 @@ const commandWithResponse = new Set<keyof CommandArgResponseMap>([
   "rename",
   "navtree",
   "navto",
+  "getApplicableRefactors",
+  "getEditsForRefactor",
 ])
 
 export class TypescriptServiceClient {
