@@ -45,6 +45,7 @@ class EditorPositionHistoryManager {
         const editor = await atom.workspace.open(item.file, {
             initialLine: item.start.line - 1,
             initialColumn: item.start.offset - 1,
+            searchAllPanes: true,
         });
         if (atom.workspace.isTextEditor(editor)) {
             editor.scrollToCursorPosition({ center: true });
