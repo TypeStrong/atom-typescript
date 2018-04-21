@@ -1,3 +1,15 @@
+## 12.4.0
+
+-   Search all panes when opening files (fixes #898)
+-   Internal code optimizations
+-   Add applyEdits function that also flushes changes to tsserver
+-   Add `typescript:refactor-selection` command to show applicable refactors for a selection (Daniel Contreras)
+-   Update to TypeScript 2.7
+-   Normalize path in ErrorPusher.getErrorsAt
+-   Implement showExpressionType cancellation
+-   strict-boolean-expressions
+-   Fix spec runner
+
 ## 12.3.8
 
 -   Accept tree-sitter grammar
