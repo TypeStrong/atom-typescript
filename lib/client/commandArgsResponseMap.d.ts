@@ -97,4 +97,12 @@ export interface CommandArgResponseMap {
     args: undefined
     res: void
   }
+  getApplicableRefactors: {
+    args: protocol.GetApplicableRefactorsRequestArgs
+    res: protocol.GetApplicableRefactorsResponse
+  }
+  getEditsForRefactor: {
+    args: protocol.GetEditsForRefactorRequestArgs
+    res: protocol.GetEditsForRefactorResponse
+  }
 }

@@ -33,6 +33,8 @@ const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: t
   rename: true,
   navtree: true,
   navto: true,
+  getApplicableRefactors: true,
+  getEditsForRefactor: true,
 }
 
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))

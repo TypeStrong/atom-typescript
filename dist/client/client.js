@@ -24,6 +24,8 @@ const commandWithResponseMap = {
     rename: true,
     navtree: true,
     navto: true,
+    getApplicableRefactors: true,
+    getEditsForRefactor: true,
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 class TypescriptServiceClient {

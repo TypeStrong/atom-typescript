@@ -3,11 +3,11 @@ import {TypescriptServiceClient} from "../../../client/client"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
-import {WithTypescriptBuffer} from "../../pluginManager"
+import {ApplyEdits} from "../../pluginManager"
 import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 
 export interface Dependencies {
-  withTypescriptBuffer: WithTypescriptBuffer
+  applyEdits: ApplyEdits
   clearErrors(): void
   getClient(filePath: string): Promise<TypescriptServiceClient>
   getStatusPanel(): StatusPanel
