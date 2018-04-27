@@ -16,13 +16,17 @@ export function isTypescriptFile(filePath: string | undefined): boolean {
   return isAllowedExtension(path.extname(filePath))
 }
 
+export function typeScriptScopes(): ReadonlyArray<string> {
+  return ["source.ts", "source.tsx", "typescript"]
+}
+
 export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
   return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor)
 }
 
 function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
-  return ["source.ts", "source.tsx", "typescript"].includes(scopeName)
+  return typeScriptScopes().includes(scopeName)
 }
 
 function isAllowedExtension(ext: string) {

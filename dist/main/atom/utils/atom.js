@@ -15,13 +15,17 @@ function isTypescriptFile(filePath) {
     return isAllowedExtension(path.extname(filePath));
 }
 exports.isTypescriptFile = isTypescriptFile;
+function typeScriptScopes() {
+    return ["source.ts", "source.tsx", "typescript"];
+}
+exports.typeScriptScopes = typeScriptScopes;
 function isTypescriptEditorWithPath(editor) {
     return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor);
 }
 exports.isTypescriptEditorWithPath = isTypescriptEditorWithPath;
 function isTypescriptGrammar(editor) {
     const [scopeName] = editor.getRootScopeDescriptor().getScopesArray();
-    return ["source.ts", "source.tsx", "typescript"].includes(scopeName);
+    return typeScriptScopes().includes(scopeName);
 }
 function isAllowedExtension(ext) {
     return [".ts", ".tst", ".tsx"].includes(ext);

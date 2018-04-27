@@ -1,11 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("./utils");
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
     constructor(clientResolver, opts) {
-        this.selector = ".source.ts, .source.tsx";
+        this.selector = utils_1.typeScriptScopes()
+            .map(x => (x.includes(".") ? `.${x}` : x))
+            .join(", ");
         this.disableForSelector = ".comment";
         this.inclusionPriority = 3;
         this.suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority");

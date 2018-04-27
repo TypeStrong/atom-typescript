@@ -1,5 +1,6 @@
 import * as Atom from "atom"
 import {CodefixProvider} from "./codefixProvider"
+import {typeScriptScopes} from "../utils"
 
 export interface Message {
   filePath: string
@@ -14,7 +15,7 @@ export interface CodeAction {
 }
 
 export interface CodeActionProvider {
-  grammarScopes: string[]
+  grammarScopes: ReadonlyArray<string>
   priority: number
   getCodeActions(
     editor: Atom.TextEditor,
@@ -24,7 +25,7 @@ export interface CodeActionProvider {
 }
 
 export class CodeActionsProvider implements CodeActionProvider {
-  public grammarScopes = ["source.ts", "source.tsx"]
+  public grammarScopes = typeScriptScopes()
   public priority = 0
 
   constructor(private codefixProvider: CodefixProvider) {}
