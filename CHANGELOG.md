@@ -1,3 +1,7 @@
+## 12.4.1
+
+-   Fix autocomplete and codefix for tree-sitter
+
 ## 12.4.0
 
 -   Search all panes when opening files (fixes #898)
