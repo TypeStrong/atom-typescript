@@ -1,6 +1,6 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {FileLocationQuery} from "./utils"
+import {FileLocationQuery, typeScriptScopes} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
@@ -18,7 +18,9 @@ interface Options {
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
-  public selector = ".source.ts, .source.tsx"
+  public selector = typeScriptScopes()
+    .map(x => (x.includes(".") ? `.${x}` : x))
+    .join(", ")
 
   public disableForSelector = ".comment"
 

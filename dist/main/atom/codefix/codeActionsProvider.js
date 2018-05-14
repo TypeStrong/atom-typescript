@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("../utils");
 class CodeActionsProvider {
     constructor(codefixProvider) {
         this.codefixProvider = codefixProvider;
-        this.grammarScopes = ["source.ts", "source.tsx"];
+        this.grammarScopes = utils_1.typeScriptScopes();
         this.priority = 0;
     }
     async getCodeActions(textEditor, range, _diagnostics) {
