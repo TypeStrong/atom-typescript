@@ -1,20 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("./client");
-const events = require("events");
 const path = require("path");
 const Resolve = require("resolve");
+const atom_1 = require("atom");
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.
  */
-class ClientResolver extends events.EventEmitter {
+class ClientResolver {
     constructor() {
-        super(...arguments);
         this.clients = new Map();
+        this.emitter = new atom_1.Emitter();
     }
+    // This is just here so Typescript can infer the types of the callbacks when using "on" method
     on(event, callback) {
-        return super.on(event, callback);
+        return this.emitter.on(event, callback);
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
@@ -26,17 +27,16 @@ class ClientResolver extends events.EventEmitter {
             pending: [],
         };
         this.clients.set(pathToBin, newClientRec);
-        newClientRec.client.startServer();
         newClientRec.client.on("pendingRequestsChange", pending => {
             newClientRec.pending = pending;
-            this.emit("pendingRequestsChange");
+            this.emitter.emit("pendingRequestsChange", pending);
         });
         const diagnosticHandler = (type) => (result) => {
             const filePath = isConfDiagBody(result) ? result.configFile : result.file;
             if (filePath) {
-                this.emit("diagnostics", {
+                this.emitter.emit("diagnostics", {
                     type,
-                    pathToBin,
+                    serverPath: pathToBin,
                     filePath,
                     diagnostics: result.diagnostics,
                 });
@@ -45,10 +45,11 @@ class ClientResolver extends events.EventEmitter {
         newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
         newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
         newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
+        newClientRec.client.on("suggestionDiag", diagnosticHandler("suggestionDiag"));
         return newClientRec.client;
     }
     dispose() {
-        this.removeAllListeners();
+        this.emitter.dispose();
     }
 }
 exports.ClientResolver = ClientResolver;

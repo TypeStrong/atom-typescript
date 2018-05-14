@@ -1,6 +1,7 @@
 import * as etch from "etch"
 import {dirname} from "path"
 import {ClientResolver} from "../../../client/clientResolver"
+import {CompositeDisposable} from "atom"
 
 export interface Props extends JSX.Props {
   version?: string
@@ -15,6 +16,7 @@ export interface Props extends JSX.Props {
 export class StatusPanel implements JSX.ElementClass {
   public props: Props
   private buildStatusTimeout?: number
+  private disposables = new CompositeDisposable()
 
   constructor(props: Props) {
     this.props = {
@@ -23,7 +25,9 @@ export class StatusPanel implements JSX.ElementClass {
     }
     etch.initialize(this)
     this.resetBuildStatusTimeout()
-    this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests)
+    this.disposables.add(
+      this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests),
+    )
   }
 
   public async update(props: Partial<Props>) {
@@ -46,7 +50,7 @@ export class StatusPanel implements JSX.ElementClass {
 
   public async destroy() {
     await etch.destroy(this)
-    this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests)
+    this.disposables.dispose()
   }
 
   public dispose() {

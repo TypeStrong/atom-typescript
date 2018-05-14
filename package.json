@@ -114,7 +114,7 @@
     "resolve": "1.6.0",
     "tsconfig": "^7.0.0",
     "tslib": "^1.9.0",
-    "typescript": "~2.7.2"
+    "typescript": "~2.8.1"
   },
   "devDependencies": {
     "@types/atom": "~1.25",
@@ -135,7 +135,8 @@
     "popsicle": "^9.2.0",
     "prettier": "^1.11.1",
     "ts-node": "^5.0.1",
-    "tslint": "^5.9.1"
+    "tslint": "^5.9.1",
+    "tslint-language-service": "^0.9.9"
   },
   "package-deps": [
     "atom-ide-ui:0.5.3"

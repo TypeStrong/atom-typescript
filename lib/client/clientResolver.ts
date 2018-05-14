@@ -1,5 +1,4 @@
 import {TypescriptServiceClient as Client} from "./client"
-import * as events from "events"
 import * as path from "path"
 import * as Resolve from "resolve"
 import {
@@ -7,8 +6,9 @@ import {
   DiagnosticEventBody,
   ConfigFileDiagnosticEventBody,
 } from "typescript/lib/protocol"
+import {Emitter} from "atom"
 
-type DiagnosticTypes = "configFileDiag" | "semanticDiag" | "syntaxDiag"
+type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 
 interface DiagnosticsPayload {
   diagnostics: Diagnostic[]
@@ -27,18 +27,22 @@ interface ClientRec {
   pending: string[]
 }
 
+export interface EventTypes {
+  diagnostics: DiagnosticsPayload
+  pendingRequestsChange: string[]
+}
+
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.
  */
-export class ClientResolver extends events.EventEmitter {
+export class ClientResolver {
   public clients = new Map<string, ClientRec>()
+  private emitter = new Emitter<{}, EventTypes>()
 
   // This is just here so Typescript can infer the types of the callbacks when using "on" method
-  public on(event: "diagnostics", callback: (result: DiagnosticsPayload) => void): this
-  public on(event: "pendingRequestsChange", callback: () => void): this
-  public on(event: string, callback: (() => void) | ((result: DiagnosticsPayload) => void)): this {
-    return super.on(event, callback)
+  public on<T extends keyof EventTypes>(event: T, callback: (result: EventTypes[T]) => void) {
+    return this.emitter.on(event, callback)
   }
 
   public async get(pFilePath: string): Promise<Client> {
@@ -53,22 +57,20 @@ export class ClientResolver extends events.EventEmitter {
     }
     this.clients.set(pathToBin, newClientRec)
 
-    newClientRec.client.startServer()
-
     newClientRec.client.on("pendingRequestsChange", pending => {
       newClientRec.pending = pending
-      this.emit("pendingRequestsChange")
+      this.emitter.emit("pendingRequestsChange", pending)
     })
 
-    const diagnosticHandler = (type: string) => (
+    const diagnosticHandler = (type: DiagnosticTypes) => (
       result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
     ) => {
       const filePath = isConfDiagBody(result) ? result.configFile : result.file
 
       if (filePath) {
-        this.emit("diagnostics", {
+        this.emitter.emit("diagnostics", {
           type,
-          pathToBin,
+          serverPath: pathToBin,
           filePath,
           diagnostics: result.diagnostics,
         })
@@ -78,12 +80,13 @@ export class ClientResolver extends events.EventEmitter {
     newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"))
     newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"))
     newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
+    newClientRec.client.on("suggestionDiag", diagnosticHandler("suggestionDiag"))
 
     return newClientRec.client
   }
 
   public dispose() {
-    this.removeAllListeners()
+    this.emitter.dispose()
   }
 }
 

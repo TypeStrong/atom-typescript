@@ -2,8 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const path_1 = require("path");
+const atom_1 = require("atom");
 class StatusPanel {
     constructor(props) {
+        this.disposables = new atom_1.CompositeDisposable();
         this.buildStatusClicked = () => {
             if (this.props.buildStatus && !this.props.buildStatus.success) {
                 atom.notifications.addError("Build failed", {
@@ -20,7 +22,7 @@ class StatusPanel {
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
         this.resetBuildStatusTimeout();
-        this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests);
+        this.disposables.add(this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests));
     }
     async update(props) {
         this.props = Object.assign({}, this.props, props);
@@ -37,7 +39,7 @@ class StatusPanel {
     }
     async destroy() {
         await etch.destroy(this);
-        this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests);
+        this.disposables.dispose();
     }
     dispose() {
         this.destroy();

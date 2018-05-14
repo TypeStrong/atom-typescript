@@ -162,6 +162,7 @@ interface EtchAttributes extends HTMLAttributes {
   key?: any
 }
 
+// tslint:disable-next-line:no-namespace
 declare namespace JSX {
   interface IntrinsicElements {
     // SVG
@@ -198,6 +199,7 @@ type ElementClassConstructor<T extends JSX.ElementClass> = new (
   children: JSX.Element[],
 ) => T
 
+// tslint:disable-next-line:no-namespace
 declare namespace JSX {
   type Element =
     | {tag: TagSpec; props?: EtchAttributes | Props; children: Element[]}
@@ -206,10 +208,10 @@ declare namespace JSX {
     ref?: string
   }
   class ElementClass {
-    props: Props
+    public props: Props
     constructor(props: Props, children?: Element[])
-    render?(): Element
-    update(props: Props, children?: Element[]): Promise<void>
+    public render?(): Element
+    public update(props: Props, children?: Element[]): Promise<void>
   }
   interface ElementAttributesProperty {
     props: Props // specify the property name to use
@@ -231,6 +233,7 @@ declare module "etch" {
   export function setScheduler(customScheduler: any): void
   export function update(component: any, replaceNode?: boolean): Promise<void>
   export function updateSync(component: any, replaceNode?: boolean): void
+  // tslint:disable-next-line:class-name
   export interface dom {
     // HTML
     a(props: EtchAttributes, ...children: ChildSpec[]): JSX.Element
