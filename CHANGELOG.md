@@ -1,3 +1,11 @@
+## 12.5.0
+
+-   Fix #1423 (unhandled error when tsserver is terminated)
+-   Bundle TypeScript 2.8
+-   Add tslint-language-service to set-up.
+-   Clean up client code
+-   Add "suggestion diagnostics"
+
 ## 12.4.1
 
 -   Fix autocomplete and codefix for tree-sitter
