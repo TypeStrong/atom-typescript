@@ -36,8 +36,7 @@ class TypescriptServiceClient {
         this.seq = 0;
         this.running = false;
         this.lastStderrOutput = "";
-        this.exitHandler = (reject) => (result) => {
-            const err = typeof result === "number" ? new Error("exited with code: " + result) : result;
+        this.exitHandler = (reject) => (err) => {
             console.error("tsserver: ", err);
             this.callbacks.rejectAll(err);
             this.emitter.dispose();
@@ -83,12 +82,18 @@ class TypescriptServiceClient {
                 console.log("starting", this.tsServerPath);
             }
             const cp = startServer(this.tsServerPath);
+            const h = this.exitHandler(reject);
             if (!cp) {
-                this.exitHandler(reject)(new Error("ChildProcess failed to start"));
+                h(new Error("ChildProcess failed to start"));
                 return;
             }
-            cp.once("error", this.exitHandler(reject));
-            cp.once("exit", this.exitHandler(reject));
+            cp.once("error", h);
+            cp.once("exit", (code, signal) => {
+                if (code !== null)
+                    h(new Error(`exited with code: ${code}`));
+                else if (signal !== null)
+                    h(new Error(`terminated on signal: ${signal}`));
+            });
             // Pipe both stdout and stderr appropriately
             messageStream(cp.stdout).on("data", this.onMessage);
             cp.stderr.on("data", data => {
