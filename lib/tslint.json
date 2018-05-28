@@ -26,7 +26,8 @@
       "allow-boolean-or-undefined"
     ],
     "strict-type-predicates": true,
-    "no-unsafe-any": true
+    "no-unsafe-any": true,
+    "no-shadowed-variable": true
   },
   "rulesDirectory": []
 }
