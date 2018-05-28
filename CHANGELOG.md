@@ -1,3 +1,15 @@
+## 12.5.1
+
+### Fixes
+
+-   Don't ignore insertText autocompletion suggestions
+-   Minor bugfixes in initializeConfig command
+
+### Maintenence
+
+-   Enabled no-shadowed-variable tslint diagnostic
+-   Enabled no-unsafe-any tslint diagnostic
+
 ## 12.5.0
 
 -   Fix #1423 (unhandled error when tsserver is terminated)
