@@ -1,6 +1,6 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {FileLocationQuery, typeScriptScopes} from "./utils"
+import {FileLocationQuery, typeScriptScopes, spanToRange} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
@@ -11,6 +11,7 @@ const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-dir
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
+  replacementRange?: Atom.Range
 }
 
 interface Options {
@@ -104,7 +105,9 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       const trimmed = prefix.trim()
 
       return suggestions.map(suggestion => ({
-        replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text!),
+        replacementPrefix: suggestion.replacementRange
+          ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
+          : getReplacementPrefix(prefix, trimmed, suggestion.text!),
         ...suggestion,
       }))
     } catch (error) {
@@ -118,7 +121,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   ) {
     if (suggestions.some(s => !s.details) && this.lastSuggestions) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
-        entryNames: suggestions.map(s => s.text!),
+        entryNames: suggestions.map(s => s.displayText!),
         ...location,
       })
 
@@ -164,15 +167,11 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     const completions = await client.execute("completions", {
       prefix,
       includeExternalModuleExports: false,
-      includeInsertTextCompletions: false,
+      includeInsertTextCompletions: true,
       ...location,
     })
 
-    const suggestions = completions.body!.map(entry => ({
-      text: entry.name,
-      leftLabel: entry.kind,
-      type: kindToType(entry.kind),
-    }))
+    const suggestions = completions.body!.map(completionEntryToSuggestion)
 
     this.lastSuggestions = {
       client,
@@ -237,6 +236,16 @@ function containsScope(scopes: ReadonlyArray<string>, matchScope: string): boole
   }
 
   return false
+}
+
+function completionEntryToSuggestion(entry: protocol.CompletionEntry): SuggestionWithDetails {
+  return {
+    displayText: entry.name,
+    text: entry.insertText !== undefined ? entry.insertText : entry.name,
+    leftLabel: entry.kind,
+    replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
+    type: kindToType(entry.kind),
+  }
 }
 
 /** See types :

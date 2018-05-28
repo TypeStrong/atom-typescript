@@ -55,7 +55,9 @@ class AutocompleteProvider {
             // Get additional details for the first few suggestions
             await this.getAdditionalDetails(suggestions.slice(0, 10), location);
             const trimmed = prefix.trim();
-            return suggestions.map(suggestion => (Object.assign({ replacementPrefix: getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
+            return suggestions.map(suggestion => (Object.assign({ replacementPrefix: suggestion.replacementRange
+                    ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
+                    : getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
         }
         catch (error) {
             return [];
@@ -63,7 +65,7 @@ class AutocompleteProvider {
     }
     async getAdditionalDetails(suggestions, location) {
         if (suggestions.some(s => !s.details) && this.lastSuggestions) {
-            const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map(s => s.text) }, location));
+            const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map(s => s.displayText) }, location));
             details.body.forEach((detail, i) => {
                 const suggestion = suggestions[i];
                 suggestion.details = detail;
@@ -92,12 +94,8 @@ class AutocompleteProvider {
             }
         }
         const client = await this.clientResolver.get(location.file);
-        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: false }, location));
-        const suggestions = completions.body.map(entry => ({
-            text: entry.name,
-            leftLabel: entry.kind,
-            type: kindToType(entry.kind),
-        }));
+        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
+        const suggestions = completions.body.map(completionEntryToSuggestion);
         this.lastSuggestions = {
             client,
             location,
@@ -153,6 +151,15 @@ function containsScope(scopes, matchScope) {
         }
     }
     return false;
+}
+function completionEntryToSuggestion(entry) {
+    return {
+        displayText: entry.name,
+        text: entry.insertText !== undefined ? entry.insertText : entry.name,
+        leftLabel: entry.kind,
+        replacementRange: entry.replacementSpan ? utils_1.spanToRange(entry.replacementSpan) : undefined,
+        type: kindToType(entry.kind),
+    };
 }
 /** See types :
  * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
