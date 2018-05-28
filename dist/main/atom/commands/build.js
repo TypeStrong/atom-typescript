@@ -35,7 +35,8 @@ registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
             }
             stp.update({ buildStatus: { success: true } });
         }
-        catch (err) {
+        catch (error) {
+            const err = error;
             console.error(err);
             stp.update({ buildStatus: { success: false, message: err.message } });
         }

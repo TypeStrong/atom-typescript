@@ -24,7 +24,10 @@ export function serializeEditorState(editor: TextEditor) {
   }
 }
 
-export function deserializeEditorState(editor: TextEditor, {bufferRanges, scrollTop}: any) {
+export function deserializeEditorState(
+  editor: TextEditor,
+  {bufferRanges, scrollTop}: ReturnType<typeof serializeEditorState>,
+) {
   const editorElement = atom.views.getView(editor)
   editor.setSelectedBufferRanges(bufferRanges)
   editorElement.setScrollTop(scrollTop)

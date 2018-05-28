@@ -226,8 +226,9 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
       this.opts.statusPanel.update({buildStatus: {success: true}})
     } catch (error) {
-      console.error("Save failed with error", error)
-      this.opts.statusPanel.update({buildStatus: {success: false, message: error.message}})
+      const e = error as Error
+      console.error("Save failed with error", e)
+      this.opts.statusPanel.update({buildStatus: {success: false, message: e.message}})
     }
   }
 

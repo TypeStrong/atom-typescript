@@ -123,7 +123,9 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("received event", res);
         }
-        this.emitter.emit(res.event, res.body);
+        // tslint:disable-next-line:no-unsafe-any
+        if (res.body)
+            this.emitter.emit(res.event, res.body);
     }
     async sendRequest(cp, command, args, expectResponse) {
         const req = {

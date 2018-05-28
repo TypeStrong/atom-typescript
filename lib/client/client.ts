@@ -165,7 +165,8 @@ export class TypescriptServiceClient {
       console.log("received event", res)
     }
 
-    this.emitter.emit(res.event as keyof EventTypes, res.body)
+    // tslint:disable-next-line:no-unsafe-any
+    if (res.body) this.emitter.emit(res.event as keyof EventTypes, res.body)
   }
 
   private async sendRequest<T extends keyof CommandArgResponseMap>(
@@ -190,7 +191,7 @@ export class TypescriptServiceClient {
       } catch (error) {
         const callback = this.callbacks.remove(req.seq)
         if (callback) {
-          callback.reject(error)
+          callback.reject(error as Error)
         } else {
           console.error(error)
         }

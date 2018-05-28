@@ -26,7 +26,7 @@ export class Callbacks {
     })
   }
 
-  public rejectAll(error: any) {
+  public rejectAll(error: Error) {
     for (const {reject} of this.callbacks.values()) {
       reject(error)
     }

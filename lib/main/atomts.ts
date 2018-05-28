@@ -7,6 +7,7 @@ export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 let pluginManager: PluginManager | undefined
 
 export async function activate(state: State) {
+  // tslint:disable:no-unsafe-any
   const pns = atom.packages.getAvailablePackageNames()
   if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
     await require("atom-package-deps").install("atom-typescript", true)
@@ -17,6 +18,7 @@ export async function activate(state: State) {
   // tslint:disable-next-line:no-shadowed-variable
   const {PluginManager} = require("./pluginManager")
   pluginManager = new PluginManager(state)
+  // tslint:enable:no-unsafe-any
 }
 
 export function deactivate() {

@@ -38,7 +38,8 @@ addCommand("atom-text-editor", "typescript:build", deps => ({
         throw new Error("Emit failed")
       }
       stp.update({buildStatus: {success: true}})
-    } catch (err) {
+    } catch (error) {
+      const err = error as Error
       console.error(err)
       stp.update({buildStatus: {success: false, message: err.message}})
     }

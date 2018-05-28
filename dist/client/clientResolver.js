@@ -69,9 +69,10 @@ async function resolveBinary(sourcePath, binName) {
     const defaultPath = require.resolve(`typescript/bin/${binName}`);
     const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
         basedir: path.dirname(sourcePath),
-        paths: NODE_PATH && NODE_PATH.split(path.delimiter),
+        paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
     }).catch(() => defaultPath);
     const packagePath = path.resolve(resolvedPath, "../../package.json");
+    // tslint:disable-next-line:no-unsafe-any
     const version = require(packagePath).version;
     return {
         version,
@@ -80,6 +81,7 @@ async function resolveBinary(sourcePath, binName) {
 }
 exports.resolveBinary = resolveBinary;
 function isConfDiagBody(body) {
+    // tslint:disable-next-line:no-unsafe-any
     return body && body.triggerFile && body.configFile;
 }
 //# sourceMappingURL=clientResolver.js.map

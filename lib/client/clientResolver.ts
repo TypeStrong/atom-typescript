@@ -104,16 +104,17 @@ const resolveModule = (id: string, opts: Resolve.AsyncOpts): Promise<string> => 
 }
 
 export async function resolveBinary(sourcePath: string, binName: string): Promise<Binary> {
-  const {NODE_PATH} = process.env
+  const {NODE_PATH} = process.env as {NODE_PATH?: string}
   const defaultPath = require.resolve(`typescript/bin/${binName}`)
 
   const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
     basedir: path.dirname(sourcePath),
-    paths: NODE_PATH && NODE_PATH.split(path.delimiter),
+    paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
   }).catch(() => defaultPath)
 
   const packagePath = path.resolve(resolvedPath, "../../package.json")
-  const version = require(packagePath).version
+  // tslint:disable-next-line:no-unsafe-any
+  const version: string = require(packagePath).version
 
   return {
     version,
@@ -122,5 +123,6 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
 }
 
 function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {
+  // tslint:disable-next-line:no-unsafe-any
   return body && body.triggerFile && body.configFile
 }

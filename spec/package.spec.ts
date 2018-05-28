@@ -7,7 +7,7 @@ describe("atom-typescript", function() {
   this.timeout(8000)
 
   it("should activate", async () => {
-    const packages: any = atom.packages
+    const packages = atom.packages
 
     // Load package, but it won't activate until the Typescript grammar is used
     const promise = atom.packages.activatePackage(packagePath)

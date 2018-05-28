@@ -22,8 +22,9 @@ registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => 
                 }
             }
         }
-        catch (e) {
-            switch (e.message) {
+        catch (error) {
+            const err = error;
+            switch (err.message) {
                 case "ENOPROJECT":
                     e.abortKeyBinding();
                     return;
@@ -34,9 +35,9 @@ registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => 
                     return;
                 default:
                     atom.notifications.addFatalError("Something went wrong, see details below.", {
-                        detail: e.message,
+                        detail: err.message,
                         dismissable: true,
-                        stack: e.stack,
+                        stack: err.stack,
                     });
             }
         }

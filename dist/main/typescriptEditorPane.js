@@ -180,8 +180,9 @@ class TypescriptEditorPane {
             this.opts.statusPanel.update({ buildStatus: { success: true } });
         }
         catch (error) {
-            console.error("Save failed with error", error);
-            this.opts.statusPanel.update({ buildStatus: { success: false, message: error.message } });
+            const e = error;
+            console.error("Save failed with error", e);
+            this.opts.statusPanel.update({ buildStatus: { success: false, message: e.message } });
         }
     }
 }
