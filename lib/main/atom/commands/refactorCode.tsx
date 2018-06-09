@@ -28,19 +28,17 @@ addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
       return
     }
     const selection = editor.getSelectedBufferRange()
-    if (selection.isEmpty()) {
-      e.abortKeyBinding()
-      return
-    }
     const client = await deps.getClient(location.file)
 
-    const fileRange: protocol.FileRangeRequestArgs = {
-      file: location.file,
-      startLine: selection.start.row + 1,
-      startOffset: selection.start.column + 1,
-      endLine: selection.end.row + 1,
-      endOffset: selection.end.column + 1,
-    }
+    const fileRange: protocol.FileLocationOrRangeRequestArgs = selection.isEmpty()
+      ? location
+      : {
+          file: location.file,
+          startLine: selection.start.row + 1,
+          startOffset: selection.start.column + 1,
+          endLine: selection.end.row + 1,
+          endOffset: selection.end.column + 1,
+        }
 
     const actions = await getApplicableRefactorsActions(client, fileRange)
 
@@ -71,9 +69,9 @@ addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
 
 async function getApplicableRefactorsActions(
   client: TypescriptServiceClient,
-  range: protocol.FileRangeRequestArgs,
+  pointOrRange: protocol.FileLocationOrRangeRequestArgs,
 ) {
-  const responseApplicable = await getApplicabeRefactors(client, range)
+  const responseApplicable = await getApplicabeRefactors(client, pointOrRange)
   if (!responseApplicable) return []
   if (responseApplicable.body === undefined || responseApplicable.body.length === 0) {
     return []
@@ -97,10 +95,10 @@ async function getApplicableRefactorsActions(
 
 async function getApplicabeRefactors(
   client: TypescriptServiceClient,
-  range: protocol.FileRangeRequestArgs,
+  pointOrRange: protocol.FileLocationOrRangeRequestArgs,
 ) {
   try {
-    return await client.execute("getApplicableRefactors", range)
+    return await client.execute("getApplicableRefactors", pointOrRange)
   } catch {
     return undefined
   }
@@ -108,7 +106,7 @@ async function getApplicabeRefactors(
 
 async function applyRefactors(
   selectedAction: RefactorAction,
-  range: protocol.FileRangeRequestArgs,
+  range: protocol.FileLocationOrRangeRequestArgs,
   client: TypescriptServiceClient,
   deps: Dependencies,
 ) {
