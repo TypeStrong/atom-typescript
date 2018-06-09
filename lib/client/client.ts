@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 import * as protocol from "typescript/lib/protocol"
-import {CommandArgResponseMap} from "./commandArgsResponseMap"
+import {CommandArgResponseMap, CommandArg, CommandRes} from "./commandArgsResponseMap"
 import {BufferedNodeProcess, BufferedProcess, Emitter} from "atom"
 import {Callbacks} from "./callbacks"
 import {ChildProcess} from "child_process"
@@ -12,7 +12,7 @@ import {EventTypes} from "./events"
 const INSPECT_TSSERVER = false
 
 type CommandArgResponseKeysWithArgs = {
-  [K in keyof CommandArgResponseMap]: CommandArgResponseMap[K]["res"] extends void ? never : K
+  [K in keyof CommandArgResponseMap]: CommandRes<K> extends void ? never : K
 }[keyof CommandArgResponseMap]
 
 const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: true} = {
@@ -35,6 +35,7 @@ const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: t
   navto: true,
   getApplicableRefactors: true,
   getEditsForRefactor: true,
+  ping: true,
 }
 
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
@@ -57,18 +58,13 @@ export class TypescriptServiceClient {
 
   public async execute<T extends keyof CommandArgResponseMap>(
     command: T,
-    args: CommandArgResponseMap[T]["args"],
-  ): Promise<CommandArgResponseMap[T]["res"]> {
+    args: CommandArg<T>,
+  ): Promise<CommandRes<T>> {
     if (!this.running) {
       throw new Error("Server is not running")
     }
 
-    return this.sendRequest(
-      await this.serverPromise,
-      command,
-      args,
-      commandWithResponse.has(command),
-    )
+    return this.sendRequest(await this.serverPromise, command, args)
   }
 
   public on<T extends keyof EventTypes>(name: T, listener: (result: EventTypes[T]) => void) {
@@ -102,7 +98,7 @@ export class TypescriptServiceClient {
         console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()))
       })
 
-      this.sendRequest(cp, "ping", undefined, true).then(() => resolve(cp), () => resolve(cp))
+      this.sendRequest(cp, "ping", undefined).then(() => resolve(cp), () => resolve(cp))
     })
   }
 
@@ -171,10 +167,10 @@ export class TypescriptServiceClient {
 
   private async sendRequest<T extends keyof CommandArgResponseMap>(
     cp: ChildProcess,
-    command: string,
-    args: CommandArgResponseMap[T]["args"],
-    expectResponse: boolean,
-  ): Promise<CommandArgResponseMap[T]["res"]> {
+    command: T,
+    args: CommandArg<T>,
+  ): Promise<CommandRes<T>> {
+    const expectResponse = commandWithResponse.has(command)
     const req = {
       seq: this.seq++,
       command,
@@ -199,7 +195,9 @@ export class TypescriptServiceClient {
     })
 
     if (expectResponse) {
-      return this.callbacks.add(req.seq, command)
+      return this.callbacks.add(req.seq, command) as CommandRes<T>
+    } else {
+      return undefined as CommandRes<T>
     }
   }
 }

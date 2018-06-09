@@ -26,6 +26,7 @@ const commandWithResponseMap = {
     navto: true,
     getApplicableRefactors: true,
     getEditsForRefactor: true,
+    ping: true,
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 class TypescriptServiceClient {
@@ -70,7 +71,7 @@ class TypescriptServiceClient {
         if (!this.running) {
             throw new Error("Server is not running");
         }
-        return this.sendRequest(await this.serverPromise, command, args, commandWithResponse.has(command));
+        return this.sendRequest(await this.serverPromise, command, args);
     }
     on(name, listener) {
         return this.emitter.on(name, listener);
@@ -99,7 +100,7 @@ class TypescriptServiceClient {
             cp.stderr.on("data", data => {
                 console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()));
             });
-            this.sendRequest(cp, "ping", undefined, true).then(() => resolve(cp), () => resolve(cp));
+            this.sendRequest(cp, "ping", undefined).then(() => resolve(cp), () => resolve(cp));
         });
     }
     onResponse(res) {
@@ -127,7 +128,8 @@ class TypescriptServiceClient {
         if (res.body)
             this.emitter.emit(res.event, res.body);
     }
-    async sendRequest(cp, command, args, expectResponse) {
+    async sendRequest(cp, command, args) {
+        const expectResponse = commandWithResponse.has(command);
         const req = {
             seq: this.seq++,
             command,
@@ -152,6 +154,9 @@ class TypescriptServiceClient {
         });
         if (expectResponse) {
             return this.callbacks.add(req.seq, command);
+        }
+        else {
+            return undefined;
         }
     }
 }
