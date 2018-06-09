@@ -1,3 +1,8 @@
+## 12.5.2
+
+-   Allow refactors for empty selection
+-   Clean-up client code a bit
+
 ## 12.5.1
 
 ### Fixes
