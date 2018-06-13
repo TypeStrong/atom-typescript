@@ -1,3 +1,8 @@
+## 12.5.3
+
+-   Configurable tooltip delay
+-   Removed unneeded tooltip delay
+
 ## 12.5.2
 
 -   Allow refactors for empty selection
