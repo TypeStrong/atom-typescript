@@ -134,7 +134,6 @@ export class TooltipManager {
     }
 
     const msg = await this.getMessage(bufferPt)
-    await new Promise(resolve => setTimeout(resolve, 1000))
     if (cancelled) return
     if (msg !== undefined) this.showTooltip(tooltipRect, msg)
   }
@@ -204,6 +203,9 @@ export class TooltipManager {
     this.lastExprTypeBufferPt = bufferPt
 
     this.clearExprTypeTimeout()
-    this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(e), 100)
+    this.exprTypeTimeout = window.setTimeout(
+      () => this.showExpressionType(e),
+      atom.config.get("atom-typescript.tooltipDelay"),
+    )
   }
 }

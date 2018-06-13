@@ -7,12 +7,14 @@ declare module "atom" {
     "atom-typescript.locale": string
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
+    "atom-typescript.tooltipDelay": number
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
       locale: string
       buildStatusTimeout: number
       showSemanticView: boolean
+      tooltipDelay: number
     }
   }
 }

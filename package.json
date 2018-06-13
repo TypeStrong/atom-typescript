@@ -54,6 +54,12 @@
       "description": "Show semantic view (outline) for typescript content",
       "type": "boolean",
       "default": false
+    },
+    "tooltipDelay": {
+      "title": "Type tooltip delay",
+      "description": "Delay before type tooltip is shown on mouse hover in milliseconds",
+      "type": "integer",
+      "default": 100
     }
   },
   "deserializers": {

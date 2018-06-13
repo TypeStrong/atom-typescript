@@ -66,7 +66,7 @@ class TooltipManager {
             }
             this.lastExprTypeBufferPt = bufferPt;
             this.clearExprTypeTimeout();
-            this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(e), 100);
+            this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(e), atom.config.get("atom-typescript.tooltipDelay"));
         };
         this.rawView = atom.views.getView(editor);
         this.lines = this.rawView.querySelector(".lines");
@@ -121,7 +121,6 @@ class TooltipManager {
             bottom: e.clientY + offset,
         };
         const msg = await this.getMessage(bufferPt);
-        await new Promise(resolve => setTimeout(resolve, 1000));
         if (cancelled)
             return;
         if (msg !== undefined)
