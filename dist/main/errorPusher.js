@@ -55,9 +55,11 @@ class ErrorPusher {
         for (const fileErrors of this.errors.values()) {
             for (const [filePath, diagnostics] of fileErrors) {
                 for (const diagnostic of diagnostics) {
-                    if (atom.config.get("atom-typescript.ignoredDiagnosticCodes").includes(`${diagnostic.code}`)) {
+                    const config = atom.config.get("atom-typescript");
+                    if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
                         continue;
-                    }
+                    if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
+                        continue;
                     // Add a bit of extra validation that we have the necessary locations since linter v2
                     // does not allow range-less messages anymore. This happens with configFileDiagnostics.
                     let { start, end } = diagnostic;

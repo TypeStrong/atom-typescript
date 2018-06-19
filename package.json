@@ -68,6 +68,12 @@
       "items": {
         "type": "string"
       }
+    },
+    "ignoreUnusedSuggestionDiagnostics": {
+      "title": "Ignore 'unused parameter/variable/etc' suggestion diagnostics",
+      "description": "When `noUnusedLocals` etc are disabled, TypeScript 2.9 and above still report this as 'suggestions'. This option will filter these out",
+      "type": "boolean",
+      "default": "false"
     }
   },
   "deserializers": {

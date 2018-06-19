@@ -9,6 +9,7 @@ declare module "atom" {
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
     "atom-typescript.ignoredDiagnosticCodes": string[]
+    "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
@@ -17,6 +18,7 @@ declare module "atom" {
       showSemanticView: boolean
       tooltipDelay: number
       ignoredDiagnosticCodes: string[]
+      ignoreUnusedSuggestionDiagnostics: boolean
     }
   }
 }
