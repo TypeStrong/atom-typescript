@@ -70,9 +70,7 @@ export class ErrorPusher {
       for (const [filePath, diagnostics] of fileErrors) {
         for (const diagnostic of diagnostics) {
           if (
-            atom.config
-              .get("atom-typescript.ignoredDiagnosticCodes")
-              .includes(diagnostic.code as number)
+            atom.config.get("atom-typescript.ignoredDiagnosticCodes").includes(`${diagnostic.code}`)
           ) {
             continue
           }

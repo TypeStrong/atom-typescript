@@ -55,9 +55,7 @@ class ErrorPusher {
         for (const fileErrors of this.errors.values()) {
             for (const [filePath, diagnostics] of fileErrors) {
                 for (const diagnostic of diagnostics) {
-                    if (atom.config
-                        .get("atom-typescript.ignoredDiagnosticCodes")
-                        .includes(diagnostic.code)) {
+                    if (atom.config.get("atom-typescript.ignoredDiagnosticCodes").includes(`${diagnostic.code}`)) {
                         continue;
                     }
                     // Add a bit of extra validation that we have the necessary locations since linter v2

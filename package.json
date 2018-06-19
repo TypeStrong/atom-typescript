@@ -66,9 +66,8 @@
       "description": "List of diagnostic codes to ignore, comma-separated. Refer to [diagnosticMessages.json](https://github.com/Microsoft/TypeScript/blob/master/src/compiler/diagnosticMessages.json) for diagnostic codes",
       "type": "array",
       "items": {
-        "type": "integer"
-      },
-      "default": []
+        "type": "string"
+      }
     }
   },
   "deserializers": {

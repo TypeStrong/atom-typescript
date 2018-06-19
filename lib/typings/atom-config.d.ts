@@ -8,7 +8,7 @@ declare module "atom" {
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
-    "atom-typescript.ignoredDiagnosticCodes": number[]
+    "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
@@ -16,7 +16,7 @@ declare module "atom" {
       buildStatusTimeout: number
       showSemanticView: boolean
       tooltipDelay: number
-      ignoredDiagnosticCodes: number[]
+      ignoredDiagnosticCodes: string[]
     }
   }
 }
