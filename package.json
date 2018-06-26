@@ -82,6 +82,13 @@
       "type": "boolean",
       "default": "false",
       "order": 100
+    },
+    "suppressAllDiagnostics": {
+      "title": "Suppress all diagnostics",
+      "description": "The package will not report any problems with TypeScript. Use only if you know what you are doing",
+      "type": "boolean",
+      "default": "false",
+      "order": 120
     }
   },
   "deserializers": {

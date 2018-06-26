@@ -10,6 +10,7 @@ declare module "atom" {
     "atom-typescript.tooltipDelay": number
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
+    "atom-typescript.suppressAllDiagnostics": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
@@ -19,6 +20,7 @@ declare module "atom" {
       tooltipDelay: number
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
+      suppressAllDiagnostics: boolean
     }
   }
 }
