@@ -1,19 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
-const utils_1 = require("../utils");
 registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
     description: "Compile all files in project related to current active text editor",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
+    async didDispatch(editor) {
+        const file = editor.getPath();
+        if (file === undefined)
             return;
-        }
-        const fpp = utils_1.getFilePathPosition(e.currentTarget.getModel());
-        if (!fpp) {
-            e.abortKeyBinding();
-            return;
-        }
-        const { file } = fpp;
         const client = await deps.getClient(file);
         const projectInfo = await client.execute("projectInfo", {
             file,

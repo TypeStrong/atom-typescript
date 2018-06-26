@@ -7,16 +7,10 @@ const etch = require("etch");
 const highlightComponent_1 = require("../views/highlightComponent");
 registry_1.addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
     description: "Go to declaration of symbol under text cursor",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
-            return;
-        }
-        const editor = e.currentTarget.getModel();
+    async didDispatch(editor) {
         const location = utils_1.getFilePathPosition(editor);
-        if (!location) {
-            e.abortKeyBinding();
+        if (!location)
             return;
-        }
         const client = await deps.getClient(location.file);
         const result = await client.execute("definition", location);
         handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager());

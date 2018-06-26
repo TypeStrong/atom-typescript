@@ -24,7 +24,7 @@ export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
   return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor)
 }
 
-function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
+export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   const [scopeName] = editor.getRootScopeDescriptor().getScopesArray()
   return typeScriptScopes().includes(scopeName)
 }
@@ -37,16 +37,5 @@ export function getFilePathPosition(editor: Atom.TextEditor): FileLocationQuery 
   const file = editor.getPath()
   if (file !== undefined) {
     return {file, ...getEditorPosition(editor)}
-  }
-}
-
-/** Utility functions for commands */
-export function commandForTypeScript(e: Atom.CommandEvent<Atom.TextEditorElement>) {
-  const editor = e.currentTarget.getModel()
-  if (isTypescriptEditorWithPath(editor)) {
-    return true
-  } else {
-    e.abortKeyBinding()
-    return false
   }
 }

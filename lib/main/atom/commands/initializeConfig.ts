@@ -1,50 +1,24 @@
 import {addCommand} from "./registry"
 import {resolveBinary} from "../../../client/clientResolver"
 import {BufferedNodeProcess} from "atom"
-import {CommandEvent, TextEditorElement} from "atom"
 
 addCommand("atom-text-editor", "typescript:initialize-config", () => ({
   description: "Create tsconfig.json in the project related to currently-active text edtior",
-  async didDispatch(e: CommandEvent<TextEditorElement>) {
-    try {
-      const editor = e.currentTarget.getModel()
+  async didDispatch(editor, abort) {
+    const projectDirs = atom.project.getDirectories()
+    if (projectDirs.length === 0) return abort()
 
-      const projectDirs = atom.project.getDirectories()
-      if (projectDirs.length === 0) throw new Error("ENOPROJECT")
+    const currentPath = editor.getPath()
+    if (currentPath === undefined) return
 
-      const currentPath = editor.getPath()
-      if (currentPath === undefined) throw new Error("ENOPATH")
+    const pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
 
-      const pathToTsc = (await resolveBinary(currentPath, "tsc")).pathToBin
-
-      for (const projectDir of projectDirs) {
-        if (projectDir.contains(currentPath)) {
-          await initConfig(pathToTsc, projectDir.getPath())
-          atom.notifications.addSuccess(
-            `Successfully created tsconfig.json in ${projectDir.getPath()}`,
-          )
-        }
-      }
-    } catch (error) {
-      const err = error as Error
-      switch (err.message) {
-        case "ENOPROJECT":
-          e.abortKeyBinding()
-          return
-        case "ENOPATH":
-          atom.notifications.addWarning(
-            "Current editor has no file path. Can not determine which project to initialize",
-            {
-              dismissable: true,
-            },
-          )
-          return
-        default:
-          atom.notifications.addFatalError("Something went wrong, see details below.", {
-            detail: err.message,
-            dismissable: true,
-            stack: err.stack,
-          })
+    for (const projectDir of projectDirs) {
+      if (projectDir.contains(currentPath)) {
+        await initConfig(pathToTsc, projectDir.getPath())
+        atom.notifications.addSuccess(
+          `Successfully created tsconfig.json in ${projectDir.getPath()}`,
+        )
       }
     }
   },

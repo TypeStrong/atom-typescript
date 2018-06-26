@@ -1,17 +1,10 @@
-import {commandForTypeScript} from "../utils"
 import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:organize-imports", deps => ({
   description: "Organize module imports",
-  async didDispatch(e) {
-    if (!commandForTypeScript(e)) return
-
-    const editor = e.currentTarget.getModel()
+  async didDispatch(editor) {
     const filePath = editor.getPath()
-    if (filePath === undefined) {
-      e.abortKeyBinding()
-      return
-    }
+    if (filePath === undefined) return
 
     const client = await deps.getClient(filePath)
     const result = await client.execute("organizeImports", {

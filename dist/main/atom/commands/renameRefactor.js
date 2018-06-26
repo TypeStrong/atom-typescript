@@ -5,15 +5,10 @@ const utils_1 = require("../utils");
 const renameView_1 = require("../views/renameView");
 registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
     description: "Rename symbol under text cursor everywhere it is used",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
+    async didDispatch(editor) {
+        const location = utils_1.getFilePathPosition(editor);
+        if (!location)
             return;
-        }
-        const location = utils_1.getFilePathPosition(e.currentTarget.getModel());
-        if (!location) {
-            e.abortKeyBinding();
-            return;
-        }
         const client = await deps.getClient(location.file);
         const response = await client.execute("rename", location);
         const { info, locs } = response.body;
