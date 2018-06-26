@@ -74,6 +74,7 @@
       "items": {
         "type": "string"
       },
+      "default": [],
       "order": 80
     },
     "ignoreUnusedSuggestionDiagnostics": {
