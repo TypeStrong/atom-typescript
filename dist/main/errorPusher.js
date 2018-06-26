@@ -52,24 +52,30 @@ class ErrorPusher {
     }
     pushErrors() {
         const errors = [];
-        for (const fileErrors of this.errors.values()) {
-            for (const [filePath, diagnostics] of fileErrors) {
-                for (const diagnostic of diagnostics) {
-                    // Add a bit of extra validation that we have the necessary locations since linter v2
-                    // does not allow range-less messages anymore. This happens with configFileDiagnostics.
-                    let { start, end } = diagnostic;
-                    // tslint:disable-next-line: strict-boolean-expressions
-                    if (!start || !end) {
-                        start = end = { line: 1, offset: 1 };
+        const config = atom.config.get("atom-typescript");
+        if (!config.suppressAllDiagnostics) {
+            for (const fileErrors of this.errors.values()) {
+                for (const [filePath, diagnostics] of fileErrors) {
+                    for (const diagnostic of diagnostics) {
+                        if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
+                            continue;
+                        if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
+                            continue;
+                        // Add a bit of extra validation that we have the necessary locations since linter v2
+                        // does not allow range-less messages anymore. This happens with configFileDiagnostics.
+                        let { start, end } = diagnostic;
+                        if (!start || !end) {
+                            start = end = { line: 1, offset: 1 };
+                        }
+                        errors.push({
+                            severity: this.getSeverity(diagnostic),
+                            excerpt: diagnostic.text,
+                            location: {
+                                file: filePath,
+                                position: utils_1.locationsToRange(start, end),
+                            },
+                        });
                     }
-                    errors.push({
-                        severity: this.getSeverity(diagnostic),
-                        excerpt: diagnostic.text,
-                        location: {
-                            file: filePath,
-                            position: utils_1.locationsToRange(start, end),
-                        },
-                    });
                 }
             }
         }

@@ -22,7 +22,7 @@
     "test": "npm run typecheck && npm run lint && npm run prettier-check"
   },
   "engines": {
-    "atom": ">=1.25.0 <2.0.0",
+    "atom": ">=1.27.0 <2.0.0",
     "node": "*"
   },
   "configSchema": {
@@ -30,36 +30,65 @@
       "title": "Show unused values with severity info",
       "description": "Show unused values with severity 'info' instead of 'error'",
       "type": "boolean",
-      "default": true
+      "default": true,
+      "order": 90
     },
     "autocompletionSuggestionPriority": {
       "description": "Snippets etc have priority of 1. Requires Atom restart",
       "type": "integer",
-      "default": 3
+      "default": 3,
+      "order": 20
     },
     "locale": {
       "title": "TypeScript locale",
       "description": "Use this locale for TypeScript messages (e.g. 'de'). Requires Atom restart",
       "type": "string",
-      "default": "en"
+      "default": "en",
+      "order": 50
     },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
       "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
       "type": "number",
-      "default": "10"
+      "default": "10",
+      "order": 60
     },
     "showSemanticView": {
       "title": "Show semantic view",
       "description": "Show semantic view (outline) for typescript content",
       "type": "boolean",
-      "default": false
+      "default": false,
+      "order": 70
     },
     "tooltipDelay": {
       "title": "Type tooltip delay",
       "description": "Delay before type tooltip is shown on mouse hover in milliseconds",
       "type": "integer",
-      "default": 100
+      "default": 100,
+      "order": 60
+    },
+    "ignoredDiagnosticCodes": {
+      "title": "Ignore diagnostics",
+      "description": "List of diagnostic codes to ignore, comma-separated. Refer to [diagnosticMessages.json](https://github.com/Microsoft/TypeScript/blob/master/src/compiler/diagnosticMessages.json) for diagnostic codes",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "order": 80
+    },
+    "ignoreUnusedSuggestionDiagnostics": {
+      "title": "Ignore 'unused parameter/variable/etc' suggestion diagnostics",
+      "description": "When `noUnusedLocals` etc are disabled, TypeScript 2.9 and above still report this as 'suggestions'. This option will filter these out",
+      "type": "boolean",
+      "default": "false",
+      "order": 100
+    },
+    "suppressAllDiagnostics": {
+      "title": "Suppress all diagnostics",
+      "description": "The package will not report any problems with TypeScript. Use only if you know what you are doing",
+      "type": "boolean",
+      "default": "false",
+      "order": 120
     }
   },
   "deserializers": {
@@ -120,10 +149,10 @@
     "resolve": "1.6.0",
     "tsconfig": "^7.0.0",
     "tslib": "^1.9.0",
-    "typescript": "~2.8.1"
+    "typescript": "~2.9.2"
   },
   "devDependencies": {
-    "@types/atom": "~1.25",
+    "@types/atom": "~1.27",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.1.2",
     "@types/cson": "^0.0.31",
