@@ -1,3 +1,30 @@
+## 12.6.0
+
+### New features
+
+-   Added `typescript:organize-imports` command (needs recent enough TypeScript)
+
+-   Added option for suppressing all diagnostics
+
+-   Added an option to ignore unused\* suggestion diagnostics specifically
+
+    See [#1433](https://github.com/TypeStrong/atom-typescript/issues/1433)
+    for context.
+
+    Long story short, TypeScript 2.9 will report unused locals/parameters/etc
+    regardless of tsconfig settings, just with different severity. This option
+    lets you disable those lower-serverity diagnostics specifically.
+
+### Changes
+
+-   Updated dependencies. In particular, bundled TypeScript version bumped to
+    v2.9.2
+
+### Maintenence
+
+-   Refactored commands code
+-   Added order to settings
+
 ## 12.5.3
 
 -   Configurable tooltip delay
