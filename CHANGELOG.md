@@ -1,3 +1,7 @@
+## 12.6.1
+
+-   Fix [#1437](https://github.com/TypeStrong/atom-typescript/issues/1437)
+
 ## 12.6.0
 
 ### New features
