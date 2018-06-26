@@ -15,6 +15,7 @@ import "./initializeConfig"
 import "./semanticView"
 import "./symbolsView"
 import "./refactorCode"
+import "./organizeImports"
 
 export function registerCommands(deps: Dependencies) {
   const disp = new CompositeDisposable()
