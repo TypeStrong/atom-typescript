@@ -16,29 +16,44 @@ export interface Dependencies {
   getEditorPositionHistoryManager(): EditorPositionHistoryManager
 }
 
-export type AllowedSelectors = "atom-text-editor" | "atom-workspace"
+export type AllowedSelectors = keyof Dispatch
 
-export type CommandDescription<Selector extends AllowedSelectors> = (
-  deps: Dependencies,
-) => Atom.CommandRegistryListener<Atom.CommandRegistryTargetMap[Selector]>
+export interface Dispatch {
+  "atom-text-editor": (editor: Atom.TextEditor, abort: () => void) => void | Promise<void>
+  "atom-workspace": () => void | Promise<void>
+}
 
-export interface CommandDescriptionWithSelector<Selector extends AllowedSelectors> {
-  selector: Selector
-  command: string
-  desc: CommandDescription<Selector>
+export type CommandDescription = {
+  [Selector in AllowedSelectors]: (deps: Dependencies) => CommandData[Selector]
+}
+
+export type CommandData = {
+  [Selector in AllowedSelectors]: {
+    didDispatch: Dispatch[Selector]
+    description: string
+    displayName?: string
+  }
+}
+
+export type CommandDescriptionWithSelector = {
+  [Selector in AllowedSelectors]: {
+    selector: Selector
+    command: string
+    desc: CommandDescription[Selector]
+  }
 }
 
 // To allow using dependency injection, but avoid having to type a lot of boilerplate, we have the
 // individual command files register themselves in the below map. When the package is initializing,
 // the constructors are passed the deps and return the actual commands handlers.
-const commands: Array<CommandDescriptionWithSelector<AllowedSelectors>> = []
+const commands: Array<CommandDescriptionWithSelector[AllowedSelectors]> = []
 
 export function addCommand<Selector extends AllowedSelectors>(
   selector: Selector,
   command: string,
-  desc: CommandDescription<Selector>,
+  desc: CommandDescription[Selector],
 ) {
-  commands.push({selector, command, desc})
+  commands.push({selector, command, desc} as CommandDescriptionWithSelector[Selector])
 }
 
 export function getCommands() {

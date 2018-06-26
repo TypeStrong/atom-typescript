@@ -7,16 +7,10 @@ const etch = require("etch");
 const highlightComponent_1 = require("../views/highlightComponent");
 registry_1.addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
     description: "Get a list of applicable refactors to selected code",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
-            return;
-        }
-        const editor = e.currentTarget.getModel();
+    async didDispatch(editor) {
         const location = utils_1.getFilePathPosition(editor);
-        if (!location) {
-            e.abortKeyBinding();
+        if (!location)
             return;
-        }
         const selection = editor.getSelectedBufferRange();
         const client = await deps.getClient(location.file);
         const fileRange = selection.isEmpty()

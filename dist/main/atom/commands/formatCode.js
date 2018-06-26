@@ -4,16 +4,10 @@ const registry_1 = require("./registry");
 const utils_1 = require("../utils");
 registry_1.addCommand("atom-text-editor", "typescript:format-code", deps => ({
     description: "Format code in currently active text editor",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
-            return;
-        }
-        const editor = e.currentTarget.getModel();
+    async didDispatch(editor) {
         const filePath = editor.getPath();
-        if (filePath === undefined) {
-            e.abortKeyBinding();
+        if (filePath === undefined)
             return;
-        }
         const ranges = [];
         for (const selection of editor.getSelectedBufferRanges()) {
             if (!selection.isEmpty()) {

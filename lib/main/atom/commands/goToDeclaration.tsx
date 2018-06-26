@@ -1,5 +1,5 @@
 import {addCommand} from "./registry"
-import {commandForTypeScript, getFilePathPosition} from "../utils"
+import {getFilePathPosition} from "../utils"
 import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {HighlightComponent} from "../views/highlightComponent"
@@ -8,16 +8,10 @@ import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 
 addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
   description: "Go to declaration of symbol under text cursor",
-  async didDispatch(e) {
-    if (!commandForTypeScript(e)) {
-      return
-    }
-    const editor = e.currentTarget.getModel()
+  async didDispatch(editor) {
     const location = getFilePathPosition(editor)
-    if (!location) {
-      e.abortKeyBinding()
-      return
-    }
+    if (!location) return
+
     const client = await deps.getClient(location.file)
     const result = await client.execute("definition", location)
     handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager())

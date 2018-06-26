@@ -9,8 +9,7 @@ registry_1.addCommand("atom-workspace", "typescript:clear-errors", deps => ({
 }));
 registry_1.addCommand("atom-text-editor", "typescript:reload-projects", deps => ({
     description: "Reload projects",
-    async didDispatch(e) {
-        const editor = e.currentTarget.getModel();
+    async didDispatch(editor) {
         const path = editor.getPath();
         if (path === undefined)
             return;

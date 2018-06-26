@@ -27,6 +27,7 @@ function isTypescriptGrammar(editor) {
     const [scopeName] = editor.getRootScopeDescriptor().getScopesArray();
     return typeScriptScopes().includes(scopeName);
 }
+exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {
     return [".ts", ".tst", ".tsx"].includes(ext);
 }
@@ -37,16 +38,4 @@ function getFilePathPosition(editor) {
     }
 }
 exports.getFilePathPosition = getFilePathPosition;
-/** Utility functions for commands */
-function commandForTypeScript(e) {
-    const editor = e.currentTarget.getModel();
-    if (isTypescriptEditorWithPath(editor)) {
-        return true;
-    }
-    else {
-        e.abortKeyBinding();
-        return false;
-    }
-}
-exports.commandForTypeScript = commandForTypeScript;
 //# sourceMappingURL=atom.js.map

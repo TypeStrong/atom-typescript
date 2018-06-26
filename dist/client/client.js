@@ -27,6 +27,7 @@ const commandWithResponseMap = {
     getApplicableRefactors: true,
     getEditsForRefactor: true,
     ping: true,
+    organizeImports: true,
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 class TypescriptServiceClient {

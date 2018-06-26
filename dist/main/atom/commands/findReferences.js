@@ -8,16 +8,10 @@ const tsView_1 = require("../components/tsView");
 const highlightComponent_1 = require("../views/highlightComponent");
 registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
     description: "Find where symbol under text cursor is referenced",
-    async didDispatch(e) {
-        if (!utils_1.commandForTypeScript(e)) {
-            return;
-        }
-        const editor = e.currentTarget.getModel();
+    async didDispatch(editor) {
         const location = utils_1.getFilePathPosition(editor);
-        if (!location) {
-            e.abortKeyBinding();
+        if (!location)
             return;
-        }
         const client = await deps.getClient(location.file);
         const result = await client.execute("references", location);
         const res = await simpleSelectionView_1.selectListView({
