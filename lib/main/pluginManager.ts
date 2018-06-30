@@ -17,6 +17,7 @@ import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {State} from "./packageState"
 import {TextSpan, spanToRange} from "./atom/utils"
+import * as path from "path"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -158,11 +159,12 @@ export class PluginManager {
   public getStatusPanel = () => this.statusPanel
 
   public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
-    const pane = this.panes.find(p => p.buffer.getPath() === filePath)
+    const normalizedFilePath = path.normalize(filePath)
+    const pane = this.panes.find(p => p.buffer.getPath() === normalizedFilePath)
     if (pane) return action(pane.buffer)
 
     // no open buffer
-    const buffer = await Atom.TextBuffer.load(filePath)
+    const buffer = await Atom.TextBuffer.load(normalizedFilePath)
     try {
       const tsbuffer = TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp))
       return await action(tsbuffer)

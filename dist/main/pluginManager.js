@@ -16,6 +16,7 @@ const semanticViewController_1 = require("./atom/views/outline/semanticViewContr
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 const utils_1 = require("./atom/utils");
+const path = require("path");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
@@ -31,11 +32,12 @@ class PluginManager {
         };
         this.getStatusPanel = () => this.statusPanel;
         this.withTypescriptBuffer = async (filePath, action) => {
-            const pane = this.panes.find(p => p.buffer.getPath() === filePath);
+            const normalizedFilePath = path.normalize(filePath);
+            const pane = this.panes.find(p => p.buffer.getPath() === normalizedFilePath);
             if (pane)
                 return action(pane.buffer);
             // no open buffer
-            const buffer = await Atom.TextBuffer.load(filePath);
+            const buffer = await Atom.TextBuffer.load(normalizedFilePath);
             try {
                 const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp));
                 return await action(tsbuffer);
