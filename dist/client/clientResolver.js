@@ -13,7 +13,7 @@ class ClientResolver {
         this.clients = new Map();
         this.emitter = new atom_1.Emitter();
     }
-    // This is just here so Typescript can infer the types of the callbacks when using "on" method
+    // This is just here so TypeScript can infer the types of the callbacks when using "on" method
     on(event, callback) {
         return this.emitter.on(event, callback);
     }

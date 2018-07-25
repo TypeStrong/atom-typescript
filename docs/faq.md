@@ -22,12 +22,12 @@ reasons. You can manually tell it to refresh by running
 
 Your current version installed in your `node_modules`. This gets
 determined once per open file so you might want to re-open your panes,
-if you've updated Typescript in your project.
+if you've updated TypeScript in your project.
 
-## Atom Typescript is complaining about not finding files or other weird errors
+## Atom TypeScript is complaining about not finding files or other weird errors
 
 You probably deleted them or added them or moved them around. The
-Typescript compiler is decent about keeping track of moving files, but
+TypeScript compiler is decent about keeping track of moving files, but
 sometimes things can go out of sync and in that case it's best to simply
 reset the editor using `Window: Reload` command.
 

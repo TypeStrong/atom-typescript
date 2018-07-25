@@ -94,7 +94,7 @@ export class PluginManager {
 
   public consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
     const linter = register({
-      name: "Typescript",
+      name: "TypeScript",
     })
 
     this.errorPusher.setLinter(linter)

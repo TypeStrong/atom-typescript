@@ -91,7 +91,7 @@ class PluginManager {
     }
     consumeLinter(register) {
         const linter = register({
-            name: "Typescript",
+            name: "TypeScript",
         });
         this.errorPusher.setLinter(linter);
         this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
