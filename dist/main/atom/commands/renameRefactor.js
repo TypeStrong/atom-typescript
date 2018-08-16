@@ -33,9 +33,22 @@ registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => 
         if (newName !== undefined) {
             await deps.applyEdits(locs.map(span => ({
                 fileName: span.file,
-                textChanges: span.locs.map(loc => (Object.assign({}, loc, { newText: newName }))),
-            })), false);
+                textChanges: span.locs
+                    .map(loc => (Object.assign({}, loc, { newText: newName })))
+                    .sort(spanComparer),
+            })));
         }
     },
 }));
+const spanComparer = (a, b) => {
+    if (a.start.line !== b.start.line)
+        return a.start.line - b.start.line;
+    if (a.start.offset !== b.start.offset)
+        return a.start.offset - b.start.offset;
+    if (a.end.line !== b.end.line)
+        return a.end.line - b.end.line;
+    if (a.end.offset !== b.end.offset)
+        return a.end.offset - b.end.offset;
+    return 0;
+};
 //# sourceMappingURL=renameRefactor.js.map
