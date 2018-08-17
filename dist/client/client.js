@@ -49,7 +49,7 @@ class TypescriptServiceClient {
                 if (this.lastStderrOutput) {
                     detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`;
                 }
-                atom.notifications.addError("Typescript quit unexpectedly", {
+                atom.notifications.addError("TypeScript quit unexpectedly", {
                     detail,
                     stack: err.stack,
                     dismissable: true,

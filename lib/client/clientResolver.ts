@@ -40,7 +40,7 @@ export class ClientResolver {
   public clients = new Map<string, ClientRec>()
   private emitter = new Emitter<{}, EventTypes>()
 
-  // This is just here so Typescript can infer the types of the callbacks when using "on" method
+  // This is just here so TypeScript can infer the types of the callbacks when using "on" method
   public on<T extends keyof EventTypes>(event: T, callback: (result: EventTypes[T]) => void) {
     return this.emitter.on(event, callback)
   }

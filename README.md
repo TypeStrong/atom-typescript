@@ -103,15 +103,15 @@ point](https://raw.githubusercontent.com/TypeStrong/atom-typescript/master/docs/
 
 ## Compile on save
 
-When `"compileOnSave": true` is set in `tsconfig.json`, Typescript files
+When `"compileOnSave": true` is set in `tsconfig.json`, TypeScript files
 will be compiled and saved automatically. The compiler does its best to
 emit something, even if there are semantic errors in the file.
 
 ## Project Support
 
-`atom-typescript` supports all the same options the Typescript compiler
+`atom-typescript` supports all the same options the TypeScript compiler
 does as it's using it behind the scenes to do all of the heavy lifting.
-In fact, `atom-typescript` will use the exact version of Typescript you
+In fact, `atom-typescript` will use the exact version of TypeScript you
 have installed in your `node_modules` directory.
 
 ## Format Code
