@@ -29,7 +29,13 @@ export class HighlightComponent implements JSX.ElementClass {
   }
 
   public render(): JSX.Element {
-    return <span>{this.matches.map(m => <span class={m.type}>{m.text}</span>)}</span>
+    return (
+      <span>
+        {this.matches.map(m => (
+          <span class={m.type}>{m.text}</span>
+        ))}
+      </span>
+    )
   }
 
   private match(props: Props): QueryMatch[] {

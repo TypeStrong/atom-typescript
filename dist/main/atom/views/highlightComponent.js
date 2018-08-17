@@ -17,7 +17,7 @@ class HighlightComponent {
         await etch.destroy(this);
     }
     render() {
-        return etch.dom("span", null, this.matches.map(m => etch.dom("span", { class: m.type }, m.text)));
+        return (etch.dom("span", null, this.matches.map(m => (etch.dom("span", { class: m.type }, m.text)))));
     }
     match(props) {
         if (props.query) {
