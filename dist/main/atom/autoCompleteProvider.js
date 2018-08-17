@@ -77,7 +77,8 @@ class AutocompleteProvider {
                     parts = parts.slice(3);
                 }
                 suggestion.rightLabel = parts.map(d => d.text).join("");
-                suggestion.description = detail.documentation.map(d => d.text).join(" ");
+                suggestion.description =
+                    detail.documentation && detail.documentation.map(d => d.text).join(" ");
             });
         }
     }

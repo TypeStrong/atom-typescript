@@ -140,7 +140,8 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         }
         suggestion.rightLabel = parts.map(d => d.text).join("")
 
-        suggestion.description = detail.documentation.map(d => d.text).join(" ")
+        suggestion.description =
+          detail.documentation && detail.documentation.map(d => d.text).join(" ")
       })
     }
   }

@@ -1,14 +1,5 @@
 import * as p from "typescript/lib/protocol"
 
-// Due to a bug in typings before TypeScript 3.0
-// see https://github.com/Microsoft/TypeScript/issues/24976
-interface OrganizeImportsResponse extends p.Response {
-  body: ReadonlyArray<p.FileCodeEdits>
-}
-interface GetEditsForFileRenameResponse extends Response {
-  body: ReadonlyArray<p.FileCodeEdits>
-}
-
 export interface CommandArgResponseMap {
   change: (x: p.ChangeRequestArgs) => void
   close: (x: p.FileRequestArgs) => void
@@ -39,7 +30,7 @@ export interface CommandArgResponseMap {
   ) => p.GetApplicableRefactorsResponse
   getEditsForRefactor: (x: p.GetEditsForRefactorRequestArgs) => p.GetEditsForRefactorResponse
   ping: (x: undefined) => null
-  organizeImports: (x: p.OrganizeImportsRequestArgs) => OrganizeImportsResponse
+  organizeImports: (x: p.OrganizeImportsRequestArgs) => p.OrganizeImportsResponse
 }
 
 export type ArgType<T extends (x: any) => any> = T extends (x: infer U) => any ? U : never

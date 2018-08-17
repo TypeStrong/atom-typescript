@@ -150,7 +150,7 @@
     "resolve": "^1.8.1",
     "tsconfig": "^7.0.0",
     "tslib": "^1.9.3",
-    "typescript": "~2.9.2"
+    "typescript": "~3.0.1"
   },
   "devDependencies": {
     "@types/atom": "~1.28",
