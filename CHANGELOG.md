@@ -1,3 +1,11 @@
+## 12.6.3
+
+-   Ensure text edits are always applied in reverse location order
+
+    Fixes rename-refactor on TypeScript 3.0
+
+-   Fix spelling of “TypeScript” (Jakob Krigovsky)
+
 ## 12.6.2
 
 -   Normalize file path when searching for existing typescript buffer
