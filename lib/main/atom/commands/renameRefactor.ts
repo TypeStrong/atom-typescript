@@ -1,5 +1,5 @@
 import {addCommand} from "./registry"
-import {getFilePathPosition} from "../utils"
+import {getFilePathPosition, TextSpan} from "../utils"
 import {showRenameDialog} from "../views/renameView"
 
 addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
@@ -36,10 +36,19 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
       await deps.applyEdits(
         locs.map(span => ({
           fileName: span.file,
-          textChanges: span.locs.map(loc => ({...loc, newText: newName})),
+          textChanges: span.locs
+            .map(loc => ({...loc, newText: newName}))
+            .sort(spanComparer),
         })),
-        false,
       )
     }
   },
 }))
+
+const spanComparer = (a: TextSpan, b: TextSpan) => {
+  if (a.start.line !== b.start.line) return a.start.line - b.start.line
+  if (a.start.offset !== b.start.offset) return a.start.offset - b.start.offset
+  if (a.end.line !== b.end.line) return a.end.line - b.end.line
+  if (a.end.offset !== b.end.offset) return a.end.offset - b.end.offset
+  return 0
+}
