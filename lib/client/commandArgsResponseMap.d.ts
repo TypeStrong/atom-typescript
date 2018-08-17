@@ -3,10 +3,10 @@ import * as p from "typescript/lib/protocol"
 // Due to a bug in typings before TypeScript 3.0
 // see https://github.com/Microsoft/TypeScript/issues/24976
 interface OrganizeImportsResponse extends p.Response {
-  body: ReadonlyArray<FileCodeEdits>
+  body: ReadonlyArray<p.FileCodeEdits>
 }
 interface GetEditsForFileRenameResponse extends Response {
-  body: ReadonlyArray<FileCodeEdits>
+  body: ReadonlyArray<p.FileCodeEdits>
 }
 
 export interface CommandArgResponseMap {
