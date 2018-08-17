@@ -48,11 +48,13 @@ class PluginManager {
                 buffer.destroy();
             }
         };
-        this.applyEdits = async (edits, reverse = true) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
+        this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
-                const changes = reverse ? edit.textChanges.slice().reverse() : edit.textChanges;
+                const changes = edit.textChanges
+                    .map(e => ({ range: utils_1.spanToRange(e), newText: e.newText }))
+                    .sort((a, b) => b.range.compare(a.range));
                 for (const change of changes) {
-                    buffer.buffer.setTextInRange(utils_1.spanToRange(change), change.newText);
+                    buffer.buffer.setTextInRange(change.range, change.newText);
                 }
             });
             return buffer.flush();

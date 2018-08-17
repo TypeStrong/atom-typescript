@@ -32,7 +32,7 @@ export interface Edit {
   textChanges: ReadonlyArray<Readonly<Change>>
 }
 export type Edits = ReadonlyArray<Readonly<Edit>>
-export type ApplyEdits = (edits: Edits, reverse?: boolean) => Promise<void>
+export type ApplyEdits = (edits: Edits) => Promise<void>
 
 export class PluginManager {
   // components
@@ -174,14 +174,16 @@ export class PluginManager {
     }
   }
 
-  public applyEdits: ApplyEdits = async (edits, reverse = true) =>
+  public applyEdits: ApplyEdits = async edits =>
     void Promise.all(
       edits.map(edit =>
         this.withTypescriptBuffer(edit.fileName, async buffer => {
           buffer.buffer.transact(() => {
-            const changes = reverse ? edit.textChanges.slice().reverse() : edit.textChanges
+            const changes = edit.textChanges
+              .map(e => ({range: spanToRange(e), newText: e.newText}))
+              .sort((a, b) => b.range.compare(a.range))
             for (const change of changes) {
-              buffer.buffer.setTextInRange(spanToRange(change), change.newText)
+              buffer.buffer.setTextInRange(change.range, change.newText)
             }
           })
           return buffer.flush()
