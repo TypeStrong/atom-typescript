@@ -150,8 +150,14 @@ export class StatusPanel implements JSX.ElementClass {
             : dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))}
         </a>
       )
+    } else {
+      return (
+        <span
+          className="loading loading-spinner-tiny inline-block"
+          style={{marginLeft: "5px", opacity: "0.5", verticalAlign: "sub"}}
+        />
+      )
     }
-    return null
   }
 
   private renderStatus(): JSX.Element | null {

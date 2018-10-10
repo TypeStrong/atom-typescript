@@ -110,7 +110,9 @@ class StatusPanel {
                 ? "No project"
                 : path_1.dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
         }
-        return null;
+        else {
+            return (etch.dom("span", { className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: "0.5", verticalAlign: "sub" } }));
+        }
     }
     renderStatus() {
         if (this.props.buildStatus) {

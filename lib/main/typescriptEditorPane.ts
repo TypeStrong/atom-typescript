@@ -29,7 +29,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   public readonly buffer: TypescriptBuffer
 
   // Path to the project's tsconfig.json
-  private configFile: string = ""
+  private configFile?: string
   private isActive = false
   private isOpen = false
 

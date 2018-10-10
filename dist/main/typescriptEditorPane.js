@@ -12,8 +12,6 @@ class TypescriptEditorPane {
         // Timestamp for activated event
         this.activeAt = 0;
         this.isTypescript = false;
-        // Path to the project's tsconfig.json
-        this.configFile = "";
         this.isActive = false;
         this.isOpen = false;
         this.occurrenceMarkers = [];
