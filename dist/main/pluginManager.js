@@ -30,6 +30,7 @@ class PluginManager {
             }
             return this.clientResolver.get(filePath);
         };
+        this.killAllServers = () => this.clientResolver.killAllServers();
         this.getStatusPanel = () => this.statusPanel;
         this.withTypescriptBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);

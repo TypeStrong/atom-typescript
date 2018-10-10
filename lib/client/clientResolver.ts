@@ -47,10 +47,14 @@ export class ClientResolver {
   }
 
   public *getAllPending(): IterableIterator<string> {
-    for (const tsconfigMap of this.clients.values()) {
-      for (const clientRec of tsconfigMap.values()) {
-        yield* clientRec.pending
-      }
+    for (const clientRec of this.getAllClients()) {
+      yield* clientRec.pending
+    }
+  }
+
+  public killAllServers() {
+    for (const clientRec of this.getAllClients()) {
+      clientRec.client.killServer()
     }
   }
 
@@ -102,6 +106,12 @@ export class ClientResolver {
 
   public dispose() {
     this.emitter.dispose()
+  }
+
+  private *getAllClients() {
+    for (const tsconfigMap of this.clients.values()) {
+      yield* tsconfigMap.values()
+    }
   }
 }
 

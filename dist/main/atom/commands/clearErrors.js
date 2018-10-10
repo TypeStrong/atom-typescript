@@ -17,4 +17,10 @@ registry_1.addCommand("atom-text-editor", "typescript:reload-projects", deps => 
         client.execute("reloadProjects", undefined);
     },
 }));
+registry_1.addCommand("atom-workspace", "typescript:restart-all-servers", deps => ({
+    description: "Kill all tsserver instances. They will be auto-restarted",
+    async didDispatch() {
+        deps.killAllServers();
+    },
+}));
 //# sourceMappingURL=clearErrors.js.map

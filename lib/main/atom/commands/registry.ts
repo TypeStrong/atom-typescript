@@ -10,6 +10,7 @@ export interface Dependencies {
   applyEdits: ApplyEdits
   clearErrors(): void
   getClient(filePath: string): Promise<TypescriptServiceClient>
+  killAllServers(): void
   getStatusPanel(): StatusPanel
   getSemanticViewController(): SemanticViewController
   getSymbolsViewController(): SymbolsViewController

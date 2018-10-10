@@ -38,22 +38,34 @@ class TypescriptServiceClient {
         this.seq = 0;
         this.running = false;
         this.lastStderrOutput = "";
-        this.exitHandler = (reject) => (err) => {
-            console.error("tsserver: ", err);
+        this.exitHandler = (reject) => (err, report = true) => {
             this.callbacks.rejectAll(err);
-            this.emitter.dispose();
+            if (report)
+                console.error("tsserver: ", err);
             reject(err);
             this.running = false;
             setImmediate(() => {
-                let detail = err.message;
-                if (this.lastStderrOutput) {
-                    detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`;
+                if (report) {
+                    let detail = err.message;
+                    if (this.lastStderrOutput) {
+                        detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`;
+                    }
+                    atom.notifications.addError("TypeScript quit unexpectedly", {
+                        detail,
+                        stack: err.stack,
+                        dismissable: true,
+                    });
                 }
-                atom.notifications.addError("TypeScript quit unexpectedly", {
-                    detail,
-                    stack: err.stack,
-                    dismissable: true,
-                });
+                if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
+                    this.serverPromise = this.startServer();
+                    this.serverPromise.then(() => this.emitter.emit("restarted", undefined));
+                }
+                else {
+                    atom.notifications.addWarning("Not restarting tsserver", {
+                        detail: "Restarting too fast",
+                    });
+                    this.emitter.dispose();
+                }
             });
         };
         this.emitPendingRequests = (pending) => {
@@ -77,12 +89,22 @@ class TypescriptServiceClient {
     on(name, listener) {
         return this.emitter.on(name, listener);
     }
+    async killServer() {
+        if (this.running) {
+            this.lastStartAttempt = undefined; // reset auto-restart loop guard
+            const server = await this.serverPromise;
+            const graceTimer = setTimeout(() => server.kill(), 10000);
+            await this.sendRequest(server, "exit", undefined);
+            clearTimeout(graceTimer);
+        }
+    }
     startServer() {
         return new Promise((resolve, reject) => {
             this.running = true;
             if (window.atom_typescript_debug) {
                 console.log("starting", this.tsServerPath);
             }
+            this.lastStartAttempt = Date.now();
             const cp = startServer(this.tsServerPath);
             const h = this.exitHandler(reject);
             if (!cp) {
@@ -91,7 +113,9 @@ class TypescriptServiceClient {
             }
             cp.once("error", h);
             cp.once("exit", (code, signal) => {
-                if (code !== null)
+                if (code === 0)
+                    h(new Error("Server stopped normally"), false);
+                else if (code !== null)
                     h(new Error(`exited with code: ${code}`));
                 else if (signal !== null)
                     h(new Error(`terminated on signal: ${signal}`));

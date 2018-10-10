@@ -156,6 +156,8 @@ export class PluginManager {
     return this.clientResolver.get(filePath)
   }
 
+  public killAllServers = () => this.clientResolver.killAllServers()
+
   public getStatusPanel = () => this.statusPanel
 
   public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {

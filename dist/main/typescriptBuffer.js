@@ -124,6 +124,14 @@ class TypescriptBuffer {
                 filePath,
             };
             const client = await this.state.client;
+            client.on("restarted", () => {
+                if (!this.state)
+                    return;
+                client.execute("open", {
+                    file: this.state.filePath,
+                    fileContent: this.buffer.getText(),
+                });
+            });
             await client.execute("open", {
                 file: this.state.filePath,
                 fileContent: this.buffer.getText(),

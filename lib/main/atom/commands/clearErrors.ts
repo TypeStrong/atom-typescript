@@ -16,3 +16,10 @@ addCommand("atom-text-editor", "typescript:reload-projects", deps => ({
     client.execute("reloadProjects", undefined)
   },
 }))
+
+addCommand("atom-workspace", "typescript:restart-all-servers", deps => ({
+  description: "Kill all tsserver instances. They will be auto-restarted",
+  async didDispatch() {
+    deps.killAllServers()
+  },
+}))

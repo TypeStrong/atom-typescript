@@ -31,6 +31,7 @@ export interface CommandArgResponseMap {
   getEditsForRefactor: (x: p.GetEditsForRefactorRequestArgs) => p.GetEditsForRefactorResponse
   ping: (x: undefined) => null
   organizeImports: (x: p.OrganizeImportsRequestArgs) => p.OrganizeImportsResponse
+  exit: (x: undefined) => void
 }
 
 export type ArgType<T extends (x: any) => any> = T extends (x: infer U) => any ? U : never

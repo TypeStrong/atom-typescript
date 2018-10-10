@@ -19,10 +19,13 @@ class ClientResolver {
         return this.emitter.on(event, callback);
     }
     *getAllPending() {
-        for (const tsconfigMap of this.clients.values()) {
-            for (const clientRec of tsconfigMap.values()) {
-                yield* clientRec.pending;
-            }
+        for (const clientRec of this.getAllClients()) {
+            yield* clientRec.pending;
+        }
+    }
+    killAllServers() {
+        for (const clientRec of this.getAllClients()) {
+            clientRec.client.killServer();
         }
     }
     async get(pFilePath) {
@@ -64,6 +67,11 @@ class ClientResolver {
     }
     dispose() {
         this.emitter.dispose();
+    }
+    *getAllClients() {
+        for (const tsconfigMap of this.clients.values()) {
+            yield* tsconfigMap.values();
+        }
     }
 }
 exports.ClientResolver = ClientResolver;
