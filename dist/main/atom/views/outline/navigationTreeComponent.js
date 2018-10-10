@@ -5,6 +5,7 @@ const etch = require("etch");
 const lodash_1 = require("lodash");
 const navigationNodeComponent_1 = require("./navigationNodeComponent");
 const navTreeUtils_1 = require("./navTreeUtils");
+const utils_1 = require("../../../../utils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;
@@ -41,33 +42,22 @@ class NavigationTreeComponent {
             const selectedChild = navTreeUtils_1.findNodeAt(cursorLine, cursorLine, this.props.navTree);
             if (selectedChild !== this.selectedNode) {
                 this.selectedNode = selectedChild;
-                etch.update(this);
+                utils_1.handlePromise(etch.update(this));
             }
         };
-        this.subscribeToEditor = (editor) => {
+        this.subscribeToEditor = async (editor) => {
+            if (this.editorScrolling)
+                this.editorScrolling.dispose();
+            if (this.editorChanging)
+                this.editorChanging.dispose();
             if (!editor || !atomUtils.isTypescriptEditorWithPath(editor)) {
-                // unsubscribe from editor
-                // dispose subscriptions (except for editor-changing)
-                if (this.editorScrolling) {
-                    this.editorScrolling.dispose();
-                }
-                if (this.editorChanging) {
-                    this.editorChanging.dispose();
-                }
-                this.update({ navTree: null });
-                return;
+                return this.update({ navTree: null });
             }
+            // else
             this.editor = editor;
             // set navTree
-            this.loadNavTree();
-            // Subscribe to stop scrolling
-            if (this.editorScrolling) {
-                this.editorScrolling.dispose();
-            }
+            await this.loadNavTree();
             this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine);
-            if (this.editorChanging) {
-                this.editorChanging.dispose();
-            }
             this.editorChanging = editor.onDidStopChanging(this.loadNavTree);
         };
         navTreeUtils_1.prepareNavTree(props.navTree);
@@ -91,9 +81,9 @@ class NavigationTreeComponent {
         this.selectedNode = undefined;
         await etch.destroy(this);
     }
-    setWithTypescriptBuffer(wtb) {
+    async setWithTypescriptBuffer(wtb) {
         this.withTypescriptBuffer = wtb;
-        this.loadNavTree();
+        await this.loadNavTree();
     }
     getSelectedNode() {
         return this.selectedNode;
@@ -129,7 +119,7 @@ class NavigationTreeComponent {
         else
             return undefined;
     }
-    async setNavTree(navTree) {
+    setNavTree(navTree) {
         navTreeUtils_1.prepareNavTree(navTree);
         if (lodash_1.isEqual(navTree, this.props.navTree)) {
             return;

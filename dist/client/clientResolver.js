@@ -23,10 +23,8 @@ class ClientResolver {
             yield* clientRec.pending;
         }
     }
-    killAllServers() {
-        for (const clientRec of this.getAllClients()) {
-            clientRec.client.killServer();
-        }
+    async killAllServers() {
+        return Promise.all(Array.from(this.getAllClients()).map(clientRec => clientRec.client.killServer()));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");

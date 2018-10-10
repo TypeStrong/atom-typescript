@@ -18,9 +18,9 @@ class SemanticView {
     get element() {
         return this.comp.element;
     }
-    setWithTypescriptBuffer(wtb) {
-        this.comp.setWithTypescriptBuffer(wtb);
-        this.comp.update({});
+    async setWithTypescriptBuffer(wtb) {
+        await this.comp.setWithTypescriptBuffer(wtb);
+        await this.comp.update({});
     }
     getTitle() {
         return "TypeScript";
@@ -28,9 +28,9 @@ class SemanticView {
     getURI() {
         return exports.SEMANTIC_VIEW_URI;
     }
-    destroy() {
+    async destroy() {
         SemanticView.instance = null;
-        this.comp.destroy();
+        await this.comp.destroy();
     }
     getDefaultLocation() {
         return "right";

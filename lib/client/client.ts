@@ -7,6 +7,7 @@ import {ChildProcess} from "child_process"
 import {Transform, Readable} from "stream"
 import byline = require("byline")
 import {EventTypes} from "./events"
+import {handlePromise} from "../utils"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
@@ -140,7 +141,7 @@ export class TypescriptServiceClient {
       }
       if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
         this.serverPromise = this.startServer()
-        this.serverPromise.then(() => this.emitter.emit("restarted", undefined))
+        handlePromise(this.serverPromise.then(() => this.emitter.emit("restarted", undefined)))
       } else {
         atom.notifications.addWarning("Not restarting tsserver", {
           detail: "Restarting too fast",

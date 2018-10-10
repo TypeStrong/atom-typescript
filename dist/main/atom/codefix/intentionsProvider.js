@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("../../../utils");
 class IntentionsProvider {
     constructor(codefixProvider) {
         this.codefixProvider = codefixProvider;
@@ -10,7 +11,7 @@ class IntentionsProvider {
             priority: 100,
             title: fix.description,
             selected: () => {
-                this.codefixProvider.applyFix(fix);
+                utils_1.handlePromise(this.codefixProvider.applyFix(fix));
             },
         }));
     }

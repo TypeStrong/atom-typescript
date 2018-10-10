@@ -14,7 +14,7 @@ addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
 
     const client = await deps.getClient(location.file)
     const result = await client.execute("definition", location)
-    handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager())
+    await handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager())
   },
 }))
 
@@ -38,8 +38,8 @@ export async function handleDefinitionResult(
       },
       itemFilterKey: "file",
     })
-    if (res) hist.goForward(editor, res)
+    if (res) await hist.goForward(editor, res)
   } else if (result.body.length > 0) {
-    hist.goForward(editor, result.body[0])
+    await hist.goForward(editor, result.body[0])
   }
 }

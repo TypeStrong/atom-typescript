@@ -33,7 +33,7 @@ export async function toggle(editor: TextEditor, deps: Deps) {
       },
       itemFilterKey: "name",
     })
-    if (tag) utils.openTag(tag, editor, deps.getEditorPositionHistoryManager())
+    if (tag) await utils.openTag(tag, editor, deps.getEditorPositionHistoryManager())
     else if (initialState) utils.deserializeEditorState(editor, initialState)
   }
 }

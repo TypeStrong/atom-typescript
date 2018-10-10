@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const SelectListView = require("atom-select-list");
 const etch = require("etch");
+const utils_1 = require("../../../utils");
 async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, }) {
     let panel;
     const currentFocus = document.activeElement;
@@ -14,7 +15,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
             const update = (props) => {
                 if (resolved)
                     return;
-                select.update(props);
+                utils_1.handlePromise(select.update(props));
             };
             if (typeof items === "function") {
                 didChangeQuery = async (query) => {
@@ -49,9 +50,9 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 itemsClassList: ["atom-typescript"],
             });
             if (typeof items !== "function") {
-                Promise.resolve(items).then(is => {
+                utils_1.handlePromise(Promise.resolve(items).then(is => {
                     update({ items: is, loadingMessage: undefined });
-                });
+                }));
             }
             panel = atom.workspace.addModalPanel({
                 item: select,

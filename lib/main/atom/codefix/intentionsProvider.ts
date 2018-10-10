@@ -1,5 +1,6 @@
 import * as Atom from "atom"
 import {CodefixProvider} from "./codefixProvider"
+import {handlePromise} from "../../../utils"
 
 interface Intention {
   priority: number
@@ -32,7 +33,7 @@ export class IntentionsProvider implements IntentionsProviderInterface {
       priority: 100,
       title: fix.description,
       selected: () => {
-        this.codefixProvider.applyFix(fix)
+        handlePromise(this.codefixProvider.applyFix(fix))
       },
     }))
   }

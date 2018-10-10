@@ -3,6 +3,7 @@
 import * as Atom from "atom"
 import {TypescriptServiceClient as Client} from "../client/client"
 import {isTypescriptFile} from "./atom/utils"
+import {handlePromise} from "../utils"
 
 export class TypescriptBuffer {
   public static create(buffer: Atom.TextBuffer, getClient: (filePath: string) => Promise<Client>) {
@@ -51,7 +52,7 @@ export class TypescriptBuffer {
       buffer.onDidStopChanging(this.onDidStopChanging),
     )
 
-    this.open()
+    handlePromise(this.open())
   }
 
   public getPath() {
@@ -112,10 +113,12 @@ export class TypescriptBuffer {
 
       client.on("restarted", () => {
         if (!this.state) return
-        client.execute("open", {
-          file: this.state.filePath,
-          fileContent: this.buffer.getText(),
-        })
+        handlePromise(
+          client.execute("open", {
+            file: this.state.filePath,
+            fileContent: this.buffer.getText(),
+          }),
+        )
       })
 
       await client.execute("open", {

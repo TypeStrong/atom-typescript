@@ -52,10 +52,10 @@ export class ClientResolver {
     }
   }
 
-  public killAllServers() {
-    for (const clientRec of this.getAllClients()) {
-      clientRec.client.killServer()
-    }
+  public async killAllServers() {
+    return Promise.all(
+      Array.from(this.getAllClients()).map(clientRec => clientRec.client.killServer()),
+    )
   }
 
   public async get(pFilePath: string): Promise<Client> {

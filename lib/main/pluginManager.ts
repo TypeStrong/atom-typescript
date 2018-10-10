@@ -18,6 +18,7 @@ import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {State} from "./packageState"
 import {TextSpan, spanToRange} from "./atom/utils"
 import * as path from "path"
+import {handlePromise} from "../utils"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -232,7 +233,7 @@ export class PluginManager {
                 }
               }
 
-              pane.client.execute("geterr", {files, delay: 100})
+              handlePromise(pane.client.execute("geterr", {files, delay: 100}))
             }, 50),
             statusPanel: this.statusPanel,
           }),

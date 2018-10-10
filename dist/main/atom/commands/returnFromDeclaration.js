@@ -7,7 +7,7 @@ const highlightComponent_1 = require("../views/highlightComponent");
 registry_1.addCommand("atom-workspace", "typescript:return-from-declaration", deps => ({
     description: "If used `go-to-declaration`, return to previous text cursor position",
     async didDispatch() {
-        deps.getEditorPositionHistoryManager().goBack();
+        await deps.getEditorPositionHistoryManager().goBack();
     },
 }));
 registry_1.addCommand("atom-workspace", "typescript:show-editor-position-history", deps => ({
@@ -31,7 +31,7 @@ registry_1.addCommand("atom-workspace", "typescript:show-editor-position-history
             itemFilterKey: "file",
         });
         if (res)
-            ehm.goHistory(res.idx + 1);
+            await ehm.goHistory(res.idx + 1);
     },
 }));
 //# sourceMappingURL=returnFromDeclaration.js.map

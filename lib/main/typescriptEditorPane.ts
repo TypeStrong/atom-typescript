@@ -6,6 +6,7 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptServiceClient} from "../client/client"
 import {TooltipManager} from "./atom/tooltipManager"
+import {handlePromise} from "../utils"
 
 interface PaneOptions {
   getClient: (filePath: string) => Promise<TypescriptServiceClient>
@@ -35,9 +36,9 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
   private readonly occurrenceMarkers: Atom.DisplayMarker[] = []
   private readonly subscriptions = new CompositeDisposable()
+  private readonly updateMarkersDB = debounce(() => handlePromise(this.updateMarkers()), 100)
 
   constructor(public readonly editor: Atom.TextEditor, private opts: PaneOptions) {
-    this.updateMarkers = debounce(this.updateMarkers.bind(this), 100)
     this.buffer = TypescriptBuffer.create(editor.getBuffer(), opts.getClient)
     this.subscriptions.add(
       this.buffer.events.on("changed", this.onChanged),
@@ -70,25 +71,27 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
     const filePath = this.buffer.getPath()
     if (this.isTypescript && filePath !== undefined) {
-      this.opts.statusPanel.show()
+      handlePromise(this.opts.statusPanel.show())
 
       // The first activation might happen before we even have a client
       if (this.client) {
-        this.client.execute("geterr", {
-          files: [filePath],
-          delay: 100,
-        })
+        handlePromise(
+          this.client.execute("geterr", {
+            files: [filePath],
+            delay: 100,
+          }),
+        )
 
-        this.opts.statusPanel.update({version: this.client.version})
+        handlePromise(this.opts.statusPanel.update({version: this.client.version}))
       }
     }
 
-    this.opts.statusPanel.update({tsConfigPath: this.configFile})
+    handlePromise(this.opts.statusPanel.update({tsConfigPath: this.configFile}))
   }
 
   public onDeactivated = () => {
     this.isActive = false
-    this.opts.statusPanel.hide()
+    handlePromise(this.opts.statusPanel.hide())
   }
 
   private onChanged = () => {
@@ -96,12 +99,14 @@ export class TypescriptEditorPane implements Atom.Disposable {
     const filePath = this.buffer.getPath()
     if (filePath === undefined) return
 
-    this.opts.statusPanel.update({buildStatus: undefined})
+    handlePromise(this.opts.statusPanel.update({buildStatus: undefined}))
 
-    this.client.execute("geterr", {
-      files: [filePath],
-      delay: 100,
-    })
+    handlePromise(
+      this.client.execute("geterr", {
+        files: [filePath],
+        delay: 100,
+      }),
+    )
   }
 
   private clearOccurrenceMarkers() {
@@ -146,7 +151,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       return
     }
 
-    this.updateMarkers()
+    this.updateMarkersDB()
   }
 
   private onDidDestroy = () => {
@@ -161,11 +166,11 @@ export class TypescriptEditorPane implements Atom.Disposable {
     // onOpened might trigger before onActivated so we can't rely on isActive flag
     if (atom.workspace.getActiveTextEditor() === this.editor) {
       this.isActive = true
-      this.opts.statusPanel.update({version: this.client.version})
+      await this.opts.statusPanel.update({version: this.client.version})
     }
 
     if (this.isTypescript) {
-      this.client.execute("geterr", {
+      await this.client.execute("geterr", {
         files: [filePath],
         delay: 100,
       })
@@ -180,14 +185,13 @@ export class TypescriptEditorPane implements Atom.Disposable {
         this.configFile = result.body!.configFileName
 
         if (this.isActive) {
-          this.opts.statusPanel.update({tsConfigPath: this.configFile})
+          await this.opts.statusPanel.update({tsConfigPath: this.configFile})
         }
 
-        getProjectCodeSettings(this.configFile).then(options => {
-          this.client!.execute("configure", {
-            file: filePath,
-            formatOptions: options,
-          })
+        const options = await getProjectCodeSettings(this.configFile)
+        await this.client.execute("configure", {
+          file: filePath,
+          formatOptions: options,
         })
       } catch (e) {
         if (window.atom_typescript_debug) console.error(e)
@@ -197,7 +201,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
 
   private onSaved = () => {
     this.opts.onSave(this)
-    this.compileOnSave()
+    handlePromise(this.compileOnSave())
   }
 
   private async compileOnSave() {
@@ -210,7 +214,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
       file: filePath,
     })
 
-    this.opts.statusPanel.update({buildStatus: undefined})
+    await this.opts.statusPanel.update({buildStatus: undefined})
 
     const fileNames = flatten(result.body.map(project => project.fileNames))
 
@@ -224,11 +228,11 @@ export class TypescriptEditorPane implements Atom.Disposable {
         throw new Error("Some files failed to emit")
       }
 
-      this.opts.statusPanel.update({buildStatus: {success: true}})
+      await this.opts.statusPanel.update({buildStatus: {success: true}})
     } catch (error) {
       const e = error as Error
       console.error("Save failed with error", e)
-      this.opts.statusPanel.update({buildStatus: {success: false, message: e.message}})
+      await this.opts.statusPanel.update({buildStatus: {success: false, message: e.message}})
     }
   }
 

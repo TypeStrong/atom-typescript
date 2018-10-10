@@ -27,7 +27,9 @@
     ],
     "strict-type-predicates": true,
     "no-unsafe-any": true,
-    "no-shadowed-variable": true
+    "no-shadowed-variable": true,
+    "no-floating-promises": true,
+    "await-promise": true
   },
   "rulesDirectory": []
 }

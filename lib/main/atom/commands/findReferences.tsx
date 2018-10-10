@@ -30,6 +30,6 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
       },
       itemFilterKey: "file",
     })
-    if (res) deps.getEditorPositionHistoryManager().goForward(editor, res)
+    if (res) await deps.getEditorPositionHistoryManager().goForward(editor, res)
   },
 }))

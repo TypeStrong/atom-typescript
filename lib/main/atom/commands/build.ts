@@ -1,4 +1,5 @@
 import {addCommand} from "./registry"
+import {handlePromise} from "../../../utils"
 
 addCommand("atom-text-editor", "typescript:build", deps => ({
   description: "Compile all files in project related to current active text editor",
@@ -18,8 +19,8 @@ addCommand("atom-text-editor", "typescript:build", deps => ({
     const stp = deps.getStatusPanel()
     const promises = [...files.values()].map(f =>
       _finally(client.execute("compileOnSaveEmitFile", {file: f, forced: true}), () => {
-        stp.update({progress: {max: files.size, value: (filesSoFar += 1)}})
-        if (files.size <= filesSoFar) stp.update({progress: undefined})
+        handlePromise(stp.update({progress: {max: files.size, value: (filesSoFar += 1)}}))
+        if (files.size <= filesSoFar) handlePromise(stp.update({progress: undefined}))
       }),
     )
 
@@ -28,11 +29,11 @@ addCommand("atom-text-editor", "typescript:build", deps => ({
       if (results.some(result => result.body === false)) {
         throw new Error("Emit failed")
       }
-      stp.update({buildStatus: {success: true}})
+      await stp.update({buildStatus: {success: true}})
     } catch (error) {
       const err = error as Error
       console.error(err)
-      stp.update({buildStatus: {success: false, message: err.message}})
+      await stp.update({buildStatus: {success: false, message: err.message}})
     }
   },
 }))

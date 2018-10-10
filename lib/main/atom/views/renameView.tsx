@@ -1,6 +1,7 @@
 import * as etch from "etch"
 import {CompositeDisposable} from "atom"
 import {MiniEditor} from "../components/miniEditor"
+import {handlePromise} from "../../../utils"
 
 interface Props extends JSX.Props {
   validationMessage?: string
@@ -108,7 +109,7 @@ export async function showRenameDialog(options: Options): Promise<string | undef
             const newText = item.getText()
             const invalid = options.onValidate(newText)
             if (invalid) {
-              item.update({validationMessage: invalid})
+              handlePromise(item.update({validationMessage: invalid}))
               return
             }
             resolve(newText)

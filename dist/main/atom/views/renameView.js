@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const atom_1 = require("atom");
 const miniEditor_1 = require("../components/miniEditor");
+const utils_1 = require("../../../utils");
 class RenameView {
     constructor(props) {
         this.props = props;
@@ -68,7 +69,7 @@ async function showRenameDialog(options) {
                     const newText = item.getText();
                     const invalid = options.onValidate(newText);
                     if (invalid) {
-                        item.update({ validationMessage: invalid });
+                        utils_1.handlePromise(item.update({ validationMessage: invalid }));
                         return;
                     }
                     resolve(newText);

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const path_1 = require("path");
 const atom_1 = require("atom");
+const utils_1 = require("../../../utils");
 class StatusPanel {
     constructor(props) {
         this.disposables = new atom_1.CompositeDisposable();
@@ -15,9 +16,9 @@ class StatusPanel {
             }
         };
         this.handlePendingRequests = () => {
-            this.update({
+            utils_1.handlePromise(this.update({
                 pending: Array.from(this.props.clientResolver.getAllPending()),
-            });
+            }));
         };
         this.props = Object.assign({ visible: true }, props);
         etch.initialize(this);
@@ -42,13 +43,13 @@ class StatusPanel {
         this.disposables.dispose();
     }
     dispose() {
-        this.destroy();
+        utils_1.handlePromise(this.destroy());
     }
-    show() {
-        this.update({ visible: true });
+    async show() {
+        await this.update({ visible: true });
     }
-    hide() {
-        this.update({ visible: false });
+    async hide() {
+        await this.update({ visible: false });
     }
     resetBuildStatusTimeout() {
         if (this.buildStatusTimeout !== undefined) {
@@ -59,17 +60,17 @@ class StatusPanel {
             const timeout = atom.config.get("atom-typescript.buildStatusTimeout");
             if (timeout > 0) {
                 this.buildStatusTimeout = window.setTimeout(() => {
-                    this.update({ buildStatus: undefined });
+                    utils_1.handlePromise(this.update({ buildStatus: undefined }));
                 }, timeout * 1000);
             }
             else if (timeout === 0) {
-                this.update({ buildStatus: undefined });
+                utils_1.handlePromise(this.update({ buildStatus: undefined }));
             }
         }
     }
     openConfigPath() {
         if (this.props.tsConfigPath !== undefined && !this.props.tsConfigPath.startsWith("/dev/null")) {
-            atom.workspace.open(this.props.tsConfigPath);
+            utils_1.handlePromise(atom.workspace.open(this.props.tsConfigPath));
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");

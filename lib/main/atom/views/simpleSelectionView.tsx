@@ -1,6 +1,7 @@
 import SelectListView = require("atom-select-list")
 import {Panel} from "atom"
 import * as etch from "etch"
+import {handlePromise} from "../../../utils"
 
 export interface SelectListViewOptions<T> {
   items: T[] | Promise<T[]> | ((filterText: string) => T[]) | ((filterText: string) => Promise<T[]>)
@@ -25,7 +26,7 @@ export async function selectListView<T>({
       let resolved = false
       const update = (props: object) => {
         if (resolved) return
-        select.update(props)
+        handlePromise(select.update(props))
       }
       if (typeof items === "function") {
         didChangeQuery = async (query: string) => {
@@ -60,9 +61,11 @@ export async function selectListView<T>({
         itemsClassList: ["atom-typescript"],
       })
       if (typeof items !== "function") {
-        Promise.resolve(items).then(is => {
-          update({items: is, loadingMessage: undefined})
-        })
+        handlePromise(
+          Promise.resolve(items).then(is => {
+            update({items: is, loadingMessage: undefined})
+          }),
+        )
       }
       panel = atom.workspace.addModalPanel({
         item: select,

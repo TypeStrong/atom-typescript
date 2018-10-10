@@ -4,6 +4,7 @@ const atom_1 = require("atom");
 const callbacks_1 = require("./callbacks");
 const stream_1 = require("stream");
 const byline = require("byline");
+const utils_1 = require("../utils");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
 const commandWithResponseMap = {
@@ -60,7 +61,7 @@ class TypescriptServiceClient {
                 }
                 if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
                     this.serverPromise = this.startServer();
-                    this.serverPromise.then(() => this.emitter.emit("restarted", undefined));
+                    utils_1.handlePromise(this.serverPromise.then(() => this.emitter.emit("restarted", undefined)));
                 }
                 else {
                     atom.notifications.addWarning("Not restarting tsserver", {

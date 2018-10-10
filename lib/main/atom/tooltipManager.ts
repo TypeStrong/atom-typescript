@@ -8,6 +8,7 @@ import {listen} from "./utils/element-listener"
 import {TooltipView} from "./views/tooltipView"
 import escape = require("escape-html")
 import {TypescriptServiceClient} from "../../client/client"
+import {handlePromise} from "../../utils"
 
 const tooltipMap = new WeakMap<Atom.TextEditor, TooltipManager>()
 
@@ -135,7 +136,7 @@ export class TooltipManager {
 
     const msg = await this.getMessage(bufferPt)
     if (cancelled) return
-    if (msg !== undefined) this.showTooltip(tooltipRect, msg)
+    if (msg !== undefined) await this.showTooltip(tooltipRect, msg)
   }
 
   private async getMessage(bufferPt: Atom.Point) {
@@ -166,11 +167,11 @@ export class TooltipManager {
     return message
   }
 
-  private showTooltip(tooltipRect: Rect, message: string) {
+  private async showTooltip(tooltipRect: Rect, message: string) {
     if (TooltipManager.exprTypeTooltip) return
     TooltipManager.exprTypeTooltip = new TooltipView()
     document.body.appendChild(TooltipManager.exprTypeTooltip.element)
-    TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
+    await TooltipManager.exprTypeTooltip.update({...tooltipRect, text: message})
   }
 
   /** clears the timeout && the tooltip */
@@ -185,7 +186,7 @@ export class TooltipManager {
 
   private hideExpressionType() {
     if (!TooltipManager.exprTypeTooltip) return
-    TooltipManager.exprTypeTooltip.destroy()
+    handlePromise(TooltipManager.exprTypeTooltip.destroy())
     TooltipManager.exprTypeTooltip = undefined
   }
 

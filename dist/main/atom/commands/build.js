@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
+const utils_1 = require("../../../utils");
 registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
     description: "Compile all files in project related to current active text editor",
     async didDispatch(editor) {
@@ -17,21 +18,21 @@ registry_1.addCommand("atom-text-editor", "typescript:build", deps => ({
         let filesSoFar = 0;
         const stp = deps.getStatusPanel();
         const promises = [...files.values()].map(f => _finally(client.execute("compileOnSaveEmitFile", { file: f, forced: true }), () => {
-            stp.update({ progress: { max: files.size, value: (filesSoFar += 1) } });
+            utils_1.handlePromise(stp.update({ progress: { max: files.size, value: (filesSoFar += 1) } }));
             if (files.size <= filesSoFar)
-                stp.update({ progress: undefined });
+                utils_1.handlePromise(stp.update({ progress: undefined }));
         }));
         try {
             const results = await Promise.all(promises);
             if (results.some(result => result.body === false)) {
                 throw new Error("Emit failed");
             }
-            stp.update({ buildStatus: { success: true } });
+            await stp.update({ buildStatus: { success: true } });
         }
         catch (error) {
             const err = error;
             console.error(err);
-            stp.update({ buildStatus: { success: false, message: err.message } });
+            await stp.update({ buildStatus: { success: false, message: err.message } });
         }
     },
 }));

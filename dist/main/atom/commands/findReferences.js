@@ -27,7 +27,7 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
             itemFilterKey: "file",
         });
         if (res)
-            deps.getEditorPositionHistoryManager().goForward(editor, res);
+            await deps.getEditorPositionHistoryManager().goForward(editor, res);
     },
 }));
 //# sourceMappingURL=findReferences.js.map

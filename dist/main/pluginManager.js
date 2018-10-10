@@ -17,6 +17,7 @@ const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewControl
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 const utils_1 = require("./atom/utils");
 const path = require("path");
+const utils_2 = require("../utils");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
@@ -162,7 +163,7 @@ class PluginManager {
                             files.push(filePath);
                         }
                     }
-                    pane.client.execute("geterr", { files, delay: 100 });
+                    utils_2.handlePromise(pane.client.execute("geterr", { files, delay: 100 }));
                 }, 50),
                 statusPanel: this.statusPanel,
             }));

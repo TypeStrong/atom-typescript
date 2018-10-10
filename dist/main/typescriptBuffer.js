@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 const Atom = require("atom");
 const utils_1 = require("./atom/utils");
+const utils_2 = require("../utils");
 class TypescriptBuffer {
     constructor(buffer, getClient) {
         this.buffer = buffer;
@@ -58,7 +59,7 @@ class TypescriptBuffer {
             this.events.emit("changed");
         };
         this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(this.onDidSave), buffer.onDidStopChanging(this.onDidStopChanging));
-        this.open();
+        utils_2.handlePromise(this.open());
     }
     static create(buffer, getClient) {
         const b = TypescriptBuffer.bufferMap.get(buffer);
@@ -127,10 +128,10 @@ class TypescriptBuffer {
             client.on("restarted", () => {
                 if (!this.state)
                     return;
-                client.execute("open", {
+                utils_2.handlePromise(client.execute("open", {
                     file: this.state.filePath,
                     fileContent: this.buffer.getText(),
-                });
+                }));
             });
             await client.execute("open", {
                 file: this.state.filePath,

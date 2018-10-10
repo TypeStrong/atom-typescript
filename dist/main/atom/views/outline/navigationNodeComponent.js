@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const navTreeUtils_1 = require("./navTreeUtils");
+const utils_1 = require("../../../../utils");
 class NavigationNodeComponent {
     constructor(props) {
         this.props = props;
@@ -53,7 +54,7 @@ class NavigationNodeComponent {
         }
         else {
             node.collapsed = !node.collapsed;
-            etch.update(this);
+            utils_1.handlePromise(etch.update(this));
         }
     }
 }

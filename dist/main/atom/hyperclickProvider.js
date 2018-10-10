@@ -24,7 +24,7 @@ function getHyperclickProvider(clientResolver, editorPosHist) {
                     };
                     const client = await clientResolver.get(location.file);
                     const result = await client.execute("definition", location);
-                    goToDeclaration_1.handleDefinitionResult(result, editor, editorPosHist);
+                    await goToDeclaration_1.handleDefinitionResult(result, editor, editorPosHist);
                 },
             };
         },

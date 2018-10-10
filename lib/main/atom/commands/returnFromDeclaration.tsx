@@ -6,7 +6,7 @@ import {HighlightComponent} from "../views/highlightComponent"
 addCommand("atom-workspace", "typescript:return-from-declaration", deps => ({
   description: "If used `go-to-declaration`, return to previous text cursor position",
   async didDispatch() {
-    deps.getEditorPositionHistoryManager().goBack()
+    await deps.getEditorPositionHistoryManager().goBack()
   },
 }))
 
@@ -32,6 +32,6 @@ addCommand("atom-workspace", "typescript:show-editor-position-history", deps => 
       ),
       itemFilterKey: "file",
     })
-    if (res) ehm.goHistory(res.idx + 1)
+    if (res) await ehm.goHistory(res.idx + 1)
   },
 }))

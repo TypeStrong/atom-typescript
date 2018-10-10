@@ -2,6 +2,7 @@ import * as etch from "etch"
 import {dirname} from "path"
 import {ClientResolver} from "../../../client/clientResolver"
 import {CompositeDisposable} from "atom"
+import {handlePromise} from "../../../utils"
 
 export interface Props extends JSX.Props {
   version?: string
@@ -54,15 +55,15 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   public dispose() {
-    this.destroy()
+    handlePromise(this.destroy())
   }
 
-  public show() {
-    this.update({visible: true})
+  public async show() {
+    await this.update({visible: true})
   }
 
-  public hide() {
-    this.update({visible: false})
+  public async hide() {
+    await this.update({visible: false})
   }
 
   private resetBuildStatusTimeout() {
@@ -74,17 +75,17 @@ export class StatusPanel implements JSX.ElementClass {
       const timeout = atom.config.get("atom-typescript.buildStatusTimeout")
       if (timeout > 0) {
         this.buildStatusTimeout = window.setTimeout(() => {
-          this.update({buildStatus: undefined})
+          handlePromise(this.update({buildStatus: undefined}))
         }, timeout * 1000)
       } else if (timeout === 0) {
-        this.update({buildStatus: undefined})
+        handlePromise(this.update({buildStatus: undefined}))
       }
     }
   }
 
   private openConfigPath() {
     if (this.props.tsConfigPath !== undefined && !this.props.tsConfigPath.startsWith("/dev/null")) {
-      atom.workspace.open(this.props.tsConfigPath)
+      handlePromise(atom.workspace.open(this.props.tsConfigPath))
     } else {
       atom.notifications.addInfo("No tsconfig for current file")
     }
@@ -207,9 +208,11 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private handlePendingRequests = () => {
-    this.update({
-      pending: Array.from(this.props.clientResolver.getAllPending()),
-    })
+    handlePromise(
+      this.update({
+        pending: Array.from(this.props.clientResolver.getAllPending()),
+      }),
+    )
   }
 }
 

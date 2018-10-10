@@ -13,6 +13,7 @@ import {
   prepareNavTree,
 } from "./navTreeUtils"
 import {WithTypescriptBuffer} from "../../../pluginManager"
+import {handlePromise} from "../../../../utils"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null
@@ -52,9 +53,9 @@ export class NavigationTreeComponent
     await etch.destroy(this)
   }
 
-  public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
+  public async setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
     this.withTypescriptBuffer = wtb
-    this.loadNavTree()
+    await this.loadNavTree()
   }
 
   public getSelectedNode() {
@@ -97,7 +98,7 @@ export class NavigationTreeComponent
     else return undefined
   }
 
-  private async setNavTree(navTree: NavigationTreeViewModel | null) {
+  private setNavTree(navTree: NavigationTreeViewModel | null) {
     prepareNavTree(navTree)
     if (isEqual(navTree, this.props.navTree)) {
       return
@@ -146,7 +147,7 @@ export class NavigationTreeComponent
     const selectedChild = findNodeAt(cursorLine, cursorLine, this.props.navTree)
     if (selectedChild !== this.selectedNode) {
       this.selectedNode = selectedChild
-      etch.update(this)
+      handlePromise(etch.update(this))
     }
   }
 
@@ -164,34 +165,19 @@ export class NavigationTreeComponent
     }
   }
 
-  private subscribeToEditor = (editor?: TextEditor) => {
+  private subscribeToEditor = async (editor?: TextEditor) => {
+    if (this.editorScrolling) this.editorScrolling.dispose()
+    if (this.editorChanging) this.editorChanging.dispose()
+
     if (!editor || !atomUtils.isTypescriptEditorWithPath(editor)) {
-      // unsubscribe from editor
-      // dispose subscriptions (except for editor-changing)
-      if (this.editorScrolling) {
-        this.editorScrolling.dispose()
-      }
-      if (this.editorChanging) {
-        this.editorChanging.dispose()
-      }
-
-      this.update({navTree: null})
-      return
+      return this.update({navTree: null})
     }
+    // else
     this.editor = editor
-
     // set navTree
-    this.loadNavTree()
+    await this.loadNavTree()
 
-    // Subscribe to stop scrolling
-    if (this.editorScrolling) {
-      this.editorScrolling.dispose()
-    }
     this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
-
-    if (this.editorChanging) {
-      this.editorChanging.dispose()
-    }
     this.editorChanging = editor.onDidStopChanging(this.loadNavTree)
   }
 }

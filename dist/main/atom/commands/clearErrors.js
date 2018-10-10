@@ -14,7 +14,7 @@ registry_1.addCommand("atom-text-editor", "typescript:reload-projects", deps => 
         if (path === undefined)
             return;
         const client = await deps.getClient(path);
-        client.execute("reloadProjects", undefined);
+        await client.execute("reloadProjects", undefined);
     },
 }));
 registry_1.addCommand("atom-workspace", "typescript:restart-all-servers", deps => ({

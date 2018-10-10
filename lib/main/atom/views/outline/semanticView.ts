@@ -33,9 +33,9 @@ export class SemanticView {
     this.comp = new NavigationTreeComponent({navTree: config.navTree})
   }
 
-  public setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
-    this.comp.setWithTypescriptBuffer(wtb)
-    this.comp.update({})
+  public async setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
+    await this.comp.setWithTypescriptBuffer(wtb)
+    await this.comp.update({})
   }
 
   public getTitle() {
@@ -46,9 +46,9 @@ export class SemanticView {
     return SEMANTIC_VIEW_URI
   }
 
-  public destroy() {
+  public async destroy() {
     SemanticView.instance = null
-    this.comp.destroy()
+    await this.comp.destroy()
   }
 
   public getDefaultLocation() {

@@ -8,6 +8,7 @@ const fs = require("fs");
 const element_listener_1 = require("./utils/element-listener");
 const tooltipView_1 = require("./views/tooltipView");
 const escape = require("escape-html");
+const utils_1 = require("../../utils");
 const tooltipMap = new WeakMap();
 // screen position from mouse event -- with <3 from Atom-Haskell
 function bufferPositionFromMouseEvent(editor, event) {
@@ -124,7 +125,7 @@ class TooltipManager {
         if (cancelled)
             return;
         if (msg !== undefined)
-            this.showTooltip(tooltipRect, msg);
+            await this.showTooltip(tooltipRect, msg);
     }
     async getMessage(bufferPt) {
         let result;
@@ -153,17 +154,17 @@ class TooltipManager {
         }
         return message;
     }
-    showTooltip(tooltipRect, message) {
+    async showTooltip(tooltipRect, message) {
         if (TooltipManager.exprTypeTooltip)
             return;
         TooltipManager.exprTypeTooltip = new tooltipView_1.TooltipView();
         document.body.appendChild(TooltipManager.exprTypeTooltip.element);
-        TooltipManager.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
+        await TooltipManager.exprTypeTooltip.update(Object.assign({}, tooltipRect, { text: message }));
     }
     hideExpressionType() {
         if (!TooltipManager.exprTypeTooltip)
             return;
-        TooltipManager.exprTypeTooltip.destroy();
+        utils_1.handlePromise(TooltipManager.exprTypeTooltip.destroy());
         TooltipManager.exprTypeTooltip = undefined;
     }
 }
