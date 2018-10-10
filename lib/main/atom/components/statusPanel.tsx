@@ -202,9 +202,7 @@ export class StatusPanel implements JSX.ElementClass {
 
   private handlePendingRequests = () => {
     this.update({
-      pending: ([] as string[]).concat(
-        ...Array.from(this.props.clientResolver.clients.values()).map(el => el.pending),
-      ),
+      pending: Array.from(this.props.clientResolver.getAllPending()),
     })
   }
 }

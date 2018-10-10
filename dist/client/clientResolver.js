@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("./client");
 const path = require("path");
 const Resolve = require("resolve");
+const fs = require("fs");
 const atom_1 = require("atom");
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
@@ -17,16 +18,29 @@ class ClientResolver {
     on(event, callback) {
         return this.emitter.on(event, callback);
     }
+    *getAllPending() {
+        for (const tsconfigMap of this.clients.values()) {
+            for (const clientRec of tsconfigMap.values()) {
+                yield* clientRec.pending;
+            }
+        }
+    }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
-        const clientRec = this.clients.get(pathToBin);
+        const tsconfigPath = await resolveTsConfig(pFilePath);
+        let tsconfigMap = this.clients.get(pathToBin);
+        if (!tsconfigMap) {
+            tsconfigMap = new Map();
+            this.clients.set(pathToBin, tsconfigMap);
+        }
+        const clientRec = tsconfigMap.get(tsconfigPath);
         if (clientRec)
             return clientRec.client;
         const newClientRec = {
             client: new client_1.TypescriptServiceClient(pathToBin, version),
             pending: [],
         };
-        this.clients.set(pathToBin, newClientRec);
+        tsconfigMap.set(tsconfigPath, newClientRec);
         newClientRec.client.on("pendingRequestsChange", pending => {
             newClientRec.pending = pending;
             this.emitter.emit("pendingRequestsChange", pending);
@@ -80,6 +94,23 @@ async function resolveBinary(sourcePath, binName) {
     };
 }
 exports.resolveBinary = resolveBinary;
+async function fsexists(filePath) {
+    return new Promise(resolve => {
+        fs.exists(filePath, resolve);
+    });
+}
+async function resolveTsConfig(sourcePath) {
+    let parentDir = path.dirname(sourcePath);
+    let tsconfigPath = path.join(parentDir, "tsconfig.json");
+    while (!(await fsexists(tsconfigPath))) {
+        const oldParentDir = parentDir;
+        parentDir = path.dirname(parentDir);
+        if (oldParentDir === parentDir)
+            return undefined;
+        tsconfigPath = path.join(parentDir, "tsconfig.json");
+    }
+    return tsconfigPath;
+}
 function isConfDiagBody(body) {
     // tslint:disable-next-line:no-unsafe-any
     return body && body.triggerFile && body.configFile;

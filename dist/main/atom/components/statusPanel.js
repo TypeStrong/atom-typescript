@@ -16,7 +16,7 @@ class StatusPanel {
         };
         this.handlePendingRequests = () => {
             this.update({
-                pending: [].concat(...Array.from(this.props.clientResolver.clients.values()).map(el => el.pending)),
+                pending: Array.from(this.props.clientResolver.getAllPending()),
             });
         };
         this.props = Object.assign({ visible: true }, props);
