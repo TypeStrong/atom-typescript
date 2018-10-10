@@ -45,13 +45,21 @@ export class TypescriptServiceClient {
   /** Callbacks that are waiting for responses */
   private readonly callbacks: Callbacks
 
-  private readonly emitter = new Emitter<{}, EventTypes>()
+  private readonly emitter = new Emitter<
+    {
+      restarted: void
+    },
+    EventTypes
+  >()
   private seq = 0
 
   private serverPromise: Promise<ChildProcess>
   private running = false
   private lastStderrOutput = ""
   private lastStartAttempt?: number
+
+  // tslint:disable-next-line:member-ordering
+  public on = this.emitter.on.bind(this.emitter)
 
   constructor(public tsServerPath: string, public version: string) {
     this.callbacks = new Callbacks(this.emitPendingRequests)
@@ -67,10 +75,6 @@ export class TypescriptServiceClient {
     }
 
     return this.sendRequest(await this.serverPromise, command, args)
-  }
-
-  public on<T extends keyof EventTypes>(name: T, listener: (result: EventTypes[T]) => void) {
-    return this.emitter.on(name, listener)
   }
 
   public async killServer() {

@@ -38,6 +38,8 @@ class TypescriptServiceClient {
         this.seq = 0;
         this.running = false;
         this.lastStderrOutput = "";
+        // tslint:disable-next-line:member-ordering
+        this.on = this.emitter.on.bind(this.emitter);
         this.exitHandler = (reject) => (err, report = true) => {
             this.callbacks.rejectAll(err);
             if (report)
@@ -85,9 +87,6 @@ class TypescriptServiceClient {
             throw new Error("Server is not running");
         }
         return this.sendRequest(await this.serverPromise, command, args);
-    }
-    on(name, listener) {
-        return this.emitter.on(name, listener);
     }
     async killServer() {
         if (this.running) {
