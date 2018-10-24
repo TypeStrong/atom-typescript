@@ -2,7 +2,6 @@ import {TooltipView} from "./tooltipView"
 import {TSClient} from "../../../client"
 import * as Atom from "atom"
 import {handlePromise} from "../../../utils"
-import escape = require("escape-html")
 import {bufferPositionFromMouseEvent} from "./util"
 
 interface Rect {
@@ -72,19 +71,12 @@ export class TooltipController {
       return
     }
 
-    const {displayString, documentation} = result.body!
-
-    let message = `<b>${escape(displayString)}</b>`
-    if (documentation) {
-      message =
-        message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`
-    }
-    return message
+    return result.body
   }
 
-  private async showTooltip(tooltipRect: Rect, message: string) {
+  private async showTooltip(tooltipRect: Rect, info: protocol.QuickInfoResponseBody) {
     this.view = new TooltipView()
     document.body.appendChild(this.view.element)
-    await this.view.update({...tooltipRect, text: message})
+    await this.view.update({...tooltipRect, info})
   }
 }

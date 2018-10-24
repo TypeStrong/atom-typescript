@@ -5,7 +5,7 @@ interface Props extends JSX.Props {
   right: number
   top: number
   bottom: number
-  text: string
+  info?: protocol.QuickInfoResponseBody
 }
 
 export class TooltipView implements JSX.ElementClass {
@@ -18,7 +18,6 @@ export class TooltipView implements JSX.ElementClass {
       right: 0,
       top: 0,
       bottom: 0,
-      text: "",
     }
     etch.initialize(this)
   }
@@ -69,8 +68,19 @@ export class TooltipView implements JSX.ElementClass {
   public render() {
     return (
       <div class="atom-typescript-tooltip tooltip">
-        <div class="tooltip-inner" innerHTML={this.props.text} />
+        <div class="tooltip-inner">{this.tooltipContents()}</div>
       </div>
     )
+  }
+
+  private tooltipContents() {
+    if (!this.props.info) return "…"
+    const code = (
+      <div class="atom-typescript-tooltip-tooltip-code">{this.props.info.displayString}</div>
+    )
+    const docs = this.props.info.documentation ? (
+      <div class="atom-typescript-tooltip-tooltip-doc">{this.props.info.documentation}</div>
+    ) : null
+    return [code, docs]
   }
 }

@@ -155,7 +155,6 @@
     "atom-package-deps": "^4.6.2",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
-    "escape-html": "^1.0.3",
     "etch": "^0.14.0",
     "fuzzaldrin": "^2.1.0",
     "lodash": "^4.17.11",

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tooltipView_1 = require("./tooltipView");
 const utils_1 = require("../../../utils");
-const escape = require("escape-html");
 const util_1 = require("./util");
 class TooltipController {
     constructor(getClient, editor, e) {
@@ -59,18 +58,12 @@ class TooltipController {
         catch (e) {
             return;
         }
-        const { displayString, documentation } = result.body;
-        let message = `<b>${escape(displayString)}</b>`;
-        if (documentation) {
-            message =
-                message + `<br/><i>${escape(documentation).replace(/(?:\r\n|\r|\n)/g, "<br />")}</i>`;
-        }
-        return message;
+        return result.body;
     }
-    async showTooltip(tooltipRect, message) {
+    async showTooltip(tooltipRect, info) {
         this.view = new tooltipView_1.TooltipView();
         document.body.appendChild(this.view.element);
-        await this.view.update(Object.assign({}, tooltipRect, { text: message }));
+        await this.view.update(Object.assign({}, tooltipRect, { info }));
     }
 }
 exports.TooltipController = TooltipController;
