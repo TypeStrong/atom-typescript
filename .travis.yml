@@ -20,7 +20,7 @@ script:
   - chmod u+x build-package.sh
   - ./build-package.sh
   - npm run build
-  - git diff --quiet
+  - git diff --quiet -- dist/
   - npm test
 
 notifications:
@@ -42,7 +42,7 @@ dist: trusty
 addons:
   apt:
     packages:
-    - build-essential
-    - fakeroot
-    - git
-    - libsecret-1-dev
+      - build-essential
+      - fakeroot
+      - git
+      - libsecret-1-dev

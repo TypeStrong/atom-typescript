@@ -52,7 +52,7 @@ export function highlightMatches(name: string, query: string): QueryMatch[] {
   let matchedChars: string[] = [] // Build up a set of matched chars to be more semantic
   const queryMatches: QueryMatch[] = []
 
-  const matches: number[] = match(name, query)
+  const matches: number[] = match(name, query) as number[]
   let matchIndex: number
   for (matchIndex of matches) {
     if (matchIndex < 0) {

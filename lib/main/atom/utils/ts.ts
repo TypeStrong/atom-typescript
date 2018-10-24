@@ -61,7 +61,7 @@ export function isLocationInRange(loc: Location, range: {start: Location; end: L
 
 export async function getProjectCodeSettings(configFile: string): Promise<FormatCodeSettings> {
   const {config} = await tsconfig.load(configFile)
-  const options = config.formatCodeOptions
+  const options = (config as {formatCodeOptions: FormatCodeSettings}).formatCodeOptions
 
   return {
     indentSize: atom.config.get("editor.tabLength"),
