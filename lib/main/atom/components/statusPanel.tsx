@@ -1,6 +1,6 @@
 import * as etch from "etch"
 import {dirname} from "path"
-import {ClientResolver} from "../../../client/clientResolver"
+import {ClientResolver} from "../../../client"
 import {CompositeDisposable} from "atom"
 import {handlePromise} from "../../../utils"
 

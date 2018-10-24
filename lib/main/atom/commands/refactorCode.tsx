@@ -4,7 +4,7 @@ import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {HighlightComponent} from "../views/highlightComponent"
 import * as protocol from "typescript/lib/protocol"
-import {TypescriptServiceClient} from "../../../client/client"
+import {TSClient} from "../../../client"
 
 interface RefactorAction {
   refactorName: string
@@ -61,7 +61,7 @@ addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
 }))
 
 async function getApplicableRefactorsActions(
-  client: TypescriptServiceClient,
+  client: TSClient,
   pointOrRange: protocol.FileLocationOrRangeRequestArgs,
 ) {
   const responseApplicable = await getApplicabeRefactors(client, pointOrRange)
@@ -87,7 +87,7 @@ async function getApplicableRefactorsActions(
 }
 
 async function getApplicabeRefactors(
-  client: TypescriptServiceClient,
+  client: TSClient,
   pointOrRange: protocol.FileLocationOrRangeRequestArgs,
 ) {
   try {
@@ -100,7 +100,7 @@ async function getApplicabeRefactors(
 async function applyRefactors(
   selectedAction: RefactorAction,
   range: protocol.FileLocationOrRangeRequestArgs,
-  client: TypescriptServiceClient,
+  client: TSClient,
   deps: Dependencies,
 ) {
   const responseEdits = await client.execute("getEditsForRefactor", {

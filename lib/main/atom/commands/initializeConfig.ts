@@ -1,5 +1,5 @@
 import {addCommand} from "./registry"
-import {resolveBinary} from "../../../client/clientResolver"
+import {resolveBinary} from "../../../client"
 import {BufferedNodeProcess} from "atom"
 
 addCommand("atom-text-editor", "typescript:initialize-config", () => ({

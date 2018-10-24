@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {TypescriptServiceClient} from "../../../client/client"
+import {GetClientFunction} from "../../../client"
 import {StatusPanel} from "../../atom/components/statusPanel"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
@@ -7,9 +7,9 @@ import {ApplyEdits} from "../../pluginManager"
 import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 
 export interface Dependencies {
+  getClient: GetClientFunction
   applyEdits: ApplyEdits
   clearErrors(): void
-  getClient(filePath: string): Promise<TypescriptServiceClient>
   killAllServers(): void
   getStatusPanel(): StatusPanel
   getSemanticViewController(): SemanticViewController

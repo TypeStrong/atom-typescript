@@ -7,7 +7,7 @@ import fs = require("fs")
 import {listen} from "./utils/element-listener"
 import {TooltipView} from "./views/tooltipView"
 import escape = require("escape-html")
-import {TypescriptServiceClient} from "../../client/client"
+import {TSClient, GetClientFunction} from "../../client"
 import {handlePromise} from "../../utils"
 
 const tooltipMap = new WeakMap<Atom.TextEditor, TooltipManager>()
@@ -43,7 +43,7 @@ export async function showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) 
 
 export class TooltipManager {
   private static exprTypeTooltip: TooltipView | undefined
-  private clientPromise?: Promise<TypescriptServiceClient>
+  private clientPromise?: Promise<TSClient>
   private rawView: Atom.TextEditorElement
   private lines: Element
   private subscriptions = new Atom.CompositeDisposable()
@@ -51,10 +51,7 @@ export class TooltipManager {
   private lastExprTypeBufferPt?: Atom.Point
   private cancelShowTooltip?: () => void
 
-  constructor(
-    private editor: Atom.TextEditor,
-    private getClient: (fp: string) => Promise<TypescriptServiceClient>,
-  ) {
+  constructor(private editor: Atom.TextEditor, private getClient: GetClientFunction) {
     this.rawView = atom.views.getView(editor)
     this.lines = this.rawView.querySelector(".lines")!
     tooltipMap.set(editor, this)

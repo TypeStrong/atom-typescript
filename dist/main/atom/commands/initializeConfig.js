@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
-const clientResolver_1 = require("../../../client/clientResolver");
+const client_1 = require("../../../client");
 const atom_1 = require("atom");
 registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => ({
     description: "Create tsconfig.json in the project related to currently-active text edtior",
@@ -12,7 +12,7 @@ registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => 
         const currentPath = editor.getPath();
         if (currentPath === undefined)
             return;
-        const pathToTsc = (await clientResolver_1.resolveBinary(currentPath, "tsc")).pathToBin;
+        const pathToTsc = (await client_1.resolveBinary(currentPath, "tsc")).pathToBin;
         for (const projectDir of projectDirs) {
             if (projectDir.contains(currentPath)) {
                 await initConfig(pathToTsc, projectDir.getPath());

@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {ClientResolver} from "../../client/clientResolver"
+import {ClientResolver} from "../../client"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
 import {isTypescriptEditorWithPath} from "./utils"
 import {EditorPositionHistoryManager} from "./editorPositionHistoryManager"

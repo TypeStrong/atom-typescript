@@ -1,8 +1,7 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
-import {ClientResolver} from "../../client/clientResolver"
+import {ClientResolver, TSClient} from "../../client"
 import {FileLocationQuery, typeScriptScopes, spanToRange} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
-import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
 import {WithTypescriptBuffer} from "../pluginManager"
@@ -32,7 +31,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   private clientResolver: ClientResolver
   private lastSuggestions?: {
     // Client used to get the suggestions
-    client: TypescriptServiceClient
+    client: TSClient
 
     // File and position for the suggestions
     location: FileLocationQuery

@@ -4,12 +4,12 @@ import {debounce, flatten} from "lodash"
 import {spanToRange, getProjectCodeSettings, isTypescriptEditorWithPath} from "./atom/utils"
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
-import {TypescriptServiceClient} from "../client/client"
+import {TSClient, GetClientFunction} from "../client"
 import {TooltipManager} from "./atom/tooltipManager"
 import {handlePromise} from "../utils"
 
 interface PaneOptions {
-  getClient: (filePath: string) => Promise<TypescriptServiceClient>
+  getClient: GetClientFunction
 
   // Called when the pane is being disposed.
   onDispose: (pane: TypescriptEditorPane) => void
@@ -25,7 +25,7 @@ interface PaneOptions {
 export class TypescriptEditorPane implements Atom.Disposable {
   // Timestamp for activated event
   public activeAt: number = 0
-  public client?: TypescriptServiceClient
+  public client?: TSClient
   public isTypescript = false
   public readonly buffer: TypescriptBuffer
 

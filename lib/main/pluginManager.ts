@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
-import {ClientResolver} from "../client/clientResolver"
+import {ClientResolver} from "../client"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
 import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"

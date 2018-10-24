@@ -1,12 +1,11 @@
 import * as Atom from "atom"
-import {ClientResolver} from "../../../client/clientResolver"
+import {ClientResolver, TSClient} from "../../../client"
 import {ErrorPusher} from "../../errorPusher"
 import {pointToLocation} from "../utils"
-import {TypescriptServiceClient} from "../../../client/client"
 import {ApplyEdits} from "../../pluginManager"
 
 export class CodefixProvider {
-  private supportedFixes: WeakMap<TypescriptServiceClient, Set<number>> = new WeakMap()
+  private supportedFixes: WeakMap<TSClient, Set<number>> = new WeakMap()
 
   constructor(
     private clientResolver: ClientResolver,
@@ -61,7 +60,7 @@ export class CodefixProvider {
     // NOOP
   }
 
-  private async getSupportedFixes(client: TypescriptServiceClient) {
+  private async getSupportedFixes(client: TSClient) {
     let codes = this.supportedFixes.get(client)
     if (codes) {
       return codes

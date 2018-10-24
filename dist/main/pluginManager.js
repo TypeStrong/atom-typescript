@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-const clientResolver_1 = require("../client/clientResolver");
+const client_1 = require("../client");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
 const codefix_1 = require("./atom/codefix");
 const atom_1 = require("atom");
@@ -65,7 +65,7 @@ class PluginManager {
         this.getSymbolsViewController = () => this.symbolsViewController;
         this.getEditorPositionHistoryManager = () => this.editorPosHist;
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.clientResolver = new clientResolver_1.ClientResolver();
+        this.clientResolver = new client_1.ClientResolver();
         this.subscriptions.add(this.clientResolver);
         this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
         this.subscriptions.add(this.statusPanel);

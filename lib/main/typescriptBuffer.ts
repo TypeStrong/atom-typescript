@@ -1,12 +1,12 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 import * as Atom from "atom"
-import {TypescriptServiceClient as Client} from "../client/client"
+import {TSClient, GetClientFunction} from "../client"
 import {isTypescriptFile} from "./atom/utils"
 import {handlePromise} from "../utils"
 
 export class TypescriptBuffer {
-  public static create(buffer: Atom.TextBuffer, getClient: (filePath: string) => Promise<Client>) {
+  public static create(buffer: Atom.TextBuffer, getClient: GetClientFunction) {
     const b = TypescriptBuffer.bufferMap.get(buffer)
     if (b) return b
     else {
@@ -34,16 +34,13 @@ export class TypescriptBuffer {
 
   // Promise that resolves to the correct client for this filePath
   private state?: {
-    client: Promise<Client>
+    client: Promise<TSClient>
     filePath: string
   }
 
   private subscriptions = new Atom.CompositeDisposable()
 
-  private constructor(
-    public buffer: Atom.TextBuffer,
-    public getClient: (filePath: string) => Promise<Client>,
-  ) {
+  private constructor(public buffer: Atom.TextBuffer, public getClient: GetClientFunction) {
     this.subscriptions.add(
       buffer.onDidChange(this.onDidChange),
       buffer.onDidChangePath(this.onDidChangePath),
