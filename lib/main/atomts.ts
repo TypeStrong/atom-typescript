@@ -10,7 +10,8 @@ let pluginManager: PluginManager | undefined
 export async function activate(state: State) {
   // tslint:disable:no-unsafe-any
   const pns = atom.packages.getAvailablePackageNames()
-  if (!(pns.includes("atom-ide-ui") || pns.includes("linter"))) {
+  const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
+  if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
     await require("atom-package-deps").install("atom-typescript", true)
   }
 
