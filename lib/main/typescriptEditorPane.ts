@@ -5,7 +5,6 @@ import {spanToRange, getProjectCodeSettings, isTypescriptEditorWithPath} from ".
 import {StatusPanel} from "./atom/components/statusPanel"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TSClient, GetClientFunction} from "../client"
-import {TooltipManager} from "./atom/tooltipManager"
 import {handlePromise} from "../utils"
 
 interface PaneOptions {
@@ -55,8 +54,6 @@ export class TypescriptEditorPane implements Atom.Disposable {
       this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition),
       this.editor.onDidDestroy(this.onDidDestroy),
     )
-
-    this.subscriptions.add(new TooltipManager(this.editor, opts.getClient))
   }
 
   public dispose() {

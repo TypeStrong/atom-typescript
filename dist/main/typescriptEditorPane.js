@@ -4,7 +4,6 @@ const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
-const tooltipManager_1 = require("./atom/tooltipManager");
 const utils_2 = require("../utils");
 class TypescriptEditorPane {
     constructor(editor, opts) {
@@ -115,7 +114,6 @@ class TypescriptEditorPane {
         this.subscriptions.add(this.buffer.events.on("changed", this.onChanged), this.buffer.events.on("closed", this.opts.onClose), this.buffer.events.on("opened", this.onOpened), this.buffer.events.on("saved", this.onSaved));
         this.checkIfTypescript();
         this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition), this.editor.onDidDestroy(this.onDidDestroy));
-        this.subscriptions.add(new tooltipManager_1.TooltipManager(this.editor, opts.getClient));
     }
     dispose() {
         atom.views.getView(this.editor).classList.remove("typescript-editor");

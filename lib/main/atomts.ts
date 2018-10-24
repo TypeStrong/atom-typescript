@@ -2,6 +2,7 @@ import {PluginManager} from "./pluginManager"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {State} from "./packageState"
+import {DatatipService} from "atom/ide"
 export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 
 let pluginManager: PluginManager | undefined
@@ -38,6 +39,10 @@ export function consumeLinter(register: (opts: {name: string}) => IndieDelegate)
 
 export function consumeStatusBar(statusBar: StatusBar) {
   if (pluginManager) return pluginManager.consumeStatusBar(statusBar)
+}
+
+export function consumeDatatipService(datatipService: DatatipService) {
+  if (pluginManager) return pluginManager.consumeDatatipService(datatipService)
 }
 
 ////////////////////////////////// Providers ///////////////////////////////////

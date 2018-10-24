@@ -15,6 +15,7 @@ export interface Dependencies {
   getSemanticViewController(): SemanticViewController
   getSymbolsViewController(): SymbolsViewController
   getEditorPositionHistoryManager(): EditorPositionHistoryManager
+  showTooltipAt(ed: Atom.TextEditor, pos: Atom.Point): void
 }
 
 export type AllowedSelectors = keyof Dispatch

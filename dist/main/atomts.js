@@ -40,6 +40,11 @@ function consumeStatusBar(statusBar) {
         return pluginManager.consumeStatusBar(statusBar);
 }
 exports.consumeStatusBar = consumeStatusBar;
+function consumeDatatipService(datatipService) {
+    if (pluginManager)
+        return pluginManager.consumeDatatipService(datatipService);
+}
+exports.consumeDatatipService = consumeDatatipService;
 ////////////////////////////////// Providers ///////////////////////////////////
 function provideAutocomplete() {
     if (pluginManager)

@@ -18,6 +18,8 @@ const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryMana
 const utils_1 = require("./atom/utils");
 const path = require("path");
 const utils_2 = require("../utils");
+const datatipProvider_1 = require("./atom/datatipProvider");
+const manager_1 = require("./atom/tooltips/manager");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
@@ -81,6 +83,8 @@ class PluginManager {
         this.subscriptions.add(this.symbolsViewController);
         this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
+        this.tooltipManager = new manager_1.TooltipManager(this.getClient);
+        this.subscriptions.add(this.tooltipManager);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
     }
@@ -119,6 +123,13 @@ class PluginManager {
         this.subscriptions.add(disp);
         return disp;
     }
+    consumeDatatipService(datatip) {
+        if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
+            return;
+        this.datatipProvider = new datatipProvider_1.TSDatatipProvider(this.getClient, datatip);
+        this.subscriptions.add(datatip.addProvider(this.datatipProvider));
+        this.tooltipManager.dispose();
+    }
     // Registering an autocomplete provider
     provideAutocomplete() {
         return [
@@ -135,6 +146,12 @@ class PluginManager {
     }
     provideHyperclick() {
         return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
+    }
+    async showTooltipAt(ed, pos) {
+        if (this.datatipProvider)
+            return this.datatipProvider.showDatatip(ed, pos);
+        else
+            return this.tooltipManager.showExpressionAt(ed, pos);
     }
     subscribeEditors() {
         let activePane;

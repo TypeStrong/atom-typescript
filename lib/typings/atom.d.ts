@@ -5,7 +5,12 @@ declare module "atom" {
   }
 
   interface TextEditor {
-    isDestroyed(): boolean
-    getURI(): string
+    onDidTokenize(callback: () => void): Disposable
+  }
+  interface TextEditorElement {
+    setUpdatedSynchronously(val: boolean): void
+  }
+  interface TextBuffer {
+    getLanguageMode(): {readonly fullyTokenized: boolean}
   }
 }

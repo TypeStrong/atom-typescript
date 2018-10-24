@@ -19,6 +19,9 @@ import {State} from "./packageState"
 import {TextSpan, spanToRange} from "./atom/utils"
 import * as path from "path"
 import {handlePromise} from "../utils"
+import {DatatipService} from "atom/ide"
+import {TSDatatipProvider} from "./atom/datatipProvider"
+import {TooltipManager} from "./atom/tooltips/manager"
 
 export type WithTypescriptBuffer = <T>(
   filePath: string,
@@ -46,6 +49,8 @@ export class PluginManager {
   private symbolsViewController: SymbolsViewController
   private editorPosHist: EditorPositionHistoryManager
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
+  private datatipProvider?: TSDatatipProvider
+  private tooltipManager: TooltipManager
 
   public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
@@ -77,6 +82,9 @@ export class PluginManager {
 
     this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)
     this.subscriptions.add(this.editorPosHist)
+
+    this.tooltipManager = new TooltipManager(this.getClient)
+    this.subscriptions.add(this.tooltipManager)
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))
@@ -121,6 +129,13 @@ export class PluginManager {
     })
     this.subscriptions.add(disp)
     return disp
+  }
+
+  public consumeDatatipService(datatip: DatatipService) {
+    if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
+    this.datatipProvider = new TSDatatipProvider(this.getClient, datatip)
+    this.subscriptions.add(datatip.addProvider(this.datatipProvider))
+    this.tooltipManager.dispose()
   }
 
   // Registering an autocomplete provider
@@ -193,6 +208,11 @@ export class PluginManager {
         }),
       ),
     )
+
+  public async showTooltipAt(ed: Atom.TextEditor, pos: Atom.Point): Promise<void> {
+    if (this.datatipProvider) return this.datatipProvider.showDatatip(ed, pos)
+    else return this.tooltipManager.showExpressionAt(ed, pos)
+  }
 
   public getSemanticViewController = () => this.semanticViewController
 

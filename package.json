@@ -46,6 +46,13 @@
       "default": "en",
       "order": 50
     },
+    "preferBuiltinTooltips": {
+      "title": "Prefer built-in tooltips",
+      "description": "Use built-in tooltips for displaying type information instead of Atom-IDE ones (if available); Change requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 55
+    },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
       "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
@@ -104,6 +111,11 @@
     "status-bar": {
       "versions": {
         "^1.0.0": "consumeStatusBar"
+      }
+    },
+    "datatip": {
+      "versions": {
+        "0.1.0": "consumeDatatipService"
       }
     }
   },
