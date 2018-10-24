@@ -1,6 +1,14 @@
 import * as Atom from "atom"
+import {Signature, SignatureParameter} from "atom/ide"
 import * as tsconfig from "tsconfig"
-import {CodeEdit, FormatCodeSettings, Location, TextSpan} from "typescript/lib/protocol"
+import {
+  CodeEdit,
+  FormatCodeSettings,
+  Location,
+  SignatureHelpItem,
+  SignatureHelpParameter,
+  TextSpan,
+} from "typescript/lib/protocol"
 
 export {TextSpan, CodeEdit, FormatCodeSettings, Location}
 
@@ -68,4 +76,28 @@ export async function getProjectCodeSettings(configFile: string): Promise<Format
     tabSize: atom.config.get("editor.tabLength"),
     ...options,
   }
+}
+
+export function signatureHelpItemToSignature(i: SignatureHelpItem): Signature {
+  return {
+    label:
+      partsToStr(i.prefixDisplayParts) +
+      i.parameters.map(x => partsToStr(x.displayParts)).join(partsToStr(i.separatorDisplayParts)) +
+      partsToStr(i.suffixDisplayParts),
+    documentation: partsToStr(i.documentation),
+    parameters: i.parameters.map(signatureHelpParameterToSignatureParameter),
+  }
+}
+
+export function signatureHelpParameterToSignatureParameter(
+  p: SignatureHelpParameter,
+): SignatureParameter {
+  return {
+    label: partsToStr(p.displayParts),
+    documentation: partsToStr(p.documentation),
+  }
+}
+
+function partsToStr(x: Array<{text: string}>): string {
+  return x.map(i => i.text).join("")
 }

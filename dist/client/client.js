@@ -30,6 +30,7 @@ const commandWithResponseMap = {
     getEditsForRefactor: true,
     ping: true,
     organizeImports: true,
+    signatureHelp: true,
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 class TypescriptServiceClient {

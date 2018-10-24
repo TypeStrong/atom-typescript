@@ -32,6 +32,7 @@ export interface CommandArgResponseMap {
   ping: (x: undefined) => null
   organizeImports: (x: p.OrganizeImportsRequestArgs) => p.OrganizeImportsResponse
   exit: (x: undefined) => void
+  signatureHelp: (x: p.SignatureHelpRequestArgs) => p.SignatureHelpResponse
 }
 
 export type ArgType<T extends (x: any) => any> = T extends (x: infer U) => any ? U : never

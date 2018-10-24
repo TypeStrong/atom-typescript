@@ -3,9 +3,9 @@
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
+ * LICENSE.Facebook file in the directory containing this source file.
+ * An additional grant of patent rights can be found in the PATENTS.Facebook
+ * file in the same directory.
  */
 
 declare module "atom/ide" {

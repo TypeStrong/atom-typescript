@@ -38,6 +38,7 @@ const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: t
   getEditsForRefactor: true,
   ping: true,
   organizeImports: true,
+  signatureHelp: true,
 }
 
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))

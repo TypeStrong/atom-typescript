@@ -46,6 +46,11 @@ function consumeDatatipService(datatipService) {
         return pluginManager.consumeDatatipService(datatipService);
 }
 exports.consumeDatatipService = consumeDatatipService;
+function consumeSignatureHelp(registry) {
+    if (pluginManager)
+        return pluginManager.consumeSigHelpService(registry);
+}
+exports.consumeSignatureHelp = consumeSignatureHelp;
 ////////////////////////////////// Providers ///////////////////////////////////
 function provideAutocomplete() {
     if (pluginManager)

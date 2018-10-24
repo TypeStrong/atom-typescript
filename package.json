@@ -117,6 +117,11 @@
       "versions": {
         "0.1.0": "consumeDatatipService"
       }
+    },
+    "signature-help": {
+      "versions": {
+        "0.1.0": "consumeSignatureHelp"
+      }
     }
   },
   "providedServices": {

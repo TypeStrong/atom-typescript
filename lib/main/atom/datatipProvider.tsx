@@ -46,7 +46,6 @@ export class TSDatatipProvider implements DatatipProvider {
         offset: bufferPt.column + 1,
       })
       const data = result.body!
-      console.log(data)
       const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""))
       const kind = (
         <div class="atom-typescript-datatip-tooltip-kind">
@@ -66,7 +65,6 @@ export class TSDatatipProvider implements DatatipProvider {
         range: Atom.Range.fromObject([locationToPoint(data.start), locationToPoint(data.end)]),
       }
     } catch (e) {
-      console.error(e)
       return
     }
   }

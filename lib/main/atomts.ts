@@ -1,4 +1,5 @@
-import {DatatipService} from "atom/ide"
+import {DisposableLike} from "atom"
+import {DatatipService, SignatureHelpRegistry} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {State} from "./packageState"
@@ -34,16 +35,22 @@ export function serialize() {
 }
 
 ////////////////////////////////// Consumers ///////////////////////////////////
-export function consumeLinter(register: (opts: {name: string}) => IndieDelegate) {
+export function consumeLinter(
+  register: (opts: {name: string}) => IndieDelegate,
+): DisposableLike | void {
   if (pluginManager) return pluginManager.consumeLinter(register)
 }
 
-export function consumeStatusBar(statusBar: StatusBar) {
+export function consumeStatusBar(statusBar: StatusBar): DisposableLike | void {
   if (pluginManager) return pluginManager.consumeStatusBar(statusBar)
 }
 
-export function consumeDatatipService(datatipService: DatatipService) {
+export function consumeDatatipService(datatipService: DatatipService): DisposableLike | void {
   if (pluginManager) return pluginManager.consumeDatatipService(datatipService)
+}
+
+export function consumeSignatureHelp(registry: SignatureHelpRegistry): DisposableLike | void {
+  if (pluginManager) return pluginManager.consumeSigHelpService(registry)
 }
 
 ////////////////////////////////// Providers ///////////////////////////////////

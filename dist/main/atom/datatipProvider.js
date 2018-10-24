@@ -43,7 +43,6 @@ class TSDatatipProvider {
                 offset: bufferPt.column + 1,
             });
             const data = result.body;
-            console.log(data);
             const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""));
             const kind = (etch.dom("div", { class: "atom-typescript-datatip-tooltip-kind" },
                 data.kind,
@@ -61,7 +60,6 @@ class TSDatatipProvider {
             };
         }
         catch (e) {
-            console.error(e);
             return;
         }
     }

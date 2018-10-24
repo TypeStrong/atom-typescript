@@ -58,4 +58,24 @@ async function getProjectCodeSettings(configFile) {
     return Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options);
 }
 exports.getProjectCodeSettings = getProjectCodeSettings;
+function signatureHelpItemToSignature(i) {
+    return {
+        label: partsToStr(i.prefixDisplayParts) +
+            i.parameters.map(x => partsToStr(x.displayParts)).join(partsToStr(i.separatorDisplayParts)) +
+            partsToStr(i.suffixDisplayParts),
+        documentation: partsToStr(i.documentation),
+        parameters: i.parameters.map(signatureHelpParameterToSignatureParameter),
+    };
+}
+exports.signatureHelpItemToSignature = signatureHelpItemToSignature;
+function signatureHelpParameterToSignatureParameter(p) {
+    return {
+        label: partsToStr(p.displayParts),
+        documentation: partsToStr(p.documentation),
+    };
+}
+exports.signatureHelpParameterToSignatureParameter = signatureHelpParameterToSignatureParameter;
+function partsToStr(x) {
+    return x.map(i => i.text).join("");
+}
 //# sourceMappingURL=ts.js.map

@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {DatatipService} from "atom/ide"
+import {DatatipService, SignatureHelpRegistry} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {debounce, throttle} from "lodash"
@@ -14,6 +14,7 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import {TSDatatipProvider} from "./atom/datatipProvider"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
+import {TSSigHelpProvider} from "./atom/sigHelpProvider"
 import {TooltipManager} from "./atom/tooltips/manager"
 import {spanToRange, TextSpan} from "./atom/utils"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
@@ -150,8 +151,16 @@ export class PluginManager {
   public consumeDatatipService(datatip: DatatipService) {
     if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
     this.datatipProvider = new TSDatatipProvider(this.getClient)
-    this.subscriptions.add(datatip.addProvider(this.datatipProvider))
+    const disp = datatip.addProvider(this.datatipProvider)
+    this.subscriptions.add(disp)
     this.tooltipManager.dispose()
+    return disp
+  }
+
+  public consumeSigHelpService(registry: SignatureHelpRegistry): void | Atom.DisposableLike {
+    const disp = registry(new TSSigHelpProvider(this.getClient, this.withTypescriptBuffer))
+    this.subscriptions.add(disp)
+    return disp
   }
 
   // Registering an autocomplete provider

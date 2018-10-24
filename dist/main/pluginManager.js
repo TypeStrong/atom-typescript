@@ -13,6 +13,7 @@ const statusPanel_1 = require("./atom/components/statusPanel");
 const datatipProvider_1 = require("./atom/datatipProvider");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
+const sigHelpProvider_1 = require("./atom/sigHelpProvider");
 const manager_1 = require("./atom/tooltips/manager");
 const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
@@ -131,8 +132,15 @@ class PluginManager {
         if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
             return;
         this.datatipProvider = new datatipProvider_1.TSDatatipProvider(this.getClient);
-        this.subscriptions.add(datatip.addProvider(this.datatipProvider));
+        const disp = datatip.addProvider(this.datatipProvider);
+        this.subscriptions.add(disp);
         this.tooltipManager.dispose();
+        return disp;
+    }
+    consumeSigHelpService(registry) {
+        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.withTypescriptBuffer));
+        this.subscriptions.add(disp);
+        return disp;
     }
     // Registering an autocomplete provider
     provideAutocomplete() {
