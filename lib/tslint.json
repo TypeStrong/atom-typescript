@@ -2,6 +2,7 @@
   "defaultSeverity": "warning",
   "extends": ["tslint:recommended"],
   "jsRules": {},
+  "defaultSeverity": "error",
   "rules": {
     "semicolon": false,
     "object-literal-sort-keys": false,
