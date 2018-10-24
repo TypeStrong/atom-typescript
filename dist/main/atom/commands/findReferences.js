@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const registry_1 = require("./registry");
-const utils_1 = require("../utils");
-const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const etch = require("etch");
 const tsView_1 = require("../components/tsView");
+const utils_1 = require("../utils");
 const highlightComponent_1 = require("../views/highlightComponent");
+const simpleSelectionView_1 = require("../views/simpleSelectionView");
+const registry_1 = require("./registry");
 registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
     description: "Find where symbol under text cursor is referenced",
     async didDispatch(editor) {

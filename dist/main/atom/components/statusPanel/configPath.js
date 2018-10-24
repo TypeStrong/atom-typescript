@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
-const utils_1 = require("../../../../utils");
 const path_1 = require("path");
+const utils_1 = require("../../../../utils");
 const tooltip_1 = require("./tooltip");
 class ConfigPath {
     constructor(props) {

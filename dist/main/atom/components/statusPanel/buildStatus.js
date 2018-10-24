@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const etch = require("etch");
-const tooltip_1 = require("./tooltip");
-const lodash_1 = require("lodash");
 const atom_1 = require("atom");
+const etch = require("etch");
+const lodash_1 = require("lodash");
 const utils_1 = require("../../../../utils");
+const tooltip_1 = require("./tooltip");
 class BuildStatus {
     constructor(props) {
         this.hiddenBuildStatus = false;

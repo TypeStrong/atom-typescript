@@ -1,6 +1,6 @@
-import {NavigationTreeViewModel} from "./semanticViewModel"
-import {NavigationTree} from "typescript/lib/protocol"
 import {isEqual} from "lodash"
+import {NavigationTree} from "typescript/lib/protocol"
+import {NavigationTreeViewModel} from "./semanticViewModel"
 
 /**
  * HELPER find the node that is "furthest down" the

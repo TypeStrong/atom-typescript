@@ -1,13 +1,13 @@
 // tslint:disable:max-classes-per-file
-import * as protocol from "typescript/lib/protocol"
-import {CommandArgResponseMap, CommandArg, CommandRes} from "./commandArgsResponseMap"
 import {BufferedNodeProcess, BufferedProcess, Emitter} from "atom"
-import {Callbacks} from "./callbacks"
-import {ChildProcess} from "child_process"
-import {Transform, Readable} from "stream"
 import byline = require("byline")
-import {EventTypes} from "./events"
+import {ChildProcess} from "child_process"
+import {Readable, Transform} from "stream"
+import * as protocol from "typescript/lib/protocol"
 import {handlePromise} from "../utils"
+import {Callbacks} from "./callbacks"
+import {CommandArg, CommandArgResponseMap, CommandRes} from "./commandArgsResponseMap"
+import {EventTypes} from "./events"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false

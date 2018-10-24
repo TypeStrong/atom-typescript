@@ -1,25 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
-const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-const client_1 = require("../client");
-const hyperclickProvider_1 = require("./atom/hyperclickProvider");
-const codefix_1 = require("./atom/codefix");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
-const errorPusher_1 = require("./errorPusher");
-const statusPanel_1 = require("./atom/components/statusPanel");
-const typescriptEditorPane_1 = require("./typescriptEditorPane");
-const typescriptBuffer_1 = require("./typescriptBuffer");
+const path = require("path");
+const client_1 = require("../client");
+const utils_1 = require("../utils");
+const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
+const codefix_1 = require("./atom/codefix");
 const commands_1 = require("./atom/commands");
+const statusPanel_1 = require("./atom/components/statusPanel");
+const datatipProvider_1 = require("./atom/datatipProvider");
+const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
+const hyperclickProvider_1 = require("./atom/hyperclickProvider");
+const manager_1 = require("./atom/tooltips/manager");
+const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
-const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
-const utils_1 = require("./atom/utils");
-const path = require("path");
-const utils_2 = require("../utils");
-const datatipProvider_1 = require("./atom/datatipProvider");
-const manager_1 = require("./atom/tooltips/manager");
+const errorPusher_1 = require("./errorPusher");
+const typescriptBuffer_1 = require("./typescriptBuffer");
+const typescriptEditorPane_1 = require("./typescriptEditorPane");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
@@ -55,7 +55,7 @@ class PluginManager {
         this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
                 const changes = edit.textChanges
-                    .map(e => ({ range: utils_1.spanToRange(e), newText: e.newText }))
+                    .map(e => ({ range: utils_2.spanToRange(e), newText: e.newText }))
                     .sort((a, b) => b.range.compare(a.range));
                 for (const change of changes) {
                     buffer.buffer.setTextInRange(change.range, change.newText);
@@ -71,7 +71,7 @@ class PluginManager {
         this.subscriptions.add(this.clientResolver);
         this.statusPanel = new statusPanel_1.StatusPanel();
         this.subscriptions.add(this.clientResolver.on("pendingRequestsChange", lodash_1.throttle(() => {
-            utils_2.handlePromise(this.statusPanel.update({
+            utils_1.handlePromise(this.statusPanel.update({
                 pending: Array.from(this.clientResolver.getAllPending()),
             }));
         }, 100, { leading: false })), this.statusPanel);
@@ -185,7 +185,7 @@ class PluginManager {
                             files.push(filePath);
                         }
                     }
-                    utils_2.handlePromise(pane.client.execute("geterr", { files, delay: 100 }));
+                    utils_1.handlePromise(pane.client.execute("geterr", { files, delay: 100 }));
                 }, 50),
                 statusPanel: this.statusPanel,
             }));

@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
-const utils_1 = require("./atom/utils");
+const utils_1 = require("../utils");
+const utils_2 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
-const utils_2 = require("../utils");
 class TypescriptEditorPane {
     constructor(editor, opts) {
         this.editor = editor;
@@ -16,27 +16,27 @@ class TypescriptEditorPane {
         this.isOpen = false;
         this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.updateMarkersDB = lodash_1.debounce(() => utils_2.handlePromise(this.updateMarkers()), 100);
+        this.updateMarkersDB = lodash_1.debounce(() => utils_1.handlePromise(this.updateMarkers()), 100);
         this.onActivated = () => {
             this.activeAt = Date.now();
             this.isActive = true;
             const filePath = this.buffer.getPath();
             if (this.isTypescript && filePath !== undefined) {
-                utils_2.handlePromise(this.opts.statusPanel.show());
+                utils_1.handlePromise(this.opts.statusPanel.show());
                 // The first activation might happen before we even have a client
                 if (this.client) {
-                    utils_2.handlePromise(this.client.execute("geterr", {
+                    utils_1.handlePromise(this.client.execute("geterr", {
                         files: [filePath],
                         delay: 100,
                     }));
-                    utils_2.handlePromise(this.opts.statusPanel.update({ version: this.client.version }));
+                    utils_1.handlePromise(this.opts.statusPanel.update({ version: this.client.version }));
                 }
             }
-            utils_2.handlePromise(this.opts.statusPanel.update({ tsConfigPath: this.configFile }));
+            utils_1.handlePromise(this.opts.statusPanel.update({ tsConfigPath: this.configFile }));
         };
         this.onDeactivated = () => {
             this.isActive = false;
-            utils_2.handlePromise(this.opts.statusPanel.hide());
+            utils_1.handlePromise(this.opts.statusPanel.hide());
         };
         this.onChanged = () => {
             if (!this.client)
@@ -44,8 +44,8 @@ class TypescriptEditorPane {
             const filePath = this.buffer.getPath();
             if (filePath === undefined)
                 return;
-            utils_2.handlePromise(this.opts.statusPanel.update({ buildStatus: undefined }));
-            utils_2.handlePromise(this.client.execute("geterr", {
+            utils_1.handlePromise(this.opts.statusPanel.update({ buildStatus: undefined }));
+            utils_1.handlePromise(this.client.execute("geterr", {
                 files: [filePath],
                 delay: 100,
             }));
@@ -87,7 +87,7 @@ class TypescriptEditorPane {
                     if (this.isActive) {
                         await this.opts.statusPanel.update({ tsConfigPath: this.configFile });
                     }
-                    const options = await utils_1.getProjectCodeSettings(this.configFile);
+                    const options = await utils_2.getProjectCodeSettings(this.configFile);
                     await this.client.execute("configure", {
                         file: filePath,
                         formatOptions: options,
@@ -101,10 +101,10 @@ class TypescriptEditorPane {
         };
         this.onSaved = () => {
             this.opts.onSave(this);
-            utils_2.handlePromise(this.compileOnSave());
+            utils_1.handlePromise(this.compileOnSave());
         };
         this.checkIfTypescript = () => {
-            this.isTypescript = utils_1.isTypescriptEditorWithPath(this.editor);
+            this.isTypescript = utils_2.isTypescriptEditorWithPath(this.editor);
             // Add 'typescript-editor' class to the <atom-text-editor> where typescript is active.
             if (this.isTypescript) {
                 atom.views.getView(this.editor).classList.add("typescript-editor");
@@ -140,7 +140,7 @@ class TypescriptEditorPane {
                 offset: pos.column + 1,
             });
             for (const ref of result.body) {
-                const marker = this.editor.markBufferRange(utils_1.spanToRange(ref));
+                const marker = this.editor.markBufferRange(utils_2.spanToRange(ref));
                 this.editor.decorateMarker(marker, {
                     type: "highlight",
                     class: "atom-typescript-occurrence",

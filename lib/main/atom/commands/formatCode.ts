@@ -1,6 +1,6 @@
-import {addCommand} from "./registry"
-import {CodeEdit, LocationRangeQuery, rangeToLocationRange, spanToRange} from "../utils"
 import {TextEditor} from "atom"
+import {CodeEdit, LocationRangeQuery, rangeToLocationRange, spanToRange} from "../utils"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:format-code", deps => ({
   description: "Format code in currently active text editor",

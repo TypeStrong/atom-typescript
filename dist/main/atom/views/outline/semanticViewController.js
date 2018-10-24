@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
-const semanticView_1 = require("./semanticView");
 const atom_2 = require("atom");
 const utils_1 = require("../../../../utils");
+const semanticView_1 = require("./semanticView");
 class SemanticViewController {
     constructor(withTypescriptBuffer) {
         this.withTypescriptBuffer = withTypescriptBuffer;

@@ -1,9 +1,9 @@
-import {debounce} from "lodash"
-import {Diagnostic, Location} from "typescript/lib/protocol"
-import {IndieDelegate, Message} from "atom/linter"
-import {locationsToRange, isLocationInRange} from "./atom/utils"
 import {CompositeDisposable} from "atom"
+import {IndieDelegate, Message} from "atom/linter"
+import {debounce} from "lodash"
 import * as path from "path"
+import {Diagnostic, Location} from "typescript/lib/protocol"
+import {isLocationInRange, locationsToRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {

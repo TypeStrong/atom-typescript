@@ -1,7 +1,7 @@
-import {TooltipView} from "./tooltipView"
-import {TSClient} from "../../../client"
 import * as Atom from "atom"
+import {TSClient} from "../../../client"
 import {handlePromise} from "../../../utils"
+import {TooltipView} from "./tooltipView"
 import {bufferPositionFromMouseEvent} from "./util"
 
 interface Rect {

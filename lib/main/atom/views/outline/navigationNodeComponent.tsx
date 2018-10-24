@@ -1,7 +1,7 @@
 import * as etch from "etch"
-import {NavigationTreeViewModel, ToNodeScrollableEditor, SelectableNode} from "./semanticViewModel"
-import {isSameNode, isToggleEntry} from "./navTreeUtils"
 import {handlePromise} from "../../../../utils"
+import {isSameNode, isToggleEntry} from "./navTreeUtils"
+import {NavigationTreeViewModel, SelectableNode, ToNodeScrollableEditor} from "./semanticViewModel"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel

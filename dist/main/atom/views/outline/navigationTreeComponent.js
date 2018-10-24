@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const atomUtils = require("../../utils");
 const etch = require("etch");
 const lodash_1 = require("lodash");
+const utils_1 = require("../../../../utils");
+const atomUtils = require("../../utils");
 const navigationNodeComponent_1 = require("./navigationNodeComponent");
 const navTreeUtils_1 = require("./navTreeUtils");
-const utils_1 = require("../../../../utils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;

@@ -1,11 +1,11 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 
-import atomUtils = require("../utils")
 import * as Atom from "atom"
 import fs = require("fs")
-import {listen} from "../utils/element-listener"
 import {GetClientFunction} from "../../../client"
+import atomUtils = require("../utils")
+import {listen} from "../utils/element-listener"
 import {TooltipController} from "./controller"
 import {bufferPositionFromMouseEvent} from "./util"
 

@@ -1,6 +1,6 @@
-import {Tag} from "./symbolsTag"
 import {TextEditor} from "atom"
 import {EditorPositionHistoryManager} from "../../editorPositionHistoryManager"
+import {Tag} from "./symbolsTag"
 
 export async function openTag(tag: Tag, editor: TextEditor, ephm: EditorPositionHistoryManager) {
   if (tag.file !== undefined) {

@@ -1,8 +1,8 @@
-import * as etch from "etch"
-import {Tooltip} from "./tooltip"
-import {debounce} from "lodash"
 import {CompositeDisposable} from "atom"
+import * as etch from "etch"
+import {debounce} from "lodash"
 import {handlePromise} from "../../../../utils"
+import {Tooltip} from "./tooltip"
 
 export interface Props extends JSX.Props {
   buildStatus: {success: true} | {success: false; message: string}

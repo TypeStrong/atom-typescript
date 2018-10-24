@@ -1,7 +1,7 @@
-import {DatatipProvider, Datatip} from "atom/ide"
-import {typeScriptScopes, locationToPoint} from "./utils"
 import * as Atom from "atom"
+import {Datatip, DatatipProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
+import {locationToPoint, typeScriptScopes} from "./utils"
 
 // Note: a horrible hack to avoid dependency on React
 const REACT_ELEMENT_SYMBOL = Symbol.for("react.element")

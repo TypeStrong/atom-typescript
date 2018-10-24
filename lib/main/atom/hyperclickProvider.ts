@@ -1,8 +1,8 @@
 import * as Atom from "atom"
 import {ClientResolver} from "../../client"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
-import {isTypescriptEditorWithPath} from "./utils"
 import {EditorPositionHistoryManager} from "./editorPositionHistoryManager"
+import {isTypescriptEditorWithPath} from "./utils"
 
 export function getHyperclickProvider(
   clientResolver: ClientResolver,

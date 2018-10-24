@@ -1,13 +1,13 @@
-import {TypescriptServiceClient as Client} from "./client"
+import {Emitter} from "atom"
+import * as fs from "fs"
 import * as path from "path"
 import * as Resolve from "resolve"
-import * as fs from "fs"
 import {
+  ConfigFileDiagnosticEventBody,
   Diagnostic,
   DiagnosticEventBody,
-  ConfigFileDiagnosticEventBody,
 } from "typescript/lib/protocol"
-import {Emitter} from "atom"
+import {TypescriptServiceClient as Client} from "./client"
 
 type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const registry_1 = require("./registry");
-const client_1 = require("../../../client");
 const atom_1 = require("atom");
+const client_1 = require("../../../client");
+const registry_1 = require("./registry");
 registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => ({
     description: "Create tsconfig.json in the project related to currently-active text edtior",
     async didDispatch(editor, abort) {

@@ -1,9 +1,9 @@
-import {addCommand} from "./registry"
-import {getFilePathPosition} from "../utils"
-import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
 import {TsView} from "../components/tsView"
+import {getFilePathPosition} from "../utils"
 import {HighlightComponent} from "../views/highlightComponent"
+import {selectListView} from "../views/simpleSelectionView"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:find-references", deps => ({
   description: "Find where symbol under text cursor is referenced",

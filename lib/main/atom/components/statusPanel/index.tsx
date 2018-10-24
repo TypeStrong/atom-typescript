@@ -1,7 +1,7 @@
 import * as etch from "etch"
 import {handlePromise} from "../../../../utils"
-import {ConfigPath} from "./configPath"
 import {BuildStatus} from "./buildStatus"
+import {ConfigPath} from "./configPath"
 import {Tooltip} from "./tooltip"
 
 export interface Props extends JSX.Props {

@@ -1,6 +1,6 @@
 import * as Atom from "atom"
-import {CodefixProvider} from "./codefixProvider"
 import {typeScriptScopes} from "../utils"
+import {CodefixProvider} from "./codefixProvider"
 
 export interface Message {
   filePath: string

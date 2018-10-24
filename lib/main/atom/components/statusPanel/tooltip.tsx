@@ -1,5 +1,5 @@
+import {DisposableLike, TooltipPlacement} from "atom"
 import * as etch from "etch"
-import {TooltipPlacement, DisposableLike} from "atom"
 
 export interface Props extends JSX.Props {
   title?: string | (() => string)

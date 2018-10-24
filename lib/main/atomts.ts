@@ -1,8 +1,8 @@
-import {PluginManager} from "./pluginManager"
+import {DatatipService} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {State} from "./packageState"
-import {DatatipService} from "atom/ide"
+import {PluginManager} from "./pluginManager"
 export {deserializeSemanticView} from "./atom/views/outline/semanticView"
 
 let pluginManager: PluginManager | undefined

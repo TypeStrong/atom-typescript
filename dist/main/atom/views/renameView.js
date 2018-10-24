@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const etch = require("etch");
 const atom_1 = require("atom");
-const miniEditor_1 = require("../components/miniEditor");
+const etch = require("etch");
 const utils_1 = require("../../../utils");
+const miniEditor_1 = require("../components/miniEditor");
 class RenameView {
     constructor(props) {
         this.props = props;

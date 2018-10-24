@@ -1,19 +1,19 @@
-import atomUtils = require("../../utils")
-import {Disposable, TextEditor, CursorPositionChangedEvent} from "atom"
+import {CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
-import {NavigationTreeViewModel, ToNodeScrollableEditor, SelectableNode} from "./semanticViewModel"
+import {handlePromise} from "../../../../utils"
+import {WithTypescriptBuffer} from "../../../pluginManager"
+import atomUtils = require("../../utils")
 import {NavigationNodeComponent} from "./navigationNodeComponent"
 import {
   findNodeAt,
   getNodeStartLine,
   getNodeStartOffset,
-  restoreCollapsed,
   prepareNavTree,
+  restoreCollapsed,
 } from "./navTreeUtils"
-import {WithTypescriptBuffer} from "../../../pluginManager"
-import {handlePromise} from "../../../../utils"
+import {NavigationTreeViewModel, SelectableNode, ToNodeScrollableEditor} from "./semanticViewModel"
 
 export interface Props extends JSX.Props {
   navTree: NavigationTreeViewModel | null

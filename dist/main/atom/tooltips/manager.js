@@ -2,9 +2,9 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
-const atomUtils = require("../utils");
 const Atom = require("atom");
 const fs = require("fs");
+const atomUtils = require("../utils");
 const element_listener_1 = require("../utils/element-listener");
 const controller_1 = require("./controller");
 const util_1 = require("./util");

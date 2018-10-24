@@ -1,6 +1,6 @@
-import {addCommand} from "./registry"
 import {getFilePathPosition} from "../utils"
 import {showRenameDialog} from "../views/renameView"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
   description: "Rename symbol under text cursor everywhere it is used",

@@ -7,7 +7,7 @@
     "semicolon": false,
     "object-literal-sort-keys": false,
     "member-access": true,
-    "ordered-imports": false,
+    "ordered-imports": true,
     "interface-name": [true, "never-prefix"],
     "no-console": false,
     "arrow-parens": false,

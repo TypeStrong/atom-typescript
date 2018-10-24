@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 const Atom = require("atom");
-const utils_1 = require("./atom/utils");
-const utils_2 = require("../utils");
+const utils_1 = require("../utils");
+const utils_2 = require("./atom/utils");
 class TypescriptBuffer {
     constructor(buffer, getClient) {
         this.buffer = buffer;
@@ -59,7 +59,7 @@ class TypescriptBuffer {
             this.events.emit("changed");
         };
         this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(this.onDidSave), buffer.onDidStopChanging(this.onDidStopChanging));
-        utils_2.handlePromise(this.open());
+        utils_1.handlePromise(this.open());
     }
     static create(buffer, getClient) {
         const b = TypescriptBuffer.bufferMap.get(buffer);
@@ -119,7 +119,7 @@ class TypescriptBuffer {
     }
     async open() {
         const filePath = this.buffer.getPath();
-        if (filePath !== undefined && utils_1.isTypescriptFile(filePath)) {
+        if (filePath !== undefined && utils_2.isTypescriptFile(filePath)) {
             this.state = {
                 client: this.getClient(filePath),
                 filePath,
@@ -128,7 +128,7 @@ class TypescriptBuffer {
             client.on("restarted", () => {
                 if (!this.state)
                     return;
-                utils_2.handlePromise(client.execute("open", {
+                utils_1.handlePromise(client.execute("open", {
                     file: this.state.filePath,
                     fileContent: this.buffer.getText(),
                 }));

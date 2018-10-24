@@ -1,22 +1,22 @@
-import {getCommands, Dependencies} from "./registry"
 import {CompositeDisposable} from "atom"
 import {isTypescriptEditorWithPath, isTypescriptGrammar} from "../utils"
+import {Dependencies, getCommands} from "./registry"
 
 // Import all of the command files for their side effects
 import "./build"
 import "./checkAllFiles"
 import "./clearErrors"
-import "./formatCode"
 import "./findReferences"
+import "./formatCode"
 import "./goToDeclaration"
-import "./returnFromDeclaration"
-import "./renameRefactor"
-import "./showTooltip"
 import "./initializeConfig"
-import "./semanticView"
-import "./symbolsView"
-import "./refactorCode"
 import "./organizeImports"
+import "./refactorCode"
+import "./renameRefactor"
+import "./returnFromDeclaration"
+import "./semanticView"
+import "./showTooltip"
+import "./symbolsView"
 
 export function registerCommands(deps: Dependencies) {
   const disp = new CompositeDisposable()

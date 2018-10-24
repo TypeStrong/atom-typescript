@@ -1,11 +1,11 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
 import {debounce, flatten} from "lodash"
-import {spanToRange, getProjectCodeSettings, isTypescriptEditorWithPath} from "./atom/utils"
-import {StatusPanel} from "./atom/components/statusPanel"
-import {TypescriptBuffer} from "./typescriptBuffer"
-import {TSClient, GetClientFunction} from "../client"
+import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
+import {StatusPanel} from "./atom/components/statusPanel"
+import {getProjectCodeSettings, isTypescriptEditorWithPath, spanToRange} from "./atom/utils"
+import {TypescriptBuffer} from "./typescriptBuffer"
 
 interface PaneOptions {
   getClient: GetClientFunction

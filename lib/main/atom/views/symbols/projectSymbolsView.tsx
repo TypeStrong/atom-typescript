@@ -1,10 +1,10 @@
 import {TextEditor} from "atom"
-import {selectListView} from "../simpleSelectionView"
 import * as etch from "etch"
-import * as utils from "./utils"
-import {generateProject} from "./generator"
-import {Deps} from "./deps"
 import {HighlightComponent} from "../highlightComponent"
+import {selectListView} from "../simpleSelectionView"
+import {Deps} from "./deps"
+import {generateProject} from "./generator"
+import * as utils from "./utils"
 
 export async function toggle(editor: TextEditor, deps: Deps) {
   const filePath = editor.getPath()

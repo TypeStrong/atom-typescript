@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("./utils");
+// more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
+const utils_1 = require("./utils");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
     constructor(clientResolver, opts) {

@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const utils_1 = require("../../../../utils");
-const configPath_1 = require("./configPath");
 const buildStatus_1 = require("./buildStatus");
+const configPath_1 = require("./configPath");
 const tooltip_1 = require("./tooltip");
 class StatusPanel {
     constructor(props = {}) {

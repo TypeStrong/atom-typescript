@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const simpleSelectionView_1 = require("../simpleSelectionView");
 const etch = require("etch");
-const utils = require("./utils");
-const generator_1 = require("./generator");
 const highlightComponent_1 = require("../highlightComponent");
+const simpleSelectionView_1 = require("../simpleSelectionView");
+const generator_1 = require("./generator");
+const utils = require("./utils");
 async function toggle(editor, deps) {
     const filePath = editor.getPath();
     if (filePath !== undefined) {

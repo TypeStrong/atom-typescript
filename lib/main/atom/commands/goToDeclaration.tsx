@@ -1,10 +1,10 @@
-import {addCommand} from "./registry"
-import {getFilePathPosition} from "../utils"
-import {selectListView} from "../views/simpleSelectionView"
-import * as etch from "etch"
-import {HighlightComponent} from "../views/highlightComponent"
 import {TextEditor} from "atom"
+import * as etch from "etch"
 import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
+import {getFilePathPosition} from "../utils"
+import {HighlightComponent} from "../views/highlightComponent"
+import {selectListView} from "../views/simpleSelectionView"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
   description: "Go to declaration of symbol under text cursor",

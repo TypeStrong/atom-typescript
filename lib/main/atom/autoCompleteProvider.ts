@@ -1,10 +1,10 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
-import {ClientResolver, TSClient} from "../../client"
-import {FileLocationQuery, typeScriptScopes, spanToRange} from "./utils"
-import * as ACP from "atom/autocomplete-plus"
 import * as Atom from "atom"
+import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
+import {ClientResolver, TSClient} from "../../client"
 import {WithTypescriptBuffer} from "../pluginManager"
+import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 

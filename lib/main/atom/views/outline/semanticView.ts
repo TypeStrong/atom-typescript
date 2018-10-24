@@ -1,6 +1,6 @@
+import {WithTypescriptBuffer} from "../../../pluginManager"
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
-import {WithTypescriptBuffer} from "../../../pluginManager"
 
 export const SEMANTIC_VIEW_URI = "atom-typescript://semantic-view"
 

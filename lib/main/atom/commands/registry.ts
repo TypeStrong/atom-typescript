@@ -1,10 +1,10 @@
 import * as Atom from "atom"
 import {GetClientFunction} from "../../../client"
 import {StatusPanel} from "../../atom/components/statusPanel"
-import {SemanticViewController} from "../views/outline/semanticViewController"
-import {SymbolsViewController} from "../views/symbols/symbolsViewController"
 import {ApplyEdits} from "../../pluginManager"
 import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
+import {SemanticViewController} from "../views/outline/semanticViewController"
+import {SymbolsViewController} from "../views/symbols/symbolsViewController"
 
 export interface Dependencies {
   getClient: GetClientFunction

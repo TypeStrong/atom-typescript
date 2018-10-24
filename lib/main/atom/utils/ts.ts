@@ -1,6 +1,6 @@
-import {TextSpan, CodeEdit, FormatCodeSettings, Location} from "typescript/lib/protocol"
 import * as Atom from "atom"
 import * as tsconfig from "tsconfig"
+import {CodeEdit, FormatCodeSettings, Location, TextSpan} from "typescript/lib/protocol"
 
 export {TextSpan, CodeEdit, FormatCodeSettings, Location}
 

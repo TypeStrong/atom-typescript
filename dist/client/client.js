@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// tslint:disable:max-classes-per-file
 const atom_1 = require("atom");
-const callbacks_1 = require("./callbacks");
-const stream_1 = require("stream");
 const byline = require("byline");
+const stream_1 = require("stream");
 const utils_1 = require("../utils");
+const callbacks_1 = require("./callbacks");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
 const commandWithResponseMap = {

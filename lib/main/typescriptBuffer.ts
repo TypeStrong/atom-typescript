@@ -1,9 +1,9 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 import * as Atom from "atom"
-import {TSClient, GetClientFunction} from "../client"
-import {isTypescriptFile} from "./atom/utils"
+import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
+import {isTypescriptFile} from "./atom/utils"
 
 export class TypescriptBuffer {
   public static create(buffer: Atom.TextBuffer, getClient: GetClientFunction) {

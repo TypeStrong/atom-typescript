@@ -1,5 +1,5 @@
-import {addCommand} from "./registry"
 import {handlePromise} from "../../../utils"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:build", deps => ({
   description: "Compile all files in project related to current active text editor",

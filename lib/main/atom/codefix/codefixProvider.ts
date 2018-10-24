@@ -1,8 +1,8 @@
 import * as Atom from "atom"
 import {ClientResolver, TSClient} from "../../../client"
 import {ErrorPusher} from "../../errorPusher"
-import {pointToLocation} from "../utils"
 import {ApplyEdits} from "../../pluginManager"
+import {pointToLocation} from "../utils"
 
 export class CodefixProvider {
   private supportedFixes: WeakMap<TSClient, Set<number>> = new WeakMap()

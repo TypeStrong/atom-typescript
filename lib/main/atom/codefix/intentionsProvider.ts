@@ -1,6 +1,6 @@
 import * as Atom from "atom"
-import {CodefixProvider} from "./codefixProvider"
 import {handlePromise} from "../../../utils"
+import {CodefixProvider} from "./codefixProvider"
 
 interface Intention {
   priority: number

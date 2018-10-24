@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("./client");
+const atom_1 = require("atom");
+const fs = require("fs");
 const path = require("path");
 const Resolve = require("resolve");
-const fs = require("fs");
-const atom_1 = require("atom");
+const client_1 = require("./client");
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
  * require("typescript") from the same source file would resolve.

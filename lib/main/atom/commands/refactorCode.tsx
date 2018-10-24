@@ -1,10 +1,10 @@
-import {addCommand, Dependencies} from "./registry"
-import {getFilePathPosition} from "../utils"
-import {selectListView} from "../views/simpleSelectionView"
 import * as etch from "etch"
-import {HighlightComponent} from "../views/highlightComponent"
 import * as protocol from "typescript/lib/protocol"
 import {TSClient} from "../../../client"
+import {getFilePathPosition} from "../utils"
+import {HighlightComponent} from "../views/highlightComponent"
+import {selectListView} from "../views/simpleSelectionView"
+import {addCommand, Dependencies} from "./registry"
 
 interface RefactorAction {
   refactorName: string

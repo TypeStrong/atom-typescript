@@ -1,6 +1,6 @@
-import {Tag} from "./symbolsTag"
 import {NavigationTree, NavtoItem} from "typescript/lib/protocol"
 import {Deps} from "./deps"
+import {Tag} from "./symbolsTag"
 
 export async function generateFile(filePath: string, deps: Deps) {
   const navtree = await getNavTree(filePath, deps)

@@ -1,6 +1,6 @@
-import {addCommand} from "./registry"
-import {resolveBinary} from "../../../client"
 import {BufferedNodeProcess} from "atom"
+import {resolveBinary} from "../../../client"
+import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:initialize-config", () => ({
   description: "Create tsconfig.json in the project related to currently-active text edtior",

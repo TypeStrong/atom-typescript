@@ -1,5 +1,5 @@
-import {FileLocationQuery, getFilePathPosition} from "./utils"
 import {TextEditor} from "atom"
+import {FileLocationQuery, getFilePathPosition} from "./utils"
 
 interface OpenParams {
   file: string
