@@ -22,7 +22,7 @@
     "test": "npm run typecheck && npm run lint && npm run prettier-check"
   },
   "engines": {
-    "atom": ">=1.27.0 <2.0.0",
+    "atom": ">=1.31.0 <2.0.0",
     "node": "*"
   },
   "configSchema": {
@@ -141,29 +141,29 @@
   "dependencies": {
     "atom-highlight": "^0.4.1",
     "atom-package-deps": "^4.6.2",
-    "atom-select-list": "^0.7.1",
+    "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
     "escape-html": "^1.0.3",
     "etch": "^0.14.0",
     "fuzzaldrin": "^2.1.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "resolve": "^1.8.1",
     "tsconfig": "^7.0.0",
     "tslib": "^1.9.3",
-    "typescript": "~3.0.1"
+    "typescript": "^3.1.3"
   },
   "devDependencies": {
-    "@types/atom": "~1.28",
+    "@types/atom": "^1.31.0",
     "@types/byline": "^4.2.31",
-    "@types/chai": "^4.1.4",
+    "@types/chai": "^4.1.6",
     "@types/fuzzaldrin": "^2.1.1",
-    "@types/lodash": "^4.14.116",
+    "@types/lodash": "^4.14.117",
     "@types/mocha": "^2",
-    "@types/node": "^8",
+    "@types/node": "^8.10.36",
     "@types/resolve": "^0.0.8",
     "atom-ts-spec-runner": "^1.1.1",
-    "chai": "^4.1.2",
-    "prettier": "^1.14.2",
+    "chai": "^4.2.0",
+    "prettier": "^1.14.3",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-language-service": "^0.9.9"
