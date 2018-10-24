@@ -25,9 +25,8 @@ const etch = {
     },
 };
 class TSDatatipProvider {
-    constructor(getClient, dts) {
+    constructor(getClient) {
         this.getClient = getClient;
-        this.dts = dts;
         this.providerName = "TypeScript type tooltips";
         this.priority = 100;
         this.grammarScopes = utils_1.typeScriptScopes();
@@ -64,12 +63,6 @@ class TSDatatipProvider {
         catch (e) {
             console.error(e);
             return;
-        }
-    }
-    async showDatatip(ed, pos) {
-        const datatip = await this.datatip(ed, pos);
-        if (datatip) {
-            this.dts.createPinnedDataTip(datatip, ed);
         }
     }
 }

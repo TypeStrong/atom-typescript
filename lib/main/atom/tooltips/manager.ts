@@ -51,11 +51,8 @@ export class TooltipManager {
     this.clearExprTypeTimeout()
   }
 
-  public async showExpressionAt(editor: Atom.TextEditor, pt: Atom.Point) {
-    return this.showExpressionTypeKbd(editor, pt)
-  }
-
-  public async showExpressionTypeKbd(editor: Atom.TextEditor, pt: Atom.Point) {
+  public async showExpressionAt(editor: Atom.TextEditor) {
+    const pt = editor.getLastCursor().getBufferPosition()
     const view = atom.views.getView(editor)
     const px = view.pixelPositionForBufferPosition(pt)
     return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px))
@@ -73,9 +70,9 @@ export class TooltipManager {
   }
 
   private mousePositionForPixelPosition(editor: Atom.TextEditor, p: Atom.PixelPosition) {
-    const data = this.editorMap.get(editor)
-    if (!data) throw new Error("No editor data!")
-    const linesRect = data.lines.getBoundingClientRect()
+    const rawView = atom.views.getView(editor)
+    const lines = rawView.querySelector(".lines")!
+    const linesRect = lines.getBoundingClientRect()
     return {
       clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
       clientX: p.left + linesRect.left,
@@ -83,9 +80,6 @@ export class TooltipManager {
   }
 
   private async showExpressionType(editor: Atom.TextEditor, e: {clientX: number; clientY: number}) {
-    const data = this.editorMap.get(editor)
-    if (!data) return
-
     if (this.pendingTooltip) this.pendingTooltip.dispose()
     this.pendingTooltip = new TooltipController(this.getClient, editor, e)
   }

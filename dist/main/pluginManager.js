@@ -126,7 +126,7 @@ class PluginManager {
     consumeDatatipService(datatip) {
         if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
             return;
-        this.datatipProvider = new datatipProvider_1.TSDatatipProvider(this.getClient, datatip);
+        this.datatipProvider = new datatipProvider_1.TSDatatipProvider(this.getClient);
         this.subscriptions.add(datatip.addProvider(this.datatipProvider));
         this.tooltipManager.dispose();
     }
@@ -147,11 +147,12 @@ class PluginManager {
     provideHyperclick() {
         return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
     }
-    async showTooltipAt(ed, pos) {
-        if (this.datatipProvider)
-            return this.datatipProvider.showDatatip(ed, pos);
+    async showTooltipAt(ed) {
+        if (this.datatipProvider) {
+            await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
+        }
         else
-            return this.tooltipManager.showExpressionAt(ed, pos);
+            await this.tooltipManager.showExpressionAt(ed);
     }
     subscribeEditors() {
         let activePane;

@@ -12,7 +12,6 @@ class TooltipManager {
     constructor(getClientInternal) {
         this.getClientInternal = getClientInternal;
         this.subscriptions = new Atom.CompositeDisposable();
-        this.editorMap = new WeakMap();
         this.getClient = async (editor) => {
             // Only on ".ts" files
             const filePath = editor.getPath();
@@ -49,11 +48,6 @@ class TooltipManager {
         };
         this.subscriptions.add(atom.workspace.observeTextEditors(editor => {
             const rawView = atom.views.getView(editor);
-            const lines = rawView.querySelector(".lines");
-            this.editorMap.set(editor, {
-                rawView,
-                lines,
-            });
             const disp = new Atom.CompositeDisposable();
             disp.add(element_listener_1.listen(rawView, "mousemove", ".scroll-view", this.trackMouseMovement(editor)), element_listener_1.listen(rawView, "mouseout", ".scroll-view", this.clearExprTypeTimeout), element_listener_1.listen(rawView, "keydown", ".scroll-view", this.clearExprTypeTimeout), rawView.onDidChangeScrollTop(this.clearExprTypeTimeout), rawView.onDidChangeScrollLeft(this.clearExprTypeTimeout), editor.onDidDestroy(() => {
                 disp.dispose();
@@ -66,28 +60,22 @@ class TooltipManager {
         this.subscriptions.dispose();
         this.clearExprTypeTimeout();
     }
-    async showExpressionAt(editor, pt) {
-        return this.showExpressionTypeKbd(editor, pt);
-    }
-    async showExpressionTypeKbd(editor, pt) {
+    async showExpressionAt(editor) {
+        const pt = editor.getLastCursor().getBufferPosition();
         const view = atom.views.getView(editor);
         const px = view.pixelPositionForBufferPosition(pt);
         return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px));
     }
     mousePositionForPixelPosition(editor, p) {
-        const data = this.editorMap.get(editor);
-        if (!data)
-            throw new Error("No editor data!");
-        const linesRect = data.lines.getBoundingClientRect();
+        const rawView = atom.views.getView(editor);
+        const lines = rawView.querySelector(".lines");
+        const linesRect = lines.getBoundingClientRect();
         return {
             clientY: p.top + linesRect.top + editor.getLineHeightInPixels() / 2,
             clientX: p.left + linesRect.left,
         };
     }
     async showExpressionType(editor, e) {
-        const data = this.editorMap.get(editor);
-        if (!data)
-            return;
         if (this.pendingTooltip)
             this.pendingTooltip.dispose();
         this.pendingTooltip = new controller_1.TooltipController(this.getClient, editor, e);

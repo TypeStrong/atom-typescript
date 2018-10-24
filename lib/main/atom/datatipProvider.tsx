@@ -1,4 +1,4 @@
-import {DatatipProvider, Datatip, DatatipService} from "atom/ide"
+import {DatatipProvider, Datatip} from "atom/ide"
 import {typeScriptScopes, locationToPoint} from "./utils"
 import * as Atom from "atom"
 import {GetClientFunction} from "../../client"
@@ -30,7 +30,7 @@ export class TSDatatipProvider implements DatatipProvider {
   public readonly priority = 100
   public readonly grammarScopes = typeScriptScopes()
 
-  constructor(private getClient: GetClientFunction, private dts: DatatipService) {}
+  constructor(private getClient: GetClientFunction) {}
 
   public async datatip(
     editor: Atom.TextEditor,
@@ -68,13 +68,6 @@ export class TSDatatipProvider implements DatatipProvider {
     } catch (e) {
       console.error(e)
       return
-    }
-  }
-
-  public async showDatatip(ed: Atom.TextEditor, pos: Atom.Point) {
-    const datatip = await this.datatip(ed, pos)
-    if (datatip) {
-      this.dts.createPinnedDataTip(datatip, ed)
     }
   }
 }

@@ -133,7 +133,7 @@ export class PluginManager {
 
   public consumeDatatipService(datatip: DatatipService) {
     if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
-    this.datatipProvider = new TSDatatipProvider(this.getClient, datatip)
+    this.datatipProvider = new TSDatatipProvider(this.getClient)
     this.subscriptions.add(datatip.addProvider(this.datatipProvider))
     this.tooltipManager.dispose()
   }
@@ -209,9 +209,10 @@ export class PluginManager {
       ),
     )
 
-  public async showTooltipAt(ed: Atom.TextEditor, pos: Atom.Point): Promise<void> {
-    if (this.datatipProvider) return this.datatipProvider.showDatatip(ed, pos)
-    else return this.tooltipManager.showExpressionAt(ed, pos)
+  public async showTooltipAt(ed: Atom.TextEditor): Promise<void> {
+    if (this.datatipProvider) {
+      await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
+    } else await this.tooltipManager.showExpressionAt(ed)
   }
 
   public getSemanticViewController = () => this.semanticViewController
