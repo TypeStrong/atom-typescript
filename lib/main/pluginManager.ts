@@ -4,7 +4,7 @@ import {ClientResolver} from "../client"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
 import {CodefixProvider, IntentionsProvider, CodeActionsProvider} from "./atom/codefix"
 import {CompositeDisposable} from "atom"
-import {debounce} from "lodash"
+import {debounce, throttle} from "lodash"
 import {ErrorPusher} from "./errorPusher"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
@@ -58,8 +58,24 @@ export class PluginManager {
     this.clientResolver = new ClientResolver()
     this.subscriptions.add(this.clientResolver)
 
-    this.statusPanel = new StatusPanel({clientResolver: this.clientResolver})
-    this.subscriptions.add(this.statusPanel)
+    this.statusPanel = new StatusPanel()
+    this.subscriptions.add(
+      this.clientResolver.on(
+        "pendingRequestsChange",
+        throttle(
+          () => {
+            handlePromise(
+              this.statusPanel.update({
+                pending: Array.from(this.clientResolver.getAllPending()),
+              }),
+            )
+          },
+          100,
+          {leading: false},
+        ),
+      ),
+      this.statusPanel,
+    )
 
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)

@@ -69,8 +69,12 @@ class PluginManager {
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new client_1.ClientResolver();
         this.subscriptions.add(this.clientResolver);
-        this.statusPanel = new statusPanel_1.StatusPanel({ clientResolver: this.clientResolver });
-        this.subscriptions.add(this.statusPanel);
+        this.statusPanel = new statusPanel_1.StatusPanel();
+        this.subscriptions.add(this.clientResolver.on("pendingRequestsChange", lodash_1.throttle(() => {
+            utils_2.handlePromise(this.statusPanel.update({
+                pending: Array.from(this.clientResolver.getAllPending()),
+            }));
+        }, 100, { leading: false })), this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
         // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
