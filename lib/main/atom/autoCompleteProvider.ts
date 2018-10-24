@@ -84,9 +84,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     // Flush any pending changes for this buffer to get up to date completions
-    await this.opts.withTypescriptBuffer(location.file, async buffer => {
-      await buffer.flush()
-    })
+    await this.opts.withTypescriptBuffer(location.file, async buffer => buffer.flush())
 
     try {
       let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
