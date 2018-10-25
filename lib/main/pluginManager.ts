@@ -169,7 +169,7 @@ export class PluginManager {
   }
 
   public consumeSigHelpService(registry: SignatureHelpRegistry): void | Atom.DisposableLike {
-    if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
+    if (atom.config.get("atom-typescript.preferBuiltinSigHelp")) return
     const disp = registry(new TSSigHelpProvider(this.getClient, this.withTypescriptBuffer))
     this.subscriptions.add(disp)
     this.sigHelpManager.dispose()

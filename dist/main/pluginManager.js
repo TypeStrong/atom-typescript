@@ -146,7 +146,7 @@ class PluginManager {
         return disp;
     }
     consumeSigHelpService(registry) {
-        if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
+        if (atom.config.get("atom-typescript.preferBuiltinSigHelp"))
             return;
         const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.withTypescriptBuffer));
         this.subscriptions.add(disp);

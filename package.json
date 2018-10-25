@@ -47,8 +47,15 @@
       "order": 50
     },
     "preferBuiltinTooltips": {
-      "title": "Prefer built-in tooltips",
+      "title": "Prefer built-in type tooltips",
       "description": "Use built-in tooltips for displaying type information instead of Atom-IDE ones (if available); Change requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 55
+    },
+    "preferBuiltinSigHelp": {
+      "title": "Prefer built-in signagure help tooltips",
+      "description": "Use built-in tooltips for displaying signature help instead of Atom-IDE ones (if available); Change requires Atom restart",
       "type": "boolean",
       "default": false,
       "order": 55

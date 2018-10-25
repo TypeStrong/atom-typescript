@@ -6,6 +6,7 @@ declare module "atom" {
     "atom-typescript.autocompletionSuggestionPriority": number
     "atom-typescript.locale": string
     "atom-typescript.preferBuiltinTooltips": boolean
+    "atom-typescript.preferBuiltinSigHelp": boolean
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
@@ -17,6 +18,7 @@ declare module "atom" {
       autocompletionSuggestionPriority: number
       locale: string
       preferBuiltinTooltips: boolean
+      preferBuiltinSigHelp: boolean
       buildStatusTimeout: number
       showSemanticView: boolean
       tooltipDelay: number
