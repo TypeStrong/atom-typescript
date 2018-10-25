@@ -78,4 +78,5 @@ exports.signatureHelpParameterToSignatureParameter = signatureHelpParameterToSig
 function partsToStr(x) {
     return x.map(i => i.text).join("");
 }
+exports.partsToStr = partsToStr;
 //# sourceMappingURL=ts.js.map

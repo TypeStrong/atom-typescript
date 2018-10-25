@@ -14,6 +14,7 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import {TSDatatipProvider} from "./atom/datatipProvider"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
+import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TSSigHelpProvider} from "./atom/sigHelpProvider"
 import {TooltipManager} from "./atom/tooltips/manager"
 import {spanToRange, TextSpan} from "./atom/utils"
@@ -50,8 +51,10 @@ export class PluginManager {
   private symbolsViewController: SymbolsViewController
   private editorPosHist: EditorPositionHistoryManager
   private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
-  private datatipProvider?: TSDatatipProvider
   private tooltipManager: TooltipManager
+  private usingBuiltinTooltipManager = true
+  private sigHelpManager: SigHelpManager
+  private usingBuiltinSigHelpManager = true
 
   public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
@@ -103,6 +106,9 @@ export class PluginManager {
     this.tooltipManager = new TooltipManager(this.getClient)
     this.subscriptions.add(this.tooltipManager)
 
+    this.sigHelpManager = new SigHelpManager(this)
+    this.subscriptions.add(this.sigHelpManager)
+
     // Register the commands
     this.subscriptions.add(registerCommands(this))
   }
@@ -150,16 +156,19 @@ export class PluginManager {
 
   public consumeDatatipService(datatip: DatatipService) {
     if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
-    this.datatipProvider = new TSDatatipProvider(this.getClient)
-    const disp = datatip.addProvider(this.datatipProvider)
+    const disp = datatip.addProvider(new TSDatatipProvider(this.getClient))
     this.subscriptions.add(disp)
     this.tooltipManager.dispose()
+    this.usingBuiltinTooltipManager = false
     return disp
   }
 
   public consumeSigHelpService(registry: SignatureHelpRegistry): void | Atom.DisposableLike {
+    if (atom.config.get("atom-typescript.preferBuiltinTooltips")) return
     const disp = registry(new TSSigHelpProvider(this.getClient, this.withTypescriptBuffer))
     this.subscriptions.add(disp)
+    this.sigHelpManager.dispose()
+    this.usingBuiltinSigHelpManager = false
     return disp
   }
 
@@ -235,9 +244,13 @@ export class PluginManager {
     )
 
   public async showTooltipAt(ed: Atom.TextEditor): Promise<void> {
-    if (this.datatipProvider) {
-      await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
-    } else await this.tooltipManager.showExpressionAt(ed)
+    if (this.usingBuiltinTooltipManager) await this.tooltipManager.showExpressionAt(ed)
+    else await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
+  }
+
+  public async showSigHelpAt(ed: Atom.TextEditor): Promise<void> {
+    if (this.usingBuiltinSigHelpManager) await this.sigHelpManager.showTooltipAt(ed)
+    else await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show")
   }
 
   public getSemanticViewController = () => this.semanticViewController

@@ -15,6 +15,7 @@ import "./refactorCode"
 import "./renameRefactor"
 import "./returnFromDeclaration"
 import "./semanticView"
+import "./showSigHelp"
 import "./showTooltip"
 import "./symbolsView"
 

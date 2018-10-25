@@ -1,0 +1,1 @@
+{"version":3,"file":"showSigHelp.js","sourceRoot":"","sources":["../../../../lib/main/atom/commands/showSigHelp.ts"],"names":[],"mappings":";;AAAA,yCAAqC;AAErC,qBAAU,CAAC,kBAAkB,EAAE,gCAAgC,EAAE,IAAI,CAAC,EAAE,CAAC,CAAC;IACxE,WAAW,EAAE,6DAA6D;IAC1E,KAAK,CAAC,WAAW,CAAC,EAAE;QAClB,OAAO,IAAI,CAAC,aAAa,CAAC,EAAE,CAAC,CAAA;IAC/B,CAAC;CACF,CAAC,CAAC,CAAA"}

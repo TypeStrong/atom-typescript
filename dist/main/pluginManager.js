@@ -13,8 +13,9 @@ const statusPanel_1 = require("./atom/components/statusPanel");
 const datatipProvider_1 = require("./atom/datatipProvider");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
+const manager_1 = require("./atom/sigHelp/manager");
 const sigHelpProvider_1 = require("./atom/sigHelpProvider");
-const manager_1 = require("./atom/tooltips/manager");
+const manager_2 = require("./atom/tooltips/manager");
 const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
@@ -24,6 +25,8 @@ const typescriptEditorPane_1 = require("./typescriptEditorPane");
 class PluginManager {
     constructor(state) {
         this.panes = []; // TODO: do we need it?
+        this.usingBuiltinTooltipManager = true;
+        this.usingBuiltinSigHelpManager = true;
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
@@ -88,8 +91,10 @@ class PluginManager {
         this.subscriptions.add(this.symbolsViewController);
         this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
-        this.tooltipManager = new manager_1.TooltipManager(this.getClient);
+        this.tooltipManager = new manager_2.TooltipManager(this.getClient);
         this.subscriptions.add(this.tooltipManager);
+        this.sigHelpManager = new manager_1.SigHelpManager(this);
+        this.subscriptions.add(this.sigHelpManager);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
     }
@@ -131,15 +136,19 @@ class PluginManager {
     consumeDatatipService(datatip) {
         if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
             return;
-        this.datatipProvider = new datatipProvider_1.TSDatatipProvider(this.getClient);
-        const disp = datatip.addProvider(this.datatipProvider);
+        const disp = datatip.addProvider(new datatipProvider_1.TSDatatipProvider(this.getClient));
         this.subscriptions.add(disp);
         this.tooltipManager.dispose();
+        this.usingBuiltinTooltipManager = false;
         return disp;
     }
     consumeSigHelpService(registry) {
+        if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
+            return;
         const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.withTypescriptBuffer));
         this.subscriptions.add(disp);
+        this.sigHelpManager.dispose();
+        this.usingBuiltinSigHelpManager = false;
         return disp;
     }
     // Registering an autocomplete provider
@@ -160,11 +169,16 @@ class PluginManager {
         return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
     }
     async showTooltipAt(ed) {
-        if (this.datatipProvider) {
-            await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
-        }
-        else
+        if (this.usingBuiltinTooltipManager)
             await this.tooltipManager.showExpressionAt(ed);
+        else
+            await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
+    }
+    async showSigHelpAt(ed) {
+        if (this.usingBuiltinSigHelpManager)
+            await this.sigHelpManager.showTooltipAt(ed);
+        else
+            await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show");
     }
     subscribeEditors() {
         let activePane;

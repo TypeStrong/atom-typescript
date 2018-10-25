@@ -16,6 +16,7 @@ require("./refactorCode");
 require("./renameRefactor");
 require("./returnFromDeclaration");
 require("./semanticView");
+require("./showSigHelp");
 require("./showTooltip");
 require("./symbolsView");
 function registerCommands(deps) {

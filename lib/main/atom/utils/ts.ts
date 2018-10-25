@@ -98,6 +98,6 @@ export function signatureHelpParameterToSignatureParameter(
   }
 }
 
-function partsToStr(x: Array<{text: string}>): string {
+export function partsToStr(x: Array<{text: string}>): string {
   return x.map(i => i.text).join("")
 }
