@@ -49,8 +49,14 @@ class TooltipView {
             this.element.style.whiteSpace = whiteSpace;
     }
     render() {
-        return (etch.dom("div", { class: "atom-typescript-tooltip tooltip" },
+        return (etch.dom("div", { class: "atom-typescript-tooltip tooltip", key: this.sigHelpHash() },
             etch.dom("div", { class: "tooltip-inner" }, this.tooltipContents())));
+    }
+    sigHelpHash() {
+        if (!this.props.sigHelp)
+            return undefined;
+        const { start, end } = this.props.sigHelp.applicableSpan;
+        return `${start.line}:${start.offset}-${end.line}:${end.offset}`;
     }
     tooltipContents() {
         if (!this.props.sigHelp)

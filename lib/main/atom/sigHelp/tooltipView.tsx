@@ -68,10 +68,16 @@ export class TooltipView implements JSX.ElementClass {
 
   public render() {
     return (
-      <div class="atom-typescript-tooltip tooltip">
+      <div class="atom-typescript-tooltip tooltip" key={this.sigHelpHash()}>
         <div class="tooltip-inner">{this.tooltipContents()}</div>
       </div>
     )
+  }
+
+  private sigHelpHash() {
+    if (!this.props.sigHelp) return undefined
+    const {start, end} = this.props.sigHelp.applicableSpan
+    return `${start.line}:${start.offset}-${end.line}:${end.offset}`
   }
 
   private tooltipContents() {
