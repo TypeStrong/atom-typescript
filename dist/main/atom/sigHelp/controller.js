@@ -14,8 +14,14 @@ class TooltipController {
         this.view = new tooltipView_1.TooltipView();
         document.body.appendChild(this.view.element);
         const debouncedUpdate = lodash_1.debounce(this.updateTooltip.bind(this), 100, { leading: true });
+        const rawView = atom.views.getView(this.editor);
         this.disposables.add(this.editor.onDidChangeCursorPosition(evt => {
-            utils_1.handlePromise(debouncedUpdate(evt.newBufferPosition));
+            bufferPt = evt.newBufferPosition;
+            utils_1.handlePromise(debouncedUpdate(bufferPt));
+        }), rawView.onDidChangeScrollTop(() => {
+            setImmediate(() => this.updateTooltipPosition(bufferPt));
+        }), rawView.onDidChangeScrollLeft(() => {
+            setImmediate(() => this.updateTooltipPosition(bufferPt));
         }));
         utils_1.handlePromise(this.updateTooltip(bufferPt));
     }
@@ -32,6 +38,23 @@ class TooltipController {
     async updateTooltip(bufferPt) {
         if (this.cancelled)
             return;
+        const tooltipRect = this.computeTooltipPosition(bufferPt);
+        const msg = await this.getMessage(bufferPt);
+        if (this.cancelled)
+            return;
+        if (!msg) {
+            this.dispose();
+            return;
+        }
+        await this.view.update(Object.assign({}, tooltipRect, { sigHelp: msg }));
+    }
+    updateTooltipPosition(bufferPt) {
+        if (this.cancelled)
+            return;
+        const tooltipRect = this.computeTooltipPosition(bufferPt);
+        utils_1.handlePromise(this.view.update(Object.assign({}, tooltipRect)));
+    }
+    computeTooltipPosition(bufferPt) {
         const rawView = atom.views.getView(this.editor);
         const pixelPos = rawView.pixelPositionForBufferPosition(bufferPt);
         const lines = rawView.querySelector(".lines");
@@ -40,20 +63,12 @@ class TooltipController {
         const Y = pixelPos.top + linesRect.top + lineH / 2;
         const X = pixelPos.left + linesRect.left;
         const offset = lineH * 0.7;
-        const tooltipRect = {
+        return {
             left: X,
             right: X,
             top: Y - offset,
             bottom: Y + offset,
         };
-        const msg = await this.getMessage(bufferPt);
-        if (!msg) {
-            this.dispose();
-            return;
-        }
-        if (this.cancelled)
-            return;
-        await this.view.update(Object.assign({}, tooltipRect, { sigHelp: msg }));
     }
     async getMessage(bufferPt) {
         if (!utils_2.isTypescriptEditorWithPath(this.editor))

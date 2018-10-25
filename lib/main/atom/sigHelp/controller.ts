@@ -21,9 +21,17 @@ export class TooltipController {
     this.view = new TooltipView()
     document.body.appendChild(this.view.element)
     const debouncedUpdate = debounce(this.updateTooltip.bind(this), 100, {leading: true})
+    const rawView = atom.views.getView(this.editor)
     this.disposables.add(
       this.editor.onDidChangeCursorPosition(evt => {
-        handlePromise(debouncedUpdate(evt.newBufferPosition))
+        bufferPt = evt.newBufferPosition
+        handlePromise(debouncedUpdate(bufferPt))
+      }),
+      rawView.onDidChangeScrollTop(() => {
+        setImmediate(() => this.updateTooltipPosition(bufferPt))
+      }),
+      rawView.onDidChangeScrollLeft(() => {
+        setImmediate(() => this.updateTooltipPosition(bufferPt))
       }),
     )
     handlePromise(this.updateTooltip(bufferPt))
@@ -42,6 +50,24 @@ export class TooltipController {
 
   private async updateTooltip(bufferPt: Atom.Point) {
     if (this.cancelled) return
+    const tooltipRect = this.computeTooltipPosition(bufferPt)
+
+    const msg = await this.getMessage(bufferPt)
+    if (this.cancelled) return
+    if (!msg) {
+      this.dispose()
+      return
+    }
+    await this.view.update({...tooltipRect, sigHelp: msg})
+  }
+
+  private updateTooltipPosition(bufferPt: Atom.Point) {
+    if (this.cancelled) return
+    const tooltipRect = this.computeTooltipPosition(bufferPt)
+    handlePromise(this.view.update({...tooltipRect}))
+  }
+
+  private computeTooltipPosition(bufferPt: Atom.Point) {
     const rawView = atom.views.getView(this.editor)
     const pixelPos = rawView.pixelPositionForBufferPosition(bufferPt)
     const lines = rawView.querySelector(".lines")!
@@ -50,20 +76,12 @@ export class TooltipController {
     const Y = pixelPos.top + linesRect.top + lineH / 2
     const X = pixelPos.left + linesRect.left
     const offset = lineH * 0.7
-    const tooltipRect = {
+    return {
       left: X,
       right: X,
       top: Y - offset,
       bottom: Y + offset,
     }
-
-    const msg = await this.getMessage(bufferPt)
-    if (!msg) {
-      this.dispose()
-      return
-    }
-    if (this.cancelled) return
-    await this.view.update({...tooltipRect, sigHelp: msg})
   }
 
   private async getMessage(bufferPt: Atom.Point) {
