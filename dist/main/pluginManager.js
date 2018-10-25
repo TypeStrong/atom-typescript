@@ -183,6 +183,12 @@ class PluginManager {
         else
             await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show");
     }
+    hideSigHelpAt(ed) {
+        if (this.usingBuiltinSigHelpManager)
+            return this.sigHelpManager.hideTooltipAt(ed);
+        else
+            return false;
+    }
     subscribeEditors() {
         let activePane;
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {

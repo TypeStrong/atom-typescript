@@ -1,3 +1,4 @@
+import {TextEditorElement} from "atom"
 import * as etch from "etch"
 import {partsToStr} from "../utils"
 
@@ -13,7 +14,7 @@ export class TooltipView implements JSX.ElementClass {
   public readonly element!: HTMLDivElement
   public props: Props
 
-  constructor() {
+  constructor(private parent: TextEditorElement) {
     this.props = {
       left: 0,
       right: 0,
@@ -39,7 +40,7 @@ export class TooltipView implements JSX.ElementClass {
 
     let whiteSpace = ""
 
-    const clientWidth = document.body.clientWidth
+    const clientWidth = this.parent.clientWidth
     const offsetWidth = this.element.offsetWidth
     const offsetHeight = this.element.offsetHeight
 

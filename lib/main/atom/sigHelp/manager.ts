@@ -47,6 +47,16 @@ export class SigHelpManager {
     return this.showTooltip(editor, pt)
   }
 
+  public hideTooltipAt(editor: Atom.TextEditor): boolean {
+    const controller = this.editorMap.get(editor)
+    if (controller && !controller.isDisposed()) {
+      controller.dispose()
+      return true
+    } else {
+      return false
+    }
+  }
+
   private async showTooltip(editor: Atom.TextEditor, pos: Atom.Point) {
     const controller = this.editorMap.get(editor)
     if (!controller || controller.isDisposed()) {

@@ -61,7 +61,6 @@ export class SemanticView {
   }
 
   public serialize(): SemanticViewSerializationData {
-    // console.log("SemanticView.serialize()") // DEBUG
     return {
       deserializer: "atomts-semantic-view/SemanticView",
       data: {navTree: this.comp.props.navTree},

@@ -44,6 +44,16 @@ class SigHelpManager {
         const pt = editor.getLastCursor().getBufferPosition();
         return this.showTooltip(editor, pt);
     }
+    hideTooltipAt(editor) {
+        const controller = this.editorMap.get(editor);
+        if (controller && !controller.isDisposed()) {
+            controller.dispose();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     async showTooltip(editor, pos) {
         const controller = this.editorMap.get(editor);
         if (!controller || controller.isDisposed()) {

@@ -40,7 +40,6 @@ class SemanticView {
         return ["left", "right"];
     }
     serialize() {
-        // console.log("SemanticView.serialize()") // DEBUG
         return {
             deserializer: "atomts-semantic-view/SemanticView",
             data: { navTree: this.comp.props.navTree },

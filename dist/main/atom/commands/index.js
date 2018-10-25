@@ -10,6 +10,7 @@ require("./clearErrors");
 require("./findReferences");
 require("./formatCode");
 require("./goToDeclaration");
+require("./hideSigHelp");
 require("./initializeConfig");
 require("./organizeImports");
 require("./refactorCode");

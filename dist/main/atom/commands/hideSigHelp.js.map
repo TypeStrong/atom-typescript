@@ -1,0 +1,1 @@
+{"version":3,"file":"hideSigHelp.js","sourceRoot":"","sources":["../../../../lib/main/atom/commands/hideSigHelp.ts"],"names":[],"mappings":";;AAAA,yCAAqC;AAErC,qBAAU,CAAC,kBAAkB,EAAE,gCAAgC,EAAE,IAAI,CAAC,EAAE,CAAC,CAAC;IACxE,WAAW,EAAE,2CAA2C;IACxD,KAAK,CAAC,WAAW,CAAC,EAAE,EAAE,MAAM;QAC1B,IAAI,CAAC,IAAI,CAAC,aAAa,CAAC,EAAE,CAAC;YAAE,MAAM,EAAE,CAAA;IACvC,CAAC;CACF,CAAC,CAAC,CAAA"}

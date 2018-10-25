@@ -11,10 +11,10 @@ class TooltipController {
         this.editor = editor;
         this.cancelled = false;
         this.disposables = new Atom.CompositeDisposable();
-        this.view = new tooltipView_1.TooltipView();
-        document.body.appendChild(this.view.element);
-        const debouncedUpdate = lodash_1.debounce(this.updateTooltip.bind(this), 100, { leading: true });
         const rawView = atom.views.getView(this.editor);
+        this.view = new tooltipView_1.TooltipView(rawView);
+        rawView.appendChild(this.view.element);
+        const debouncedUpdate = lodash_1.debounce(this.updateTooltip.bind(this), 100, { leading: true });
         this.disposables.add(this.editor.onDidChangeCursorPosition(evt => {
             bufferPt = evt.newBufferPosition;
             utils_1.handlePromise(debouncedUpdate(bufferPt));
@@ -60,8 +60,9 @@ class TooltipController {
         const lines = rawView.querySelector(".lines");
         const linesRect = lines.getBoundingClientRect();
         const lineH = this.editor.getLineHeightInPixels();
-        const Y = pixelPos.top + linesRect.top + lineH / 2;
-        const X = pixelPos.left + linesRect.left;
+        const parentRect = rawView.getBoundingClientRect();
+        const Y = pixelPos.top + linesRect.top - parentRect.top + lineH / 2;
+        const X = pixelPos.left + linesRect.left - parentRect.left;
         const offset = lineH * 0.7;
         return {
             left: X,

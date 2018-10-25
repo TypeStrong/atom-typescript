@@ -3,6 +3,7 @@
   'shift-f12': 'typescript:find-references'
   'f6': 'typescript:build'
   'f12': 'typescript:go-to-declaration'
+  'escape': 'typescript:hide-signature-help'
 
 'atom-workspace':
   'f10': 'typescript:return-from-declaration'

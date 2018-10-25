@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
 const utils_1 = require("../utils");
 class TooltipView {
-    constructor() {
+    constructor(parent) {
+        this.parent = parent;
         this.props = {
             left: 0,
             right: 0,
@@ -24,7 +25,7 @@ class TooltipView {
         let left = this.props.right;
         let right = false;
         let whiteSpace = "";
-        const clientWidth = document.body.clientWidth;
+        const clientWidth = this.parent.clientWidth;
         const offsetWidth = this.element.offsetWidth;
         const offsetHeight = this.element.offsetHeight;
         let top = this.props.top - offsetHeight;

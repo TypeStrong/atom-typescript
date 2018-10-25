@@ -53,7 +53,6 @@ exports.findNodeAt = findNodeAt;
  * @return the start line for the NavTree node, or 0, if none could be determined
  */
 function getNodeStartLine(node) {
-    // console.log('getNodeStartLine.node -> ', node)
     return node.spans.length > 0 ? node.spans[0].start.line - 1 : 0;
 }
 exports.getNodeStartLine = getNodeStartLine;
@@ -63,7 +62,6 @@ exports.getNodeStartLine = getNodeStartLine;
  * @return the start column for the NavTree node, or 0, if none could be determined
  */
 function getNodeStartOffset(node) {
-    // console.log('getNodeStartLine.node -> ', node)
     return node.spans.length > 0 ? node.spans[0].start.offset - 1 : 0;
 }
 exports.getNodeStartOffset = getNodeStartOffset;

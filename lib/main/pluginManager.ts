@@ -258,6 +258,11 @@ export class PluginManager {
     else await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show")
   }
 
+  public hideSigHelpAt(ed: Atom.TextEditor): boolean {
+    if (this.usingBuiltinSigHelpManager) return this.sigHelpManager.hideTooltipAt(ed)
+    else return false
+  }
+
   public getSemanticViewController = () => this.semanticViewController
 
   public getSymbolsViewController = () => this.symbolsViewController

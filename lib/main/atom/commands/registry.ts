@@ -17,6 +17,7 @@ export interface Dependencies {
   getEditorPositionHistoryManager(): EditorPositionHistoryManager
   showTooltipAt(ed: Atom.TextEditor): void
   showSigHelpAt(ed: Atom.TextEditor): void
+  hideSigHelpAt(ed: Atom.TextEditor): boolean
 }
 
 export type AllowedSelectors = keyof Dispatch
