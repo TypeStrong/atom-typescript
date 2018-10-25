@@ -58,7 +58,7 @@
       "description": "Use built-in tooltips for displaying signature help instead of Atom-IDE ones (if available); Change requires Atom restart",
       "type": "boolean",
       "default": false,
-      "order": 55
+      "order": 56
     },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",

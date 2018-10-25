@@ -22,13 +22,12 @@ class TooltipView {
     writeAfterUpdate() {
         const offset = 10;
         let left = this.props.right;
-        let top = this.props.bottom;
         let right = false;
         let whiteSpace = "";
         const clientWidth = document.body.clientWidth;
         const offsetWidth = this.element.offsetWidth;
-        const clientHeight = document.body.clientHeight;
         const offsetHeight = this.element.offsetHeight;
+        let top = this.props.top - offsetHeight;
         // X axis adjust
         if (left + offsetWidth >= clientWidth) {
             left = clientWidth - offsetWidth - offset;
@@ -39,8 +38,8 @@ class TooltipView {
             right = offset;
         }
         // Y axis adjust
-        if (top + offsetHeight >= clientHeight) {
-            top = this.props.top - offsetHeight;
+        if (top < 0) {
+            top = this.props.bottom;
         }
         this.element.style.left = `${left}px`;
         this.element.style.top = `${top}px`;
