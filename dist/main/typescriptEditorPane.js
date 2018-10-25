@@ -13,10 +13,7 @@ class TypescriptEditorPane {
         this.activeAt = 0;
         this.isTypescript = false;
         this.isActive = false;
-        this.isOpen = false;
-        this.occurrenceMarkers = [];
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.updateMarkersDB = lodash_1.debounce(() => utils_1.handlePromise(this.updateMarkers()), 100);
         this.onActivated = () => {
             this.activeAt = Date.now();
             this.isActive = true;
@@ -50,15 +47,6 @@ class TypescriptEditorPane {
                 delay: 100,
             }));
         };
-        this.onDidChangeCursorPosition = ({ textChanged }) => {
-            if (!this.isTypescript || !this.isOpen)
-                return;
-            if (textChanged) {
-                this.clearOccurrenceMarkers();
-                return;
-            }
-            this.updateMarkersDB();
-        };
         this.onDidDestroy = () => {
             this.dispose();
         };
@@ -77,7 +65,6 @@ class TypescriptEditorPane {
                     files: [filePath],
                     delay: 100,
                 });
-                this.isOpen = true;
                 try {
                     const result = await this.client.execute("projectInfo", {
                         needFileNameList: false,
@@ -109,49 +96,21 @@ class TypescriptEditorPane {
             if (this.isTypescript) {
                 atom.views.getView(this.editor).classList.add("typescript-editor");
             }
+            else {
+                atom.views.getView(this.editor).classList.remove("typescript-editor");
+            }
         };
         this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts.getClient);
-        this.subscriptions.add(this.buffer.events.on("changed", this.onChanged), this.buffer.events.on("closed", this.opts.onClose), this.buffer.events.on("opened", this.onOpened), this.buffer.events.on("saved", this.onSaved));
+        this.subscriptions.add(this.buffer.on("changed", this.onChanged), this.buffer.on("closed", this.opts.onClose), this.buffer.on("opened", this.onOpened), this.buffer.on("saved", this.onSaved));
         this.checkIfTypescript();
-        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition), this.editor.onDidDestroy(this.onDidDestroy));
+        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), 
+        // this.editor.onDidChangeCursorPosition(this.onDidChangeCursorPosition),
+        this.editor.onDidDestroy(this.onDidDestroy));
     }
     dispose() {
         atom.views.getView(this.editor).classList.remove("typescript-editor");
         this.subscriptions.dispose();
         this.opts.onDispose(this);
-    }
-    clearOccurrenceMarkers() {
-        for (const marker of this.occurrenceMarkers) {
-            marker.destroy();
-        }
-    }
-    async updateMarkers() {
-        if (!this.client)
-            return;
-        const filePath = this.buffer.getPath();
-        if (filePath === undefined)
-            return;
-        const pos = this.editor.getLastCursor().getBufferPosition();
-        this.clearOccurrenceMarkers();
-        try {
-            const result = await this.client.execute("occurrences", {
-                file: filePath,
-                line: pos.row + 1,
-                offset: pos.column + 1,
-            });
-            for (const ref of result.body) {
-                const marker = this.editor.markBufferRange(utils_2.spanToRange(ref));
-                this.editor.decorateMarker(marker, {
-                    type: "highlight",
-                    class: "atom-typescript-occurrence",
-                });
-                this.occurrenceMarkers.push(marker);
-            }
-        }
-        catch (e) {
-            if (window.atom_typescript_debug)
-                console.error(e);
-        }
     }
     async compileOnSave() {
         const { client } = this;

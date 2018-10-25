@@ -14,6 +14,8 @@ class TypescriptBuffer {
         this.changedAt = 0;
         this.changedAtBatch = 0;
         this.subscriptions = new Atom.CompositeDisposable();
+        // tslint:disable-next-line:member-ordering
+        this.on = this.events.on.bind(this.events);
         this.dispose = async () => {
             this.subscriptions.dispose();
             await this.close();

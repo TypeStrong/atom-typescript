@@ -14,6 +14,7 @@ import {StatusPanel} from "./atom/components/statusPanel"
 import {TSDatatipProvider} from "./atom/datatipProvider"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
+import {OccurrenceManager} from "./atom/occurrence/manager"
 import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TSSigHelpProvider} from "./atom/sigHelpProvider"
 import {TooltipManager} from "./atom/tooltips/manager"
@@ -55,6 +56,7 @@ export class PluginManager {
   private usingBuiltinTooltipManager = true
   private sigHelpManager: SigHelpManager
   private usingBuiltinSigHelpManager = true
+  private occurrenceManager: OccurrenceManager
 
   public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
@@ -108,6 +110,9 @@ export class PluginManager {
 
     this.sigHelpManager = new SigHelpManager(this)
     this.subscriptions.add(this.sigHelpManager)
+
+    this.occurrenceManager = new OccurrenceManager(this.getClient)
+    this.subscriptions.add(this.occurrenceManager)
 
     // Register the commands
     this.subscriptions.add(registerCommands(this))

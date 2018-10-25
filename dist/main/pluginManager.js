@@ -13,9 +13,10 @@ const statusPanel_1 = require("./atom/components/statusPanel");
 const datatipProvider_1 = require("./atom/datatipProvider");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
 const hyperclickProvider_1 = require("./atom/hyperclickProvider");
-const manager_1 = require("./atom/sigHelp/manager");
+const manager_1 = require("./atom/occurrence/manager");
+const manager_2 = require("./atom/sigHelp/manager");
 const sigHelpProvider_1 = require("./atom/sigHelpProvider");
-const manager_2 = require("./atom/tooltips/manager");
+const manager_3 = require("./atom/tooltips/manager");
 const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
@@ -91,10 +92,12 @@ class PluginManager {
         this.subscriptions.add(this.symbolsViewController);
         this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
-        this.tooltipManager = new manager_2.TooltipManager(this.getClient);
+        this.tooltipManager = new manager_3.TooltipManager(this.getClient);
         this.subscriptions.add(this.tooltipManager);
-        this.sigHelpManager = new manager_1.SigHelpManager(this);
+        this.sigHelpManager = new manager_2.SigHelpManager(this);
         this.subscriptions.add(this.sigHelpManager);
+        this.occurrenceManager = new manager_1.OccurrenceManager(this.getClient);
+        this.subscriptions.add(this.occurrenceManager);
         // Register the commands
         this.subscriptions.add(commands_1.registerCommands(this));
     }

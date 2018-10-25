@@ -17,7 +17,7 @@ export class TypescriptBuffer {
   }
   private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
 
-  public readonly events = new Atom.Emitter<
+  private events = new Atom.Emitter<
     {
       saved: void
       opened: void
@@ -39,6 +39,9 @@ export class TypescriptBuffer {
   }
 
   private subscriptions = new Atom.CompositeDisposable()
+
+  // tslint:disable-next-line:member-ordering
+  public on = this.events.on.bind(this.events)
 
   private constructor(public buffer: Atom.TextBuffer, public getClient: GetClientFunction) {
     this.subscriptions.add(
