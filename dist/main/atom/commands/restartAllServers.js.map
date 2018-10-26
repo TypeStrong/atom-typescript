@@ -1,0 +1,1 @@
+{"version":3,"file":"restartAllServers.js","sourceRoot":"","sources":["../../../../lib/main/atom/commands/restartAllServers.ts"],"names":[],"mappings":";;AAAA,yCAAqC;AAErC,qBAAU,CAAC,gBAAgB,EAAE,gCAAgC,EAAE,IAAI,CAAC,EAAE,CAAC,CAAC;IACtE,WAAW,EAAE,0DAA0D;IACvE,KAAK,CAAC,WAAW;QACf,IAAI,CAAC,cAAc,EAAE,CAAA;IACvB,CAAC;CACF,CAAC,CAAC,CAAA"}
