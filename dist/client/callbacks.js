@@ -10,7 +10,6 @@ class Callbacks {
         try {
             return await this.reportBusyWhile(command, () => new Promise((resolve, reject) => {
                 this.callbacks.set(seq, {
-                    name: command,
                     resolve,
                     reject,
                     started: Date.now(),

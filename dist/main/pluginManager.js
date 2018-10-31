@@ -25,31 +25,26 @@ const typescriptBuffer_1 = require("./typescriptBuffer");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
 class PluginManager {
     constructor(state) {
-        this.panes = []; // TODO: do we need it?
         this.usingBuiltinTooltipManager = true;
         this.usingBuiltinSigHelpManager = true;
         this.pending = new Set();
-        this.clearErrors = () => {
-            this.errorPusher.clear();
+        this.clearErrors = (filePath) => {
+            this.errorPusher.clear(filePath);
         };
         this.getClient = async (filePath) => {
-            const pane = this.panes.find(p => p.buffer.getPath() === filePath);
-            if (pane && pane.client) {
-                return pane.client;
-            }
             return this.clientResolver.get(filePath);
         };
         this.killAllServers = () => this.clientResolver.killAllServers();
-        this.getStatusPanel = () => this.statusPanel;
         this.withTypescriptBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);
-            const pane = this.panes.find(p => p.buffer.getPath() === normalizedFilePath);
-            if (pane)
-                return action(pane.buffer);
+            const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
+            if (ed) {
+                return action(typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), this.getClient));
+            }
             // no open buffer
             const buffer = await Atom.TextBuffer.load(normalizedFilePath);
             try {
-                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp));
+                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, this.getClient);
                 return await action(tsbuffer);
             }
             finally {
@@ -66,14 +61,26 @@ class PluginManager {
                 const event = { title };
                 try {
                     this.pending.add(event);
-                    await this.statusPanel.throttledUpdate({ pending: Array.from(this.pending) });
+                    this.drawPending(Array.from(this.pending));
                     return await generator();
                 }
                 finally {
                     this.pending.delete(event);
-                    await this.statusPanel.throttledUpdate({ pending: Array.from(this.pending) });
+                    this.drawPending(Array.from(this.pending));
                 }
             }
+        };
+        this.reportProgress = (progress) => {
+            utils_1.handlePromise(this.statusPanel.update({ progress }));
+        };
+        this.reportBuildStatus = (buildStatus) => {
+            utils_1.handlePromise(this.statusPanel.update({ buildStatus }));
+        };
+        this.reportClientVersion = (clientVersion) => {
+            utils_1.handlePromise(this.statusPanel.update({ version: clientVersion }));
+        };
+        this.reportTSConfigPath = (tsConfigPath) => {
+            utils_1.handlePromise(this.statusPanel.update({ tsConfigPath }));
         };
         this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
@@ -89,6 +96,8 @@ class PluginManager {
         this.getSemanticViewController = () => this.semanticViewController;
         this.getSymbolsViewController = () => this.symbolsViewController;
         this.getEditorPositionHistoryManager = () => this.editorPosHist;
+        // tslint:disable-next-line:member-ordering
+        this.drawPending = lodash_1.throttle((pending) => utils_1.handlePromise(this.statusPanel.update({ pending })), 100, { leading: false });
         this.subscriptions = new atom_1.CompositeDisposable();
         this.clientResolver = new client_1.ClientResolver(this.reportBusyWhile);
         this.subscriptions.add(this.clientResolver);
@@ -96,6 +105,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
+        this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory(this);
         // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
         this.subscribeEditors();
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
@@ -117,6 +127,11 @@ class PluginManager {
     }
     destroy() {
         this.subscriptions.dispose();
+        for (const ed of atom.workspace.getTextEditors()) {
+            const pane = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);
+            if (pane)
+                pane.dispose();
+        }
     }
     serialize() {
         return {
@@ -218,47 +233,13 @@ class PluginManager {
             return false;
     }
     subscribeEditors() {
-        let activePane;
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
-            this.panes.push(new typescriptEditorPane_1.TypescriptEditorPane(editor, {
-                getClient: (filePath) => this.clientResolver.get(filePath),
-                onClose: filePath => {
-                    // Clear errors if any from this file
-                    this.errorPusher.setErrors("syntaxDiag", filePath, []);
-                    this.errorPusher.setErrors("semanticDiag", filePath, []);
-                },
-                onDispose: pane => {
-                    if (activePane === pane) {
-                        activePane = undefined;
-                    }
-                    this.panes.splice(this.panes.indexOf(pane), 1);
-                },
-                onSave: lodash_1.debounce((pane) => {
-                    if (!pane.client) {
-                        return;
-                    }
-                    const files = [];
-                    for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-                        const filePath = p.buffer.getPath();
-                        if (filePath !== undefined && p.isTypescript && p.client === pane.client) {
-                            files.push(filePath);
-                        }
-                    }
-                    utils_1.handlePromise(pane.client.execute("geterr", { files, delay: 100 }));
-                }, 50),
-                statusPanel: this.statusPanel,
-            }));
-        }));
-        this.subscriptions.add(atom.workspace.observeActiveTextEditor((editor) => {
-            if (activePane) {
-                activePane.onDeactivated();
-                activePane = undefined;
-            }
-            const pane = this.panes.find(p => p.editor === editor);
-            if (pane) {
-                activePane = pane;
-                pane.onActivated();
-            }
+            this.typescriptPaneFactory(editor);
+        }), atom.workspace.onDidChangeActiveTextEditor(ed => {
+            if (ed && utils_2.isTypescriptEditorWithPath(ed))
+                utils_1.handlePromise(this.statusPanel.show());
+            else
+                utils_1.handlePromise(this.statusPanel.hide());
         }));
     }
 }

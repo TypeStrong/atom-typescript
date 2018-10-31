@@ -1,16 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
-const _ = require("lodash");
 const utils_1 = require("../../../../utils");
 const buildStatus_1 = require("./buildStatus");
 const configPath_1 = require("./configPath");
 const tooltip_1 = require("./tooltip");
 class StatusPanel {
     constructor(props = {}) {
-        // tslint:disable-next-line:member-ordering
-        this.throttledUpdate = _.throttle(this.update.bind(this), 100, { leading: false });
-        this.props = Object.assign({ visible: true, pending: [] }, props);
+        this.props = Object.assign({ visible: true, pending: [], progress: { max: 0, value: 0 } }, props);
         etch.initialize(this);
     }
     async update(props) {
@@ -67,7 +64,7 @@ class StatusPanel {
         return null;
     }
     renderProgress() {
-        if (this.props.progress) {
+        if (this.props.progress.value < this.props.progress.max) {
             return (etch.dom("progress", { style: { verticalAlign: "baseline" }, className: "inline-block", max: this.props.progress.max, value: this.props.progress.value }));
         }
         return null;

@@ -3,6 +3,7 @@ import {IndieDelegate, Message} from "atom/linter"
 import {debounce} from "lodash"
 import * as path from "path"
 import {Diagnostic, Location} from "typescript/lib/protocol"
+import {DiagnosticTypes} from "../client/clientResolver"
 import {isLocationInRange, locationsToRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
@@ -34,7 +35,7 @@ export class ErrorPusher {
   }
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-  public setErrors(prefix: string, filePath: string, errors: Diagnostic[]) {
+  public setErrors(prefix: DiagnosticTypes, filePath: string, errors: Diagnostic[]) {
     let prefixed = this.errors.get(prefix)
     if (!prefixed) {
       prefixed = new Map()
@@ -46,9 +47,13 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  /** Clear all errors */
-  public clear() {
-    if (this.linter) {
+  public clear(filePath?: string) {
+    if (!this.linter) return
+    if (filePath !== undefined) {
+      for (const map of this.errors.values()) {
+        map.delete(filePath)
+      }
+    } else {
       this.linter.clearMessages()
     }
   }

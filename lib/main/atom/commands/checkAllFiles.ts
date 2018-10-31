@@ -1,4 +1,3 @@
-import {handlePromise} from "../../../utils"
 import {addCommand} from "./registry"
 
 addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
@@ -27,26 +26,20 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
       cancelTimeout = window.setTimeout(cancel, 500)
 
       files.delete(evt.file)
-      handlePromise(updateStatus())
+      updateStatus()
     })
 
-    const stp = deps.getStatusPanel()
-
-    await stp.update({progress: {max, value: 0}})
+    deps.reportProgress({max, value: 0})
     await client.execute("geterrForProject", {file, delay: 0})
 
-    async function cancel() {
+    function cancel() {
       files.clear()
-      await updateStatus()
+      updateStatus()
     }
 
-    async function updateStatus() {
-      if (files.size === 0) {
-        disp.dispose()
-        await stp.update({progress: undefined})
-      } else {
-        await stp.update({progress: {max, value: max - files.size}})
-      }
+    function updateStatus() {
+      if (files.size === 0) disp.dispose()
+      deps.reportProgress({max, value: max - files.size})
     }
   },
 }))

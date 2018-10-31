@@ -36,9 +36,15 @@ class ErrorPusher {
         prefixed.set(path.normalize(filePath), errors);
         this.pushErrors();
     }
-    /** Clear all errors */
-    clear() {
-        if (this.linter) {
+    clear(filePath) {
+        if (!this.linter)
+            return;
+        if (filePath !== undefined) {
+            for (const map of this.errors.values()) {
+                map.delete(filePath);
+            }
+        }
+        else {
             this.linter.clearMessages();
         }
     }

@@ -1,16 +1,21 @@
 import * as etch from "etch"
-import _ = require("lodash")
 import {handlePromise} from "../../../../utils"
-import {BuildStatus} from "./buildStatus"
+import {BuildStatus, TBuildStatus} from "./buildStatus"
 import {ConfigPath} from "./configPath"
 import {Tooltip} from "./tooltip"
+export {TBuildStatus}
+
+export interface TProgress {
+  max: number
+  value: number
+}
 
 export interface Props extends JSX.Props {
   version?: string
   pending: Array<{title: string}>
   tsConfigPath?: string
-  buildStatus?: {success: true} | {success: false; message: string}
-  progress?: {max: number; value: number}
+  buildStatus?: TBuildStatus
+  progress: TProgress
   visible: boolean
 }
 
@@ -21,13 +26,11 @@ export class StatusPanel implements JSX.ElementClass {
     this.props = {
       visible: true,
       pending: [],
+      progress: {max: 0, value: 0},
       ...props,
     }
     etch.initialize(this)
   }
-
-  // tslint:disable-next-line:member-ordering
-  public throttledUpdate = _.throttle(this.update.bind(this), 100, {leading: false})
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
@@ -103,7 +106,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderProgress(): JSX.Element | null {
-    if (this.props.progress) {
+    if (this.props.progress.value < this.props.progress.max) {
       return (
         <progress
           style={{verticalAlign: "baseline"}}

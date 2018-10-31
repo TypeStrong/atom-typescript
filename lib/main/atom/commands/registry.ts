@@ -1,7 +1,7 @@
 import * as Atom from "atom"
 import {GetClientFunction} from "../../../client"
-import {StatusPanel} from "../../atom/components/statusPanel"
 import {ApplyEdits} from "../../pluginManager"
+import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
 import {SemanticViewController} from "../views/outline/semanticViewController"
 import {SymbolsViewController} from "../views/symbols/symbolsViewController"
@@ -11,7 +11,8 @@ export interface Dependencies {
   applyEdits: ApplyEdits
   clearErrors(): void
   killAllServers(): void
-  getStatusPanel(): StatusPanel
+  reportProgress(progress: TProgress): void
+  reportBuildStatus(status: TBuildStatus | undefined): void
   getSemanticViewController(): SemanticViewController
   getSymbolsViewController(): SymbolsViewController
   getEditorPositionHistoryManager(): EditorPositionHistoryManager

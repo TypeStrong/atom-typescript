@@ -43,7 +43,7 @@ export class TypescriptBuffer {
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
 
-  private constructor(public buffer: Atom.TextBuffer, public getClient: GetClientFunction) {
+  private constructor(public buffer: Atom.TextBuffer, private getClient: GetClientFunction) {
     this.subscriptions.add(
       buffer.onDidChange(this.onDidChange),
       buffer.onDidChangePath(this.onDidChangePath),

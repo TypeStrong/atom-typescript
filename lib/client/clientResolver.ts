@@ -10,7 +10,7 @@ import {
 import {ReportBusyWhile} from "../main/pluginManager"
 import {TypescriptServiceClient as Client} from "./client"
 
-type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
+export type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 
 interface DiagnosticsPayload {
   diagnostics: Diagnostic[]

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("../../../utils");
 const registry_1 = require("./registry");
 registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     description: "Typecheck all files in project related to current active text editor",
@@ -25,23 +24,18 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
                 window.clearTimeout(cancelTimeout);
             cancelTimeout = window.setTimeout(cancel, 500);
             files.delete(evt.file);
-            utils_1.handlePromise(updateStatus());
+            updateStatus();
         });
-        const stp = deps.getStatusPanel();
-        await stp.update({ progress: { max, value: 0 } });
+        deps.reportProgress({ max, value: 0 });
         await client.execute("geterrForProject", { file, delay: 0 });
-        async function cancel() {
+        function cancel() {
             files.clear();
-            await updateStatus();
+            updateStatus();
         }
-        async function updateStatus() {
-            if (files.size === 0) {
+        function updateStatus() {
+            if (files.size === 0)
                 disp.dispose();
-                await stp.update({ progress: undefined });
-            }
-            else {
-                await stp.update({ progress: { max, value: max - files.size } });
-            }
+            deps.reportProgress({ max, value: max - files.size });
         }
     },
 }));

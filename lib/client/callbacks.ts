@@ -2,7 +2,6 @@ import * as protocol from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
 
 interface Request {
-  name: string
   started: number
   reject(err: Error): void
   resolve(res: protocol.Response): void
@@ -21,7 +20,6 @@ export class Callbacks {
         () =>
           new Promise<protocol.Response>((resolve, reject) => {
             this.callbacks.set(seq, {
-              name: command,
               resolve,
               reject,
               started: Date.now(),

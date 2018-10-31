@@ -3,14 +3,14 @@ import {CompositeDisposable} from "atom"
 import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
-import {debounce} from "lodash"
+import {throttle} from "lodash"
 import * as path from "path"
 import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {CodeActionsProvider, CodefixProvider, IntentionsProvider} from "./atom/codefix"
 import {registerCommands} from "./atom/commands"
-import {StatusPanel} from "./atom/components/statusPanel"
+import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {TSDatatipProvider} from "./atom/datatipProvider"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
 import {getHyperclickProvider} from "./atom/hyperclickProvider"
@@ -18,7 +18,7 @@ import {OccurrenceManager} from "./atom/occurrence/manager"
 import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TSSigHelpProvider} from "./atom/sigHelpProvider"
 import {TooltipManager} from "./atom/tooltips/manager"
-import {spanToRange, TextSpan} from "./atom/utils"
+import {isTypescriptEditorWithPath, spanToRange, TextSpan} from "./atom/utils"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 import {ErrorPusher} from "./errorPusher"
@@ -52,7 +52,6 @@ export class PluginManager {
   private semanticViewController: SemanticViewController
   private symbolsViewController: SymbolsViewController
   private editorPosHist: EditorPositionHistoryManager
-  private readonly panes: TypescriptEditorPane[] = [] // TODO: do we need it?
   private tooltipManager: TooltipManager
   private usingBuiltinTooltipManager = true
   private sigHelpManager: SigHelpManager
@@ -60,6 +59,7 @@ export class PluginManager {
   private occurrenceManager: OccurrenceManager
   private pending = new Set<{title: string}>()
   private busySignalService?: BusySignalService
+  private typescriptPaneFactory: (editor: Atom.TextEditor) => TypescriptEditorPane
 
   public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
@@ -72,6 +72,8 @@ export class PluginManager {
 
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
+
+    this.typescriptPaneFactory = TypescriptEditorPane.createFactory(this)
 
     // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
     this.subscribeEditors()
@@ -107,6 +109,10 @@ export class PluginManager {
 
   public destroy() {
     this.subscriptions.dispose()
+    for (const ed of atom.workspace.getTextEditors()) {
+      const pane = TypescriptEditorPane.lookupPane(ed)
+      if (pane) pane.dispose()
+    }
   }
 
   public serialize(): State {
@@ -198,32 +204,27 @@ export class PluginManager {
     return getHyperclickProvider(this.clientResolver, this.editorPosHist)
   }
 
-  public clearErrors = () => {
-    this.errorPusher.clear()
+  public clearErrors = (filePath?: string) => {
+    this.errorPusher.clear(filePath)
   }
 
   public getClient = async (filePath: string) => {
-    const pane = this.panes.find(p => p.buffer.getPath() === filePath)
-    if (pane && pane.client) {
-      return pane.client
-    }
-
     return this.clientResolver.get(filePath)
   }
 
   public killAllServers = () => this.clientResolver.killAllServers()
 
-  public getStatusPanel = () => this.statusPanel
-
   public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
     const normalizedFilePath = path.normalize(filePath)
-    const pane = this.panes.find(p => p.buffer.getPath() === normalizedFilePath)
-    if (pane) return action(pane.buffer)
+    const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
+    if (ed) {
+      return action(TypescriptBuffer.create(ed.getBuffer(), this.getClient))
+    }
 
     // no open buffer
     const buffer = await Atom.TextBuffer.load(normalizedFilePath)
     try {
-      const tsbuffer = TypescriptBuffer.create(buffer, fp => this.clientResolver.get(fp))
+      const tsbuffer = TypescriptBuffer.create(buffer, this.getClient)
       return await action(tsbuffer)
     } finally {
       if (buffer.isModified()) await buffer.save()
@@ -238,13 +239,29 @@ export class PluginManager {
       const event = {title}
       try {
         this.pending.add(event)
-        await this.statusPanel.throttledUpdate({pending: Array.from(this.pending)})
+        this.drawPending(Array.from(this.pending))
         return await generator()
       } finally {
         this.pending.delete(event)
-        await this.statusPanel.throttledUpdate({pending: Array.from(this.pending)})
+        this.drawPending(Array.from(this.pending))
       }
     }
+  }
+
+  public reportProgress = (progress: TProgress) => {
+    handlePromise(this.statusPanel.update({progress}))
+  }
+
+  public reportBuildStatus = (buildStatus: TBuildStatus | undefined) => {
+    handlePromise(this.statusPanel.update({buildStatus}))
+  }
+
+  public reportClientVersion = (clientVersion: string) => {
+    handlePromise(this.statusPanel.update({version: clientVersion}))
+  }
+
+  public reportTSConfigPath = (tsConfigPath: string | undefined) => {
+    handlePromise(this.statusPanel.update({tsConfigPath}))
   }
 
   public applyEdits: ApplyEdits = async edits =>
@@ -286,59 +303,21 @@ export class PluginManager {
   public getEditorPositionHistoryManager = () => this.editorPosHist
 
   private subscribeEditors() {
-    let activePane: TypescriptEditorPane | undefined
-
     this.subscriptions.add(
       atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
-        this.panes.push(
-          new TypescriptEditorPane(editor, {
-            getClient: (filePath: string) => this.clientResolver.get(filePath),
-            onClose: filePath => {
-              // Clear errors if any from this file
-              this.errorPusher.setErrors("syntaxDiag", filePath, [])
-              this.errorPusher.setErrors("semanticDiag", filePath, [])
-            },
-            onDispose: pane => {
-              if (activePane === pane) {
-                activePane = undefined
-              }
-
-              this.panes.splice(this.panes.indexOf(pane), 1)
-            },
-            onSave: debounce((pane: TypescriptEditorPane) => {
-              if (!pane.client) {
-                return
-              }
-
-              const files: string[] = []
-              for (const p of this.panes.sort((a, b) => a.activeAt - b.activeAt)) {
-                const filePath = p.buffer.getPath()
-                if (filePath !== undefined && p.isTypescript && p.client === pane.client) {
-                  files.push(filePath)
-                }
-              }
-
-              handlePromise(pane.client.execute("geterr", {files, delay: 100}))
-            }, 50),
-            statusPanel: this.statusPanel,
-          }),
-        )
+        this.typescriptPaneFactory(editor)
       }),
-    )
-
-    this.subscriptions.add(
-      atom.workspace.observeActiveTextEditor((editor?: Atom.TextEditor) => {
-        if (activePane) {
-          activePane.onDeactivated()
-          activePane = undefined
-        }
-
-        const pane = this.panes.find(p => p.editor === editor)
-        if (pane) {
-          activePane = pane
-          pane.onActivated()
-        }
+      atom.workspace.onDidChangeActiveTextEditor(ed => {
+        if (ed && isTypescriptEditorWithPath(ed)) handlePromise(this.statusPanel.show())
+        else handlePromise(this.statusPanel.hide())
       }),
     )
   }
+
+  // tslint:disable-next-line:member-ordering
+  private drawPending = throttle(
+    (pending: Array<{title: string}>) => handlePromise(this.statusPanel.update({pending})),
+    100,
+    {leading: false},
+  )
 }

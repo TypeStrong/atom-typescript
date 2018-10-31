@@ -4,8 +4,10 @@ import {debounce} from "lodash"
 import {handlePromise} from "../../../../utils"
 import {Tooltip} from "./tooltip"
 
+export type TBuildStatus = {success: true} | {success: false; message: string}
+
 export interface Props extends JSX.Props {
-  buildStatus: {success: true} | {success: false; message: string}
+  buildStatus: TBuildStatus
 }
 
 export class BuildStatus implements JSX.ElementClass {
