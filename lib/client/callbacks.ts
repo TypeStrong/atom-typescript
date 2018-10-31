@@ -1,4 +1,5 @@
 import * as protocol from "typescript/lib/protocol"
+import {ReportBusyWhile} from "../main/pluginManager"
 
 interface Request {
   name: string
@@ -11,19 +12,25 @@ interface Request {
 export class Callbacks {
   private callbacks: Map<number, Request> = new Map()
 
-  constructor(private onPendingChange: (pending: string[]) => void) {}
+  constructor(private reportBusyWhile: ReportBusyWhile) {}
 
-  public add(seq: number, command: string) {
-    return new Promise<protocol.Response>((resolve, reject) => {
-      this.callbacks.set(seq, {
-        name: command,
-        resolve,
-        reject,
-        started: Date.now(),
-      })
-
-      this.onPendingChange(this.pending())
-    })
+  public async add(seq: number, command: string) {
+    try {
+      return await this.reportBusyWhile(
+        command,
+        () =>
+          new Promise<protocol.Response>((resolve, reject) => {
+            this.callbacks.set(seq, {
+              name: command,
+              resolve,
+              reject,
+              started: Date.now(),
+            })
+          }),
+      )
+    } finally {
+      this.callbacks.delete(seq)
+    }
   }
 
   public rejectAll(error: Error) {
@@ -32,27 +39,30 @@ export class Callbacks {
     }
 
     this.callbacks.clear()
-    this.onPendingChange(this.pending())
   }
 
-  // Remove and return a Request object, if one exists
-  public remove(seq: number): Request | undefined {
+  public resolve(seq: number, res: protocol.Response): void {
     const req = this.callbacks.get(seq)
-    this.callbacks.delete(seq)
     if (req) {
-      this.onPendingChange(this.pending())
-    }
-    return req
+      if (window.atom_typescript_debug) {
+        console.log(
+          "received response for",
+          res.command,
+          "in",
+          Date.now() - req.started,
+          "ms",
+          "with data",
+          res.body,
+        )
+      }
+      if (res.success) req.resolve(res)
+      else req.reject(new Error(res.message))
+    } else console.warn("unexpected response:", res)
   }
 
-  // pending returns names of requests waiting for a response
-  private pending(): string[] {
-    const pending: string[] = []
-
-    for (const {name} of this.callbacks.values()) {
-      pending.push(name)
-    }
-
-    return pending
+  public error(seq: number, err: Error): void {
+    const req = this.callbacks.get(seq)
+    if (req) req.reject(err)
+    else console.error(err)
   }
 }

@@ -28,6 +28,7 @@ class PluginManager {
         this.panes = []; // TODO: do we need it?
         this.usingBuiltinTooltipManager = true;
         this.usingBuiltinSigHelpManager = true;
+        this.pending = new Set();
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
@@ -57,6 +58,23 @@ class PluginManager {
                 buffer.destroy();
             }
         };
+        this.reportBusyWhile = async (title, generator) => {
+            if (this.busySignalService) {
+                return this.busySignalService.reportBusyWhile(title, generator);
+            }
+            else {
+                const event = { title };
+                try {
+                    this.pending.add(event);
+                    await this.statusPanel.throttledUpdate({ pending: Array.from(this.pending) });
+                    return await generator();
+                }
+                finally {
+                    this.pending.delete(event);
+                    await this.statusPanel.throttledUpdate({ pending: Array.from(this.pending) });
+                }
+            }
+        };
         this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
                 const changes = edit.textChanges
@@ -72,14 +90,10 @@ class PluginManager {
         this.getSymbolsViewController = () => this.symbolsViewController;
         this.getEditorPositionHistoryManager = () => this.editorPosHist;
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.clientResolver = new client_1.ClientResolver();
+        this.clientResolver = new client_1.ClientResolver(this.reportBusyWhile);
         this.subscriptions.add(this.clientResolver);
         this.statusPanel = new statusPanel_1.StatusPanel();
-        this.subscriptions.add(this.clientResolver.on("pendingRequestsChange", lodash_1.throttle(() => {
-            utils_1.handlePromise(this.statusPanel.update({
-                pending: Array.from(this.clientResolver.getAllPending()),
-            }));
-        }, 100, { leading: false })), this.statusPanel);
+        this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
         // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
@@ -152,6 +166,20 @@ class PluginManager {
         this.subscriptions.add(disp);
         this.sigHelpManager.dispose();
         this.usingBuiltinSigHelpManager = false;
+        return disp;
+    }
+    consumeBusySignal(busySignalService) {
+        if (atom.config.get("atom-typescript.preferBuiltinBusySignal"))
+            return;
+        this.busySignalService = busySignalService;
+        const disp = {
+            dispose: () => {
+                if (this.busySignalService)
+                    this.busySignalService.dispose();
+                this.busySignalService = undefined;
+            },
+        };
+        this.subscriptions.add(disp);
         return disp;
     }
     // Registering an autocomplete provider

@@ -4,6 +4,7 @@ import byline = require("byline")
 import {ChildProcess} from "child_process"
 import {Readable, Transform} from "stream"
 import * as protocol from "typescript/lib/protocol"
+import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {Callbacks} from "./callbacks"
 import {CommandArg, CommandArgResponseMap, CommandRes} from "./commandArgsResponseMap"
@@ -63,8 +64,12 @@ export class TypescriptServiceClient {
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
 
-  constructor(public tsServerPath: string, public version: string) {
-    this.callbacks = new Callbacks(this.emitPendingRequests)
+  constructor(
+    public tsServerPath: string,
+    public version: string,
+    private reportBusyWhile: ReportBusyWhile,
+  ) {
+    this.callbacks = new Callbacks(this.reportBusyWhile)
     this.serverPromise = this.startServer()
   }
 
@@ -152,38 +157,13 @@ export class TypescriptServiceClient {
     })
   }
 
-  private emitPendingRequests = (pending: string[]) => {
-    this.emitter.emit("pendingRequestsChange", pending)
-  }
-
   private onMessage = (res: protocol.Response | protocol.Event) => {
     if (res.type === "response") this.onResponse(res)
     else this.onEvent(res)
   }
 
   private onResponse(res: protocol.Response) {
-    const req = this.callbacks.remove(res.request_seq)
-    if (req) {
-      if (window.atom_typescript_debug) {
-        console.log(
-          "received response for",
-          res.command,
-          "in",
-          Date.now() - req.started,
-          "ms",
-          "with data",
-          res.body,
-        )
-      }
-
-      if (res.success) {
-        req.resolve(res)
-      } else {
-        req.reject(new Error(res.message))
-      }
-    } else {
-      console.warn("unexpected response:", res)
-    }
+    this.callbacks.resolve(res.request_seq, res)
   }
 
   private onEvent(res: protocol.Event) {
@@ -215,12 +195,7 @@ export class TypescriptServiceClient {
       try {
         cp.stdin.write(JSON.stringify(req) + "\n")
       } catch (error) {
-        const callback = this.callbacks.remove(req.seq)
-        if (callback) {
-          callback.reject(error as Error)
-        } else {
-          console.error(error)
-        }
+        this.callbacks.error(req.seq, error as Error)
       }
     })
 

@@ -60,6 +60,13 @@
       "default": false,
       "order": 56
     },
+    "preferBuiltinBusySignal": {
+      "title": "Prefer built-in busy status indicator",
+      "description": "Use built-in busy status indicator instead of Atom-IDE one (if available); Change requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 57
+    },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
       "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",
@@ -128,6 +135,11 @@
     "signature-help": {
       "versions": {
         "0.1.0": "consumeSignatureHelp"
+      }
+    },
+    "atom-ide-busy-signal": {
+      "versions": {
+        "0.1.0": "consumeBusySignal"
       }
     }
   },

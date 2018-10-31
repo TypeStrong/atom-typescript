@@ -51,6 +51,11 @@ function consumeSignatureHelp(registry) {
         return pluginManager.consumeSigHelpService(registry);
 }
 exports.consumeSignatureHelp = consumeSignatureHelp;
+function consumeBusySignal(busySignalService) {
+    if (pluginManager)
+        return pluginManager.consumeBusySignal(busySignalService);
+}
+exports.consumeBusySignal = consumeBusySignal;
 ////////////////////////////////// Providers ///////////////////////////////////
 function provideAutocomplete() {
     if (pluginManager)

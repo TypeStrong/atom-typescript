@@ -1,13 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
+const _ = require("lodash");
 const utils_1 = require("../../../../utils");
 const buildStatus_1 = require("./buildStatus");
 const configPath_1 = require("./configPath");
 const tooltip_1 = require("./tooltip");
 class StatusPanel {
     constructor(props = {}) {
-        this.props = Object.assign({ visible: true }, props);
+        // tslint:disable-next-line:member-ordering
+        this.throttledUpdate = _.throttle(this.update.bind(this), 100, { leading: false });
+        this.props = Object.assign({ visible: true, pending: [] }, props);
         etch.initialize(this);
     }
     async update(props) {
@@ -40,9 +43,9 @@ class StatusPanel {
         return null;
     }
     renderPending() {
-        if (this.props.pending && this.props.pending.length > 0) {
+        if (this.props.pending.length > 0) {
             return (etch.dom(tooltip_1.Tooltip, { title: `Pending Requests: <ul>${this.props.pending
-                    .map(x => `<li>${x}</li>`)
+                    .map(({ title }) => `<li>${title}</li>`)
                     .join("")}</ul>`, html: true },
                 etch.dom("span", { ref: "pendingCounter" }, this.props.pending.length.toString()),
                 etch.dom("span", { ref: "pendingSpinner", className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: "0.5", verticalAlign: "sub" } })));

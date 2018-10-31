@@ -2,44 +2,51 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // Callbacks keeps track of all the outstanding requests
 class Callbacks {
-    constructor(onPendingChange) {
-        this.onPendingChange = onPendingChange;
+    constructor(reportBusyWhile) {
+        this.reportBusyWhile = reportBusyWhile;
         this.callbacks = new Map();
     }
-    add(seq, command) {
-        return new Promise((resolve, reject) => {
-            this.callbacks.set(seq, {
-                name: command,
-                resolve,
-                reject,
-                started: Date.now(),
-            });
-            this.onPendingChange(this.pending());
-        });
+    async add(seq, command) {
+        try {
+            return await this.reportBusyWhile(command, () => new Promise((resolve, reject) => {
+                this.callbacks.set(seq, {
+                    name: command,
+                    resolve,
+                    reject,
+                    started: Date.now(),
+                });
+            }));
+        }
+        finally {
+            this.callbacks.delete(seq);
+        }
     }
     rejectAll(error) {
         for (const { reject } of this.callbacks.values()) {
             reject(error);
         }
         this.callbacks.clear();
-        this.onPendingChange(this.pending());
     }
-    // Remove and return a Request object, if one exists
-    remove(seq) {
+    resolve(seq, res) {
         const req = this.callbacks.get(seq);
-        this.callbacks.delete(seq);
         if (req) {
-            this.onPendingChange(this.pending());
+            if (window.atom_typescript_debug) {
+                console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body);
+            }
+            if (res.success)
+                req.resolve(res);
+            else
+                req.reject(new Error(res.message));
         }
-        return req;
+        else
+            console.warn("unexpected response:", res);
     }
-    // pending returns names of requests waiting for a response
-    pending() {
-        const pending = [];
-        for (const { name } of this.callbacks.values()) {
-            pending.push(name);
-        }
-        return pending;
+    error(seq, err) {
+        const req = this.callbacks.get(seq);
+        if (req)
+            req.reject(err);
+        else
+            console.error(err);
     }
 }
 exports.Callbacks = Callbacks;

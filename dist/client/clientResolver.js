@@ -10,21 +10,16 @@ const client_1 = require("./client");
  * require("typescript") from the same source file would resolve.
  */
 class ClientResolver {
-    constructor() {
+    constructor(reportBusyWhile) {
+        this.reportBusyWhile = reportBusyWhile;
         this.clients = new Map();
         this.emitter = new atom_1.Emitter();
-    }
-    // This is just here so TypeScript can infer the types of the callbacks when using "on" method
-    on(event, callback) {
-        return this.emitter.on(event, callback);
-    }
-    *getAllPending() {
-        for (const clientRec of this.getAllClients()) {
-            yield* clientRec.pending;
-        }
+        // This is just here so TypeScript can infer the types of the callbacks when using "on" method
+        // tslint:disable-next-line:member-ordering
+        this.on = this.emitter.on.bind(this.emitter);
     }
     async killAllServers() {
-        return Promise.all(Array.from(this.getAllClients()).map(clientRec => clientRec.client.killServer()));
+        return Promise.all(Array.from(this.getAllClients()).map(client => client.killServer()));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
@@ -34,18 +29,11 @@ class ClientResolver {
             tsconfigMap = new Map();
             this.clients.set(pathToBin, tsconfigMap);
         }
-        const clientRec = tsconfigMap.get(tsconfigPath);
-        if (clientRec)
-            return clientRec.client;
-        const newClientRec = {
-            client: new client_1.TypescriptServiceClient(pathToBin, version),
-            pending: [],
-        };
-        tsconfigMap.set(tsconfigPath, newClientRec);
-        newClientRec.client.on("pendingRequestsChange", pending => {
-            newClientRec.pending = pending;
-            this.emitter.emit("pendingRequestsChange", pending);
-        });
+        const client = tsconfigMap.get(tsconfigPath);
+        if (client)
+            return client;
+        const newClient = new client_1.TypescriptServiceClient(pathToBin, version, this.reportBusyWhile);
+        tsconfigMap.set(tsconfigPath, newClient);
         const diagnosticHandler = (type) => (result) => {
             const filePath = isConfDiagBody(result) ? result.configFile : result.file;
             if (filePath) {
@@ -57,11 +45,11 @@ class ClientResolver {
                 });
             }
         };
-        newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"));
-        newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"));
-        newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
-        newClientRec.client.on("suggestionDiag", diagnosticHandler("suggestionDiag"));
-        return newClientRec.client;
+        newClient.on("configFileDiag", diagnosticHandler("configFileDiag"));
+        newClient.on("semanticDiag", diagnosticHandler("semanticDiag"));
+        newClient.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
+        newClient.on("suggestionDiag", diagnosticHandler("suggestionDiag"));
+        return newClient;
     }
     dispose() {
         this.emitter.dispose();

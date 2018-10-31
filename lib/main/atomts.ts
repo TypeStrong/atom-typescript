@@ -1,5 +1,5 @@
 import {DisposableLike} from "atom"
-import {DatatipService, SignatureHelpRegistry} from "atom/ide"
+import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {State} from "./packageState"
@@ -51,6 +51,10 @@ export function consumeDatatipService(datatipService: DatatipService): Disposabl
 
 export function consumeSignatureHelp(registry: SignatureHelpRegistry): DisposableLike | void {
   if (pluginManager) return pluginManager.consumeSigHelpService(registry)
+}
+
+export function consumeBusySignal(busySignalService: BusySignalService): DisposableLike | void {
+  if (pluginManager) return pluginManager.consumeBusySignal(busySignalService)
 }
 
 ////////////////////////////////// Providers ///////////////////////////////////

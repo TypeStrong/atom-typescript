@@ -7,6 +7,7 @@ import {
   Diagnostic,
   DiagnosticEventBody,
 } from "typescript/lib/protocol"
+import {ReportBusyWhile} from "../main/pluginManager"
 import {TypescriptServiceClient as Client} from "./client"
 
 type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
@@ -23,14 +24,8 @@ interface Binary {
   pathToBin: string
 }
 
-interface ClientRec {
-  client: Client
-  pending: string[]
-}
-
 export interface EventTypes {
   diagnostics: DiagnosticsPayload
-  pendingRequestsChange: string[]
 }
 
 /**
@@ -38,24 +33,16 @@ export interface EventTypes {
  * require("typescript") from the same source file would resolve.
  */
 export class ClientResolver {
-  private clients = new Map<string, Map<string | undefined, ClientRec>>()
+  private clients = new Map<string, Map<string | undefined, Client>>()
   private emitter = new Emitter<{}, EventTypes>()
-
   // This is just here so TypeScript can infer the types of the callbacks when using "on" method
-  public on<T extends keyof EventTypes>(event: T, callback: (result: EventTypes[T]) => void) {
-    return this.emitter.on(event, callback)
-  }
+  // tslint:disable-next-line:member-ordering
+  public on = this.emitter.on.bind(this.emitter)
 
-  public *getAllPending(): IterableIterator<string> {
-    for (const clientRec of this.getAllClients()) {
-      yield* clientRec.pending
-    }
-  }
+  constructor(private reportBusyWhile: ReportBusyWhile) {}
 
   public async killAllServers() {
-    return Promise.all(
-      Array.from(this.getAllClients()).map(clientRec => clientRec.client.killServer()),
-    )
+    return Promise.all(Array.from(this.getAllClients()).map(client => client.killServer()))
   }
 
   public async get(pFilePath: string): Promise<Client> {
@@ -67,19 +54,11 @@ export class ClientResolver {
       tsconfigMap = new Map()
       this.clients.set(pathToBin, tsconfigMap)
     }
-    const clientRec = tsconfigMap.get(tsconfigPath)
-    if (clientRec) return clientRec.client
+    const client = tsconfigMap.get(tsconfigPath)
+    if (client) return client
 
-    const newClientRec: ClientRec = {
-      client: new Client(pathToBin, version),
-      pending: [],
-    }
-    tsconfigMap.set(tsconfigPath, newClientRec)
-
-    newClientRec.client.on("pendingRequestsChange", pending => {
-      newClientRec.pending = pending
-      this.emitter.emit("pendingRequestsChange", pending)
-    })
+    const newClient = new Client(pathToBin, version, this.reportBusyWhile)
+    tsconfigMap.set(tsconfigPath, newClient)
 
     const diagnosticHandler = (type: DiagnosticTypes) => (
       result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
@@ -96,12 +75,12 @@ export class ClientResolver {
       }
     }
 
-    newClientRec.client.on("configFileDiag", diagnosticHandler("configFileDiag"))
-    newClientRec.client.on("semanticDiag", diagnosticHandler("semanticDiag"))
-    newClientRec.client.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
-    newClientRec.client.on("suggestionDiag", diagnosticHandler("suggestionDiag"))
+    newClient.on("configFileDiag", diagnosticHandler("configFileDiag"))
+    newClient.on("semanticDiag", diagnosticHandler("semanticDiag"))
+    newClient.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
+    newClient.on("suggestionDiag", diagnosticHandler("suggestionDiag"))
 
-    return newClientRec.client
+    return newClient
   }
 
   public dispose() {

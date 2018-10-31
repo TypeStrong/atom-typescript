@@ -1,9 +1,9 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {DatatipService, SignatureHelpRegistry} from "atom/ide"
+import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
-import {debounce, throttle} from "lodash"
+import {debounce} from "lodash"
 import * as path from "path"
 import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
@@ -40,6 +40,7 @@ export interface Edit {
 }
 export type Edits = ReadonlyArray<Readonly<Edit>>
 export type ApplyEdits = (edits: Edits) => Promise<void>
+export type ReportBusyWhile = <T>(title: string, generator: () => Promise<T>) => Promise<T>
 
 export class PluginManager {
   // components
@@ -57,31 +58,17 @@ export class PluginManager {
   private sigHelpManager: SigHelpManager
   private usingBuiltinSigHelpManager = true
   private occurrenceManager: OccurrenceManager
+  private pending = new Set<{title: string}>()
+  private busySignalService?: BusySignalService
 
   public constructor(state?: Partial<State>) {
     this.subscriptions = new CompositeDisposable()
 
-    this.clientResolver = new ClientResolver()
+    this.clientResolver = new ClientResolver(this.reportBusyWhile)
     this.subscriptions.add(this.clientResolver)
 
     this.statusPanel = new StatusPanel()
-    this.subscriptions.add(
-      this.clientResolver.on(
-        "pendingRequestsChange",
-        throttle(
-          () => {
-            handlePromise(
-              this.statusPanel.update({
-                pending: Array.from(this.clientResolver.getAllPending()),
-              }),
-            )
-          },
-          100,
-          {leading: false},
-        ),
-      ),
-      this.statusPanel,
-    )
+    this.subscriptions.add(this.statusPanel)
 
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
@@ -177,6 +164,19 @@ export class PluginManager {
     return disp
   }
 
+  public consumeBusySignal(busySignalService: BusySignalService): void | Atom.DisposableLike {
+    if (atom.config.get("atom-typescript.preferBuiltinBusySignal")) return
+    this.busySignalService = busySignalService
+    const disp = {
+      dispose: () => {
+        if (this.busySignalService) this.busySignalService.dispose()
+        this.busySignalService = undefined
+      },
+    }
+    this.subscriptions.add(disp)
+    return disp
+  }
+
   // Registering an autocomplete provider
   public provideAutocomplete() {
     return [
@@ -228,6 +228,22 @@ export class PluginManager {
     } finally {
       if (buffer.isModified()) await buffer.save()
       buffer.destroy()
+    }
+  }
+
+  public reportBusyWhile: ReportBusyWhile = async (title, generator) => {
+    if (this.busySignalService) {
+      return this.busySignalService.reportBusyWhile(title, generator)
+    } else {
+      const event = {title}
+      try {
+        this.pending.add(event)
+        await this.statusPanel.throttledUpdate({pending: Array.from(this.pending)})
+        return await generator()
+      } finally {
+        this.pending.delete(event)
+        await this.statusPanel.throttledUpdate({pending: Array.from(this.pending)})
+      }
     }
   }
 

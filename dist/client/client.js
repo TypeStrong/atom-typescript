@@ -34,9 +34,10 @@ const commandWithResponseMap = {
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 class TypescriptServiceClient {
-    constructor(tsServerPath, version) {
+    constructor(tsServerPath, version, reportBusyWhile) {
         this.tsServerPath = tsServerPath;
         this.version = version;
+        this.reportBusyWhile = reportBusyWhile;
         this.emitter = new atom_1.Emitter();
         this.seq = 0;
         this.running = false;
@@ -73,16 +74,13 @@ class TypescriptServiceClient {
                 }
             });
         };
-        this.emitPendingRequests = (pending) => {
-            this.emitter.emit("pendingRequestsChange", pending);
-        };
         this.onMessage = (res) => {
             if (res.type === "response")
                 this.onResponse(res);
             else
                 this.onEvent(res);
         };
-        this.callbacks = new callbacks_1.Callbacks(this.emitPendingRequests);
+        this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.serverPromise = this.startServer();
     }
     async execute(command, args) {
@@ -131,21 +129,7 @@ class TypescriptServiceClient {
         });
     }
     onResponse(res) {
-        const req = this.callbacks.remove(res.request_seq);
-        if (req) {
-            if (window.atom_typescript_debug) {
-                console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body);
-            }
-            if (res.success) {
-                req.resolve(res);
-            }
-            else {
-                req.reject(new Error(res.message));
-            }
-        }
-        else {
-            console.warn("unexpected response:", res);
-        }
+        this.callbacks.resolve(res.request_seq, res);
     }
     onEvent(res) {
         if (window.atom_typescript_debug) {
@@ -170,13 +154,7 @@ class TypescriptServiceClient {
                 cp.stdin.write(JSON.stringify(req) + "\n");
             }
             catch (error) {
-                const callback = this.callbacks.remove(req.seq);
-                if (callback) {
-                    callback.reject(error);
-                }
-                else {
-                    console.error(error);
-                }
+                this.callbacks.error(req.seq, error);
             }
         });
         if (expectResponse) {

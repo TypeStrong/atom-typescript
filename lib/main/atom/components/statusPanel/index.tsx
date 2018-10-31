@@ -1,4 +1,5 @@
 import * as etch from "etch"
+import _ = require("lodash")
 import {handlePromise} from "../../../../utils"
 import {BuildStatus} from "./buildStatus"
 import {ConfigPath} from "./configPath"
@@ -6,23 +7,27 @@ import {Tooltip} from "./tooltip"
 
 export interface Props extends JSX.Props {
   version?: string
-  pending?: string[]
+  pending: Array<{title: string}>
   tsConfigPath?: string
   buildStatus?: {success: true} | {success: false; message: string}
   progress?: {max: number; value: number}
-  visible?: boolean
+  visible: boolean
 }
 
 export class StatusPanel implements JSX.ElementClass {
   public props: Props
 
-  constructor(props: Props = {}) {
+  constructor(props: Partial<Props> = {}) {
     this.props = {
       visible: true,
+      pending: [],
       ...props,
     }
     etch.initialize(this)
   }
+
+  // tslint:disable-next-line:member-ordering
+  public throttledUpdate = _.throttle(this.update.bind(this), 100, {leading: false})
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
@@ -64,11 +69,11 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderPending(): JSX.Element | null {
-    if (this.props.pending && this.props.pending.length > 0) {
+    if (this.props.pending.length > 0) {
       return (
         <Tooltip
           title={`Pending Requests: <ul>${this.props.pending
-            .map(x => `<li>${x}</li>`)
+            .map(({title}) => `<li>${title}</li>`)
             .join("")}</ul>`}
           html={true}>
           <span ref="pendingCounter">{this.props.pending.length.toString()}</span>
