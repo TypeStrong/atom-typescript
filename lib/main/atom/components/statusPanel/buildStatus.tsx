@@ -30,8 +30,11 @@ export class BuildStatus implements JSX.ElementClass {
   }
 
   public async update(props: Partial<Props>) {
+    const successStateChanged =
+      props.buildStatus !== undefined &&
+      props.buildStatus.success !== this.props.buildStatus.success
     this.props = {...this.props, ...props}
-    this.resetBuildStatusTimeout()
+    if (successStateChanged) this.resetBuildStatusTimeout()
     await etch.update(this)
   }
 

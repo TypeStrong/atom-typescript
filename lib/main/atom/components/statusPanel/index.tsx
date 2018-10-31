@@ -40,7 +40,8 @@ export class StatusPanel implements JSX.ElementClass {
         {this.renderVersion()}
         {this.renderPending()}
         {this.renderConfigPath()}
-        {this.renderProgress() || this.renderStatus()}
+        {this.renderStatus()}
+        {this.renderProgress()}
       </ts-status-panel>
     )
   }
