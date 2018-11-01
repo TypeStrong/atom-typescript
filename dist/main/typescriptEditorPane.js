@@ -70,6 +70,8 @@ class TypescriptEditorPane {
         return TypescriptEditorPane.editorMap.get(editor);
     }
     async compileOnSave() {
+        if (!this.buffer.shouldCompileOnSave())
+            return;
         this.opts.reportBuildStatus(undefined);
         try {
             await this.buffer.compile();

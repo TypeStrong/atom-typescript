@@ -14,6 +14,7 @@ class TypescriptBuffer {
         // Timestamps for buffer events
         this.changedAt = 0;
         this.changedAtBatch = 0;
+        this.compileOnSave = false;
         this.subscriptions = new Atom.CompositeDisposable();
         // tslint:disable-next-line:member-ordering
         this.on = this.events.on.bind(this.events);
@@ -141,8 +142,11 @@ class TypescriptBuffer {
             return;
         return {
             clientVersion: this.state.client.version,
-            tsConfigPath: this.state.configFile,
+            tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
         };
+    }
+    shouldCompileOnSave() {
+        return this.compileOnSave;
     }
     async getErr() {
         if (!this.state)
@@ -185,19 +189,26 @@ class TypescriptBuffer {
                 file: filePath,
             });
             // TODO: wrong type here, complain on TS repo
-            this.state.configFile = result.body.configFileName;
-            if (this.state.configFile !== undefined) {
-                const options = await utils_2.getProjectCodeSettings(this.state.configFile);
-                await client.execute("configure", {
-                    file: filePath,
-                    formatOptions: options,
-                });
+            if (result.body.configFileName !== undefined) {
+                this.state.configFile = new Atom.File(result.body.configFileName);
+                await this.readConfigFile();
+                this.subscriptions.add(this.state.configFile.onDidChange(() => utils_1.handlePromise(this.readConfigFile())));
             }
             this.events.emit("opened");
         }
         else {
             this.state = undefined;
         }
+    }
+    async readConfigFile() {
+        if (!this.state || !this.state.configFile)
+            return;
+        const options = await utils_2.getProjectConfig(this.state.configFile.getPath());
+        this.compileOnSave = options.compileOnSave;
+        await this.state.client.execute("configure", {
+            file: this.state.filePath,
+            formatOptions: options.formatCodeOptions,
+        });
     }
 }
 TypescriptBuffer.bufferMap = new WeakMap();

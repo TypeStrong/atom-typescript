@@ -67,14 +67,22 @@ export function isLocationInRange(loc: Location, range: {start: Location; end: L
   return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1
 }
 
-export async function getProjectCodeSettings(configFile: string): Promise<FormatCodeSettings> {
+export async function getProjectConfig(
+  configFile: string,
+): Promise<{
+  formatCodeOptions: FormatCodeSettings
+  compileOnSave: boolean
+}> {
   const {config} = await tsconfig.load(configFile)
-  const options = (config as {formatCodeOptions: FormatCodeSettings}).formatCodeOptions
+  const options = (config as {formatCodeOptions?: FormatCodeSettings}).formatCodeOptions
 
   return {
-    indentSize: atom.config.get("editor.tabLength"),
-    tabSize: atom.config.get("editor.tabLength"),
-    ...options,
+    formatCodeOptions: {
+      indentSize: atom.config.get("editor.tabLength"),
+      tabSize: atom.config.get("editor.tabLength"),
+      ...options,
+    },
+    compileOnSave: !!(config as {compileOnSave?: boolean}).compileOnSave,
   }
 }
 

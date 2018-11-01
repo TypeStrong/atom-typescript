@@ -4,7 +4,7 @@ import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {getOpenEditorsPaths, getProjectCodeSettings, isTypescriptFile} from "./atom/utils"
+import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
   getClient: GetClientFunction
@@ -38,8 +38,9 @@ export class TypescriptBuffer {
     client: TSClient
     filePath: string
     // Path to the project's tsconfig.json
-    configFile: string | undefined
+    configFile: Atom.File | undefined
   }
+  private compileOnSave: boolean = false
 
   private subscriptions = new Atom.CompositeDisposable()
 
@@ -108,8 +109,12 @@ export class TypescriptBuffer {
     if (!this.state) return
     return {
       clientVersion: this.state.client.version,
-      tsConfigPath: this.state.configFile,
+      tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
     }
+  }
+
+  public shouldCompileOnSave() {
+    return this.compileOnSave
   }
 
   public async getErr() {
@@ -161,14 +166,12 @@ export class TypescriptBuffer {
       })
 
       // TODO: wrong type here, complain on TS repo
-      this.state.configFile = result.body!.configFileName as string | undefined
-
-      if (this.state.configFile !== undefined) {
-        const options = await getProjectCodeSettings(this.state.configFile)
-        await client.execute("configure", {
-          file: filePath,
-          formatOptions: options,
-        })
+      if ((result.body!.configFileName as string | undefined) !== undefined) {
+        this.state.configFile = new Atom.File(result.body!.configFileName)
+        await this.readConfigFile()
+        this.subscriptions.add(
+          this.state.configFile.onDidChange(() => handlePromise(this.readConfigFile())),
+        )
       }
 
       this.events.emit("opened")
@@ -180,6 +183,16 @@ export class TypescriptBuffer {
   private dispose = async () => {
     this.subscriptions.dispose()
     await this.close()
+  }
+
+  private async readConfigFile() {
+    if (!this.state || !this.state.configFile) return
+    const options = await getProjectConfig(this.state.configFile.getPath())
+    this.compileOnSave = options.compileOnSave
+    await this.state.client.execute("configure", {
+      file: this.state.filePath,
+      formatOptions: options.formatCodeOptions,
+    })
   }
 
   private init = async () => {

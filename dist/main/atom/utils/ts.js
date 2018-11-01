@@ -52,12 +52,15 @@ function isLocationInRange(loc, range) {
     return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1;
 }
 exports.isLocationInRange = isLocationInRange;
-async function getProjectCodeSettings(configFile) {
+async function getProjectConfig(configFile) {
     const { config } = await tsconfig.load(configFile);
     const options = config.formatCodeOptions;
-    return Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options);
+    return {
+        formatCodeOptions: Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options),
+        compileOnSave: !!config.compileOnSave,
+    };
 }
-exports.getProjectCodeSettings = getProjectCodeSettings;
+exports.getProjectConfig = getProjectConfig;
 function signatureHelpItemToSignature(i) {
     return {
         label: partsToStr(i.prefixDisplayParts) +

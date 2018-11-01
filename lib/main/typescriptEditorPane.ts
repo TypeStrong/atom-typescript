@@ -90,6 +90,7 @@ export class TypescriptEditorPane implements Atom.Disposable {
   }
 
   private async compileOnSave() {
+    if (!this.buffer.shouldCompileOnSave()) return
     this.opts.reportBuildStatus(undefined)
     try {
       await this.buffer.compile()
