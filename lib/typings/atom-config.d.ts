@@ -7,24 +7,36 @@ declare module "atom" {
     "atom-typescript.locale": string
     "atom-typescript.preferBuiltinTooltips": boolean
     "atom-typescript.preferBuiltinSigHelp": boolean
+    "atom-typescript.preferBuiltinBusySignal": boolean
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
     "atom-typescript.suppressAllDiagnostics": boolean
+    "atom-typescript.tsFileExtensions": string[]
+    "atom-typescript.jsFileExtensions": string[]
+    "atom-typescript.tsSyntaxScopes": string[]
+    "atom-typescript.jsSyntaxScopes": string[]
+    "atom-typescript.allowJS": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
       locale: string
       preferBuiltinTooltips: boolean
       preferBuiltinSigHelp: boolean
+      preferBuiltinBusySignal: boolean
       buildStatusTimeout: number
       showSemanticView: boolean
       tooltipDelay: number
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
       suppressAllDiagnostics: boolean
+      tsFileExtensions: string[]
+      jsFileExtensions: string[]
+      tsSyntaxScopes: string[]
+      jsSyntaxScopes: string[]
+      allowJS: boolean
     }
   }
 }

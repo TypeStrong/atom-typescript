@@ -111,6 +111,69 @@
       "type": "boolean",
       "default": "false",
       "order": 120
+    },
+    "tsFileExtensions": {
+      "title": "TypeScript file extensions",
+      "description": "Comma-separated list of TypeScript file extensions; may require Atom restart to take effect; DO NOT EDIT unless you know what you are doing",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        ".ts",
+        ".tst",
+        ".tsx"
+      ],
+      "order": 130
+    },
+    "jsFileExtensions": {
+      "title": "JavaScript file extensions",
+      "description": "Comma-separated list of JavaScript file extensions; may require Atom restart to take effect; DO NOT EDIT unless you know what you are doing",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        ".js",
+        ".jst",
+        ".jsx"
+      ],
+      "order": 140
+    },
+    "tsSyntaxScopes": {
+      "title": "TypeScript syntax scopes",
+      "description": "Comma-separated list of TypeScript syntax scopes; may require Atom restart to take effect; DO NOT EDIT unless you know what you are doing",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "source.ts",
+        "source.tsx",
+        "typescript"
+      ],
+      "order": 150
+    },
+    "jsSyntaxScopes": {
+      "title": "JavaScript syntax scopes",
+      "description": "Comma-separated list of JavaScript syntax scopes; may require Atom restart to take effect; DO NOT EDIT unless you know what you are doing",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "source.js",
+        "source.jsx",
+        "javascript"
+      ],
+      "order": 160
+    },
+    "allowJS": {
+      "title": "Enable Atom-Typescript for JavaScript files (experimental)",
+      "description": "Passes JS files to TypeScript server; Most likely need allowJS: true and checkJS: true in tsconfig",
+      "type": "boolean",
+      "default": false,
+      "order": 170
     }
   },
   "deserializers": {

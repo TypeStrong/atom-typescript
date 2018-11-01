@@ -17,7 +17,11 @@ export function isTypescriptFile(filePath: string | undefined): boolean {
 }
 
 export function typeScriptScopes(): ReadonlyArray<string> {
-  return ["source.ts", "source.tsx", "typescript"]
+  const tsScopes = atom.config.get("atom-typescript.tsSyntaxScopes")
+  if (atom.config.get("atom-typescript.allowJS")) {
+    tsScopes.push(...atom.config.get("atom-typescript.jsSyntaxScopes"))
+  }
+  return tsScopes
 }
 
 export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
@@ -30,7 +34,11 @@ export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
 }
 
 function isAllowedExtension(ext: string) {
-  return [".ts", ".tst", ".tsx"].includes(ext)
+  const tsExts = atom.config.get("atom-typescript.tsFileExtensions")
+  if (atom.config.get("atom-typescript.allowJS")) {
+    tsExts.push(...atom.config.get("atom-typescript.jsFileExtensions"))
+  }
+  return tsExts.includes(ext)
 }
 
 export function getFilePathPosition(editor: Atom.TextEditor): FileLocationQuery | undefined {

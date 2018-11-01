@@ -16,7 +16,11 @@ function isTypescriptFile(filePath) {
 }
 exports.isTypescriptFile = isTypescriptFile;
 function typeScriptScopes() {
-    return ["source.ts", "source.tsx", "typescript"];
+    const tsScopes = atom.config.get("atom-typescript.tsSyntaxScopes");
+    if (atom.config.get("atom-typescript.allowJS")) {
+        tsScopes.push(...atom.config.get("atom-typescript.jsSyntaxScopes"));
+    }
+    return tsScopes;
 }
 exports.typeScriptScopes = typeScriptScopes;
 function isTypescriptEditorWithPath(editor) {
@@ -29,7 +33,11 @@ function isTypescriptGrammar(editor) {
 }
 exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {
-    return [".ts", ".tst", ".tsx"].includes(ext);
+    const tsExts = atom.config.get("atom-typescript.tsFileExtensions");
+    if (atom.config.get("atom-typescript.allowJS")) {
+        tsExts.push(...atom.config.get("atom-typescript.jsFileExtensions"));
+    }
+    return tsExts.includes(ext);
 }
 function getFilePathPosition(editor) {
     const file = editor.getPath();
