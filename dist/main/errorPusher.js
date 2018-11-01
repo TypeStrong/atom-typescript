@@ -36,17 +36,16 @@ class ErrorPusher {
         prefixed.set(path.normalize(filePath), errors);
         this.pushErrors();
     }
-    clear(filePath) {
+    clearFileErrors(filePath) {
+        for (const map of this.errors.values()) {
+            map.delete(filePath);
+        }
+        this.pushErrors();
+    }
+    clear() {
         if (!this.linter)
             return;
-        if (filePath !== undefined) {
-            for (const map of this.errors.values()) {
-                map.delete(filePath);
-            }
-        }
-        else {
-            this.linter.clearMessages();
-        }
+        this.linter.clearMessages();
     }
     setLinter(linter) {
         this.linter = linter;

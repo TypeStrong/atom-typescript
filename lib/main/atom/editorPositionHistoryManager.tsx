@@ -1,7 +1,10 @@
 import {TextEditor} from "atom"
+import * as etch from "etch"
 import {FileLocationQuery, getFilePathPosition} from "./utils"
+import {HighlightComponent} from "./views/highlightComponent"
+import {selectListView} from "./views/simpleSelectionView"
 
-interface OpenParams {
+export interface OpenParams {
   file: string
   start: {line: number; offset: number}
 }
@@ -36,6 +39,27 @@ export class EditorPositionHistoryManager {
       }
     }
     return this.open(item)
+  }
+
+  public async showHistory() {
+    const res = await selectListView({
+      items: this.getHistory()
+        .slice()
+        .reverse()
+        .map((item, idx) => ({...item, idx})),
+      itemTemplate: (item, ctx) => (
+        <li class="two-lines">
+          <div class="primary-line">
+            <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
+          </div>
+          <div class="secondary-line">
+            Line: {item.line}, column: {item.offset}
+          </div>
+        </li>
+      ),
+      itemFilterKey: "file",
+    })
+    if (res) await this.goHistory(res.idx + 1)
   }
 
   public getHistory() {

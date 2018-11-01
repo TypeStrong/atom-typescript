@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
-const lodash_1 = require("lodash");
 const utils_1 = require("../utils");
 const utils_2 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
@@ -9,103 +8,51 @@ class TypescriptEditorPane {
     constructor(editor, opts) {
         this.editor = editor;
         this.opts = opts;
-        // Timestamp for activated event
-        this.activeAt = 0;
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.changedActiveEditor = async (activeEditor) => {
-            if (activeEditor === this.editor) {
-                // activated
-                this.activeAt = Date.now();
-                const filePath = this.buffer.getPath();
-                console.log(this._client);
-                if (this._client) {
-                    this.opts.reportTSConfigPath(this.configFile);
-                    if (filePath !== undefined) {
-                        const client = await this._client;
-                        this.opts.reportClientVersion(client.version);
-                        await client.execute("geterr", {
-                            files: [filePath],
-                            delay: 100,
-                        });
-                    }
+        this.isTypescript = false;
+        this.dispose = () => {
+            atom.views.getView(this.editor).classList.remove("typescript-editor");
+            this.subscriptions.dispose();
+        };
+        /** NOTE:
+         * it is implicitly assumed that `atom.workspace.getActiveTextEditor() === this.editor`
+         * which has to be ensured at call site
+         */
+        this.didActivate = () => {
+            if (this.isTypescript) {
+                utils_1.handlePromise(this.buffer.getErr());
+                const info = this.buffer.getInfo();
+                if (info) {
+                    this.opts.reportClientInfo(info);
                 }
             }
         };
-        this.onChanged = async () => {
-            if (!this._client)
-                return;
-            const filePath = this.buffer.getPath();
-            if (filePath === undefined)
-                return;
-            const client = await this._client;
-            this.opts.reportBuildStatus(undefined);
-            await client.execute("geterr", {
-                files: [filePath],
-                delay: 100,
-            });
-        };
-        this.onDidDestroy = () => {
-            this.dispose();
-        };
-        this.onOpened = async () => {
-            const filePath = this.buffer.getPath();
-            if (filePath === undefined)
-                return;
-            const client = await this.opts.getClient(filePath);
+        this.onOpened = () => {
             const isActive = atom.workspace.getActiveTextEditor() === this.editor;
-            if (isActive)
-                this.opts.reportClientVersion(client.version);
-            if (this._client) {
-                await client.execute("geterr", {
-                    files: [filePath],
-                    delay: 100,
-                });
-                try {
-                    const result = await client.execute("projectInfo", {
-                        needFileNameList: false,
-                        file: filePath,
-                    });
-                    this.configFile = result.body.configFileName;
-                    if (isActive)
-                        this.opts.reportTSConfigPath(this.configFile);
-                    const options = await utils_2.getProjectCodeSettings(this.configFile);
-                    await client.execute("configure", {
-                        file: filePath,
-                        formatOptions: options,
-                    });
-                }
-                catch (e) {
-                    if (window.atom_typescript_debug)
-                        console.error(e);
+            if (isActive) {
+                const info = this.buffer.getInfo();
+                if (info) {
+                    this.opts.reportClientInfo(info);
                 }
             }
-        };
-        this.onSaved = async () => {
-            if (!this._client)
-                return;
-            const client = await this._client;
-            await client.execute("geterr", { files: Array.from(this.getOpenEditorsPaths()), delay: 100 });
-            return this.compileOnSave();
         };
         this.checkIfTypescript = () => {
-            const filePath = this.editor.getPath();
-            if (utils_2.isTypescriptEditorWithPath(this.editor)) {
-                this._client = this.opts.getClient(filePath);
+            this.isTypescript = utils_2.isTypescriptEditorWithPath(this.editor);
+            if (this.isTypescript) {
                 atom.views.getView(this.editor).classList.add("typescript-editor");
             }
             else {
-                this._client = undefined;
                 atom.views.getView(this.editor).classList.remove("typescript-editor");
             }
         };
-        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts.getClient);
-        this.subscriptions.add(this.buffer.on("changed", () => utils_1.handlePromise(this.onChanged())), this.buffer.on("closed", () => {
-            const filePath = editor.getPath();
-            if (filePath !== undefined)
-                this.opts.clearErrors(filePath);
-        }), this.buffer.on("opened", () => utils_1.handlePromise(this.onOpened())), this.buffer.on("saved", () => utils_1.handlePromise(this.onSaved())));
+        this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts);
+        this.subscriptions.add(this.buffer.on("changed", () => {
+            this.opts.reportBuildStatus(undefined);
+        }), this.buffer.on("opened", this.onOpened), this.buffer.on("saved", () => {
+            utils_1.handlePromise(this.compileOnSave());
+        }));
         this.checkIfTypescript();
-        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), this.editor.onDidDestroy(this.onDidDestroy), atom.workspace.onDidChangeActiveTextEditor(ed => utils_1.handlePromise(this.changedActiveEditor(ed))));
+        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), editor.onDidDestroy(this.dispose));
     }
     // tslint:disable-next-line:member-ordering
     static createFactory(opts) {
@@ -122,36 +69,10 @@ class TypescriptEditorPane {
     static lookupPane(editor) {
         return TypescriptEditorPane.editorMap.get(editor);
     }
-    dispose() {
-        atom.views.getView(this.editor).classList.remove("typescript-editor");
-        this.subscriptions.dispose();
-    }
-    *getOpenEditorsPaths() {
-        for (const ed of atom.workspace.getTextEditors()) {
-            if (utils_2.isTypescriptEditorWithPath(ed))
-                yield ed.getPath();
-        }
-    }
     async compileOnSave() {
-        if (!this._client)
-            return;
-        const filePath = this.buffer.getPath();
-        if (filePath === undefined)
-            return;
-        const client = await this._client;
-        const result = await client.execute("compileOnSaveAffectedFileList", {
-            file: filePath,
-        });
         this.opts.reportBuildStatus(undefined);
-        const fileNames = lodash_1.flatten(result.body.map(project => project.fileNames));
-        if (fileNames.length === 0)
-            return;
         try {
-            const promises = fileNames.map(file => client.execute("compileOnSaveEmitFile", { file }));
-            const saved = await Promise.all(promises);
-            if (!saved.every(res => !!res.body)) {
-                throw new Error("Some files failed to emit");
-            }
+            await this.buffer.compile();
             this.opts.reportBuildStatus({ success: true });
         }
         catch (error) {

@@ -13,10 +13,10 @@ registry_1.addCommand("atom-text-editor", "typescript:go-to-declaration", deps =
             return;
         const client = await deps.getClient(location.file);
         const result = await client.execute("definition", location);
-        await handleDefinitionResult(result, editor, deps.getEditorPositionHistoryManager());
+        await handleDefinitionResult(result, editor, deps.histGoForward);
     },
 }));
-async function handleDefinitionResult(result, editor, hist) {
+async function handleDefinitionResult(result, editor, histGoForward) {
     if (!result.body) {
         return;
     }
@@ -33,10 +33,10 @@ async function handleDefinitionResult(result, editor, hist) {
             itemFilterKey: "file",
         });
         if (res)
-            await hist.goForward(editor, res);
+            await histGoForward(editor, res);
     }
     else if (result.body.length > 0) {
-        await hist.goForward(editor, result.body[0]);
+        await histGoForward(editor, result.body[0]);
     }
 }
 exports.handleDefinitionResult = handleDefinitionResult;

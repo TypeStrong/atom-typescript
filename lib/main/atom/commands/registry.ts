@@ -2,9 +2,7 @@ import * as Atom from "atom"
 import {GetClientFunction} from "../../../client"
 import {ApplyEdits} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
-import {EditorPositionHistoryManager} from "../editorPositionHistoryManager"
-import {SemanticViewController} from "../views/outline/semanticViewController"
-import {SymbolsViewController} from "../views/symbols/symbolsViewController"
+import {OpenParams} from "../editorPositionHistoryManager"
 
 export interface Dependencies {
   getClient: GetClientFunction
@@ -13,9 +11,13 @@ export interface Dependencies {
   killAllServers(): void
   reportProgress(progress: TProgress): void
   reportBuildStatus(status: TBuildStatus | undefined): void
-  getSemanticViewController(): SemanticViewController
-  getSymbolsViewController(): SymbolsViewController
-  getEditorPositionHistoryManager(): EditorPositionHistoryManager
+  toggleSemanticViewController(): void
+  toggleFileSymbolsView(ed: Atom.TextEditor): void
+  toggleProjectSymbolsView(ed: Atom.TextEditor): void
+  // getEditorPositionHistoryManager(): EditorPositionHistoryManager
+  histGoForward(ed: Atom.TextEditor, openParams: OpenParams): Promise<object>
+  histGoBack(): Promise<object | undefined>
+  histShowHistory(): Promise<void>
   showTooltipAt(ed: Atom.TextEditor): void
   showSigHelpAt(ed: Atom.TextEditor): void
   hideSigHelpAt(ed: Atom.TextEditor): boolean

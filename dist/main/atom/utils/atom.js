@@ -38,4 +38,11 @@ function getFilePathPosition(editor) {
     }
 }
 exports.getFilePathPosition = getFilePathPosition;
+function* getOpenEditorsPaths() {
+    for (const ed of atom.workspace.getTextEditors()) {
+        if (isTypescriptEditorWithPath(ed))
+            yield ed.getPath();
+    }
+}
+exports.getOpenEditorsPaths = getOpenEditorsPaths;
 //# sourceMappingURL=atom.js.map

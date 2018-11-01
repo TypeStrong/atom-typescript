@@ -11,7 +11,7 @@ export interface TProgress {
 }
 
 export interface Props extends JSX.Props {
-  version?: string
+  clientVersion?: string
   pending: Array<{title: string}>
   tsConfigPath?: string
   buildStatus?: TBuildStatus
@@ -66,8 +66,8 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderVersion(): JSX.Element | null {
-    if (this.props.version !== undefined) {
-      return <Tooltip title="Active TypeScript version">{this.props.version}</Tooltip>
+    if (this.props.clientVersion !== undefined) {
+      return <Tooltip title="Active TypeScript version">{this.props.clientVersion}</Tooltip>
     }
     return null
   }

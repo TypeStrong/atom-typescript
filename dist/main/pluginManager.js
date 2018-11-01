@@ -28,23 +28,34 @@ class PluginManager {
         this.usingBuiltinTooltipManager = true;
         this.usingBuiltinSigHelpManager = true;
         this.pending = new Set();
-        this.clearErrors = (filePath) => {
-            this.errorPusher.clear(filePath);
+        this.clearErrors = () => {
+            this.errorPusher.clear();
+        };
+        this.clearFileErrors = (filePath) => {
+            this.errorPusher.clearFileErrors(filePath);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
         };
-        this.killAllServers = () => this.clientResolver.killAllServers();
+        this.killAllServers = () => {
+            utils_1.handlePromise(this.clientResolver.killAllServers());
+        };
         this.withTypescriptBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);
             const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
             if (ed) {
-                return action(typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), this.getClient));
+                return action(typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), {
+                    getClient: this.getClient,
+                    clearFileErrors: this.clearFileErrors,
+                }));
             }
             // no open buffer
             const buffer = await Atom.TextBuffer.load(normalizedFilePath);
             try {
-                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, this.getClient);
+                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, {
+                    getClient: this.getClient,
+                    clearFileErrors: this.clearFileErrors,
+                });
                 return await action(tsbuffer);
             }
             finally {
@@ -76,11 +87,8 @@ class PluginManager {
         this.reportBuildStatus = (buildStatus) => {
             utils_1.handlePromise(this.statusPanel.update({ buildStatus }));
         };
-        this.reportClientVersion = (clientVersion) => {
-            utils_1.handlePromise(this.statusPanel.update({ version: clientVersion }));
-        };
-        this.reportTSConfigPath = (tsConfigPath) => {
-            utils_1.handlePromise(this.statusPanel.update({ tsConfigPath }));
+        this.reportClientInfo = (info) => {
+            utils_1.handlePromise(this.statusPanel.update(info));
         };
         this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
             buffer.buffer.transact(() => {
@@ -93,9 +101,9 @@ class PluginManager {
             });
             return buffer.flush();
         })));
-        this.getSemanticViewController = () => this.semanticViewController;
-        this.getSymbolsViewController = () => this.symbolsViewController;
-        this.getEditorPositionHistoryManager = () => this.editorPosHist;
+        this.histGoForward = (ed, opts) => {
+            return this.editorPosHist.goForward(ed, opts);
+        };
         // tslint:disable-next-line:member-ordering
         this.drawPending = lodash_1.throttle((pending) => utils_1.handlePromise(this.statusPanel.update({ pending })), 100, { leading: false });
         this.subscriptions = new atom_1.CompositeDisposable();
@@ -105,25 +113,57 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
-        this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory(this);
-        // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
-        this.subscribeEditors();
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
         this.subscriptions.add(this.semanticViewController);
-        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController(this);
-        this.subscriptions.add(this.symbolsViewController);
         this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
+        this.symbolsViewController = new symbolsViewController_1.SymbolsViewController({
+            histGoForward: this.histGoForward,
+            withTypescriptBuffer: this.withTypescriptBuffer,
+        });
+        this.subscriptions.add(this.symbolsViewController);
         this.tooltipManager = new manager_3.TooltipManager(this.getClient);
         this.subscriptions.add(this.tooltipManager);
-        this.sigHelpManager = new manager_2.SigHelpManager(this);
+        this.sigHelpManager = new manager_2.SigHelpManager({
+            getClient: this.getClient,
+            withTypescriptBuffer: this.withTypescriptBuffer,
+        });
         this.subscriptions.add(this.sigHelpManager);
         this.occurrenceManager = new manager_1.OccurrenceManager(this.getClient);
         this.subscriptions.add(this.occurrenceManager);
+        this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory({
+            clearFileErrors: this.clearFileErrors,
+            getClient: this.getClient,
+            reportBuildStatus: this.reportBuildStatus,
+            reportClientInfo: this.reportClientInfo,
+        });
+        this.subscribeEditors();
         // Register the commands
-        this.subscriptions.add(commands_1.registerCommands(this));
+        this.subscriptions.add(commands_1.registerCommands({
+            getClient: this.getClient,
+            applyEdits: this.applyEdits,
+            clearErrors: this.clearErrors,
+            killAllServers: this.killAllServers,
+            reportProgress: this.reportProgress,
+            reportBuildStatus: this.reportBuildStatus,
+            toggleSemanticViewController: () => {
+                utils_1.handlePromise(this.semanticViewController.toggle());
+            },
+            toggleFileSymbolsView: ed => {
+                this.symbolsViewController.toggleFileView(ed);
+            },
+            toggleProjectSymbolsView: ed => {
+                this.symbolsViewController.toggleProjectView(ed);
+            },
+            histGoForward: this.histGoForward,
+            histGoBack: () => this.editorPosHist.goBack(),
+            histShowHistory: () => this.editorPosHist.showHistory(),
+            showTooltipAt: this.showTooltipAt,
+            showSigHelpAt: this.showSigHelpAt,
+            hideSigHelpAt: this.hideSigHelpAt,
+        }));
     }
     destroy() {
         this.subscriptions.dispose();
@@ -212,7 +252,7 @@ class PluginManager {
         return new codefix_1.CodeActionsProvider(this.codefixProvider);
     }
     provideHyperclick() {
-        return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.editorPosHist);
+        return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.histGoForward);
     }
     async showTooltipAt(ed) {
         if (this.usingBuiltinTooltipManager)
@@ -236,8 +276,12 @@ class PluginManager {
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             this.typescriptPaneFactory(editor);
         }), atom.workspace.onDidChangeActiveTextEditor(ed => {
-            if (ed && utils_2.isTypescriptEditorWithPath(ed))
+            if (ed && utils_2.isTypescriptEditorWithPath(ed)) {
                 utils_1.handlePromise(this.statusPanel.show());
+                const tep = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);
+                if (tep)
+                    tep.didActivate();
+            }
             else
                 utils_1.handlePromise(this.statusPanel.hide());
         }));

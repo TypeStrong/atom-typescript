@@ -24,6 +24,6 @@ export async function toggle(editor: TextEditor, deps: Deps) {
       },
       itemFilterKey: "name",
     })
-    if (tag) await utils.openTag(tag, editor, deps.getEditorPositionHistoryManager())
+    if (tag) await utils.openTag(tag, editor, deps.histGoForward)
   }
 }

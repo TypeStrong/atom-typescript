@@ -19,7 +19,7 @@ class ClientResolver {
         this.on = this.emitter.on.bind(this.emitter);
     }
     async killAllServers() {
-        return Promise.all(Array.from(this.getAllClients()).map(client => client.killServer()));
+        await Promise.all(Array.from(this.getAllClients()).map(client => client.killServer()));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");

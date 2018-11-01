@@ -73,11 +73,6 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.typescriptPaneFactory = TypescriptEditorPane.createFactory(this)
-
-    // NOTE: This has to run before withTypescriptBuffer is used to populate this.panes
-    this.subscribeEditors()
-
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
       this.errorPusher,
@@ -88,23 +83,61 @@ export class PluginManager {
     this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
     this.subscriptions.add(this.semanticViewController)
 
-    this.symbolsViewController = new SymbolsViewController(this)
-    this.subscriptions.add(this.symbolsViewController)
-
     this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)
     this.subscriptions.add(this.editorPosHist)
+
+    this.symbolsViewController = new SymbolsViewController({
+      histGoForward: this.histGoForward,
+      withTypescriptBuffer: this.withTypescriptBuffer,
+    })
+    this.subscriptions.add(this.symbolsViewController)
 
     this.tooltipManager = new TooltipManager(this.getClient)
     this.subscriptions.add(this.tooltipManager)
 
-    this.sigHelpManager = new SigHelpManager(this)
+    this.sigHelpManager = new SigHelpManager({
+      getClient: this.getClient,
+      withTypescriptBuffer: this.withTypescriptBuffer,
+    })
     this.subscriptions.add(this.sigHelpManager)
 
     this.occurrenceManager = new OccurrenceManager(this.getClient)
     this.subscriptions.add(this.occurrenceManager)
 
+    this.typescriptPaneFactory = TypescriptEditorPane.createFactory({
+      clearFileErrors: this.clearFileErrors,
+      getClient: this.getClient,
+      reportBuildStatus: this.reportBuildStatus,
+      reportClientInfo: this.reportClientInfo,
+    })
+    this.subscribeEditors()
+
     // Register the commands
-    this.subscriptions.add(registerCommands(this))
+    this.subscriptions.add(
+      registerCommands({
+        getClient: this.getClient,
+        applyEdits: this.applyEdits,
+        clearErrors: this.clearErrors,
+        killAllServers: this.killAllServers,
+        reportProgress: this.reportProgress,
+        reportBuildStatus: this.reportBuildStatus,
+        toggleSemanticViewController: () => {
+          handlePromise(this.semanticViewController.toggle())
+        },
+        toggleFileSymbolsView: ed => {
+          this.symbolsViewController.toggleFileView(ed)
+        },
+        toggleProjectSymbolsView: ed => {
+          this.symbolsViewController.toggleProjectView(ed)
+        },
+        histGoForward: this.histGoForward,
+        histGoBack: () => this.editorPosHist.goBack(),
+        histShowHistory: () => this.editorPosHist.showHistory(),
+        showTooltipAt: this.showTooltipAt,
+        showSigHelpAt: this.showSigHelpAt,
+        hideSigHelpAt: this.hideSigHelpAt,
+      }),
+    )
   }
 
   public destroy() {
@@ -201,30 +234,44 @@ export class PluginManager {
   }
 
   public provideHyperclick() {
-    return getHyperclickProvider(this.clientResolver, this.editorPosHist)
+    return getHyperclickProvider(this.clientResolver, this.histGoForward)
   }
 
-  public clearErrors = (filePath?: string) => {
-    this.errorPusher.clear(filePath)
+  private clearErrors = () => {
+    this.errorPusher.clear()
   }
 
-  public getClient = async (filePath: string) => {
+  private clearFileErrors = (filePath: string) => {
+    this.errorPusher.clearFileErrors(filePath)
+  }
+
+  private getClient = async (filePath: string) => {
     return this.clientResolver.get(filePath)
   }
 
-  public killAllServers = () => this.clientResolver.killAllServers()
+  private killAllServers = () => {
+    handlePromise(this.clientResolver.killAllServers())
+  }
 
-  public withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
+  private withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
     const normalizedFilePath = path.normalize(filePath)
     const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
     if (ed) {
-      return action(TypescriptBuffer.create(ed.getBuffer(), this.getClient))
+      return action(
+        TypescriptBuffer.create(ed.getBuffer(), {
+          getClient: this.getClient,
+          clearFileErrors: this.clearFileErrors,
+        }),
+      )
     }
 
     // no open buffer
     const buffer = await Atom.TextBuffer.load(normalizedFilePath)
     try {
-      const tsbuffer = TypescriptBuffer.create(buffer, this.getClient)
+      const tsbuffer = TypescriptBuffer.create(buffer, {
+        getClient: this.getClient,
+        clearFileErrors: this.clearFileErrors,
+      })
       return await action(tsbuffer)
     } finally {
       if (buffer.isModified()) await buffer.save()
@@ -232,7 +279,7 @@ export class PluginManager {
     }
   }
 
-  public reportBusyWhile: ReportBusyWhile = async (title, generator) => {
+  private reportBusyWhile: ReportBusyWhile = async (title, generator) => {
     if (this.busySignalService) {
       return this.busySignalService.reportBusyWhile(title, generator)
     } else {
@@ -248,23 +295,19 @@ export class PluginManager {
     }
   }
 
-  public reportProgress = (progress: TProgress) => {
+  private reportProgress = (progress: TProgress) => {
     handlePromise(this.statusPanel.update({progress}))
   }
 
-  public reportBuildStatus = (buildStatus: TBuildStatus | undefined) => {
+  private reportBuildStatus = (buildStatus: TBuildStatus | undefined) => {
     handlePromise(this.statusPanel.update({buildStatus}))
   }
 
-  public reportClientVersion = (clientVersion: string) => {
-    handlePromise(this.statusPanel.update({version: clientVersion}))
+  private reportClientInfo = (info: {clientVersion: string; tsConfigPath: string | undefined}) => {
+    handlePromise(this.statusPanel.update(info))
   }
 
-  public reportTSConfigPath = (tsConfigPath: string | undefined) => {
-    handlePromise(this.statusPanel.update({tsConfigPath}))
-  }
-
-  public applyEdits: ApplyEdits = async edits =>
+  private applyEdits: ApplyEdits = async edits =>
     void Promise.all(
       edits.map(edit =>
         this.withTypescriptBuffer(edit.fileName, async buffer => {
@@ -281,26 +324,24 @@ export class PluginManager {
       ),
     )
 
-  public async showTooltipAt(ed: Atom.TextEditor): Promise<void> {
+  private async showTooltipAt(ed: Atom.TextEditor): Promise<void> {
     if (this.usingBuiltinTooltipManager) await this.tooltipManager.showExpressionAt(ed)
     else await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
   }
 
-  public async showSigHelpAt(ed: Atom.TextEditor): Promise<void> {
+  private async showSigHelpAt(ed: Atom.TextEditor): Promise<void> {
     if (this.usingBuiltinSigHelpManager) await this.sigHelpManager.showTooltipAt(ed)
     else await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show")
   }
 
-  public hideSigHelpAt(ed: Atom.TextEditor): boolean {
+  private hideSigHelpAt(ed: Atom.TextEditor): boolean {
     if (this.usingBuiltinSigHelpManager) return this.sigHelpManager.hideTooltipAt(ed)
     else return false
   }
 
-  public getSemanticViewController = () => this.semanticViewController
-
-  public getSymbolsViewController = () => this.symbolsViewController
-
-  public getEditorPositionHistoryManager = () => this.editorPosHist
+  private histGoForward: EditorPositionHistoryManager["goForward"] = (ed, opts) => {
+    return this.editorPosHist.goForward(ed, opts)
+  }
 
   private subscribeEditors() {
     this.subscriptions.add(
@@ -308,8 +349,11 @@ export class PluginManager {
         this.typescriptPaneFactory(editor)
       }),
       atom.workspace.onDidChangeActiveTextEditor(ed => {
-        if (ed && isTypescriptEditorWithPath(ed)) handlePromise(this.statusPanel.show())
-        else handlePromise(this.statusPanel.hide())
+        if (ed && isTypescriptEditorWithPath(ed)) {
+          handlePromise(this.statusPanel.show())
+          const tep = TypescriptEditorPane.lookupPane(ed)
+          if (tep) tep.didActivate()
+        } else handlePromise(this.statusPanel.hide())
       }),
     )
   }

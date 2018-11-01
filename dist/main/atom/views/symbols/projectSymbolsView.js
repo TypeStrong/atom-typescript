@@ -20,7 +20,7 @@ async function toggle(editor, deps) {
             itemFilterKey: "name",
         });
         if (tag)
-            await utils.openTag(tag, editor, deps.getEditorPositionHistoryManager());
+            await utils.openTag(tag, editor, deps.histGoForward);
     }
 }
 exports.toggle = toggle;

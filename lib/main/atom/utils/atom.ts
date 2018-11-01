@@ -39,3 +39,9 @@ export function getFilePathPosition(editor: Atom.TextEditor): FileLocationQuery 
     return {file, ...getEditorPosition(editor)}
   }
 }
+
+export function* getOpenEditorsPaths() {
+  for (const ed of atom.workspace.getTextEditors()) {
+    if (isTypescriptEditorWithPath(ed)) yield ed.getPath()!
+  }
+}

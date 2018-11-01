@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const etch = require("etch");
 const utils_1 = require("./utils");
+const highlightComponent_1 = require("./views/highlightComponent");
+const simpleSelectionView_1 = require("./views/simpleSelectionView");
 class EditorPositionHistoryManager {
     constructor(prevCursorPositions = []) {
         this.prevCursorPositions = prevCursorPositions;
@@ -31,6 +34,25 @@ class EditorPositionHistoryManager {
             }
         }
         return this.open(item);
+    }
+    async showHistory() {
+        const res = await simpleSelectionView_1.selectListView({
+            items: this.getHistory()
+                .slice()
+                .reverse()
+                .map((item, idx) => (Object.assign({}, item, { idx }))),
+            itemTemplate: (item, ctx) => (etch.dom("li", { class: "two-lines" },
+                etch.dom("div", { class: "primary-line" },
+                    etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() })),
+                etch.dom("div", { class: "secondary-line" },
+                    "Line: ",
+                    item.line,
+                    ", column: ",
+                    item.offset))),
+            itemFilterKey: "file",
+        });
+        if (res)
+            await this.goHistory(res.idx + 1);
     }
     getHistory() {
         return this.prevCursorPositions;

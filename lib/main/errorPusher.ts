@@ -47,15 +47,16 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  public clear(filePath?: string) {
-    if (!this.linter) return
-    if (filePath !== undefined) {
-      for (const map of this.errors.values()) {
-        map.delete(filePath)
-      }
-    } else {
-      this.linter.clearMessages()
+  public clearFileErrors(filePath: string) {
+    for (const map of this.errors.values()) {
+      map.delete(filePath)
     }
+    this.pushErrors()
+  }
+
+  public clear() {
+    if (!this.linter) return
+    this.linter.clearMessages()
   }
 
   public setLinter(linter: IndieDelegate) {

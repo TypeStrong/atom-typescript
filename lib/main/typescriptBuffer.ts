@@ -1,32 +1,33 @@
 // A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
 // the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 import * as Atom from "atom"
+import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {isTypescriptFile} from "./atom/utils"
+import {getOpenEditorsPaths, getProjectCodeSettings, isTypescriptFile} from "./atom/utils"
+
+export interface Deps {
+  getClient: GetClientFunction
+  clearFileErrors: (filePath: string) => void
+}
 
 export class TypescriptBuffer {
-  public static create(buffer: Atom.TextBuffer, getClient: GetClientFunction) {
+  public static create(buffer: Atom.TextBuffer, deps: Deps) {
     const b = TypescriptBuffer.bufferMap.get(buffer)
     if (b) return b
     else {
-      const nb = new TypescriptBuffer(buffer, getClient)
+      const nb = new TypescriptBuffer(buffer, deps)
       TypescriptBuffer.bufferMap.set(buffer, nb)
       return nb
     }
   }
   private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
 
-  private events = new Atom.Emitter<
-    {
-      saved: void
-      opened: void
-      changed: void
-    },
-    {
-      closed: string
-    }
-  >()
+  private events = new Atom.Emitter<{
+    saved: void
+    opened: void
+    changed: void
+  }>()
 
   // Timestamps for buffer events
   private changedAt: number = 0
@@ -34,8 +35,10 @@ export class TypescriptBuffer {
 
   // Promise that resolves to the correct client for this filePath
   private state?: {
-    client: Promise<TSClient>
+    client: TSClient
     filePath: string
+    // Path to the project's tsconfig.json
+    configFile: string | undefined
   }
 
   private subscriptions = new Atom.CompositeDisposable()
@@ -43,7 +46,7 @@ export class TypescriptBuffer {
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
 
-  private constructor(public buffer: Atom.TextBuffer, private getClient: GetClientFunction) {
+  private constructor(public buffer: Atom.TextBuffer, private deps: Deps) {
     this.subscriptions.add(
       buffer.onDidChange(this.onDidChange),
       buffer.onDidChangePath(this.onDidChangePath),
@@ -74,7 +77,7 @@ export class TypescriptBuffer {
 
   public async getNavTree() {
     if (!this.state) return
-    const client = await this.state.client
+    const client = this.state.client
     try {
       const navtreeResult = await client.execute("navtree", {file: this.state.filePath})
       return navtreeResult.body!
@@ -86,7 +89,7 @@ export class TypescriptBuffer {
 
   public async getNavTo(search: string) {
     if (!this.state) return
-    const client = await this.state.client
+    const client = this.state.client
     try {
       const navtoResult = await client.execute("navto", {
         file: this.state.filePath,
@@ -101,30 +104,72 @@ export class TypescriptBuffer {
     return
   }
 
+  public getInfo() {
+    if (!this.state) return
+    return {
+      clientVersion: this.state.client.version,
+      tsConfigPath: this.state.configFile,
+    }
+  }
+
+  public async getErr() {
+    if (!this.state) return
+    await this.state.client.execute("geterr", {
+      files: [this.state.filePath],
+      delay: 100,
+    })
+  }
+
+  /** Throws! */
+  public async compile() {
+    if (!this.state) return
+    const {client, filePath} = this.state
+    const result = await client.execute("compileOnSaveAffectedFileList", {
+      file: filePath,
+    })
+    const fileNames = flatten(result.body.map(project => project.fileNames))
+
+    if (fileNames.length === 0) return
+
+    const promises = fileNames.map(file => client.execute("compileOnSaveEmitFile", {file}))
+    const saved = await Promise.all(promises)
+
+    if (!saved.every(res => !!res.body)) {
+      throw new Error("Some files failed to emit")
+    }
+  }
+
   private async open() {
     const filePath = this.buffer.getPath()
 
     if (filePath !== undefined && isTypescriptFile(filePath)) {
+      const client = await this.deps.getClient(filePath)
+
       this.state = {
-        client: this.getClient(filePath),
+        client,
         filePath,
+        configFile: undefined,
       }
-      const client = await this.state.client
 
-      client.on("restarted", () => {
-        if (!this.state) return
-        handlePromise(
-          client.execute("open", {
-            file: this.state.filePath,
-            fileContent: this.buffer.getText(),
-          }),
-        )
+      client.on("restarted", () => handlePromise(this.init()))
+
+      await this.init()
+
+      const result = await client.execute("projectInfo", {
+        needFileNameList: false,
+        file: filePath,
       })
 
-      await client.execute("open", {
-        file: this.state.filePath,
-        fileContent: this.buffer.getText(),
-      })
+      // TODO: wrong type here, complain on TS repo
+      this.state.configFile = result.body!.configFileName as string | undefined
+
+      if (this.state.configFile !== undefined) {
+        const options = await getProjectCodeSettings(this.state.configFile)
+        await client.execute("configure", {
+          file: filePath,
+          formatOptions: options,
+        })
+      }
 
       this.events.emit("opened")
     } else {
@@ -137,12 +182,22 @@ export class TypescriptBuffer {
     await this.close()
   }
 
+  private init = async () => {
+    if (!this.state) return
+    await this.state.client.execute("open", {
+      file: this.state.filePath,
+      fileContent: this.buffer.getText(),
+    })
+
+    await this.getErr()
+  }
+
   private close = async () => {
     if (this.state) {
-      const client = await this.state.client
+      const client = this.state.client
       const file = this.state.filePath
       await client.execute("close", {file})
-      this.events.emit("closed", file)
+      this.deps.clearFileErrors(file)
       this.state = undefined
     }
   }
@@ -163,6 +218,13 @@ export class TypescriptBuffer {
       await new Promise<void>(resolve => this.events.once("changed", resolve))
     }
 
+    if (this.state) {
+      await this.state.client.execute("geterr", {
+        files: Array.from(getOpenEditorsPaths()),
+        delay: 100,
+      })
+    }
+
     this.events.emit("saved")
   }
 
@@ -172,7 +234,7 @@ export class TypescriptBuffer {
 
     this.changedAtBatch = Date.now()
 
-    const client = await this.state.client
+    const client = this.state.client
 
     for (const change of changes) {
       const {start, oldExtent, newText} = change
@@ -190,6 +252,8 @@ export class TypescriptBuffer {
         insertString: newText,
       })
     }
+
+    await this.getErr()
 
     this.events.emit("changed")
   }

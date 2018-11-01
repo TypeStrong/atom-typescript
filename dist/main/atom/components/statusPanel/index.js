@@ -35,8 +35,8 @@ class StatusPanel {
         await this.update({ visible: false });
     }
     renderVersion() {
-        if (this.props.version !== undefined) {
-            return etch.dom(tooltip_1.Tooltip, { title: "Active TypeScript version" }, this.props.version);
+        if (this.props.clientVersion !== undefined) {
+            return etch.dom(tooltip_1.Tooltip, { title: "Active TypeScript version" }, this.props.clientVersion);
         }
         return null;
     }

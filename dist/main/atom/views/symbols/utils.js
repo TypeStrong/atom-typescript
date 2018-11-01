@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-async function openTag(tag, editor, ephm) {
+async function openTag(tag, editor, histGoForward) {
     if (tag.file !== undefined) {
-        return ephm.goForward(editor, {
+        return histGoForward(editor, {
             file: tag.file,
             start: {
                 line: tag.position.row + 1,

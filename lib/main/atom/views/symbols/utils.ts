@@ -2,9 +2,13 @@ import {TextEditor} from "atom"
 import {EditorPositionHistoryManager} from "../../editorPositionHistoryManager"
 import {Tag} from "./symbolsTag"
 
-export async function openTag(tag: Tag, editor: TextEditor, ephm: EditorPositionHistoryManager) {
+export async function openTag(
+  tag: Tag,
+  editor: TextEditor,
+  histGoForward: EditorPositionHistoryManager["goForward"],
+) {
   if (tag.file !== undefined) {
-    return ephm.goForward(editor, {
+    return histGoForward(editor, {
       file: tag.file,
       start: {
         line: tag.position.row + 1,
