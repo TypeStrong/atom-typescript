@@ -2,10 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const navigationTreeComponent_1 = require("./navigationTreeComponent");
 exports.SEMANTIC_VIEW_URI = "atom-typescript://semantic-view";
-function deserializeSemanticView(serialized) {
-    return SemanticView.create(serialized.data);
-}
-exports.deserializeSemanticView = deserializeSemanticView;
 class SemanticView {
     constructor(config) {
         this.comp = new navigationTreeComponent_1.NavigationTreeComponent({ navTree: config.navTree });

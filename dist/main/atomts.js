@@ -1,20 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var semanticView_1 = require("./atom/views/outline/semanticView");
-exports.deserializeSemanticView = semanticView_1.deserializeSemanticView;
 let pluginManager;
 async function activate(state) {
-    // tslint:disable:no-unsafe-any
     const pns = atom.packages.getAvailablePackageNames();
     const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"];
     if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
+        // tslint:disable-next-line:no-unsafe-any
         await require("atom-package-deps").install("atom-typescript", true);
     }
+    // tslint:disable-next-line:no-unsafe-any
     require("etch").setScheduler(atom.views);
     // tslint:disable-next-line:no-shadowed-variable
     const { PluginManager } = require("./pluginManager");
     pluginManager = new PluginManager(state);
-    // tslint:enable:no-unsafe-any
 }
 exports.activate = activate;
 function deactivate() {
@@ -30,6 +28,13 @@ function serialize() {
         return undefined;
 }
 exports.serialize = serialize;
+function deserializeSemanticView(serialized) {
+    const { 
+    // tslint:disable-next-line:no-unsafe-any no-shadowed-variable
+    SemanticView, } = require("./atom/views/outline/semanticView");
+    return SemanticView.create(serialized.data);
+}
+exports.deserializeSemanticView = deserializeSemanticView;
 ////////////////////////////////// Consumers ///////////////////////////////////
 function consumeLinter(register) {
     if (pluginManager)

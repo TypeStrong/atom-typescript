@@ -13,10 +13,6 @@ export interface SemanticViewSerializationData {
   deserializer: "atomts-semantic-view/SemanticView"
 }
 
-export function deserializeSemanticView(serialized: SemanticViewSerializationData) {
-  return SemanticView.create(serialized.data)
-}
-
 export class SemanticView {
   public static create(config: SemanticViewOptions) {
     if (!SemanticView.instance) SemanticView.instance = new SemanticView(config)
