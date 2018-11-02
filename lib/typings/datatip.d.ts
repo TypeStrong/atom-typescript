@@ -16,7 +16,7 @@ declare module "atom/ide" {
     addModifierProvider(provider: ModifierDatatipProvider): Atom.DisposableLike
     createPinnedDataTip(
       datatip: Datatip,
-      editor: TextEditor,
+      editor: Atom.TextEditor,
       options?: PinnedDatatipOptions,
     ): Atom.DisposableLike
   }
@@ -63,7 +63,7 @@ declare module "atom/ide" {
       }
     | {
         component: any // React component
-        range: atom.Range
+        range: Atom.Range
         pinnable?: boolean
       }
 

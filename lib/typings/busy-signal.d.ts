@@ -31,4 +31,11 @@ declare module "atom/ide" {
     // reference to the single shared instance, so disposing of it would be wrong.
     dispose(): void
   }
+
+  export interface BusyMessage {
+    // You can set/update the title.
+    setTitle(title: string): void
+    // Dispose of the signal when done to make it go away.
+    dispose(): void
+  }
 }
