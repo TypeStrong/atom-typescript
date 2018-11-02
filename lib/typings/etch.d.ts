@@ -162,6 +162,14 @@ interface EtchAttributes extends HTMLAttributes {
   key?: any
 }
 
+type SingleOrArray<T> = T | T[]
+type ChildSpec = SingleOrArray<string | number | JSX.Element | null>
+type TagSpec = string | ElementClassConstructor<JSX.ElementClass>
+type ElementClassConstructor<T extends JSX.ElementClass> = new (
+  props: T["props"],
+  children: JSX.Element[],
+) => T
+
 // tslint:disable-next-line:no-namespace
 declare namespace JSX {
   interface IntrinsicElements {
@@ -189,18 +197,6 @@ declare namespace JSX {
     // Custom & HTML
     [elem: string]: EtchAttributes
   }
-}
-
-type SingleOrArray<T> = T | T[]
-type ChildSpec = SingleOrArray<string | number | JSX.Element | null>
-type TagSpec = string | ElementClassConstructor<JSX.ElementClass>
-type ElementClassConstructor<T extends JSX.ElementClass> = new (
-  props: T["props"],
-  children: JSX.Element[],
-) => T
-
-// tslint:disable-next-line:no-namespace
-declare namespace JSX {
   type Element =
     | {tag: TagSpec; props?: EtchAttributes | Props; children: Element[]}
     | {text: string | number}
