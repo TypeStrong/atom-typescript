@@ -1,3 +1,13 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE.Facebook file in the directory containing this source file.
+ * An additional grant of patent rights can be found in the PATENTS.Facebook
+ * file in the same directory.
+ */
+
 declare module "atom/ide" {
   export interface BusySignalOptions {
     // Can say that a busy signal will only appear when a given file is open.
