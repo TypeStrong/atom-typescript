@@ -8,6 +8,7 @@ const client_1 = require("../client");
 const utils_1 = require("../utils");
 const codeActionsProvider_1 = require("./atom-ide/codeActionsProvider");
 const datatipProvider_1 = require("./atom-ide/datatipProvider");
+const definitionsProvider_1 = require("./atom-ide/definitionsProvider");
 const findReferencesProvider_1 = require("./atom-ide/findReferencesProvider");
 const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
 const outlineProvider_1 = require("./atom-ide/outlineProvider");
@@ -263,6 +264,9 @@ class PluginManager {
     }
     provideOutlines() {
         return outlineProvider_1.getOutlineProvider(this.getClient);
+    }
+    provideDefinitions() {
+        return definitionsProvider_1.getDefinitionProvider(this.getClient);
     }
     async showTooltipAt(ed) {
         if (this.usingBuiltinTooltipManager)

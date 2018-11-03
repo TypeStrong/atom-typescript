@@ -9,6 +9,7 @@ import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {TSDatatipProvider} from "./atom-ide/datatipProvider"
+import {getDefinitionProvider} from "./atom-ide/definitionsProvider"
 import {getFindReferencesProvider} from "./atom-ide/findReferencesProvider"
 import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
 import {getOutlineProvider} from "./atom-ide/outlineProvider"
@@ -247,6 +248,10 @@ export class PluginManager {
 
   public provideOutlines() {
     return getOutlineProvider(this.getClient)
+  }
+
+  public provideDefinitions() {
+    return getDefinitionProvider(this.getClient)
   }
 
   private clearErrors = () => {

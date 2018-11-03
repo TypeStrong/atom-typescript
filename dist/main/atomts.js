@@ -92,4 +92,9 @@ function provideOutlines() {
         return pluginManager.provideOutlines();
 }
 exports.provideOutlines = provideOutlines;
+function provideDefinitions() {
+    if (pluginManager)
+        return pluginManager.provideDefinitions();
+}
+exports.provideDefinitions = provideDefinitions;
 //# sourceMappingURL=atomts.js.map

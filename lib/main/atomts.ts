@@ -4,6 +4,7 @@ import {
   BusySignalService,
   CodeActionProvider,
   DatatipService,
+  DefinitionProvider,
   FindReferencesProvider,
   HyperclickProvider,
   OutlineProvider,
@@ -97,4 +98,8 @@ export function provideReferences(): FindReferencesProvider | undefined {
 
 export function provideOutlines(): OutlineProvider | undefined {
   if (pluginManager) return pluginManager.provideOutlines()
+}
+
+export function provideDefinitions(): DefinitionProvider | undefined {
+  if (pluginManager) return pluginManager.provideDefinitions()
 }
