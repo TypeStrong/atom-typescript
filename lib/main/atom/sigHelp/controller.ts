@@ -2,7 +2,7 @@ import * as Atom from "atom"
 import {debounce} from "lodash"
 import {GetClientFunction} from "../../../client"
 import {handlePromise} from "../../../utils"
-import {WithTypescriptBuffer} from "../../pluginManager"
+import {FlushTypescriptBuffer} from "../../pluginManager"
 import {isTypescriptEditorWithPath} from "../utils"
 import {TooltipView} from "./tooltipView"
 
@@ -13,7 +13,7 @@ export class TooltipController {
   constructor(
     private deps: {
       getClient: GetClientFunction
-      withTypescriptBuffer: WithTypescriptBuffer
+      flushTypescriptBuffer: FlushTypescriptBuffer
     },
     private editor: Atom.TextEditor,
     bufferPt: Atom.Point,
@@ -91,7 +91,7 @@ export class TooltipController {
     if (filePath === undefined) return
     const client = await this.deps.getClient(filePath)
     try {
-      await this.deps.withTypescriptBuffer(filePath, buffer => buffer.flush())
+      await this.deps.flushTypescriptBuffer(filePath)
       const result = await client.execute("signatureHelp", {
         file: filePath,
         line: bufferPt.row + 1,

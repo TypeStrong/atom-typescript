@@ -4,7 +4,7 @@
 import * as Atom from "atom"
 import {GetClientFunction} from "../../../client"
 import {handlePromise} from "../../../utils"
-import {WithTypescriptBuffer} from "../../pluginManager"
+import {FlushTypescriptBuffer} from "../../pluginManager"
 import {TooltipController} from "./controller"
 
 export class SigHelpManager {
@@ -14,7 +14,7 @@ export class SigHelpManager {
   constructor(
     private deps: {
       getClient: GetClientFunction
-      withTypescriptBuffer: WithTypescriptBuffer
+      flushTypescriptBuffer: FlushTypescriptBuffer
     },
   ) {
     this.subscriptions.add(

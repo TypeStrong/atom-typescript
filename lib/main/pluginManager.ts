@@ -32,10 +32,7 @@ import {State} from "./packageState"
 import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
 
-export type WithTypescriptBuffer = <T>(
-  filePath: string,
-  action: (buffer: TypescriptBuffer) => Promise<T>,
-) => Promise<T>
+export type FlushTypescriptBuffer = (filePath: string) => Promise<void>
 
 export interface Change extends TextSpan {
   newText: string
@@ -103,7 +100,7 @@ export class PluginManager {
 
     this.sigHelpManager = new SigHelpManager({
       getClient: this.getClient,
-      withTypescriptBuffer: this.withTypescriptBuffer,
+      flushTypescriptBuffer: this.flushTypescriptBuffer,
     })
     this.subscriptions.add(this.sigHelpManager)
 
@@ -202,7 +199,7 @@ export class PluginManager {
 
   public consumeSigHelpService(registry: SignatureHelpRegistry): void | Atom.DisposableLike {
     if (atom.config.get("atom-typescript").preferBuiltinSigHelp) return
-    const disp = registry(new TSSigHelpProvider(this.getClient, this.withTypescriptBuffer))
+    const disp = registry(new TSSigHelpProvider(this.getClient, this.flushTypescriptBuffer))
     this.subscriptions.add(disp)
     this.sigHelpManager.dispose()
     this.usingBuiltinSigHelpManager = false
@@ -226,7 +223,7 @@ export class PluginManager {
   public provideAutocomplete() {
     return [
       new AutocompleteProvider(this.getClient, {
-        withTypescriptBuffer: this.withTypescriptBuffer,
+        flushTypescriptBuffer: this.flushTypescriptBuffer,
       }),
     ]
   }
@@ -278,26 +275,32 @@ export class PluginManager {
     handlePromise(this.clientResolver.restartAllServers())
   }
 
-  private withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {
+  private flushTypescriptBuffer: FlushTypescriptBuffer = async filePath => {
     const normalizedFilePath = path.normalize(filePath)
     const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
     if (ed) {
-      return action(
-        TypescriptBuffer.create(ed.getBuffer(), {
-          getClient: this.getClient,
-          clearFileErrors: this.clearFileErrors,
-        }),
-      )
+      const buffer = TypescriptBuffer.create(ed.getBuffer(), {
+        getClient: this.getClient,
+        clearFileErrors: this.clearFileErrors,
+      })
+      await buffer.flush()
     }
+  }
+
+  private withBuffer = async <T>(
+    filePath: string,
+    action: (buffer: Atom.TextBuffer) => Promise<T>,
+  ) => {
+    const normalizedFilePath = path.normalize(filePath)
+    const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
+
+    // found open buffer
+    if (ed) return action(ed.getBuffer())
 
     // no open buffer
     const buffer = await Atom.TextBuffer.load(normalizedFilePath)
     try {
-      const tsbuffer = TypescriptBuffer.create(buffer, {
-        getClient: this.getClient,
-        clearFileErrors: this.clearFileErrors,
-      })
-      return await action(tsbuffer)
+      return await action(buffer)
     } finally {
       if (buffer.isModified()) await buffer.save()
       buffer.destroy()
@@ -335,18 +338,19 @@ export class PluginManager {
   private applyEdits: ApplyEdits = async edits =>
     void Promise.all(
       edits.map(edit =>
-        this.withTypescriptBuffer(edit.fileName, async buffer => {
-          buffer.buffer.transact(() => {
+        this.withBuffer(edit.fileName, async buffer => {
+          buffer.transact(() => {
             const changes = edit.textChanges
               .map(e => ({range: spanToRange(e), newText: e.newText}))
               .reverse() // NOTE: needs reverse for cases where ranges are same for two changes
               .sort((a, b) => b.range.compare(a.range))
             console.log(edit.textChanges, changes)
             for (const change of changes) {
-              buffer.buffer.setTextInRange(change.range, change.newText)
+              buffer.setTextInRange(change.range, change.newText)
             }
           })
-          return buffer.flush()
+          const filePath = buffer.getPath()
+          if (filePath !== undefined) await this.flushTypescriptBuffer(filePath)
         }),
       ),
     )

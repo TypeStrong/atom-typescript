@@ -46,23 +46,27 @@ class PluginManager {
         this.killAllServers = () => {
             utils_1.handlePromise(this.clientResolver.restartAllServers());
         };
-        this.withTypescriptBuffer = async (filePath, action) => {
+        this.flushTypescriptBuffer = async (filePath) => {
             const normalizedFilePath = path.normalize(filePath);
             const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
             if (ed) {
-                return action(typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), {
-                    getClient: this.getClient,
-                    clearFileErrors: this.clearFileErrors,
-                }));
-            }
-            // no open buffer
-            const buffer = await Atom.TextBuffer.load(normalizedFilePath);
-            try {
-                const tsbuffer = typescriptBuffer_1.TypescriptBuffer.create(buffer, {
+                const buffer = typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), {
                     getClient: this.getClient,
                     clearFileErrors: this.clearFileErrors,
                 });
-                return await action(tsbuffer);
+                await buffer.flush();
+            }
+        };
+        this.withBuffer = async (filePath, action) => {
+            const normalizedFilePath = path.normalize(filePath);
+            const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
+            // found open buffer
+            if (ed)
+                return action(ed.getBuffer());
+            // no open buffer
+            const buffer = await Atom.TextBuffer.load(normalizedFilePath);
+            try {
+                return await action(buffer);
             }
             finally {
                 if (buffer.isModified())
@@ -96,18 +100,20 @@ class PluginManager {
         this.reportClientInfo = (info) => {
             utils_1.handlePromise(this.statusPanel.update(info));
         };
-        this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withTypescriptBuffer(edit.fileName, async (buffer) => {
-            buffer.buffer.transact(() => {
+        this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withBuffer(edit.fileName, async (buffer) => {
+            buffer.transact(() => {
                 const changes = edit.textChanges
                     .map(e => ({ range: utils_2.spanToRange(e), newText: e.newText }))
                     .reverse() // NOTE: needs reverse for cases where ranges are same for two changes
                     .sort((a, b) => b.range.compare(a.range));
                 console.log(edit.textChanges, changes);
                 for (const change of changes) {
-                    buffer.buffer.setTextInRange(change.range, change.newText);
+                    buffer.setTextInRange(change.range, change.newText);
                 }
             });
-            return buffer.flush();
+            const filePath = buffer.getPath();
+            if (filePath !== undefined)
+                await this.flushTypescriptBuffer(filePath);
         })));
         this.histGoForward = (ed, opts) => {
             return this.editorPosHist.goForward(ed, opts);
@@ -136,7 +142,7 @@ class PluginManager {
         this.subscriptions.add(this.tooltipManager);
         this.sigHelpManager = new manager_2.SigHelpManager({
             getClient: this.getClient,
-            withTypescriptBuffer: this.withTypescriptBuffer,
+            flushTypescriptBuffer: this.flushTypescriptBuffer,
         });
         this.subscriptions.add(this.sigHelpManager);
         this.occurrenceManager = new manager_1.OccurrenceManager(this.getClient);
@@ -225,7 +231,7 @@ class PluginManager {
     consumeSigHelpService(registry) {
         if (atom.config.get("atom-typescript").preferBuiltinSigHelp)
             return;
-        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.withTypescriptBuffer));
+        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.flushTypescriptBuffer));
         this.subscriptions.add(disp);
         this.sigHelpManager.dispose();
         this.usingBuiltinSigHelpManager = false;
@@ -249,7 +255,7 @@ class PluginManager {
     provideAutocomplete() {
         return [
             new autoCompleteProvider_1.AutocompleteProvider(this.getClient, {
-                withTypescriptBuffer: this.withTypescriptBuffer,
+                flushTypescriptBuffer: this.flushTypescriptBuffer,
             }),
         ];
     }

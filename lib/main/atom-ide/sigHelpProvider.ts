@@ -2,7 +2,7 @@ import {Point, TextEditor} from "atom"
 import {SignatureHelp, SignatureHelpProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
 import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
-import {WithTypescriptBuffer} from "../pluginManager"
+import {FlushTypescriptBuffer} from "../pluginManager"
 
 export class TSSigHelpProvider implements SignatureHelpProvider {
   public triggerCharacters = new Set<string>(["(", ","])
@@ -11,7 +11,7 @@ export class TSSigHelpProvider implements SignatureHelpProvider {
 
   constructor(
     private getClient: GetClientFunction,
-    private withTypescriptBuffer: WithTypescriptBuffer,
+    private flushTypescriptBuffer: FlushTypescriptBuffer,
   ) {}
 
   public async getSignatureHelp(
@@ -22,7 +22,7 @@ export class TSSigHelpProvider implements SignatureHelpProvider {
       const filePath = editor.getPath()
       if (filePath === undefined) return
       const client = await this.getClient(filePath)
-      await this.withTypescriptBuffer(filePath, buffer => buffer.flush())
+      await this.flushTypescriptBuffer(filePath)
       const result = await client.execute("signatureHelp", {
         file: filePath,
         line: pos.row + 1,
