@@ -212,7 +212,7 @@ class PluginManager {
         return disp;
     }
     consumeDatatipService(datatip) {
-        if (atom.config.get("atom-typescript.preferBuiltinTooltips"))
+        if (atom.config.get("atom-typescript").preferBuiltinTooltips)
             return;
         const disp = datatip.addProvider(new datatipProvider_1.TSDatatipProvider(this.getClient));
         this.subscriptions.add(disp);
@@ -221,7 +221,7 @@ class PluginManager {
         return disp;
     }
     consumeSigHelpService(registry) {
-        if (atom.config.get("atom-typescript.preferBuiltinSigHelp"))
+        if (atom.config.get("atom-typescript").preferBuiltinSigHelp)
             return;
         const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.withTypescriptBuffer));
         this.subscriptions.add(disp);
@@ -230,7 +230,7 @@ class PluginManager {
         return disp;
     }
     consumeBusySignal(busySignalService) {
-        if (atom.config.get("atom-typescript.preferBuiltinBusySignal"))
+        if (atom.config.get("atom-typescript").preferBuiltinBusySignal)
             return;
         this.busySignalService = busySignalService;
         const disp = {
@@ -267,9 +267,13 @@ class PluginManager {
         return outlineProvider_1.getOutlineProvider(this.getClient);
     }
     provideDefinitions() {
+        if (atom.config.get("atom-typescript").disableAtomIdeDefinitions)
+            return;
         return definitionsProvider_1.getDefinitionProvider(this.getClient);
     }
     provideCodeHighlight() {
+        if (atom.config.get("atom-typescript").preferBuiltinOccurrenceHighlight)
+            return;
         this.occurrenceManager.dispose();
         return codeHighlightProvider_1.getCodeHighlightProvider(this.getClient);
     }

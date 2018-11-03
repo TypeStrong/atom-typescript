@@ -17,9 +17,9 @@ export function isTypescriptFile(filePath: string | undefined): boolean {
 }
 
 export function typeScriptScopes(): ReadonlyArray<string> {
-  const tsScopes = atom.config.get("atom-typescript.tsSyntaxScopes")
-  if (atom.config.get("atom-typescript.allowJS")) {
-    tsScopes.push(...atom.config.get("atom-typescript.jsSyntaxScopes"))
+  const tsScopes = atom.config.get("atom-typescript").tsSyntaxScopes
+  if (atom.config.get("atom-typescript").allowJS) {
+    tsScopes.push(...atom.config.get("atom-typescript").jsSyntaxScopes)
   }
   return tsScopes
 }
@@ -34,9 +34,9 @@ export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
 }
 
 function isAllowedExtension(ext: string) {
-  const tsExts = atom.config.get("atom-typescript.tsFileExtensions")
-  if (atom.config.get("atom-typescript.allowJS")) {
-    tsExts.push(...atom.config.get("atom-typescript.jsFileExtensions"))
+  const tsExts = atom.config.get("atom-typescript").tsFileExtensions
+  if (atom.config.get("atom-typescript").allowJS) {
+    tsExts.push(...atom.config.get("atom-typescript").jsFileExtensions)
   }
   return tsExts.includes(ext)
 }

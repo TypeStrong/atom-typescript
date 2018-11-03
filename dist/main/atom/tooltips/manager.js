@@ -44,7 +44,7 @@ class TooltipManager {
                 }
                 lastExprTypeBufferPt = bufferPt;
                 this.clearExprTypeTimeout();
-                this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(editor, e), atom.config.get("atom-typescript.tooltipDelay"));
+                this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(editor, e), atom.config.get("atom-typescript").tooltipDelay);
             };
         };
         this.subscriptions.add(atom.workspace.observeTextEditors(editor => {

@@ -67,6 +67,20 @@
       "default": false,
       "order": 57
     },
+    "preferBuiltinOccurrenceHighlight": {
+      "title": "Prefer built-in occurrence highligting",
+      "description": "Use built-in occurrence highlights instead of Atom-IDE one (if available); Change requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 58
+    },
+    "disableAtomIdeDefinitions": {
+      "title": "Disable Atom-IDE Definitions interface",
+      "description": "Atom-IDE will revert to using Hyperclick for go-to-definition; Atom-Typescript will be able to track position history and return-from-declaration command will work; you will lose fancy previews on ctrl/cmd+mouseover though; Change requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 59
+    },
     "buildStatusTimeout": {
       "title": "Build status visibility timeout",
       "description": "How long to show successful build status, in seconds. Failed status will be shown indefinitely. Negative means forever",

@@ -20,7 +20,7 @@ export class BuildStatus implements JSX.ElementClass {
     this.props = {
       ...props,
     }
-    this.setHideBuildStatus(atom.config.get("atom-typescript.buildStatusTimeout"))
+    this.setHideBuildStatus(atom.config.get("atom-typescript").buildStatusTimeout)
     this.resetBuildStatusTimeout()
     etch.initialize(this)
     this.disposables.add(

@@ -208,7 +208,7 @@ export class TypescriptServiceClient {
 }
 
 function startServer(tsServerPath: string): ChildProcess | undefined {
-  const locale = atom.config.get("atom-typescript.locale")
+  const locale = atom.config.get("atom-typescript").locale
   const tsServerArgs: string[] = locale ? ["--locale", locale] : []
   if (INSPECT_TSSERVER) {
     return new BufferedProcess({

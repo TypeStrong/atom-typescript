@@ -18,7 +18,7 @@ class BuildStatus {
             }
         };
         this.props = Object.assign({}, props);
-        this.setHideBuildStatus(atom.config.get("atom-typescript.buildStatusTimeout"));
+        this.setHideBuildStatus(atom.config.get("atom-typescript").buildStatusTimeout);
         this.resetBuildStatusTimeout();
         etch.initialize(this);
         this.disposables.add(atom.config.onDidChange("atom-typescript.buildStatusTimeout", ({ newValue }) => {

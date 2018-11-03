@@ -8,6 +8,8 @@ declare module "atom" {
     "atom-typescript.preferBuiltinTooltips": boolean
     "atom-typescript.preferBuiltinSigHelp": boolean
     "atom-typescript.preferBuiltinBusySignal": boolean
+    "atom-typescript.preferBuiltinOccurrenceHighlight": boolean
+    "atom-typescript.disableAtomIdeDefinitions": boolean
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
@@ -26,6 +28,8 @@ declare module "atom" {
       preferBuiltinTooltips: boolean
       preferBuiltinSigHelp: boolean
       preferBuiltinBusySignal: boolean
+      preferBuiltinOccurrenceHighlight: boolean
+      disableAtomIdeDefinitions: boolean
       buildStatusTimeout: number
       showSemanticView: boolean
       tooltipDelay: number

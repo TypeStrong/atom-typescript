@@ -167,7 +167,7 @@ class TypescriptServiceClient {
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
 function startServer(tsServerPath) {
-    const locale = atom.config.get("atom-typescript.locale");
+    const locale = atom.config.get("atom-typescript").locale;
     const tsServerArgs = locale ? ["--locale", locale] : [];
     if (INSPECT_TSSERVER) {
         return new atom_1.BufferedProcess({

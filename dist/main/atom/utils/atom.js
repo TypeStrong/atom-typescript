@@ -17,9 +17,9 @@ function isTypescriptFile(filePath) {
 }
 exports.isTypescriptFile = isTypescriptFile;
 function typeScriptScopes() {
-    const tsScopes = atom.config.get("atom-typescript.tsSyntaxScopes");
-    if (atom.config.get("atom-typescript.allowJS")) {
-        tsScopes.push(...atom.config.get("atom-typescript.jsSyntaxScopes"));
+    const tsScopes = atom.config.get("atom-typescript").tsSyntaxScopes;
+    if (atom.config.get("atom-typescript").allowJS) {
+        tsScopes.push(...atom.config.get("atom-typescript").jsSyntaxScopes);
     }
     return tsScopes;
 }
@@ -34,9 +34,9 @@ function isTypescriptGrammar(editor) {
 }
 exports.isTypescriptGrammar = isTypescriptGrammar;
 function isAllowedExtension(ext) {
-    const tsExts = atom.config.get("atom-typescript.tsFileExtensions");
-    if (atom.config.get("atom-typescript.allowJS")) {
-        tsExts.push(...atom.config.get("atom-typescript.jsFileExtensions"));
+    const tsExts = atom.config.get("atom-typescript").tsFileExtensions;
+    if (atom.config.get("atom-typescript").allowJS) {
+        tsExts.push(...atom.config.get("atom-typescript").jsFileExtensions);
     }
     return tsExts.includes(ext);
 }

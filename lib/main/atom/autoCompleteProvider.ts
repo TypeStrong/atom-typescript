@@ -25,7 +25,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public disableForSelector = ".comment"
 
   public inclusionPriority = 3
-  public suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
+  public suggestionPriority = atom.config.get("atom-typescript").autocompletionSuggestionPriority
   public excludeLowerPriority = false
 
   private lastSuggestions?: {

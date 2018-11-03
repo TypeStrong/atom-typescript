@@ -113,7 +113,7 @@ export class TooltipManager {
       this.clearExprTypeTimeout()
       this.exprTypeTimeout = window.setTimeout(
         () => this.showExpressionType(editor, e),
-        atom.config.get("atom-typescript.tooltipDelay"),
+        atom.config.get("atom-typescript").tooltipDelay,
       )
     }
   }
