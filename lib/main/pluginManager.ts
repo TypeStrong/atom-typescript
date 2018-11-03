@@ -11,6 +11,7 @@ import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {TSDatatipProvider} from "./atom-ide/datatipProvider"
 import {getFindReferencesProvider} from "./atom-ide/findReferencesProvider"
 import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
+import {getOutlineProvider} from "./atom-ide/outlineProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {CodefixProvider} from "./atom/codefix"
@@ -242,6 +243,10 @@ export class PluginManager {
 
   public provideReferences() {
     return getFindReferencesProvider(this.getClient)
+  }
+
+  public provideOutlines() {
+    return getOutlineProvider(this.getClient)
   }
 
   private clearErrors = () => {

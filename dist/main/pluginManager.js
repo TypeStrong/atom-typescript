@@ -10,6 +10,7 @@ const codeActionsProvider_1 = require("./atom-ide/codeActionsProvider");
 const datatipProvider_1 = require("./atom-ide/datatipProvider");
 const findReferencesProvider_1 = require("./atom-ide/findReferencesProvider");
 const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
+const outlineProvider_1 = require("./atom-ide/outlineProvider");
 const sigHelpProvider_1 = require("./atom-ide/sigHelpProvider");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const codefix_1 = require("./atom/codefix");
@@ -259,6 +260,9 @@ class PluginManager {
     }
     provideReferences() {
         return findReferencesProvider_1.getFindReferencesProvider(this.getClient);
+    }
+    provideOutlines() {
+        return outlineProvider_1.getOutlineProvider(this.getClient);
     }
     async showTooltipAt(ed) {
         if (this.usingBuiltinTooltipManager)

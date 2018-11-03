@@ -231,6 +231,11 @@
       "versions": {
         "0.1.0": "provideReferences"
       }
+    },
+    "outline-view": {
+      "versions": {
+        "0.1.0": "provideOutlines"
+      }
     }
   },
   "homepage": "https://github.com/TypeStrong/atom-typescript",

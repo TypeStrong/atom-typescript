@@ -6,6 +6,7 @@ import {
   DatatipService,
   FindReferencesProvider,
   HyperclickProvider,
+  OutlineProvider,
   SignatureHelpRegistry,
 } from "atom/ide"
 import {IndieDelegate} from "atom/linter"
@@ -92,4 +93,8 @@ export function provideHyperclick(): HyperclickProvider | undefined {
 
 export function provideReferences(): FindReferencesProvider | undefined {
   if (pluginManager) return pluginManager.provideReferences()
+}
+
+export function provideOutlines(): OutlineProvider | undefined {
+  if (pluginManager) return pluginManager.provideOutlines()
 }

@@ -87,4 +87,9 @@ function provideReferences() {
         return pluginManager.provideReferences();
 }
 exports.provideReferences = provideReferences;
+function provideOutlines() {
+    if (pluginManager)
+        return pluginManager.provideOutlines();
+}
+exports.provideOutlines = provideOutlines;
 //# sourceMappingURL=atomts.js.map
