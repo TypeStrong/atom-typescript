@@ -1,8 +1,8 @@
 import {Point, TextEditor} from "atom"
 import {SignatureHelp, SignatureHelpProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
+import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
 import {WithTypescriptBuffer} from "../pluginManager"
-import {signatureHelpItemToSignature, typeScriptScopes} from "./utils"
 
 export class TSSigHelpProvider implements SignatureHelpProvider {
   public triggerCharacters = new Set<string>(["(", ","])

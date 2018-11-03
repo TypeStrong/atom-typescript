@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const goToDeclaration_1 = require("./commands/goToDeclaration");
-const utils_1 = require("./utils");
+const goToDeclaration_1 = require("../atom/commands/goToDeclaration");
+const utils_1 = require("../atom/utils");
 function getHyperclickProvider(clientResolver, histGoForward) {
     return {
         providerName: "typescript-hyperclick-provider",

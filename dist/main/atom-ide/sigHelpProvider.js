@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("./utils");
+const utils_1 = require("../atom/utils");
 class TSSigHelpProvider {
     constructor(getClient, withTypescriptBuffer) {
         this.getClient = getClient;

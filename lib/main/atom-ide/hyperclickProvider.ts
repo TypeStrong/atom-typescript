@@ -1,8 +1,8 @@
 import * as Atom from "atom"
 import {ClientResolver} from "../../client"
-import {handleDefinitionResult} from "./commands/goToDeclaration"
-import {Dependencies} from "./commands/registry"
-import {isTypescriptEditorWithPath} from "./utils"
+import {handleDefinitionResult} from "../atom/commands/goToDeclaration"
+import {Dependencies} from "../atom/commands/registry"
+import {isTypescriptEditorWithPath} from "../atom/utils"
 
 export function getHyperclickProvider(
   clientResolver: ClientResolver,
