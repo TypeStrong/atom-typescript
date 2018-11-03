@@ -6,8 +6,9 @@ const fuzzaldrin = require("fuzzaldrin");
 const utils_1 = require("./utils");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
-    constructor(getClient, opts) {
+    constructor(getClient, flushTypescriptBuffer) {
         this.getClient = getClient;
+        this.flushTypescriptBuffer = flushTypescriptBuffer;
         this.selector = utils_1.typeScriptScopes()
             .map(x => (x.includes(".") ? `.${x}` : x))
             .join(", ");
@@ -15,7 +16,6 @@ class AutocompleteProvider {
         this.inclusionPriority = 3;
         this.suggestionPriority = atom.config.get("atom-typescript").autocompletionSuggestionPriority;
         this.excludeLowerPriority = false;
-        this.opts = opts;
     }
     async getSuggestions(opts) {
         const location = getLocationQuery(opts);
@@ -42,7 +42,7 @@ class AutocompleteProvider {
             }
         }
         // Flush any pending changes for this buffer to get up to date completions
-        await this.opts.flushTypescriptBuffer(location.file);
+        await this.flushTypescriptBuffer(location.file);
         try {
             let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
             const alphaPrefix = prefix.replace(/\W/g, "");
@@ -158,36 +158,43 @@ function completionEntryToSuggestion(entry) {
         text: entry.insertText !== undefined ? entry.insertText : entry.name,
         leftLabel: entry.kind,
         replacementRange: entry.replacementSpan ? utils_1.spanToRange(entry.replacementSpan) : undefined,
-        type: kindToType(entry.kind),
+        type: kindMap[entry.kind],
     };
 }
-/** See types :
- * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
- */
-function kindToType(kind) {
-    // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
-    switch (kind) {
-        case "const":
-            return "constant";
-        case "interface":
-            return "type";
-        case "identifier":
-            return "variable";
-        case "local function":
-            return "function";
-        case "local var":
-            return "variable";
-        case "let":
-        case "var":
-        case "parameter":
-            return "variable";
-        case "alias":
-            return "import";
-        case "type parameter":
-            return "type";
-        default:
-            return kind.split(" ")[0];
-    }
-}
-exports.kindToType = kindToType;
+const kindMap = {
+    directory: "require",
+    module: "import",
+    "external module name": "import",
+    class: "class",
+    "local class": "class",
+    method: "method",
+    property: "property",
+    getter: "property",
+    setter: "property",
+    "JSX attribute": "property",
+    constructor: "method",
+    enum: "type",
+    interface: "type",
+    type: "type",
+    "type parameter": "type",
+    "primitive type": "type",
+    function: "function",
+    "local function": "function",
+    label: "variable",
+    alias: "import",
+    var: "variable",
+    let: "variable",
+    "local var": "variable",
+    parameter: "variable",
+    "enum member": "constant",
+    const: "constant",
+    string: "value",
+    keyword: "keyword",
+    "": undefined,
+    warning: undefined,
+    script: undefined,
+    call: undefined,
+    index: undefined,
+    construct: undefined,
+};
 //# sourceMappingURL=autoCompleteProvider.js.map

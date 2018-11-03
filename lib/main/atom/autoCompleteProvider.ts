@@ -13,10 +13,6 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
   replacementRange?: Atom.Range
 }
 
-interface Options {
-  flushTypescriptBuffer: FlushTypescriptBuffer
-}
-
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public selector = typeScriptScopes()
     .map(x => (x.includes(".") ? `.${x}` : x))
@@ -42,11 +38,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[]
   }
 
-  private opts: Options
-
-  constructor(private getClient: GetClientFunction, opts: Options) {
-    this.opts = opts
-  }
+  constructor(
+    private getClient: GetClientFunction,
+    private flushTypescriptBuffer: FlushTypescriptBuffer,
+  ) {}
 
   public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
@@ -82,7 +77,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     // Flush any pending changes for this buffer to get up to date completions
-    await this.opts.flushTypescriptBuffer(location.file)
+    await this.flushTypescriptBuffer(location.file)
 
     try {
       let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
@@ -240,35 +235,61 @@ function completionEntryToSuggestion(entry: protocol.CompletionEntry): Suggestio
     text: entry.insertText !== undefined ? entry.insertText : entry.name,
     leftLabel: entry.kind,
     replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
-    type: kindToType(entry.kind),
+    type: kindMap[entry.kind],
   }
 }
 
-/** See types :
+/** From :
  * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
  */
-export function kindToType(kind: string) {
-  // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
-  switch (kind) {
-    case "const":
-      return "constant"
-    case "interface":
-      return "type"
-    case "identifier":
-      return "variable"
-    case "local function":
-      return "function"
-    case "local var":
-      return "variable"
-    case "let":
-    case "var":
-    case "parameter":
-      return "variable"
-    case "alias":
-      return "import"
-    case "type parameter":
-      return "type"
-    default:
-      return kind.split(" ")[0]
-  }
+type ACPCompletionType =
+  | "variable"
+  | "constant"
+  | "property"
+  | "value"
+  | "method"
+  | "function"
+  | "class"
+  | "type"
+  | "keyword"
+  | "tag"
+  | "import"
+  | "require"
+  | "snippet"
+
+const kindMap: {[key in protocol.ScriptElementKind]: ACPCompletionType | undefined} = {
+  directory: "require",
+  module: "import",
+  "external module name": "import",
+  class: "class",
+  "local class": "class",
+  method: "method",
+  property: "property",
+  getter: "property",
+  setter: "property",
+  "JSX attribute": "property",
+  constructor: "method",
+  enum: "type",
+  interface: "type",
+  type: "type",
+  "type parameter": "type",
+  "primitive type": "type",
+  function: "function",
+  "local function": "function",
+  label: "variable",
+  alias: "import",
+  var: "variable",
+  let: "variable",
+  "local var": "variable",
+  parameter: "variable",
+  "enum member": "constant",
+  const: "constant",
+  string: "value",
+  keyword: "keyword",
+  "": undefined,
+  warning: undefined,
+  script: undefined,
+  call: undefined,
+  index: undefined,
+  construct: undefined,
 }

@@ -253,11 +253,7 @@ class PluginManager {
     }
     // Registering an autocomplete provider
     provideAutocomplete() {
-        return [
-            new autoCompleteProvider_1.AutocompleteProvider(this.getClient, {
-                flushTypescriptBuffer: this.flushTypescriptBuffer,
-            }),
-        ];
+        return [new autoCompleteProvider_1.AutocompleteProvider(this.getClient, this.flushTypescriptBuffer)];
     }
     provideIntentions() {
         return intentionsProvider_1.getIntentionsProvider(this.codefixProvider);
