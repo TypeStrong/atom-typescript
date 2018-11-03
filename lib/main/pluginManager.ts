@@ -8,6 +8,7 @@ import * as path from "path"
 import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
+import {getCodeHighlightProvider} from "./atom-ide/codeHighlightProvider"
 import {TSDatatipProvider} from "./atom-ide/datatipProvider"
 import {getDefinitionProvider} from "./atom-ide/definitionsProvider"
 import {getFindReferencesProvider} from "./atom-ide/findReferencesProvider"
@@ -252,6 +253,11 @@ export class PluginManager {
 
   public provideDefinitions() {
     return getDefinitionProvider(this.getClient)
+  }
+
+  public provideCodeHighlight() {
+    this.occurrenceManager.dispose()
+    return getCodeHighlightProvider(this.getClient)
   }
 
   private clearErrors = () => {

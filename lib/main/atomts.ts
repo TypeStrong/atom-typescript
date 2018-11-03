@@ -3,6 +3,7 @@ import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {
   BusySignalService,
   CodeActionProvider,
+  CodeHighlightProvider,
   DatatipService,
   DefinitionProvider,
   FindReferencesProvider,
@@ -102,4 +103,8 @@ export function provideOutlines(): OutlineProvider | undefined {
 
 export function provideDefinitions(): DefinitionProvider | undefined {
   if (pluginManager) return pluginManager.provideDefinitions()
+}
+
+export function provideCodeHighlight(): CodeHighlightProvider | undefined {
+  if (pluginManager) return pluginManager.provideCodeHighlight()
 }

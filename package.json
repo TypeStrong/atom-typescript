@@ -241,6 +241,11 @@
       "versions": {
         "0.1.0": "provideDefinitions"
       }
+    },
+    "code-highlight": {
+      "versions": {
+        "0.1.0": "provideCodeHighlight"
+      }
     }
   },
   "homepage": "https://github.com/TypeStrong/atom-typescript",

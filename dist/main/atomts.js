@@ -97,4 +97,9 @@ function provideDefinitions() {
         return pluginManager.provideDefinitions();
 }
 exports.provideDefinitions = provideDefinitions;
+function provideCodeHighlight() {
+    if (pluginManager)
+        return pluginManager.provideCodeHighlight();
+}
+exports.provideCodeHighlight = provideCodeHighlight;
 //# sourceMappingURL=atomts.js.map

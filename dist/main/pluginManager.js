@@ -7,6 +7,7 @@ const path = require("path");
 const client_1 = require("../client");
 const utils_1 = require("../utils");
 const codeActionsProvider_1 = require("./atom-ide/codeActionsProvider");
+const codeHighlightProvider_1 = require("./atom-ide/codeHighlightProvider");
 const datatipProvider_1 = require("./atom-ide/datatipProvider");
 const definitionsProvider_1 = require("./atom-ide/definitionsProvider");
 const findReferencesProvider_1 = require("./atom-ide/findReferencesProvider");
@@ -267,6 +268,10 @@ class PluginManager {
     }
     provideDefinitions() {
         return definitionsProvider_1.getDefinitionProvider(this.getClient);
+    }
+    provideCodeHighlight() {
+        this.occurrenceManager.dispose();
+        return codeHighlightProvider_1.getCodeHighlightProvider(this.getClient);
     }
     async showTooltipAt(ed) {
         if (this.usingBuiltinTooltipManager)
