@@ -14,8 +14,8 @@ class SemanticView {
     get element() {
         return this.comp.element;
     }
-    async setWithTypescriptBuffer(wtb) {
-        await this.comp.setWithTypescriptBuffer(wtb);
+    async setGetClient(gc) {
+        await this.comp.setGetClient(gc);
         await this.comp.update({});
     }
     getTitle() {

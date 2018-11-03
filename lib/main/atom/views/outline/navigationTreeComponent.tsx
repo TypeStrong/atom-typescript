@@ -2,8 +2,8 @@ import {CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
+import {GetClientFunction} from "../../../../client"
 import {handlePromise} from "../../../../utils"
-import {WithTypescriptBuffer} from "../../../pluginManager"
 import atomUtils = require("../../utils")
 import {NavigationNodeComponent} from "./navigationNodeComponent"
 import {
@@ -26,7 +26,7 @@ export class NavigationTreeComponent
   private editorScrolling?: Disposable
   private editorChanging?: Disposable
   private selectedNode?: NavigationTreeViewModel
-  private withTypescriptBuffer?: WithTypescriptBuffer
+  private getClient?: GetClientFunction
 
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
@@ -53,8 +53,8 @@ export class NavigationTreeComponent
     await etch.destroy(this)
   }
 
-  public async setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
-    this.withTypescriptBuffer = wtb
+  public async setGetClient(getClient: GetClientFunction) {
+    this.getClient = getClient
     await this.loadNavTree()
   }
 
@@ -118,17 +118,17 @@ export class NavigationTreeComponent
 
   private loadNavTree = async () => {
     if (!this.editor) return
-    if (!this.withTypescriptBuffer) return
+    if (!this.getClient) return
     const filePath = this.editor.getPath()
     if (filePath === undefined) return
     try {
-      return await this.withTypescriptBuffer(filePath, async buffer => {
-        const navTree = await buffer.getNavTree()
-        if (navTree) {
-          this.setNavTree(navTree as NavigationTreeViewModel)
-          await etch.update(this)
-        }
-      })
+      const client = await this.getClient(filePath)
+      const navtreeResult = await client.execute("navtree", {file: filePath})
+      const navTree = navtreeResult.body
+      if (navTree) {
+        this.setNavTree(navTree as NavigationTreeViewModel)
+        await etch.update(this)
+      }
     } catch (err) {
       console.error(err, filePath)
     }

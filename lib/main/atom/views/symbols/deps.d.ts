@@ -1,6 +1,6 @@
-import {WithTypescriptBuffer} from "../../../pluginManager"
+import {GetClientFunction} from "../../../../client"
 import {EditorPositionHistoryManager} from "../../editorPositionHistoryManager"
 export interface Deps {
-  withTypescriptBuffer: WithTypescriptBuffer
+  getClient: GetClientFunction
   histGoForward: EditorPositionHistoryManager["goForward"]
 }

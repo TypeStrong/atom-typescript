@@ -12,19 +12,19 @@ class NavigationTreeComponent {
         this.loadNavTree = async () => {
             if (!this.editor)
                 return;
-            if (!this.withTypescriptBuffer)
+            if (!this.getClient)
                 return;
             const filePath = this.editor.getPath();
             if (filePath === undefined)
                 return;
             try {
-                return await this.withTypescriptBuffer(filePath, async (buffer) => {
-                    const navTree = await buffer.getNavTree();
-                    if (navTree) {
-                        this.setNavTree(navTree);
-                        await etch.update(this);
-                    }
-                });
+                const client = await this.getClient(filePath);
+                const navtreeResult = await client.execute("navtree", { file: filePath });
+                const navTree = navtreeResult.body;
+                if (navTree) {
+                    this.setNavTree(navTree);
+                    await etch.update(this);
+                }
             }
             catch (err) {
                 console.error(err, filePath);
@@ -81,8 +81,8 @@ class NavigationTreeComponent {
         this.selectedNode = undefined;
         await etch.destroy(this);
     }
-    async setWithTypescriptBuffer(wtb) {
-        this.withTypescriptBuffer = wtb;
+    async setGetClient(getClient) {
+        this.getClient = getClient;
         await this.loadNavTree();
     }
     getSelectedNode() {

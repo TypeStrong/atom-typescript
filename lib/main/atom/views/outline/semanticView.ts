@@ -1,4 +1,4 @@
-import {WithTypescriptBuffer} from "../../../pluginManager"
+import {GetClientFunction} from "../../../../client"
 import {NavigationTreeComponent} from "./navigationTreeComponent"
 import {NavigationTreeViewModel} from "./semanticViewModel"
 
@@ -29,8 +29,8 @@ export class SemanticView {
     this.comp = new NavigationTreeComponent({navTree: config.navTree})
   }
 
-  public async setWithTypescriptBuffer(wtb: WithTypescriptBuffer) {
-    await this.comp.setWithTypescriptBuffer(wtb)
+  public async setGetClient(gc: GetClientFunction) {
+    await this.comp.setGetClient(gc)
     await this.comp.update({})
   }
 

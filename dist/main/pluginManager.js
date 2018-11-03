@@ -118,13 +118,13 @@ class PluginManager {
         this.subscriptions.add(this.errorPusher);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
-        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.withTypescriptBuffer);
+        this.semanticViewController = new semanticViewController_1.SemanticViewController(this.getClient);
         this.subscriptions.add(this.semanticViewController);
         this.editorPosHist = new editorPositionHistoryManager_1.EditorPositionHistoryManager(state && state.editorPosHistState);
         this.subscriptions.add(this.editorPosHist);
         this.symbolsViewController = new symbolsViewController_1.SymbolsViewController({
             histGoForward: this.histGoForward,
-            withTypescriptBuffer: this.withTypescriptBuffer,
+            getClient: this.getClient,
         });
         this.subscriptions.add(this.symbolsViewController);
         this.tooltipManager = new manager_3.TooltipManager(this.getClient);

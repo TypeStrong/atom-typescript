@@ -83,7 +83,7 @@ export class PluginManager {
     )
     this.subscriptions.add(this.codefixProvider)
 
-    this.semanticViewController = new SemanticViewController(this.withTypescriptBuffer)
+    this.semanticViewController = new SemanticViewController(this.getClient)
     this.subscriptions.add(this.semanticViewController)
 
     this.editorPosHist = new EditorPositionHistoryManager(state && state.editorPosHistState)
@@ -91,7 +91,7 @@ export class PluginManager {
 
     this.symbolsViewController = new SymbolsViewController({
       histGoForward: this.histGoForward,
-      withTypescriptBuffer: this.withTypescriptBuffer,
+      getClient: this.getClient,
     })
     this.subscriptions.add(this.symbolsViewController)
 

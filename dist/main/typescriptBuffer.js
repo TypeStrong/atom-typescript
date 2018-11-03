@@ -106,37 +106,6 @@ class TypescriptBuffer {
             });
         }
     }
-    async getNavTree() {
-        if (!this.state)
-            return;
-        const client = this.state.client;
-        try {
-            const navtreeResult = await client.execute("navtree", { file: this.state.filePath });
-            return navtreeResult.body;
-        }
-        catch (err) {
-            console.error(err, this.state.filePath);
-        }
-        return;
-    }
-    async getNavTo(search) {
-        if (!this.state)
-            return;
-        const client = this.state.client;
-        try {
-            const navtoResult = await client.execute("navto", {
-                file: this.state.filePath,
-                currentFileOnly: false,
-                searchValue: search,
-                maxResultCount: 1000,
-            });
-            return navtoResult.body;
-        }
-        catch (err) {
-            console.error(err, this.state.filePath);
-        }
-        return;
-    }
     getInfo() {
         if (!this.state)
             return;
