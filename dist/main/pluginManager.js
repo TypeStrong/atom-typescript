@@ -100,7 +100,9 @@ class PluginManager {
             buffer.buffer.transact(() => {
                 const changes = edit.textChanges
                     .map(e => ({ range: utils_2.spanToRange(e), newText: e.newText }))
+                    .reverse() // NOTE: needs reverse for cases where ranges are same for two changes
                     .sort((a, b) => b.range.compare(a.range));
+                console.log(edit.textChanges, changes);
                 for (const change of changes) {
                     buffer.buffer.setTextInRange(change.range, change.newText);
                 }
