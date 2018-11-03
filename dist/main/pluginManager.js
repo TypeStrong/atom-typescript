@@ -44,7 +44,7 @@ class PluginManager {
             return this.clientResolver.get(filePath);
         };
         this.killAllServers = () => {
-            utils_1.handlePromise(this.clientResolver.killAllServers());
+            utils_1.handlePromise(this.clientResolver.restartAllServers());
         };
         this.withTypescriptBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);

@@ -8,13 +8,14 @@ class Callbacks {
     }
     async add(seq, command) {
         try {
-            return await this.reportBusyWhile(command, () => new Promise((resolve, reject) => {
+            const promise = new Promise((resolve, reject) => {
                 this.callbacks.set(seq, {
                     resolve,
                     reject,
                     started: Date.now(),
                 });
-            }));
+            });
+            return await this.reportBusyWhile(command, () => promise);
         }
         finally {
             this.callbacks.delete(seq);

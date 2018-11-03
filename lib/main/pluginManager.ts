@@ -275,7 +275,7 @@ export class PluginManager {
   }
 
   private killAllServers = () => {
-    handlePromise(this.clientResolver.killAllServers())
+    handlePromise(this.clientResolver.restartAllServers())
   }
 
   private withTypescriptBuffer: WithTypescriptBuffer = async (filePath, action) => {

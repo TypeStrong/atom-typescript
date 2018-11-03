@@ -47,7 +47,7 @@ class CodefixProvider {
         if (codes) {
             return codes;
         }
-        const result = await client.execute("getSupportedCodeFixes", undefined);
+        const result = await client.execute("getSupportedCodeFixes");
         if (!result.body) {
             throw new Error("No code fixes are supported");
         }

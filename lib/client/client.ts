@@ -5,19 +5,19 @@ import {ChildProcess} from "child_process"
 import {Readable, Transform} from "stream"
 import * as protocol from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
-import {handlePromise} from "../utils"
 import {Callbacks} from "./callbacks"
-import {CommandArg, CommandArgResponseMap, CommandRes} from "./commandArgsResponseMap"
+import {
+  AllTSClientCommands,
+  CommandArg,
+  CommandRes,
+  CommandsWithResponse,
+} from "./commandArgsResponseMap"
 import {EventTypes} from "./events"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-type CommandArgResponseKeysWithArgs = {
-  [K in keyof CommandArgResponseMap]: CommandRes<K> extends void ? never : K
-}[keyof CommandArgResponseMap]
-
-const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: true} = {
+const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   compileOnSaveAffectedFileList: true,
   compileOnSaveEmitFile: true,
   completionEntryDetails: true,
@@ -37,12 +37,15 @@ const commandWithResponseMap: {readonly [K in CommandArgResponseKeysWithArgs]: t
   navto: true,
   getApplicableRefactors: true,
   getEditsForRefactor: true,
-  ping: true,
   organizeImports: true,
   signatureHelp: true,
 }
 
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
+
+function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
+  return commandWithResponse.has(command)
+}
 
 export class TypescriptServiceClient {
   /** Callbacks that are waiting for responses */
@@ -56,8 +59,7 @@ export class TypescriptServiceClient {
   >()
   private seq = 0
 
-  private serverPromise: Promise<ChildProcess>
-  private running = false
+  private server?: ChildProcess
   private lastStderrOutput = ""
   private lastStartAttempt?: number
 
@@ -70,68 +72,82 @@ export class TypescriptServiceClient {
     private reportBusyWhile: ReportBusyWhile,
   ) {
     this.callbacks = new Callbacks(this.reportBusyWhile)
-    this.serverPromise = this.startServer()
+    this.server = this.startServer()
   }
 
-  public async execute<T extends keyof CommandArgResponseMap>(
+  public async execute<T extends AllTSClientCommands>(
     command: T,
-    args: CommandArg<T>,
+    ...args: CommandArg<T>
   ): Promise<CommandRes<T>> {
-    if (!this.running) {
+    if (!this.server) {
       throw new Error("Server is not running")
     }
 
-    return this.sendRequest(await this.serverPromise, command, args)
+    const req = {
+      seq: this.seq++,
+      command,
+      arguments: args[0],
+    }
+
+    if (window.atom_typescript_debug) {
+      console.log("sending request", command, "with args", args)
+    }
+
+    const result = isCommandWithResponse(command)
+      ? this.callbacks.add(req.seq, command)
+      : (undefined as CommandRes<T>)
+
+    try {
+      this.server.stdin.write(JSON.stringify(req) + "\n")
+    } catch (error) {
+      this.callbacks.error(req.seq, error as Error)
+    }
+    return result
   }
 
-  public async killServer() {
-    if (this.running) {
+  public async restartServer() {
+    if (this.server) {
       this.lastStartAttempt = undefined // reset auto-restart loop guard
-      const server = await this.serverPromise
+      const server = this.server
       const graceTimer = setTimeout(() => server.kill(), 10000)
-      await this.sendRequest(server, "exit", undefined)
+      await this.execute("exit")
       clearTimeout(graceTimer)
+    } else {
+      this.server = this.startServer()
+      this.emitter.emit("restarted", undefined)
     }
   }
 
   private startServer() {
-    return new Promise<ChildProcess>((resolve, reject) => {
-      this.running = true
-      if (window.atom_typescript_debug) {
-        console.log("starting", this.tsServerPath)
-      }
+    if (window.atom_typescript_debug) {
+      console.log("starting", this.tsServerPath)
+    }
 
-      this.lastStartAttempt = Date.now()
-      const cp = startServer(this.tsServerPath)
+    this.lastStartAttempt = Date.now()
+    const cp = startServer(this.tsServerPath)
 
-      const h = this.exitHandler(reject)
-      if (!cp) {
-        h(new Error("ChildProcess failed to start"))
-        return
-      }
+    if (!cp) throw new Error("ChildProcess failed to start")
 
-      cp.once("error", h)
-      cp.once("exit", (code: number | null, signal: string | null) => {
-        if (code === 0) h(new Error("Server stopped normally"), false)
-        else if (code !== null) h(new Error(`exited with code: ${code}`))
-        else if (signal !== null) h(new Error(`terminated on signal: ${signal}`))
-      })
-
-      // Pipe both stdout and stderr appropriately
-      messageStream(cp.stdout).on("data", this.onMessage)
-      cp.stderr.on("data", data => {
-        console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()))
-      })
-
-      this.sendRequest(cp, "ping", undefined).then(() => resolve(cp), () => resolve(cp))
+    const h = this.exitHandler
+    cp.once("error", h)
+    cp.once("exit", (code: number | null, signal: string | null) => {
+      if (code === 0) h(new Error("Server stopped normally"), false)
+      else if (code !== null) h(new Error(`exited with code: ${code}`))
+      else if (signal !== null) h(new Error(`terminated on signal: ${signal}`))
     })
+
+    // Pipe both stdout and stderr appropriately
+    messageStream(cp.stdout).on("data", this.onMessage)
+    cp.stderr.on("data", data => {
+      console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()))
+    })
+    return cp
   }
 
-  private exitHandler = (reject: (err: Error) => void) => (err: Error, report = true) => {
+  private exitHandler = (err: Error, report = true) => {
     this.callbacks.rejectAll(err)
     if (report) console.error("tsserver: ", err)
-    reject(err)
-    this.running = false
+    this.server = undefined
 
     setImmediate(() => {
       if (report) {
@@ -146,13 +162,12 @@ export class TypescriptServiceClient {
         })
       }
       if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
-        this.serverPromise = this.startServer()
-        handlePromise(this.serverPromise.then(() => this.emitter.emit("restarted", undefined)))
+        this.server = this.startServer()
+        this.emitter.emit("restarted", undefined)
       } else {
         atom.notifications.addWarning("Not restarting tsserver", {
           detail: "Restarting too fast",
         })
-        this.emitter.dispose()
       }
     })
   }
@@ -173,37 +188,6 @@ export class TypescriptServiceClient {
 
     // tslint:disable-next-line:no-unsafe-any
     if (res.body) this.emitter.emit(res.event as keyof EventTypes, res.body)
-  }
-
-  private async sendRequest<T extends keyof CommandArgResponseMap>(
-    cp: ChildProcess,
-    command: T,
-    args: CommandArg<T>,
-  ): Promise<CommandRes<T>> {
-    const expectResponse = commandWithResponse.has(command)
-    const req = {
-      seq: this.seq++,
-      command,
-      arguments: args,
-    }
-
-    if (window.atom_typescript_debug) {
-      console.log("sending request", command, "with args", args)
-    }
-
-    setImmediate(() => {
-      try {
-        cp.stdin.write(JSON.stringify(req) + "\n")
-      } catch (error) {
-        this.callbacks.error(req.seq, error as Error)
-      }
-    })
-
-    if (expectResponse) {
-      return this.callbacks.add(req.seq, command) as CommandRes<T>
-    } else {
-      return undefined as CommandRes<T>
-    }
   }
 }
 

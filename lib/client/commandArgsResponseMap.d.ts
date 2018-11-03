@@ -11,7 +11,7 @@ export interface CommandArgResponseMap {
   definition: (x: p.FileLocationRequestArgs) => p.DefinitionResponse
   format: (x: p.FormatRequestArgs) => p.FormatResponse
   getCodeFixes: (x: p.CodeFixRequestArgs) => p.GetCodeFixesResponse
-  getSupportedCodeFixes: (x: undefined) => p.GetSupportedCodeFixesResponse
+  getSupportedCodeFixes: () => p.GetSupportedCodeFixesResponse
   geterr: (x: p.GeterrRequestArgs) => void
   geterrForProject: (x: p.GeterrForProjectRequestArgs) => void
   occurrences: (x: p.FileLocationRequestArgs) => p.OccurrencesResponse
@@ -24,18 +24,23 @@ export interface CommandArgResponseMap {
   saveto: (x: p.SavetoRequestArgs) => void
   navtree: (x: p.FileRequestArgs) => p.NavTreeResponse
   navto: (x: p.NavtoRequestArgs) => p.NavtoResponse
-  reloadProjects: (x: undefined) => void
+  reloadProjects: () => void
   getApplicableRefactors: (
     x: p.GetApplicableRefactorsRequestArgs,
   ) => p.GetApplicableRefactorsResponse
   getEditsForRefactor: (x: p.GetEditsForRefactorRequestArgs) => p.GetEditsForRefactorResponse
-  ping: (x: undefined) => null
   organizeImports: (x: p.OrganizeImportsRequestArgs) => p.OrganizeImportsResponse
-  exit: (x: undefined) => void
+  exit: () => void
   signatureHelp: (x: p.SignatureHelpRequestArgs) => p.SignatureHelpResponse
 }
 
-export type ArgType<T extends (x: any) => any> = T extends (x: infer U) => any ? U : never
+export type AllTSClientCommands = keyof CommandArgResponseMap
 
-export type CommandArg<T extends keyof CommandArgResponseMap> = ArgType<CommandArgResponseMap[T]>
-export type CommandRes<T extends keyof CommandArgResponseMap> = ReturnType<CommandArgResponseMap[T]>
+export type CommandsWithResponse = {
+  [K in AllTSClientCommands]: CommandRes<K> extends void ? never : K
+}[AllTSClientCommands]
+
+export type ArgType<T extends (x: any) => any> = T extends (...x: infer U) => any ? U : never
+
+export type CommandArg<T extends AllTSClientCommands> = ArgType<CommandArgResponseMap[T]>
+export type CommandRes<T extends AllTSClientCommands> = ReturnType<CommandArgResponseMap[T]>

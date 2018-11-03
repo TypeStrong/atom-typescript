@@ -18,8 +18,8 @@ class ClientResolver {
         // tslint:disable-next-line:member-ordering
         this.on = this.emitter.on.bind(this.emitter);
     }
-    async killAllServers() {
-        await Promise.all(Array.from(this.getAllClients()).map(client => client.killServer()));
+    async restartAllServers() {
+        await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");

@@ -1,10 +1,10 @@
-import * as protocol from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
+import {CommandRes, CommandsWithResponse} from "./commandArgsResponseMap"
 
 interface Request {
   started: number
   reject(err: Error): void
-  resolve(res: protocol.Response): void
+  resolve(res: any): void
 }
 
 // Callbacks keeps track of all the outstanding requests
@@ -13,19 +13,19 @@ export class Callbacks {
 
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
-  public async add(seq: number, command: string) {
+  public async add<T extends CommandsWithResponse>(
+    seq: number,
+    command: T,
+  ): Promise<CommandRes<T>> {
     try {
-      return await this.reportBusyWhile(
-        command,
-        () =>
-          new Promise<protocol.Response>((resolve, reject) => {
-            this.callbacks.set(seq, {
-              resolve,
-              reject,
-              started: Date.now(),
-            })
-          }),
-      )
+      const promise = new Promise<CommandRes<T>>((resolve, reject) => {
+        this.callbacks.set(seq, {
+          resolve,
+          reject,
+          started: Date.now(),
+        })
+      })
+      return await this.reportBusyWhile(command, () => promise)
     } finally {
       this.callbacks.delete(seq)
     }
@@ -39,7 +39,7 @@ export class Callbacks {
     this.callbacks.clear()
   }
 
-  public resolve(seq: number, res: protocol.Response): void {
+  public resolve<T extends CommandsWithResponse>(seq: number, res: CommandRes<T>): void {
     const req = this.callbacks.get(seq)
     if (req) {
       if (window.atom_typescript_debug) {
