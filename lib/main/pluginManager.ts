@@ -7,11 +7,14 @@ import {throttle} from "lodash"
 import * as path from "path"
 import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
+import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {TSDatatipProvider} from "./atom-ide/datatipProvider"
+import {getFindReferencesProvider} from "./atom-ide/findReferencesProvider"
 import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
-import {CodeActionsProvider, CodefixProvider, IntentionsProvider} from "./atom/codefix"
+import {CodefixProvider} from "./atom/codefix"
+import {getIntentionsProvider} from "./atom/codefix/intentionsProvider"
 import {registerCommands} from "./atom/commands"
 import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
@@ -219,22 +222,26 @@ export class PluginManager {
   // Registering an autocomplete provider
   public provideAutocomplete() {
     return [
-      new AutocompleteProvider(this.clientResolver, {
+      new AutocompleteProvider(this.getClient, {
         withTypescriptBuffer: this.withTypescriptBuffer,
       }),
     ]
   }
 
   public provideIntentions() {
-    return new IntentionsProvider(this.codefixProvider)
+    return getIntentionsProvider(this.codefixProvider)
   }
 
-  public provideCodeActions(): CodeActionsProvider {
-    return new CodeActionsProvider(this.codefixProvider)
+  public provideCodeActions() {
+    return getCodeActionsProvider(this.codefixProvider)
   }
 
   public provideHyperclick() {
-    return getHyperclickProvider(this.clientResolver, this.histGoForward)
+    return getHyperclickProvider(this.getClient, this.histGoForward)
+  }
+
+  public provideReferences() {
+    return getFindReferencesProvider(this.getClient)
   }
 
   private clearErrors = () => {

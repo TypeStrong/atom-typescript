@@ -2,7 +2,7 @@
 import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
-import {ClientResolver, TSClient} from "../../client"
+import {GetClientFunction, TSClient} from "../../client"
 import {WithTypescriptBuffer} from "../pluginManager"
 import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
@@ -28,7 +28,6 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
   public excludeLowerPriority = false
 
-  private clientResolver: ClientResolver
   private lastSuggestions?: {
     // Client used to get the suggestions
     client: TSClient
@@ -45,8 +44,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
   private opts: Options
 
-  constructor(clientResolver: ClientResolver, opts: Options) {
-    this.clientResolver = clientResolver
+  constructor(private getClient: GetClientFunction, opts: Options) {
     this.opts = opts
   }
 
@@ -161,7 +159,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       }
     }
 
-    const client = await this.clientResolver.get(location.file)
+    const client = await this.getClient(location.file)
     const completions = await client.execute("completions", {
       prefix,
       includeExternalModuleExports: false,

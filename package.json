@@ -226,6 +226,11 @@
       "versions": {
         "0.1.0": "provideCodeActions"
       }
+    },
+    "find-references": {
+      "versions": {
+        "0.1.0": "provideReferences"
+      }
     }
   },
   "homepage": "https://github.com/TypeStrong/atom-typescript",

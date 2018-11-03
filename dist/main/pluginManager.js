@@ -6,11 +6,14 @@ const lodash_1 = require("lodash");
 const path = require("path");
 const client_1 = require("../client");
 const utils_1 = require("../utils");
+const codeActionsProvider_1 = require("./atom-ide/codeActionsProvider");
 const datatipProvider_1 = require("./atom-ide/datatipProvider");
+const findReferencesProvider_1 = require("./atom-ide/findReferencesProvider");
 const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
 const sigHelpProvider_1 = require("./atom-ide/sigHelpProvider");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
 const codefix_1 = require("./atom/codefix");
+const intentionsProvider_1 = require("./atom/codefix/intentionsProvider");
 const commands_1 = require("./atom/commands");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
@@ -240,19 +243,22 @@ class PluginManager {
     // Registering an autocomplete provider
     provideAutocomplete() {
         return [
-            new autoCompleteProvider_1.AutocompleteProvider(this.clientResolver, {
+            new autoCompleteProvider_1.AutocompleteProvider(this.getClient, {
                 withTypescriptBuffer: this.withTypescriptBuffer,
             }),
         ];
     }
     provideIntentions() {
-        return new codefix_1.IntentionsProvider(this.codefixProvider);
+        return intentionsProvider_1.getIntentionsProvider(this.codefixProvider);
     }
     provideCodeActions() {
-        return new codefix_1.CodeActionsProvider(this.codefixProvider);
+        return codeActionsProvider_1.getCodeActionsProvider(this.codefixProvider);
     }
     provideHyperclick() {
-        return hyperclickProvider_1.getHyperclickProvider(this.clientResolver, this.histGoForward);
+        return hyperclickProvider_1.getHyperclickProvider(this.getClient, this.histGoForward);
+    }
+    provideReferences() {
+        return findReferencesProvider_1.getFindReferencesProvider(this.getClient);
     }
     async showTooltipAt(ed) {
         if (this.usingBuiltinTooltipManager)

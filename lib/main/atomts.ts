@@ -1,5 +1,13 @@
 import {DisposableLike} from "atom"
-import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom/ide"
+import {AutocompleteProvider} from "atom/autocomplete-plus"
+import {
+  BusySignalService,
+  CodeActionProvider,
+  DatatipService,
+  FindReferencesProvider,
+  HyperclickProvider,
+  SignatureHelpRegistry,
+} from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {SemanticView, SemanticViewSerializationData} from "./atom/views/outline/semanticView"
@@ -66,7 +74,7 @@ export function consumeBusySignal(busySignalService: BusySignalService): Disposa
 }
 
 ////////////////////////////////// Providers ///////////////////////////////////
-export function provideAutocomplete() {
+export function provideAutocomplete(): AutocompleteProvider[] | undefined {
   if (pluginManager) return pluginManager.provideAutocomplete()
 }
 
@@ -74,10 +82,14 @@ export function provideIntentions() {
   if (pluginManager) return pluginManager.provideIntentions()
 }
 
-export function provideCodeActions() {
+export function provideCodeActions(): CodeActionProvider | undefined {
   if (pluginManager) return pluginManager.provideCodeActions()
 }
 
-export function provideHyperclick() {
+export function provideHyperclick(): HyperclickProvider | undefined {
   if (pluginManager) return pluginManager.provideHyperclick()
+}
+
+export function provideReferences(): FindReferencesProvider | undefined {
+  if (pluginManager) return pluginManager.provideReferences()
 }

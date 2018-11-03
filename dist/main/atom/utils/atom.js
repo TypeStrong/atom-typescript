@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
+const ts_1 = require("./ts");
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor) {
     const pos = editor.getCursorBufferPosition();
@@ -39,10 +40,11 @@ function isAllowedExtension(ext) {
     }
     return tsExts.includes(ext);
 }
-function getFilePathPosition(editor) {
+function getFilePathPosition(editor, position) {
     const file = editor.getPath();
     if (file !== undefined) {
-        return Object.assign({ file }, getEditorPosition(editor));
+        const location = position ? ts_1.pointToLocation(position) : getEditorPosition(editor);
+        return Object.assign({ file }, location);
     }
 }
 exports.getFilePathPosition = getFilePathPosition;

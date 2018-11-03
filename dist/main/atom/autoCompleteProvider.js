@@ -6,7 +6,8 @@ const fuzzaldrin = require("fuzzaldrin");
 const utils_1 = require("./utils");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
-    constructor(clientResolver, opts) {
+    constructor(getClient, opts) {
+        this.getClient = getClient;
         this.selector = utils_1.typeScriptScopes()
             .map(x => (x.includes(".") ? `.${x}` : x))
             .join(", ");
@@ -14,7 +15,6 @@ class AutocompleteProvider {
         this.inclusionPriority = 3;
         this.suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority");
         this.excludeLowerPriority = false;
-        this.clientResolver = clientResolver;
         this.opts = opts;
     }
     async getSuggestions(opts) {
@@ -93,7 +93,7 @@ class AutocompleteProvider {
                 }
             }
         }
-        const client = await this.clientResolver.get(location.file);
+        const client = await this.getClient(location.file);
         const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
         const suggestions = completions.body.map(completionEntryToSuggestion);
         this.lastSuggestions = {

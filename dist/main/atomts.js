@@ -82,4 +82,9 @@ function provideHyperclick() {
         return pluginManager.provideHyperclick();
 }
 exports.provideHyperclick = provideHyperclick;
+function provideReferences() {
+    if (pluginManager)
+        return pluginManager.provideReferences();
+}
+exports.provideReferences = provideReferences;
 //# sourceMappingURL=atomts.js.map
