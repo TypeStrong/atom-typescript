@@ -10,13 +10,37 @@ interface Intention {
   selected: () => void
 }
 
+interface IntentionHighlight {
+  range: Atom.Range
+  created: (args: CreatedCallbackArgs) => void
+}
+
+interface CreatedCallbackArgs {
+  textEditor: Atom.TextEditor
+  element: HTMLElement
+  marker: Atom.DisplayMarker
+  matchedText: string
+}
+
 interface IntentionsProviderInterface {
   grammarScopes: string[]
   getIntentions: (opts: GetIntentionsOptions) => Intention[] | Promise<Intention[]>
 }
 
+interface IntentionsHighlightsProviderInterface {
+  grammarScopes: string[]
+  getIntentions: (
+    opts: GetIntentionsHighlightsOptions,
+  ) => IntentionHighlight[] | Promise<IntentionHighlight[]>
+}
+
 interface GetIntentionsOptions {
   bufferPosition: Atom.Point
+  textEditor: Atom.TextEditor
+}
+
+interface GetIntentionsHighlightsOptions {
+  visibleRange: Atom.Range
   textEditor: Atom.TextEditor
 }
 
@@ -25,12 +49,28 @@ export function getIntentionsProvider(
 ): IntentionsProviderInterface {
   return {
     grammarScopes: ["*"],
-    async getIntentions({bufferPosition, textEditor}: GetIntentionsOptions): Promise<Intention[]> {
+    async getIntentions({bufferPosition, textEditor}) {
       return (await codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
         priority: 100,
         title: fix.description,
         selected: () => {
           handlePromise(codefixProvider.applyFix(fix))
+        },
+      }))
+    },
+  }
+}
+
+export function getIntentionsHighlightsProvider(
+  codefixProvider: CodefixProvider,
+): IntentionsHighlightsProviderInterface {
+  return {
+    grammarScopes: ["*"],
+    async getIntentions({visibleRange, textEditor}) {
+      return (await codefixProvider.getFixableRanges(textEditor, visibleRange)).map(range => ({
+        range,
+        created: (_opts: CreatedCallbackArgs) => {
+          // NOOP
         },
       }))
     },

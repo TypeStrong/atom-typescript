@@ -8,14 +8,25 @@ class CodefixProvider {
         this.applyEdits = applyEdits;
         this.supportedFixes = new WeakMap();
     }
+    async getFixableRanges(textEditor, range) {
+        const filePath = textEditor.getPath();
+        if (filePath === undefined)
+            return [];
+        const errors = this.errorPusher.getErrorsInRange(filePath, range);
+        const client = await this.clientResolver.get(filePath);
+        const supportedCodes = await this.getSupportedFixes(client);
+        const ranges = Array.from(errors)
+            .filter(error => error.code !== undefined && supportedCodes.has(error.code))
+            .map(error => utils_1.spanToRange(error));
+        return ranges;
+    }
     async runCodeFix(textEditor, bufferPosition) {
         const filePath = textEditor.getPath();
         if (filePath === undefined)
             return [];
         const client = await this.clientResolver.get(filePath);
         const supportedCodes = await this.getSupportedFixes(client);
-        const requests = this.errorPusher
-            .getErrorsAt(filePath, utils_1.pointToLocation(bufferPosition))
+        const requests = Array.from(this.errorPusher.getErrorsAt(filePath, bufferPosition))
             .filter(error => error.code !== undefined && supportedCodes.has(error.code))
             .map(error => client.execute("getCodeFixes", {
             file: filePath,

@@ -85,6 +85,10 @@ export function provideIntentions() {
   if (pluginManager) return pluginManager.provideIntentions()
 }
 
+export function provideIntentionsHighlight() {
+  if (pluginManager) return pluginManager.provideIntentionsHighlight()
+}
+
 export function provideCodeActions(): CodeActionProvider | undefined {
   if (pluginManager) return pluginManager.provideCodeActions()
 }

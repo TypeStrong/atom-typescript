@@ -258,6 +258,9 @@ class PluginManager {
     provideIntentions() {
         return intentionsProvider_1.getIntentionsProvider(this.codefixProvider);
     }
+    provideIntentionsHighlight() {
+        return intentionsProvider_1.getIntentionsHighlightsProvider(this.codefixProvider);
+    }
     provideCodeActions() {
         return codeActionsProvider_1.getCodeActionsProvider(this.codefixProvider);
     }

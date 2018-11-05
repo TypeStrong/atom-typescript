@@ -27,31 +27,6 @@ function rangeToLocationRange(range) {
     };
 }
 exports.rangeToLocationRange = rangeToLocationRange;
-// Compare loc2 with loc1. The result is -1 if loc1 is smaller and 1 if it's larger.
-function compareLocation(loc1, loc2) {
-    if (loc1.line < loc2.line) {
-        return -1;
-    }
-    else if (loc1.line > loc2.line) {
-        return 1;
-    }
-    else {
-        if (loc1.offset < loc2.offset) {
-            return -1;
-        }
-        else if (loc1.offset > loc2.offset) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-exports.compareLocation = compareLocation;
-function isLocationInRange(loc, range) {
-    return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1;
-}
-exports.isLocationInRange = isLocationInRange;
 async function getProjectConfig(configFile) {
     const { config } = await tsconfig.load(configFile);
     const options = config.formatCodeOptions;

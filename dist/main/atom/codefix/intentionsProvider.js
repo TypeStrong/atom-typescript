@@ -16,4 +16,18 @@ function getIntentionsProvider(codefixProvider) {
     };
 }
 exports.getIntentionsProvider = getIntentionsProvider;
+function getIntentionsHighlightsProvider(codefixProvider) {
+    return {
+        grammarScopes: ["*"],
+        async getIntentions({ visibleRange, textEditor }) {
+            return (await codefixProvider.getFixableRanges(textEditor, visibleRange)).map(range => ({
+                range,
+                created: (_opts) => {
+                    // NOOP
+                },
+            }));
+        },
+    };
+}
+exports.getIntentionsHighlightsProvider = getIntentionsHighlightsProvider;
 //# sourceMappingURL=intentionsProvider.js.map

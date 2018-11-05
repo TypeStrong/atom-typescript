@@ -46,27 +46,6 @@ export function rangeToLocationRange(range: Atom.Range): LocationRangeQuery {
   }
 }
 
-// Compare loc2 with loc1. The result is -1 if loc1 is smaller and 1 if it's larger.
-export function compareLocation(loc1: Location, loc2: Location) {
-  if (loc1.line < loc2.line) {
-    return -1
-  } else if (loc1.line > loc2.line) {
-    return 1
-  } else {
-    if (loc1.offset < loc2.offset) {
-      return -1
-    } else if (loc1.offset > loc2.offset) {
-      return 1
-    } else {
-      return 0
-    }
-  }
-}
-
-export function isLocationInRange(loc: Location, range: {start: Location; end: Location}) {
-  return compareLocation(range.start, loc) !== 1 && compareLocation(range.end, loc) !== -1
-}
-
 export async function getProjectConfig(
   configFile: string,
 ): Promise<{

@@ -15,16 +15,20 @@ class ErrorPusher {
         }));
         this.pushErrors = lodash_1.debounce(this.pushErrors.bind(this), 100);
     }
-    /** Return any errors that cover the given location */
-    getErrorsAt(filePath, loc) {
-        const result = [];
+    *getErrorsInRange(filePath, range) {
         for (const prefixed of this.errors.values()) {
             const errors = prefixed.get(path.normalize(filePath));
-            if (errors) {
-                result.push(...errors.filter(err => utils_1.isLocationInRange(loc, err)));
-            }
+            if (errors)
+                yield* errors.filter(err => utils_1.spanToRange(err).intersectsWith(range));
         }
-        return result;
+    }
+    /** Return any errors that cover the given location */
+    *getErrorsAt(filePath, loc) {
+        for (const prefixed of this.errors.values()) {
+            const errors = prefixed.get(path.normalize(filePath));
+            if (errors)
+                yield* errors.filter(err => utils_1.spanToRange(err).containsPoint(loc));
+        }
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
     setErrors(prefix, filePath, errors) {

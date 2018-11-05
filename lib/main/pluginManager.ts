@@ -17,7 +17,10 @@ import {getOutlineProvider} from "./atom-ide/outlineProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
 import {CodefixProvider} from "./atom/codefix"
-import {getIntentionsProvider} from "./atom/codefix/intentionsProvider"
+import {
+  getIntentionsHighlightsProvider,
+  getIntentionsProvider,
+} from "./atom/codefix/intentionsProvider"
 import {registerCommands} from "./atom/commands"
 import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
@@ -226,6 +229,10 @@ export class PluginManager {
 
   public provideIntentions() {
     return getIntentionsProvider(this.codefixProvider)
+  }
+
+  public provideIntentionsHighlight() {
+    return getIntentionsHighlightsProvider(this.codefixProvider)
   }
 
   public provideCodeActions() {

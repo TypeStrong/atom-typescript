@@ -236,6 +236,11 @@
         "1.0.0": "provideIntentions"
       }
     },
+    "intentions:highlight": {
+      "versions": {
+        "1.0.0": "provideIntentionsHighlight"
+      }
+    },
     "code-actions": {
       "versions": {
         "0.1.0": "provideCodeActions"

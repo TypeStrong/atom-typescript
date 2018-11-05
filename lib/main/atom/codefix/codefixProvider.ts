@@ -2,7 +2,7 @@ import * as Atom from "atom"
 import {ClientResolver, TSClient} from "../../../client"
 import {ErrorPusher} from "../../errorPusher"
 import {ApplyEdits} from "../../pluginManager"
-import {pointToLocation} from "../utils"
+import {spanToRange} from "../utils"
 
 export class CodefixProvider {
   private supportedFixes: WeakMap<TSClient, Set<number>> = new WeakMap()
@@ -13,9 +13,23 @@ export class CodefixProvider {
     private applyEdits: ApplyEdits,
   ) {}
 
+  public async getFixableRanges(textEditor: Atom.TextEditor, range: Atom.Range) {
+    const filePath = textEditor.getPath()
+    if (filePath === undefined) return []
+    const errors = this.errorPusher.getErrorsInRange(filePath, range)
+    const client = await this.clientResolver.get(filePath)
+    const supportedCodes = await this.getSupportedFixes(client)
+
+    const ranges = Array.from(errors)
+      .filter(error => error.code !== undefined && supportedCodes.has(error.code))
+      .map(error => spanToRange(error))
+
+    return ranges
+  }
+
   public async runCodeFix(
     textEditor: Atom.TextEditor,
-    bufferPosition: Atom.PointLike,
+    bufferPosition: Atom.Point,
   ): Promise<protocol.CodeAction[]> {
     const filePath = textEditor.getPath()
 
@@ -24,8 +38,7 @@ export class CodefixProvider {
     const client = await this.clientResolver.get(filePath)
     const supportedCodes = await this.getSupportedFixes(client)
 
-    const requests = this.errorPusher
-      .getErrorsAt(filePath, pointToLocation(bufferPosition))
+    const requests = Array.from(this.errorPusher.getErrorsAt(filePath, bufferPosition))
       .filter(error => error.code !== undefined && supportedCodes.has(error.code))
       .map(error =>
         client.execute("getCodeFixes", {

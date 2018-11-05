@@ -72,6 +72,11 @@ function provideIntentions() {
         return pluginManager.provideIntentions();
 }
 exports.provideIntentions = provideIntentions;
+function provideIntentionsHighlight() {
+    if (pluginManager)
+        return pluginManager.provideIntentionsHighlight();
+}
+exports.provideIntentionsHighlight = provideIntentionsHighlight;
 function provideCodeActions() {
     if (pluginManager)
         return pluginManager.provideCodeActions();
