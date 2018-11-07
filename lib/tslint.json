@@ -28,6 +28,7 @@
     ],
     "strict-type-predicates": true,
     "no-unsafe-any": true,
+    "no-unbound-method": true,
     "no-shadowed-variable": true,
     "no-floating-promises": true,
     "await-promise": true

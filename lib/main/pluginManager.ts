@@ -358,17 +358,17 @@ export class PluginManager {
       ),
     )
 
-  private async showTooltipAt(ed: Atom.TextEditor): Promise<void> {
+  private showTooltipAt = async (ed: Atom.TextEditor): Promise<void> => {
     if (this.usingBuiltinTooltipManager) await this.tooltipManager.showExpressionAt(ed)
     else await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
   }
 
-  private async showSigHelpAt(ed: Atom.TextEditor): Promise<void> {
+  private showSigHelpAt = async (ed: Atom.TextEditor): Promise<void> => {
     if (this.usingBuiltinSigHelpManager) await this.sigHelpManager.showTooltipAt(ed)
     else await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show")
   }
 
-  private hideSigHelpAt(ed: Atom.TextEditor): boolean {
+  private hideSigHelpAt = (ed: Atom.TextEditor): boolean => {
     if (this.usingBuiltinSigHelpManager) return this.sigHelpManager.hideTooltipAt(ed)
     else return false
   }

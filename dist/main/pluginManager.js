@@ -115,6 +115,24 @@ class PluginManager {
             if (filePath !== undefined)
                 await this.flushTypescriptBuffer(filePath);
         })));
+        this.showTooltipAt = async (ed) => {
+            if (this.usingBuiltinTooltipManager)
+                await this.tooltipManager.showExpressionAt(ed);
+            else
+                await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
+        };
+        this.showSigHelpAt = async (ed) => {
+            if (this.usingBuiltinSigHelpManager)
+                await this.sigHelpManager.showTooltipAt(ed);
+            else
+                await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show");
+        };
+        this.hideSigHelpAt = (ed) => {
+            if (this.usingBuiltinSigHelpManager)
+                return this.sigHelpManager.hideTooltipAt(ed);
+            else
+                return false;
+        };
         this.histGoForward = (ed, opts) => {
             return this.editorPosHist.goForward(ed, opts);
         };
@@ -283,24 +301,6 @@ class PluginManager {
             return;
         this.occurrenceManager.dispose();
         return codeHighlightProvider_1.getCodeHighlightProvider(this.getClient);
-    }
-    async showTooltipAt(ed) {
-        if (this.usingBuiltinTooltipManager)
-            await this.tooltipManager.showExpressionAt(ed);
-        else
-            await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
-    }
-    async showSigHelpAt(ed) {
-        if (this.usingBuiltinSigHelpManager)
-            await this.sigHelpManager.showTooltipAt(ed);
-        else
-            await atom.commands.dispatch(atom.views.getView(ed), "signature-help:show");
-    }
-    hideSigHelpAt(ed) {
-        if (this.usingBuiltinSigHelpManager)
-            return this.sigHelpManager.hideTooltipAt(ed);
-        else
-            return false;
     }
     subscribeEditors() {
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {

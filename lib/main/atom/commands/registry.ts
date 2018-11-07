@@ -7,20 +7,19 @@ import {OpenParams} from "../editorPositionHistoryManager"
 export interface Dependencies {
   getClient: GetClientFunction
   applyEdits: ApplyEdits
-  clearErrors(): void
-  killAllServers(): void
-  reportProgress(progress: TProgress): void
-  reportBuildStatus(status: TBuildStatus | undefined): void
-  toggleSemanticViewController(): void
-  toggleFileSymbolsView(ed: Atom.TextEditor): void
-  toggleProjectSymbolsView(ed: Atom.TextEditor): void
-  // getEditorPositionHistoryManager(): EditorPositionHistoryManager
-  histGoForward(ed: Atom.TextEditor, openParams: OpenParams): Promise<object>
-  histGoBack(): Promise<object | undefined>
-  histShowHistory(): Promise<void>
-  showTooltipAt(ed: Atom.TextEditor): void
-  showSigHelpAt(ed: Atom.TextEditor): void
-  hideSigHelpAt(ed: Atom.TextEditor): boolean
+  clearErrors: () => void
+  killAllServers: () => void
+  reportProgress: (progress: TProgress) => void
+  reportBuildStatus: (status: TBuildStatus | undefined) => void
+  toggleSemanticViewController: () => void
+  toggleFileSymbolsView: (ed: Atom.TextEditor) => void
+  toggleProjectSymbolsView: (ed: Atom.TextEditor) => void
+  histGoForward: (ed: Atom.TextEditor, openParams: OpenParams) => Promise<object>
+  histGoBack: () => Promise<object | undefined>
+  histShowHistory: () => Promise<void>
+  showTooltipAt: (ed: Atom.TextEditor) => void
+  showSigHelpAt: (ed: Atom.TextEditor) => void
+  hideSigHelpAt: (ed: Atom.TextEditor) => boolean
 }
 
 export type AllowedSelectors = keyof Dispatch
