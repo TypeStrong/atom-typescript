@@ -18,9 +18,9 @@ class TypescriptBuffer {
         this.subscriptions = new Atom.CompositeDisposable();
         // tslint:disable-next-line:member-ordering
         this.on = this.events.on.bind(this.events);
-        this.dispose = async () => {
+        this.dispose = () => {
             this.subscriptions.dispose();
-            await this.close();
+            utils_1.handlePromise(this.close());
         };
         this.init = async () => {
             if (!this.state)
@@ -32,6 +32,7 @@ class TypescriptBuffer {
             await this.getErr();
         };
         this.close = async () => {
+            await this.openPromise;
             if (this.state) {
                 const client = this.state.client;
                 const file = this.state.filePath;
@@ -44,9 +45,10 @@ class TypescriptBuffer {
         this.onDidChange = () => {
             this.changedAt = Date.now();
         };
-        this.onDidChangePath = async () => {
-            await this.close();
-            await this.open();
+        this.onDidChangePath = (newPath) => {
+            utils_1.handlePromise(this.close().then(() => {
+                this.openPromise = this.open(newPath);
+            }));
         };
         this.onDidSave = async () => {
             // Check if there isn't a onDidStopChanging event pending.
@@ -79,8 +81,8 @@ class TypescriptBuffer {
             await this.getErr();
             this.events.emit("changed");
         };
-        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(this.onDidSave), buffer.onDidStopChanging(this.onDidStopChanging));
-        utils_1.handlePromise(this.open());
+        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => utils_1.handlePromise(this.onDidSave())), buffer.onDidStopChanging(arg => utils_1.handlePromise(this.onDidStopChanging(arg))));
+        this.openPromise = this.open(this.buffer.getPath());
     }
     static create(buffer, deps) {
         const b = TypescriptBuffer.bufferMap.get(buffer);
@@ -143,8 +145,7 @@ class TypescriptBuffer {
             throw new Error("Some files failed to emit");
         }
     }
-    async open() {
-        const filePath = this.buffer.getPath();
+    async open(filePath) {
         if (filePath !== undefined && utils_2.isTypescriptFile(filePath)) {
             const client = await this.deps.getClient(filePath);
             this.state = {

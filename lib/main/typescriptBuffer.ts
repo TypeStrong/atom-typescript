@@ -44,6 +44,7 @@ export class TypescriptBuffer {
   private compileOnSave: boolean = false
 
   private subscriptions = new Atom.CompositeDisposable()
+  private openPromise: Promise<void>
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -53,11 +54,11 @@ export class TypescriptBuffer {
       buffer.onDidChange(this.onDidChange),
       buffer.onDidChangePath(this.onDidChangePath),
       buffer.onDidDestroy(this.dispose),
-      buffer.onDidSave(this.onDidSave),
-      buffer.onDidStopChanging(this.onDidStopChanging),
+      buffer.onDidSave(() => handlePromise(this.onDidSave())),
+      buffer.onDidStopChanging(arg => handlePromise(this.onDidStopChanging(arg))),
     )
 
-    handlePromise(this.open())
+    this.openPromise = this.open(this.buffer.getPath())
   }
 
   public getPath() {
@@ -116,9 +117,7 @@ export class TypescriptBuffer {
     }
   }
 
-  private async open() {
-    const filePath = this.buffer.getPath()
-
+  private async open(filePath: string | undefined) {
     if (filePath !== undefined && isTypescriptFile(filePath)) {
       const client = await this.deps.getClient(filePath)
 
@@ -153,9 +152,9 @@ export class TypescriptBuffer {
     }
   }
 
-  private dispose = async () => {
+  private dispose = () => {
     this.subscriptions.dispose()
-    await this.close()
+    handlePromise(this.close())
   }
 
   private async readConfigFile() {
@@ -179,6 +178,7 @@ export class TypescriptBuffer {
   }
 
   private close = async () => {
+    await this.openPromise
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
@@ -193,9 +193,12 @@ export class TypescriptBuffer {
     this.changedAt = Date.now()
   }
 
-  private onDidChangePath = async () => {
-    await this.close()
-    await this.open()
+  private onDidChangePath = (newPath: string) => {
+    handlePromise(
+      this.close().then(() => {
+        this.openPromise = this.open(newPath)
+      }),
+    )
   }
 
   private onDidSave = async () => {
