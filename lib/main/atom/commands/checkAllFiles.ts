@@ -23,7 +23,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
 
     const disp = client.on("syntaxDiag", evt => {
       if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
-      cancelTimeout = window.setTimeout(cancel, 500)
+      cancelTimeout = window.setTimeout(cancel, 2000)
 
       files.delete(evt.file)
       updateStatus()
