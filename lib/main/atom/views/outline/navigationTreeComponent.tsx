@@ -1,4 +1,4 @@
-import {CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
+import {CompositeDisposable, CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
@@ -27,11 +27,12 @@ export class NavigationTreeComponent
   private editorChanging?: Disposable
   private selectedNode?: NavigationTreeViewModel
   private getClient?: GetClientFunction
+  private subscriptions = new CompositeDisposable()
 
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
     etch.initialize(this)
-    atom.workspace.observeActiveTextEditor(this.subscribeToEditor)
+    this.subscriptions.add(atom.workspace.observeActiveTextEditor(this.subscribeToEditor))
   }
 
   public async update(props: Partial<Props>) {
@@ -43,13 +44,12 @@ export class NavigationTreeComponent
   }
 
   public async destroy() {
-    if (this.editorScrolling) {
-      this.editorScrolling.dispose()
-    }
-    if (this.editorChanging) {
-      this.editorChanging.dispose()
-    }
+    if (this.editorScrolling) this.editorScrolling.dispose()
+    if (this.editorChanging) this.editorChanging.dispose()
+    this.editorScrolling = undefined
+    this.editorChanging = undefined
     this.selectedNode = undefined
+    this.subscriptions.dispose()
     await etch.destroy(this)
   }
 

@@ -30,7 +30,7 @@
     "no-unsafe-any": true,
     "no-unbound-method": true,
     "no-shadowed-variable": true,
-    "no-floating-promises": true,
+    "no-floating-promises": [true, "Disposable"],
     "await-promise": true
   },
   "rulesDirectory": []

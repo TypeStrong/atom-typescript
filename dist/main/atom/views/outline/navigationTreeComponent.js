@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const atom_1 = require("atom");
 const etch = require("etch");
 const lodash_1 = require("lodash");
 const utils_1 = require("../../../../utils");
@@ -9,6 +10,7 @@ const navTreeUtils_1 = require("./navTreeUtils");
 class NavigationTreeComponent {
     constructor(props) {
         this.props = props;
+        this.subscriptions = new atom_1.CompositeDisposable();
         this.loadNavTree = async () => {
             if (!this.editor)
                 return;
@@ -62,7 +64,7 @@ class NavigationTreeComponent {
         };
         navTreeUtils_1.prepareNavTree(props.navTree);
         etch.initialize(this);
-        atom.workspace.observeActiveTextEditor(this.subscribeToEditor);
+        this.subscriptions.add(atom.workspace.observeActiveTextEditor(this.subscribeToEditor));
     }
     async update(props) {
         if (props.navTree !== undefined) {
@@ -72,13 +74,14 @@ class NavigationTreeComponent {
         await etch.update(this);
     }
     async destroy() {
-        if (this.editorScrolling) {
+        if (this.editorScrolling)
             this.editorScrolling.dispose();
-        }
-        if (this.editorChanging) {
+        if (this.editorChanging)
             this.editorChanging.dispose();
-        }
+        this.editorScrolling = undefined;
+        this.editorChanging = undefined;
         this.selectedNode = undefined;
+        this.subscriptions.dispose();
         await etch.destroy(this);
     }
     async setGetClient(getClient) {

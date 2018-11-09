@@ -168,9 +168,11 @@ export class PluginManager {
 
     this.errorPusher.setLinter(linter)
 
-    this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
-      this.errorPusher.setErrors(type, filePath, diagnostics)
-    })
+    this.subscriptions.add(
+      this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+        this.errorPusher.setErrors(type, filePath, diagnostics)
+      }),
+    )
   }
 
   public consumeStatusBar(statusBar: StatusBar) {

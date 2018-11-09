@@ -14,9 +14,21 @@ class ClientResolver {
         this.reportBusyWhile = reportBusyWhile;
         this.clients = new Map();
         this.emitter = new atom_1.Emitter();
+        this.subscriptions = new atom_1.CompositeDisposable();
         // This is just here so TypeScript can infer the types of the callbacks when using "on" method
         // tslint:disable-next-line:member-ordering
         this.on = this.emitter.on.bind(this.emitter);
+        this.diagnosticHandler = (serverPath, type) => (result) => {
+            const filePath = isConfDiagBody(result) ? result.configFile : result.file;
+            if (filePath) {
+                this.emitter.emit("diagnostics", {
+                    type,
+                    serverPath,
+                    filePath,
+                    diagnostics: result.diagnostics,
+                });
+            }
+        };
     }
     async restartAllServers() {
         await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()));
@@ -34,25 +46,12 @@ class ClientResolver {
             return client;
         const newClient = new client_1.TypescriptServiceClient(pathToBin, version, this.reportBusyWhile);
         tsconfigMap.set(tsconfigPath, newClient);
-        const diagnosticHandler = (type) => (result) => {
-            const filePath = isConfDiagBody(result) ? result.configFile : result.file;
-            if (filePath) {
-                this.emitter.emit("diagnostics", {
-                    type,
-                    serverPath: pathToBin,
-                    filePath,
-                    diagnostics: result.diagnostics,
-                });
-            }
-        };
-        newClient.on("configFileDiag", diagnosticHandler("configFileDiag"));
-        newClient.on("semanticDiag", diagnosticHandler("semanticDiag"));
-        newClient.on("syntaxDiag", diagnosticHandler("syntaxDiag"));
-        newClient.on("suggestionDiag", diagnosticHandler("suggestionDiag"));
+        this.subscriptions.add(newClient.on("configFileDiag", this.diagnosticHandler(pathToBin, "configFileDiag")), newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")), newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")), newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")));
         return newClient;
     }
     dispose() {
         this.emitter.dispose();
+        this.subscriptions.dispose();
     }
     *getAllClients() {
         for (const tsconfigMap of this.clients.values()) {

@@ -52,14 +52,14 @@ function registerCommands(deps) {
         }
         else {
             const d = cmd.desc(deps);
-            atom.commands.add(cmd.selector, cmd.command, Object.assign({}, d, { async didDispatch() {
+            disp.add(atom.commands.add(cmd.selector, cmd.command, Object.assign({}, d, { async didDispatch() {
                     try {
                         await d.didDispatch();
                     }
                     catch (error) {
                         handle(error);
                     }
-                } }));
+                } })));
         }
     }
     return disp;

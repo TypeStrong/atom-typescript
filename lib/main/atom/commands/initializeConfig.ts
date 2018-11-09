@@ -24,21 +24,26 @@ addCommand("atom-text-editor", "typescript:initialize-config", () => ({
   },
 }))
 
-function initConfig(tsc: string, projectRoot: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    try {
-      const bnp = new BufferedNodeProcess({
-        command: tsc,
-        args: ["--init"],
-        options: {cwd: projectRoot},
-        exit: code => {
-          if (code === 0) resolve()
-          else reject(new Error(`Tsc ended with nonzero exit code ${code}`))
-        },
-      })
-      bnp.onWillThrowError(reject)
-    } catch (e) {
-      reject(e)
-    }
-  })
+async function initConfig(tsc: string, projectRoot: string): Promise<void> {
+  let disp: {dispose: () => void} | undefined
+  try {
+    return await new Promise<void>((resolve, reject) => {
+      try {
+        const bnp = new BufferedNodeProcess({
+          command: tsc,
+          args: ["--init"],
+          options: {cwd: projectRoot},
+          exit: code => {
+            if (code === 0) resolve()
+            else reject(new Error(`Tsc ended with nonzero exit code ${code}`))
+          },
+        })
+        disp = bnp.onWillThrowError(reject)
+      } catch (e) {
+        reject(e)
+      }
+    })
+  } finally {
+    if (disp) disp.dispose()
+  }
 }

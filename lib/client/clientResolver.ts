@@ -1,4 +1,4 @@
-import {Emitter} from "atom"
+import {CompositeDisposable, Emitter} from "atom"
 import * as fs from "fs"
 import * as path from "path"
 import * as Resolve from "resolve"
@@ -35,6 +35,7 @@ export interface EventTypes {
 export class ClientResolver {
   private clients = new Map<string, Map<string | undefined, Client>>()
   private emitter = new Emitter<{}, EventTypes>()
+  private subscriptions = new CompositeDisposable()
   // This is just here so TypeScript can infer the types of the callbacks when using "on" method
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -60,36 +61,39 @@ export class ClientResolver {
     const newClient = new Client(pathToBin, version, this.reportBusyWhile)
     tsconfigMap.set(tsconfigPath, newClient)
 
-    const diagnosticHandler = (type: DiagnosticTypes) => (
-      result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
-    ) => {
-      const filePath = isConfDiagBody(result) ? result.configFile : result.file
-
-      if (filePath) {
-        this.emitter.emit("diagnostics", {
-          type,
-          serverPath: pathToBin,
-          filePath,
-          diagnostics: result.diagnostics,
-        })
-      }
-    }
-
-    newClient.on("configFileDiag", diagnosticHandler("configFileDiag"))
-    newClient.on("semanticDiag", diagnosticHandler("semanticDiag"))
-    newClient.on("syntaxDiag", diagnosticHandler("syntaxDiag"))
-    newClient.on("suggestionDiag", diagnosticHandler("suggestionDiag"))
+    this.subscriptions.add(
+      newClient.on("configFileDiag", this.diagnosticHandler(pathToBin, "configFileDiag")),
+      newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")),
+      newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")),
+      newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")),
+    )
 
     return newClient
   }
 
   public dispose() {
     this.emitter.dispose()
+    this.subscriptions.dispose()
   }
 
   private *getAllClients() {
     for (const tsconfigMap of this.clients.values()) {
       yield* tsconfigMap.values()
+    }
+  }
+
+  private diagnosticHandler = (serverPath: string, type: DiagnosticTypes) => (
+    result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
+  ) => {
+    const filePath = isConfDiagBody(result) ? result.configFile : result.file
+
+    if (filePath) {
+      this.emitter.emit("diagnostics", {
+        type,
+        serverPath,
+        filePath,
+        diagnostics: result.diagnostics,
+      })
     }
   }
 }

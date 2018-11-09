@@ -37,6 +37,7 @@ class TypescriptBuffer {
                 const file = this.state.filePath;
                 await client.execute("close", { file });
                 this.deps.clearFileErrors(file);
+                this.state.subscriptions.dispose();
                 this.state = undefined;
             }
         };
@@ -150,8 +151,9 @@ class TypescriptBuffer {
                 client,
                 filePath,
                 configFile: undefined,
+                subscriptions: new Atom.CompositeDisposable(),
             };
-            client.on("restarted", () => utils_1.handlePromise(this.init()));
+            this.state.subscriptions.add(client.on("restarted", () => utils_1.handlePromise(this.init())));
             await this.init();
             const result = await client.execute("projectInfo", {
                 needFileNameList: false,
@@ -161,12 +163,12 @@ class TypescriptBuffer {
             if (result.body.configFileName !== undefined) {
                 this.state.configFile = new Atom.File(result.body.configFileName);
                 await this.readConfigFile();
-                this.subscriptions.add(this.state.configFile.onDidChange(() => utils_1.handlePromise(this.readConfigFile())));
+                this.state.subscriptions.add(this.state.configFile.onDidChange(() => utils_1.handlePromise(this.readConfigFile())));
             }
             this.events.emit("opened");
         }
         else {
-            this.state = undefined;
+            return this.close();
         }
     }
     async readConfigFile() {

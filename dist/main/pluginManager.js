@@ -215,9 +215,9 @@ class PluginManager {
             name: "TypeScript",
         });
         this.errorPusher.setLinter(linter);
-        this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
-        });
+        }));
     }
     consumeStatusBar(statusBar) {
         let statusPriority = 100;

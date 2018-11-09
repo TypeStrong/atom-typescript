@@ -21,25 +21,32 @@ registry_1.addCommand("atom-text-editor", "typescript:initialize-config", () => 
         }
     },
 }));
-function initConfig(tsc, projectRoot) {
-    return new Promise((resolve, reject) => {
-        try {
-            const bnp = new atom_1.BufferedNodeProcess({
-                command: tsc,
-                args: ["--init"],
-                options: { cwd: projectRoot },
-                exit: code => {
-                    if (code === 0)
-                        resolve();
-                    else
-                        reject(new Error(`Tsc ended with nonzero exit code ${code}`));
-                },
-            });
-            bnp.onWillThrowError(reject);
-        }
-        catch (e) {
-            reject(e);
-        }
-    });
+async function initConfig(tsc, projectRoot) {
+    let disp;
+    try {
+        return await new Promise((resolve, reject) => {
+            try {
+                const bnp = new atom_1.BufferedNodeProcess({
+                    command: tsc,
+                    args: ["--init"],
+                    options: { cwd: projectRoot },
+                    exit: code => {
+                        if (code === 0)
+                            resolve();
+                        else
+                            reject(new Error(`Tsc ended with nonzero exit code ${code}`));
+                    },
+                });
+                disp = bnp.onWillThrowError(reject);
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
+    finally {
+        if (disp)
+            disp.dispose();
+    }
 }
 //# sourceMappingURL=initializeConfig.js.map

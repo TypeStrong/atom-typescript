@@ -39,6 +39,7 @@ export class TypescriptBuffer {
     filePath: string
     // Path to the project's tsconfig.json
     configFile: Atom.File | undefined
+    subscriptions: Atom.CompositeDisposable
   }
   private compileOnSave: boolean = false
 
@@ -125,9 +126,10 @@ export class TypescriptBuffer {
         client,
         filePath,
         configFile: undefined,
+        subscriptions: new Atom.CompositeDisposable(),
       }
 
-      client.on("restarted", () => handlePromise(this.init()))
+      this.state.subscriptions.add(client.on("restarted", () => handlePromise(this.init())))
 
       await this.init()
 
@@ -140,14 +142,14 @@ export class TypescriptBuffer {
       if ((result.body!.configFileName as string | undefined) !== undefined) {
         this.state.configFile = new Atom.File(result.body!.configFileName)
         await this.readConfigFile()
-        this.subscriptions.add(
+        this.state.subscriptions.add(
           this.state.configFile.onDidChange(() => handlePromise(this.readConfigFile())),
         )
       }
 
       this.events.emit("opened")
     } else {
-      this.state = undefined
+      return this.close()
     }
   }
 
@@ -182,6 +184,7 @@ export class TypescriptBuffer {
       const file = this.state.filePath
       await client.execute("close", {file})
       this.deps.clearFileErrors(file)
+      this.state.subscriptions.dispose()
       this.state = undefined
     }
   }
