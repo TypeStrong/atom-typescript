@@ -1,6 +1,6 @@
 {
   "defaultSeverity": "warning",
-  "extends": ["tslint:recommended"],
+  "extends": ["tslint:recommended", "tslint-use-atom-disposables"],
   "jsRules": {},
   "defaultSeverity": "error",
   "rules": {
@@ -30,7 +30,7 @@
     "no-unsafe-any": true,
     "no-unbound-method": true,
     "no-shadowed-variable": true,
-    "no-floating-promises": [true, "Disposable"],
+    "no-floating-promises": true,
     "await-promise": true
   },
   "rulesDirectory": []
