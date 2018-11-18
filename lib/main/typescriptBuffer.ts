@@ -4,11 +4,13 @@ import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
+import {TBuildStatus} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
+  reportBuildStatus: (status: TBuildStatus | undefined) => void
 }
 
 export class TypescriptBuffer {
@@ -24,14 +26,12 @@ export class TypescriptBuffer {
   private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
 
   private events = new Atom.Emitter<{
-    saved: void
     opened: void
-    changed: void
+    updated: void
   }>()
 
-  // Timestamps for buffer events
-  private changedAt: number = 0
-  private changedAtBatch: number = 0
+  private lastChangedAt = Date.now()
+  private lastUpdatedAt = Date.now()
 
   // Promise that resolves to the correct client for this filePath
   private state?: {
@@ -54,8 +54,12 @@ export class TypescriptBuffer {
       buffer.onDidChange(this.onDidChange),
       buffer.onDidChangePath(this.onDidChangePath),
       buffer.onDidDestroy(this.dispose),
-      buffer.onDidSave(() => handlePromise(this.onDidSave())),
-      buffer.onDidStopChanging(arg => handlePromise(this.onDidStopChanging(arg))),
+      buffer.onDidSave(() => {
+        handlePromise(this.onDidSave())
+      }),
+      buffer.onDidStopChanging(arg => {
+        handlePromise(this.onDidStopChanging(arg))
+      }),
     )
 
     this.openPromise = this.open(this.buffer.getPath())
@@ -67,10 +71,10 @@ export class TypescriptBuffer {
 
   // If there are any pending changes, flush them out to the Typescript server
   public async flush() {
-    if (this.changedAt > this.changedAtBatch) {
-      await new Promise(resolve => {
-        const sub = this.buffer.onDidStopChanging(() => {
-          sub.dispose()
+    if (this.lastChangedAt > this.lastUpdatedAt) {
+      await new Promise<void>(resolve => {
+        const disp = this.events.once("updated", () => {
+          disp.dispose()
           resolve()
         })
         this.buffer.emitDidStopChangingEvent()
@@ -86,20 +90,17 @@ export class TypescriptBuffer {
     }
   }
 
-  public shouldCompileOnSave() {
-    return this.compileOnSave
-  }
-
-  public async getErr() {
+  private async getErr({allFiles}: {allFiles: boolean}) {
     if (!this.state) return
+    const files = allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
     await this.state.client.execute("geterr", {
-      files: [this.state.filePath],
+      files,
       delay: 100,
     })
   }
 
   /** Throws! */
-  public async compile() {
+  private async compile() {
     if (!this.state) return
     const {client, filePath} = this.state
     const result = await client.execute("compileOnSaveAffectedFileList", {
@@ -114,6 +115,19 @@ export class TypescriptBuffer {
 
     if (!saved.every(res => !!res.body)) {
       throw new Error("Some files failed to emit")
+    }
+  }
+
+  private async doCompileOnSave() {
+    if (!this.compileOnSave) return
+    this.deps.reportBuildStatus(undefined)
+    try {
+      await this.compile()
+      this.deps.reportBuildStatus({success: true})
+    } catch (error) {
+      const e = error as Error
+      console.error("Save failed with error", e)
+      this.deps.reportBuildStatus({success: false, message: e.message})
     }
   }
 
@@ -174,7 +188,7 @@ export class TypescriptBuffer {
       fileContent: this.buffer.getText(),
     })
 
-    await this.getErr()
+    await this.getErr({allFiles: false})
   }
 
   private close = async () => {
@@ -190,7 +204,7 @@ export class TypescriptBuffer {
   }
 
   private onDidChange = () => {
-    this.changedAt = Date.now()
+    this.lastChangedAt = Date.now()
   }
 
   private onDidChangePath = (newPath: string) => {
@@ -202,49 +216,45 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    // Check if there isn't a onDidStopChanging event pending.
-    const {changedAt, changedAtBatch} = this
-    if (changedAtBatch > 0 && changedAt > changedAtBatch) {
-      await new Promise<void>(resolve => this.events.once("changed", resolve))
-    }
-
-    if (this.state) {
-      await this.state.client.execute("geterr", {
-        files: Array.from(getOpenEditorsPaths()),
-        delay: 100,
-      })
-    }
-
-    this.events.emit("saved")
+    await this.flush()
+    await this.getErr({allFiles: true})
+    await this.doCompileOnSave()
   }
 
   private onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
-    // Don't update changedAt or emit any events if there are no actual changes or file isn't open
+    // If there are no actual changes, or the file isn't open, we have nothing to do
     if (changes.length === 0 || !this.state) return
 
-    this.changedAtBatch = Date.now()
+    this.deps.reportBuildStatus(undefined)
 
-    const client = this.state.client
+    const {client, filePath} = this.state
 
-    for (const change of changes) {
-      const {start, oldExtent, newText} = change
+    // NOTE: this might look somewhat weird until we realize that
+    // awaiting on each "change" command may lead to arbitrary
+    // interleaving, while pushing them all at once guarantees
+    // that all subsequent "change" commands will be sequenced after
+    // the ones we pushed
+    await Promise.all(
+      changes.map(change => {
+        const {start, oldExtent, newText} = change
 
-      const end = {
-        endLine: start.row + oldExtent.row + 1,
-        endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
-      }
+        const end = {
+          endLine: start.row + oldExtent.row + 1,
+          endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
+        }
 
-      await client.execute("change", {
-        ...end,
-        file: this.state.filePath,
-        line: start.row + 1,
-        offset: start.column + 1,
-        insertString: newText,
-      })
-    }
+        return client.execute("change", {
+          ...end,
+          file: filePath,
+          line: start.row + 1,
+          offset: start.column + 1,
+          insertString: newText,
+        })
+      }),
+    )
 
-    await this.getErr()
-
-    this.events.emit("changed")
+    this.lastUpdatedAt = Date.now()
+    this.events.emit("updated")
+    return this.getErr({allFiles: false})
   }
 }

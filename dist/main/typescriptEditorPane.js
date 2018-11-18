@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
-const utils_1 = require("../utils");
-const utils_2 = require("./atom/utils");
+const utils_1 = require("./atom/utils");
 const typescriptBuffer_1 = require("./typescriptBuffer");
 class TypescriptEditorPane {
     constructor(editor, opts) {
@@ -10,7 +9,7 @@ class TypescriptEditorPane {
         this.opts = opts;
         this.subscriptions = new atom_1.CompositeDisposable();
         this.isTypescript = false;
-        this.dispose = () => {
+        this.destroy = () => {
             atom.views.getView(this.editor).classList.remove("typescript-editor");
             this.subscriptions.dispose();
         };
@@ -19,25 +18,16 @@ class TypescriptEditorPane {
          * which has to be ensured at call site
          */
         this.didActivate = () => {
-            if (this.isTypescript) {
-                utils_1.handlePromise(this.buffer.getErr());
-                const info = this.buffer.getInfo();
-                if (info) {
-                    this.opts.reportClientInfo(info);
-                }
-            }
+            if (this.isTypescript)
+                this.reportInfo();
         };
         this.onOpened = () => {
             const isActive = atom.workspace.getActiveTextEditor() === this.editor;
-            if (isActive) {
-                const info = this.buffer.getInfo();
-                if (info) {
-                    this.opts.reportClientInfo(info);
-                }
-            }
+            if (isActive)
+                this.reportInfo();
         };
         this.checkIfTypescript = () => {
-            this.isTypescript = utils_2.isTypescriptEditorWithPath(this.editor);
+            this.isTypescript = utils_1.isTypescriptEditorWithPath(this.editor);
             if (this.isTypescript) {
                 atom.views.getView(this.editor).classList.add("typescript-editor");
             }
@@ -46,13 +36,9 @@ class TypescriptEditorPane {
             }
         };
         this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts);
-        this.subscriptions.add(this.buffer.on("changed", () => {
-            this.opts.reportBuildStatus(undefined);
-        }), this.buffer.on("opened", this.onOpened), this.buffer.on("saved", () => {
-            utils_1.handlePromise(this.compileOnSave());
-        }));
+        this.subscriptions.add(this.buffer.on("opened", this.onOpened));
         this.checkIfTypescript();
-        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), editor.onDidDestroy(this.dispose));
+        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), editor.onDidDestroy(this.destroy));
     }
     // tslint:disable-next-line:member-ordering
     static createFactory(opts) {
@@ -69,19 +55,10 @@ class TypescriptEditorPane {
     static lookupPane(editor) {
         return TypescriptEditorPane.editorMap.get(editor);
     }
-    async compileOnSave() {
-        if (!this.buffer.shouldCompileOnSave())
-            return;
-        this.opts.reportBuildStatus(undefined);
-        try {
-            await this.buffer.compile();
-            this.opts.reportBuildStatus({ success: true });
-        }
-        catch (error) {
-            const e = error;
-            console.error("Save failed with error", e);
-            this.opts.reportBuildStatus({ success: false, message: e.message });
-        }
+    reportInfo() {
+        const info = this.buffer.getInfo();
+        if (info)
+            this.opts.reportClientInfo(info);
     }
 }
 TypescriptEditorPane.editorMap = new WeakMap();

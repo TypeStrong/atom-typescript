@@ -11,9 +11,8 @@ class TypescriptBuffer {
         this.buffer = buffer;
         this.deps = deps;
         this.events = new Atom.Emitter();
-        // Timestamps for buffer events
-        this.changedAt = 0;
-        this.changedAtBatch = 0;
+        this.lastChangedAt = Date.now();
+        this.lastUpdatedAt = Date.now();
         this.compileOnSave = false;
         this.subscriptions = new Atom.CompositeDisposable();
         // tslint:disable-next-line:member-ordering
@@ -29,7 +28,7 @@ class TypescriptBuffer {
                 file: this.state.filePath,
                 fileContent: this.buffer.getText(),
             });
-            await this.getErr();
+            await this.getErr({ allFiles: false });
         };
         this.close = async () => {
             await this.openPromise;
@@ -43,7 +42,7 @@ class TypescriptBuffer {
             }
         };
         this.onDidChange = () => {
-            this.changedAt = Date.now();
+            this.lastChangedAt = Date.now();
         };
         this.onDidChangePath = (newPath) => {
             utils_1.handlePromise(this.close().then(() => {
@@ -51,37 +50,38 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            // Check if there isn't a onDidStopChanging event pending.
-            const { changedAt, changedAtBatch } = this;
-            if (changedAtBatch > 0 && changedAt > changedAtBatch) {
-                await new Promise(resolve => this.events.once("changed", resolve));
-            }
-            if (this.state) {
-                await this.state.client.execute("geterr", {
-                    files: Array.from(utils_2.getOpenEditorsPaths()),
-                    delay: 100,
-                });
-            }
-            this.events.emit("saved");
+            await this.flush();
+            await this.getErr({ allFiles: true });
+            await this.doCompileOnSave();
         };
         this.onDidStopChanging = async ({ changes }) => {
-            // Don't update changedAt or emit any events if there are no actual changes or file isn't open
+            // If there are no actual changes, or the file isn't open, we have nothing to do
             if (changes.length === 0 || !this.state)
                 return;
-            this.changedAtBatch = Date.now();
-            const client = this.state.client;
-            for (const change of changes) {
+            this.deps.reportBuildStatus(undefined);
+            const { client, filePath } = this.state;
+            // NOTE: this might look somewhat weird until we realize that
+            // awaiting on each "change" command may lead to arbitrary
+            // interleaving, while pushing them all at once guarantees
+            // that all subsequent "change" commands will be sequenced after
+            // the ones we pushed
+            await Promise.all(changes.map(change => {
                 const { start, oldExtent, newText } = change;
                 const end = {
                     endLine: start.row + oldExtent.row + 1,
                     endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
                 };
-                await client.execute("change", Object.assign({}, end, { file: this.state.filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
-            }
-            await this.getErr();
-            this.events.emit("changed");
+                return client.execute("change", Object.assign({}, end, { file: filePath, line: start.row + 1, offset: start.column + 1, insertString: newText }));
+            }));
+            this.lastUpdatedAt = Date.now();
+            this.events.emit("updated");
+            return this.getErr({ allFiles: false });
         };
-        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => utils_1.handlePromise(this.onDidSave())), buffer.onDidStopChanging(arg => utils_1.handlePromise(this.onDidStopChanging(arg))));
+        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
+            utils_1.handlePromise(this.onDidSave());
+        }), buffer.onDidStopChanging(arg => {
+            utils_1.handlePromise(this.onDidStopChanging(arg));
+        }));
         this.openPromise = this.open(this.buffer.getPath());
     }
     static create(buffer, deps) {
@@ -99,10 +99,10 @@ class TypescriptBuffer {
     }
     // If there are any pending changes, flush them out to the Typescript server
     async flush() {
-        if (this.changedAt > this.changedAtBatch) {
+        if (this.lastChangedAt > this.lastUpdatedAt) {
             await new Promise(resolve => {
-                const sub = this.buffer.onDidStopChanging(() => {
-                    sub.dispose();
+                const disp = this.events.once("updated", () => {
+                    disp.dispose();
                     resolve();
                 });
                 this.buffer.emitDidStopChangingEvent();
@@ -117,14 +117,12 @@ class TypescriptBuffer {
             tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
         };
     }
-    shouldCompileOnSave() {
-        return this.compileOnSave;
-    }
-    async getErr() {
+    async getErr({ allFiles }) {
         if (!this.state)
             return;
+        const files = allFiles ? Array.from(utils_2.getOpenEditorsPaths()) : [this.state.filePath];
         await this.state.client.execute("geterr", {
-            files: [this.state.filePath],
+            files,
             delay: 100,
         });
     }
@@ -143,6 +141,20 @@ class TypescriptBuffer {
         const saved = await Promise.all(promises);
         if (!saved.every(res => !!res.body)) {
             throw new Error("Some files failed to emit");
+        }
+    }
+    async doCompileOnSave() {
+        if (!this.compileOnSave)
+            return;
+        this.deps.reportBuildStatus(undefined);
+        try {
+            await this.compile();
+            this.deps.reportBuildStatus({ success: true });
+        }
+        catch (error) {
+            const e = error;
+            console.error("Save failed with error", e);
+            this.deps.reportBuildStatus({ success: false, message: e.message });
         }
     }
     async open(filePath) {

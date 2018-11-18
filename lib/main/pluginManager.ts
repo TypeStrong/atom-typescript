@@ -150,7 +150,7 @@ export class PluginManager {
     this.subscriptions.dispose()
     for (const ed of atom.workspace.getTextEditors()) {
       const pane = TypescriptEditorPane.lookupPane(ed)
-      if (pane) pane.dispose()
+      if (pane) pane.destroy()
     }
   }
 
@@ -287,6 +287,7 @@ export class PluginManager {
       const buffer = TypescriptBuffer.create(ed.getBuffer(), {
         getClient: this.getClient,
         clearFileErrors: this.clearFileErrors,
+        reportBuildStatus: this.reportBuildStatus,
       })
       await buffer.flush()
     }

@@ -53,6 +53,7 @@ class PluginManager {
                 const buffer = typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), {
                     getClient: this.getClient,
                     clearFileErrors: this.clearFileErrors,
+                    reportBuildStatus: this.reportBuildStatus,
                 });
                 await buffer.flush();
             }
@@ -201,7 +202,7 @@ class PluginManager {
         for (const ed of atom.workspace.getTextEditors()) {
             const pane = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);
             if (pane)
-                pane.dispose();
+                pane.destroy();
         }
     }
     serialize() {
