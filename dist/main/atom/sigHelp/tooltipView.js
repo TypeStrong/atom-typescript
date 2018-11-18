@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
+const util_1 = require("../tooltips/util");
 const utils_1 = require("../utils");
 class TooltipView {
     constructor(parent) {
@@ -21,33 +22,7 @@ class TooltipView {
         await etch.update(this);
     }
     writeAfterUpdate() {
-        const offset = 10;
-        let left = this.props.right;
-        let right = false;
-        let whiteSpace = "";
-        const clientWidth = this.parent.clientWidth;
-        const offsetWidth = this.element.offsetWidth;
-        const offsetHeight = this.element.offsetHeight;
-        let top = this.props.top - offsetHeight;
-        // X axis adjust
-        if (left + offsetWidth >= clientWidth) {
-            left = clientWidth - offsetWidth - offset;
-        }
-        if (left < 0) {
-            whiteSpace = "pre-wrap";
-            left = offset;
-            right = offset;
-        }
-        // Y axis adjust
-        if (top < 0) {
-            top = this.props.bottom;
-        }
-        this.element.style.left = `${left}px`;
-        this.element.style.top = `${top}px`;
-        if (right !== false)
-            this.element.style.right = `${right}px`;
-        if (whiteSpace)
-            this.element.style.whiteSpace = whiteSpace;
+        util_1.adjustElementPosition(this.element, this.parent, this.props, atom.config.get("atom-typescript").sigHelpPosition);
     }
     render() {
         return (etch.dom("div", { class: "atom-typescript-tooltip tooltip", key: this.sigHelpHash() },

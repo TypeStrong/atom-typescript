@@ -102,6 +102,28 @@
       "default": 100,
       "order": 60
     },
+    "tooltipPosition": {
+      "title": "Built-in type tooltip position",
+      "description": "Above or below cursor position",
+      "type": "string",
+      "enum": [
+        "top",
+        "bottom"
+      ],
+      "default": "bottom",
+      "order": 61
+    },
+    "sigHelpPosition": {
+      "title": "Built-in signature help tooltip position",
+      "description": "Above or below cursor position",
+      "type": "string",
+      "enum": [
+        "top",
+        "bottom"
+      ],
+      "default": "top",
+      "order": 62
+    },
     "ignoredDiagnosticCodes": {
       "title": "Ignore diagnostics",
       "description": "List of diagnostic codes to ignore, comma-separated. Refer to [diagnosticMessages.json](https://github.com/Microsoft/TypeScript/blob/master/src/compiler/diagnosticMessages.json) for diagnostic codes",

@@ -1,4 +1,5 @@
 import * as etch from "etch"
+import {adjustElementPosition} from "./util"
 
 interface Props extends JSX.Props {
   left: number
@@ -32,37 +33,12 @@ export class TooltipView implements JSX.ElementClass {
   }
 
   public writeAfterUpdate() {
-    const offset = 10
-    let left = this.props.right
-    let top = this.props.bottom
-    let right: number | false = false
-
-    let whiteSpace = ""
-
-    const clientWidth = document.body.clientWidth
-    const offsetWidth = this.element.offsetWidth
-    const clientHeight = document.body.clientHeight
-    const offsetHeight = this.element.offsetHeight
-
-    // X axis adjust
-    if (left + offsetWidth >= clientWidth) {
-      left = clientWidth - offsetWidth - offset
-    }
-    if (left < 0) {
-      whiteSpace = "pre-wrap"
-      left = offset
-      right = offset
-    }
-
-    // Y axis adjust
-    if (top + offsetHeight >= clientHeight) {
-      top = this.props.top - offsetHeight
-    }
-
-    this.element.style.left = `${left}px`
-    this.element.style.top = `${top}px`
-    if (right !== false) this.element.style.right = `${right}px`
-    if (whiteSpace) this.element.style.whiteSpace = whiteSpace
+    adjustElementPosition(
+      this.element,
+      document.body,
+      this.props,
+      atom.config.get("atom-typescript").tooltipPosition,
+    )
   }
 
   public render() {

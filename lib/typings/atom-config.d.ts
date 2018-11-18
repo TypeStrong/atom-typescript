@@ -13,6 +13,8 @@ declare module "atom" {
     "atom-typescript.buildStatusTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
+    "atom-typescript.tooltipPosition": "top" | "bottom"
+    "atom-typescript.sigHelpPosition": "top" | "bottom"
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
     "atom-typescript.suppressAllDiagnostics": boolean
@@ -33,6 +35,8 @@ declare module "atom" {
       buildStatusTimeout: number
       showSemanticView: boolean
       tooltipDelay: number
+      tooltipPosition: "top" | "bottom"
+      sigHelpPosition: "top" | "bottom"
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
       suppressAllDiagnostics: boolean
