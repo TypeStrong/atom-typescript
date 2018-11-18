@@ -235,22 +235,16 @@ export class TypescriptBuffer {
     // that all subsequent "change" commands will be sequenced after
     // the ones we pushed
     await Promise.all(
-      changes.map(change => {
-        const {start, oldExtent, newText} = change
-
-        const end = {
-          endLine: start.row + oldExtent.row + 1,
-          endOffset: (oldExtent.row === 0 ? start.column + oldExtent.column : oldExtent.column) + 1,
-        }
-
-        return client.execute("change", {
-          ...end,
+      changes.map(({oldRange, newText}) =>
+        client.execute("change", {
           file: filePath,
-          line: start.row + 1,
-          offset: start.column + 1,
+          line: oldRange.start.row + 1,
+          offset: oldRange.start.column + 1,
+          endLine: oldRange.end.row + 1,
+          endOffset: oldRange.end.column + 1,
           insertString: newText,
-        })
-      }),
+        }),
+      ),
     )
 
     this.lastUpdatedAt = Date.now()
