@@ -1,3 +1,91 @@
+## 12.7.0
+
+### Changes
+
+-   Bundled TypeScript version updated to 3.1.6
+
+-   Made config-file selection deterministic
+
+    Now a separate tsserver instance is started for each `tsconfig.json`.
+    This has a result of the closest `tsconfig.json` (wrt directory
+    hierarchy) always being selected for the typescript file. This should make
+    cases where the same file is be used in multiple TypeScript sub-projects
+    less confusing to deal with.
+
+-   Atom-IDE interfaces are preferred to builtin ones if available. This
+    includes tooltips, occurrence markers, etc. Most of these changes can
+    be reverted by choosing appropriate preferences in the Atom-TypeScript
+    settings.
+
+### New features
+
+-   Made tooltip position configurable
+
+-   Experimental support for `allowJS` and `checkJS`. This needs to be
+    explicitly enabled in the settings
+
+-   Added "signature help", i.e. function arguments tooltip
+
+-   Added the ability to restart tsserver; it will also be auto-restarted
+    on crashes, if those don't happen too frequently
+
+-   Added support for more atom-ide interfaces, namely:
+
+    -   Find References
+    -   Definitions
+    -   Outline
+    -   Code Highlight (occurrence highlight)
+    -   Busy Signal
+
+    Built-in options are still available via settings.
+
+-   Implemented intentions highlight interface
+
+### Fixes
+
+-   Fixed yet another applyEdits operation ordering bug
+-   Don't try to compile on save if compileOnSave is false\/unset in
+    `tsconfig.json`
+-   Fixed a couple status panel display bugs (status\/progress)
+-   Added nuclide to list of packages providing UI components (so that there
+    is no prompt to install atom-ide-ui when nuclide is already present)
+-   Fix tsconfig path display bug. The display is deferred until the config
+    path is resolved in the first place.
+-   A lot of fixes wrt floating promises.
+-   Some synchronization fixes
+
+### Maintenance
+
+-   Use newer Atom API for text changes
+-   Simplify change command invocation
+-   Update dependencies
+-   Moved built status update to TSBuffer (avoid multiple updates); ensure no change event interleaving
+-   Add a rule against floating Disposables
+-   Wait a bit longer on checkAllFiles
+-   Added no-unbound-method rule
+-   Clean autoCompleteProvider code somewhat
+-   Do not expose withTypescriptBuffer; don't create temporary ts buffers
+-   Simplify client code a bit
+-   Removed client accessors from TypeScriptBuffer
+-   Tweak some typings (formatting, etc)
+-   Enable definition checking; fix definitions
+-   Defer requiring SemanticView until needed
+-   Major rewrite of TypescriptEditorPane
+-   Split commands\/clearErrors to separate files
+-   Handle promises in occurrence controller appropriately; clear saved markers
+-   Move occurrence handler into a pluggable module
+-   Shorten buffer flush code in autocompleteProvider
+-   Enabled ordered-imports rule
+-   Treat TSLint warnings as errors for the purposes of CI
+-   Switch to typescript-tslint-plugin
+-   Refactor statusbar; throttle pending updates to reduce statusbar jitter
+-   Tweak builtin tooltips
+-   Refactor tooltips
+-   Isolate tsclient code a little better
+-   Enabled no-floating-promises rule
+-   Refactor TypescriptServiceClient.on
+-   Fix typescript server typing
+
 ## 12.6.3
 
 -   Ensure text edits are always applied in reverse location order
@@ -36,7 +124,7 @@
 -   Updated dependencies. In particular, bundled TypeScript version bumped to
     v2.9.2
 
-### Maintenence
+### Maintenance
 
 -   Refactored commands code
 -   Added order to settings
@@ -58,7 +146,7 @@
 -   Don't ignore insertText autocompletion suggestions
 -   Minor bugfixes in initializeConfig command
 
-### Maintenence
+### Maintenance
 
 -   Enabled no-shadowed-variable tslint diagnostic
 -   Enabled no-unsafe-any tslint diagnostic
