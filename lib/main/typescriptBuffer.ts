@@ -221,7 +221,7 @@ export class TypescriptBuffer {
     await this.doCompileOnSave()
   }
 
-  private onDidStopChanging = async ({changes}: {changes: Atom.TextChange[]}) => {
+  private onDidStopChanging = async ({changes}: {changes: ReadonlyArray<Atom.TextChange>}) => {
     // If there are no actual changes, or the file isn't open, we have nothing to do
     if (changes.length === 0 || !this.state) return
 
@@ -235,16 +235,19 @@ export class TypescriptBuffer {
     // that all subsequent "change" commands will be sequenced after
     // the ones we pushed
     await Promise.all(
-      changes.map(({oldRange, newText}) =>
-        client.execute("change", {
-          file: filePath,
-          line: oldRange.start.row + 1,
-          offset: oldRange.start.column + 1,
-          endLine: oldRange.end.row + 1,
-          endOffset: oldRange.end.column + 1,
-          insertString: newText,
-        }),
-      ),
+      changes.reduceRight<Array<Promise<void>>>((acc, {oldRange, newText}) => {
+        acc.push(
+          client.execute("change", {
+            file: filePath,
+            line: oldRange.start.row + 1,
+            offset: oldRange.start.column + 1,
+            endLine: oldRange.end.row + 1,
+            endOffset: oldRange.end.column + 1,
+            insertString: newText,
+          }),
+        )
+        return acc
+      }, []),
     )
 
     this.lastUpdatedAt = Date.now()
