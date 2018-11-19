@@ -155,14 +155,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     const client = await this.getClient(location.file)
-    const completions = await client.execute("completions", {
-      prefix,
-      includeExternalModuleExports: false,
-      includeInsertTextCompletions: true,
-      ...location,
-    })
-
-    const suggestions = completions.body!.map(completionEntryToSuggestion)
+    const suggestions = await getSuggestionsInternal(client, location, prefix)
 
     this.lastSuggestions = {
       client,
@@ -172,6 +165,33 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     return suggestions
+  }
+}
+
+async function getSuggestionsInternal(
+  client: TSClient,
+  location: FileLocationQuery,
+  prefix: string,
+) {
+  if (parseInt(client.version.split(".")[0], 10) >= 3) {
+    // use completionInfo
+    const completions = await client.execute("completionInfo", {
+      prefix,
+      includeExternalModuleExports: false,
+      includeInsertTextCompletions: true,
+      ...location,
+    })
+    return completions.body!.entries.map(completionEntryToSuggestion)
+  } else {
+    // use deprecated completions
+    const completions = await client.execute("completions", {
+      prefix,
+      includeExternalModuleExports: false,
+      includeInsertTextCompletions: true,
+      ...location,
+    })
+
+    return completions.body!.map(completionEntryToSuggestion)
   }
 }
 
