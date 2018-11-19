@@ -41,7 +41,7 @@ encouraged to report.
 First of all, go to Atom-TypeScript settings and enable the
 'Enable Atom-TypeScript for JavaScript files'.
 
-For Atom-TypeScript to auto-start when you open a JavaScript file, see the previous question. TL;DR if you're using the default `language-javascript`
+For Atom-TypeScript to auto-start when you open a JavaScript file, see the [previous question](#i-want-to-use-package-x-for-syntax-highlighting-instead-of-language-typescript-but-atom-typescript-doesnt-work). TL;DR if you're using the default `language-javascript`
 grammar package for JavaScript syntax highlighting, add this to your Atom init
 script:
 
