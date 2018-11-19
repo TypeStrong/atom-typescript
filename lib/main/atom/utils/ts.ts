@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {Signature, SignatureParameter} from "atom/ide"
-import * as tsconfig from "tsconfig"
+import * as ts from "typescript"
 import {
   CodeEdit,
   FormatCodeSettings,
@@ -52,7 +52,7 @@ export async function getProjectConfig(
   formatCodeOptions: FormatCodeSettings
   compileOnSave: boolean
 }> {
-  const {config} = await tsconfig.load(configFile)
+  const {config} = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
   const options = (config as {formatCodeOptions?: FormatCodeSettings}).formatCodeOptions
 
   return {

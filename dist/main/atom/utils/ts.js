@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
-const tsconfig = require("tsconfig");
+const ts = require("typescript");
 function pointToLocation(point) {
     return { line: point.row + 1, offset: point.column + 1 };
 }
@@ -28,7 +28,7 @@ function rangeToLocationRange(range) {
 }
 exports.rangeToLocationRange = rangeToLocationRange;
 async function getProjectConfig(configFile) {
-    const { config } = await tsconfig.load(configFile);
+    const { config } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
     const options = config.formatCodeOptions;
     return {
         formatCodeOptions: Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options),
