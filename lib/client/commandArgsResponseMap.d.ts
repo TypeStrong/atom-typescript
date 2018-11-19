@@ -5,7 +5,10 @@ export interface CommandArgResponseMap {
   close: (x: p.FileRequestArgs) => void
   compileOnSaveAffectedFileList: (x: p.FileRequestArgs) => p.CompileOnSaveAffectedFileListResponse
   compileOnSaveEmitFile: (x: p.CompileOnSaveEmitFileRequestArgs) => p.Response & {body: boolean}
+  /** @deprecated Prefer CompletionInfo -- see comment on CompletionsResponse */
   completions: (x: p.CompletionsRequestArgs) => p.CompletionsResponse
+  /** SINCE TS 3.0! */
+  completionInfo: (x: p.CompletionsRequestArgs) => p.CompletionInfoResponse
   completionEntryDetails: (x: p.CompletionDetailsRequestArgs) => p.CompletionDetailsResponse
   configure: (x: p.ConfigureRequestArguments) => p.ConfigureResponse
   definition: (x: p.FileLocationRequestArgs) => p.DefinitionResponse
@@ -14,7 +17,9 @@ export interface CommandArgResponseMap {
   getSupportedCodeFixes: () => p.GetSupportedCodeFixesResponse
   geterr: (x: p.GeterrRequestArgs) => void
   geterrForProject: (x: p.GeterrForProjectRequestArgs) => void
-  occurrences: (x: p.FileLocationRequestArgs) => p.OccurrencesResponse
+  /// @deprecated since typescript v1.5.3
+  // occurrences: (x: p.FileLocationRequestArgs) => p.OccurrencesResponse
+  documentHighlights: (x: p.DocumentHighlightsRequestArgs) => p.DocumentHighlightsResponse
   open: (x: p.OpenRequestArgs) => void
   projectInfo: (x: p.ProjectInfoRequestArgs) => p.ProjectInfoResponse
   quickinfo: (x: p.FileLocationRequestArgs) => p.QuickInfoResponse
