@@ -190,7 +190,7 @@ class TypescriptBuffer {
     async readConfigFile() {
         if (!this.state || !this.state.configFile)
             return;
-        const options = await utils_2.getProjectConfig(this.state.configFile.getPath());
+        const options = utils_2.getProjectConfig(this.state.configFile.getPath());
         this.compileOnSave = options.compileOnSave;
         await this.state.client.execute("configure", {
             file: this.state.filePath,

@@ -46,13 +46,13 @@ export function rangeToLocationRange(range: Atom.Range): LocationRangeQuery {
   }
 }
 
-export async function getProjectConfig(
+export function getProjectConfig(
   configFile: string,
-): Promise<{
+): {
   formatCodeOptions: FormatCodeSettings
   compileOnSave: boolean
-}> {
-  const {config} = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+} {
+  const config = loadConfig(configFile)
   const options = (config as {formatCodeOptions?: FormatCodeSettings}).formatCodeOptions
 
   return {
@@ -61,8 +61,18 @@ export async function getProjectConfig(
       tabSize: atom.config.get("editor.tabLength"),
       ...options,
     },
-    compileOnSave: !!(config as {compileOnSave?: boolean}).compileOnSave,
+    compileOnSave: !!config.compileOnSave,
   }
+}
+
+function loadConfig(
+  configFile: string,
+): {
+  formatCodeOptions?: FormatCodeSettings
+  compileOnSave?: boolean
+} {
+  const {config} = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+  return config as ReturnType<typeof loadConfig>
 }
 
 export function signatureHelpItemToSignature(i: SignatureHelpItem): Signature {

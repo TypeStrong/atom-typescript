@@ -27,8 +27,8 @@ function rangeToLocationRange(range) {
     };
 }
 exports.rangeToLocationRange = rangeToLocationRange;
-async function getProjectConfig(configFile) {
-    const { config } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+function getProjectConfig(configFile) {
+    const config = loadConfig(configFile);
     const options = config.formatCodeOptions;
     return {
         formatCodeOptions: Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options),
@@ -36,6 +36,10 @@ async function getProjectConfig(configFile) {
     };
 }
 exports.getProjectConfig = getProjectConfig;
+function loadConfig(configFile) {
+    const { config } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    return config;
+}
 function signatureHelpItemToSignature(i) {
     return {
         label: partsToStr(i.prefixDisplayParts) +
