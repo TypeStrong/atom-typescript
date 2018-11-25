@@ -1,3 +1,7 @@
+## 12.7.2
+
+-   Auto-restart tsserver syncronously to avoid race conditions
+
 ## 12.7.1
 
 -   Catch and properly report tsconfig parse errors

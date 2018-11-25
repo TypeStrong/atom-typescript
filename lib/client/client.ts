@@ -150,27 +150,25 @@ export class TypescriptServiceClient {
     if (report) console.error("tsserver: ", err)
     this.server = undefined
 
-    setImmediate(() => {
-      if (report) {
-        let detail = err.message
-        if (this.lastStderrOutput) {
-          detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`
-        }
-        atom.notifications.addError("TypeScript quit unexpectedly", {
-          detail,
-          stack: err.stack,
-          dismissable: true,
-        })
+    if (report) {
+      let detail = err.message
+      if (this.lastStderrOutput) {
+        detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`
       }
-      if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
-        this.server = this.startServer()
-        this.emitter.emit("restarted", undefined)
-      } else {
-        atom.notifications.addWarning("Not restarting tsserver", {
-          detail: "Restarting too fast",
-        })
-      }
-    })
+      atom.notifications.addError("TypeScript quit unexpectedly", {
+        detail,
+        stack: err.stack,
+        dismissable: true,
+      })
+    }
+    if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
+      this.server = this.startServer()
+      this.emitter.emit("restarted", undefined)
+    } else {
+      atom.notifications.addWarning("Not restarting tsserver", {
+        detail: "Restarting too fast",
+      })
+    }
   }
 
   private onMessage = (res: protocol.Response | protocol.Event) => {
