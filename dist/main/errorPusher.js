@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const path = require("path");
 const utils_1 = require("./atom/utils");
@@ -8,11 +7,6 @@ const utils_1 = require("./atom/utils");
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
-        this.unusedAsInfo = true;
-        this.subscriptions = new atom_1.CompositeDisposable();
-        this.subscriptions.add(atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo) => {
-            this.unusedAsInfo = unusedAsInfo;
-        }));
         this.pushErrors = lodash_1.debounce(this.pushErrors.bind(this), 100);
     }
     *getErrorsInRange(filePath, range) {
@@ -56,11 +50,16 @@ class ErrorPusher {
         this.pushErrors();
     }
     dispose() {
-        this.subscriptions.dispose();
         this.clear();
+        if (this.linter)
+            this.linter.dispose();
+        this.linter = undefined;
     }
     pushErrors() {
-        const errors = [];
+        if (this.linter)
+            this.linter.setAllMessages(Array.from(this.getLinterErrors()));
+    }
+    *getLinterErrors() {
         const config = atom.config.get("atom-typescript");
         if (!config.suppressAllDiagnostics) {
             for (const fileErrors of this.errors.values()) {
@@ -76,24 +75,21 @@ class ErrorPusher {
                         if (!start || !end) {
                             start = end = { line: 1, offset: 1 };
                         }
-                        errors.push({
-                            severity: this.getSeverity(diagnostic),
+                        yield {
+                            severity: this.getSeverity(config.unusedAsInfo, diagnostic),
                             excerpt: diagnostic.text,
                             location: {
                                 file: filePath,
                                 position: utils_1.locationsToRange(start, end),
                             },
-                        });
+                        };
                     }
                 }
             }
         }
-        if (this.linter) {
-            this.linter.setAllMessages(errors);
-        }
     }
-    getSeverity(diagnostic) {
-        if (this.unusedAsInfo && diagnostic.code === 6133)
+    getSeverity(unusedAsInfo, diagnostic) {
+        if (unusedAsInfo && diagnostic.code === 6133)
             return "info";
         switch (diagnostic.category) {
             case "error":
