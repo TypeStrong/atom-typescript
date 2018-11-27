@@ -1,5 +1,3 @@
-// A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
-// the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
@@ -33,7 +31,6 @@ export class TypescriptBuffer {
   private lastChangedAt = Date.now()
   private lastUpdatedAt = Date.now()
 
-  // Promise that resolves to the correct client for this filePath
   private state?: {
     client: TSClient
     filePath: string
