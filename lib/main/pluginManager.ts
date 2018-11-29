@@ -361,7 +361,7 @@ export class PluginManager {
     )
 
   private showTooltipAt = async (ed: Atom.TextEditor): Promise<void> => {
-    if (this.usingBuiltinTooltipManager) await this.tooltipManager.showExpressionAt(ed)
+    if (this.usingBuiltinTooltipManager) this.tooltipManager.showExpressionAt(ed)
     else await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle")
   }
 
