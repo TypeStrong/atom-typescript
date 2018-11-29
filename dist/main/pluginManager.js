@@ -117,7 +117,7 @@ class PluginManager {
         })));
         this.showTooltipAt = async (ed) => {
             if (this.usingBuiltinTooltipManager)
-                await this.tooltipManager.showExpressionAt(ed);
+                this.tooltipManager.showExpressionAt(ed);
             else
                 await atom.commands.dispatch(atom.views.getView(ed), "datatip:toggle");
         };
