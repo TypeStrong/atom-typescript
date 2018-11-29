@@ -44,7 +44,7 @@ class TooltipManager {
                 }
                 lastExprTypeBufferPt = bufferPt;
                 this.clearExprTypeTimeout();
-                this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(editor, e), atom.config.get("atom-typescript").tooltipDelay);
+                this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(editor, e, bufferPt), atom.config.get("atom-typescript").tooltipDelay);
             };
         };
         this.subscriptions.add(atom.workspace.observeTextEditors(editor => {
@@ -58,6 +58,7 @@ class TooltipManager {
             disp.add(element_listener_1.listen(rawView, "mousemove", ".scroll-view", this.trackMouseMovement(editor)), element_listener_1.listen(rawView, "mouseout", ".scroll-view", this.clearExprTypeTimeout), element_listener_1.listen(rawView, "keydown", ".scroll-view", this.clearExprTypeTimeout), rawView.onDidChangeScrollTop(this.clearExprTypeTimeout), rawView.onDidChangeScrollLeft(this.clearExprTypeTimeout), editor.onDidDestroy(() => {
                 disp.dispose();
                 this.subscriptions.remove(disp);
+                this.clearExprTypeTimeout();
             }));
             this.subscriptions.add(disp);
         }));
@@ -66,11 +67,11 @@ class TooltipManager {
         this.subscriptions.dispose();
         this.clearExprTypeTimeout();
     }
-    async showExpressionAt(editor) {
+    showExpressionAt(editor) {
         const pt = editor.getLastCursor().getBufferPosition();
         const view = atom.views.getView(editor);
         const px = view.pixelPositionForBufferPosition(pt);
-        return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px));
+        return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px), pt);
     }
     mousePositionForPixelPosition(editor, p) {
         const rawView = atom.views.getView(editor);
@@ -81,10 +82,10 @@ class TooltipManager {
             clientX: p.left + linesRect.left,
         };
     }
-    async showExpressionType(editor, e) {
+    showExpressionType(editor, e, bufferPt) {
         if (this.pendingTooltip)
             this.pendingTooltip.dispose();
-        this.pendingTooltip = new controller_1.TooltipController(this.getClient, editor, e);
+        this.pendingTooltip = new controller_1.TooltipController(this.getClient, editor, e, bufferPt);
     }
     hideExpressionType() {
         if (!this.pendingTooltip)

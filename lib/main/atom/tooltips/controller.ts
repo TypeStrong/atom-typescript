@@ -2,7 +2,6 @@ import * as Atom from "atom"
 import {TSClient} from "../../../client"
 import {handlePromise} from "../../../utils"
 import {TooltipView} from "./tooltipView"
-import {bufferPositionFromMouseEvent} from "./util"
 
 interface Rect {
   left: number
@@ -18,8 +17,9 @@ export class TooltipController {
     private getClient: (ed: Atom.TextEditor) => Promise<TSClient | undefined>,
     editor: Atom.TextEditor,
     e: {clientX: number; clientY: number},
+    bufferPt: Atom.Point,
   ) {
-    handlePromise(this.initialize(editor, e))
+    handlePromise(this.initialize(editor, e, bufferPt))
   }
 
   public dispose() {
@@ -30,10 +30,11 @@ export class TooltipController {
     }
   }
 
-  private async initialize(editor: Atom.TextEditor, e: {clientX: number; clientY: number}) {
-    const bufferPt = bufferPositionFromMouseEvent(editor, e)
-    if (!bufferPt) return
-
+  private async initialize(
+    editor: Atom.TextEditor,
+    e: {clientX: number; clientY: number},
+    bufferPt: Atom.Point,
+  ) {
     const rawView = atom.views.getView(editor)
     const curCharPixelPt = rawView.pixelPositionForBufferPosition(bufferPt)
     const nextCharPixelPt = rawView.pixelPositionForBufferPosition(bufferPt.traverse([0, 1]))
