@@ -1,3 +1,7 @@
+## 12.7.3
+
+-   Clean up tooltip code; Do not try to show tooltips on destroyed editors
+
 ## 12.7.2
 
 -   Auto-restart tsserver syncronously to avoid race conditions
