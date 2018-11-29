@@ -2,12 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../../../utils");
 const tooltipView_1 = require("./tooltipView");
-const util_1 = require("./util");
 class TooltipController {
-    constructor(getClient, editor, e) {
+    constructor(getClient, editor, e, bufferPt) {
         this.getClient = getClient;
         this.cancelled = false;
-        utils_1.handlePromise(this.initialize(editor, e));
+        utils_1.handlePromise(this.initialize(editor, e, bufferPt));
     }
     dispose() {
         this.cancelled = true;
@@ -16,10 +15,7 @@ class TooltipController {
             this.view = undefined;
         }
     }
-    async initialize(editor, e) {
-        const bufferPt = util_1.bufferPositionFromMouseEvent(editor, e);
-        if (!bufferPt)
-            return;
+    async initialize(editor, e, bufferPt) {
         const rawView = atom.views.getView(editor);
         const curCharPixelPt = rawView.pixelPositionForBufferPosition(bufferPt);
         const nextCharPixelPt = rawView.pixelPositionForBufferPosition(bufferPt.traverse([0, 1]));

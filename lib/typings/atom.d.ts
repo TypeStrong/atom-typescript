@@ -6,6 +6,7 @@ declare module "atom" {
   }
   interface TextEditor {
     onDidTokenize(callback: () => void): Disposable
+    isDestroyed(): boolean
   }
   interface TextEditorElement {
     setUpdatedSynchronously(val: boolean): void

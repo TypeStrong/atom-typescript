@@ -39,6 +39,7 @@ export class TooltipManager {
           editor.onDidDestroy(() => {
             disp.dispose()
             this.subscriptions.remove(disp)
+            this.clearExprTypeTimeout()
           }),
         )
         this.subscriptions.add(disp)
@@ -51,11 +52,11 @@ export class TooltipManager {
     this.clearExprTypeTimeout()
   }
 
-  public async showExpressionAt(editor: Atom.TextEditor) {
+  public showExpressionAt(editor: Atom.TextEditor) {
     const pt = editor.getLastCursor().getBufferPosition()
     const view = atom.views.getView(editor)
     const px = view.pixelPositionForBufferPosition(pt)
-    return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px))
+    return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px), pt)
   }
 
   private getClient = async (editor: Atom.TextEditor) => {
@@ -79,9 +80,13 @@ export class TooltipManager {
     }
   }
 
-  private async showExpressionType(editor: Atom.TextEditor, e: {clientX: number; clientY: number}) {
+  private showExpressionType(
+    editor: Atom.TextEditor,
+    e: {clientX: number; clientY: number},
+    bufferPt: Atom.Point,
+  ) {
     if (this.pendingTooltip) this.pendingTooltip.dispose()
-    this.pendingTooltip = new TooltipController(this.getClient, editor, e)
+    this.pendingTooltip = new TooltipController(this.getClient, editor, e, bufferPt)
   }
 
   /** clears the timeout && the tooltip */
@@ -112,7 +117,7 @@ export class TooltipManager {
 
       this.clearExprTypeTimeout()
       this.exprTypeTimeout = window.setTimeout(
-        () => this.showExpressionType(editor, e),
+        () => this.showExpressionType(editor, e, bufferPt),
         atom.config.get("atom-typescript").tooltipDelay,
       )
     }
