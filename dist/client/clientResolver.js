@@ -31,7 +31,7 @@ class ClientResolver {
         };
     }
     async restartAllServers() {
-        await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()));
+        await this.reportBusyWhile("Restarting servers", () => Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");

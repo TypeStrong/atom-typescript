@@ -43,7 +43,9 @@ export class ClientResolver {
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
   public async restartAllServers() {
-    await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()))
+    await this.reportBusyWhile("Restarting servers", () =>
+      Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())),
+    )
   }
 
   public async get(pFilePath: string): Promise<Client> {
