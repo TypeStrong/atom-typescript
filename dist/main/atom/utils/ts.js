@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
-const tsconfig = require("tsconfig");
+const ts = require("typescript");
 function pointToLocation(point) {
     return { line: point.row + 1, offset: point.column + 1 };
 }
@@ -27,8 +27,8 @@ function rangeToLocationRange(range) {
     };
 }
 exports.rangeToLocationRange = rangeToLocationRange;
-async function getProjectConfig(configFile) {
-    const config = await loadConfig(configFile);
+function getProjectConfig(configFile) {
+    const config = loadConfig(configFile);
     const options = config.formatCodeOptions;
     return {
         formatCodeOptions: Object.assign({ indentSize: atom.config.get("editor.tabLength"), tabSize: atom.config.get("editor.tabLength") }, options),
@@ -36,18 +36,9 @@ async function getProjectConfig(configFile) {
     };
 }
 exports.getProjectConfig = getProjectConfig;
-async function loadConfig(configFile) {
-    try {
-        const { config } = await tsconfig.load(configFile);
-        return config;
-    }
-    catch (e) {
-        atom.notifications.addWarning(`Failed to parse ${atom.project.relativize(configFile)}`, {
-            detail: `The error was: ${e.message}`,
-            dismissable: true,
-        });
-        return {};
-    }
+function loadConfig(configFile) {
+    const { config } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    return config;
 }
 function signatureHelpItemToSignature(i) {
     return {

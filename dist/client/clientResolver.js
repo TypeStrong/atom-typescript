@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
-const fs = require("fs");
 const path = require("path");
 const Resolve = require("resolve");
+const ts = require("typescript");
 const client_1 = require("./client");
 /**
  * ClientResolver takes care of finding the correct tsserver for a source file based on how a
@@ -31,11 +31,11 @@ class ClientResolver {
         };
     }
     async restartAllServers() {
-        await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()));
+        await this.reportBusyWhile("Restarting servers", () => Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())));
     }
     async get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
-        const tsconfigPath = await resolveTsConfig(pFilePath);
+        const tsconfigPath = ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f));
         let tsconfigMap = this.clients.get(pathToBin);
         if (!tsconfigMap) {
             tsconfigMap = new Map();
@@ -87,23 +87,6 @@ async function resolveBinary(sourcePath, binName) {
     };
 }
 exports.resolveBinary = resolveBinary;
-async function fsexists(filePath) {
-    return new Promise(resolve => {
-        fs.exists(filePath, resolve);
-    });
-}
-async function resolveTsConfig(sourcePath) {
-    let parentDir = path.dirname(sourcePath);
-    let tsconfigPath = path.join(parentDir, "tsconfig.json");
-    while (!(await fsexists(tsconfigPath))) {
-        const oldParentDir = parentDir;
-        parentDir = path.dirname(parentDir);
-        if (oldParentDir === parentDir)
-            return undefined;
-        tsconfigPath = path.join(parentDir, "tsconfig.json");
-    }
-    return tsconfigPath;
-}
 function isConfDiagBody(body) {
     // tslint:disable-next-line:no-unsafe-any
     return body && body.triggerFile && body.configFile;

@@ -12,12 +12,19 @@ function getCodeHighlightProvider(getClient) {
             if (!location)
                 return;
             const client = await getClient(location.file);
-            const result = await client.execute("occurrences", location);
+            const result = await client.execute("documentHighlights", Object.assign({}, location, { filesToSearch: [location.file] }));
             if (!result.body)
                 return;
-            return result.body.map(utils_1.spanToRange);
+            return Array.from(getSpans(location.file, result.body));
         },
     };
 }
 exports.getCodeHighlightProvider = getCodeHighlightProvider;
+function* getSpans(file, data) {
+    for (const fileInfo of data) {
+        if (fileInfo.file !== file)
+            continue;
+        yield* fileInfo.highlightSpans.map(utils_1.spanToRange);
+    }
+}
 //# sourceMappingURL=codeHighlightProvider.js.map

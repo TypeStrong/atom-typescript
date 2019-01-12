@@ -22,12 +22,13 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   compileOnSaveEmitFile: true,
   completionEntryDetails: true,
   completions: true,
+  completionInfo: true,
   configure: true,
   definition: true,
   format: true,
   getCodeFixes: true,
   getSupportedCodeFixes: true,
-  occurrences: true,
+  documentHighlights: true,
   projectInfo: true,
   quickinfo: true,
   references: true,
@@ -54,6 +55,7 @@ export class TypescriptServiceClient {
   private readonly emitter = new Emitter<
     {
       restarted: void
+      terminated: void
     },
     EventTypes
   >()
@@ -61,7 +63,6 @@ export class TypescriptServiceClient {
 
   private server?: ChildProcess
   private lastStderrOutput = ""
-  private lastStartAttempt?: number
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -80,7 +81,8 @@ export class TypescriptServiceClient {
     ...args: CommandArg<T>
   ): Promise<CommandRes<T>> {
     if (!this.server) {
-      throw new Error("Server is not running")
+      this.server = this.startServer()
+      this.emitter.emit("restarted")
     }
 
     const req = {
@@ -107,14 +109,24 @@ export class TypescriptServiceClient {
 
   public async restartServer() {
     if (this.server) {
-      this.lastStartAttempt = undefined // reset auto-restart loop guard
       const server = this.server
       const graceTimer = setTimeout(() => server.kill(), 10000)
-      await this.execute("exit")
+      await Promise.all([
+        this.execute("exit"),
+        new Promise(resolve => {
+          const disp = this.emitter.once("terminated", () => {
+            disp.dispose()
+            resolve()
+          })
+        }),
+      ])
       clearTimeout(graceTimer)
-    } else {
+    }
+    // can't guarantee this.server value after await
+    // tslint:disable-next-line:strict-boolean-expressions
+    if (!this.server) {
       this.server = this.startServer()
-      this.emitter.emit("restarted", undefined)
+      this.emitter.emit("restarted")
     }
   }
 
@@ -123,7 +135,6 @@ export class TypescriptServiceClient {
       console.log("starting", this.tsServerPath)
     }
 
-    this.lastStartAttempt = Date.now()
     const cp = startServer(this.tsServerPath)
 
     if (!cp) throw new Error("ChildProcess failed to start")
@@ -148,24 +159,17 @@ export class TypescriptServiceClient {
     this.callbacks.rejectAll(err)
     if (report) console.error("tsserver: ", err)
     this.server = undefined
+    this.emitter.emit("terminated")
 
     if (report) {
       let detail = err.message
       if (this.lastStderrOutput) {
         detail = `Last output from tsserver:\n${this.lastStderrOutput}\n\n${detail}`
       }
-      atom.notifications.addError("TypeScript quit unexpectedly", {
+      atom.notifications.addError("TypeScript server quit unexpectedly", {
         detail,
         stack: err.stack,
         dismissable: true,
-      })
-    }
-    if (this.lastStartAttempt === undefined || Date.now() - this.lastStartAttempt > 5000) {
-      this.server = this.startServer()
-      this.emitter.emit("restarted", undefined)
-    } else {
-      atom.notifications.addWarning("Not restarting tsserver", {
-        detail: "Restarting too fast",
       })
     }
   }

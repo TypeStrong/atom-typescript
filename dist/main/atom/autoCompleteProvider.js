@@ -94,8 +94,7 @@ class AutocompleteProvider {
             }
         }
         const client = await this.getClient(location.file);
-        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
-        const suggestions = completions.body.map(completionEntryToSuggestion);
+        const suggestions = await getSuggestionsInternal(client, location, prefix);
         this.lastSuggestions = {
             client,
             location,
@@ -106,6 +105,18 @@ class AutocompleteProvider {
     }
 }
 exports.AutocompleteProvider = AutocompleteProvider;
+async function getSuggestionsInternal(client, location, prefix) {
+    if (parseInt(client.version.split(".")[0], 10) >= 3) {
+        // use completionInfo
+        const completions = await client.execute("completionInfo", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
+        return completions.body.entries.map(completionEntryToSuggestion);
+    }
+    else {
+        // use deprecated completions
+        const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
+        return completions.body.map(completionEntryToSuggestion);
+    }
+}
 // Decide what needs to be replaced in the editor buffer when inserting the completion
 function getReplacementPrefix(prefix, trimmed, replacement) {
     if (trimmed === "." || trimmed === "{" || prefix === " ") {

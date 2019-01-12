@@ -44,27 +44,15 @@ class OccurenceController {
             return;
         const pos = this.editor.getLastCursor().getBufferPosition();
         try {
-            const result = await client.execute("occurrences", {
+            const result = await client.execute("documentHighlights", {
                 file: filePath,
                 line: pos.row + 1,
                 offset: pos.column + 1,
+                filesToSearch: [filePath],
             });
             if (this.disposed)
                 return;
-            const ranges = result.body.map(utils_2.spanToRange);
-            const newOccurrenceMarkers = ranges.map(range => {
-                const oldMarker = this.occurrenceMarkers.find(m => m.getBufferRange().isEqual(range));
-                if (oldMarker)
-                    return oldMarker;
-                else {
-                    const marker = this.editor.markBufferRange(range);
-                    this.editor.decorateMarker(marker, {
-                        type: "highlight",
-                        class: "atom-typescript-occurrence",
-                    });
-                    return marker;
-                }
-            });
+            const newOccurrenceMarkers = Array.from(this.getNewOccurrenceMarkers(result.body));
             for (const m of this.occurrenceMarkers) {
                 if (!newOccurrenceMarkers.includes(m))
                     m.destroy();
@@ -74,6 +62,26 @@ class OccurenceController {
         catch (e) {
             if (window.atom_typescript_debug)
                 console.error(e);
+        }
+    }
+    *getNewOccurrenceMarkers(data) {
+        for (const fileInfo of data) {
+            if (fileInfo.file !== this.editor.getPath())
+                continue;
+            for (const span of fileInfo.highlightSpans) {
+                const range = utils_2.spanToRange(span);
+                const oldMarker = this.occurrenceMarkers.find(m => m.getBufferRange().isEqual(range));
+                if (oldMarker)
+                    yield oldMarker;
+                else {
+                    const marker = this.editor.markBufferRange(range);
+                    this.editor.decorateMarker(marker, {
+                        type: "highlight",
+                        class: "atom-typescript-occurrence",
+                    });
+                    yield marker;
+                }
+            }
         }
     }
 }

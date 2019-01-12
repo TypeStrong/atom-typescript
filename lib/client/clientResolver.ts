@@ -1,7 +1,7 @@
 import {CompositeDisposable, Emitter} from "atom"
-import * as fs from "fs"
 import * as path from "path"
 import * as Resolve from "resolve"
+import * as ts from "typescript"
 import {
   ConfigFileDiagnosticEventBody,
   Diagnostic,
@@ -43,12 +43,14 @@ export class ClientResolver {
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
   public async restartAllServers() {
-    await Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer()))
+    await this.reportBusyWhile("Restarting servers", () =>
+      Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())),
+    )
   }
 
   public async get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
-    const tsconfigPath = await resolveTsConfig(pFilePath)
+    const tsconfigPath = ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
 
     let tsconfigMap = this.clients.get(pathToBin)
     if (!tsconfigMap) {
@@ -128,24 +130,6 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
     version,
     pathToBin: resolvedPath,
   }
-}
-
-async function fsexists(filePath: string): Promise<boolean> {
-  return new Promise<boolean>(resolve => {
-    fs.exists(filePath, resolve)
-  })
-}
-
-async function resolveTsConfig(sourcePath: string): Promise<string | undefined> {
-  let parentDir = path.dirname(sourcePath)
-  let tsconfigPath = path.join(parentDir, "tsconfig.json")
-  while (!(await fsexists(tsconfigPath))) {
-    const oldParentDir = parentDir
-    parentDir = path.dirname(parentDir)
-    if (oldParentDir === parentDir) return undefined
-    tsconfigPath = path.join(parentDir, "tsconfig.json")
-  }
-  return tsconfigPath
 }
 
 function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {

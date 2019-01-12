@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {Signature, SignatureParameter} from "atom/ide"
-import * as tsconfig from "tsconfig"
+import * as ts from "typescript"
 import {
   CodeEdit,
   FormatCodeSettings,
@@ -46,14 +46,14 @@ export function rangeToLocationRange(range: Atom.Range): LocationRangeQuery {
   }
 }
 
-export async function getProjectConfig(
+export function getProjectConfig(
   configFile: string,
-): Promise<{
+): {
   formatCodeOptions: FormatCodeSettings
   compileOnSave: boolean
-}> {
-  const config = await loadConfig(configFile)
-  const options = config.formatCodeOptions
+} {
+  const config = loadConfig(configFile)
+  const options = (config as {formatCodeOptions?: FormatCodeSettings}).formatCodeOptions
 
   return {
     formatCodeOptions: {
@@ -65,22 +65,14 @@ export async function getProjectConfig(
   }
 }
 
-async function loadConfig(
+function loadConfig(
   configFile: string,
-): Promise<{
+): {
   formatCodeOptions?: FormatCodeSettings
   compileOnSave?: boolean
-}> {
-  try {
-    const {config} = await tsconfig.load(configFile)
-    return config as ReturnType<typeof loadConfig>
-  } catch (e) {
-    atom.notifications.addWarning(`Failed to parse ${atom.project.relativize(configFile)}`, {
-      detail: `The error was: ${(e as Error).message}`,
-      dismissable: true,
-    })
-    return {}
-  }
+} {
+  const {config} = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+  return config as ReturnType<typeof loadConfig>
 }
 
 export function signatureHelpItemToSignature(i: SignatureHelpItem): Signature {

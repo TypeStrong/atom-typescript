@@ -1,7 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// A class to keep all changes to the buffer in sync with tsserver. This is mainly used with
-// the editor panes, but is also useful for editor-less buffer changes (renameRefactor).
 const Atom = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("../utils");
@@ -190,7 +188,7 @@ class TypescriptBuffer {
     async readConfigFile() {
         if (!this.state || !this.state.configFile)
             return;
-        const options = await utils_2.getProjectConfig(this.state.configFile.getPath());
+        const options = utils_2.getProjectConfig(this.state.configFile.getPath());
         this.compileOnSave = options.compileOnSave;
         await this.state.client.execute("configure", {
             file: this.state.filePath,

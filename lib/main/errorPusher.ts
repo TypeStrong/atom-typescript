@@ -1,4 +1,4 @@
-import {CompositeDisposable, Point, Range} from "atom"
+import {Point, Range} from "atom"
 import {IndieDelegate, Message} from "atom/linter"
 import {debounce} from "lodash"
 import * as path from "path"
@@ -10,15 +10,8 @@ import {locationsToRange, spanToRange} from "./atom/utils"
 export class ErrorPusher {
   private linter?: IndieDelegate
   private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
-  private unusedAsInfo = true
-  private subscriptions = new CompositeDisposable()
 
   constructor() {
-    this.subscriptions.add(
-      atom.config.observe("atom-typescript.unusedAsInfo", (unusedAsInfo: boolean) => {
-        this.unusedAsInfo = unusedAsInfo
-      }),
-    )
     this.pushErrors = debounce(this.pushErrors.bind(this), 100)
   }
 
@@ -68,12 +61,16 @@ export class ErrorPusher {
   }
 
   public dispose() {
-    this.subscriptions.dispose()
     this.clear()
+    if (this.linter) this.linter.dispose()
+    this.linter = undefined
   }
 
   private pushErrors() {
-    const errors: Message[] = []
+    if (this.linter) this.linter.setAllMessages(Array.from(this.getLinterErrors()))
+  }
+
+  private *getLinterErrors(): IterableIterator<Message> {
     const config = atom.config.get("atom-typescript")
 
     if (!config.suppressAllDiagnostics) {
@@ -89,26 +86,22 @@ export class ErrorPusher {
               start = end = {line: 1, offset: 1}
             }
 
-            errors.push({
-              severity: this.getSeverity(diagnostic),
+            yield {
+              severity: this.getSeverity(config.unusedAsInfo, diagnostic),
               excerpt: diagnostic.text,
               location: {
                 file: filePath,
                 position: locationsToRange(start, end),
               },
-            })
+            }
           }
         }
       }
     }
-
-    if (this.linter) {
-      this.linter.setAllMessages(errors)
-    }
   }
 
-  private getSeverity(diagnostic: Diagnostic) {
-    if (this.unusedAsInfo && diagnostic.code === 6133) return "info"
+  private getSeverity(unusedAsInfo: boolean, diagnostic: Diagnostic) {
+    if (unusedAsInfo && diagnostic.code === 6133) return "info"
     switch (diagnostic.category) {
       case "error":
         return "error"
