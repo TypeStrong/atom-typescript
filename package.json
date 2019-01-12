@@ -54,7 +54,7 @@
       "order": 55
     },
     "preferBuiltinSigHelp": {
-      "title": "Prefer built-in signagure help tooltips",
+      "title": "Prefer built-in signature help tooltips",
       "description": "Use built-in tooltips for displaying signature help instead of Atom-IDE ones (if available); Change requires Atom restart",
       "type": "boolean",
       "default": false,
