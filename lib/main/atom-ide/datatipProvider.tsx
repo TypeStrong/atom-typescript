@@ -95,7 +95,6 @@ async function highlightCode(code: string) {
       <div
         style={{fontFamily}}
         class="atom-typescript-datatip-tooltip-code"
-        // @ts-ignore
         dangerouslySetInnerHTML={{__html: html.map(x => x.innerHTML).join("\n")}}
       />
     )

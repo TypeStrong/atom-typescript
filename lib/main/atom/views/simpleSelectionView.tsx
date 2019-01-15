@@ -4,7 +4,11 @@ import * as etch from "etch"
 import {handlePromise} from "../../../utils"
 
 export interface SelectListViewOptions<T> {
-  items: T[] | Promise<T[]> | ((filterText: string) => T[]) | ((filterText: string) => Promise<T[]>)
+  items:
+    | ReadonlyArray<T>
+    | Promise<ReadonlyArray<T>>
+    | ((filterText: string) => ReadonlyArray<T>)
+    | ((filterText: string) => Promise<ReadonlyArray<T>>)
   itemTemplate: (item: T, context: SelectListView<T>) => JSX.Element
   itemFilterKey: keyof T
   didChangeSelection?: (item?: T) => void

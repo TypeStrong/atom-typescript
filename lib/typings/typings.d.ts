@@ -9,6 +9,6 @@ interface ElementExp extends Element {
   scrollIntoViewIfNeeded?: (optCenter?: boolean) => void
 }
 
-interface Function {
+interface CallableFunction {
   bind<T>(this: T, thisArg: any): T
 }

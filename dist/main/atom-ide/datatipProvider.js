@@ -85,9 +85,7 @@ async function highlightCode(code) {
         ed.setText(code.replace(/\r?\n$/, ""));
         await editorTokenized(ed);
         const html = Array.from(el.querySelectorAll(".line:not(.dummy)"));
-        return (etch.dom("div", { style: { fontFamily }, class: "atom-typescript-datatip-tooltip-code", 
-            // @ts-ignore
-            dangerouslySetInnerHTML: { __html: html.map(x => x.innerHTML).join("\n") } }));
+        return (etch.dom("div", { style: { fontFamily }, class: "atom-typescript-datatip-tooltip-code", dangerouslySetInnerHTML: { __html: html.map(x => x.innerHTML).join("\n") } }));
     }
     finally {
         el.remove();

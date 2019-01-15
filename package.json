@@ -300,32 +300,32 @@
   },
   "dependencies": {
     "atom-highlight": "^0.4.1",
-    "atom-package-deps": "^4.6.2",
+    "atom-package-deps": "^5.0.0",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
     "etch": "^0.14.0",
     "fuzzaldrin": "^2.1.0",
     "lodash": "^4.17.11",
-    "resolve": "^1.8.1",
+    "resolve": "^1.9.0",
     "tslib": "^1.9.3",
-    "typescript": "^3.1.6"
+    "typescript": "^3.2.2"
   },
   "devDependencies": {
     "@types/atom": "^1.31.0",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.1.7",
     "@types/fuzzaldrin": "^2.1.1",
-    "@types/lodash": "^4.14.118",
+    "@types/lodash": "^4.14.119",
     "@types/mocha": "^2",
     "@types/node": "^8.10.38",
     "@types/resolve": "^0.0.8",
     "atom-ts-spec-runner": "^1.1.1",
     "chai": "^4.2.0",
-    "prettier": "^1.15.2",
+    "prettier": "^1.15.3",
     "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
+    "tslint": "^5.12.1",
     "tslint-use-atom-disposables": "0.0.1",
-    "typescript-tslint-plugin": "0.1.0"
+    "typescript-tslint-plugin": "0.2.1"
   },
   "package-deps": [
     "atom-ide-ui:0.5.3"

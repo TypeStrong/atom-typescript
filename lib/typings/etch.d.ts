@@ -145,6 +145,7 @@ interface HTMLAttributes {
   results?: number
   security?: string
   unselectable?: boolean
+  dangerouslySetInnerHTML?: {__html: string}
 }
 
 interface EtchAttributes extends HTMLAttributes {

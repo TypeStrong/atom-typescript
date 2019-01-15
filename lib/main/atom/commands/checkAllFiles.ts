@@ -25,7 +25,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
       if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
       cancelTimeout = window.setTimeout(cancel, 2000)
 
-      files.delete(evt.file)
+      if ("file" in evt) files.delete(evt.file)
       updateStatus()
     })
 
