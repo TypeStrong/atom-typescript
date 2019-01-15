@@ -1,3 +1,71 @@
+## 13.0.0
+
+### Breaking changes
+
+**TL;DR: TypeScript prior to v1.5.3 is no longer supported.**
+
+-   Use documentHighlights instead of occurrences
+-   Use TypeScript API for parsing `tsconfig.json`
+
+    Notice: currently, the bundled TypeScript implementation is used. This
+    should work fine in most cases, however, some edge cases might produce
+    confusing behaviour (e.g. Atom-TypeScript might parse `tsconfig.json`, but
+    `tsc` might not -- or vice versa). Please report any issues related to
+    `tsconfig.json` parsing.
+
+-   Remove dependency on `tsconfig` npm module
+
+    This module was used to parse `tsconfig.json` more or less "like
+    TypeScript". The module is essentially unsupported at this point. There is
+    little reason to try to use it nowadays.
+
+This essentially makes it so TypeScript prior to v1.5.3 is no longer
+supported. TypeScript v1.5.3 has been released in July 2015, so I feel
+that it's old enough to be nearly ubiquitous. If you need to work with TypeScript prior to v1.5.3, please use older release of Atom-TypeScript.
+
+On the plus side, inherited `tsconfig.json` should work as expected now.
+
+### Changes
+
+-   Crashed server is restarted on demand only
+
+    In v12.7.0, a feature was added that would auto-restart tsserver if
+    it crashed, but it did contain a guard against crash-loop (to avoid
+    hogging system resources). This decision evidently lead to some
+    confusion, so now the crashed tsserver is only restarted on demand, i.e.
+    if there is a need for a running instance. This should all happen
+    in background. On the upside, now there's no limit to how much tsserver
+    can crash before it's no longer auto-restarted, so it generally should
+    work more consistently.
+
+### General fixes
+
+-   Dispose of Linter in errorPusher properly
+-   Inherited `tsconfig.json` should work as expected now due to switching
+    to TypeScript-supplied config parser.
+
+### Maintenance
+
+-   Update bundled TypeScript to v3.2.2
+-   Fix typo in `package.json` (Wes Moberly)
+-   Add proper LICENSE text
+
+    Atom-TypeScript has always been licensed under the MIT license, but
+    the license text was missing, instead the license file only contained the
+    word "MIT". This has been fixed.
+
+-   Remove bogus await
+-   Clean up errorPusher code
+-   Remove outdated comments
+-   Removed dangling grammar settings
+-   Add support for new completionInfo command, avoid using deprecated completions
+
+    Since v3.0.0, TypeScript deprecated old completion commands, and instead
+    implemented new ones. Since we obviously want to support TypeScript
+    prior to v3.0.0 for the time being, the new interface is preferred when
+    available, but Atom-TypeScript will fall back to the old one on TypeScript
+    versions prior to v3.0.0.
+
 ## 12.7.3
 
 -   Clean up tooltip code; Do not try to show tooltips on destroyed editors
