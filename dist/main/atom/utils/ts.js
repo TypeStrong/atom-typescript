@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
+const path = require("path");
 const ts = require("typescript");
 function pointToLocation(point) {
     return { line: point.row + 1, offset: point.column + 1 };
@@ -37,7 +38,15 @@ function getProjectConfig(configFile) {
 }
 exports.getProjectConfig = getProjectConfig;
 function loadConfig(configFile) {
-    const { config } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    let { config, } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    if (config === undefined)
+        return {};
+    if (typeof config.extends === "string") {
+        const extendsPath = path.join(path.dirname(configFile), config.extends);
+        const extendsConfig = loadConfig(extendsPath);
+        console.log("loadConfig", config, extendsPath, extendsConfig);
+        config = Object.assign({}, extendsConfig, config);
+    }
     return config;
 }
 function signatureHelpItemToSignature(i) {

@@ -1,5 +1,6 @@
 import * as Atom from "atom"
 import {Signature, SignatureParameter} from "atom/ide"
+import * as path from "path"
 import * as ts from "typescript"
 import {
   CodeEdit,
@@ -71,7 +72,18 @@ function loadConfig(
   formatCodeOptions?: FormatCodeSettings
   compileOnSave?: boolean
 } {
-  const {config} = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+  let {
+    config,
+  }: {
+    config?: {[key: string]: unknown}
+  } = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+  if (config === undefined) return {}
+  if (typeof config.extends === "string") {
+    const extendsPath = path.join(path.dirname(configFile), config.extends)
+    const extendsConfig = loadConfig(extendsPath)
+    console.log("loadConfig", config, extendsPath, extendsConfig)
+    config = Object.assign({}, extendsConfig, config)
+  }
   return config as ReturnType<typeof loadConfig>
 }
 
