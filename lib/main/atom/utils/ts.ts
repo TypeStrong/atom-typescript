@@ -72,6 +72,9 @@ function loadConfig(
   formatCodeOptions?: FormatCodeSettings
   compileOnSave?: boolean
 } {
+  if (path.extname(configFile) !== ".json") {
+    configFile = `${configFile}.json`
+  }
   let {
     config,
   }: {
@@ -81,7 +84,6 @@ function loadConfig(
   if (typeof config.extends === "string") {
     const extendsPath = path.join(path.dirname(configFile), config.extends)
     const extendsConfig = loadConfig(extendsPath)
-    console.log("loadConfig", config, extendsPath, extendsConfig)
     config = Object.assign({}, extendsConfig, config)
   }
   return config as ReturnType<typeof loadConfig>

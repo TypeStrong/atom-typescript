@@ -38,13 +38,15 @@ function getProjectConfig(configFile) {
 }
 exports.getProjectConfig = getProjectConfig;
 function loadConfig(configFile) {
+    if (path.extname(configFile) !== ".json") {
+        configFile = `${configFile}.json`;
+    }
     let { config, } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
     if (config === undefined)
         return {};
     if (typeof config.extends === "string") {
         const extendsPath = path.join(path.dirname(configFile), config.extends);
         const extendsConfig = loadConfig(extendsPath);
-        console.log("loadConfig", config, extendsPath, extendsConfig);
         config = Object.assign({}, extendsConfig, config);
     }
     return config;
