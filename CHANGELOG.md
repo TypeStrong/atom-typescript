@@ -1,3 +1,7 @@
+## 13.0.2
+
+-   Auto-add json extension to config file path if it's missing
+
 ## 13.0.1
 
 -   Recursively load extended config
