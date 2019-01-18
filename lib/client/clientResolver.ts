@@ -36,6 +36,8 @@ export class ClientResolver {
   private clients = new Map<string, Map<string | undefined, Client>>()
   private emitter = new Emitter<{}, EventTypes>()
   private subscriptions = new CompositeDisposable()
+  private tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
+    .tsserverInstancePerTsconfig
   // This is just here so TypeScript can infer the types of the callbacks when using "on" method
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -50,7 +52,9 @@ export class ClientResolver {
 
   public async get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
-    const tsconfigPath = ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
+    const tsconfigPath = this.tsserverInstancePerTsconfig
+      ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
+      : undefined
 
     let tsconfigMap = this.clients.get(pathToBin)
     if (!tsconfigMap) {

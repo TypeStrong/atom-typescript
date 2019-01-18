@@ -210,6 +210,13 @@
       "type": "boolean",
       "default": false,
       "order": 170
+    },
+    "tsserverInstancePerTsconfig": {
+      "title": "Spawn separate tsserver instance for each tsconfig.json",
+      "description": "This option helps avoid confusion when multiple projects are referincing the same file, but can prevent external definition files (d.ts) from reloading when changed. Changing this option requires Atom restart.",
+      "type": "boolean",
+      "default": false,
+      "order": 180
     }
   },
   "deserializers": {

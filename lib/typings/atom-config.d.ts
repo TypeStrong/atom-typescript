@@ -23,6 +23,7 @@ declare module "atom" {
     "atom-typescript.tsSyntaxScopes": string[]
     "atom-typescript.jsSyntaxScopes": string[]
     "atom-typescript.allowJS": boolean
+    "atom-typescript.tsserverInstancePerTsconfig": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
       autocompletionSuggestionPriority: number
@@ -45,6 +46,7 @@ declare module "atom" {
       tsSyntaxScopes: string[]
       jsSyntaxScopes: string[]
       allowJS: boolean
+      tsserverInstancePerTsconfig: boolean
     }
   }
 }
