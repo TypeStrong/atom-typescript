@@ -1,3 +1,20 @@
+## 13.1.0
+
+-   Disable instance-per-tsconfig by default; make it configurable
+
+    Back in v12.7.0, a change was introduced to spawn a separate tsserver
+    instance per `tsconfig.json` file. This effectively made project
+    assignment for source files referenced in several projects
+    deterministic. However, this same change can prevent external
+    declaration files (like ones in `node_modules/@types`) from being
+    reloaded by tsserver even when they are opened in Atom, which is by far
+    a more common thing to want than deterministic project assignment.
+
+    So, the instance-per-tsconfig code is now disabled by default. You can
+    enable it in the Atom-TypeScript settings. The option is called
+    `tsserverInstancePerTsconfig` and is titled "Spawn separate tsserver
+    instance for each tsconfig.json" in the settings GUI.
+
 ## 13.0.2
 
 -   Auto-add json extension to config file path if it's missing
