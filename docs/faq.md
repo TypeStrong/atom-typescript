@@ -3,12 +3,26 @@
 ## Syntax Highlighting is bad
 
 Since v12, we're discontinuing our grammar in favor of
-<https://github.com/atom/language-typescript>, which is itself
-downstream from <https://github.com/Microsoft/TypeScript-TmLanguage>.
+<https://github.com/atom/language-typescript>, which is
+shipped with Atom.
 
-General grammar issues should go to
-<https://github.com/Microsoft/TypeScript-TmLanguage>, and ones specific
-to Atom to <https://github.com/atom/language-typescript>.
+Atom's TypeScript grammar is a little confusing, so please bear with the long-winded explaination below.
+
+If you *are* using tree-sitter parsers (the default on latest Atom versions),
+i.e. if 'Use Tree Sitter Parsers' option in Atom core settings is enabled,
+
+![Use Tree Sitter Parsers option is enabled](https://user-images.githubusercontent.com/7275622/52045865-744b0700-2556-11e9-96bf-4367e90eeac5.png)
+
+then grammar-related issues should go to <https://github.com/atom/language-typescript>
+or <https://github.com/tree-sitter/tree-sitter-typescript>.
+
+Otherwise, if you are *not* using tree-sitter parsers, the non-tree-sitter TypeScript
+grammar is downstream from <https://github.com/Microsoft/TypeScript-TmLanguage>, and
+general grammar issues should go there, and ones specific to Atom to
+<https://github.com/atom/language-typescript>.
+
+If you feel confused as to where you should create the issue, it's likely safe to default
+to <https://github.com/atom/language-typescript>.
 
 ## I want to use package X for syntax highlighting instead of language-typescript, but Atom-TypeScript doesn't work
 
@@ -75,8 +89,13 @@ if you've updated TypeScript in your project.
 
 You probably deleted them or added them or moved them around. The
 TypeScript compiler is decent about keeping track of moving files, but
-sometimes things can go out of sync and in that case it's best to simply
-reset the editor using `Window: Reload` command.
+sometimes things can go out of sync.
+
+In that case, you can forcibly restart running TsServer instances
+with `typescript:restart-all-servers` command.
+
+If that doesn't help, resetting the editor using `Window: Reload` command
+should work.
 
 ## Failed to Update
 
