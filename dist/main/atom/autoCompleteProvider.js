@@ -6,9 +6,8 @@ const fuzzaldrin = require("fuzzaldrin");
 const utils_1 = require("./utils");
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
-    constructor(getClient, flushTypescriptBuffer) {
+    constructor(getClient) {
         this.getClient = getClient;
-        this.flushTypescriptBuffer = flushTypescriptBuffer;
         this.selector = utils_1.typeScriptScopes()
             .map(x => (x.includes(".") ? `.${x}` : x))
             .join(", ");
@@ -41,8 +40,6 @@ class AutocompleteProvider {
                 return [];
             }
         }
-        // Flush any pending changes for this buffer to get up to date completions
-        await this.flushTypescriptBuffer(location.file);
         try {
             let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
             const alphaPrefix = prefix.replace(/\W/g, "");

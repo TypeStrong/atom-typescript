@@ -2,9 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../atom/utils");
 class TSSigHelpProvider {
-    constructor(getClient, flushTypescriptBuffer) {
+    constructor(getClient) {
         this.getClient = getClient;
-        this.flushTypescriptBuffer = flushTypescriptBuffer;
         this.triggerCharacters = new Set(["(", ","]);
         this.grammarScopes = utils_1.typeScriptScopes();
         this.priority = 100;
@@ -15,7 +14,6 @@ class TSSigHelpProvider {
             if (filePath === undefined)
                 return;
             const client = await this.getClient(filePath);
-            await this.flushTypescriptBuffer(filePath);
             const result = await client.execute("signatureHelp", {
                 file: filePath,
                 line: pos.row + 1,
