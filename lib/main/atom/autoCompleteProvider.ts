@@ -3,7 +3,6 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
-import {FlushTypescriptBuffer} from "../pluginManager"
 import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
@@ -36,10 +35,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[]
   }
 
-  constructor(
-    private getClient: GetClientFunction,
-    private flushTypescriptBuffer: FlushTypescriptBuffer,
-  ) {}
+  constructor(private getClient: GetClientFunction) {}
 
   public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
@@ -64,9 +60,6 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     ) {
       return []
     }
-
-    // Flush any pending changes for this buffer to get up to date completions
-    await this.flushTypescriptBuffer(location.file)
 
     try {
       let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)

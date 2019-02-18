@@ -5,9 +5,8 @@ const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const utils_1 = require("./utils");
 class AutocompleteProvider {
-    constructor(getClient, flushTypescriptBuffer) {
+    constructor(getClient) {
         this.getClient = getClient;
-        this.flushTypescriptBuffer = flushTypescriptBuffer;
         this.selector = utils_1.typeScriptScopes()
             .map(x => (x.includes(".") ? `.${x}` : x))
             .join(", ");
@@ -34,8 +33,6 @@ class AutocompleteProvider {
             !containsScope(opts.scopeDescriptor.getScopesArray(), "template.expression.")) {
             return [];
         }
-        // Flush any pending changes for this buffer to get up to date completions
-        await this.flushTypescriptBuffer(location.file);
         try {
             let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
             const alphaPrefix = prefix.replace(/\W/g, "");

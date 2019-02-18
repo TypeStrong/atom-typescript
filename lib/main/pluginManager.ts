@@ -32,10 +32,7 @@ import {SemanticViewController} from "./atom/views/outline/semanticViewControlle
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
 import {ErrorPusher} from "./errorPusher"
 import {State} from "./packageState"
-import {TypescriptBuffer} from "./typescriptBuffer"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
-
-export type FlushTypescriptBuffer = (filePath: string) => Promise<void>
 
 export interface Change extends TextSpan {
   newText: string
@@ -103,7 +100,6 @@ export class PluginManager {
 
     this.sigHelpManager = new SigHelpManager({
       getClient: this.getClient,
-      flushTypescriptBuffer: this.flushTypescriptBuffer,
     })
     this.subscriptions.add(this.sigHelpManager)
 
@@ -204,7 +200,7 @@ export class PluginManager {
 
   public consumeSigHelpService(registry: SignatureHelpRegistry): void | Atom.DisposableLike {
     if (atom.config.get("atom-typescript").preferBuiltinSigHelp) return
-    const disp = registry(new TSSigHelpProvider(this.getClient, this.flushTypescriptBuffer))
+    const disp = registry(new TSSigHelpProvider(this.getClient))
     this.subscriptions.add(disp)
     this.sigHelpManager.dispose()
     this.usingBuiltinSigHelpManager = false
@@ -226,7 +222,7 @@ export class PluginManager {
 
   // Registering an autocomplete provider
   public provideAutocomplete() {
-    return [new AutocompleteProvider(this.getClient, this.flushTypescriptBuffer)]
+    return [new AutocompleteProvider(this.getClient)]
   }
 
   public provideIntentions() {
@@ -278,19 +274,6 @@ export class PluginManager {
 
   private killAllServers = () => {
     handlePromise(this.clientResolver.restartAllServers())
-  }
-
-  private flushTypescriptBuffer: FlushTypescriptBuffer = async filePath => {
-    const normalizedFilePath = path.normalize(filePath)
-    const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
-    if (ed) {
-      const buffer = TypescriptBuffer.create(ed.getBuffer(), {
-        getClient: this.getClient,
-        clearFileErrors: this.clearFileErrors,
-        reportBuildStatus: this.reportBuildStatus,
-      })
-      await buffer.flush()
-    }
   }
 
   private withBuffer = async <T>(
@@ -354,8 +337,6 @@ export class PluginManager {
               buffer.setTextInRange(change.range, change.newText)
             }
           })
-          const filePath = buffer.getPath()
-          if (filePath !== undefined) await this.flushTypescriptBuffer(filePath)
         }),
       ),
     )

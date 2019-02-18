@@ -9,8 +9,6 @@ class TypescriptBuffer {
         this.buffer = buffer;
         this.deps = deps;
         this.events = new Atom.Emitter();
-        this.lastChangedAt = Date.now();
-        this.lastUpdatedAt = Date.now();
         this.compileOnSave = false;
         this.subscriptions = new Atom.CompositeDisposable();
         // tslint:disable-next-line:member-ordering
@@ -39,24 +37,19 @@ class TypescriptBuffer {
                 this.state = undefined;
             }
         };
-        this.onDidChange = () => {
-            this.lastChangedAt = Date.now();
-        };
         this.onDidChangePath = (newPath) => {
             utils_1.handlePromise(this.close().then(() => {
                 this.openPromise = this.open(newPath);
             }));
         };
         this.onDidSave = async () => {
-            await this.flush();
             await this.getErr({ allFiles: true });
             await this.doCompileOnSave();
         };
-        this.onDidStopChanging = async ({ changes }) => {
+        this.onDidChangeText = async ({ changes }) => {
             // If there are no actual changes, or the file isn't open, we have nothing to do
             if (changes.length === 0 || !this.state)
                 return;
-            this.deps.reportBuildStatus(undefined);
             const { client, filePath } = this.state;
             // NOTE: this might look somewhat weird until we realize that
             // awaiting on each "change" command may lead to arbitrary
@@ -74,14 +67,17 @@ class TypescriptBuffer {
                 }));
                 return acc;
             }, []));
-            this.lastUpdatedAt = Date.now();
-            this.events.emit("updated");
-            return this.getErr({ allFiles: false });
         };
-        this.subscriptions.add(buffer.onDidChange(this.onDidChange), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
+        this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
             utils_1.handlePromise(this.onDidSave());
-        }), buffer.onDidStopChanging(arg => {
-            utils_1.handlePromise(this.onDidStopChanging(arg));
+        }), buffer.onDidStopChanging(({ changes }) => {
+            utils_1.handlePromise(this.getErr({ allFiles: false }));
+            if (changes.length > 0)
+                this.deps.reportBuildStatus(undefined);
+        }), buffer.onDidChangeText(arg => {
+            // NOTE: we don't need to worry about interleaving here,
+            // because onDidChangeText pushes all changes at once
+            utils_1.handlePromise(this.onDidChangeText(arg));
         }));
         this.openPromise = this.open(this.buffer.getPath());
     }
@@ -97,18 +93,6 @@ class TypescriptBuffer {
     }
     getPath() {
         return this.state && this.state.filePath;
-    }
-    // If there are any pending changes, flush them out to the Typescript server
-    async flush() {
-        if (this.lastChangedAt > this.lastUpdatedAt) {
-            await new Promise(resolve => {
-                const disp = this.events.once("updated", () => {
-                    disp.dispose();
-                    resolve();
-                });
-                this.buffer.emitDidStopChangingEvent();
-            });
-        }
     }
     getInfo() {
         if (!this.state)

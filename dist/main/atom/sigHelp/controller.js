@@ -79,7 +79,6 @@ class TooltipController {
             return;
         const client = await this.deps.getClient(filePath);
         try {
-            await this.deps.flushTypescriptBuffer(filePath);
             const result = await client.execute("signatureHelp", {
                 file: filePath,
                 line: bufferPt.row + 1,

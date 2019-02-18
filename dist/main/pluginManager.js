@@ -27,7 +27,6 @@ const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
 const errorPusher_1 = require("./errorPusher");
-const typescriptBuffer_1 = require("./typescriptBuffer");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
 class PluginManager {
     constructor(state) {
@@ -45,18 +44,6 @@ class PluginManager {
         };
         this.killAllServers = () => {
             utils_1.handlePromise(this.clientResolver.restartAllServers());
-        };
-        this.flushTypescriptBuffer = async (filePath) => {
-            const normalizedFilePath = path.normalize(filePath);
-            const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
-            if (ed) {
-                const buffer = typescriptBuffer_1.TypescriptBuffer.create(ed.getBuffer(), {
-                    getClient: this.getClient,
-                    clearFileErrors: this.clearFileErrors,
-                    reportBuildStatus: this.reportBuildStatus,
-                });
-                await buffer.flush();
-            }
         };
         this.withBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);
@@ -111,9 +98,6 @@ class PluginManager {
                     buffer.setTextInRange(change.range, change.newText);
                 }
             });
-            const filePath = buffer.getPath();
-            if (filePath !== undefined)
-                await this.flushTypescriptBuffer(filePath);
         })));
         this.showTooltipAt = async (ed) => {
             if (this.usingBuiltinTooltipManager)
@@ -160,7 +144,6 @@ class PluginManager {
         this.subscriptions.add(this.tooltipManager);
         this.sigHelpManager = new manager_2.SigHelpManager({
             getClient: this.getClient,
-            flushTypescriptBuffer: this.flushTypescriptBuffer,
         });
         this.subscriptions.add(this.sigHelpManager);
         this.occurrenceManager = new manager_1.OccurrenceManager(this.getClient);
@@ -249,7 +232,7 @@ class PluginManager {
     consumeSigHelpService(registry) {
         if (atom.config.get("atom-typescript").preferBuiltinSigHelp)
             return;
-        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient, this.flushTypescriptBuffer));
+        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient));
         this.subscriptions.add(disp);
         this.sigHelpManager.dispose();
         this.usingBuiltinSigHelpManager = false;
@@ -271,7 +254,7 @@ class PluginManager {
     }
     // Registering an autocomplete provider
     provideAutocomplete() {
-        return [new autoCompleteProvider_1.AutocompleteProvider(this.getClient, this.flushTypescriptBuffer)];
+        return [new autoCompleteProvider_1.AutocompleteProvider(this.getClient)];
     }
     provideIntentions() {
         return intentionsProvider_1.getIntentionsProvider(this.codefixProvider);
