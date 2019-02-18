@@ -313,26 +313,26 @@
     "etch": "^0.14.0",
     "fuzzaldrin": "^2.1.0",
     "lodash": "^4.17.11",
-    "resolve": "^1.9.0",
+    "resolve": "^1.10.0",
     "tslib": "^1.9.3",
-    "typescript": "^3.2.2"
+    "typescript": "^3.3.3"
   },
   "devDependencies": {
-    "@types/atom": "^1.31.0",
+    "@types/atom": "^1.31.1",
     "@types/byline": "^4.2.31",
     "@types/chai": "^4.1.7",
-    "@types/fuzzaldrin": "^2.1.1",
-    "@types/lodash": "^4.14.119",
-    "@types/mocha": "^2",
-    "@types/node": "^8.10.38",
+    "@types/fuzzaldrin": "^2.1.2",
+    "@types/lodash": "^4.14.121",
+    "@types/mocha": "^5",
+    "@types/node": "^8",
     "@types/resolve": "^0.0.8",
     "atom-ts-spec-runner": "^1.1.1",
     "chai": "^4.2.0",
-    "prettier": "^1.15.3",
-    "ts-node": "^7.0.1",
+    "prettier": "^1.16.4",
+    "ts-node": "^8.0.2",
     "tslint": "^5.12.1",
     "tslint-use-atom-disposables": "0.0.1",
-    "typescript-tslint-plugin": "0.2.1"
+    "typescript-tslint-plugin": "0.3.1"
   },
   "package-deps": [
     "atom-ide-ui:0.5.3"
