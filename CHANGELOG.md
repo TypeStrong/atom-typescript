@@ -1,3 +1,9 @@
+## 13.2.0
+
+-   Allow autocomplete in strings
+-   Use onDidChangeText instead of onDidStopChanging for tracking buffer modification
+-   Bump dependencies
+
 ## 13.1.0
 
 -   Disable instance-per-tsconfig by default; make it configurable
