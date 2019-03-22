@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
 const utils_1 = require("./utils");
-const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"];
 class AutocompleteProvider {
     constructor(getClient, flushTypescriptBuffer) {
         this.getClient = getClient;
@@ -34,12 +33,6 @@ class AutocompleteProvider {
         if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.template.") &&
             !containsScope(opts.scopeDescriptor.getScopesArray(), "template.expression.")) {
             return [];
-        }
-        // Don't show autocomplete if we're in a string and it's not an import path
-        if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.quoted.")) {
-            if (!importPathScopes.some(scope => containsScope(opts.scopeDescriptor.getScopesArray(), scope))) {
-                return [];
-            }
         }
         // Flush any pending changes for this buffer to get up to date completions
         await this.flushTypescriptBuffer(location.file);
