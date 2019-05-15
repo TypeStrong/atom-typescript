@@ -37,6 +37,7 @@ export interface CommandArgResponseMap {
   organizeImports: (x: p.OrganizeImportsRequestArgs) => p.OrganizeImportsResponse
   exit: () => void
   signatureHelp: (x: p.SignatureHelpRequestArgs) => p.SignatureHelpResponse
+  getEditsForFileRename: (x: p.GetEditsForFileRenameRequestArgs) => p.GetEditsForFileRenameResponse
 }
 
 export type AllTSClientCommands = keyof CommandArgResponseMap

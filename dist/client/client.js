@@ -30,6 +30,7 @@ const commandWithResponseMap = {
     getEditsForRefactor: true,
     organizeImports: true,
     signatureHelp: true,
+    getEditsForFileRename: true,
 };
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 function isCommandWithResponse(command) {

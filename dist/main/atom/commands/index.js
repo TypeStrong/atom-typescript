@@ -15,6 +15,7 @@ require("./initializeConfig");
 require("./organizeImports");
 require("./refactorCode");
 require("./reloadProjects");
+require("./renameFile");
 require("./renameRefactor");
 require("./restartAllServers");
 require("./returnFromDeclaration");

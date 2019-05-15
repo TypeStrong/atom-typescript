@@ -40,6 +40,7 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForRefactor: true,
   organizeImports: true,
   signatureHelp: true,
+  getEditsForFileRename: true,
 }
 
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
