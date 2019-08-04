@@ -1,3 +1,8 @@
+## 13.3.0
+
+-   Bump atom-highlight version
+-   Rename File command
+
 ## 13.2.0
 
 -   Allow autocomplete in strings
