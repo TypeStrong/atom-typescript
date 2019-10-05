@@ -42,6 +42,6 @@ class SemanticView {
         };
     }
 }
-SemanticView.instance = null;
 exports.SemanticView = SemanticView;
+SemanticView.instance = null;
 //# sourceMappingURL=semanticView.js.map

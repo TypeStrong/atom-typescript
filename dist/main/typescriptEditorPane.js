@@ -61,6 +61,6 @@ class TypescriptEditorPane {
             this.opts.reportClientInfo(info);
     }
 }
-TypescriptEditorPane.editorMap = new WeakMap();
 exports.TypescriptEditorPane = TypescriptEditorPane;
+TypescriptEditorPane.editorMap = new WeakMap();
 //# sourceMappingURL=typescriptEditorPane.js.map

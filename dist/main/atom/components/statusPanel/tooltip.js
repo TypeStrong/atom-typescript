@@ -4,12 +4,12 @@ const etch = require("etch");
 class Tooltip {
     constructor(props, children) {
         this.children = children;
-        this.props = Object.assign({}, props, { delay: { show: 0, hide: 0 } });
+        this.props = Object.assign(Object.assign({}, props), { delay: { show: 0, hide: 0 } });
         etch.initialize(this);
         this.tooltipDisposable = atom.tooltips.add(this.element, this.props);
     }
     async update(props, children) {
-        this.props = Object.assign({}, this.props, props);
+        this.props = Object.assign(Object.assign({}, this.props), props);
         this.children = children;
         await etch.update(this);
         this.tooltipDisposable.dispose();

@@ -10,7 +10,7 @@ class ConfigPath {
         etch.initialize(this);
     }
     async update(props) {
-        this.props = Object.assign({}, this.props, props);
+        this.props = Object.assign(Object.assign({}, this.props), props);
         await etch.update(this);
     }
     render() {

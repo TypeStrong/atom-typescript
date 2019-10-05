@@ -70,7 +70,7 @@ async function getApplicabeRefactors(client, pointOrRange) {
     }
 }
 async function applyRefactors(selectedAction, range, client, deps) {
-    const responseEdits = await client.execute("getEditsForRefactor", Object.assign({}, range, { refactor: selectedAction.refactorName, action: selectedAction.actionName }));
+    const responseEdits = await client.execute("getEditsForRefactor", Object.assign(Object.assign({}, range), { refactor: selectedAction.refactorName, action: selectedAction.actionName }));
     if (responseEdits.body === undefined)
         return;
     const { edits, renameFilename, renameLocation } = responseEdits.body;

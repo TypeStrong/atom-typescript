@@ -59,7 +59,7 @@ class TooltipController {
     async showTooltip(tooltipRect, info) {
         this.view = new tooltipView_1.TooltipView();
         document.body.appendChild(this.view.element);
-        await this.view.update(Object.assign({}, tooltipRect, { info }));
+        await this.view.update(Object.assign(Object.assign({}, tooltipRect), { info }));
     }
 }
 exports.TooltipController = TooltipController;

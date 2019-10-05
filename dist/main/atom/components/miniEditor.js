@@ -22,7 +22,7 @@ class MiniEditor {
     }
     async update(props) {
         this.element = atom.views.getView(this.model);
-        this.props = Object.assign({}, this.props, props);
+        this.props = Object.assign(Object.assign({}, this.props), props);
         this.setReadOnly();
         this.setGrammar();
     }

@@ -138,7 +138,7 @@ class TypescriptServiceClient {
         });
         // Pipe both stdout and stderr appropriately
         messageStream(cp.stdout).on("data", this.onMessage);
-        cp.stderr.on("data", data => {
+        cp.stderr.on("data", (data) => {
             console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()));
         });
         return cp;
@@ -194,7 +194,7 @@ class MessageStream extends stream_1.Transform {
             console.error("client: failed to parse: ", line);
         }
         finally {
-            callback(null);
+            callback(undefined);
         }
     }
 }

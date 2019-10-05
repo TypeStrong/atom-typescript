@@ -29,7 +29,7 @@ class BuildStatus {
     async update(props) {
         const successStateChanged = props.buildStatus !== undefined &&
             props.buildStatus.success !== this.props.buildStatus.success;
-        this.props = Object.assign({}, this.props, props);
+        this.props = Object.assign(Object.assign({}, this.props), props);
         if (successStateChanged)
             this.resetBuildStatusTimeout();
         await etch.update(this);

@@ -28,7 +28,7 @@ function registerCommands(deps) {
     for (const cmd of registry_1.getCommands()) {
         if (cmd.selector === "atom-text-editor") {
             const d = cmd.desc(deps);
-            disp.add(atom.commands.add(cmd.selector, cmd.command, Object.assign({}, d, { async didDispatch(e) {
+            disp.add(atom.commands.add(cmd.selector, cmd.command, Object.assign(Object.assign({}, d), { async didDispatch(e) {
                     try {
                         const editor = e.currentTarget.getModel();
                         if (utils_1.isTypescriptEditorWithPath(editor)) {
@@ -53,7 +53,7 @@ function registerCommands(deps) {
         }
         else {
             const d = cmd.desc(deps);
-            disp.add(atom.commands.add(cmd.selector, cmd.command, Object.assign({}, d, { async didDispatch() {
+            disp.add(atom.commands.add(cmd.selector, cmd.command, Object.assign(Object.assign({}, d), { async didDispatch() {
                     try {
                         await d.didDispatch();
                     }

@@ -40,7 +40,7 @@ class EditorPositionHistoryManager {
             items: this.getHistory()
                 .slice()
                 .reverse()
-                .map((item, idx) => (Object.assign({}, item, { idx }))),
+                .map((item, idx) => (Object.assign(Object.assign({}, item), { idx }))),
             itemTemplate: (item, ctx) => (etch.dom("li", { class: "two-lines" },
                 etch.dom("div", { class: "primary-line" },
                     etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() })),

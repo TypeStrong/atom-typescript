@@ -70,7 +70,7 @@ class NavigationTreeComponent {
         if (props.navTree !== undefined) {
             this.setNavTree(props.navTree);
         }
-        this.props = Object.assign({}, this.props, props);
+        this.props = Object.assign(Object.assign({}, this.props), props);
         await etch.update(this);
     }
     async destroy() {

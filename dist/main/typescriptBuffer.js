@@ -180,6 +180,6 @@ class TypescriptBuffer {
         });
     }
 }
-TypescriptBuffer.bufferMap = new WeakMap();
 exports.TypescriptBuffer = TypescriptBuffer;
+TypescriptBuffer.bufferMap = new WeakMap();
 //# sourceMappingURL=typescriptBuffer.js.map

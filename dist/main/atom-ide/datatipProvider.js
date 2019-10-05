@@ -11,7 +11,7 @@ const etch = {
                 $$typeof: REACT_ELEMENT_SYMBOL,
                 type,
                 ref: null,
-                props: Object.assign({}, props, { children }),
+                props: Object.assign(Object.assign({}, props), { children }),
             };
         }
         else {

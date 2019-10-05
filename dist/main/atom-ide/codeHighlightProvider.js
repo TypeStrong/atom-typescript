@@ -12,7 +12,7 @@ function getCodeHighlightProvider(getClient) {
             if (!location)
                 return;
             const client = await getClient(location.file);
-            const result = await client.execute("documentHighlights", Object.assign({}, location, { filesToSearch: [location.file] }));
+            const result = await client.execute("documentHighlights", Object.assign(Object.assign({}, location), { filesToSearch: [location.file] }));
             if (!result.body)
                 return;
             return Array.from(getSpans(location.file, result.body));

@@ -33,7 +33,7 @@ registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => 
         if (newName !== undefined) {
             await deps.applyEdits(locs.map(span => ({
                 fileName: span.file,
-                textChanges: span.locs.map(loc => (Object.assign({}, loc, { newText: newName }))),
+                textChanges: span.locs.map(loc => (Object.assign(Object.assign({}, loc), { newText: newName }))),
             })));
         }
     },

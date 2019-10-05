@@ -6,7 +6,7 @@ export function listen<T extends keyof HTMLElementEventMap>(
   selector: string,
   callback: (event: HTMLElementEventMap[T]) => void,
 ): Disposable {
-  const bound = (evt: Event) => {
+  const bound = (evt: HTMLElementEventMap[T]) => {
     const sel = (evt.target as HTMLElement).closest(selector)
     if (sel && element.contains(sel)) {
       callback(evt)

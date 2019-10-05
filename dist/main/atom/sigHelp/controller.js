@@ -46,7 +46,7 @@ class TooltipController {
             this.dispose();
             return;
         }
-        await this.view.update(Object.assign({}, tooltipRect, { sigHelp: msg }));
+        await this.view.update(Object.assign(Object.assign({}, tooltipRect), { sigHelp: msg }));
     }
     updateTooltipPosition(bufferPt) {
         if (this.cancelled)
