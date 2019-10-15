@@ -4,6 +4,7 @@ import {resolve} from "path"
 // We can run in two modes here. If the argument given is write,
 // we format all the files in the project. If it's check, we
 // run prettier and if any file would change, return a non-zero exit code.
+//
 const action: string = process.argv[2]
 switch (action) {
   case "write":
