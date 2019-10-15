@@ -2,7 +2,7 @@
 import {BufferedNodeProcess, BufferedProcess, Emitter} from "atom"
 import byline = require("byline")
 import {ChildProcess} from "child_process"
-import * from "stream"
+import { Readable, Transform } from "stream"
 import * as protocol from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {Callbacks} from "./callbacks"
