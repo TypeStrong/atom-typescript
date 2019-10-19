@@ -4,7 +4,7 @@
 https://gitter.im/TypeStrong/atom-typescript](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/TypeStrong/atom-typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 JavaScript developers can now just open a `.ts` file and start hacking
-away like they are used to. No `grunt` no `Visual Studio`. Just pure
+away like they are used to. No `grunt`, no `Visual Studio`. Just pure
 coding.
 
 **NOTE**: When updating to **v12**, make sure `language-typescript` core
@@ -17,13 +17,13 @@ bundle our own if there's one available by default.
 `atom-typescript` plugin that is lighter and faster, but lacks a few
 major features that you might miss. The previous version is still
 available in the `legacy` branch and will continue to receive minor
-bugfixes, but I wouldn't count on any new developments.
+bugfixes. However, I wouldn't count on any new developments for that version.
 
 ## Installation
 
 1.  Install [atom](https://atom.io).
-2.  Install dependencies (see below)
-3.  `apm install atom-typescript` (`apm` needs `git` in your path)
+2.  Install dependencies (see below).
+3.  `apm install atom-typescript` (`apm` needs `git` in your path).
 4.  Fire up atom. Open a TypeScript file.
 
 **Dependencies**:
@@ -50,13 +50,16 @@ http://www.typescriptlang.org/* and [demoed by **Anders
 Hejlsberg**](https://twitter.com/schwarty/status/593858817894404096).
 
 "I was shocked at how good it felt to poke around on the compiler with
-it." [Jonathan Turner](https://twitter.com/jntrnr) "And guess what, it
+it." [Jonathan Turner](https://twitter.com/jntrnr) 
+"And guess what, it
 worked perfectly. Like everything else! Faster than Visual Studio!"
 [Daniel
-Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker) "It's
+Earwicker](http://stackoverflow.com/users/27423/daniel-earwicker) 
+"It's
 a thing of beauty - they had me at '*Type information on hover*'.
 Discovering `tsconfig.json` support as well was just an enormous bonus."
-[John Reilly](https://twitter.com/johnny_reilly) "This may be your best
+[John Reilly](https://twitter.com/johnny_reilly)
+"This may be your best
 option for editing TypeScript at the moment - very nice!" [Rasmus
 Schultz](https://twitter.com/mindplaydk)
 
@@ -81,7 +84,7 @@ Schultz](https://twitter.com/mindplaydk)
 
 # FAQ
 
-Located online :
+Located online:
 https://github.com/TypeStrong/atom-typescript/blob/master/docs/faq.md
 
 ------------------------------------------------------------------------
@@ -116,12 +119,12 @@ have installed in your `node_modules` directory.
 
 ## Format Code
 
-Shortcut : `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection
+Shortcut: `ctrl+alt+l` or `cmd+alt+l`. Will format just the selection
 if you have something selected otherwise it will format the entire file.
 
 ## Go to Declaration
 
-Shortcut : `F12`. Will open the *first* declaration of the said item for
+Shortcut: `F12`. Will open the *first* declaration of the said item for
 now. (Note: some people call it Go to Definition)
 
 ## Find References
