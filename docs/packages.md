@@ -40,8 +40,7 @@ Saves a lot of wrist pain.
 
 ### [last-cursor-position](https://atom.io/packages/last-cursor-position)
 
-Like visual studio go back to previous location. Really useful when you
-navigate to stuff and want to go back to where you were working.
+Like Visual Studio’s Go Back To Previous Location. Really useful when you’re navigating and want to go back to where you were previously working.
 
 ### [Find selection](https://atom.io/packages/find-selection)
 
@@ -50,4 +49,4 @@ word?
 
 ### [docblockr](https://atom.io/packages/docblockr)
 
-For easier jsdocing
+For easier jsdocing.
