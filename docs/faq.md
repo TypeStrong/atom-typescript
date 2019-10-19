@@ -109,7 +109,7 @@ instances and run the following commands:
 
 ## Failed to install
 
-Follow the same steps as specified in failed to update.
+Follow the same steps as specified in [failed to update](#failed-to-update).
 
 ## How can I contribute
 
