@@ -109,7 +109,7 @@ instances and run the following commands:
 
 ## Failed to install
 
-Follow the same steps as specified in failed to update.
+Follow the same steps as specified in [failed to update](https://github.com/TypeStrong/atom-typescript/blob/master/docs/faq.md#failed-to-update).
 
 ## How can I contribute
 
