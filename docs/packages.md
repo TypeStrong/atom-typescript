@@ -6,8 +6,8 @@ Atom works on the basis of "folder" based project. It remembers the
 settings / state for when you open a project.
 
 This package allows you to quickly open a specific folder. You can even
-store config options specific to a project e.g. at my work we don't
-remove whitespace or add a new line to allow people to use whatever
+store config options specific to a project.
+For example, at my work, we don't remove whitespace or add a new line to allow people to use whatever
 editor and not get insignificant diffs on legacy code:
 
 ``` cson
@@ -22,7 +22,7 @@ editor and not get insignificant diffs on legacy code:
 ```
 
 It also allows you to configure options of `atom-typescript` on a per
-project basis e.g.
+project basis:
 
 ``` cson
 'work':
