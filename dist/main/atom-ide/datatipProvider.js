@@ -50,7 +50,13 @@ class TSDatatipProvider {
                     " (",
                     data.kindModifiers,
                     ")") : null));
-            const docs = etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" }, data.documentation);
+            const tags = data.tags.map(tag => (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc-tag" },
+                tag.name,
+                " - ",
+                tag.text)));
+            const docs = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" },
+                data.documentation,
+                tags));
             return {
                 component: () => (etch.dom("div", { className: "atom-typescript-datatip-tooltip" },
                     code,
