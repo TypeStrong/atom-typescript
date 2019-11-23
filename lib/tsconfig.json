@@ -18,7 +18,8 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "plugins": [{"name": "typescript-tslint-plugin"}]
+    "plugins": [{"name": "typescript-tslint-plugin"}],
+    "newLine": "LF"
   },
   "compileOnSave": true
 }
