@@ -179,10 +179,10 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      await client.execute("close", {file})
       this.deps.clearFileErrors(file)
       this.state.subscriptions.dispose()
       this.state = undefined
+      await client.execute("close", {file})
     }
   }
 
