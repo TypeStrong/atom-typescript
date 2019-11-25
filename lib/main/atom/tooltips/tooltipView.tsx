@@ -43,10 +43,16 @@ export class TooltipView implements JSX.ElementClass {
   }
 
   public render() {
+    const code = this.props.info ? (
+      <div className="atom-typescript-tooltip-tooltip-code">
+        {this.props.info.displayString.replace(/^\(.+?\)\s+/, "")}
+      </div>
+    ) : null
     const [kind, docs] = this.props.info ? renderTooltip(this.props.info!, etch) : [null, null]
     return (
       <div className="atom-typescript-tooltip tooltip">
         <div className="tooltip-inner">
+          {code}
           {kind}
           {docs}
         </div>

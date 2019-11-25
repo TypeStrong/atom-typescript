@@ -24,9 +24,11 @@ class TooltipView {
         util_1.adjustElementPosition(this.element, document.body, this.props, atom.config.get("atom-typescript").tooltipPosition);
     }
     render() {
+        const code = this.props.info ? (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, this.props.info.displayString.replace(/^\(.+?\)\s+/, ""))) : null;
         const [kind, docs] = this.props.info ? tooltipRenderer_1.renderTooltip(this.props.info, etch) : [null, null];
         return (etch.dom("div", { className: "atom-typescript-tooltip tooltip" },
             etch.dom("div", { className: "tooltip-inner" },
+                code,
                 kind,
                 docs)));
     }
