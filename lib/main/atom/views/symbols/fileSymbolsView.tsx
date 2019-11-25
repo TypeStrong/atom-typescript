@@ -18,11 +18,11 @@ export async function toggle(editor: TextEditor, deps: Deps) {
     const tag = await selectListView({
       items: generateFile(filePath, deps),
       itemTemplate: ({name, position}, ctx) => (
-        <li class="two-lines">
-          <div class="primary-line">
+        <li className="two-lines">
+          <div className="primary-line">
             <HighlightComponent label={name} query={ctx.getFilterQuery()} />
           </div>
-          <div class="secondary-line">{`Line ${position.row + 1}`}</div>
+          <div className="secondary-line">{`Line ${position.row + 1}`}</div>
         </li>
       ),
       didChangeSelection(item?: Tag) {

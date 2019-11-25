@@ -23,7 +23,7 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
               label={atom.project.relativize(item.file)}
               query={ctx.getFilterQuery()}
             />
-            <div class="pull-right">line: {item.start.line}</div>
+            <div className="pull-right">line: {item.start.line}</div>
             <TsView text={item.lineText.trim()} />
           </li>
         )

@@ -43,8 +43,8 @@ export class TooltipView implements JSX.ElementClass {
 
   public render() {
     return (
-      <div class="atom-typescript-tooltip tooltip">
-        <div class="tooltip-inner">{this.tooltipContents()}</div>
+      <div className="atom-typescript-tooltip tooltip">
+        <div className="tooltip-inner">{this.tooltipContents()}</div>
       </div>
     )
   }
@@ -52,10 +52,10 @@ export class TooltipView implements JSX.ElementClass {
   private tooltipContents() {
     if (!this.props.info) return "…"
     const code = (
-      <div class="atom-typescript-tooltip-tooltip-code">{this.props.info.displayString}</div>
+      <div className="atom-typescript-tooltip-tooltip-code">{this.props.info.displayString}</div>
     )
     const docs = this.props.info.documentation ? (
-      <div class="atom-typescript-tooltip-tooltip-doc">{this.props.info.documentation}</div>
+      <div className="atom-typescript-tooltip-tooltip-doc">{this.props.info.documentation}</div>
     ) : null
     return [code, docs]
   }

@@ -31,7 +31,7 @@ export async function handleDefinitionResult(
         return (
           <li>
             <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
-            <div class="pull-right">line: {item.start.line}</div>
+            <div className="pull-right">line: {item.start.line}</div>
           </li>
         )
       },

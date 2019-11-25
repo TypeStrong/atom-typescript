@@ -27,6 +27,6 @@ export class TsView implements JSX.ElementClass {
     const style = {
       fontFamily: atom.config.get("editor.fontFamily"),
     }
-    return <div class="editor editor-colors" style={style} innerHTML={html} />
+    return <div className="editor editor-colors" style={style} innerHTML={html} />
   }
 }

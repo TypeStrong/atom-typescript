@@ -12,10 +12,10 @@ async function toggle(editor, deps) {
             items: (search) => generator_1.generateProject(filePath, search, deps),
             itemTemplate({ name, position, file }, ctx) {
                 const relfile = atom.project.relativize(file);
-                return (etch.dom("li", { class: "two-lines" },
-                    etch.dom("div", { class: "primary-line" },
+                return (etch.dom("li", { className: "two-lines" },
+                    etch.dom("div", { className: "primary-line" },
                         etch.dom(highlightComponent_1.HighlightComponent, { label: name, query: ctx.getFilterQuery() })),
-                    etch.dom("div", { class: "secondary-line" }, `File ${relfile} line ${position.row + 1}`)));
+                    etch.dom("div", { className: "secondary-line" }, `File ${relfile} line ${position.row + 1}`)));
             },
             itemFilterKey: "name",
         });

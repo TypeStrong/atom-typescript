@@ -26,7 +26,7 @@ async function handleDefinitionResult(result, editor, histGoForward) {
             itemTemplate: (item, ctx) => {
                 return (etch.dom("li", null,
                     etch.dom(highlightComponent_1.HighlightComponent, { label: item.file, query: ctx.getFilterQuery() }),
-                    etch.dom("div", { class: "pull-right" },
+                    etch.dom("div", { className: "pull-right" },
                         "line: ",
                         item.start.line)));
             },

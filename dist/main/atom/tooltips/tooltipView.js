@@ -23,14 +23,14 @@ class TooltipView {
         util_1.adjustElementPosition(this.element, document.body, this.props, atom.config.get("atom-typescript").tooltipPosition);
     }
     render() {
-        return (etch.dom("div", { class: "atom-typescript-tooltip tooltip" },
-            etch.dom("div", { class: "tooltip-inner" }, this.tooltipContents())));
+        return (etch.dom("div", { className: "atom-typescript-tooltip tooltip" },
+            etch.dom("div", { className: "tooltip-inner" }, this.tooltipContents())));
     }
     tooltipContents() {
         if (!this.props.info)
             return "…";
-        const code = (etch.dom("div", { class: "atom-typescript-tooltip-tooltip-code" }, this.props.info.displayString));
-        const docs = this.props.info.documentation ? (etch.dom("div", { class: "atom-typescript-tooltip-tooltip-doc" }, this.props.info.documentation)) : null;
+        const code = (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, this.props.info.displayString));
+        const docs = this.props.info.documentation ? (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-doc" }, this.props.info.documentation)) : null;
         return [code, docs];
     }
 }

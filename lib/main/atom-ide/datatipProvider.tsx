@@ -48,15 +48,15 @@ export class TSDatatipProvider implements DatatipProvider {
       const data = result.body!
       const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""))
       const kind = (
-        <div class="atom-typescript-datatip-tooltip-kind">
+        <div className="atom-typescript-datatip-tooltip-kind">
           {data.kind}
           {data.kindModifiers ? <i> ({data.kindModifiers})</i> : null}
         </div>
       )
-      const docs = <div class="atom-typescript-datatip-tooltip-doc">{data.documentation}</div>
+      const docs = <div className="atom-typescript-datatip-tooltip-doc">{data.documentation}</div>
       return {
         component: () => (
-          <div class="atom-typescript-datatip-tooltip">
+          <div className="atom-typescript-datatip-tooltip">
             {code}
             {kind}
             {docs}
@@ -94,7 +94,7 @@ async function highlightCode(code: string) {
     return (
       <div
         style={{fontFamily}}
-        class="atom-typescript-datatip-tooltip-code"
+        className="atom-typescript-datatip-tooltip-code"
         dangerouslySetInnerHTML={{__html: html.map(x => x.innerHTML).join("\n")}}
       />
     )

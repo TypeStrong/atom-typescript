@@ -62,7 +62,7 @@ declare module "atom/ide" {
         pinnable?: boolean
       }
     | {
-        component: any // React component
+        component: () => JSX.Element // React component
         range: Atom.Range
         pinnable?: boolean
       }

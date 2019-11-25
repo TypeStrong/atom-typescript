@@ -59,7 +59,7 @@ export class BuildStatus implements JSX.ElementClass {
             ? "Build was successful"
             : "Build failed; click to show error message"
         }>
-        <span class={cls} on={{click: this.buildStatusClicked}}>
+        <span className={cls} on={{click: this.buildStatusClicked}}>
           {text}
         </span>
       </Tooltip>

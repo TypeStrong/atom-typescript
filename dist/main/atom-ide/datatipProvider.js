@@ -44,15 +44,15 @@ class TSDatatipProvider {
             });
             const data = result.body;
             const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""));
-            const kind = (etch.dom("div", { class: "atom-typescript-datatip-tooltip-kind" },
+            const kind = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-kind" },
                 data.kind,
                 data.kindModifiers ? etch.dom("i", null,
                     " (",
                     data.kindModifiers,
                     ")") : null));
-            const docs = etch.dom("div", { class: "atom-typescript-datatip-tooltip-doc" }, data.documentation);
+            const docs = etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" }, data.documentation);
             return {
-                component: () => (etch.dom("div", { class: "atom-typescript-datatip-tooltip" },
+                component: () => (etch.dom("div", { className: "atom-typescript-datatip-tooltip" },
                     code,
                     kind,
                     docs)),
@@ -85,7 +85,7 @@ async function highlightCode(code) {
         ed.setText(code.replace(/\r?\n$/, ""));
         await editorTokenized(ed);
         const html = Array.from(el.querySelectorAll(".line:not(.dummy)"));
-        return (etch.dom("div", { style: { fontFamily }, class: "atom-typescript-datatip-tooltip-code", dangerouslySetInnerHTML: { __html: html.map(x => x.innerHTML).join("\n") } }));
+        return (etch.dom("div", { style: { fontFamily }, className: "atom-typescript-datatip-tooltip-code", dangerouslySetInnerHTML: { __html: html.map(x => x.innerHTML).join("\n") } }));
     }
     finally {
         el.remove();

@@ -14,11 +14,11 @@ export async function toggle(editor: TextEditor, deps: Deps) {
       itemTemplate({name, position, file}, ctx) {
         const relfile = atom.project.relativize(file!)
         return (
-          <li class="two-lines">
-            <div class="primary-line">
+          <li className="two-lines">
+            <div className="primary-line">
               <HighlightComponent label={name} query={ctx.getFilterQuery()} />
             </div>
-            <div class="secondary-line">{`File ${relfile} line ${position.row + 1}`}</div>
+            <div className="secondary-line">{`File ${relfile} line ${position.row + 1}`}</div>
           </li>
         )
       },

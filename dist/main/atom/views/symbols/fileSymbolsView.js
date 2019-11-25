@@ -15,10 +15,10 @@ async function toggle(editor, deps) {
         }
         const tag = await simpleSelectionView_1.selectListView({
             items: generator_1.generateFile(filePath, deps),
-            itemTemplate: ({ name, position }, ctx) => (etch.dom("li", { class: "two-lines" },
-                etch.dom("div", { class: "primary-line" },
+            itemTemplate: ({ name, position }, ctx) => (etch.dom("li", { className: "two-lines" },
+                etch.dom("div", { className: "primary-line" },
                     etch.dom(highlightComponent_1.HighlightComponent, { label: name, query: ctx.getFilterQuery() })),
-                etch.dom("div", { class: "secondary-line" }, `Line ${position.row + 1}`))),
+                etch.dom("div", { className: "secondary-line" }, `Line ${position.row + 1}`))),
             didChangeSelection(item) {
                 // NOTE uses the "parent" package's setting (i.e. from symbols-view):
                 if (atom.config.get("symbols-view.quickJumpToFileSymbol") && item) {

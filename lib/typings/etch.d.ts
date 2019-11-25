@@ -18,7 +18,7 @@ interface HTMLAttributes {
   challenge?: string
   checked?: boolean
   classID?: string
-  class?: string
+  className?: string
   cols?: number
   colSpan?: number
   content?: string

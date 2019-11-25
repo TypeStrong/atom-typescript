@@ -23,7 +23,7 @@ class TsView {
         const style = {
             fontFamily: atom.config.get("editor.fontFamily"),
         };
-        return etch.dom("div", { class: "editor editor-colors", style: style, innerHTML: html });
+        return etch.dom("div", { className: "editor editor-colors", style: style, innerHTML: html });
     }
 }
 exports.TsView = TsView;

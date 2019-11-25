@@ -50,7 +50,7 @@ class BuildStatus {
         return (etch.dom(tooltip_1.Tooltip, { title: this.props.buildStatus.success
                 ? "Build was successful"
                 : "Build failed; click to show error message" },
-            etch.dom("span", { class: cls, on: { click: this.buildStatusClicked } }, text)));
+            etch.dom("span", { className: cls, on: { click: this.buildStatusClicked } }, text)));
     }
     async destroy() {
         await etch.destroy(this);

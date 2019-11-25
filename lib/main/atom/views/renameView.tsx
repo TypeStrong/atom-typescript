@@ -34,20 +34,20 @@ class RenameView implements JSX.ElementClass {
 
   public render() {
     return (
-      <div class="atomts-rename-view" ref="main">
-        <div class="block">
+      <div className="atomts-rename-view" ref="main">
+        <div className="block">
           <div>
             <span ref="title">{this.props.title}</span>
-            <span class="subtle-info-message">
+            <span className="subtle-info-message">
               <span>Close this panel with </span>
-              <span class="highlight">esc</span>
+              <span className="highlight">esc</span>
               <span> key. And commit with the </span>
-              <span class="highlight">enter</span>
+              <span className="highlight">enter</span>
               <span> key.</span>
             </span>
           </div>
-          <div class="find-container block">
-            <div class="editor-container">
+          <div className="find-container block">
+            <div className="editor-container">
               <MiniEditor
                 ref="editor"
                 initialText={this.props.initialText}
@@ -75,7 +75,7 @@ class RenameView implements JSX.ElementClass {
 
   private renderValidationMessage(): JSX.Element | null {
     if (this.props.validationMessage !== undefined) {
-      return <div class="highlight-error">{this.props.validationMessage}</div>
+      return <div className="highlight-error">{this.props.validationMessage}</div>
     }
     return null
   }

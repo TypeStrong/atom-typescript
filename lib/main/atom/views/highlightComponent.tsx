@@ -32,7 +32,7 @@ export class HighlightComponent implements JSX.ElementClass {
     return (
       <span>
         {this.matches.map(m => (
-          <span class={m.type}>{m.text}</span>
+          <span className={m.type}>{m.text}</span>
         ))}
       </span>
     )

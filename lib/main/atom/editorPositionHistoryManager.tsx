@@ -48,11 +48,11 @@ export class EditorPositionHistoryManager {
         .reverse()
         .map((item, idx) => ({...item, idx})),
       itemTemplate: (item, ctx) => (
-        <li class="two-lines">
-          <div class="primary-line">
+        <li className="two-lines">
+          <div className="primary-line">
             <HighlightComponent label={item.file} query={ctx.getFilterQuery()} />
           </div>
-          <div class="secondary-line">
+          <div className="secondary-line">
             Line: {item.line}, column: {item.offset}
           </div>
         </li>

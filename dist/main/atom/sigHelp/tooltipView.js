@@ -25,8 +25,8 @@ class TooltipView {
         util_1.adjustElementPosition(this.element, this.parent, this.props, atom.config.get("atom-typescript").sigHelpPosition);
     }
     render() {
-        return (etch.dom("div", { class: "atom-typescript-tooltip tooltip", key: this.sigHelpHash() },
-            etch.dom("div", { class: "tooltip-inner" }, this.tooltipContents())));
+        return (etch.dom("div", { className: "atom-typescript-tooltip tooltip", key: this.sigHelpHash() },
+            etch.dom("div", { className: "tooltip-inner" }, this.tooltipContents())));
     }
     sigHelpHash() {
         if (!this.props.sigHelp)
@@ -38,18 +38,18 @@ class TooltipView {
         if (!this.props.sigHelp)
             return "…";
         const { sigHelp } = this.props;
-        return sigHelp.items.map((sig, idx) => (etch.dom("div", { class: `atom-typescript-tooltip-signature-help${idx === sigHelp.selectedItemIndex
+        return sigHelp.items.map((sig, idx) => (etch.dom("div", { className: `atom-typescript-tooltip-signature-help${idx === sigHelp.selectedItemIndex
                 ? " atom-typescript-tooltip-signature-help-selected"
                 : ""}` },
             utils_1.partsToStr(sig.prefixDisplayParts),
             this.renderSigHelpParams(sig.parameters, sigHelp.argumentIndex),
             utils_1.partsToStr(sig.suffixDisplayParts),
-            etch.dom("div", { class: "atom-typescript-tooltip-signature-help-documentation" }, utils_1.partsToStr(sig.documentation)))));
+            etch.dom("div", { className: "atom-typescript-tooltip-signature-help-documentation" }, utils_1.partsToStr(sig.documentation)))));
     }
     renderSigHelpParams(params, selIdx) {
-        return params.map((p, i) => (etch.dom("span", { class: `atom-typescript-tooltip-signature-help-parameter` },
+        return params.map((p, i) => (etch.dom("span", { className: `atom-typescript-tooltip-signature-help-parameter` },
             i > 0 ? ", " : null,
-            etch.dom("span", { class: i === selIdx ? "atom-typescript-tooltip-signature-help-selected" : undefined }, utils_1.partsToStr(p.displayParts)))));
+            etch.dom("span", { className: i === selIdx ? "atom-typescript-tooltip-signature-help-selected" : undefined }, utils_1.partsToStr(p.displayParts)))));
     }
 }
 exports.TooltipView = TooltipView;

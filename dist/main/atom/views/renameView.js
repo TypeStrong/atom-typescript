@@ -14,18 +14,18 @@ class RenameView {
         await etch.update(this);
     }
     render() {
-        return (etch.dom("div", { class: "atomts-rename-view", ref: "main" },
-            etch.dom("div", { class: "block" },
+        return (etch.dom("div", { className: "atomts-rename-view", ref: "main" },
+            etch.dom("div", { className: "block" },
                 etch.dom("div", null,
                     etch.dom("span", { ref: "title" }, this.props.title),
-                    etch.dom("span", { class: "subtle-info-message" },
+                    etch.dom("span", { className: "subtle-info-message" },
                         etch.dom("span", null, "Close this panel with "),
-                        etch.dom("span", { class: "highlight" }, "esc"),
+                        etch.dom("span", { className: "highlight" }, "esc"),
                         etch.dom("span", null, " key. And commit with the "),
-                        etch.dom("span", { class: "highlight" }, "enter"),
+                        etch.dom("span", { className: "highlight" }, "enter"),
                         etch.dom("span", null, " key."))),
-                etch.dom("div", { class: "find-container block" },
-                    etch.dom("div", { class: "editor-container" },
+                etch.dom("div", { className: "find-container block" },
+                    etch.dom("div", { className: "editor-container" },
                         etch.dom(miniEditor_1.MiniEditor, { ref: "editor", initialText: this.props.initialText, selectAll: this.props.selectAll }))),
                 this.renderValidationMessage())));
     }
@@ -40,7 +40,7 @@ class RenameView {
     }
     renderValidationMessage() {
         if (this.props.validationMessage !== undefined) {
-            return etch.dom("div", { class: "highlight-error" }, this.props.validationMessage);
+            return etch.dom("div", { className: "highlight-error" }, this.props.validationMessage);
         }
         return null;
     }
