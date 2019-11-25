@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const etch = require("etch");
+const tooltipRenderer_1 = require("./tooltipRenderer");
 const util_1 = require("./util");
 class TooltipView {
     constructor() {
@@ -23,15 +24,11 @@ class TooltipView {
         util_1.adjustElementPosition(this.element, document.body, this.props, atom.config.get("atom-typescript").tooltipPosition);
     }
     render() {
+        const [kind, docs] = this.props.info ? tooltipRenderer_1.renderTooltip(this.props.info, etch) : [null, null];
         return (etch.dom("div", { className: "atom-typescript-tooltip tooltip" },
-            etch.dom("div", { className: "tooltip-inner" }, this.tooltipContents())));
-    }
-    tooltipContents() {
-        if (!this.props.info)
-            return "…";
-        const code = (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, this.props.info.displayString));
-        const docs = this.props.info.documentation ? (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-doc" }, this.props.info.documentation)) : null;
-        return [code, docs];
+            etch.dom("div", { className: "tooltip-inner" },
+                kind,
+                docs)));
     }
 }
 exports.TooltipView = TooltipView;

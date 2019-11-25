@@ -1,4 +1,5 @@
 import * as etch from "etch"
+import {renderTooltip} from "./tooltipRenderer"
 import {adjustElementPosition} from "./util"
 
 interface Props extends JSX.Props {
@@ -42,21 +43,14 @@ export class TooltipView implements JSX.ElementClass {
   }
 
   public render() {
+    const [kind, docs] = this.props.info ? renderTooltip(this.props.info!, etch) : [null, null]
     return (
       <div className="atom-typescript-tooltip tooltip">
-        <div className="tooltip-inner">{this.tooltipContents()}</div>
+        <div className="tooltip-inner">
+          {kind}
+          {docs}
+        </div>
       </div>
     )
-  }
-
-  private tooltipContents() {
-    if (!this.props.info) return "…"
-    const code = (
-      <div className="atom-typescript-tooltip-tooltip-code">{this.props.info.displayString}</div>
-    )
-    const docs = this.props.info.documentation ? (
-      <div className="atom-typescript-tooltip-tooltip-doc">{this.props.info.documentation}</div>
-    ) : null
-    return [code, docs]
   }
 }

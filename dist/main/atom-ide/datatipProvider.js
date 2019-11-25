@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
+const tooltipRenderer_1 = require("../atom/tooltips/tooltipRenderer");
 const utils_1 = require("../atom/utils");
 // Note: a horrible hack to avoid dependency on React
 const REACT_ELEMENT_SYMBOL = Symbol.for("react.element");
@@ -44,19 +45,7 @@ class TSDatatipProvider {
             });
             const data = result.body;
             const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""));
-            const kind = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-kind" },
-                data.kind,
-                data.kindModifiers ? etch.dom("i", null,
-                    " (",
-                    data.kindModifiers,
-                    ")") : null));
-            const tags = data.tags.map(tag => (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc-tag" },
-                tag.name,
-                " - ",
-                tag.text)));
-            const docs = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" },
-                data.documentation,
-                tags));
+            const [kind, docs] = tooltipRenderer_1.renderTooltip(data, etch);
             return {
                 component: () => (etch.dom("div", { className: "atom-typescript-datatip-tooltip" },
                     code,

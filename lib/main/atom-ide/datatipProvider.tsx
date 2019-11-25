@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {Datatip, DatatipProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
+import {renderTooltip} from "../atom/tooltips/tooltipRenderer"
 import {locationToPoint, typeScriptScopes} from "../atom/utils"
 
 // Note: a horrible hack to avoid dependency on React
@@ -47,26 +48,10 @@ export class TSDatatipProvider implements DatatipProvider {
       })
       const data = result.body!
       const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""))
-      const kind = (
-        <div class="atom-typescript-datatip-tooltip-kind">
-          {data.kind}
-          {data.kindModifiers ? <i> ({data.kindModifiers})</i> : null}
-        </div>
-      )
-      const tags = data.tags.map(tag => (
-        <div class="atom-typescript-datatip-tooltip-doc-tag">
-          {tag.name} - {tag.text}
-        </div>
-      ))
-      const docs = (
-        <div class="atom-typescript-datatip-tooltip-doc">
-          {data.documentation}
-          {tags}
-        </div>
-      )
+      const [kind, docs] = renderTooltip(data, etch)
       return {
         component: () => (
-          <div class="atom-typescript-datatip-tooltip">
+          <div className="atom-typescript-datatip-tooltip">
             {code}
             {kind}
             {docs}
@@ -104,7 +89,7 @@ async function highlightCode(code: string) {
     return (
       <div
         style={{fontFamily}}
-        class="atom-typescript-datatip-tooltip-code"
+        className="atom-typescript-datatip-tooltip-code"
         dangerouslySetInnerHTML={{__html: html.map(x => x.innerHTML).join("\n")}}
       />
     )

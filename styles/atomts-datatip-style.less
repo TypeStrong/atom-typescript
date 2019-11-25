@@ -9,5 +9,22 @@
   }
   .atom-typescript-datatip-tooltip-doc {
     font-style: italic;
+
+    .atom-typescript-datatip-tooltip-doc-tag {
+
+      .atom-typescript-datatip-tooltip-doc-tag-name::before {
+        content: '@';
+        font-weight: bold;
+      }
+      .atom-typescript-datatip-tooltip-doc-tag-name {
+        font-weight: bold;
+      }
+    }
+    .atom-typescript-datatip-tooltip-doc-tag-name-param {
+
+      .atom-typescript-datatip-tooltip-doc-tag-text-first-word {
+        font-style: normal;
+      }
+    }
   }
 }
