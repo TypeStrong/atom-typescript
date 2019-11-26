@@ -10,15 +10,7 @@ function renderTooltip(data, etch) {
     const tags = data.tags.map(tag => {
         const tagClass = `atom-typescript-datatip-tooltip-doc-tag ` +
             `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`;
-        let tagText = null;
-        if (tag.text !== undefined) {
-            const firstWord = tag.text.replace(/\s(.*)/, "");
-            const restOfText = tag.text.replace(/([^\s]+)/, "");
-            tagText = (etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text" },
-                etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text-first-word" }, firstWord),
-                " ",
-                restOfText));
-        }
+        const tagText = formatTagText(etch, tag.text);
         return (etch.dom("div", { className: tagClass },
             etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-name" }, tag.name),
             " ",
@@ -30,4 +22,12 @@ function renderTooltip(data, etch) {
     return [kind, docs];
 }
 exports.renderTooltip = renderTooltip;
+function formatTagText(etch, tagText) {
+    if (tagText === undefined)
+        return null;
+    const [, firstWord, restOfText] = /^\s*(\S*)(.*)$/.exec(tagText);
+    return (etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text" },
+        etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text-first-word" }, firstWord),
+        restOfText));
+}
 //# sourceMappingURL=tooltipRenderer.js.map
