@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function renderTooltip(data, etch) {
+    const code = (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, data.displayString.replace(/^\(.+?\)\s+/, "")));
     const kind = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-kind" },
         data.kind,
         data.kindModifiers ? etch.dom("i", null,
@@ -19,7 +20,7 @@ function renderTooltip(data, etch) {
     const docs = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" },
         data.documentation,
         tags));
-    return [kind, docs];
+    return [code, kind, docs];
 }
 exports.renderTooltip = renderTooltip;
 function formatTagText(etch, tagText) {

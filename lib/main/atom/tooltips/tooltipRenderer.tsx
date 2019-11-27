@@ -1,4 +1,10 @@
 export function renderTooltip(data: protocol.QuickInfoResponseBody, etch: any) {
+  const code = (
+    <div className="atom-typescript-tooltip-tooltip-code">
+      {data.displayString.replace(/^\(.+?\)\s+/, "")}
+    </div>
+  )
+
   const kind = (
     <div className="atom-typescript-datatip-tooltip-kind">
       {data.kind}
@@ -25,7 +31,7 @@ export function renderTooltip(data: protocol.QuickInfoResponseBody, etch: any) {
     </div>
   )
 
-  return [kind, docs]
+  return [code, kind, docs]
 }
 
 function formatTagText(etch: any, tagText?: string) {

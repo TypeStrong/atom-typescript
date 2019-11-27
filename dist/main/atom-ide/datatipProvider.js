@@ -45,7 +45,7 @@ class TSDatatipProvider {
             });
             const data = result.body;
             const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""));
-            const [kind, docs] = tooltipRenderer_1.renderTooltip(data, etch);
+            const [, kind, docs] = tooltipRenderer_1.renderTooltip(data, etch);
             return {
                 component: () => (etch.dom("div", { className: "atom-typescript-datatip-tooltip" },
                     code,
