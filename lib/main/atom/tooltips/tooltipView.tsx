@@ -13,6 +13,7 @@ interface Props extends JSX.Props {
 export class TooltipView implements JSX.ElementClass {
   public readonly element!: HTMLDivElement
   public props: Props
+  public tooltip: JSX.Element[] | null = null
 
   constructor() {
     this.props = {
@@ -30,6 +31,7 @@ export class TooltipView implements JSX.ElementClass {
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
+    this.tooltip = await renderTooltip(this.props.info, etch)
     await etch.update(this)
   }
 
@@ -45,9 +47,7 @@ export class TooltipView implements JSX.ElementClass {
   public render() {
     return (
       <div className="atom-typescript-tooltip tooltip">
-        <div className="tooltip-inner">
-          {this.props.info ? renderTooltip(this.props.info, etch) : null}
-        </div>
+        <div className="tooltip-inner">{this.tooltip}</div>
       </div>
     )
   }

@@ -44,13 +44,9 @@ class TSDatatipProvider {
                 offset: bufferPt.column + 1,
             });
             const data = result.body;
-            const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""));
-            const [, kind, docs] = tooltipRenderer_1.renderTooltip(data, etch);
+            const tooltip = await tooltipRenderer_1.renderTooltip(data, etch, highlightCode);
             return {
-                component: () => (etch.dom("div", { className: "atom-typescript-datatip-tooltip" },
-                    code,
-                    kind,
-                    docs)),
+                component: () => etch.dom("div", { className: "atom-typescript-datatip-tooltip" }, tooltip),
                 range: Atom.Range.fromObject([utils_1.locationToPoint(data.start), utils_1.locationToPoint(data.end)]),
             };
         }

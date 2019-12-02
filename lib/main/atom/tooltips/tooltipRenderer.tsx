@@ -1,8 +1,15 @@
-export function renderTooltip(data: protocol.QuickInfoResponseBody, etch: any) {
-  const code = (
-    <div className="atom-typescript-tooltip-tooltip-code">
-      {data.displayString.replace(/^\(.+?\)\s+/, "")}
-    </div>
+export async function renderTooltip(
+  data: protocol.QuickInfoResponseBody | undefined,
+  etch: any,
+  codeRenderer?: (code: string) => Promise<JSX.Element>,
+) {
+  if (data === undefined) return null
+
+  const codeText = data.displayString.replace(/^\(.+?\)\s+/, "")
+  const code = codeRenderer ? (
+    await codeRenderer(codeText)
+  ) : (
+    <div className="atom-typescript-tooltip-tooltip-code">{codeText}</div>
   )
 
   const kind = (
