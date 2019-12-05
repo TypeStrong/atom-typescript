@@ -131,14 +131,28 @@ async function fsReadFile(p: string) {
   )
 }
 
+async function tryConfigFile(basedir: string, relpath: string[]) {
+  const configFile = path.join(basedir, ...relpath)
+  if (await fsExists(configFile)) return configFile
+}
+
+async function tryConfigFiles(basedir: string, relpaths: string[][]) {
+  for (const relpath of relpaths) {
+    const cf = await tryConfigFile(basedir, relpath)
+    if (cf !== undefined) return cf
+  }
+}
+
 async function resolveConfigFile(initialBaseDir: string) {
   let basedir = initialBaseDir
   let parent = path.dirname(basedir)
   while (basedir !== parent) {
-    const configFileA = path.join(basedir, ".atom-typescript.json")
-    if (await fsExists(configFileA)) return {basedir, configFile: configFileA}
-    const configFileB = path.join(basedir, ".atom", "atom-typescript.json")
-    if (await fsExists(configFileB)) return {basedir, configFile: configFileB}
+    const configFile = await tryConfigFiles(basedir, [
+      [".atom-typescript.json"],
+      [".atom", "atom-typescript.json"],
+      [".vscode", "settings.json"],
+    ])
+    if (configFile !== undefined) return {basedir, configFile}
     basedir = parent
     parent = path.dirname(basedir)
   }
