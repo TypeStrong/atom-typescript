@@ -1,4 +1,5 @@
 import * as etch from "etch"
+import {renderTooltip} from "./tooltipRenderer"
 import {adjustElementPosition} from "./util"
 
 interface Props extends JSX.Props {
@@ -12,6 +13,7 @@ interface Props extends JSX.Props {
 export class TooltipView implements JSX.ElementClass {
   public readonly element!: HTMLDivElement
   public props: Props
+  public tooltip: JSX.Element[] | null = null
 
   constructor() {
     this.props = {
@@ -29,6 +31,7 @@ export class TooltipView implements JSX.ElementClass {
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
+    this.tooltip = await renderTooltip(this.props.info, etch)
     await etch.update(this)
   }
 
@@ -44,19 +47,8 @@ export class TooltipView implements JSX.ElementClass {
   public render() {
     return (
       <div className="atom-typescript-tooltip tooltip">
-        <div className="tooltip-inner">{this.tooltipContents()}</div>
+        <div className="tooltip-inner">{this.tooltip}</div>
       </div>
     )
-  }
-
-  private tooltipContents() {
-    if (!this.props.info) return "…"
-    const code = (
-      <div className="atom-typescript-tooltip-tooltip-code">{this.props.info.displayString}</div>
-    )
-    const docs = this.props.info.documentation ? (
-      <div className="atom-typescript-tooltip-tooltip-doc">{this.props.info.documentation}</div>
-    ) : null
-    return [code, docs]
   }
 }

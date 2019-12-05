@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {Datatip, DatatipProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
+import {renderTooltip} from "../atom/tooltips/tooltipRenderer"
 import {locationToPoint, typeScriptScopes} from "../atom/utils"
 
 // Note: a horrible hack to avoid dependency on React
@@ -46,22 +47,9 @@ export class TSDatatipProvider implements DatatipProvider {
         offset: bufferPt.column + 1,
       })
       const data = result.body!
-      const code = await highlightCode(data.displayString.replace(/^\(.+?\)\s+/, ""))
-      const kind = (
-        <div className="atom-typescript-datatip-tooltip-kind">
-          {data.kind}
-          {data.kindModifiers ? <i> ({data.kindModifiers})</i> : null}
-        </div>
-      )
-      const docs = <div className="atom-typescript-datatip-tooltip-doc">{data.documentation}</div>
+      const tooltip = await renderTooltip(data, etch, highlightCode)
       return {
-        component: () => (
-          <div className="atom-typescript-datatip-tooltip">
-            {code}
-            {kind}
-            {docs}
-          </div>
-        ),
+        component: () => <div className="atom-typescript-datatip-tooltip">{tooltip}</div>,
         range: Atom.Range.fromObject([locationToPoint(data.start), locationToPoint(data.end)]),
       }
     } catch (e) {
