@@ -59,7 +59,13 @@ export class TooltipController {
 
   private async updateTooltip(bufferPt: Atom.Point) {
     if (this.cancelled) return
-    const tooltipRect = this.computeTooltipPosition(bufferPt)
+    let tooltipRect
+    try {
+      tooltipRect = this.computeTooltipPosition(bufferPt)
+    } catch (e) {
+      console.warn(e)
+      return
+    }
 
     const msg = await this.getMessage(bufferPt)
     if (this.cancelled) return

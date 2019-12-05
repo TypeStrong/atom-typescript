@@ -70,8 +70,15 @@ class TooltipManager {
     showExpressionAt(editor) {
         const pt = editor.getLastCursor().getBufferPosition();
         const view = atom.views.getView(editor);
-        const px = view.pixelPositionForBufferPosition(pt);
-        return this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px), pt);
+        let px;
+        try {
+            px = view.pixelPositionForBufferPosition(pt);
+        }
+        catch (e) {
+            console.warn(e);
+            return;
+        }
+        this.showExpressionType(editor, this.mousePositionForPixelPosition(editor, px), pt);
     }
     mousePositionForPixelPosition(editor, p) {
         const rawView = atom.views.getView(editor);
