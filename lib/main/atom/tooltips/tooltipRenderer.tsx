@@ -1,32 +1,25 @@
 export async function renderTooltip(
   data: protocol.QuickInfoResponseBody | undefined,
   etch: any,
-  codeRenderer?: (code: string) => Promise<JSX.Element>,
+  codeRenderer: (code: string) => Promise<JSX.Element> | JSX.Element,
 ) {
   if (data === undefined) return null
-
-  const codeText = data.displayString.replace(/^\(.+?\)\s+/, "")
-  const code = codeRenderer ? (
-    await codeRenderer(codeText)
-  ) : (
-    <div className="atom-typescript-tooltip-tooltip-code">{codeText}</div>
-  )
 
   const kind = (
     <div className="atom-typescript-datatip-tooltip-kind">
       {data.kind}
-      {data.kindModifiers ? <i> ({data.kindModifiers})</i> : null}
+      {formatKindModifiers(data.kindModifiers)}
     </div>
   )
 
   const tags = data.tags.map(tag => {
     const tagClass =
-      `atom-typescript-datatip-tooltip-doc-tag ` +
+      "atom-typescript-datatip-tooltip-doc-tag " +
       `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`
-    const tagText = formatTagText(etch, tag.text)
     return (
       <div className={tagClass}>
-        <span className="atom-typescript-datatip-tooltip-doc-tag-name">{tag.name}</span> {tagText}
+        <span className="atom-typescript-datatip-tooltip-doc-tag-name">{tag.name}</span>
+        {formatTagText(etch, tag.text)}
       </div>
     )
   })
@@ -38,7 +31,13 @@ export async function renderTooltip(
     </div>
   )
 
-  return [code, kind, docs]
+  const codeText = data.displayString.replace(/^\(.+?\)\s+/, "")
+  return [await codeRenderer(codeText), kind, docs]
+}
+
+function formatKindModifiers(etch: any, text?: string) {
+  if (text === undefined) return null
+  return <span className="atom-typescript-datatip-tooltip-kind-modifiers">{text}</span>
 }
 
 function formatTagText(etch: any, tagText?: string) {

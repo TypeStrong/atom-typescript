@@ -19,7 +19,7 @@ class TooltipView {
     }
     async update(props) {
         this.props = Object.assign(Object.assign({}, this.props), props);
-        this.tooltip = await tooltipRenderer_1.renderTooltip(this.props.info, etch);
+        this.tooltip = await tooltipRenderer_1.renderTooltip(this.props.info, etch, x => (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, x)));
         await etch.update(this);
     }
     writeAfterUpdate() {

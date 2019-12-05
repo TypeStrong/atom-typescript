@@ -3,29 +3,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 async function renderTooltip(data, etch, codeRenderer) {
     if (data === undefined)
         return null;
-    const codeText = data.displayString.replace(/^\(.+?\)\s+/, "");
-    const code = codeRenderer ? (await codeRenderer(codeText)) : (etch.dom("div", { className: "atom-typescript-tooltip-tooltip-code" }, codeText));
     const kind = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-kind" },
         data.kind,
-        data.kindModifiers ? etch.dom("i", null,
-            " (",
-            data.kindModifiers,
-            ")") : null));
+        formatKindModifiers(data.kindModifiers)));
     const tags = data.tags.map(tag => {
-        const tagClass = `atom-typescript-datatip-tooltip-doc-tag ` +
+        const tagClass = "atom-typescript-datatip-tooltip-doc-tag " +
             `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`;
-        const tagText = formatTagText(etch, tag.text);
         return (etch.dom("div", { className: tagClass },
             etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-name" }, tag.name),
-            " ",
-            tagText));
+            formatTagText(etch, tag.text)));
     });
     const docs = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" },
         data.documentation,
         tags));
-    return [code, kind, docs];
+    const codeText = data.displayString.replace(/^\(.+?\)\s+/, "");
+    return [await codeRenderer(codeText), kind, docs];
 }
 exports.renderTooltip = renderTooltip;
+function formatKindModifiers(etch, text) {
+    if (text === undefined)
+        return null;
+    return etch.dom("span", { className: "atom-typescript-datatip-tooltip-kind-modifiers" }, text);
+}
 function formatTagText(etch, tagText) {
     if (tagText === undefined)
         return null;
