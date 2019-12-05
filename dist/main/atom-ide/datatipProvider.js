@@ -58,41 +58,7 @@ class TSDatatipProvider {
 exports.TSDatatipProvider = TSDatatipProvider;
 async function highlightCode(code) {
     const fontFamily = atom.config.get("editor.fontFamily");
-    const ed = new Atom.TextEditor({
-        readonly: true,
-        keyboardInputEnabled: false,
-        showInvisibles: false,
-        tabLength: atom.config.get("editor.tabLength"),
-    });
-    const el = atom.views.getView(ed);
-    try {
-        el.setUpdatedSynchronously(true);
-        el.style.pointerEvents = "none";
-        el.style.position = "absolute";
-        el.style.width = "0px";
-        el.style.height = "1px";
-        atom.views.getView(atom.workspace).appendChild(el);
-        atom.grammars.assignLanguageMode(ed.getBuffer(), "source.ts");
-        ed.setText(code.replace(/\r?\n$/, ""));
-        await editorTokenized(ed);
-        const html = Array.from(el.querySelectorAll(".line:not(.dummy)"));
-        return (etch.dom("div", { style: { fontFamily }, className: "atom-typescript-datatip-tooltip-code", dangerouslySetInnerHTML: { __html: html.map(x => x.innerHTML).join("\n") } }));
-    }
-    finally {
-        el.remove();
-    }
-}
-async function editorTokenized(editor) {
-    return new Promise(resolve => {
-        if (editor.getBuffer().getLanguageMode().fullyTokenized) {
-            resolve();
-        }
-        else {
-            const disp = editor.onDidTokenize(() => {
-                disp.dispose();
-                resolve();
-            });
-        }
-    });
+    const html = await utils_1.highlight(code.replace(/\r?\n$/, ""), "source.ts");
+    return (etch.dom("div", { style: { fontFamily }, className: "atom-typescript-datatip-tooltip-code", dangerouslySetInnerHTML: { __html: html.join("\n") } }));
 }
 //# sourceMappingURL=datatipProvider.js.map

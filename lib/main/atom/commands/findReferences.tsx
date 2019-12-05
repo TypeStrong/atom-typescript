@@ -1,6 +1,7 @@
 import * as etch from "etch"
+import * as fs from "fs"
 import {TsView} from "../components/tsView"
-import {getFilePathPosition} from "../utils"
+import {getFilePathPosition, highlight} from "../utils"
 import {HighlightComponent} from "../views/highlightComponent"
 import {selectListView} from "../views/simpleSelectionView"
 import {addCommand} from "./registry"
@@ -13,9 +14,30 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
 
     const client = await deps.getClient(location.file)
     const result = await client.execute("references", location)
+    const refs = await Promise.all(
+      result.body!.refs.map(async ref => {
+        const fileContents = (
+          await new Promise<string>((resolve, reject) =>
+            fs.readFile(ref.file, (error, data) => {
+              if (error) reject(error)
+              else resolve(data.toString("utf-8"))
+            }),
+          )
+        ).split(/\r?\n/g)
+        const context =
+          ref.contextStart !== undefined && ref.contextEnd !== undefined
+            ? fileContents.slice(ref.contextStart.line - 1, ref.contextEnd.line)
+            : fileContents
+        const fileHlText = await highlight(context.join("\n"), "source.tsx")
+        // tslint:disable-next-line: strict-boolean-expressions
+        const lineText = fileHlText[ref.start.line - (ref.contextStart?.line || 1)]
+        return {...ref, hlText: lineText}
+      }),
+    )
+    console.log(refs)
 
     const res = await selectListView({
-      items: result.body!.refs,
+      items: refs,
       itemTemplate: (item, ctx) => {
         return (
           <li>
@@ -24,7 +46,7 @@ addCommand("atom-text-editor", "typescript:find-references", deps => ({
               query={ctx.getFilterQuery()}
             />
             <div className="pull-right">line: {item.start.line}</div>
-            <TsView text={item.lineText.trim()} />
+            <TsView highlightedText={item.hlText} />
           </li>
         )
       },

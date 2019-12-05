@@ -1,8 +1,7 @@
-import highlight = require("atom-highlight")
 import * as etch from "etch"
 
 interface Props extends JSX.Props {
-  text: string
+  highlightedText: string
 }
 
 export class TsView implements JSX.ElementClass {
@@ -16,17 +15,11 @@ export class TsView implements JSX.ElementClass {
   }
 
   public render() {
-    const html = highlight({
-      fileContents: this.props.text,
-      scopeName: "source.tsx",
-      editorDiv: false,
-      wrapCode: false,
-      nbsp: false,
-      lineDivs: false,
-    })
     const style = {
       fontFamily: atom.config.get("editor.fontFamily"),
     }
-    return <div className="editor editor-colors" style={style} innerHTML={html} />
+    return (
+      <div className="editor editor-colors" style={style} innerHTML={this.props.highlightedText} />
+    )
   }
 }

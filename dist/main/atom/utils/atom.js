@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Atom = require("atom");
 const path = require("path");
 const ts_1 = require("./ts");
 // Return line/offset position in the editor using 1-indexed coordinates
@@ -55,4 +56,45 @@ function* getOpenEditorsPaths() {
     }
 }
 exports.getOpenEditorsPaths = getOpenEditorsPaths;
+async function highlight(code, scopeName) {
+    const ed = new Atom.TextEditor({
+        readonly: true,
+        keyboardInputEnabled: false,
+        showInvisibles: false,
+        tabLength: atom.config.get("editor.tabLength"),
+    });
+    const el = atom.views.getView(ed);
+    try {
+        el.setUpdatedSynchronously(true);
+        el.style.pointerEvents = "none";
+        el.style.position = "absolute";
+        el.style.top = "100vh";
+        el.style.width = "100vw";
+        atom.grammars.assignLanguageMode(ed.getBuffer(), scopeName);
+        ed.setText(code);
+        ed.scrollToBufferPosition(ed.getBuffer().getEndPosition());
+        atom.views.getView(atom.workspace).appendChild(el);
+        await editorTokenized(ed);
+        return Array.from(el.querySelectorAll(".line:not(.dummy)")).map(x => x.innerHTML);
+    }
+    finally {
+        el.remove();
+    }
+}
+exports.highlight = highlight;
+async function editorTokenized(editor) {
+    return new Promise(resolve => {
+        const languageMode = editor.getBuffer().getLanguageMode();
+        const nextUpdatePromise = editor.component.getNextUpdatePromise();
+        if (languageMode.fullyTokenized || languageMode.tree) {
+            resolve(nextUpdatePromise);
+        }
+        else {
+            const disp = editor.onDidTokenize(() => {
+                disp.dispose();
+                resolve(nextUpdatePromise);
+            });
+        }
+    });
+}
 //# sourceMappingURL=atom.js.map
