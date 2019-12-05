@@ -93,16 +93,43 @@ async function resolveConfigFile(initialBaseDir) {
     while (basedir !== parent) {
         const configFileA = path.join(basedir, ".atom-typescript.json");
         if (await fsExists(configFileA))
-            return configFileA;
+            return { basedir, configFile: configFileA };
         const configFileB = path.join(basedir, ".atom", "atom-typescript.json");
         if (await fsExists(configFileB))
-            return configFileB;
+            return { basedir, configFile: configFileB };
         basedir = parent;
         parent = path.dirname(basedir);
     }
 }
 function isConfigObject(x) {
-    return typeof x === "object" && x !== null;
+    // tslint:disable-next-line: no-unsafe-any
+    return typeof x === "object" && x !== null && typeof x.tsdkPath === "string";
+}
+function isVSCodeConfigObject(x) {
+    // tslint:disable-next-line: no-unsafe-any
+    return typeof x === "object" && x !== null && typeof x["typescript.tsdk"] === "string";
+}
+async function getSDKPath(dirname) {
+    const configFile = await resolveConfigFile(dirname);
+    if (configFile) {
+        try {
+            const configFileContents = JSON.parse(await fsReadFile(configFile.configFile));
+            let tsdkPath;
+            if (isConfigObject(configFileContents)) {
+                tsdkPath = configFileContents.tsdkPath;
+            }
+            else if (isVSCodeConfigObject(configFileContents)) {
+                tsdkPath = configFileContents["typescript.tsdk"];
+            }
+            else {
+                return undefined;
+            }
+            return path.isAbsolute(tsdkPath) ? tsdkPath : path.join(configFile.basedir, tsdkPath);
+        }
+        catch (e) {
+            console.warn(e);
+        }
+    }
 }
 async function resolveBinary(sourcePath, binName) {
     const { NODE_PATH } = process.env;
@@ -111,20 +138,12 @@ async function resolveBinary(sourcePath, binName) {
         paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
     }).catch(async () => {
         // try to get typescript from auxiliary config file
-        const configFile = await resolveConfigFile(path.dirname(sourcePath));
-        if (configFile !== undefined) {
-            try {
-                const configFileContents = JSON.parse(await fsReadFile(configFile));
-                if (isConfigObject(configFileContents) && typeof configFileContents.tsdkPath === "string") {
-                    const binPath = path.join(configFileContents.tsdkPath, "bin", binName);
-                    const exists = await fsExists(binPath);
-                    if (exists)
-                        return binPath;
-                }
-            }
-            catch (e) {
-                console.warn(e);
-            }
+        const auxTsdkPath = await getSDKPath(path.dirname(sourcePath));
+        if (auxTsdkPath !== undefined) {
+            const binPath = path.join(auxTsdkPath, "bin", binName);
+            const exists = await fsExists(binPath);
+            if (exists)
+                return binPath;
         }
         // try to get typescript from configured tsdkPath
         const tsdkPath = atom.config.get("atom-typescript.tsdkPath");

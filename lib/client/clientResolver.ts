@@ -136,20 +136,49 @@ async function resolveConfigFile(initialBaseDir: string) {
   let parent = path.dirname(basedir)
   while (basedir !== parent) {
     const configFileA = path.join(basedir, ".atom-typescript.json")
-    if (await fsExists(configFileA)) return configFileA
+    if (await fsExists(configFileA)) return {basedir, configFile: configFileA}
     const configFileB = path.join(basedir, ".atom", "atom-typescript.json")
-    if (await fsExists(configFileB)) return configFileB
+    if (await fsExists(configFileB)) return {basedir, configFile: configFileB}
     basedir = parent
     parent = path.dirname(basedir)
   }
 }
 
 interface ConfigObject {
-  tsdkPath?: string
+  tsdkPath: string
+}
+
+interface VSCodeConfigObject {
+  "typescript.tsdk": string
 }
 
 function isConfigObject(x: any): x is ConfigObject {
-  return typeof x === "object" && x !== null
+  // tslint:disable-next-line: no-unsafe-any
+  return typeof x === "object" && x !== null && typeof x.tsdkPath === "string"
+}
+function isVSCodeConfigObject(x: any): x is VSCodeConfigObject {
+  // tslint:disable-next-line: no-unsafe-any
+  return typeof x === "object" && x !== null && typeof x["typescript.tsdk"] === "string"
+}
+
+async function getSDKPath(dirname: string) {
+  const configFile = await resolveConfigFile(dirname)
+  if (configFile) {
+    try {
+      const configFileContents = JSON.parse(await fsReadFile(configFile.configFile)) as unknown
+      let tsdkPath
+      if (isConfigObject(configFileContents)) {
+        tsdkPath = configFileContents.tsdkPath
+      } else if (isVSCodeConfigObject(configFileContents)) {
+        tsdkPath = configFileContents["typescript.tsdk"]
+      } else {
+        return undefined
+      }
+      return path.isAbsolute(tsdkPath) ? tsdkPath : path.join(configFile.basedir, tsdkPath)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
 }
 
 export async function resolveBinary(sourcePath: string, binName: string): Promise<Binary> {
@@ -160,18 +189,11 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
     paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
   }).catch(async () => {
     // try to get typescript from auxiliary config file
-    const configFile = await resolveConfigFile(path.dirname(sourcePath))
-    if (configFile !== undefined) {
-      try {
-        const configFileContents = JSON.parse(await fsReadFile(configFile)) as unknown
-        if (isConfigObject(configFileContents) && typeof configFileContents.tsdkPath === "string") {
-          const binPath = path.join(configFileContents.tsdkPath, "bin", binName)
-          const exists = await fsExists(binPath)
-          if (exists) return binPath
-        }
-      } catch (e) {
-        console.warn(e)
-      }
+    const auxTsdkPath = await getSDKPath(path.dirname(sourcePath))
+    if (auxTsdkPath !== undefined) {
+      const binPath = path.join(auxTsdkPath, "bin", binName)
+      const exists = await fsExists(binPath)
+      if (exists) return binPath
     }
 
     // try to get typescript from configured tsdkPath
