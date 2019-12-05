@@ -15,6 +15,8 @@
 
     This brings signature help more in-line with how tsserver expects things to work. The visible result is that signature help is displayed for React components in JSX.
 
+-   Bundle TypeScript 3.7
+
 ### Fixes
 
 -   Fix #1522 (subscription disposal race condition)
