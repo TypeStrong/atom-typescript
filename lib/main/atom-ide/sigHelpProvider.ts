@@ -4,7 +4,7 @@ import {GetClientFunction} from "../../client"
 import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
 
 export class TSSigHelpProvider implements SignatureHelpProvider {
-  public triggerCharacters = new Set<string>(["(", ","])
+  public triggerCharacters = new Set<string>(["<", "(", ","])
   public grammarScopes = typeScriptScopes()
   public priority = 100
 

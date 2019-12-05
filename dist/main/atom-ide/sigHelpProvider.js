@@ -4,7 +4,7 @@ const utils_1 = require("../atom/utils");
 class TSSigHelpProvider {
     constructor(getClient) {
         this.getClient = getClient;
-        this.triggerCharacters = new Set(["(", ","]);
+        this.triggerCharacters = new Set(["<", "(", ","]);
         this.grammarScopes = utils_1.typeScriptScopes();
         this.priority = 100;
     }
