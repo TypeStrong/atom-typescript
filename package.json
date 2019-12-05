@@ -313,14 +313,14 @@
     "fs-plus": "^3.1.1",
     "fuzzaldrin": "^2.1.0",
     "lodash": "^4.17.15",
-    "resolve": "^1.12.2",
+    "resolve": "^1.13.1",
     "tslib": "^1.10.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.3"
   },
   "devDependencies": {
     "@types/atom": "^1.36.1",
     "@types/byline": "^4.2.31",
-    "@types/chai": "^4.2.5",
+    "@types/chai": "^4.2.6",
     "@types/fs-plus": "^3.0.1",
     "@types/fuzzaldrin": "^2.1.2",
     "@types/lodash": "^4.14.149",
@@ -330,7 +330,7 @@
     "atom-ts-spec-runner": "^1.1.1",
     "chai": "^4.2.0",
     "prettier": "^1.19.1",
-    "ts-node": "^8.5.2",
+    "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "tslint-use-atom-disposables": "0.0.1",
     "typescript-tslint-plugin": "0.5.5"
