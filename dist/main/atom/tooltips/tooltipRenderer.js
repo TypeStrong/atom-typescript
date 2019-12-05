@@ -28,7 +28,7 @@ function formatKindModifiers(etch, text) {
 function formatTagText(etch, tagText) {
     if (tagText === undefined)
         return null;
-    const [, firstWord, restOfText] = /^\s*(\S*)(.*)$/.exec(tagText);
+    const [, firstWord, restOfText] = /^\s*(\S*)([^]*)$/.exec(tagText);
     return (etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text" },
         etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-text-first-word" }, firstWord),
         restOfText));

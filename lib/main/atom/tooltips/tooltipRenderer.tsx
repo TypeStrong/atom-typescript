@@ -43,7 +43,7 @@ function formatKindModifiers(etch: any, text?: string) {
 function formatTagText(etch: any, tagText?: string) {
   if (tagText === undefined) return null
 
-  const [, firstWord, restOfText] = /^\s*(\S*)(.*)$/.exec(tagText)!
+  const [, firstWord, restOfText] = /^\s*(\S*)([^]*)$/.exec(tagText)!
   return (
     <span className="atom-typescript-datatip-tooltip-doc-tag-text">
       <span className="atom-typescript-datatip-tooltip-doc-tag-text-first-word">{firstWord}</span>
