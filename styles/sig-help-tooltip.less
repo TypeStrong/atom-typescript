@@ -4,6 +4,20 @@
 .atom-typescript-tooltip-signature-help {
   white-space: pre-line;
   word-wrap: break-word;
+  display: none;
+  align-items: center;
+  &.atom-typescript-tooltip-signature-help-visible {
+    display: flex;
+  }
+  &.atom-typescript-tooltip-signature-help-changable {
+    &::after {
+      content: "▲\A▼";
+      white-space: pre-line;
+      display: block;
+      margin-left: 0.5em;
+      opacity: 0.6;
+    }
+  }
 }
 .atom-typescript-tooltip-signature-help-parameter .atom-typescript-tooltip-signature-help-selected {
   text-decoration: underline;

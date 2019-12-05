@@ -20,6 +20,7 @@ export interface Dependencies {
   showTooltipAt: (ed: Atom.TextEditor) => void
   showSigHelpAt: (ed: Atom.TextEditor) => void
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
+  rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
 }
 
 export type AllowedSelectors = keyof Dispatch

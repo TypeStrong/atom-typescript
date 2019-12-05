@@ -18,9 +18,15 @@ function adjustElementPosition(element, parent, box, pos) {
     let right = false;
     let top;
     let whiteSpace = "";
+    // need to reset any absolute positioning to get element width and height
+    element.style.left = "";
+    element.style.top = "";
+    element.style.right = "";
+    element.style.bottom = "";
     const clientWidth = parent.clientWidth;
-    const offsetWidth = element.offsetWidth;
-    const offsetHeight = element.offsetHeight;
+    const sty = getComputedStyle(element);
+    const offsetWidth = parseInt(sty.width, 10);
+    const offsetHeight = parseInt(sty.height, 10);
     // X axis adjust
     if (left + offsetWidth >= clientWidth) {
         left = clientWidth - offsetWidth - offset;

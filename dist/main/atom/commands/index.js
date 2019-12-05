@@ -10,7 +10,6 @@ require("./clearErrors");
 require("./findReferences");
 require("./formatCode");
 require("./goToDeclaration");
-require("./hideSigHelp");
 require("./initializeConfig");
 require("./organizeImports");
 require("./refactorCode");
@@ -20,8 +19,8 @@ require("./renameRefactor");
 require("./restartAllServers");
 require("./returnFromDeclaration");
 require("./semanticView");
-require("./showSigHelp");
 require("./showTooltip");
+require("./sigHelp");
 require("./symbolsView");
 function registerCommands(deps) {
     const disp = new atom_1.CompositeDisposable();

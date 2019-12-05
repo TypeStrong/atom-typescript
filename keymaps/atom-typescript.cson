@@ -4,6 +4,8 @@
   'f6': 'typescript:build'
   'f12': 'typescript:go-to-declaration'
   'escape': 'typescript:hide-signature-help'
+  'pageup': 'typescript:signature-help-prev'
+  'pagedown': 'typescript:signature-help-next'
 
 'atom-workspace':
   'f10': 'typescript:return-from-declaration'

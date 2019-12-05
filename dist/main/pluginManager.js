@@ -117,6 +117,12 @@ class PluginManager {
             else
                 return false;
         };
+        this.rotateSigHelp = (ed, shift) => {
+            if (this.usingBuiltinSigHelpManager)
+                return this.sigHelpManager.rotateSigHelp(ed, shift);
+            else
+                return false;
+        };
         this.histGoForward = (ed, opts) => {
             return this.editorPosHist.goForward(ed, opts);
         };
@@ -178,6 +184,7 @@ class PluginManager {
             showTooltipAt: this.showTooltipAt,
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
+            rotateSigHelp: this.rotateSigHelp,
         }));
     }
     destroy() {

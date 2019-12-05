@@ -138,6 +138,7 @@ export class PluginManager {
         showTooltipAt: this.showTooltipAt,
         showSigHelpAt: this.showSigHelpAt,
         hideSigHelpAt: this.hideSigHelpAt,
+        rotateSigHelp: this.rotateSigHelp,
       }),
     )
   }
@@ -353,6 +354,11 @@ export class PluginManager {
 
   private hideSigHelpAt = (ed: Atom.TextEditor): boolean => {
     if (this.usingBuiltinSigHelpManager) return this.sigHelpManager.hideTooltipAt(ed)
+    else return false
+  }
+
+  private rotateSigHelp = (ed: Atom.TextEditor, shift: number): boolean => {
+    if (this.usingBuiltinSigHelpManager) return this.sigHelpManager.rotateSigHelp(ed, shift)
     else return false
   }
 

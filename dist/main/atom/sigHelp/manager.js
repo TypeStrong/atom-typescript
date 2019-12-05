@@ -16,7 +16,7 @@ class SigHelpManager {
                 return;
             const pos = editor.getLastCursor().getBufferPosition();
             const [ch] = event.changes.filter(x => x.newRange.containsPoint(pos));
-            if (ch && ch.newText.match(/[(,]/) !== null) {
+            if (ch && ch.newText.match(/[<(,]/) !== null) {
                 utils_1.handlePromise(this.showTooltip(editor, pos));
             }
         };
@@ -43,6 +43,16 @@ class SigHelpManager {
     async showTooltipAt(editor) {
         const pt = editor.getLastCursor().getBufferPosition();
         return this.showTooltip(editor, pt);
+    }
+    rotateSigHelp(editor, shift) {
+        const controller = this.editorMap.get(editor);
+        if (controller && !controller.isDisposed()) {
+            utils_1.handlePromise(controller.rotateSigHelp(shift));
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     hideTooltipAt(editor) {
         const controller = this.editorMap.get(editor);

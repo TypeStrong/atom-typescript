@@ -18,7 +18,20 @@ class TooltipView {
         return etch.destroy(this);
     }
     async update(props) {
+        var _a, _b, _c;
+        if (((_a = props.sigHelp) === null || _a === void 0 ? void 0 : _a.selectedItemIndex) !== undefined &&
+            ((_b = props.sigHelp) === null || _b === void 0 ? void 0 : _b.selectedItemIndex) !== ((_c = this.props.sigHelp) === null || _c === void 0 ? void 0 : _c.selectedItemIndex)) {
+            this.props.visibleItem = undefined;
+        }
         this.props = Object.assign(Object.assign({}, this.props), props);
+        if (this.props.sigHelp === undefined) {
+            this.props.visibleItem = undefined;
+        }
+        else if (this.props.visibleItem !== undefined) {
+            this.props.visibleItem = this.props.visibleItem % this.props.sigHelp.items.length;
+            if (this.props.visibleItem < 0)
+                this.props.visibleItem += this.props.sigHelp.items.length;
+        }
         await etch.update(this);
     }
     writeAfterUpdate() {
@@ -38,13 +51,28 @@ class TooltipView {
         if (!this.props.sigHelp)
             return "…";
         const { sigHelp } = this.props;
-        return sigHelp.items.map((sig, idx) => (etch.dom("div", { className: `atom-typescript-tooltip-signature-help${idx === sigHelp.selectedItemIndex
-                ? " atom-typescript-tooltip-signature-help-selected"
-                : ""}` },
-            utils_1.partsToStr(sig.prefixDisplayParts),
-            this.renderSigHelpParams(sig.parameters, sigHelp.argumentIndex),
-            utils_1.partsToStr(sig.suffixDisplayParts),
-            etch.dom("div", { className: "atom-typescript-tooltip-signature-help-documentation" }, utils_1.partsToStr(sig.documentation)))));
+        const visibleItem = this.props.visibleItem !== undefined ? this.props.visibleItem : sigHelp.selectedItemIndex;
+        const count = sigHelp.items.length;
+        const classes = ["atom-typescript-tooltip-signature-help"];
+        if (count > 1) {
+            classes.push("atom-typescript-tooltip-signature-help-changable");
+        }
+        function className(idx) {
+            const newclasses = [];
+            if (idx === sigHelp.selectedItemIndex) {
+                newclasses.push("atom-typescript-tooltip-signature-help-selected");
+            }
+            if (idx === visibleItem) {
+                newclasses.push("atom-typescript-tooltip-signature-help-visible");
+            }
+            return [...classes, ...newclasses].join(" ");
+        }
+        return sigHelp.items.map((sig, idx) => (etch.dom("div", { className: className(idx) },
+            etch.dom("div", null,
+                utils_1.partsToStr(sig.prefixDisplayParts),
+                this.renderSigHelpParams(sig.parameters, sigHelp.argumentIndex),
+                utils_1.partsToStr(sig.suffixDisplayParts),
+                etch.dom("div", { className: "atom-typescript-tooltip-signature-help-documentation" }, utils_1.partsToStr(sig.documentation))))));
     }
     renderSigHelpParams(params, selIdx) {
         return params.map((p, i) => (etch.dom("span", { className: `atom-typescript-tooltip-signature-help-parameter` },
