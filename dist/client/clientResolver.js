@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
+const fs = require("fs");
 const path = require("path");
 const Resolve = require("resolve");
 const ts = require("typescript");
@@ -75,13 +76,68 @@ const resolveModule = (id, opts) => {
         }
     }));
 };
+async function fsExists(p) {
+    return new Promise(resolve => fs.exists(p, resolve));
+}
+async function fsReadFile(p) {
+    return new Promise((resolve, reject) => fs.readFile(p, (error, data) => {
+        if (error)
+            reject(error);
+        else
+            resolve(data.toString("utf-8"));
+    }));
+}
+async function resolveConfigFile(initialBaseDir) {
+    let basedir = initialBaseDir;
+    let parent = path.dirname(basedir);
+    while (basedir !== parent) {
+        const configFileA = path.join(basedir, ".atom-typescript.json");
+        if (await fsExists(configFileA))
+            return configFileA;
+        const configFileB = path.join(basedir, ".atom", "atom-typescript.json");
+        if (await fsExists(configFileB))
+            return configFileB;
+        basedir = parent;
+        parent = path.dirname(basedir);
+    }
+}
+function isConfigObject(x) {
+    return typeof x === "object" && x !== null;
+}
 async function resolveBinary(sourcePath, binName) {
     const { NODE_PATH } = process.env;
-    const defaultPath = require.resolve(`typescript/bin/${binName}`);
     const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
         basedir: path.dirname(sourcePath),
         paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
-    }).catch(() => defaultPath);
+    }).catch(async () => {
+        // try to get typescript from auxiliary config file
+        const configFile = await resolveConfigFile(path.dirname(sourcePath));
+        if (configFile !== undefined) {
+            try {
+                const configFileContents = JSON.parse(await fsReadFile(configFile));
+                if (isConfigObject(configFileContents) && typeof configFileContents.tsdkPath === "string") {
+                    const binPath = path.join(configFileContents.tsdkPath, "bin", binName);
+                    const exists = await fsExists(binPath);
+                    if (exists)
+                        return binPath;
+                }
+            }
+            catch (e) {
+                console.warn(e);
+            }
+        }
+        // try to get typescript from configured tsdkPath
+        const tsdkPath = atom.config.get("atom-typescript.tsdkPath");
+        if (tsdkPath) {
+            const binPath = path.join(tsdkPath, "bin", binName);
+            const exists = await fsExists(binPath);
+            if (exists)
+                return binPath;
+        }
+        // use bundled version
+        const defaultPath = require.resolve(`typescript/bin/${binName}`);
+        return defaultPath;
+    });
     const packagePath = path.resolve(resolvedPath, "../../package.json");
     // tslint:disable-next-line:no-unsafe-any
     const version = require(packagePath).version;
