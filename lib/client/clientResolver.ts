@@ -36,7 +36,7 @@ export interface EventTypes {
  */
 export class ClientResolver {
   private clients = new Map<string, Map<string | undefined, Client>>()
-  private memoizedClients = new Map<string, Client>()
+  private memoizedClients = new Map<string, Promise<Client>>()
   private emitter = new Emitter<{}, EventTypes>()
   private subscriptions = new CompositeDisposable()
   private tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
@@ -56,9 +56,14 @@ export class ClientResolver {
   public async get(pFilePath: string): Promise<Client> {
     const memo = this.memoizedClients.get(pFilePath)
     if (memo) return memo
-    const client = await this._get(pFilePath)
+    const client = this._get(pFilePath)
     this.memoizedClients.set(pFilePath, client)
-    return client
+    try {
+      return await client
+    } catch (e) {
+      this.memoizedClients.delete(pFilePath)
+      throw e
+    }
   }
 
   public dispose() {

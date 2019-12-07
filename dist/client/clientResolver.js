@@ -42,9 +42,15 @@ class ClientResolver {
         const memo = this.memoizedClients.get(pFilePath);
         if (memo)
             return memo;
-        const client = await this._get(pFilePath);
+        const client = this._get(pFilePath);
         this.memoizedClients.set(pFilePath, client);
-        return client;
+        try {
+            return await client;
+        }
+        catch (e) {
+            this.memoizedClients.delete(pFilePath);
+            throw e;
+        }
     }
     dispose() {
         this.emitter.dispose();
