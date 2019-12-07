@@ -167,7 +167,6 @@ async function resolveBinary(sourcePath, binBaseName) {
         const auxTsdkPath = await getSDKPath(path.dirname(sourcePath));
         if (auxTsdkPath !== undefined) {
             const binPath = path.join(auxTsdkPath, "lib", binName);
-            console.log(binPath);
             const exists = await fsExists(binPath);
             if (exists)
                 return binPath;
@@ -187,7 +186,6 @@ async function resolveBinary(sourcePath, binBaseName) {
     const packagePath = path.resolve(resolvedPath, "../../package.json");
     // tslint:disable-next-line:no-unsafe-any
     const version = require(packagePath).version;
-    console.log(`found ${version} of ${resolvedPath}`);
     return {
         version,
         pathToBin: resolvedPath,
