@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const atom_1 = require("atom");
 const fs = require("fs");
+const jsonc = require("jsonc-parser");
 const path = require("path");
 const Resolve = require("resolve");
 const ts = require("typescript");
@@ -14,6 +15,7 @@ class ClientResolver {
     constructor(reportBusyWhile) {
         this.reportBusyWhile = reportBusyWhile;
         this.clients = new Map();
+        this.memoizedClients = new Map();
         this.emitter = new atom_1.Emitter();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
@@ -37,6 +39,20 @@ class ClientResolver {
         await this.reportBusyWhile("Restarting servers", () => Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())));
     }
     async get(pFilePath) {
+        const memo = this.memoizedClients.get(pFilePath);
+        if (memo)
+            return memo;
+        const client = await this._get(pFilePath);
+        this.memoizedClients.set(pFilePath, client);
+        return client;
+    }
+    dispose() {
+        this.emitter.dispose();
+        this.subscriptions.dispose();
+        this.memoizedClients.clear();
+        this.clients.clear();
+    }
+    async _get(pFilePath) {
         const { pathToBin, version } = await resolveBinary(pFilePath, "tsserver");
         const tsconfigPath = this.tsserverInstancePerTsconfig
             ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
@@ -53,10 +69,6 @@ class ClientResolver {
         tsconfigMap.set(tsconfigPath, newClient);
         this.subscriptions.add(newClient.on("configFileDiag", this.diagnosticHandler(pathToBin, "configFileDiag")), newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")), newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")), newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")));
         return newClient;
-    }
-    dispose() {
-        this.emitter.dispose();
-        this.subscriptions.dispose();
     }
     *getAllClients() {
         for (const tsconfigMap of this.clients.values()) {
@@ -126,13 +138,13 @@ async function getSDKPath(dirname) {
     const configFile = await resolveConfigFile(dirname);
     if (configFile) {
         try {
-            const configFileContents = JSON.parse(await fsReadFile(configFile.configFile));
+            const configFileContents = jsonc.parse(await fsReadFile(configFile.configFile));
             let tsdkPath;
             if (isConfigObject(configFileContents)) {
                 tsdkPath = configFileContents.tsdkPath;
             }
             else if (isVSCodeConfigObject(configFileContents)) {
-                tsdkPath = configFileContents["typescript.tsdk"];
+                tsdkPath = path.dirname(configFileContents["typescript.tsdk"]);
             }
             else {
                 return undefined;
@@ -154,6 +166,7 @@ async function resolveBinary(sourcePath, binName) {
         const auxTsdkPath = await getSDKPath(path.dirname(sourcePath));
         if (auxTsdkPath !== undefined) {
             const binPath = path.join(auxTsdkPath, "bin", binName);
+            console.log(binPath);
             const exists = await fsExists(binPath);
             if (exists)
                 return binPath;
@@ -173,6 +186,7 @@ async function resolveBinary(sourcePath, binName) {
     const packagePath = path.resolve(resolvedPath, "../../package.json");
     // tslint:disable-next-line:no-unsafe-any
     const version = require(packagePath).version;
+    console.log(`found ${version} of ${resolvedPath}`);
     return {
         version,
         pathToBin: resolvedPath,

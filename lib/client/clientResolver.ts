@@ -1,5 +1,6 @@
 import {CompositeDisposable, Emitter} from "atom"
 import * as fs from "fs"
+import * as jsonc from "jsonc-parser"
 import * as path from "path"
 import * as Resolve from "resolve"
 import * as ts from "typescript"
@@ -35,6 +36,7 @@ export interface EventTypes {
  */
 export class ClientResolver {
   private clients = new Map<string, Map<string | undefined, Client>>()
+  private memoizedClients = new Map<string, Client>()
   private emitter = new Emitter<{}, EventTypes>()
   private subscriptions = new CompositeDisposable()
   private tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
@@ -52,6 +54,21 @@ export class ClientResolver {
   }
 
   public async get(pFilePath: string): Promise<Client> {
+    const memo = this.memoizedClients.get(pFilePath)
+    if (memo) return memo
+    const client = await this._get(pFilePath)
+    this.memoizedClients.set(pFilePath, client)
+    return client
+  }
+
+  public dispose() {
+    this.emitter.dispose()
+    this.subscriptions.dispose()
+    this.memoizedClients.clear()
+    this.clients.clear()
+  }
+
+  private async _get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
     const tsconfigPath = this.tsserverInstancePerTsconfig
       ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
@@ -76,11 +93,6 @@ export class ClientResolver {
     )
 
     return newClient
-  }
-
-  public dispose() {
-    this.emitter.dispose()
-    this.subscriptions.dispose()
   }
 
   private *getAllClients() {
@@ -179,12 +191,12 @@ async function getSDKPath(dirname: string) {
   const configFile = await resolveConfigFile(dirname)
   if (configFile) {
     try {
-      const configFileContents = JSON.parse(await fsReadFile(configFile.configFile)) as unknown
+      const configFileContents = jsonc.parse(await fsReadFile(configFile.configFile)) as unknown
       let tsdkPath
       if (isConfigObject(configFileContents)) {
         tsdkPath = configFileContents.tsdkPath
       } else if (isVSCodeConfigObject(configFileContents)) {
-        tsdkPath = configFileContents["typescript.tsdk"]
+        tsdkPath = path.dirname(configFileContents["typescript.tsdk"])
       } else {
         return undefined
       }
@@ -206,6 +218,7 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
     const auxTsdkPath = await getSDKPath(path.dirname(sourcePath))
     if (auxTsdkPath !== undefined) {
       const binPath = path.join(auxTsdkPath, "bin", binName)
+      console.log(binPath)
       const exists = await fsExists(binPath)
       if (exists) return binPath
     }
@@ -226,6 +239,7 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
   const packagePath = path.resolve(resolvedPath, "../../package.json")
   // tslint:disable-next-line:no-unsafe-any
   const version: string = require(packagePath).version
+  console.log(`found ${version} of ${resolvedPath}`)
 
   return {
     version,
