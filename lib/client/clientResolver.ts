@@ -207,17 +207,21 @@ async function getSDKPath(dirname: string) {
   }
 }
 
-export async function resolveBinary(sourcePath: string, binName: string): Promise<Binary> {
+export async function resolveBinary(
+  sourcePath: string,
+  binBaseName: "tsc" | "tsserver",
+): Promise<Binary> {
   const {NODE_PATH} = process.env as {NODE_PATH?: string}
+  const binName = `${binBaseName}.js`
 
-  const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
+  const resolvedPath = await resolveModule(`typescript/lib/${binName}`, {
     basedir: path.dirname(sourcePath),
     paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
   }).catch(async () => {
     // try to get typescript from auxiliary config file
     const auxTsdkPath = await getSDKPath(path.dirname(sourcePath))
     if (auxTsdkPath !== undefined) {
-      const binPath = path.join(auxTsdkPath, "bin", binName)
+      const binPath = path.join(auxTsdkPath, "lib", binName)
       console.log(binPath)
       const exists = await fsExists(binPath)
       if (exists) return binPath
@@ -226,13 +230,13 @@ export async function resolveBinary(sourcePath: string, binName: string): Promis
     // try to get typescript from configured tsdkPath
     const tsdkPath = atom.config.get("atom-typescript.tsdkPath")
     if (tsdkPath) {
-      const binPath = path.join(tsdkPath, "bin", binName)
+      const binPath = path.join(tsdkPath, "lib", binName)
       const exists = await fsExists(binPath)
       if (exists) return binPath
     }
 
     // use bundled version
-    const defaultPath = require.resolve(`typescript/bin/${binName}`)
+    const defaultPath = require.resolve(`typescript/lib/${binName}`)
     return defaultPath
   })
 
