@@ -1,3 +1,11 @@
+## 13.4.1
+
+-   Rework replacement prefix heuristic in autocompletion
+
+    This hopefully fixes an array of relatively infrequent, but annoying
+    bugs when confirming an autocompletion suggestion would remove some part
+    of the preceding code. See [#1528](https://github.com/TypeStrong/atom-typescript/issues/1528) for an example.
+
 ## 13.4.0
 
 ### New features
