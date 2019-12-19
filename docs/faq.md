@@ -99,7 +99,7 @@ should work.
 
 ## Rename-refactor updates files in `node_modules`?!
 
-This by design, since TypeScript doesn't really assign any special meaning to `node_modules`. You can explicitly forbid this by excluding `node_modules` from the project explicitly, f.ex. by adding `node_modules` to `exclude` option in `tsconfig.json`:
+This by design, since TypeScript doesn't really assign any special meaning to `node_modules`. You can explicitly forbid this by excluding `node_modules` from the project, f.ex. by adding `node_modules` to `exclude` option in `tsconfig.json`:
 
 ```json
 {
