@@ -43,10 +43,9 @@ class AutocompleteProvider {
             }
             // Get additional details for the first few suggestions
             await this.getAdditionalDetails(suggestions.slice(0, 10), location);
-            const trimmed = prefix.trim();
             return suggestions.map(suggestion => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-                    : getReplacementPrefix(prefix, trimmed, suggestion.text) }, suggestion)));
+                    : getReplacementPrefix(opts, suggestion.text) }, suggestion)));
         }
         catch (error) {
             return [];
@@ -108,16 +107,14 @@ async function getSuggestionsInternal(client, location, prefix) {
     }
 }
 // Decide what needs to be replaced in the editor buffer when inserting the completion
-function getReplacementPrefix(prefix, trimmed, replacement) {
-    if (trimmed === "." || trimmed === "{" || prefix === " ") {
-        return "";
-    }
-    else if (replacement.startsWith("$")) {
-        return "$" + prefix;
-    }
-    else {
-        return prefix;
-    }
+function getReplacementPrefix(opts, replacement) {
+    const prefix = opts.editor
+        .getBuffer()
+        .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition]);
+    for (const i of utils_1.inits(replacement, 1))
+        if (prefix.endsWith(i))
+            return i;
+    return "";
 }
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."

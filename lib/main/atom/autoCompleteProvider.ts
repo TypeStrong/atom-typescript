@@ -3,7 +3,7 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
-import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
+import {FileLocationQuery, inits, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
@@ -74,12 +74,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       // Get additional details for the first few suggestions
       await this.getAdditionalDetails(suggestions.slice(0, 10), location)
 
-      const trimmed = prefix.trim()
-
       return suggestions.map(suggestion => ({
         replacementPrefix: suggestion.replacementRange
           ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-          : getReplacementPrefix(prefix, trimmed, suggestion.text!),
+          : getReplacementPrefix(opts, suggestion.text!),
         ...suggestion,
       }))
     } catch (error) {
@@ -178,14 +176,12 @@ async function getSuggestionsInternal(
 }
 
 // Decide what needs to be replaced in the editor buffer when inserting the completion
-function getReplacementPrefix(prefix: string, trimmed: string, replacement: string): string {
-  if (trimmed === "." || trimmed === "{" || prefix === " ") {
-    return ""
-  } else if (replacement.startsWith("$")) {
-    return "$" + prefix
-  } else {
-    return prefix
-  }
+function getReplacementPrefix(opts: ACP.SuggestionsRequestedEvent, replacement: string): string {
+  const prefix = opts.editor
+    .getBuffer()
+    .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition])
+  for (const i of inits(replacement, 1)) if (prefix.endsWith(i)) return i
+  return ""
 }
 
 // When the user types each character in ".hello", we want to normalize the column such that it's
