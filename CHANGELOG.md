@@ -1,3 +1,9 @@
+## 13.4.2
+
+-   Add missing files
+
+    This fixes a packaging bug in 13.4.1
+
 ## 13.4.1
 
 -   Rework replacement prefix heuristic in autocompletion
