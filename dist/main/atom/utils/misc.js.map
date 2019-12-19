@@ -1,0 +1,1 @@
+{"version":3,"file":"misc.js","sourceRoot":"","sources":["../../../../lib/main/atom/utils/misc.ts"],"names":[],"mappings":";;AAAA;;;;;;GAMG;AACH,QAAe,CAAC,CAAC,KAAK,CAAsB,GAAM,EAAE,YAAoB,CAAC;IACvE,KAAK,IAAI,CAAC,GAAG,SAAS,EAAE,CAAC,IAAI,GAAG,CAAC,MAAM,EAAE,EAAE,CAAC,EAAE;QAC5C,MAAM,GAAG,CAAC,KAAK,CAAC,CAAC,EAAE,CAAC,CAAC,CAAA;KACtB;AACH,CAAC;AAJD,sBAIC"}
