@@ -1,6 +1,4 @@
 import {CompositeDisposable, Emitter} from "atom"
-import * as path from "path"
-import * as Resolve from "resolve"
 import * as ts from "typescript"
 import {
   ConfigFileDiagnosticEventBody,
@@ -9,6 +7,7 @@ import {
 } from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {TypescriptServiceClient as Client} from "./client"
+import {resolveBinary} from "./resolveBinary"
 
 export type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 
@@ -17,11 +16,6 @@ interface DiagnosticsPayload {
   filePath: string
   serverPath: string
   type: DiagnosticTypes
-}
-
-interface Binary {
-  version: string
-  pathToBin: string
 }
 
 export interface EventTypes {
@@ -34,6 +28,7 @@ export interface EventTypes {
  */
 export class ClientResolver {
   private clients = new Map<string, Map<string | undefined, Client>>()
+  private memoizedClients = new Map<string, Promise<Client>>()
   private emitter = new Emitter<{}, EventTypes>()
   private subscriptions = new CompositeDisposable()
   private tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
@@ -51,6 +46,26 @@ export class ClientResolver {
   }
 
   public async get(pFilePath: string): Promise<Client> {
+    const memo = this.memoizedClients.get(pFilePath)
+    if (memo) return memo
+    const client = this._get(pFilePath)
+    this.memoizedClients.set(pFilePath, client)
+    try {
+      return await client
+    } catch (e) {
+      this.memoizedClients.delete(pFilePath)
+      throw e
+    }
+  }
+
+  public dispose() {
+    this.emitter.dispose()
+    this.subscriptions.dispose()
+    this.memoizedClients.clear()
+    this.clients.clear()
+  }
+
+  private async _get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
     const tsconfigPath = this.tsserverInstancePerTsconfig
       ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
@@ -77,11 +92,6 @@ export class ClientResolver {
     return newClient
   }
 
-  public dispose() {
-    this.emitter.dispose()
-    this.subscriptions.dispose()
-  }
-
   private *getAllClients() {
     for (const tsconfigMap of this.clients.values()) {
       yield* tsconfigMap.values()
@@ -101,38 +111,6 @@ export class ClientResolver {
         diagnostics: result.diagnostics,
       })
     }
-  }
-}
-
-// Promisify the async resolve function
-const resolveModule = (id: string, opts: Resolve.AsyncOpts): Promise<string> => {
-  return new Promise<string>((resolve, reject) =>
-    Resolve(id, opts, (err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    }),
-  )
-}
-
-export async function resolveBinary(sourcePath: string, binName: string): Promise<Binary> {
-  const {NODE_PATH} = process.env as {NODE_PATH?: string}
-  const defaultPath = require.resolve(`typescript/bin/${binName}`)
-
-  const resolvedPath = await resolveModule(`typescript/bin/${binName}`, {
-    basedir: path.dirname(sourcePath),
-    paths: NODE_PATH !== undefined ? NODE_PATH.split(path.delimiter) : undefined,
-  }).catch(() => defaultPath)
-
-  const packagePath = path.resolve(resolvedPath, "../../package.json")
-  // tslint:disable-next-line:no-unsafe-any
-  const version: string = require(packagePath).version
-
-  return {
-    version,
-    pathToBin: resolvedPath,
   }
 }
 
