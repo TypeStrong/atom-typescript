@@ -45,7 +45,7 @@ class AutocompleteProvider {
             await this.getAdditionalDetails(suggestions.slice(0, 10), location);
             return suggestions.map(suggestion => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-                    : getReplacementPrefix(opts, suggestion.text) }, suggestion)));
+                    : getReplacementPrefix(opts, suggestion.text) }, addCallableParens(suggestion))));
         }
         catch (error) {
             return [];
@@ -160,6 +160,14 @@ function completionEntryToSuggestion(entry) {
         replacementRange: entry.replacementSpan ? utils_1.spanToRange(entry.replacementSpan) : undefined,
         type: kindMap[entry.kind],
     };
+}
+function addCallableParens(s) {
+    if (atom.config.get("atom-typescript.autocompleteParens") &&
+        ["function", "method"].includes(s.leftLabel)) {
+        return Object.assign(Object.assign({}, s), { snippet: `${s.text}($1)`, text: undefined });
+    }
+    else
+        return s;
 }
 const kindMap = {
     directory: "require",
