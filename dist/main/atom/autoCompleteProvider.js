@@ -111,9 +111,11 @@ function getReplacementPrefix(opts, replacement) {
     const prefix = opts.editor
         .getBuffer()
         .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition]);
-    for (const i of utils_1.inits(replacement, 1))
-        if (prefix.endsWith(i))
-            return i;
+    for (const i of utils_1.inits(replacement.toLowerCase(), 1)) {
+        if (prefix.toLowerCase().endsWith(i)) {
+            return prefix.slice(-i.length);
+        }
+    }
     return "";
 }
 // When the user types each character in ".hello", we want to normalize the column such that it's
