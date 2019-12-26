@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {HyperclickProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
+import {handleFindReferencesResult} from "../atom/commands/findReferences"
 import {handleDefinitionResult} from "../atom/commands/goToDeclaration"
 import {Dependencies} from "../atom/commands/registry"
 import {isTypescriptEditorWithPath} from "../atom/utils"
@@ -28,7 +29,18 @@ export function getHyperclickProvider(
           }
           const client = await getClient(location.file)
           const result = await client.execute("definition", location)
-          await handleDefinitionResult(result, editor, histGoForward)
+          const resLoc = result.body ? result.body[0] : null
+          if (
+            resLoc &&
+            result.body?.length === 1 &&
+            resLoc.start.line === location.line &&
+            resLoc.start.offset === location.offset
+          ) {
+            const res = await client.execute("references", location)
+            await handleFindReferencesResult(res, editor, histGoForward)
+          } else {
+            await handleDefinitionResult(result, editor, histGoForward)
+          }
         },
       }
     },
