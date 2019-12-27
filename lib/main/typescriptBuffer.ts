@@ -2,13 +2,15 @@ import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {TBuildStatus} from "./atom/components/statusPanel"
+import {handleCheckAllFilesResult} from "./atom/commands/checkAllFiles"
+import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
   getClient: GetClientFunction
-  clearFileErrors: (filePath: string) => void
-  reportBuildStatus: (status: TBuildStatus | undefined) => void
+  reportProgress: (progress: TProgress) => void
+  clearFileErrors: (filePath?: string) => void
+  reportBuildStatus: (status?: TBuildStatus) => void
 }
 
 export class TypescriptBuffer {
@@ -28,6 +30,7 @@ export class TypescriptBuffer {
   private state?: {
     client: TSClient
     filePath: string
+    filesNames: string[] | undefined
     // Path to the project's tsconfig.json
     configFile: Atom.File | undefined
     subscriptions: Atom.CompositeDisposable
@@ -48,7 +51,7 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: false}))
+        handlePromise(this.getErr({allFiles: true}))
         if (changes.length > 0) this.deps.reportBuildStatus(undefined)
       }),
       buffer.onDidChangeText(arg => {
@@ -69,17 +72,44 @@ export class TypescriptBuffer {
     if (!this.state) return
     return {
       clientVersion: this.state.client.version,
-      tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
+      tsconfigPath: this.getConfigFilePath(),
     }
+  }
+
+  public updateDiag() {
+    handlePromise(this.getErrProject())
+  }
+
+  private getConfigFilePath() {
+    if (!this.state || !this.state.configFile) return
+    return this.state.configFile.getPath()
+  }
+
+  private getProjectRootPath() {
+    if (!this.state || !this.state.configFile) return
+    return this.state.configFile.getParent().getPath()
   }
 
   private async getErr({allFiles}: {allFiles: boolean}) {
     if (!this.state) return
-    const files = allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
+    const files = allFiles
+      ? Array.from(getOpenEditorsPaths(this.getProjectRootPath()))
+      : [this.state.filePath]
     await this.state.client.execute("geterr", {
       files,
       delay: 100,
     })
+  }
+
+  private async getErrProject() {
+    if (!this.state || !this.state.filePath) return
+    await handleCheckAllFilesResult(
+      this.state.filePath,
+      this.state.filesNames,
+      this.getConfigFilePath(),
+      this.state.client,
+      this.deps.reportProgress,
+    )
   }
 
   /** Throws! */
@@ -122,6 +152,7 @@ export class TypescriptBuffer {
         client,
         filePath,
         configFile: undefined,
+        filesNames: undefined,
         subscriptions: new Atom.CompositeDisposable(),
       }
 
@@ -130,19 +161,21 @@ export class TypescriptBuffer {
       await this.init()
 
       const result = await client.execute("projectInfo", {
-        needFileNameList: false,
+        needFileNameList: true,
         file: filePath,
       })
 
       // TODO: wrong type here, complain on TS repo
       if ((result.body!.configFileName as string | undefined) !== undefined) {
         this.state.configFile = new Atom.File(result.body!.configFileName)
+        this.state.filesNames = result.body!.fileNames
         await this.readConfigFile()
         this.state.subscriptions.add(
           this.state.configFile.onDidChange(() => handlePromise(this.readConfigFile())),
         )
       }
 
+      await this.getErrProject()
       this.events.emit("opened")
     } else {
       return this.close()
@@ -179,7 +212,7 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      this.deps.clearFileErrors(file)
+      this.deps.clearFileErrors(this.getProjectRootPath())
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})
@@ -195,7 +228,7 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    await this.getErr({allFiles: true})
+    await this.getErrProject()
     await this.doCompileOnSave()
   }
 

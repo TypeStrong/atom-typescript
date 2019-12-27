@@ -1,15 +1,21 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
 import {GetClientFunction} from "../client"
-import {TBuildStatus} from "./atom/components/statusPanel"
+import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
+interface ClientInfo {
+  clientVersion: string
+  tsconfigPath: string | undefined
+}
+
 interface PaneOptions {
   getClient: GetClientFunction
-  reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
-  reportBuildStatus: (status: TBuildStatus | undefined) => void
-  clearFileErrors: (filePath: string) => void
+  reportProgress: (progress: TProgress) => void
+  reportClientInfo: (info: ClientInfo) => void
+  reportBuildStatus: (status?: TBuildStatus) => void
+  clearFileErrors: (filePath?: string) => void
 }
 
 export class TypescriptEditorPane {
@@ -35,6 +41,7 @@ export class TypescriptEditorPane {
   private readonly buffer: TypescriptBuffer
 
   private readonly subscriptions = new CompositeDisposable()
+  private clientInfo: ClientInfo | undefined
   private isTypescript = false
 
   private constructor(private readonly editor: Atom.TextEditor, private opts: PaneOptions) {
@@ -59,8 +66,14 @@ export class TypescriptEditorPane {
    * it is implicitly assumed that `atom.workspace.getActiveTextEditor() === this.editor`
    * which has to be ensured at call site
    */
-  public didActivate = () => {
-    if (this.isTypescript) this.reportInfo()
+  public didActivate = (isModified: boolean) => {
+    if (this.isTypescript) {
+      const info = this.reportInfo()
+      if (isModified || this.clientInfo?.tsconfigPath !== info?.tsconfigPath) {
+        this.buffer.updateDiag()
+      }
+      this.clientInfo = info
+    }
   }
 
   private onOpened = () => {
@@ -70,7 +83,10 @@ export class TypescriptEditorPane {
 
   private reportInfo() {
     const info = this.buffer.getInfo()
-    if (info) this.opts.reportClientInfo(info)
+    if (info) {
+      this.opts.reportClientInfo(info)
+      return info
+    }
   }
 
   private checkIfTypescript = () => {

@@ -43,9 +43,14 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  public clearFileErrors(filePath: string) {
-    for (const map of this.errors.values()) {
-      map.delete(filePath)
+  public clearFileErrors(projectPath?: string) {
+    if (projectPath === undefined) return
+    for (const fileErrors of this.errors.values()) {
+      for (const [filePath] of fileErrors) {
+        if (filePath.includes(projectPath)) {
+          fileErrors.delete(filePath)
+        }
+      }
     }
     this.pushErrors()
   }
@@ -79,6 +84,7 @@ export class ErrorPusher {
           for (const diagnostic of diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
+            if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.
             let {start, end} = diagnostic as Partial<Diagnostic>

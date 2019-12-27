@@ -109,6 +109,7 @@ export class PluginManager {
     this.typescriptPaneFactory = TypescriptEditorPane.createFactory({
       clearFileErrors: this.clearFileErrors,
       getClient: this.getClient,
+      reportProgress: this.reportProgress,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
     })
@@ -265,8 +266,10 @@ export class PluginManager {
     this.errorPusher.clear()
   }
 
-  private clearFileErrors = (filePath: string) => {
-    this.errorPusher.clearFileErrors(filePath)
+  private clearFileErrors = (projectPath = "") => {
+    if (projectPath !== "") {
+      this.errorPusher.clearFileErrors(projectPath)
+    }
   }
 
   private getClient = async (filePath: string) => {
@@ -321,7 +324,7 @@ export class PluginManager {
     handlePromise(this.statusPanel.update({buildStatus}))
   }
 
-  private reportClientInfo = (info: {clientVersion: string; tsConfigPath: string | undefined}) => {
+  private reportClientInfo = (info: {clientVersion: string; tsconfigPath: string | undefined}) => {
     handlePromise(this.statusPanel.update(info))
   }
 
@@ -375,7 +378,7 @@ export class PluginManager {
         if (ed && isTypescriptEditorWithPath(ed)) {
           handlePromise(this.statusPanel.show())
           const tep = TypescriptEditorPane.lookupPane(ed)
-          if (tep) tep.didActivate()
+          if (tep) tep.didActivate(ed.isModified())
         } else handlePromise(this.statusPanel.hide())
       }),
     )

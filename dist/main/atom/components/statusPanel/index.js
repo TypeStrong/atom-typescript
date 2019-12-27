@@ -12,7 +12,13 @@ class StatusPanel {
     }
     async update(props) {
         this.props = Object.assign(Object.assign({}, this.props), props);
-        await etch.update(this);
+        try {
+            await etch.update(this);
+        }
+        catch (err) {
+            console.error("debug.update", props, err);
+            throw err;
+        }
     }
     render() {
         return (etch.dom("ts-status-panel", { className: this.props.visible ? "" : "hide" },
