@@ -17,10 +17,9 @@ registry_1.addCommand("atom-text-editor", "typescript:go-to-declaration", deps =
     },
 }));
 async function handleDefinitionResult(result, editor, histGoForward) {
-    if (!result.body) {
+    if (!result.body)
         return;
-    }
-    else if (result.body.length > 1) {
+    if (result.body.length > 1) {
         const res = await simpleSelectionView_1.selectListView({
             items: result.body,
             itemTemplate: (item, ctx) => {

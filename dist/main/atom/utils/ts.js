@@ -41,7 +41,7 @@ function loadConfig(configFile) {
     if (path.extname(configFile) !== ".json") {
         configFile = `${configFile}.json`;
     }
-    let { config, } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    let { config, } = ts.readConfigFile(configFile, file => readFile(file));
     if (config === undefined)
         return {};
     if (typeof config.extends === "string") {
@@ -51,6 +51,10 @@ function loadConfig(configFile) {
     }
     return config;
 }
+function readFile(file) {
+    return ts.sys.readFile(file);
+}
+exports.readFile = readFile;
 function signatureHelpItemToSignature(i) {
     return {
         label: partsToStr(i.prefixDisplayParts) +

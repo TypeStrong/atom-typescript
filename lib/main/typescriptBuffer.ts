@@ -3,6 +3,7 @@ import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
 import {handleCheckAllFilesResult} from "./atom/commands/checkAllFiles"
+import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
 import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
@@ -51,8 +52,10 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: true}))
-        if (changes.length > 0) this.deps.reportBuildStatus(undefined)
+        if (changes.length > 0) {
+          handlePromise(this.getErrRelated(changes[0]))
+          this.deps.reportBuildStatus(undefined)
+        }
       }),
       buffer.onDidChangeText(arg => {
         // NOTE: we don't need to worry about interleaving here,
@@ -77,7 +80,7 @@ export class TypescriptBuffer {
   }
 
   public updateDiag() {
-    handlePromise(this.getErrProject())
+    handlePromise(this.getErr({allFiles: true}))
   }
 
   private getConfigFilePath() {
@@ -99,6 +102,17 @@ export class TypescriptBuffer {
       files,
       delay: 100,
     })
+  }
+
+  private async getErrRelated({start}: {start: Atom.Point}) {
+    if (!this.state || !this.state.filePath) return
+    await handleCheckRelatedFilesResult(
+      start.row,
+      this.getProjectRootPath(),
+      this.state.filePath,
+      this.state.client,
+      this.deps.reportProgress,
+    )
   }
 
   private async getErrProject() {
@@ -161,8 +175,8 @@ export class TypescriptBuffer {
       await this.init()
 
       const result = await client.execute("projectInfo", {
-        needFileNameList: true,
         file: filePath,
+        needFileNameList: true,
       })
 
       // TODO: wrong type here, complain on TS repo
@@ -175,7 +189,6 @@ export class TypescriptBuffer {
         )
       }
 
-      await this.getErrProject()
       this.events.emit("opened")
     } else {
       return this.close()

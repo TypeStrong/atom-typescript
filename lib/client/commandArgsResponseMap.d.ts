@@ -21,6 +21,7 @@ export interface CommandArgResponseMap {
   // occurrences: (x: p.FileLocationRequestArgs) => p.OccurrencesResponse
   documentHighlights: (x: p.DocumentHighlightsRequestArgs) => p.DocumentHighlightsResponse
   open: (x: p.OpenRequestArgs) => void
+  updateOpen: (x: p.UpdateOpenRequestArgs) => p.Response
   projectInfo: (x: p.ProjectInfoRequestArgs) => p.ProjectInfoResponse
   quickinfo: (x: p.FileLocationRequestArgs) => p.QuickInfoResponse
   references: (x: p.FileLocationRequestArgs) => p.ReferencesResponse
