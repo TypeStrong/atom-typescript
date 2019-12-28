@@ -53,7 +53,7 @@ export class TypescriptBuffer {
       }),
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
-          handlePromise(this.getErrRelated(changes[0]))
+          handlePromise(this.getErrRelated(changes[0].newRange))
           this.deps.reportBuildStatus(undefined)
         }
       }),
@@ -104,10 +104,11 @@ export class TypescriptBuffer {
     })
   }
 
-  private async getErrRelated({start}: {start: Atom.Point}) {
+  private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
     if (!this.state || !this.state.filePath) return
     await handleCheckRelatedFilesResult(
       start.row,
+      end.row,
       this.getProjectRootPath(),
       this.state.filePath,
       this.state.client,

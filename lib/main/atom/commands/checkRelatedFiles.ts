@@ -16,7 +16,7 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const client = await deps.getClient(file)
     const result = await client.execute("projectInfo", {file, needFileNameList: false})
     const root = result.body ? new File(result.body.configFileName).getParent().getPath() : undefined
-    await handleCheckRelatedFilesResult(line, root, file, client, deps.reportProgress)
+    await handleCheckRelatedFilesResult(line, line, root, file, client, deps.reportProgress)
   },
 }))
 
@@ -29,7 +29,8 @@ interface OpenRequestArgs {
 const buffer: Set<string> = new Set()
 
 export async function handleCheckRelatedFilesResult(
-  line: number,
+  startLine: number,
+  endLine: number,
   root: string | undefined,
   file: string,
   client: TypescriptServiceClient,
@@ -38,18 +39,18 @@ export async function handleCheckRelatedFilesResult(
   if (root === undefined) return
 
   const files = new Set([file])
-  const opens = Array.from(getOpenEditorsPaths(root))
-  const result = await client.execute("navtree", {file})
-  const navTree = result.body as NavigationTreeViewModel
+  const navTreeRes = await client.execute("navtree", {file})
+  const navTree = navTreeRes.body as NavigationTreeViewModel
   prepareNavTree(navTree)
 
-  const node = findNodeAt(line, line, navTree)
+  const node = findNodeAt(startLine, endLine, navTree)
   const openFiles: OpenRequestArgs[] = []
   if (node && node.nameSpan) {
-    const location = {file, ...node.nameSpan.start}
-    const references = await client.execute("references", location)
-    if (references.body && references.body.refs.length > 0)  {
-      for (const ref of references.body.refs) {
+    const referencesRes = await client.execute("references", {file, ...node.nameSpan.start})
+    const references = referencesRes.body ? referencesRes.body.refs : []
+    if (references.length > 0)  {
+      const opens = Array.from(getOpenEditorsPaths(root))
+      for (const ref of references) {
         if (!files.has(ref.file)) {
           if (opens.indexOf(ref.file) < 0 && !buffer.has(ref.file)) {
             openFiles.push({file: ref.file, projectRootPath: root})
@@ -87,7 +88,8 @@ export async function handleCheckRelatedFilesResult(
   async function dispose() {
     disp.dispose()
     if (buffer.size > 0) {
-      const closedFiles = Array.from(buffer.values())
+      const openedFiles = Array.from(getOpenEditorsPaths(root))
+      const closedFiles = Array.from(buffer.values()).filter(buff => !openedFiles.includes(buff))
       buffer.clear()
 
       await client.execute("updateOpen", {closedFiles})
