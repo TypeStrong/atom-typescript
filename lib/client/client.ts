@@ -39,6 +39,7 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getApplicableRefactors: true,
   getEditsForRefactor: true,
   organizeImports: true,
+  updateOpen: true,
   signatureHelp: true,
   getEditsForFileRename: true,
 }
