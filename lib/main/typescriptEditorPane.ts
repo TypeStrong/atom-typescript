@@ -7,7 +7,7 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 
 interface ClientInfo {
   clientVersion: string
-  tsconfigPath: string | undefined
+  tsConfigPath: string | undefined
 }
 
 interface PaneOptions {
@@ -69,7 +69,7 @@ export class TypescriptEditorPane {
   public didActivate = (isModified: boolean) => {
     if (this.isTypescript) {
       const info = this.reportInfo()
-      if (isModified || this.clientInfo?.tsconfigPath !== info?.tsconfigPath) {
+      if (isModified || this.clientInfo?.tsConfigPath !== info?.tsConfigPath) {
         this.buffer.updateDiag()
       }
       this.clientInfo = info

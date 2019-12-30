@@ -75,7 +75,7 @@ export class TypescriptBuffer {
     if (!this.state) return
     return {
       clientVersion: this.state.client.version,
-      tsconfigPath: this.getConfigFilePath(),
+      tsConfigPath: this.getConfigFilePath(),
     }
   }
 

@@ -324,7 +324,7 @@ export class PluginManager {
     handlePromise(this.statusPanel.update({buildStatus}))
   }
 
-  private reportClientInfo = (info: {clientVersion: string; tsconfigPath: string | undefined}) => {
+  private reportClientInfo = (info: {clientVersion: string; tsConfigPath: string | undefined}) => {
     handlePromise(this.statusPanel.update(info))
   }
 
