@@ -6,13 +6,16 @@ async function renderTooltip(data, etch, codeRenderer) {
     const kind = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-kind" },
         data.kind,
         formatKindModifiers(data.kindModifiers)));
-    const tags = data.tags.map(tag => {
-        const tagClass = "atom-typescript-datatip-tooltip-doc-tag " +
-            `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`;
-        return (etch.dom("div", { className: tagClass },
-            etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-name" }, tag.name),
-            formatTagText(etch, tag.text)));
-    });
+    // tslint:disable-next-line: strict-boolean-expressions // TODO: complain on TS
+    const tags = data.tags
+        ? data.tags.map(tag => {
+            const tagClass = "atom-typescript-datatip-tooltip-doc-tag " +
+                `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`;
+            return (etch.dom("div", { className: tagClass },
+                etch.dom("span", { className: "atom-typescript-datatip-tooltip-doc-tag-name" }, tag.name),
+                formatTagText(etch, tag.text)));
+        })
+        : null;
     const docs = (etch.dom("div", { className: "atom-typescript-datatip-tooltip-doc" },
         data.documentation,
         tags));
