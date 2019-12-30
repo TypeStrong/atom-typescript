@@ -1,6 +1,5 @@
 import {File} from "atom"
 import {TypescriptServiceClient} from "../../../client/client"
-import {handlePromise} from "../../../utils"
 import {getOpenEditorsPaths} from "../utils"
 import {findNodeAt, prepareNavTree} from "../views/outline/navTreeUtils"
 import {NavigationTreeViewModel} from "../views/outline/semanticViewModel"
@@ -26,6 +25,7 @@ interface OpenRequestArgs {
   projectRootPath?: string
 }
 
+const files: Set<string> = new Set()
 const buffer: Set<string> = new Set()
 
 export async function handleCheckRelatedFilesResult(
@@ -37,8 +37,9 @@ export async function handleCheckRelatedFilesResult(
   reportProgress: Dependencies["reportProgress"],
 ): Promise<void> {
   if (root === undefined) return
+  if (files.size !== 0) await cancel()
 
-  const files = new Set([file])
+  files.add(file)
   const navTreeRes = await client.execute("navtree", {file})
   const navTree = navTreeRes.body as NavigationTreeViewModel
   prepareNavTree(navTree)
@@ -69,18 +70,9 @@ export async function handleCheckRelatedFilesResult(
     await client.execute("updateOpen", {openFiles})
   }
 
-  // There's no real way to know when all of the errors have been received and not every file from
-  // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
-  // that, we cancel the listener and close the progress bar after no diagnostics have been received
-  // for some amount of time.
-  let cancelTimeout: number | undefined
-
-  const disp = client.on("syntaxDiag", evt => {
-    if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
-    cancelTimeout = window.setTimeout(cancel, 2000)
-
-    if ("file" in evt) files.delete(evt.file)
-    updateStatus()
+  const disp = client.on("semanticDiag", async evt => {
+    files.delete(evt.file)
+    await updateStatus()
   })
 
   await client.execute("geterr", {files: Array.from(files.values()), delay: 0})
@@ -91,20 +83,19 @@ export async function handleCheckRelatedFilesResult(
       const openedFiles = Array.from(getOpenEditorsPaths(root))
       const closedFiles = Array.from(buffer.values()).filter(buff => !openedFiles.includes(buff))
       buffer.clear()
-
       await client.execute("updateOpen", {closedFiles})
     }
   }
 
-  function cancel() {
+  async function cancel() {
     files.clear()
-    updateStatus()
+    await updateStatus()
   }
 
-  function updateStatus() {
-    reportProgress({max, value: max - files.size})
-    if (files.size === 0) {
-      handlePromise(dispose())
-    }
+  async function updateStatus() {
+    // tslint:disable-next-line:strict-type-predicates
+    const total = max !== undefined ? max : files.size
+    reportProgress({max: total, value: total - files.size})
+    if (files.size === 0) await dispose()
   }
 }
