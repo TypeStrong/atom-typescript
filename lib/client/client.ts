@@ -78,6 +78,10 @@ export class TypescriptServiceClient {
     this.server = this.startServer()
   }
 
+  public async busyWhile(message: string, promise: Promise<void>) {
+    return await this.reportBusyWhile(message, () => promise)
+  }
+
   public async execute<T extends AllTSClientCommands>(
     command: T,
     ...args: CommandArg<T>
