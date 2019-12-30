@@ -49,7 +49,6 @@ export async function handleCheckRelatedFilesResult(
   const node = findNodeAt(startLine, endLine, navTree)
   const openFiles: OpenRequestArgs[] = []
   if (node && node.nameSpan) {
-    console.log("[IDE.Check.Related]", `${startLine}~${endLine}`, node)
     const refsRes = await client.execute("references", {file, ...node.nameSpan.start})
     const refs = refsRes.body ? refsRes.body.refs.map(ref => ref.file) : []
 
