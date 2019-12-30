@@ -21,6 +21,7 @@ script:
   - ./build-package.sh
   - npm run build
   - git diff --quiet -- dist/
+  - untracked="$(git ls-files --others --exclude-standard)" && echo "$untracked" && test -z "$untracked"
   - npm test
 
 notifications:

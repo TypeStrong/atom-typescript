@@ -3,7 +3,7 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
-import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
+import {FileLocationQuery, inits, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
@@ -37,7 +37,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
   constructor(private getClient: GetClientFunction) {}
 
-  public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
+  public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.AnySuggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
@@ -74,13 +74,11 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       // Get additional details for the first few suggestions
       await this.getAdditionalDetails(suggestions.slice(0, 10), location)
 
-      const trimmed = prefix.trim()
-
       return suggestions.map(suggestion => ({
         replacementPrefix: suggestion.replacementRange
           ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-          : getReplacementPrefix(prefix, trimmed, suggestion.text!),
-        ...suggestion,
+          : getReplacementPrefix(opts, suggestion.text!),
+        ...addCallableParens(suggestion),
       }))
     } catch (error) {
       return []
@@ -178,14 +176,16 @@ async function getSuggestionsInternal(
 }
 
 // Decide what needs to be replaced in the editor buffer when inserting the completion
-function getReplacementPrefix(prefix: string, trimmed: string, replacement: string): string {
-  if (trimmed === "." || trimmed === "{" || prefix === " ") {
-    return ""
-  } else if (replacement.startsWith("$")) {
-    return "$" + prefix
-  } else {
-    return prefix
+function getReplacementPrefix(opts: ACP.SuggestionsRequestedEvent, replacement: string): string {
+  const prefix = opts.editor
+    .getBuffer()
+    .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition])
+  for (const i of inits(replacement.toLowerCase(), 1)) {
+    if (prefix.toLowerCase().endsWith(i)) {
+      return prefix.slice(-i.length)
+    }
   }
+  return ""
 }
 
 // When the user types each character in ".hello", we want to normalize the column such that it's
@@ -239,6 +239,15 @@ function completionEntryToSuggestion(entry: protocol.CompletionEntry): Suggestio
     replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
     type: kindMap[entry.kind],
   }
+}
+
+function addCallableParens(s: SuggestionWithDetails): ACP.TextSuggestion | ACP.SnippetSuggestion {
+  if (
+    atom.config.get("atom-typescript.autocompleteParens") &&
+    ["function", "method"].includes(s.leftLabel!)
+  ) {
+    return {...s, snippet: `${s.text}($1)`, text: undefined}
+  } else return s
 }
 
 /** From :

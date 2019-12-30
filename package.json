@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "13.4.0",
+  "version": "13.4.3",
   "main": "./dist/main/atomts",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
@@ -123,6 +123,20 @@
       ],
       "default": "top",
       "order": 62
+    },
+    "autocompleteParens": {
+      "title": "Autocomplete parentheses",
+      "description": "Automatically insert parentheses after autocompleting functions and methods",
+      "type": "boolean",
+      "default": false,
+      "order": 65
+    },
+    "tsdkPath": {
+      "title": "Path to default TypeScript SDK",
+      "description": "TypeScript SDK found at the specified path will be preferred over the bundled one if TypeScript is not installed in node_modules as a project dependency. Ignored when empty",
+      "type": "string",
+      "default": "",
+      "order": 70
     },
     "ignoredDiagnosticCodes": {
       "title": "Ignore diagnostics",
@@ -312,6 +326,7 @@
     "etch": "^0.14.0",
     "fs-plus": "^3.1.1",
     "fuzzaldrin": "^2.1.0",
+    "jsonc-parser": "^2.2.0",
     "lodash": "^4.17.15",
     "resolve": "^1.13.1",
     "tslib": "^1.10.0",

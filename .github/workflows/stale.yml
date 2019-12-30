@@ -1,0 +1,19 @@
+name: Mark stale issues
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/stale@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: "This issue has been marked as stale because it did not have any activity for the last 90 days or more. Remove the stale label or comment or this will be closed in 14 days"
+          days-before-stale: 90
+          days-before-close: 14
+          stale-issue-label: "stale"
+          exempt-issue-label: "enhancement"
