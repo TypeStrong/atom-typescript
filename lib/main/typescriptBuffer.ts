@@ -106,13 +106,15 @@ export class TypescriptBuffer {
 
   private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
     if (!this.state || !this.state.filePath) return
-    await handleCheckRelatedFilesResult(
-      start.row,
-      end.row,
-      this.getProjectRootPath(),
-      this.state.filePath,
-      this.state.client,
-      this.deps.reportProgress,
+    await this.state.client.busyWhile(
+      "checkRelatedFiles",
+      handleCheckRelatedFilesResult(
+        start.row,
+        end.row,
+        this.getProjectRootPath(),
+        this.state.filePath,
+        this.state.client,
+      )
     )
   }
 
