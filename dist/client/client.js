@@ -84,7 +84,7 @@ class TypescriptServiceClient {
             arguments: args[0],
         };
         if (window.atom_typescript_debug) {
-            console.log("sending request", command, "with args", args);
+            console.log("sending request", req);
         }
         const result = isCommandWithResponse(command)
             ? this.callbacks.add(req.seq, command)
