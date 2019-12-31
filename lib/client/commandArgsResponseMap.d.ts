@@ -30,6 +30,8 @@ export interface CommandArgResponseMap {
   saveto: (x: p.SavetoRequestArgs) => void
   navtree: (x: p.FileRequestArgs) => p.NavTreeResponse
   navto: (x: p.NavtoRequestArgs) => p.NavtoResponse
+  semanticDiagnosticsSync: (x: p.SemanticDiagnosticsSyncRequestArgs) => p.SemanticDiagnosticsSyncResponse
+  syntacticDiagnosticsSync: (x: p.SyntacticDiagnosticsSyncRequestArgs) => p.SyntacticDiagnosticsSyncResponse
   reloadProjects: () => void
   getApplicableRefactors: (
     x: p.GetApplicableRefactorsRequestArgs,

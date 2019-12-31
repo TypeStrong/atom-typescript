@@ -36,6 +36,8 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   rename: true,
   navtree: true,
   navto: true,
+  semanticDiagnosticsSync: true,
+  syntacticDiagnosticsSync: true,
   getApplicableRefactors: true,
   getEditsForRefactor: true,
   organizeImports: true,
