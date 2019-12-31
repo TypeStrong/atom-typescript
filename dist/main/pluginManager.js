@@ -36,8 +36,17 @@ class PluginManager {
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
-        this.clearFileErrors = (filePath) => {
-            this.errorPusher.clearFileErrors(filePath);
+        this.clearProjectErrors = (projectPath) => {
+            this.errorPusher.clearProjectErrors(projectPath);
+        };
+        this.clearFileErrors = (triggerFile) => {
+            this.errorPusher.clearFileErrors(triggerFile);
+        };
+        this.getFileErrors = (triggerFile) => {
+            return this.errorPusher.getErrors(triggerFile);
+        };
+        this.pushFileError = ({ type, filePath, diagnostics, triggerFile }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -159,6 +168,9 @@ class PluginManager {
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
+            reportProgress: this.reportProgress,
+            pushFileError: this.pushFileError,
+            getFileErrors: this.getFileErrors,
         });
         this.subscribeEditors();
         // Register the commands
@@ -185,6 +197,8 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
+            getFileErrors: this.getFileErrors,
+            pushFileError: this.pushFileError,
         }));
     }
     destroy() {
@@ -206,8 +220,8 @@ class PluginManager {
             name: "TypeScript",
         });
         this.errorPusher.setLinter(linter);
-        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
-            this.errorPusher.setErrors(type, filePath, diagnostics);
+        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics, triggerFile }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
         }));
     }
     consumeStatusBar(statusBar) {
@@ -300,7 +314,7 @@ class PluginManager {
                 utils_1.handlePromise(this.statusPanel.show());
                 const tep = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);
                 if (tep)
-                    tep.didActivate();
+                    tep.didActivate(ed.isModified());
             }
             else
                 utils_1.handlePromise(this.statusPanel.hide());

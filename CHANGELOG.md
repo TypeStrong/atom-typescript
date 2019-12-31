@@ -1,3 +1,7 @@
+## 13.4.5
+
+-   Fix #1530
+
 ## 13.4.4
 
 -   Fix replacement prefix case bug

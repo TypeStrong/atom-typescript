@@ -17,9 +17,15 @@ class TypescriptEditorPane {
          * it is implicitly assumed that `atom.workspace.getActiveTextEditor() === this.editor`
          * which has to be ensured at call site
          */
-        this.didActivate = () => {
-            if (this.isTypescript)
-                this.reportInfo();
+        this.didActivate = (isModified) => {
+            var _a, _b;
+            if (this.isTypescript) {
+                const info = this.reportInfo();
+                if (isModified || ((_a = this.clientInfo) === null || _a === void 0 ? void 0 : _a.tsConfigPath) !== ((_b = info) === null || _b === void 0 ? void 0 : _b.tsConfigPath)) {
+                    this.buffer.updateDiag();
+                }
+                this.clientInfo = info;
+            }
         };
         this.onOpened = () => {
             const isActive = atom.workspace.getActiveTextEditor() === this.editor;
@@ -57,8 +63,10 @@ class TypescriptEditorPane {
     }
     reportInfo() {
         const info = this.buffer.getInfo();
-        if (info)
+        if (info) {
             this.opts.reportClientInfo(info);
+            return info;
+        }
     }
 }
 exports.TypescriptEditorPane = TypescriptEditorPane;
