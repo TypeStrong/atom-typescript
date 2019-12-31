@@ -40,17 +40,17 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
     for (const filePath of checkList) {
         const type = "semanticDiag";
         const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
-        const openedFiles = getOpenedFiles();
+        const openedFiles = getOpenedFilesFromEditor();
         pushFileError({ type, filePath, diagnostics: res.body ? res.body : [], triggerFile: file });
     }
     if (openedFilesBuffer.size > 0) {
-        const openedFiles = getOpenedFiles();
+        const openedFiles = getOpenedFilesFromEditor();
         const closedFiles = Array.from(openedFilesBuffer).filter(buff => !openedFiles.includes(buff));
         openedFilesBuffer.clear();
         await client.execute("updateOpen", { closedFiles });
     }
     function setOpenfiles(items) {
-        const openedFiles = getOpenedFiles();
+        const openedFiles = getOpenedFilesFromEditor();
         for (const item of items) {
             if (!files.has(item) && utils_1.isTypescriptFile(item)) {
                 if (openedFiles.indexOf(item) < 0 && !openedFilesBuffer.has(item)) {
@@ -61,7 +61,7 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
             }
         }
     }
-    function getOpenedFiles() {
+    function getOpenedFilesFromEditor() {
         return Array.from(utils_1.getOpenEditorsPaths(root));
     }
     function makeCheckList() {
