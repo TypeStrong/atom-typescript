@@ -74,8 +74,8 @@ class TypescriptBuffer {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
             if (changes.length > 0) {
-                this.deps.reportBuildStatus(undefined);
                 utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
+                // this.deps.reportBuildStatus(undefined)
             }
         }), buffer.onDidChangeText(arg => {
             // NOTE: we don't need to worry about interleaving here,
