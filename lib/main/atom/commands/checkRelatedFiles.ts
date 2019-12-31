@@ -1,6 +1,8 @@
 import {Disposable, File} from "atom"
+import {Diagnostic, OpenRequest} from "typescript/lib/protocol"
+import {GetErrorsFunction, PushErrorFunction} from "../../../client"
 import {TypescriptServiceClient} from "../../../client/client"
-import {getOpenEditorsPaths} from "../utils"
+import {getOpenEditorsPaths, isTypescriptFile} from "../utils"
 import {findNodeAt, prepareNavTree} from "../views/outline/navTreeUtils"
 import {NavigationTreeViewModel} from "../views/outline/semanticViewModel"
 import {addCommand} from "./registry"
@@ -17,20 +19,12 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const root = result.body ? new File(result.body.configFileName).getParent().getPath() : undefined
     await client.busyWhile(
       "checkRelatedFiles",
-      handleCheckRelatedFilesResult(line, line, root, file, client),
+      handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors),
     )
   },
 }))
 
-interface OpenRequestArgs {
-  file: string
-  fileContent?: string
-  projectRootPath?: string
-}
-
-const files: Set<string> = new Set()
-const buffer: Set<string> = new Set()
-let disp: Disposable | undefined
+type OpenRequestArgs = OpenRequest["arguments"]
 
 export async function handleCheckRelatedFilesResult(
   startLine: number,
@@ -38,68 +32,63 @@ export async function handleCheckRelatedFilesResult(
   root: string | undefined,
   file: string,
   client: TypescriptServiceClient,
+  pushFileError: PushErrorFunction,
+  getFileErrors: GetErrorsFunction,
 ): Promise<void> {
-  if (files.size !== 0) await cancel()
   if (root === undefined) return
 
+  const files = new Set([file])
   const navTreeRes = await client.execute("navtree", {file})
   const navTree = navTreeRes.body as NavigationTreeViewModel
   prepareNavTree(navTree)
 
   const node = findNodeAt(startLine, endLine, navTree)
-  const openFiles: OpenRequestArgs[] = []
-  if (node && node.nameSpan) {
-    const refsRes = await client.execute("references", {file, ...node.nameSpan.start})
-    const refs = refsRes.body ? refsRes.body.refs.map(ref => ref.file) : []
+  const updateOpen: OpenRequestArgs[] = []
+  setOpenfiles(getFileErrors(file))
 
-    if (refs.length > 0)  {
-      const opens = Array.from(getOpenEditorsPaths(root))
-      for (const ref of refs) {
-        if (!files.has(ref)) {
-          if (opens.indexOf(ref) < 0 && !buffer.has(ref)) {
-            openFiles.push({file: ref, projectRootPath: root})
-            buffer.add(ref)
-          }
-          files.add(ref)
+  if (node && node.nameSpan) {
+    const res = await client.execute("references", {file, ...node.nameSpan.start})
+    setOpenfiles(res.body ? res.body.refs.map(ref => ref.file) : [])
+  }
+
+  if (updateOpen.length > 0) {
+    const openFiles = updateOpen.sort((a, b) => a.file > b.file ? 1 : -1)
+    await client.execute("updateOpen", {openFiles})
+  }
+
+  const checkList = makeCheckList()
+  for (const filePath of checkList) {
+    const type = "semanticDiag"
+    const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
+    const openedFiles = getOpenedFiles()
+    pushFileError({type, filePath, diagnostics: res.body ? res.body as Diagnostic[] : [], triggerFile: file})
+  }
+
+  if (updateOpen.length > 0) {
+    const openedFiles = getOpenedFiles()
+    const closedFiles = updateOpen.map(item => item.file).filter(buff => !openedFiles.includes(buff))
+    await client.execute("updateOpen", {closedFiles})
+  }
+
+  function setOpenfiles(items: string[])  {
+    const openedFiles = getOpenedFiles()
+    for (const item of items) {
+      if (!files.has(item) && isTypescriptFile(item)) {
+        if (openedFiles.indexOf(item) < 0) {
+          updateOpen.push({file: item, projectRootPath: root})
         }
+        files.add(item)
       }
     }
   }
 
-  if (openFiles.length > 0) {
-    await client.execute("updateOpen", {openFiles})
+  function getOpenedFiles() {
+    return Array.from(getOpenEditorsPaths(root))
   }
 
-  if (files.size > 0) {
-    let cancelTimeout: number | undefined
-    disp = client.on("semanticDiag", async evt => {
-      if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
-      cancelTimeout = window.setTimeout(cancel, 1000)
-      files.delete(evt.file)
-      await updateStatus()
-    })
-    await client.execute("geterr", {files: Array.from(files), delay: 0})
-  }
-
-  async function cancel() {
-    files.clear()
-    await updateStatus()
-  }
-
-  async function updateStatus() {
-    if (files.size === 0) await dispose()
-  }
-
-  async function dispose() {
-    if (disp !== undefined) {
-      disp.dispose()
-      disp = undefined
-    }
-    if (buffer.size > 0) {
-      const openedFiles = Array.from(getOpenEditorsPaths(root))
-      const closedFiles = Array.from(buffer).filter(buff => !openedFiles.includes(buff))
-      buffer.clear()
-      await client.execute("updateOpen", {closedFiles})
-    }
+  function makeCheckList() {
+    const list = Array.from(files)
+    const first = list.shift() as string
+    return [first, ...list.sort((a, b) => a > b ? 1 : -1)]
   }
 }
