@@ -64,7 +64,7 @@ class StatusPanel {
         return null;
     }
     renderProgress() {
-        if (this.props.progress.value < this.props.progress.max) {
+        if (this.props.buildStatus && this.props.progress.value < this.props.progress.max) {
             return (etch.dom("progress", { style: { verticalAlign: "baseline" }, className: "inline-block", max: this.props.progress.max, value: this.props.progress.value }));
         }
         return null;
