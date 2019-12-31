@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetClientFunction, TSClient} from "../client"
+import {GetClientFunction, GetErrorsFunction, PushErrorFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
 import {handleCheckAllFilesResult} from "./atom/commands/checkAllFiles"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
@@ -9,9 +9,11 @@ import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/ut
 
 export interface Deps {
   getClient: GetClientFunction
-  reportProgress: (progress: TProgress) => void
-  clearFileErrors: (filePath?: string) => void
+  clearFileErrors: (triggerFile?: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
+  reportProgress: (progress: TProgress) => void
+  pushFileError: PushErrorFunction
+  getFileErrors: GetErrorsFunction
 }
 
 export class TypescriptBuffer {
@@ -114,6 +116,8 @@ export class TypescriptBuffer {
         this.getProjectRootPath(),
         this.state.filePath,
         this.state.client,
+        this.deps.pushFileError,
+        this.deps.getFileErrors,
       )
     )
   }
@@ -178,8 +182,8 @@ export class TypescriptBuffer {
       await this.init()
 
       const result = await client.execute("projectInfo", {
-        file: filePath,
         needFileNameList: true,
+        file: filePath,
       })
 
       // TODO: wrong type here, complain on TS repo
@@ -228,7 +232,7 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      this.deps.clearFileErrors(this.getProjectRootPath())
+      this.deps.clearFileErrors(file)
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})

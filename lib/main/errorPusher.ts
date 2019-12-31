@@ -9,7 +9,10 @@ import {locationsToRange, spanToRange} from "./atom/utils"
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: IndieDelegate
-  private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
+  private errors: Map<string, Map<string, {
+    triggerFile: string | undefined
+    diagnostics: Diagnostic[]
+  }>> = new Map()
 
   constructor() {
     this.pushErrors = debounce(this.pushErrors.bind(this), 100)
@@ -18,7 +21,7 @@ export class ErrorPusher {
   public *getErrorsInRange(filePath: string, range: Range): IterableIterator<Diagnostic> {
     for (const prefixed of this.errors.values()) {
       const errors = prefixed.get(path.normalize(filePath))
-      if (errors) yield* errors.filter(err => spanToRange(err).intersectsWith(range))
+      if (errors) yield* errors.diagnostics.filter(err => spanToRange(err).intersectsWith(range))
     }
   }
 
@@ -26,33 +29,60 @@ export class ErrorPusher {
   public *getErrorsAt(filePath: string, loc: Point): IterableIterator<Diagnostic> {
     for (const prefixed of this.errors.values()) {
       const errors = prefixed.get(path.normalize(filePath))
-      if (errors) yield* errors.filter(err => spanToRange(err).containsPoint(loc))
+      if (errors) yield* errors.diagnostics.filter(err => spanToRange(err).containsPoint(loc))
     }
   }
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-  public setErrors(prefix: DiagnosticTypes, filePath: string, errors: Diagnostic[]) {
+  public setErrors(prefix: DiagnosticTypes, filePath: string, errors: Diagnostic[], triggerFile?: string) {
     let prefixed = this.errors.get(prefix)
     if (!prefixed) {
       prefixed = new Map()
       this.errors.set(prefix, prefixed)
     }
 
-    prefixed.set(path.normalize(filePath), errors)
+    prefixed.set(path.normalize(filePath), {
+      triggerFile,
+      diagnostics: errors
+    })
 
     this.pushErrors()
   }
 
-  public clearFileErrors(projectPath?: string) {
+  public clearProjectErrors(projectPath?: string) {
     if (projectPath === undefined) return
     for (const fileErrors of this.errors.values()) {
-      for (const [filePath] of fileErrors) {
-        if (filePath.includes(projectPath)) {
+      for (const [filePath, errors] of fileErrors) {
+        if (filePath.includes(projectPath) && fileErrors.has(filePath)) {
           fileErrors.delete(filePath)
         }
       }
     }
     this.pushErrors()
+  }
+
+  public clearFileErrors(triggerFile?: string) {
+    if (triggerFile === undefined) return
+    for (const fileErrors of this.errors.values()) {
+      for (const [filePath, errors] of fileErrors) {
+        if (triggerFile === errors.triggerFile && fileErrors.has(filePath)) {
+          fileErrors.delete(filePath)
+        }
+      }
+    }
+    this.pushErrors()
+  }
+
+  public getErrors(triggerFile: string) {
+    const errFiles = []
+    for (const fileErrors of this.errors.values()) {
+      for (const [filePath, errors] of fileErrors) {
+        if (triggerFile === errors.triggerFile && errFiles.indexOf(filePath) === -1) {
+          errFiles.push(filePath)
+        }
+      }
+    }
+    return errFiles
   }
 
   public clear() {
@@ -80,11 +110,13 @@ export class ErrorPusher {
 
     if (!config.suppressAllDiagnostics) {
       for (const fileErrors of this.errors.values()) {
-        for (const [filePath, diagnostics] of fileErrors) {
-          for (const diagnostic of diagnostics) {
+        for (const [filePath, errors] of fileErrors) {
+          for (const diagnostic of errors.diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
-            if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
-            if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
+            if (config.ignoreUnusedSuggestionDiagnostics) {
+              if (diagnostic.reportsUnnecessary || diagnostic.category === "suggestion") continue
+            }
+            // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.
             let {start, end} = diagnostic as Partial<Diagnostic>

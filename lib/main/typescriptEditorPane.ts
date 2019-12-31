@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {GetClientFunction} from "../client"
+import {GetClientFunction, GetErrorsFunction, PushErrorFunction} from "../client"
 import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -12,10 +12,12 @@ interface ClientInfo {
 
 interface PaneOptions {
   getClient: GetClientFunction
-  reportProgress: (progress: TProgress) => void
   reportClientInfo: (info: ClientInfo) => void
   reportBuildStatus: (status?: TBuildStatus) => void
-  clearFileErrors: (filePath?: string) => void
+  clearFileErrors: (triggerFile?: string) => void
+  reportProgress: (progress: TProgress) => void
+  getFileErrors: GetErrorsFunction
+  pushFileError: PushErrorFunction
 }
 
 export class TypescriptEditorPane {
