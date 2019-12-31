@@ -46,7 +46,6 @@ async function handleCheckAllFilesResult(file, fileNames, tsconfig, client, repo
     function cancel() {
         if (!buffer)
             return;
-        console.log("[IDE.Checker.All.Dispose]", buffer);
         buffer.files.clear();
         updateStatus();
     }

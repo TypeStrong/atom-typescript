@@ -26,6 +26,8 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
 
 type OpenRequestArgs = OpenRequest["arguments"]
 
+const openedFilesBuffer: Set<string> = new Set()
+
 export async function handleCheckRelatedFilesResult(
   startLine: number,
   endLine: number,
@@ -64,9 +66,10 @@ export async function handleCheckRelatedFilesResult(
     pushFileError({type, filePath, diagnostics: res.body ? res.body as Diagnostic[] : [], triggerFile: file})
   }
 
-  if (updateOpen.length > 0) {
+  if (openedFilesBuffer.size > 0) {
     const openedFiles = getOpenedFiles()
-    const closedFiles = updateOpen.map(item => item.file).filter(buff => !openedFiles.includes(buff))
+    const closedFiles = Array.from(openedFilesBuffer).filter(buff => !openedFiles.includes(buff))
+    openedFilesBuffer.clear()
     await client.execute("updateOpen", {closedFiles})
   }
 
@@ -74,8 +77,9 @@ export async function handleCheckRelatedFilesResult(
     const openedFiles = getOpenedFiles()
     for (const item of items) {
       if (!files.has(item) && isTypescriptFile(item)) {
-        if (openedFiles.indexOf(item) < 0) {
+        if (openedFiles.indexOf(item) < 0 && !openedFilesBuffer.has(item)) {
           updateOpen.push({file: item, projectRootPath: root})
+          openedFilesBuffer.add(item)
         }
         files.add(item)
       }
