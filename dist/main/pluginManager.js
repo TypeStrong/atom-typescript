@@ -36,11 +36,8 @@ class PluginManager {
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
-        this.clearProjectErrors = (projectPath) => {
-            this.errorPusher.clearProjectErrors(projectPath);
-        };
-        this.clearFileErrors = (triggerFile) => {
-            this.errorPusher.clearFileErrors(triggerFile);
+        this.clearFileErrors = (triggerFile, projectPath) => {
+            this.errorPusher.clearFileErrors({ triggerFile, projectPath });
         };
         this.getFileErrors = (triggerFile) => {
             return this.errorPusher.getErrors(triggerFile);

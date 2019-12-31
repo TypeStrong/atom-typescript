@@ -49,23 +49,17 @@ export class ErrorPusher {
     this.pushErrors()
   }
 
-  public clearProjectErrors(projectPath?: string) {
-    if (projectPath === undefined) return
+  public clearFileErrors({projectPath, triggerFile}: {
+    projectPath?: string,
+    triggerFile?: string
+  }) {
+    if (triggerFile === undefined && projectPath === undefined) return
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, errors] of fileErrors) {
-        if (filePath.includes(projectPath) && fileErrors.has(filePath)) {
-          fileErrors.delete(filePath)
-        }
-      }
-    }
-    this.pushErrors()
-  }
-
-  public clearFileErrors(triggerFile?: string) {
-    if (triggerFile === undefined) return
-    for (const fileErrors of this.errors.values()) {
-      for (const [filePath, errors] of fileErrors) {
-        if (triggerFile === errors.triggerFile && fileErrors.has(filePath)) {
+        if ((
+          projectPath !== undefined && filePath.startsWith(projectPath) ||
+          triggerFile !== undefined && (triggerFile === errors.triggerFile || triggerFile === filePath)
+        ) && fileErrors.has(filePath)) {
           fileErrors.delete(filePath)
         }
       }

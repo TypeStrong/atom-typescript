@@ -37,24 +37,13 @@ class ErrorPusher {
         });
         this.pushErrors();
     }
-    clearProjectErrors(projectPath) {
-        if (projectPath === undefined)
+    clearFileErrors({ projectPath, triggerFile }) {
+        if (triggerFile === undefined && projectPath === undefined)
             return;
         for (const fileErrors of this.errors.values()) {
             for (const [filePath, errors] of fileErrors) {
-                if (filePath.includes(projectPath) && fileErrors.has(filePath)) {
-                    fileErrors.delete(filePath);
-                }
-            }
-        }
-        this.pushErrors();
-    }
-    clearFileErrors(triggerFile) {
-        if (triggerFile === undefined)
-            return;
-        for (const fileErrors of this.errors.values()) {
-            for (const [filePath, errors] of fileErrors) {
-                if (triggerFile === errors.triggerFile && fileErrors.has(filePath)) {
+                if ((projectPath !== undefined && filePath.startsWith(projectPath) ||
+                    triggerFile !== undefined && (triggerFile === errors.triggerFile || triggerFile === filePath)) && fileErrors.has(filePath)) {
                     fileErrors.delete(filePath);
                 }
             }

@@ -56,7 +56,7 @@ export class TypescriptBuffer {
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
           handlePromise(this.getErrRelated(changes[0].newRange))
-          // this.deps.reportBuildStatus(undefined)
+          this.deps.reportBuildStatus(undefined)
         }
       }),
       buffer.onDidChangeText(arg => {

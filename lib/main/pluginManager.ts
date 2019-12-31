@@ -270,12 +270,8 @@ export class PluginManager {
     this.errorPusher.clear()
   }
 
-  private clearProjectErrors = (projectPath?: string) => {
-    this.errorPusher.clearProjectErrors(projectPath)
-  }
-
-  private clearFileErrors = (triggerFile?: string) => {
-    this.errorPusher.clearFileErrors(triggerFile)
+  private clearFileErrors = (triggerFile?: string, projectPath?: string) => {
+    this.errorPusher.clearFileErrors({triggerFile, projectPath})
   }
 
   private getFileErrors = (triggerFile: string) => {
