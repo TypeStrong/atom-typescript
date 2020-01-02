@@ -113,7 +113,6 @@ function getReplacementPrefix(opts, suggestion) {
         .getBuffer()
         .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition]);
     if (suggestion.isMemberCompletion) {
-        console.log("isMember");
         const dotMatch = line.match(/\.\s*?$/);
         if (dotMatch)
             return dotMatch[0].slice(1);
