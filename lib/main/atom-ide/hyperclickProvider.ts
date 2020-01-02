@@ -29,15 +29,15 @@ export function getHyperclickProvider(
           }
           const client = await getClient(location.file)
           const result = await client.execute("definition", location)
-          const resLoc = result.body ? result.body[0] : null
+          const resLoc = result.body ? result.body[0] : undefined
           if (
-            resLoc &&
             result.body?.length === 1 &&
-            resLoc.start.line === location.line &&
-            resLoc.start.offset === location.offset
+            resLoc?.start.line === location.line &&
+            resLoc?.start.offset === location.offset &&
+            atom.config.get("atom-typescript").findReferencesHyperclick
           ) {
-            const res = await client.execute("references", location)
-            await handleFindReferencesResult(res, editor, histGoForward)
+            const references = await client.execute("references", location)
+            await handleFindReferencesResult(references, editor, histGoForward)
           } else {
             await handleDefinitionResult(result, editor, histGoForward)
           }

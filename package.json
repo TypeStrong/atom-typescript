@@ -33,6 +33,27 @@
       "default": true,
       "order": 90
     },
+    "checkRelatedFilesAutomatically": {
+      "title": "Show problems for related files",
+      "description": "It will be report related problems from relevant files when visible your code changed.",
+      "type": "boolean",
+      "default": "false",
+      "order": 91
+    },
+    "checkAllFilesOnSave": {
+      "title": "Show problems for project",
+      "description": "It will be report all problems in current project when your file saved.",
+      "type": "boolean",
+      "default": "false",
+      "order": 92
+    },
+    "findReferencesHyperclick": {
+      "title": "Find usages references with hyperclick",
+      "description": "First look for `definition` then run `find-references` when if definition is it self.",
+      "type": "boolean",
+      "default": "false",
+      "order": 93
+    },
     "autocompletionSuggestionPriority": {
       "description": "Snippets etc have priority of 1. Requires Atom restart",
       "type": "integer",

@@ -42,6 +42,7 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
+  private config: Atom.ConfigValues["atom-typescript"]
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -55,7 +56,11 @@ export class TypescriptBuffer {
       }),
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
-          handlePromise(this.getErrRelated(changes[0].newRange))
+          if (this.config.findReferencesHyperclick) {
+            handlePromise(this.getErrRelated(changes[0].newRange))
+          } else {
+            handlePromise(this.getErr({allFiles: false}))
+          }
           this.deps.reportBuildStatus(undefined)
         }
       }),
@@ -66,6 +71,7 @@ export class TypescriptBuffer {
       }),
     )
 
+    this.config = atom.config.get("atom-typescript")
     this.openPromise = this.open(this.buffer.getPath())
   }
 
@@ -91,8 +97,12 @@ export class TypescriptBuffer {
   }
 
   private getProjectRootPath() {
-    if (!this.state || !this.state.configFile) return
-    return this.state.configFile.getParent().getPath()
+    const tsConfigPath = this.getConfigFilePath()
+    if (tsConfigPath === undefined) return
+
+    const projectPath = atom.project.relativizePath(tsConfigPath)[0]
+    return projectPath !== null ? projectPath : undefined
+    // return this.state.configFile.getParent().getPath()
   }
 
   private async getErr({allFiles}: {allFiles: boolean}) {
@@ -254,7 +264,11 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    await this.getErrProject()
+    if (this.config.checkAllFilesOnSave) {
+      await this.getErrProject()
+    } else {
+      await this.getErr({allFiles: true})
+    }
     await this.doCompileOnSave()
   }
 

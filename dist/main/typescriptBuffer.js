@@ -52,7 +52,12 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            await this.getErrProject();
+            if (this.config.checkAllFilesOnSave) {
+                await this.getErrProject();
+            }
+            else {
+                await this.getErr({ allFiles: true });
+            }
             await this.doCompileOnSave();
         };
         this.onDidChangeText = async ({ changes }) => {
@@ -81,7 +86,12 @@ class TypescriptBuffer {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
             if (changes.length > 0) {
-                utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
+                if (this.config.findReferencesHyperclick) {
+                    utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
+                }
+                else {
+                    utils_1.handlePromise(this.getErr({ allFiles: false }));
+                }
                 this.deps.reportBuildStatus(undefined);
             }
         }), buffer.onDidChangeText(arg => {
@@ -89,6 +99,7 @@ class TypescriptBuffer {
             // because onDidChangeText pushes all changes at once
             utils_1.handlePromise(this.onDidChangeText(arg));
         }));
+        this.config = atom.config.get("atom-typescript");
         this.openPromise = this.open(this.buffer.getPath());
     }
     static create(buffer, deps) {
@@ -121,9 +132,12 @@ class TypescriptBuffer {
         return this.state.configFile.getPath();
     }
     getProjectRootPath() {
-        if (!this.state || !this.state.configFile)
+        const tsConfigPath = this.getConfigFilePath();
+        if (tsConfigPath === undefined)
             return;
-        return this.state.configFile.getParent().getPath();
+        const projectPath = atom.project.relativizePath(tsConfigPath)[0];
+        return projectPath !== null ? projectPath : undefined;
+        // return this.state.configFile.getParent().getPath()
     }
     async getErr({ allFiles }) {
         if (!this.state)
