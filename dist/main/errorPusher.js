@@ -90,13 +90,14 @@ class ErrorPusher {
                     for (const diagnostic of errors.diagnostics) {
                         if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
                             continue;
-                        if (config.ignoreUnusedSuggestionDiagnostics) {
-                            const isNodeModule = atom.project
-                                .relativizePath(filePath)[1]
-                                .startsWith(`node_modules${path.sep}`);
-                            if (diagnostic.reportsUnnecessary ||
-                                (diagnostic.category === "suggestion" && isNodeModule)) {
-                                continue;
+                        if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
+                            continue;
+                        if (diagnostic.category === "suggestion") {
+                            const [projectPath] = atom.project.relativizePath(filePath);
+                            if (projectPath !== null) {
+                                const openedFiles = Array.from(utils_1.getOpenEditorsPaths(projectPath));
+                                if (!openedFiles.includes(filePath))
+                                    continue;
                             }
                         }
                         // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue

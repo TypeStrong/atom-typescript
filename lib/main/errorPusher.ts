@@ -4,21 +4,17 @@ import {debounce} from "lodash"
 import * as path from "path"
 import {Diagnostic} from "typescript/lib/protocol"
 import {DiagnosticTypes} from "../client/clientResolver"
-import {locationsToRange, spanToRange} from "./atom/utils"
+import {getOpenEditorsPaths, locationsToRange, spanToRange} from "./atom/utils"
+
+interface DiagError {
+  triggerFile: string | undefined
+  diagnostics: Diagnostic[]
+}
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: IndieDelegate
-  private errors: Map<
-    string,
-    Map<
-      string,
-      {
-        triggerFile: string | undefined
-        diagnostics: Diagnostic[]
-      }
-    >
-  > = new Map()
+  private errors: Map<string, Map<string, DiagError>> = new Map()
 
   constructor() {
     this.pushErrors = debounce(this.pushErrors.bind(this), 100)
@@ -117,17 +113,15 @@ export class ErrorPusher {
         for (const [filePath, errors] of fileErrors) {
           for (const diagnostic of errors.diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
-            if (config.ignoreUnusedSuggestionDiagnostics) {
-              const isNodeModule = atom.project
-                .relativizePath(filePath)[1]
-                .startsWith(`node_modules${path.sep}`)
-              if (
-                diagnostic.reportsUnnecessary ||
-                (diagnostic.category === "suggestion" && isNodeModule)
-              ) {
-                continue
+            if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
+            if (diagnostic.category === "suggestion") {
+              const [projectPath] = atom.project.relativizePath(filePath)
+              if (projectPath !== null) {
+                const openedFiles = Array.from(getOpenEditorsPaths(projectPath))
+                if (!openedFiles.includes(filePath)) continue
               }
             }
+
             // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.

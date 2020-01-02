@@ -1,4 +1,3 @@
-import {File} from "atom"
 import {Diagnostic, OpenRequest} from "typescript/lib/protocol"
 import {GetErrorsFunction, PushErrorFunction} from "../../../client"
 import {TypescriptServiceClient} from "../../../client/client"
@@ -13,12 +12,12 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const file = editor.getPath()
     if (file === undefined) return
 
+    const [root] = atom.project.relativizePath(file)
+    if (root === null) return
+
     const line = editor.getLastCursor().getBufferRow()
     const client = await deps.getClient(file)
-    const result = await client.execute("projectInfo", {file, needFileNameList: false})
-    const root = result.body
-      ? new File(result.body.configFileName).getParent().getPath()
-      : undefined
+
     await client.busyWhile(
       "checkRelatedFiles",
       handleCheckRelatedFilesResult(

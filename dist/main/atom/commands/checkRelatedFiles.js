@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const atom_1 = require("atom");
 const utils_1 = require("../utils");
 const navTreeUtils_1 = require("../views/outline/navTreeUtils");
 const registry_1 = require("./registry");
@@ -10,12 +9,11 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
         const file = editor.getPath();
         if (file === undefined)
             return;
+        const [root] = atom.project.relativizePath(file);
+        if (root === null)
+            return;
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
-        const result = await client.execute("projectInfo", { file, needFileNameList: false });
-        const root = result.body
-            ? new atom_1.File(result.body.configFileName).getParent().getPath()
-            : undefined;
         await client.busyWhile("checkRelatedFiles", handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors));
     },
 }));
