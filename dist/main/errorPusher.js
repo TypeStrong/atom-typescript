@@ -33,7 +33,7 @@ class ErrorPusher {
         }
         prefixed.set(path.normalize(filePath), {
             triggerFile,
-            diagnostics: errors
+            diagnostics: errors,
         });
         this.pushErrors();
     }
@@ -42,8 +42,10 @@ class ErrorPusher {
             return;
         for (const fileErrors of this.errors.values()) {
             for (const [filePath, errors] of fileErrors) {
-                if ((projectPath !== undefined && filePath.startsWith(projectPath) ||
-                    triggerFile !== undefined && (triggerFile === errors.triggerFile || triggerFile === filePath)) && fileErrors.has(filePath)) {
+                if (((projectPath !== undefined && filePath.startsWith(projectPath)) ||
+                    (triggerFile !== undefined &&
+                        (triggerFile === errors.triggerFile || triggerFile === filePath))) &&
+                    fileErrors.has(filePath)) {
                     fileErrors.delete(filePath);
                 }
             }
@@ -89,8 +91,13 @@ class ErrorPusher {
                         if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
                             continue;
                         if (config.ignoreUnusedSuggestionDiagnostics) {
-                            if (diagnostic.reportsUnnecessary || diagnostic.category === "suggestion")
+                            const isNodeModule = atom.project
+                                .relativizePath(filePath)[1]
+                                .startsWith(`node_modules${path.sep}`);
+                            if (diagnostic.reportsUnnecessary ||
+                                (diagnostic.category === "suggestion" && isNodeModule)) {
                                 continue;
+                            }
                         }
                         // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
                         // Add a bit of extra validation that we have the necessary locations since linter v2

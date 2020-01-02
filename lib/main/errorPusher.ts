@@ -9,10 +9,16 @@ import {locationsToRange, spanToRange} from "./atom/utils"
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: IndieDelegate
-  private errors: Map<string, Map<string, {
-    triggerFile: string | undefined
-    diagnostics: Diagnostic[]
-  }>> = new Map()
+  private errors: Map<
+    string,
+    Map<
+      string,
+      {
+        triggerFile: string | undefined
+        diagnostics: Diagnostic[]
+      }
+    >
+  > = new Map()
 
   constructor() {
     this.pushErrors = debounce(this.pushErrors.bind(this), 100)
@@ -34,7 +40,12 @@ export class ErrorPusher {
   }
 
   /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-  public setErrors(prefix: DiagnosticTypes, filePath: string, errors: Diagnostic[], triggerFile?: string) {
+  public setErrors(
+    prefix: DiagnosticTypes,
+    filePath: string,
+    errors: Diagnostic[],
+    triggerFile?: string,
+  ) {
     let prefixed = this.errors.get(prefix)
     if (!prefixed) {
       prefixed = new Map()
@@ -43,23 +54,22 @@ export class ErrorPusher {
 
     prefixed.set(path.normalize(filePath), {
       triggerFile,
-      diagnostics: errors
+      diagnostics: errors,
     })
 
     this.pushErrors()
   }
 
-  public clearFileErrors({projectPath, triggerFile}: {
-    projectPath?: string,
-    triggerFile?: string
-  }) {
+  public clearFileErrors({projectPath, triggerFile}: {projectPath?: string; triggerFile?: string}) {
     if (triggerFile === undefined && projectPath === undefined) return
     for (const fileErrors of this.errors.values()) {
       for (const [filePath, errors] of fileErrors) {
-        if ((
-          projectPath !== undefined && filePath.startsWith(projectPath) ||
-          triggerFile !== undefined && (triggerFile === errors.triggerFile || triggerFile === filePath)
-        ) && fileErrors.has(filePath)) {
+        if (
+          ((projectPath !== undefined && filePath.startsWith(projectPath)) ||
+            (triggerFile !== undefined &&
+              (triggerFile === errors.triggerFile || triggerFile === filePath))) &&
+          fileErrors.has(filePath)
+        ) {
           fileErrors.delete(filePath)
         }
       }
@@ -108,7 +118,15 @@ export class ErrorPusher {
           for (const diagnostic of errors.diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics) {
-              if (diagnostic.reportsUnnecessary || diagnostic.category === "suggestion") continue
+              const isNodeModule = atom.project
+                .relativizePath(filePath)[1]
+                .startsWith(`node_modules${path.sep}`)
+              if (
+                diagnostic.reportsUnnecessary ||
+                (diagnostic.category === "suggestion" && isNodeModule)
+              ) {
+                continue
+              }
             }
             // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
             // Add a bit of extra validation that we have the necessary locations since linter v2
