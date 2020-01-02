@@ -9,7 +9,7 @@ import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/ut
 
 export interface Deps {
   getClient: GetClientFunction
-  clearFileErrors: (triggerFile?: string) => void
+  clearFileErrors: (triggerFile?: string, projectPath?: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
   reportProgress: (progress: TProgress) => void
   pushFileError: PushErrorFunction
@@ -118,7 +118,7 @@ export class TypescriptBuffer {
         this.state.client,
         this.deps.pushFileError,
         this.deps.getFileErrors,
-      )
+      ),
     )
   }
 
@@ -232,7 +232,13 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      this.deps.clearFileErrors(file)
+      const projectPath = this.getProjectRootPath()
+      const openedFilesByProject = Array.from(getOpenEditorsPaths(projectPath))
+      if (projectPath !== undefined && openedFilesByProject.length === 0) {
+        this.deps.clearFileErrors(undefined, projectPath)
+      } else {
+        this.deps.clearFileErrors(file)
+      }
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})

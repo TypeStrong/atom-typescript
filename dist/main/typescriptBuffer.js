@@ -33,7 +33,14 @@ class TypescriptBuffer {
             if (this.state) {
                 const client = this.state.client;
                 const file = this.state.filePath;
-                this.deps.clearFileErrors(file);
+                const projectPath = this.getProjectRootPath();
+                const openedFilesByProject = Array.from(utils_2.getOpenEditorsPaths(projectPath));
+                if (projectPath !== undefined && openedFilesByProject.length === 0) {
+                    this.deps.clearFileErrors(undefined, projectPath);
+                }
+                else {
+                    this.deps.clearFileErrors(file);
+                }
                 this.state.subscriptions.dispose();
                 this.state = undefined;
                 await client.execute("close", { file });
