@@ -40,7 +40,6 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
     for (const filePath of checkList) {
         const type = "semanticDiag";
         const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
-        const openedFiles = getOpenedFilesFromEditor();
         pushFileError({ type, filePath, diagnostics: res.body ? res.body : [], triggerFile: file });
     }
     if (openedFilesBuffer.size > 0) {

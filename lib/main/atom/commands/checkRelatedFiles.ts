@@ -1,4 +1,4 @@
-import {Disposable, File} from "atom"
+import {File} from "atom"
 import {Diagnostic, OpenRequest} from "typescript/lib/protocol"
 import {GetErrorsFunction, PushErrorFunction} from "../../../client"
 import {TypescriptServiceClient} from "../../../client/client"
@@ -62,7 +62,6 @@ export async function handleCheckRelatedFilesResult(
   for (const filePath of checkList) {
     const type = "semanticDiag"
     const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
-    const openedFiles = getOpenedFilesFromEditor()
     pushFileError({type, filePath, diagnostics: res.body ? res.body as Diagnostic[] : [], triggerFile: file})
   }
 
