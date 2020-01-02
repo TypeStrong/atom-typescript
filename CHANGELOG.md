@@ -1,3 +1,7 @@
+## 13.4.6
+
+-   Tweak autocompletion prefix heuristics
+
 ## 13.4.5
 
 -   Fix #1530
