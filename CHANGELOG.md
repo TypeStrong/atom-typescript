@@ -1,3 +1,7 @@
+## 13.4.7
+
+-   More autocompletion tweaks
+
 ## 13.4.6
 
 -   Tweak autocompletion prefix heuristics
