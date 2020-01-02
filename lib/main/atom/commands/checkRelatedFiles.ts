@@ -16,10 +16,20 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const line = editor.getLastCursor().getBufferRow()
     const client = await deps.getClient(file)
     const result = await client.execute("projectInfo", {file, needFileNameList: false})
-    const root = result.body ? new File(result.body.configFileName).getParent().getPath() : undefined
+    const root = result.body
+      ? new File(result.body.configFileName).getParent().getPath()
+      : undefined
     await client.busyWhile(
       "checkRelatedFiles",
-      handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors),
+      handleCheckRelatedFilesResult(
+        line,
+        line,
+        root,
+        file,
+        client,
+        deps.pushFileError,
+        deps.getFileErrors,
+      ),
     )
   },
 }))
@@ -54,15 +64,19 @@ export async function handleCheckRelatedFilesResult(
   }
 
   if (updateOpen.length > 0) {
-    const openFiles = updateOpen.sort((a, b) => a.file > b.file ? 1 : -1)
+    const openFiles = updateOpen.sort((a, b) => (a.file > b.file ? 1 : -1))
     await client.execute("updateOpen", {openFiles})
   }
 
   const checkList = makeCheckList()
   for (const filePath of checkList) {
-    const type = "semanticDiag"
     const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
-    pushFileError({type, filePath, diagnostics: res.body ? res.body as Diagnostic[] : [], triggerFile: file})
+    pushFileError({
+      filePath,
+      type: "semanticDiag",
+      diagnostics: res.body ? (res.body as Diagnostic[]) : [],
+      triggerFile: file,
+    })
   }
 
   if (openedFilesBuffer.size > 0) {
@@ -72,7 +86,7 @@ export async function handleCheckRelatedFilesResult(
     await client.execute("updateOpen", {closedFiles})
   }
 
-  function setOpenfiles(items: string[])  {
+  function setOpenfiles(items: string[]) {
     const openedFiles = getOpenedFilesFromEditor()
     for (const item of items) {
       if (!files.has(item) && isTypescriptFile(item)) {
@@ -92,6 +106,6 @@ export async function handleCheckRelatedFilesResult(
   function makeCheckList() {
     const list = Array.from(files)
     const first = list.shift() as string
-    return [first, ...list.sort((a, b) => a > b ? 1 : -1)]
+    return [first, ...list.sort((a, b) => (a > b ? 1 : -1))]
   }
 }

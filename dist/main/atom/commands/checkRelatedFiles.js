@@ -13,7 +13,9 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
         const result = await client.execute("projectInfo", { file, needFileNameList: false });
-        const root = result.body ? new atom_1.File(result.body.configFileName).getParent().getPath() : undefined;
+        const root = result.body
+            ? new atom_1.File(result.body.configFileName).getParent().getPath()
+            : undefined;
         await client.busyWhile("checkRelatedFiles", handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors));
     },
 }));
@@ -33,14 +35,18 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
         setOpenfiles(res.body ? res.body.refs.map(ref => ref.file) : []);
     }
     if (updateOpen.length > 0) {
-        const openFiles = updateOpen.sort((a, b) => a.file > b.file ? 1 : -1);
+        const openFiles = updateOpen.sort((a, b) => (a.file > b.file ? 1 : -1));
         await client.execute("updateOpen", { openFiles });
     }
     const checkList = makeCheckList();
     for (const filePath of checkList) {
-        const type = "semanticDiag";
         const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
-        pushFileError({ type, filePath, diagnostics: res.body ? res.body : [], triggerFile: file });
+        pushFileError({
+            filePath,
+            type: "semanticDiag",
+            diagnostics: res.body ? res.body : [],
+            triggerFile: file,
+        });
     }
     if (openedFilesBuffer.size > 0) {
         const openedFiles = getOpenedFilesFromEditor();
@@ -66,7 +72,7 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
     function makeCheckList() {
         const list = Array.from(files);
         const first = list.shift();
-        return [first, ...list.sort((a, b) => a > b ? 1 : -1)];
+        return [first, ...list.sort((a, b) => (a > b ? 1 : -1))];
     }
 }
 exports.handleCheckRelatedFilesResult = handleCheckRelatedFilesResult;

@@ -29,7 +29,10 @@ export function typeScriptScopes(): ReadonlyArray<string> {
   return tsScopes
 }
 
-export function isTypescriptEditorWithPath(editor: Atom.TextEditor, projectRootPath?: string | undefined) {
+export function isTypescriptEditorWithPath(
+  editor: Atom.TextEditor,
+  projectRootPath?: string | undefined,
+) {
   const filePath = editor.getPath()
   if (projectRootPath !== undefined && !isSameProject(filePath, projectRootPath)) {
     return false
