@@ -56,7 +56,7 @@ export class TypescriptBuffer {
       }),
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
-          if (this.config.findReferencesHyperclick) {
+          if (this.config.checkRelatedFilesAutomatically) {
             handlePromise(this.getErrRelated(changes[0].newRange))
           } else {
             handlePromise(this.getErr({allFiles: false}))
