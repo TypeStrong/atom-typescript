@@ -388,7 +388,7 @@ export class PluginManager {
         if (ed && isTypescriptEditorWithPath(ed)) {
           handlePromise(this.statusPanel.show())
           const tep = TypescriptEditorPane.lookupPane(ed)
-          if (tep) tep.didActivate(ed.isModified())
+          if (tep) tep.didActivate()
         } else handlePromise(this.statusPanel.hide())
       }),
     )

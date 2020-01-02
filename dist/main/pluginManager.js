@@ -311,7 +311,7 @@ class PluginManager {
                 utils_1.handlePromise(this.statusPanel.show());
                 const tep = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);
                 if (tep)
-                    tep.didActivate(ed.isModified());
+                    tep.didActivate();
             }
             else
                 utils_1.handlePromise(this.statusPanel.hide());

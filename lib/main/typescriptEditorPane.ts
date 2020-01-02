@@ -43,7 +43,6 @@ export class TypescriptEditorPane {
   private readonly buffer: TypescriptBuffer
 
   private readonly subscriptions = new CompositeDisposable()
-  private clientInfo: ClientInfo | undefined
   private isTypescript = false
 
   private constructor(private readonly editor: Atom.TextEditor, private opts: PaneOptions) {
@@ -68,13 +67,9 @@ export class TypescriptEditorPane {
    * it is implicitly assumed that `atom.workspace.getActiveTextEditor() === this.editor`
    * which has to be ensured at call site
    */
-  public didActivate = (isModified: boolean) => {
+  public didActivate = () => {
     if (this.isTypescript) {
-      const info = this.reportInfo()
-      if (isModified || this.clientInfo?.tsConfigPath !== info?.tsConfigPath) {
-        this.buffer.updateDiag()
-      }
-      this.clientInfo = info
+      this.buffer.updateDiag()
     }
   }
 
