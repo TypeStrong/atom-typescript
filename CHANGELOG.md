@@ -1,3 +1,7 @@
+## 13.4.8
+
+-   Remove stray console.log
+
 ## 13.4.7
 
 -   More autocompletion tweaks
