@@ -109,20 +109,31 @@ async function getSuggestionsInternal(client, location, prefix) {
 }
 // Decide what needs to be replaced in the editor buffer when inserting the completion
 function getReplacementPrefix(opts, suggestion) {
-    const prefix = opts.editor
+    const line = opts.editor
         .getBuffer()
         .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition]);
     if (suggestion.isMemberCompletion) {
-        const dotMatch = prefix.match(/\.[^\.]*?$/);
+        console.log("isMember");
+        const dotMatch = line.match(/\.\s*?$/);
         if (dotMatch)
             return dotMatch[0].slice(1);
     }
     for (const i of utils_1.inits(suggestion.displayText.toLowerCase(), 1)) {
-        if (prefix.toLowerCase().endsWith(i)) {
-            return prefix.slice(-i.length);
+        if (line.toLowerCase().endsWith(i)) {
+            return line.slice(-i.length);
         }
     }
-    return "";
+    const { prefix } = opts;
+    const trimmed = prefix.trim();
+    if (trimmed === "" || trimmed.match(/[\.{]$/)) {
+        return "";
+    }
+    else if (suggestion.text.startsWith("$")) {
+        return "$" + prefix;
+    }
+    else {
+        return prefix;
+    }
 }
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."
