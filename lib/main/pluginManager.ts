@@ -112,7 +112,6 @@ export class PluginManager {
       reportBusyWhile: this.reportBusyWhile,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
-      reportProgress: this.reportProgress,
       pushFileError: this.pushFileError,
       getFileErrors: this.getFileErrors,
     })

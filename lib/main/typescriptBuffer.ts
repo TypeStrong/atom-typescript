@@ -4,7 +4,7 @@ import {GetClientFunction, GetErrorsFunction, PushErrorFunction, TSClient} from 
 import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
-import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
+import {TBuildStatus} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
@@ -12,7 +12,6 @@ export interface Deps {
   reportBusyWhile: ReportBusyWhile
   clearFileErrors: (triggerFile?: string, projectPath?: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
-  reportProgress: (progress: TProgress) => void
   pushFileError: PushErrorFunction
   getFileErrors: GetErrorsFunction
 }
