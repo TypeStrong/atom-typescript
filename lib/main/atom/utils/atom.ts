@@ -11,6 +11,11 @@ function getEditorPosition(editor: Atom.TextEditor): Location {
   }
 }
 
+function isSameProject(filePath: string | undefined, projectRootPath: string): boolean {
+  if (filePath === undefined) return false
+  return filePath.includes(projectRootPath)
+}
+
 export function isTypescriptFile(filePath: string | undefined): boolean {
   if (filePath === undefined) return false
   return isAllowedExtension(path.extname(filePath))
@@ -24,8 +29,15 @@ export function typeScriptScopes(): ReadonlyArray<string> {
   return tsScopes
 }
 
-export function isTypescriptEditorWithPath(editor: Atom.TextEditor) {
-  return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor)
+export function isTypescriptEditorWithPath(
+  editor: Atom.TextEditor,
+  projectRootPath?: string | undefined,
+) {
+  const filePath = editor.getPath()
+  if (projectRootPath !== undefined && !isSameProject(filePath, projectRootPath)) {
+    return false
+  }
+  return isTypescriptFile(filePath) && isTypescriptGrammar(editor)
 }
 
 export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
@@ -52,9 +64,9 @@ export function getFilePathPosition(
   }
 }
 
-export function* getOpenEditorsPaths() {
+export function* getOpenEditorsPaths(projectRootPath?: string | undefined) {
   for (const ed of atom.workspace.getTextEditors()) {
-    if (isTypescriptEditorWithPath(ed)) yield ed.getPath()!
+    if (isTypescriptEditorWithPath(ed, projectRootPath)) yield ed.getPath()!
   }
 }
 
