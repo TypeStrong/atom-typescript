@@ -36,9 +36,12 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   rename: true,
   navtree: true,
   navto: true,
+  semanticDiagnosticsSync: true,
+  syntacticDiagnosticsSync: true,
   getApplicableRefactors: true,
   getEditsForRefactor: true,
   organizeImports: true,
+  updateOpen: true,
   signatureHelp: true,
   getEditsForFileRename: true,
 }
@@ -75,6 +78,10 @@ export class TypescriptServiceClient {
   ) {
     this.callbacks = new Callbacks(this.reportBusyWhile)
     this.server = this.startServer()
+  }
+
+  public async busyWhile(message: string, promise: Promise<void>) {
+    return await this.reportBusyWhile(message, () => promise)
   }
 
   public async execute<T extends AllTSClientCommands>(

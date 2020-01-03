@@ -21,6 +21,7 @@ export interface CommandArgResponseMap {
   // occurrences: (x: p.FileLocationRequestArgs) => p.OccurrencesResponse
   documentHighlights: (x: p.DocumentHighlightsRequestArgs) => p.DocumentHighlightsResponse
   open: (x: p.OpenRequestArgs) => void
+  updateOpen: (x: p.UpdateOpenRequestArgs) => p.Response
   projectInfo: (x: p.ProjectInfoRequestArgs) => p.ProjectInfoResponse
   quickinfo: (x: p.FileLocationRequestArgs) => p.QuickInfoResponse
   references: (x: p.FileLocationRequestArgs) => p.ReferencesResponse
@@ -29,6 +30,12 @@ export interface CommandArgResponseMap {
   saveto: (x: p.SavetoRequestArgs) => void
   navtree: (x: p.FileRequestArgs) => p.NavTreeResponse
   navto: (x: p.NavtoRequestArgs) => p.NavtoResponse
+  semanticDiagnosticsSync: (
+    x: p.SemanticDiagnosticsSyncRequestArgs,
+  ) => p.SemanticDiagnosticsSyncResponse
+  syntacticDiagnosticsSync: (
+    x: p.SyntacticDiagnosticsSyncRequestArgs,
+  ) => p.SyntacticDiagnosticsSyncResponse
   reloadProjects: () => void
   getApplicableRefactors: (
     x: p.GetApplicableRefactorsRequestArgs,
