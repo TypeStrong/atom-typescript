@@ -4,7 +4,7 @@ import {debounce} from "lodash"
 import * as path from "path"
 import {Diagnostic} from "typescript/lib/protocol"
 import {DiagnosticTypes} from "../client/clientResolver"
-import {getOpenEditorsPaths, locationsToRange, spanToRange} from "./atom/utils"
+import {locationsToRange, spanToRange} from "./atom/utils"
 
 interface DiagError {
   triggerFile: string | undefined
@@ -114,14 +114,6 @@ export class ErrorPusher {
           for (const diagnostic of errors.diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
-            if (diagnostic.category === "suggestion") {
-              const [projectPath] = atom.project.relativizePath(filePath)
-              if (projectPath !== null) {
-                const openedFiles = Array.from(getOpenEditorsPaths(projectPath))
-                if (!openedFiles.includes(filePath)) continue
-              }
-            }
-
             // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.

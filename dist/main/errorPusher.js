@@ -92,14 +92,6 @@ class ErrorPusher {
                             continue;
                         if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
                             continue;
-                        if (diagnostic.category === "suggestion") {
-                            const [projectPath] = atom.project.relativizePath(filePath);
-                            if (projectPath !== null) {
-                                const openedFiles = Array.from(utils_1.getOpenEditorsPaths(projectPath));
-                                if (!openedFiles.includes(filePath))
-                                    continue;
-                            }
-                        }
                         // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
                         // Add a bit of extra validation that we have the necessary locations since linter v2
                         // does not allow range-less messages anymore. This happens with configFileDiagnostics.
