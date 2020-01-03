@@ -33,6 +33,13 @@
       "default": true,
       "order": 90
     },
+    "checkRelatedFilesOnChange": {
+      "title": "Show problems for related files",
+      "description": "It will be report related problems from relevant files when visible your code changed.",
+      "type": "boolean",
+      "default": "false",
+      "order": 91
+    },
     "autocompletionSuggestionPriority": {
       "description": "Snippets etc have priority of 1. Requires Atom restart",
       "type": "integer",
