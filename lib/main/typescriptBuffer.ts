@@ -47,10 +47,7 @@ export class TypescriptBuffer {
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
 
-  private constructor(
-    public buffer: Atom.TextBuffer,
-    private deps: Deps,
-  ) {
+  private constructor(public buffer: Atom.TextBuffer, private deps: Deps) {
     this.subscriptions.add(
       buffer.onDidChangePath(this.onDidChangePath),
       buffer.onDidDestroy(this.dispose),
@@ -122,9 +119,8 @@ export class TypescriptBuffer {
   private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
     if (!this.state || !this.state.filePath) return
     const {client, filePath} = this.state
-    await this.deps.reportBusyWhile(
-      "checkRelatedFiles",
-      () => handleCheckRelatedFilesResult(
+    await this.deps.reportBusyWhile("checkRelatedFiles", () =>
+      handleCheckRelatedFilesResult(
         start.row,
         end.row,
         this.getProjectRootPath(),
