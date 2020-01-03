@@ -106,7 +106,7 @@ export class StatusPanel implements JSX.ElementClass {
   }
 
   private renderProgress(): JSX.Element | null {
-    if (this.props.progress.value < this.props.progress.max) {
+    if (this.props.buildStatus && this.props.progress.value < this.props.progress.max) {
       return (
         <progress
           style={{verticalAlign: "baseline"}}

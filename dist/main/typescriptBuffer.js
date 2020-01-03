@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("../utils");
+const checkAllFiles_1 = require("./atom/commands/checkAllFiles");
 const utils_2 = require("./atom/utils");
 class TypescriptBuffer {
     constructor(buffer, deps) {
@@ -43,7 +44,12 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            await this.getErr({ allFiles: true });
+            if (this.config.checkAllFilesOnSave) {
+                await this.getErrProject();
+            }
+            else {
+                await this.getErr({ allFiles: true });
+            }
             await this.doCompileOnSave();
         };
         this.onDidChangeText = async ({ changes }) => {
@@ -79,6 +85,7 @@ class TypescriptBuffer {
             // because onDidChangeText pushes all changes at once
             utils_1.handlePromise(this.onDidChangeText(arg));
         }));
+        this.config = atom.config.get("atom-typescript");
         this.openPromise = this.open(this.buffer.getPath());
     }
     static create(buffer, deps) {
@@ -110,6 +117,11 @@ class TypescriptBuffer {
             files,
             delay: 100,
         });
+    }
+    async getErrProject() {
+        if (!this.state || !this.state.filePath)
+            return;
+        await checkAllFiles_1.handleCheckAllFilesResult(this.state.filePath, this.state.filesNames, this.getInfo().tsConfigPath, this.state.client, this.deps.reportProgress);
     }
     /** Throws! */
     async compile() {
@@ -149,17 +161,19 @@ class TypescriptBuffer {
                 client,
                 filePath,
                 configFile: undefined,
+                filesNames: undefined,
                 subscriptions: new Atom.CompositeDisposable(),
             };
             this.state.subscriptions.add(client.on("restarted", () => utils_1.handlePromise(this.init())));
             await this.init();
             const result = await client.execute("projectInfo", {
-                needFileNameList: false,
+                needFileNameList: true,
                 file: filePath,
             });
             // TODO: wrong type here, complain on TS repo
             if (result.body.configFileName !== undefined) {
                 this.state.configFile = new Atom.File(result.body.configFileName);
+                this.state.filesNames = result.body.fileNames;
                 await this.readConfigFile();
                 this.state.subscriptions.add(this.state.configFile.onDidChange(() => utils_1.handlePromise(this.readConfigFile())));
             }

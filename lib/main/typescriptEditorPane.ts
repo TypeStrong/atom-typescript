@@ -1,7 +1,7 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
 import {GetClientFunction} from "../client"
-import {TBuildStatus} from "./atom/components/statusPanel"
+import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
@@ -9,6 +9,7 @@ interface PaneOptions {
   getClient: GetClientFunction
   reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
+  reportProgress: (progress: TProgress) => void
   clearFileErrors: (filePath: string) => void
 }
 

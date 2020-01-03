@@ -159,6 +159,7 @@ class PluginManager {
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
+            reportProgress: this.reportProgress,
         });
         this.subscribeEditors();
         // Register the commands
