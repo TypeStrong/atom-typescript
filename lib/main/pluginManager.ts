@@ -5,7 +5,7 @@ import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {throttle} from "lodash"
 import * as path from "path"
-import {ClientResolver} from "../client"
+import {ClientResolver, DiagnosticsPayload} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {getCodeHighlightProvider} from "./atom-ide/codeHighlightProvider"
@@ -111,6 +111,9 @@ export class PluginManager {
       getClient: this.getClient,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
+      reportProgress: this.reportProgress,
+      pushFileError: this.pushFileError,
+      getFileErrors: this.getFileErrors,
     })
     this.subscribeEditors()
 
@@ -139,6 +142,8 @@ export class PluginManager {
         showSigHelpAt: this.showSigHelpAt,
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
+        getFileErrors: this.getFileErrors,
+        pushFileError: this.pushFileError,
       }),
     )
   }
@@ -166,8 +171,8 @@ export class PluginManager {
     this.errorPusher.setLinter(linter)
 
     this.subscriptions.add(
-      this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
-        this.errorPusher.setErrors(type, filePath, diagnostics)
+      this.clientResolver.on("diagnostics", ({type, filePath, diagnostics, triggerFile}) => {
+        this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile)
       }),
     )
   }
@@ -265,8 +270,16 @@ export class PluginManager {
     this.errorPusher.clear()
   }
 
-  private clearFileErrors = (filePath: string) => {
-    this.errorPusher.clearFileErrors(filePath)
+  private clearFileErrors = (triggerFile?: string, projectPath?: string) => {
+    this.errorPusher.clearFileErrors({triggerFile, projectPath})
+  }
+
+  private getFileErrors = (triggerFile: string) => {
+    return this.errorPusher.getErrors(triggerFile)
+  }
+
+  private pushFileError = ({type, filePath, diagnostics, triggerFile}: DiagnosticsPayload) => {
+    this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile)
   }
 
   private getClient = async (filePath: string) => {

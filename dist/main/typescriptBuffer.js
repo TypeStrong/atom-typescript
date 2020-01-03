@@ -187,19 +187,17 @@ class TypescriptBuffer {
                 client,
                 filePath,
                 configFile: undefined,
-                filesNames: undefined,
                 subscriptions: new Atom.CompositeDisposable(),
             };
             this.state.subscriptions.add(client.on("restarted", () => utils_1.handlePromise(this.init())));
             await this.init();
             const result = await client.execute("projectInfo", {
-                needFileNameList: true,
+                needFileNameList: false,
                 file: filePath,
             });
             // TODO: wrong type here, complain on TS repo
             if (result.body.configFileName !== undefined) {
                 this.state.configFile = new Atom.File(result.body.configFileName);
-                this.state.filesNames = result.body.fileNames;
                 await this.readConfigFile();
                 this.state.subscriptions.add(this.state.configFile.onDidChange(() => utils_1.handlePromise(this.readConfigFile())));
             }

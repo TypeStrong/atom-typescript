@@ -1,14 +1,18 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetClientFunction, TSClient} from "../client"
+import {GetClientFunction, GetErrorsFunction, PushErrorFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {TBuildStatus} from "./atom/components/statusPanel"
+import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
+import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
   getClient: GetClientFunction
-  clearFileErrors: (filePath: string) => void
-  reportBuildStatus: (status: TBuildStatus | undefined) => void
+  clearFileErrors: (triggerFile?: string, projectPath?: string) => void
+  reportBuildStatus: (status?: TBuildStatus) => void
+  reportProgress: (progress: TProgress) => void
+  pushFileError: PushErrorFunction
+  getFileErrors: GetErrorsFunction
 }
 
 export class TypescriptBuffer {
@@ -36,6 +40,7 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
+  private config: Atom.ConfigValues["atom-typescript"]
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -48,8 +53,14 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: false}))
-        if (changes.length > 0) this.deps.reportBuildStatus(undefined)
+        if (changes.length > 0) {
+          if (this.config.checkRelatedFilesOnChange) {
+            handlePromise(this.getErrRelated(changes[0].newRange))
+          } else {
+            handlePromise(this.getErr({allFiles: false}))
+          }
+          this.deps.reportBuildStatus(undefined)
+        }
       }),
       buffer.onDidChangeText(arg => {
         // NOTE: we don't need to worry about interleaving here,
@@ -58,6 +69,7 @@ export class TypescriptBuffer {
       }),
     )
 
+    this.config = atom.config.get("atom-typescript")
     this.openPromise = this.open(this.buffer.getPath())
   }
 
@@ -69,17 +81,53 @@ export class TypescriptBuffer {
     if (!this.state) return
     return {
       clientVersion: this.state.client.version,
-      tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
+      tsConfigPath: this.getConfigFilePath(),
     }
+  }
+
+  public updateDiag() {
+    handlePromise(this.getErr({allFiles: true}))
+  }
+
+  private getConfigFilePath() {
+    if (!this.state || !this.state.configFile) return
+    return this.state.configFile.getPath()
+  }
+
+  private getProjectRootPath() {
+    const tsConfigPath = this.getConfigFilePath()
+    if (tsConfigPath === undefined) return
+
+    const projectPath = atom.project.relativizePath(tsConfigPath)[0]
+    return projectPath !== null ? projectPath : undefined
+    // return this.state.configFile.getParent().getPath()
   }
 
   private async getErr({allFiles}: {allFiles: boolean}) {
     if (!this.state) return
-    const files = allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
+    const files = allFiles
+      ? Array.from(getOpenEditorsPaths(this.getProjectRootPath()))
+      : [this.state.filePath]
     await this.state.client.execute("geterr", {
       files,
       delay: 100,
     })
+  }
+
+  private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
+    if (!this.state || !this.state.filePath) return
+    await this.state.client.busyWhile(
+      "checkRelatedFiles",
+      handleCheckRelatedFilesResult(
+        start.row,
+        end.row,
+        this.getProjectRootPath(),
+        this.state.filePath,
+        this.state.client,
+        this.deps.pushFileError,
+        this.deps.getFileErrors,
+      ),
+    )
   }
 
   /** Throws! */
@@ -179,7 +227,13 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      this.deps.clearFileErrors(file)
+      const projectPath = this.getProjectRootPath()
+      const openedFilesByProject = Array.from(getOpenEditorsPaths(projectPath))
+      if (projectPath !== undefined && openedFilesByProject.length === 0) {
+        this.deps.clearFileErrors(undefined, projectPath)
+      } else {
+        this.deps.clearFileErrors(file)
+      }
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})
