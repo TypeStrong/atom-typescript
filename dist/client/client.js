@@ -26,9 +26,12 @@ const commandWithResponseMap = {
     rename: true,
     navtree: true,
     navto: true,
+    semanticDiagnosticsSync: true,
+    syntacticDiagnosticsSync: true,
     getApplicableRefactors: true,
     getEditsForRefactor: true,
     organizeImports: true,
+    updateOpen: true,
     signatureHelp: true,
     getEditsForFileRename: true,
 };
@@ -72,6 +75,9 @@ class TypescriptServiceClient {
         };
         this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.server = this.startServer();
+    }
+    async busyWhile(message, promise) {
+        return await this.reportBusyWhile(message, () => promise);
     }
     async execute(command, ...args) {
         if (!this.server) {

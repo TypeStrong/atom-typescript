@@ -36,8 +36,14 @@ class PluginManager {
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
-        this.clearFileErrors = (filePath) => {
-            this.errorPusher.clearFileErrors(filePath);
+        this.clearFileErrors = (triggerFile, projectPath) => {
+            this.errorPusher.clearFileErrors({ triggerFile, projectPath });
+        };
+        this.getFileErrors = (triggerFile) => {
+            return this.errorPusher.getErrors(triggerFile);
+        };
+        this.pushFileError = ({ type, filePath, diagnostics, triggerFile }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -159,6 +165,9 @@ class PluginManager {
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
+            reportProgress: this.reportProgress,
+            pushFileError: this.pushFileError,
+            getFileErrors: this.getFileErrors,
         });
         this.subscribeEditors();
         // Register the commands
@@ -185,6 +194,8 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
+            getFileErrors: this.getFileErrors,
+            pushFileError: this.pushFileError,
         }));
     }
     destroy() {
@@ -206,8 +217,8 @@ class PluginManager {
             name: "TypeScript",
         });
         this.errorPusher.setLinter(linter);
-        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
-            this.errorPusher.setErrors(type, filePath, diagnostics);
+        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics, triggerFile }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
         }));
     }
     consumeStatusBar(statusBar) {

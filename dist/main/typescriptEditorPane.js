@@ -18,8 +18,10 @@ class TypescriptEditorPane {
          * which has to be ensured at call site
          */
         this.didActivate = () => {
-            if (this.isTypescript)
+            if (this.isTypescript) {
                 this.reportInfo();
+                this.buffer.updateDiag();
+            }
         };
         this.onOpened = () => {
             const isActive = atom.workspace.getActiveTextEditor() === this.editor;

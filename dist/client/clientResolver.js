@@ -28,6 +28,7 @@ class ClientResolver {
                     serverPath,
                     filePath,
                     diagnostics: result.diagnostics,
+                    triggerFile: isConfDiagBody(result) ? result.triggerFile : undefined,
                 });
             }
         };
