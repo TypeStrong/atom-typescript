@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {GetClientFunction, GetErrorsFunction, PushErrorFunction} from "../../../client"
-import {ApplyEdits} from "../../pluginManager"
+import {ApplyEdits, ReportBusyWhile} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {OpenParams} from "../editorPositionHistoryManager"
 
@@ -9,6 +9,7 @@ export interface Dependencies {
   applyEdits: ApplyEdits
   clearErrors: () => void
   killAllServers: () => void
+  reportBusyWhile: ReportBusyWhile
   reportProgress: (progress: TProgress) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   toggleSemanticViewController: () => void

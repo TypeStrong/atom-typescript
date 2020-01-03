@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, GetErrorsFunction, PushErrorFunction, TSClient} from "../client"
+import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
 import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
@@ -8,6 +9,7 @@ import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/ut
 
 export interface Deps {
   getClient: GetClientFunction
+  reportBusyWhile: ReportBusyWhile
   clearFileErrors: (triggerFile?: string, projectPath?: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
   reportProgress: (progress: TProgress) => void
@@ -45,7 +47,10 @@ export class TypescriptBuffer {
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
 
-  private constructor(public buffer: Atom.TextBuffer, private deps: Deps) {
+  private constructor(
+    public buffer: Atom.TextBuffer,
+    private deps: Deps,
+  ) {
     this.subscriptions.add(
       buffer.onDidChangePath(this.onDidChangePath),
       buffer.onDidDestroy(this.dispose),
@@ -116,14 +121,15 @@ export class TypescriptBuffer {
 
   private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
     if (!this.state || !this.state.filePath) return
-    await this.state.client.busyWhile(
+    const {client, filePath} = this.state
+    await this.deps.reportBusyWhile(
       "checkRelatedFiles",
-      handleCheckRelatedFilesResult(
+      () => handleCheckRelatedFilesResult(
         start.row,
         end.row,
         this.getProjectRootPath(),
-        this.state.filePath,
-        this.state.client,
+        filePath,
+        client,
         this.deps.pushFileError,
         this.deps.getFileErrors,
       ),

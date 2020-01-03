@@ -3,6 +3,7 @@ import {CompositeDisposable} from "atom"
 import {GetClientFunction, GetErrorsFunction, PushErrorFunction} from "../client"
 import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
+import {ReportBusyWhile} from "./pluginManager"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
 interface ClientInfo {
@@ -12,6 +13,7 @@ interface ClientInfo {
 
 interface PaneOptions {
   getClient: GetClientFunction
+  reportBusyWhile: ReportBusyWhile
   reportClientInfo: (info: ClientInfo) => void
   reportBuildStatus: (status?: TBuildStatus) => void
   clearFileErrors: (triggerFile?: string) => void

@@ -76,9 +76,6 @@ class TypescriptServiceClient {
         this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.server = this.startServer();
     }
-    async busyWhile(message, promise) {
-        return await this.reportBusyWhile(message, () => promise);
-    }
     async execute(command, ...args) {
         if (!this.server) {
             this.server = this.startServer();

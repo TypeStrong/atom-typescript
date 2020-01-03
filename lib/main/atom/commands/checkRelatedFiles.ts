@@ -18,9 +18,9 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const line = editor.getLastCursor().getBufferRow()
     const client = await deps.getClient(file)
 
-    await client.busyWhile(
+    await deps.reportBusyWhile(
       "checkRelatedFiles",
-      handleCheckRelatedFilesResult(
+      () => handleCheckRelatedFilesResult(
         line,
         line,
         root,
@@ -45,7 +45,7 @@ export async function handleCheckRelatedFilesResult(
   client: TypescriptServiceClient,
   pushFileError: PushErrorFunction,
   getFileErrors: GetErrorsFunction,
-): Promise<void> {
+): Promise<unknown> {
   if (root === undefined) return
 
   const files = new Set([file])

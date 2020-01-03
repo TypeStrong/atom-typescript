@@ -14,7 +14,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
             return;
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
-        await client.busyWhile("checkRelatedFiles", handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors));
+        await deps.reportBusyWhile("checkRelatedFiles", () => handleCheckRelatedFilesResult(line, line, root, file, client, deps.pushFileError, deps.getFileErrors));
     },
 }));
 const openedFilesBuffer = new Set();
