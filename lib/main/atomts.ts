@@ -23,12 +23,11 @@ export async function activate(state: State) {
   const pns = atom.packages.getAvailablePackageNames()
   const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
   if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
-    const mod = require("atom-package-deps") as import("atom-package-deps")
+    const mod = require("atom-package-deps") as typeof import("atom-package-deps")
     await mod.install("atom-typescript", true)
   }
 
-  // tslint:disable-next-line:no-unsafe-any
-  require("etch").setScheduler(atom.views)
+  ;(require("etch") as typeof import("etch")).setScheduler(atom.views)
 
   // tslint:disable-next-line:no-shadowed-variable
   const {PluginManager} = require("./pluginManager") as typeof import("./pluginManager")
@@ -47,7 +46,7 @@ export function serialize() {
 
 export function deserializeSemanticView(serialized: SemanticViewSerializationData): SemanticView {
   const {
-    // tslint:disable-next-line:no-unsafe-any no-shadowed-variable
+    // tslint:disable-next-line: no-shadowed-variable
     SemanticView,
   } = require("./atom/views/outline/semanticView") as typeof import("./atom/views/outline/semanticView")
   return SemanticView.create(serialized.data)
