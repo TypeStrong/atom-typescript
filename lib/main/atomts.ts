@@ -23,8 +23,8 @@ export async function activate(state: State) {
   const pns = atom.packages.getAvailablePackageNames()
   const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
   if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
-    // tslint:disable-next-line:no-unsafe-any
-    await require("atom-package-deps").install("atom-typescript", true)
+    const mod = require("atom-package-deps") as import("atom-package-deps")
+    await mod.install("atom-typescript", true)
   }
 
   // tslint:disable-next-line:no-unsafe-any
