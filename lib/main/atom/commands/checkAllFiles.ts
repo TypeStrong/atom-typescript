@@ -38,10 +38,8 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     }
 
     function updateStatus() {
+      if (files.size === 0) disp.dispose()
       deps.reportProgress({max, value: max - files.size})
-      if (files.size === 0) {
-        disp.dispose()
-      }
     }
   },
 }))

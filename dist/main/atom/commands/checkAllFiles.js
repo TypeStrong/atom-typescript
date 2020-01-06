@@ -34,10 +34,9 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
             updateStatus();
         }
         function updateStatus() {
-            deps.reportProgress({ max, value: max - files.size });
-            if (files.size === 0) {
+            if (files.size === 0)
                 disp.dispose();
-            }
+            deps.reportProgress({ max, value: max - files.size });
         }
     },
 }));
