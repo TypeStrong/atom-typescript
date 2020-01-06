@@ -20,7 +20,6 @@ declare module "atom" {
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
     "atom-typescript.suppressAllDiagnostics": boolean
-    "atom-typescript.findReferencesHyperclick": boolean
     "atom-typescript.tsFileExtensions": string[]
     "atom-typescript.jsFileExtensions": string[]
     "atom-typescript.tsSyntaxScopes": string[]
@@ -46,7 +45,6 @@ declare module "atom" {
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
       suppressAllDiagnostics: boolean
-      findReferencesHyperclick: boolean
       tsFileExtensions: string[]
       jsFileExtensions: string[]
       tsSyntaxScopes: string[]

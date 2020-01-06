@@ -28,8 +28,7 @@ function getHyperclickProvider(getClient, histGoForward) {
                     const resLoc = result.body ? result.body[0] : undefined;
                     if (((_a = result.body) === null || _a === void 0 ? void 0 : _a.length) === 1 &&
                         ((_b = resLoc) === null || _b === void 0 ? void 0 : _b.start.line) === location.line &&
-                        ((_c = resLoc) === null || _c === void 0 ? void 0 : _c.start.offset) === location.offset &&
-                        atom.config.get("atom-typescript").findReferencesHyperclick) {
+                        ((_c = resLoc) === null || _c === void 0 ? void 0 : _c.start.offset) === location.offset) {
                         const references = await client.execute("references", location);
                         await findReferences_1.handleFindReferencesResult(references, editor, histGoForward);
                     }
