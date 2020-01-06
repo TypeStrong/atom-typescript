@@ -1,34 +1,18 @@
-import {Disposable, File} from "atom"
 import {addCommand} from "./registry"
-
-let buffer: {
-  max: number
-  file: string
-  files: Set<string>
-  tsconfig: string | undefined
-  disp: Disposable
-} | null = null
 
 addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
   description: "Typecheck all files in project related to current active text editor",
   async didDispatch(editor) {
     const file = editor.getPath()
     if (file === undefined) return
-
     const client = await deps.getClient(file)
+
     const projectInfo = await client.execute("projectInfo", {
       file,
       needFileNameList: true,
     })
-    const {configFileName, fileNames} = projectInfo.body!
-    const tsconfig = configFileName ? new File(configFileName).getPath() : configFileName
 
-    if (buffer && buffer.files.size !== 0) {
-      if (file === buffer.file || tsconfig === buffer.tsconfig) return
-      cancel()
-    }
-
-    const files = new Set(fileNames)
+    const files = new Set(projectInfo.body!.fileNames)
     const max = files.size
 
     // There's no real way to know when all of the errors have been received and not every file from
@@ -45,23 +29,18 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
       updateStatus()
     })
 
-    buffer = {max, file, files, disp, tsconfig}
-
     deps.reportProgress({max, value: 0})
     await client.execute("geterrForProject", {file, delay: 0})
 
     function cancel() {
-      if (!buffer) return
-      buffer.files.clear()
+      files.clear()
       updateStatus()
     }
 
     function updateStatus() {
-      if (!buffer) return
-      deps.reportProgress({max: buffer.max, value: buffer.max - buffer.files.size})
-      if (buffer.files.size === 0) {
-        buffer.disp.dispose()
-        buffer = null
+      deps.reportProgress({max, value: max - files.size})
+      if (files.size === 0) {
+        disp.dispose()
       }
     }
   },
