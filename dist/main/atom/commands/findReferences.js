@@ -19,7 +19,7 @@ registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => 
     },
 }));
 async function handleFindReferencesResult(result, editor, histGoForward) {
-    const refs = await Promise.all(result.body.refs.map(async (ref) => {
+    const refs = Promise.all(result.body.refs.map(async (ref) => {
         var _a;
         const fileContents = (await new Promise((resolve, reject) => fs.readFile(ref.file, (error, data) => {
             if (error)

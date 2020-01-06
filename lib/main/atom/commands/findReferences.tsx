@@ -24,7 +24,7 @@ export async function handleFindReferencesResult(
   editor: TextEditor,
   histGoForward: Dependencies["histGoForward"],
 ): Promise<void> {
-  const refs = await Promise.all(
+  const refs = Promise.all(
     result.body!.refs.map(async ref => {
       const fileContents = (
         await new Promise<string>((resolve, reject) =>
