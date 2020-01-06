@@ -53,7 +53,7 @@ export async function handleCheckRelatedFilesResult(
   prepareNavTree(navTree)
 
   const node = findNodeAt(startLine, endLine, navTree)
-  const updateOpen: OpenRequestArgs[] = []
+  const openFiles: OpenRequestArgs[] = []
   setOpenfiles(getFileErrors(file))
 
   if (node && node.nameSpan) {
@@ -61,13 +61,11 @@ export async function handleCheckRelatedFilesResult(
     setOpenfiles(res.body ? res.body.refs.map(ref => ref.file) : [])
   }
 
-  if (updateOpen.length > 0) {
-    const openFiles = updateOpen.sort((a, b) => (a.file > b.file ? 1 : -1))
+  if (openFiles.length > 0) {
     await client.execute("updateOpen", {openFiles})
   }
 
-  const checkList = makeCheckList()
-  for (const filePath of checkList) {
+  for (const filePath of files) {
     const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
     pushFileError({
       filePath,
@@ -89,7 +87,7 @@ export async function handleCheckRelatedFilesResult(
     for (const item of items) {
       if (!files.has(item) && isTypescriptFile(item)) {
         if (openedFiles.indexOf(item) < 0 && !openedFilesBuffer.has(item)) {
-          updateOpen.push({file: item, projectRootPath: root})
+          openFiles.push({file: item, projectRootPath: root})
           openedFilesBuffer.add(item)
         }
         files.add(item)
@@ -99,11 +97,5 @@ export async function handleCheckRelatedFilesResult(
 
   function getOpenedFilesFromEditor() {
     return Array.from(getOpenEditorsPaths(root))
-  }
-
-  function makeCheckList() {
-    const list = Array.from(files)
-    const first = list.shift() as string
-    return [first, ...list.sort((a, b) => (a > b ? 1 : -1))]
   }
 }

@@ -26,18 +26,16 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
     const navTree = navTreeRes.body;
     navTreeUtils_1.prepareNavTree(navTree);
     const node = navTreeUtils_1.findNodeAt(startLine, endLine, navTree);
-    const updateOpen = [];
+    const openFiles = [];
     setOpenfiles(getFileErrors(file));
     if (node && node.nameSpan) {
         const res = await client.execute("references", Object.assign({ file }, node.nameSpan.start));
         setOpenfiles(res.body ? res.body.refs.map(ref => ref.file) : []);
     }
-    if (updateOpen.length > 0) {
-        const openFiles = updateOpen.sort((a, b) => (a.file > b.file ? 1 : -1));
+    if (openFiles.length > 0) {
         await client.execute("updateOpen", { openFiles });
     }
-    const checkList = makeCheckList();
-    for (const filePath of checkList) {
+    for (const filePath of files) {
         const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
         pushFileError({
             filePath,
@@ -57,7 +55,7 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
         for (const item of items) {
             if (!files.has(item) && utils_1.isTypescriptFile(item)) {
                 if (openedFiles.indexOf(item) < 0 && !openedFilesBuffer.has(item)) {
-                    updateOpen.push({ file: item, projectRootPath: root });
+                    openFiles.push({ file: item, projectRootPath: root });
                     openedFilesBuffer.add(item);
                 }
                 files.add(item);
@@ -66,11 +64,6 @@ async function handleCheckRelatedFilesResult(startLine, endLine, root, file, cli
     }
     function getOpenedFilesFromEditor() {
         return Array.from(utils_1.getOpenEditorsPaths(root));
-    }
-    function makeCheckList() {
-        const list = Array.from(files);
-        const first = list.shift();
-        return [first, ...list.sort((a, b) => (a > b ? 1 : -1))];
     }
 }
 exports.handleCheckRelatedFilesResult = handleCheckRelatedFilesResult;
