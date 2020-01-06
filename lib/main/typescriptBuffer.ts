@@ -2,15 +2,13 @@ import * as Atom from "atom"
 import {flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {handleCheckAllFilesResult} from "./atom/commands/checkAllFiles"
-import {TBuildStatus, TProgress} from "./atom/components/statusPanel"
+import {TBuildStatus} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
 export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
-  reportProgress: (progress: TProgress) => void
 }
 
 export class TypescriptBuffer {
@@ -30,7 +28,6 @@ export class TypescriptBuffer {
   private state?: {
     client: TSClient
     filePath: string
-    filesNames: string[] | undefined
     // Path to the project's tsconfig.json
     configFile: Atom.File | undefined
     subscriptions: Atom.CompositeDisposable
@@ -62,7 +59,7 @@ export class TypescriptBuffer {
       }),
     )
 
-    this.config = atom.config.get("atom-typescript")
+    this.config = atom.config.get("atom-typescript");
     this.openPromise = this.open(this.buffer.getPath())
   }
 
@@ -85,17 +82,6 @@ export class TypescriptBuffer {
       files,
       delay: 100,
     })
-  }
-
-  private async getErrProject() {
-    if (!this.state || !this.state.filePath) return
-    await handleCheckAllFilesResult(
-      this.state.filePath,
-      this.state.filesNames,
-      this.getInfo()!.tsConfigPath,
-      this.state.client,
-      this.deps.reportProgress,
-    )
   }
 
   /** Throws! */
@@ -138,7 +124,6 @@ export class TypescriptBuffer {
         client,
         filePath,
         configFile: undefined,
-        filesNames: undefined,
         subscriptions: new Atom.CompositeDisposable(),
       }
 
@@ -147,14 +132,13 @@ export class TypescriptBuffer {
       await this.init()
 
       const result = await client.execute("projectInfo", {
-        needFileNameList: true,
+        needFileNameList: false,
         file: filePath,
       })
 
       // TODO: wrong type here, complain on TS repo
       if ((result.body!.configFileName as string | undefined) !== undefined) {
         this.state.configFile = new Atom.File(result.body!.configFileName)
-        this.state.filesNames = result.body!.fileNames
         await this.readConfigFile()
         this.state.subscriptions.add(
           this.state.configFile.onDidChange(() => handlePromise(this.readConfigFile())),
@@ -214,7 +198,10 @@ export class TypescriptBuffer {
 
   private onDidSave = async () => {
     if (this.config.checkAllFilesOnSave) {
-      await this.getErrProject()
+      const ed = atom.workspace.getActiveTextEditor()
+      if (ed) {
+        atom.commands.dispatch(atom.views.getView(ed), "typescript:check-all-files")
+      }
     } else {
       await this.getErr({allFiles: true})
     }
