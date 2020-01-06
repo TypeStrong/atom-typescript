@@ -4,7 +4,7 @@ import {debounce} from "lodash"
 import * as path from "path"
 import {Diagnostic} from "typescript/lib/protocol"
 import {DiagnosticTypes} from "../client/clientResolver"
-import {getOpenEditorsPaths, locationsToRange, spanToRange} from "./atom/utils"
+import {locationsToRange, spanToRange} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
@@ -79,10 +79,7 @@ export class ErrorPusher {
           for (const diagnostic of diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
-            if (diagnostic.category === "suggestion") {
-              const openedFiles = Array.from(getOpenEditorsPaths())
-              if (!openedFiles.includes(filePath)) continue
-            }
+
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.
             let {start, end} = diagnostic as Partial<Diagnostic>
