@@ -36,7 +36,6 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
-  private config: Atom.ConfigValues["atom-typescript"]
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -59,7 +58,6 @@ export class TypescriptBuffer {
       }),
     )
 
-    this.config = atom.config.get("atom-typescript");
     this.openPromise = this.open(this.buffer.getPath())
   }
 
@@ -197,7 +195,7 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    if (this.config.checkAllFilesOnSave) {
+    if (atom.config.get("atom-typescript.checkAllFilesOnSave")) {
       const ed = atom.workspace.getActiveTextEditor()
       if (ed) {
         atom.commands.dispatch(atom.views.getView(ed), "typescript:check-all-files")
