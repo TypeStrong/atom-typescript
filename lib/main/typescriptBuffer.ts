@@ -99,9 +99,8 @@ export class TypescriptBuffer {
     const tsConfigPath = this.getConfigFilePath()
     if (tsConfigPath === undefined) return
 
-    const projectPath = atom.project.relativizePath(tsConfigPath)[0]
+    const [projectPath] = atom.project.relativizePath(tsConfigPath)
     return projectPath !== null ? projectPath : undefined
-    // return this.state.configFile.getParent().getPath()
   }
 
   private async getErr({allFiles}: {allFiles: boolean}) {
