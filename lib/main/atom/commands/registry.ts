@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {MakeCheckListFunction, GetClientFunction, PushErrorFunction} from "../../../client"
+import {GetClientFunction, MakeCheckListFunction, PushErrorFunction} from "../../../client"
 import {ApplyEdits, ReportBusyWhile} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {OpenParams} from "../editorPositionHistoryManager"

@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {MakeCheckListFunction, GetClientFunction, PushErrorFunction, TSClient} from "../client"
+import {GetClientFunction, MakeCheckListFunction, PushErrorFunction, TSClient} from "../client"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"

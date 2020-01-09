@@ -55,22 +55,23 @@ class FileTracker {
         if (projectRootPath === null)
             return [];
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
-        const openFiles = checkList.filter(filePath => {
+        const openFiles = checkList
+            .filter(filePath => {
             if (!openedFiles.includes(filePath) && !this.files.has(filePath)) {
                 const file = this.getFile(filePath);
                 if (file)
                     return true;
             }
             return false;
-        }).map(file => ({ file, projectRootPath }));
+        })
+            .map(file => ({ file, projectRootPath }));
         if (openFiles.length > 0) {
             await this.updateOpen(triggerFile, { openFiles });
         }
     }
     async closeFiles(triggerFile) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
-        const closedFiles = Array.from(this.files.keys())
-            .filter(filePath => !openedFiles.includes(filePath));
+        const closedFiles = Array.from(this.files.keys()).filter(filePath => !openedFiles.includes(filePath));
         if (closedFiles.length > 0) {
             await this.updateOpen(triggerFile, { closedFiles });
         }

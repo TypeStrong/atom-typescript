@@ -12,17 +12,17 @@ export class FileTracker {
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
 
-  constructor(
-    private getClient: GetClientFunction,
-    private errorPusher: ErrorPusher,
-  ) {}
+  constructor(private getClient: GetClientFunction, private errorPusher: ErrorPusher) {}
 
   public async makeCheckList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
-    const checkList = [triggerFile, ...errors, ...references].reduce((acc: string[], cur: string) => {
-      if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
-      return acc
-    }, [])
+    const checkList = [triggerFile, ...errors, ...references].reduce(
+      (acc: string[], cur: string) => {
+        if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
+        return acc
+      },
+      [],
+    )
 
     await this.openFiles(triggerFile, checkList)
 
@@ -55,13 +55,15 @@ export class FileTracker {
     if (projectRootPath === null) return []
 
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const openFiles = checkList.filter(filePath => {
-      if (!openedFiles.includes(filePath) && !this.files.has(filePath)) {
-        const file = this.getFile(filePath)
-        if (file) return true
-      }
-      return false
-    }).map(file => ({file, projectRootPath}))
+    const openFiles = checkList
+      .filter(filePath => {
+        if (!openedFiles.includes(filePath) && !this.files.has(filePath)) {
+          const file = this.getFile(filePath)
+          if (file) return true
+        }
+        return false
+      })
+      .map(file => ({file, projectRootPath}))
 
     if (openFiles.length > 0) {
       await this.updateOpen(triggerFile, {openFiles})
@@ -70,8 +72,9 @@ export class FileTracker {
 
   private async closeFiles(triggerFile: string) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const closedFiles = Array.from(this.files.keys())
-      .filter(filePath => !openedFiles.includes(filePath))
+    const closedFiles = Array.from(this.files.keys()).filter(
+      filePath => !openedFiles.includes(filePath),
+    )
 
     if (closedFiles.length > 0) {
       await this.updateOpen(triggerFile, {closedFiles})

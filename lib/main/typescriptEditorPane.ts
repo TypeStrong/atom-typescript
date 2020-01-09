@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {MakeCheckListFunction, GetClientFunction, PushErrorFunction} from "../client"
+import {GetClientFunction, MakeCheckListFunction, PushErrorFunction} from "../client"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {ReportBusyWhile} from "./pluginManager"
