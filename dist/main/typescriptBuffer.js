@@ -76,12 +76,12 @@ class TypescriptBuffer {
         this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
+            utils_1.handlePromise(this.getErr({ allFiles: false }));
             if (changes.length > 0) {
-                utils_1.handlePromise(this.getErr({ allFiles: false }));
-                this.deps.reportBuildStatus(undefined);
                 if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
                     utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
                 }
+                this.deps.reportBuildStatus(undefined);
             }
         }), buffer.onDidChangeText(arg => {
             // NOTE: we don't need to worry about interleaving here,

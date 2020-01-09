@@ -171,10 +171,10 @@ class PluginManager {
         this.subscriptions.add(this.occurrenceManager);
         this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory({
             clearFileErrors: this.clearFileErrors,
-            isFileOpen: this.isFileOpen,
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
+            isFileOpen: this.isFileOpen,
             pushFileError: this.pushFileError,
             makeCheckList: this.makeCheckList,
             clearCheckList: this.clearCheckList,

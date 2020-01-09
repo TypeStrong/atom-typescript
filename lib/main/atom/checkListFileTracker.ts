@@ -23,13 +23,10 @@ export class CheckListFileTracker {
 
   public async makeList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
-    const checkList = [...errors, ...references].reduce(
-      (acc: string[], cur: string) => {
-        if (!acc.includes(cur) && cur !== triggerFile && isTypescriptFile(cur)) acc.push(cur)
-        return acc
-      },
-      [],
-    )
+    const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
+      if (!acc.includes(cur) && cur !== triggerFile && isTypescriptFile(cur)) acc.push(cur)
+      return acc
+    }, [])
     await this.reportBusyWhile("Creating Check List", () => this.openFiles(triggerFile, checkList))
     return checkList
   }

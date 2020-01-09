@@ -117,10 +117,10 @@ export class PluginManager {
 
     this.typescriptPaneFactory = TypescriptEditorPane.createFactory({
       clearFileErrors: this.clearFileErrors,
-      isFileOpen: this.isFileOpen,
       getClient: this.getClient,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
+      isFileOpen: this.isFileOpen,
       pushFileError: this.pushFileError,
       makeCheckList: this.makeCheckList,
       clearCheckList: this.clearCheckList,

@@ -8,7 +8,7 @@ import {TypescriptBuffer} from "./typescriptBuffer"
 interface PaneOptions {
   getClient: GetClientFunction
   reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
-  reportBuildStatus: (status?: TBuildStatus) => void
+  reportBuildStatus: (status: TBuildStatus | undefined) => void
   clearFileErrors: (filePath: string) => void
   isFileOpen: (filePath: string) => boolean
   pushFileError: PushErrorFunction

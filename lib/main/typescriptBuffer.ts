@@ -9,7 +9,7 @@ import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/ut
 export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
-  reportBuildStatus: (status?: TBuildStatus) => void
+  reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
   pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
@@ -53,12 +53,12 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
+        handlePromise(this.getErr({allFiles: false}))
         if (changes.length > 0) {
-          handlePromise(this.getErr({allFiles: false}))
-          this.deps.reportBuildStatus(undefined)
           if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
             handlePromise(this.getErrRelated(changes[0].newRange))
           }
+          this.deps.reportBuildStatus(undefined)
         }
       }),
       buffer.onDidChangeText(arg => {
