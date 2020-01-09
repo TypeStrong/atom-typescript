@@ -56,14 +56,7 @@ class FileTracker {
             return [];
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const openFiles = checkList
-            .filter(filePath => {
-            if (!openedFiles.includes(filePath) && !this.files.has(filePath)) {
-                const file = this.getFile(filePath);
-                if (file)
-                    return true;
-            }
-            return false;
-        })
+            .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
             .map(file => ({ file, projectRootPath }));
         if (openFiles.length > 0) {
             await this.updateOpen(triggerFile, { openFiles });
@@ -73,11 +66,10 @@ class FileTracker {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const closedFiles = Array.from(this.files)
             .filter(([filePath, file]) => {
-            if (!openedFiles.includes(filePath)) {
+            const isCloseable = !openedFiles.includes(filePath);
+            if (isCloseable)
                 this.subscriptions.remove(file.disp);
-                return true;
-            }
-            return false;
+            return isCloseable;
         })
             .map(([filePath]) => filePath);
         if (closedFiles.length > 0) {
@@ -87,19 +79,15 @@ class FileTracker {
     async open(filePath) {
         if (this.files.has(filePath))
             return;
-        const file = this.getFile(filePath);
-        if (file)
-            await this.updateOpen(filePath, { openFiles: [{ file: filePath }] });
+        await this.updateOpen(filePath, { openFiles: [{ file: filePath }] });
     }
     async close(filePath) {
         if (!this.files.has(filePath))
             return;
         const file = this.getFile(filePath);
-        if (file) {
-            await this.updateOpen(filePath, { closedFiles: [filePath] });
-            this.files.delete(filePath);
-            this.subscriptions.remove(file.disp);
-        }
+        await this.updateOpen(filePath, { closedFiles: [filePath] });
+        this.files.delete(filePath);
+        this.subscriptions.remove(file.disp);
     }
     async updateOpen(filePath, options) {
         const client = await this.getClient(filePath);
@@ -127,16 +115,13 @@ class FileTracker {
         const file = this.files.get(filePath);
         if (file)
             return file;
-        const newFile = new atom_1.File(filePath);
-        if (newFile.existsSync()) {
-            const disp = new atom_1.CompositeDisposable();
-            disp.add(newFile.onDidChange(this.trackHandler(filePath, "changed")), newFile.onDidDelete(this.trackHandler(filePath, "deleted")), newFile.onDidRename(this.trackHandler(filePath, "renamed")));
-            const fileMap = { disp, src: newFile };
-            this.files.set(filePath, fileMap);
-            this.subscriptions.add(disp);
-            return fileMap;
-        }
-        return null;
+        const src = new atom_1.File(filePath);
+        const disp = new atom_1.CompositeDisposable();
+        const fileMap = { disp, src };
+        disp.add(src.onDidChange(this.trackHandler(filePath, "changed")), src.onDidDelete(this.trackHandler(filePath, "deleted")), src.onDidRename(this.trackHandler(filePath, "renamed")));
+        this.files.set(filePath, fileMap);
+        this.subscriptions.add(disp);
+        return fileMap;
     }
     getProjectRootPath(filePath) {
         const [projectRootPath] = atom.project.relativizePath(filePath);
