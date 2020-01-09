@@ -10,6 +10,7 @@ class CheckListFileTracker {
         this.files = new Map();
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
+        this.completeResolver = { resolve: () => { } };
         this.trackHandler = (filePath, type) => () => {
             switch (type) {
                 case "deleted":
@@ -32,7 +33,8 @@ class CheckListFileTracker {
                 acc.push(cur);
             return acc;
         }, []);
-        await this.reportBusyWhile("Creating Check List", () => this.openFiles(triggerFile, checkList));
+        utils_1.handlePromise(this.waitComplete());
+        await this.openFiles(triggerFile, checkList);
         return checkList;
     }
     async clearList(file) {
@@ -40,6 +42,7 @@ class CheckListFileTracker {
             await this.closeFiles(file);
             this.files.clear();
         }
+        this.completeResolver.resolve();
     }
     setError(filePath) {
         const ed = atom.workspace.getActiveTextEditor();
@@ -53,6 +56,12 @@ class CheckListFileTracker {
         this.files.clear();
         this.errors.clear();
         this.subscriptions.dispose();
+    }
+    waitComplete() {
+        const promise = new Promise(resolve => {
+            this.completeResolver.resolve = resolve;
+        });
+        return this.reportBusyWhile("Checking Related Files", () => promise);
     }
     async openFiles(triggerFile, checkList) {
         const projectRootPath = this.getProjectRootPath(triggerFile);
