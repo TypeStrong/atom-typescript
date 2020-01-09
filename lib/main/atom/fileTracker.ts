@@ -3,6 +3,7 @@ import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {DiagnosticsPayload, GetClientFunction} from "../../client"
 import {handlePromise} from "../../utils"
 import {ErrorPusher} from "../errorPusher"
+import {ReportBusyWhile} from "../pluginManager"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
 export class FileTracker {
@@ -10,7 +11,11 @@ export class FileTracker {
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
 
-  constructor(private getClient: GetClientFunction, private errorPusher: ErrorPusher) {}
+  constructor(
+    private reportBusyWhile: ReportBusyWhile,
+    private getClient: GetClientFunction,
+    private errorPusher: ErrorPusher,
+  ) {}
 
   public async makeCheckList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
@@ -21,9 +26,7 @@ export class FileTracker {
       },
       [],
     )
-
-    await this.openFiles(triggerFile, checkList)
-
+    await this.reportBusyWhile("Creating Check List", () => this.openFiles(triggerFile, checkList))
     return checkList
   }
 
@@ -55,6 +58,7 @@ export class FileTracker {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
       .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
+      .map(filePath => this.getFile(filePath).src.getPath())
       .map(file => ({file, projectRootPath}))
 
     if (openFiles.length > 0) {
@@ -64,13 +68,9 @@ export class FileTracker {
 
   private async closeFiles(triggerFile: string) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const closedFiles = Array.from(this.files)
-      .filter(([filePath, file]) => {
-        const isCloseable = !openedFiles.includes(filePath)
-        if (isCloseable) this.subscriptions.remove(file.disp)
-        return isCloseable
-      })
-      .map(([filePath]) => filePath)
+    const closedFiles = Array.from(this.files.keys())
+      .filter(filePath => !openedFiles.includes(filePath))
+      .map(filePath => this.removeFile(filePath))
 
     if (closedFiles.length > 0) {
       await this.updateOpen(triggerFile, {closedFiles})
@@ -79,15 +79,20 @@ export class FileTracker {
 
   private async open(filePath: string) {
     if (this.files.has(filePath)) return
-    await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
+    const openedFiles = this.getOpenedFilesFromEditor(filePath)
+    if (!openedFiles.includes(filePath)) {
+      return await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
+    }
+    this.removeFile(filePath)
   }
 
   private async close(filePath: string) {
     if (!this.files.has(filePath)) return
-    const file = this.getFile(filePath)
-    await this.updateOpen(filePath, {closedFiles: [filePath]})
-    this.files.delete(filePath)
-    this.subscriptions.remove(file.disp)
+    const openedFiles = this.getOpenedFilesFromEditor(filePath)
+    if (!openedFiles.includes(filePath)) {
+      await this.updateOpen(filePath, {closedFiles: [filePath]})
+    }
+    this.removeFile(filePath)
   }
 
   private async updateOpen(filePath: string, options: UpdateOpenRequestArgs) {
@@ -128,6 +133,13 @@ export class FileTracker {
     this.files.set(filePath, fileMap)
     this.subscriptions.add(disp)
     return fileMap
+  }
+
+  private removeFile(filePath: string) {
+    const file = this.getFile(filePath)
+    this.files.delete(filePath)
+    this.subscriptions.remove(file.disp)
+    return filePath
   }
 
   private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {

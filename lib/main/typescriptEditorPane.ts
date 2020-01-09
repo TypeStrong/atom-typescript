@@ -3,7 +3,6 @@ import {CompositeDisposable} from "atom"
 import {GetClientFunction, MakeCheckListFunction, PushErrorFunction} from "../client"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
-import {ReportBusyWhile} from "./pluginManager"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
 interface PaneOptions {
@@ -11,7 +10,6 @@ interface PaneOptions {
   reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
   reportBuildStatus: (status?: TBuildStatus) => void
   clearFileErrors: (filePath: string) => void
-  reportBusyWhile: ReportBusyWhile
   pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
   clearCheckList: (file: string) => Promise<void>

@@ -145,7 +145,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
-        this.fileTracker = new fileTracker_1.FileTracker(this.getClient, this.errorPusher);
+        this.fileTracker = new fileTracker_1.FileTracker(this.reportBusyWhile, this.getClient, this.errorPusher);
         this.subscriptions.add(this.fileTracker);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
@@ -171,7 +171,6 @@ class PluginManager {
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
-            reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
             makeCheckList: this.makeCheckList,
             clearCheckList: this.clearCheckList,
@@ -201,7 +200,6 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
-            reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
             makeCheckList: this.makeCheckList,
             clearCheckList: this.clearCheckList,

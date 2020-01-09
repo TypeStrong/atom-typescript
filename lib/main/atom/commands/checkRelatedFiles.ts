@@ -14,16 +14,14 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const line = editor.getLastCursor().getBufferRow()
     const client = await deps.getClient(file)
 
-    await deps.reportBusyWhile("checkRelatedFiles", () =>
-      handleCheckRelatedFilesResult(
-        line,
-        line,
-        file,
-        client,
-        deps.pushFileError,
-        deps.makeCheckList,
-        deps.clearCheckList,
-      ),
+    await handleCheckRelatedFilesResult(
+      line,
+      line,
+      file,
+      client,
+      deps.pushFileError,
+      deps.makeCheckList,
+      deps.clearCheckList,
     )
   },
 }))
