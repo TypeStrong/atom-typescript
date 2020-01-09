@@ -20,6 +20,12 @@ class ClientResolver {
         // This is just here so TypeScript can infer the types of the callbacks when using "on" method
         // tslint:disable-next-line:member-ordering
         this.on = this.emitter.on.bind(this.emitter);
+        this.completeHandler = (serverPath) => (result) => {
+            this.emitter.emit("diagCompleted", {
+                serverPath,
+                requestSeq: result.request_seq,
+            });
+        };
         this.diagnosticHandler = (serverPath, type) => (result) => {
             const filePath = isConfDiagBody(result) ? result.configFile : result.file;
             if (filePath) {
@@ -70,7 +76,7 @@ class ClientResolver {
             return client;
         const newClient = new client_1.TypescriptServiceClient(pathToBin, version, this.reportBusyWhile);
         tsconfigMap.set(tsconfigPath, newClient);
-        this.subscriptions.add(newClient.on("configFileDiag", this.diagnosticHandler(pathToBin, "configFileDiag")), newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")), newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")), newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")));
+        this.subscriptions.add(newClient.on("configFileDiag", this.diagnosticHandler(pathToBin, "configFileDiag")), newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")), newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")), newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")), newClient.on("requestCompleted", this.completeHandler(pathToBin)));
         return newClient;
     }
     *getAllClients() {

@@ -26,7 +26,6 @@ const commandWithResponseMap = {
     rename: true,
     navtree: true,
     navto: true,
-    semanticDiagnosticsSync: true,
     getApplicableRefactors: true,
     getEditsForRefactor: true,
     organizeImports: true,

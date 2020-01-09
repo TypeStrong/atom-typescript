@@ -4,15 +4,13 @@ const atom_1 = require("atom"); // Emitter
 const utils_1 = require("../../utils");
 const utils_2 = require("./utils");
 class CheckListFileTracker {
-    constructor(reportBusyWhile, getClient, errorPusher) {
+    constructor(reportBusyWhile, getClient) {
         this.reportBusyWhile = reportBusyWhile;
         this.getClient = getClient;
-        this.errorPusher = errorPusher;
         this.files = new Map();
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.trackHandler = (filePath, type) => () => {
-            console.log("[IDE.File.Track]", filePath, type);
             switch (type) {
                 case "deleted":
                     utils_1.handlePromise(this.close(filePath));
@@ -29,8 +27,8 @@ class CheckListFileTracker {
     }
     async makeList(triggerFile, references) {
         const errors = Array.from(this.getErrorsAt(triggerFile));
-        const checkList = [...errors, ...references].reduce((acc, cur) => {
-            if (!acc.includes(cur) && cur !== triggerFile && utils_2.isTypescriptFile(cur))
+        const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
+            if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
                 acc.push(cur);
             return acc;
         }, []);
@@ -43,12 +41,13 @@ class CheckListFileTracker {
             this.files.clear();
         }
     }
-    async setError(triggerFile, { type, filePath, diagnostics }) {
-        const errorFiles = this.getErrorsAt(triggerFile);
+    setError(filePath) {
+        const ed = atom.workspace.getActiveTextEditor();
+        const triggerFile = ed ? ed.getPath() : undefined;
+        const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath);
         if (!errorFiles.has(filePath)) {
             errorFiles.add(filePath);
         }
-        this.errorPusher.setErrors(type, filePath, diagnostics);
     }
     dispose() {
         this.files.clear();

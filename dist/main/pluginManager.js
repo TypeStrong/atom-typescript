@@ -43,14 +43,8 @@ class PluginManager {
         this.makeCheckList = (triggerFile, references) => {
             return this.checkListFileTracker.makeList(triggerFile, references);
         };
-        this.clearCheckList = (file) => {
-            return this.checkListFileTracker.clearList(file);
-        };
         this.isFileOpen = (file) => {
             return this.checkListFileTracker.has(file);
-        };
-        this.pushFileError = (triggerFile, payload) => {
-            return this.checkListFileTracker.setError(triggerFile, payload);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -148,7 +142,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
-        this.checkListFileTracker = new checkListFileTracker_1.CheckListFileTracker(this.reportBusyWhile, this.getClient, this.errorPusher);
+        this.checkListFileTracker = new checkListFileTracker_1.CheckListFileTracker(this.reportBusyWhile, this.getClient);
         this.subscriptions.add(this.checkListFileTracker);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
@@ -175,9 +169,7 @@ class PluginManager {
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
             isFileOpen: this.isFileOpen,
-            pushFileError: this.pushFileError,
             makeCheckList: this.makeCheckList,
-            clearCheckList: this.clearCheckList,
         });
         this.subscribeEditors();
         // Register the commands
@@ -204,9 +196,7 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
-            pushFileError: this.pushFileError,
             makeCheckList: this.makeCheckList,
-            clearCheckList: this.clearCheckList,
         }));
     }
     destroy() {
@@ -230,6 +220,9 @@ class PluginManager {
         this.errorPusher.setLinter(linter);
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
+            this.checkListFileTracker.setError(filePath);
+        }), this.clientResolver.on("diagCompleted", ({ serverPath }) => {
+            utils_1.handlePromise(this.checkListFileTracker.clearList(serverPath));
         }));
     }
     consumeStatusBar(statusBar) {
