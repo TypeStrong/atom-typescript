@@ -32,7 +32,7 @@ export class FileTracker {
   public async clearCheckList(file: string) {
     if (this.files.size > 0) {
       await this.closeFiles(file)
-      // this.files.clear()
+      this.files.clear()
     }
   }
 

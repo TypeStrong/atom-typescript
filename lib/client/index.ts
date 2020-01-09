@@ -1,4 +1,4 @@
-export {ClientResolver, DiagnosticTypes, DiagnosticsPayload} from "./clientResolver"
+export {ClientResolver, DiagnosticsPayload} from "./clientResolver"
 export {resolveBinary} from "./resolveBinary"
 
 import {TypescriptServiceClient} from "./client"

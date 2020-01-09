@@ -169,9 +169,9 @@ class PluginManager {
         this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory({
             clearFileErrors: this.clearFileErrors,
             getClient: this.getClient,
-            reportBusyWhile: this.reportBusyWhile,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
+            reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
             createFileList: this.createFileList,
             clearFileList: this.clearFileList,
@@ -183,7 +183,6 @@ class PluginManager {
             applyEdits: this.applyEdits,
             clearErrors: this.clearErrors,
             killAllServers: this.killAllServers,
-            reportBusyWhile: this.reportBusyWhile,
             reportProgress: this.reportProgress,
             reportBuildStatus: this.reportBuildStatus,
             toggleSemanticViewController: () => {
@@ -202,6 +201,7 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
+            reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
             createFileList: this.createFileList,
             clearFileList: this.clearFileList,

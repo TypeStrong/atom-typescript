@@ -6,17 +6,12 @@ import {isTypescriptEditorWithPath} from "./atom/utils"
 import {ReportBusyWhile} from "./pluginManager"
 import {TypescriptBuffer} from "./typescriptBuffer"
 
-interface ClientInfo {
-  clientVersion: string
-  tsConfigPath: string | undefined
-}
-
 interface PaneOptions {
   getClient: GetClientFunction
-  reportBusyWhile: ReportBusyWhile
-  reportClientInfo: (info: ClientInfo) => void
+  reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
   reportBuildStatus: (status?: TBuildStatus) => void
   clearFileErrors: (filePath: string) => void
+  reportBusyWhile: ReportBusyWhile
   pushFileError: PushErrorFunction
   createFileList: GetCheckListFunction,
   clearFileList: (file: string) => Promise<void>
@@ -70,9 +65,7 @@ export class TypescriptEditorPane {
    * which has to be ensured at call site
    */
   public didActivate = () => {
-    if (this.isTypescript) {
-      this.reportInfo()
-    }
+    if (this.isTypescript) this.reportInfo()
   }
 
   private onOpened = () => {
