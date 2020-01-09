@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {GetClientFunction, MakeCheckListFunction, PushErrorFunction} from "../client"
+import {GetClientFunction, MakeCheckListFunction} from "../client"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -11,9 +11,7 @@ interface PaneOptions {
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   clearFileErrors: (filePath: string) => void
   isFileOpen: (filePath: string) => boolean
-  pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
-  clearCheckList: (file: string) => Promise<void>
 }
 
 export class TypescriptEditorPane {

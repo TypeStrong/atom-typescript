@@ -1,8 +1,7 @@
 import {CompositeDisposable, File} from "atom" // Emitter
 import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
-import {DiagnosticsPayload, GetClientFunction} from "../../client"
+import {GetClientFunction} from "../../client"
 import {handlePromise} from "../../utils"
-import {ErrorPusher} from "../errorPusher"
 import {ReportBusyWhile} from "../pluginManager"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
@@ -11,11 +10,7 @@ export class CheckListFileTracker {
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
 
-  constructor(
-    private reportBusyWhile: ReportBusyWhile,
-    private getClient: GetClientFunction,
-    private errorPusher: ErrorPusher,
-  ) {}
+  constructor(private reportBusyWhile: ReportBusyWhile, private getClient: GetClientFunction) {}
 
   public has(filePath: string) {
     return this.files.has(filePath)
@@ -23,10 +18,13 @@ export class CheckListFileTracker {
 
   public async makeList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
-    const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
-      if (!acc.includes(cur) && cur !== triggerFile && isTypescriptFile(cur)) acc.push(cur)
-      return acc
-    }, [])
+    const checkList = [triggerFile, ...errors, ...references].reduce(
+      (acc: string[], cur: string) => {
+        if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
+        return acc
+      },
+      [],
+    )
     await this.reportBusyWhile("Creating Check List", () => this.openFiles(triggerFile, checkList))
     return checkList
   }
@@ -38,12 +36,13 @@ export class CheckListFileTracker {
     }
   }
 
-  public async setError(triggerFile: string, {type, filePath, diagnostics}: DiagnosticsPayload) {
-    const errorFiles = this.getErrorsAt(triggerFile)
+  public setError(filePath: string) {
+    const ed = atom.workspace.getActiveTextEditor()
+    const triggerFile = ed ? ed.getPath() : undefined
+    const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath)
     if (!errorFiles.has(filePath)) {
       errorFiles.add(filePath)
     }
-    this.errorPusher.setErrors(type, filePath, diagnostics)
   }
 
   public dispose() {
@@ -145,7 +144,6 @@ export class CheckListFileTracker {
   }
 
   private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {
-    console.log("[IDE.File.Track]", filePath, type)
     switch (type) {
       case "deleted":
         handlePromise(this.close(filePath))

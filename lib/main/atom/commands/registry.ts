@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {GetClientFunction, MakeCheckListFunction, PushErrorFunction} from "../../../client"
+import {GetClientFunction, MakeCheckListFunction} from "../../../client"
 import {ApplyEdits} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {OpenParams} from "../editorPositionHistoryManager"
@@ -21,9 +21,7 @@ export interface Dependencies {
   showSigHelpAt: (ed: Atom.TextEditor) => void
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
   rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
-  pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
-  clearCheckList: (file: string) => Promise<void>
 }
 
 export type AllowedSelectors = keyof Dispatch

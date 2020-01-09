@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetClientFunction, MakeCheckListFunction, PushErrorFunction, TSClient} from "../client"
+import {GetClientFunction, MakeCheckListFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
 import {TBuildStatus} from "./atom/components/statusPanel"
@@ -11,9 +11,7 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
-  pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
-  clearCheckList: (file: string) => Promise<void>
 }
 
 export class TypescriptBuffer {
@@ -53,11 +51,12 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: false}))
+        const checkRelatedFilesOnChange = atom.config.get(
+          "atom-typescript.checkRelatedFilesOnChange",
+        )
+        if (!checkRelatedFilesOnChange) handlePromise(this.getErr({allFiles: false}))
         if (changes.length > 0) {
-          if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
-            handlePromise(this.getErrRelated(changes[0].newRange))
-          }
+          if (checkRelatedFilesOnChange) handlePromise(this.getErrRelated(changes[0].newRange))
           this.deps.reportBuildStatus(undefined)
         }
       }),
@@ -100,9 +99,7 @@ export class TypescriptBuffer {
       end.row,
       filePath,
       client,
-      this.deps.pushFileError,
       this.deps.makeCheckList,
-      this.deps.clearCheckList,
     )
   }
 
