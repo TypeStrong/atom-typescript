@@ -40,10 +40,10 @@ class PluginManager {
         this.clearFileErrors = (filePath) => {
             this.errorPusher.clearFileErrors(filePath);
         };
-        this.createFileList = (triggerFile, references) => {
-            return this.fileTracker.getCheckList(triggerFile, references);
+        this.makeCheckList = (triggerFile, references) => {
+            return this.fileTracker.makeCheckList(triggerFile, references);
         };
-        this.clearFileList = (file) => {
+        this.clearCheckList = (file) => {
             return this.fileTracker.clearCheckList(file);
         };
         this.pushFileError = (triggerFile, payload) => {
@@ -173,8 +173,8 @@ class PluginManager {
             reportClientInfo: this.reportClientInfo,
             reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
-            createFileList: this.createFileList,
-            clearFileList: this.clearFileList,
+            makeCheckList: this.makeCheckList,
+            clearCheckList: this.clearCheckList,
         });
         this.subscribeEditors();
         // Register the commands
@@ -203,8 +203,8 @@ class PluginManager {
             rotateSigHelp: this.rotateSigHelp,
             reportBusyWhile: this.reportBusyWhile,
             pushFileError: this.pushFileError,
-            createFileList: this.createFileList,
-            clearFileList: this.clearFileList,
+            makeCheckList: this.makeCheckList,
+            clearCheckList: this.clearCheckList,
         }));
     }
     destroy() {

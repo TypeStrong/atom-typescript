@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetCheckListFunction, GetClientFunction, PushErrorFunction, TSClient} from "../client"
+import {MakeCheckListFunction, GetClientFunction, PushErrorFunction, TSClient} from "../client"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
@@ -13,8 +13,8 @@ export interface Deps {
   reportBuildStatus: (status?: TBuildStatus) => void
   reportBusyWhile: ReportBusyWhile
   pushFileError: PushErrorFunction
-  createFileList: GetCheckListFunction,
-  clearFileList: (file: string) => Promise<void>
+  makeCheckList: MakeCheckListFunction
+  clearCheckList: (file: string) => Promise<void>
 }
 
 export class TypescriptBuffer {
@@ -104,8 +104,8 @@ export class TypescriptBuffer {
         filePath,
         client,
         this.deps.pushFileError,
-        this.deps.createFileList,
-        this.deps.clearFileList,
+        this.deps.makeCheckList,
+        this.deps.clearCheckList,
       ),
     )
   }

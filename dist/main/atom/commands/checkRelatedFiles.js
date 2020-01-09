@@ -10,10 +10,10 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
             return;
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
-        await deps.reportBusyWhile("checkRelatedFiles", () => handleCheckRelatedFilesResult(line, line, file, client, deps.pushFileError, deps.createFileList, deps.clearFileList));
+        await deps.reportBusyWhile("checkRelatedFiles", () => handleCheckRelatedFilesResult(line, line, file, client, deps.pushFileError, deps.makeCheckList, deps.clearCheckList));
     },
 }));
-async function handleCheckRelatedFilesResult(startLine, endLine, file, client, pushFileError, getCheckList, clearCheckList) {
+async function handleCheckRelatedFilesResult(startLine, endLine, file, client, pushFileError, makeCheckList, clearCheckList) {
     const [root] = atom.project.relativizePath(file);
     if (root === null)
         return;
@@ -27,7 +27,7 @@ async function handleCheckRelatedFilesResult(startLine, endLine, file, client, p
         references = res.body ? res.body.refs.map(ref => ref.file) : [];
     }
     const serverPath = "";
-    const checkList = await getCheckList(file, references);
+    const checkList = await makeCheckList(file, references);
     for (const filePath of checkList) {
         const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
         pushFileError(file, {

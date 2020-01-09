@@ -11,7 +11,6 @@ class FileTracker {
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.trackHandler = (filePath, type) => () => {
-            console.log("[IDE.FilerTracker.Event]", type, filePath);
             switch (type) {
                 case "deleted":
                     utils_1.handlePromise(this.close(filePath));
@@ -23,7 +22,7 @@ class FileTracker {
             }
         };
     }
-    async getCheckList(triggerFile, references) {
+    async makeCheckList(triggerFile, references) {
         const errors = Array.from(this.getErrorsAt(triggerFile));
         const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
             if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))

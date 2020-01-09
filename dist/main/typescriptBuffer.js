@@ -122,7 +122,7 @@ class TypescriptBuffer {
         if (!this.state || !this.state.filePath)
             return;
         const { client, filePath } = this.state;
-        await this.deps.reportBusyWhile("checkRelatedFiles", () => checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.pushFileError, this.deps.createFileList, this.deps.clearFileList));
+        await this.deps.reportBusyWhile("checkRelatedFiles", () => checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.pushFileError, this.deps.makeCheckList, this.deps.clearCheckList));
     }
     /** Throws! */
     async compile() {

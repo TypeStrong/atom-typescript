@@ -78,10 +78,7 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.fileTracker = new FileTracker(
-      this.getClient,
-      this.errorPusher,
-    )
+    this.fileTracker = new FileTracker(this.getClient, this.errorPusher)
     this.subscriptions.add(this.fileTracker)
 
     this.codefixProvider = new CodefixProvider(
@@ -121,8 +118,8 @@ export class PluginManager {
       reportClientInfo: this.reportClientInfo,
       reportBusyWhile: this.reportBusyWhile,
       pushFileError: this.pushFileError,
-      createFileList: this.createFileList,
-      clearFileList: this.clearFileList,
+      makeCheckList: this.makeCheckList,
+      clearCheckList: this.clearCheckList,
     })
     this.subscribeEditors()
 
@@ -153,8 +150,8 @@ export class PluginManager {
         rotateSigHelp: this.rotateSigHelp,
         reportBusyWhile: this.reportBusyWhile,
         pushFileError: this.pushFileError,
-        createFileList: this.createFileList,
-        clearFileList: this.clearFileList,
+        makeCheckList: this.makeCheckList,
+        clearCheckList: this.clearCheckList,
       }),
     )
   }
@@ -285,11 +282,11 @@ export class PluginManager {
     this.errorPusher.clearFileErrors(filePath)
   }
 
-  private createFileList = (triggerFile: string, references: string[]) => {
-    return this.fileTracker.getCheckList(triggerFile, references)
+  private makeCheckList = (triggerFile: string, references: string[]) => {
+    return this.fileTracker.makeCheckList(triggerFile, references)
   }
 
-  private clearFileList = (file: string) => {
+  private clearCheckList = (file: string) => {
     return this.fileTracker.clearCheckList(file)
   }
 

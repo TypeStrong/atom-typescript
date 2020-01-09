@@ -17,7 +17,7 @@ export class FileTracker {
     private errorPusher: ErrorPusher,
   ) {}
 
-  public async getCheckList(triggerFile: string, references: string[]) {
+  public async makeCheckList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
     const checkList = [triggerFile, ...errors, ...references].reduce((acc: string[], cur: string) => {
       if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
@@ -136,7 +136,6 @@ export class FileTracker {
   }
 
   private trackHandler = (filePath: string, type: FileEventTypes) => () => {
-    console.log("[IDE.FilerTracker.Event]", type, filePath)
     switch (type) {
       case "deleted":
         handlePromise(this.close(filePath))

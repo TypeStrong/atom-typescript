@@ -1,5 +1,5 @@
 import {Diagnostic} from "typescript/lib/protocol"
-import {GetCheckListFunction, PushErrorFunction} from "../../../client"
+import {MakeCheckListFunction, PushErrorFunction} from "../../../client"
 import {TypescriptServiceClient} from "../../../client/client"
 import {findNodeAt, prepareNavTree} from "../views/outline/navTreeUtils"
 import {NavigationTreeViewModel} from "../views/outline/semanticViewModel"
@@ -21,8 +21,8 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
         file,
         client,
         deps.pushFileError,
-        deps.createFileList,
-        deps.clearFileList,
+        deps.makeCheckList,
+        deps.clearCheckList,
       ),
     )
   },
@@ -34,8 +34,8 @@ export async function handleCheckRelatedFilesResult(
   file: string,
   client: TypescriptServiceClient,
   pushFileError: PushErrorFunction,
-  getCheckList: GetCheckListFunction,
-  clearCheckList: (file: string) => Promise<void>
+  makeCheckList: MakeCheckListFunction,
+  clearCheckList: (file: string) => Promise<void>,
 ): Promise<unknown> {
   const [root] = atom.project.relativizePath(file)
   if (root === null) return
@@ -53,7 +53,7 @@ export async function handleCheckRelatedFilesResult(
   }
 
   const serverPath = ""
-  const checkList = await getCheckList(file, references)
+  const checkList = await makeCheckList(file, references)
   for (const filePath of checkList) {
     const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
     pushFileError(file, {
