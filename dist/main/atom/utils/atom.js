@@ -11,11 +11,6 @@ function getEditorPosition(editor) {
         offset: pos.column + 1,
     };
 }
-function isSameProject(filePath, projectRootPath) {
-    if (filePath === undefined)
-        return false;
-    return filePath.includes(projectRootPath);
-}
 function isTypescriptFile(filePath) {
     if (filePath === undefined)
         return false;
@@ -30,12 +25,8 @@ function typeScriptScopes() {
     return tsScopes;
 }
 exports.typeScriptScopes = typeScriptScopes;
-function isTypescriptEditorWithPath(editor, projectRootPath) {
-    const filePath = editor.getPath();
-    if (projectRootPath !== undefined && !isSameProject(filePath, projectRootPath)) {
-        return false;
-    }
-    return isTypescriptFile(filePath) && isTypescriptGrammar(editor);
+function isTypescriptEditorWithPath(editor) {
+    return isTypescriptFile(editor.getPath()) && isTypescriptGrammar(editor);
 }
 exports.isTypescriptEditorWithPath = isTypescriptEditorWithPath;
 function isTypescriptGrammar(editor) {
@@ -58,9 +49,9 @@ function getFilePathPosition(editor, position) {
     }
 }
 exports.getFilePathPosition = getFilePathPosition;
-function* getOpenEditorsPaths(projectRootPath) {
+function* getOpenEditorsPaths() {
     for (const ed of atom.workspace.getTextEditors()) {
-        if (isTypescriptEditorWithPath(ed, projectRootPath))
+        if (isTypescriptEditorWithPath(ed))
             yield ed.getPath();
     }
 }

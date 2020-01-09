@@ -13,7 +13,7 @@ class ErrorPusher {
         for (const prefixed of this.errors.values()) {
             const errors = prefixed.get(path.normalize(filePath));
             if (errors)
-                yield* errors.diagnostics.filter(err => utils_1.spanToRange(err).intersectsWith(range));
+                yield* errors.filter(err => utils_1.spanToRange(err).intersectsWith(range));
         }
     }
     /** Return any errors that cover the given location */
@@ -21,47 +21,24 @@ class ErrorPusher {
         for (const prefixed of this.errors.values()) {
             const errors = prefixed.get(path.normalize(filePath));
             if (errors)
-                yield* errors.diagnostics.filter(err => utils_1.spanToRange(err).containsPoint(loc));
+                yield* errors.filter(err => utils_1.spanToRange(err).containsPoint(loc));
         }
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */
-    setErrors(prefix, filePath, errors, triggerFile) {
+    setErrors(prefix, filePath, errors) {
         let prefixed = this.errors.get(prefix);
         if (!prefixed) {
             prefixed = new Map();
             this.errors.set(prefix, prefixed);
         }
-        prefixed.set(path.normalize(filePath), {
-            triggerFile,
-            diagnostics: errors,
-        });
+        prefixed.set(path.normalize(filePath), errors);
         this.pushErrors();
     }
-    clearFileErrors({ projectPath, triggerFile }) {
-        if (triggerFile === undefined && projectPath === undefined)
-            return;
-        for (const fileErrors of this.errors.values()) {
-            for (const [filePath, errors] of fileErrors) {
-                if (((projectPath !== undefined && filePath.startsWith(projectPath)) ||
-                    (triggerFile !== undefined &&
-                        (triggerFile === errors.triggerFile || triggerFile === filePath))) &&
-                    fileErrors.has(filePath)) {
-                    fileErrors.delete(filePath);
-                }
-            }
+    clearFileErrors(filePath) {
+        for (const map of this.errors.values()) {
+            map.delete(filePath);
         }
         this.pushErrors();
-    }
-    getErrors(triggerFile) {
-        const errFiles = [];
-        for (const fileErrors of this.errors.values()) {
-            for (const [filePath, errors] of fileErrors) {
-                if (triggerFile === errors.triggerFile && errFiles.indexOf(filePath) === -1) {
-                    errFiles.push(filePath);
-                }
-            }
-        }
-        return errFiles;
     }
     clear() {
         if (!this.linter)
@@ -86,13 +63,12 @@ class ErrorPusher {
         const config = atom.config.get("atom-typescript");
         if (!config.suppressAllDiagnostics) {
             for (const fileErrors of this.errors.values()) {
-                for (const [filePath, errors] of fileErrors) {
-                    for (const diagnostic of errors.diagnostics) {
+                for (const [filePath, diagnostics] of fileErrors) {
+                    for (const diagnostic of diagnostics) {
                         if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
                             continue;
                         if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
                             continue;
-                        // if (filePath && atom.project.relativizePath(filePath)[1].startsWith(`node_modules${path.sep}`)) continue
                         // Add a bit of extra validation that we have the necessary locations since linter v2
                         // does not allow range-less messages anymore. This happens with configFileDiagnostics.
                         let { start, end } = diagnostic;

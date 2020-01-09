@@ -14,9 +14,8 @@ export type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 export interface DiagnosticsPayload {
   diagnostics: Diagnostic[]
   filePath: string
+  serverPath: string
   type: DiagnosticTypes
-  serverPath?: string
-  triggerFile?: string
 }
 
 export interface EventTypes {
@@ -110,7 +109,6 @@ export class ClientResolver {
         serverPath,
         filePath,
         diagnostics: result.diagnostics,
-        triggerFile: isConfDiagBody(result) ? result.triggerFile : undefined,
       })
     }
   }
