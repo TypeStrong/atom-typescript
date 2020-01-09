@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetClientFunction, GetErrorsFunction, PushErrorFunction, TSClient} from "../client"
+import {GetCheckListFunction, GetClientFunction, PushErrorFunction, TSClient} from "../client"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
@@ -9,11 +9,12 @@ import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/ut
 
 export interface Deps {
   getClient: GetClientFunction
-  reportBusyWhile: ReportBusyWhile
-  clearFileErrors: (triggerFile?: string, projectPath?: string) => void
+  clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
+  reportBusyWhile: ReportBusyWhile
   pushFileError: PushErrorFunction
-  getFileErrors: GetErrorsFunction
+  createFileList: GetCheckListFunction,
+  clearFileList: (file: string) => Promise<void>
 }
 
 export class TypescriptBuffer {
@@ -41,7 +42,6 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
-  private config: Atom.ConfigValues["atom-typescript"]
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -55,7 +55,7 @@ export class TypescriptBuffer {
       }),
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
-          if (this.config.checkRelatedFilesOnChange) {
+          if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
             handlePromise(this.getErrRelated(changes[0].newRange))
           } else {
             handlePromise(this.getErr({allFiles: false}))
@@ -70,7 +70,6 @@ export class TypescriptBuffer {
       }),
     )
 
-    this.config = atom.config.get("atom-typescript")
     this.openPromise = this.open(this.buffer.getPath())
   }
 
@@ -82,32 +81,13 @@ export class TypescriptBuffer {
     if (!this.state) return
     return {
       clientVersion: this.state.client.version,
-      tsConfigPath: this.getConfigFilePath(),
+      tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
     }
-  }
-
-  public updateDiag() {
-    handlePromise(this.getErr({allFiles: true}))
-  }
-
-  private getConfigFilePath() {
-    if (!this.state || !this.state.configFile) return
-    return this.state.configFile.getPath()
-  }
-
-  private getProjectRootPath() {
-    const tsConfigPath = this.getConfigFilePath()
-    if (tsConfigPath === undefined) return
-
-    const [projectPath] = atom.project.relativizePath(tsConfigPath)
-    return projectPath !== null ? projectPath : undefined
   }
 
   private async getErr({allFiles}: {allFiles: boolean}) {
     if (!this.state) return
-    const files = allFiles
-      ? Array.from(getOpenEditorsPaths(this.getProjectRootPath()))
-      : [this.state.filePath]
+    const files = allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
     await this.state.client.execute("geterr", {
       files,
       delay: 100,
@@ -121,11 +101,11 @@ export class TypescriptBuffer {
       handleCheckRelatedFilesResult(
         start.row,
         end.row,
-        this.getProjectRootPath(),
         filePath,
         client,
         this.deps.pushFileError,
-        this.deps.getFileErrors,
+        this.deps.createFileList,
+        this.deps.clearFileList,
       ),
     )
   }
@@ -227,13 +207,7 @@ export class TypescriptBuffer {
     if (this.state) {
       const client = this.state.client
       const file = this.state.filePath
-      const projectPath = this.getProjectRootPath()
-      const openedFilesByProject = Array.from(getOpenEditorsPaths(projectPath))
-      if (projectPath !== undefined && openedFilesByProject.length === 0) {
-        this.deps.clearFileErrors(undefined, projectPath)
-      } else {
-        this.deps.clearFileErrors(file)
-      }
+      this.deps.clearFileErrors(file)
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})

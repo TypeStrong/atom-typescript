@@ -32,14 +32,7 @@ class TypescriptBuffer {
             if (this.state) {
                 const client = this.state.client;
                 const file = this.state.filePath;
-                const projectPath = this.getProjectRootPath();
-                const openedFilesByProject = Array.from(utils_2.getOpenEditorsPaths(projectPath));
-                if (projectPath !== undefined && openedFilesByProject.length === 0) {
-                    this.deps.clearFileErrors(undefined, projectPath);
-                }
-                else {
-                    this.deps.clearFileErrors(file);
-                }
+                this.deps.clearFileErrors(file);
                 this.state.subscriptions.dispose();
                 this.state = undefined;
                 await client.execute("close", { file });
@@ -80,7 +73,7 @@ class TypescriptBuffer {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
             if (changes.length > 0) {
-                if (this.config.checkRelatedFilesOnChange) {
+                if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
                     utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
                 }
                 else {
@@ -93,7 +86,6 @@ class TypescriptBuffer {
             // because onDidChangeText pushes all changes at once
             utils_1.handlePromise(this.onDidChangeText(arg));
         }));
-        this.config = atom.config.get("atom-typescript");
         this.openPromise = this.open(this.buffer.getPath());
     }
     static create(buffer, deps) {
@@ -114,30 +106,13 @@ class TypescriptBuffer {
             return;
         return {
             clientVersion: this.state.client.version,
-            tsConfigPath: this.getConfigFilePath(),
+            tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
         };
-    }
-    updateDiag() {
-        utils_1.handlePromise(this.getErr({ allFiles: true }));
-    }
-    getConfigFilePath() {
-        if (!this.state || !this.state.configFile)
-            return;
-        return this.state.configFile.getPath();
-    }
-    getProjectRootPath() {
-        const tsConfigPath = this.getConfigFilePath();
-        if (tsConfigPath === undefined)
-            return;
-        const [projectPath] = atom.project.relativizePath(tsConfigPath);
-        return projectPath !== null ? projectPath : undefined;
     }
     async getErr({ allFiles }) {
         if (!this.state)
             return;
-        const files = allFiles
-            ? Array.from(utils_2.getOpenEditorsPaths(this.getProjectRootPath()))
-            : [this.state.filePath];
+        const files = allFiles ? Array.from(utils_2.getOpenEditorsPaths()) : [this.state.filePath];
         await this.state.client.execute("geterr", {
             files,
             delay: 100,
@@ -147,7 +122,7 @@ class TypescriptBuffer {
         if (!this.state || !this.state.filePath)
             return;
         const { client, filePath } = this.state;
-        await this.deps.reportBusyWhile("checkRelatedFiles", () => checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, this.getProjectRootPath(), filePath, client, this.deps.pushFileError, this.deps.getFileErrors));
+        await this.deps.reportBusyWhile("checkRelatedFiles", () => checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.pushFileError, this.deps.createFileList, this.deps.clearFileList));
     }
     /** Throws! */
     async compile() {

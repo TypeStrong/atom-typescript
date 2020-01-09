@@ -20,7 +20,6 @@ class TypescriptEditorPane {
         this.didActivate = () => {
             if (this.isTypescript) {
                 this.reportInfo();
-                this.buffer.updateDiag();
             }
         };
         this.onOpened = () => {

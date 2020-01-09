@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {GetClientFunction, GetErrorsFunction, PushErrorFunction} from "../client"
+import {GetCheckListFunction, GetClientFunction, PushErrorFunction} from "../client"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {ReportBusyWhile} from "./pluginManager"
@@ -16,9 +16,10 @@ interface PaneOptions {
   reportBusyWhile: ReportBusyWhile
   reportClientInfo: (info: ClientInfo) => void
   reportBuildStatus: (status?: TBuildStatus) => void
-  clearFileErrors: (triggerFile?: string) => void
-  getFileErrors: GetErrorsFunction
+  clearFileErrors: (filePath: string) => void
   pushFileError: PushErrorFunction
+  createFileList: GetCheckListFunction,
+  clearFileList: (file: string) => Promise<void>
 }
 
 export class TypescriptEditorPane {
@@ -71,7 +72,6 @@ export class TypescriptEditorPane {
   public didActivate = () => {
     if (this.isTypescript) {
       this.reportInfo()
-      this.buffer.updateDiag()
     }
   }
 

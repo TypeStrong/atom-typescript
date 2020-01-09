@@ -24,6 +24,7 @@ import {
 import {registerCommands} from "./atom/commands"
 import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
+import {FileTracker} from "./atom/fileTracker"
 import {OccurrenceManager} from "./atom/occurrence/manager"
 import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TooltipManager} from "./atom/tooltips/manager"
@@ -51,6 +52,7 @@ export class PluginManager {
   private clientResolver: ClientResolver
   private statusPanel: StatusPanel
   private errorPusher: ErrorPusher
+  private fileTracker: FileTracker
   private codefixProvider: CodefixProvider
   private semanticViewController: SemanticViewController
   private symbolsViewController: SymbolsViewController
@@ -75,6 +77,12 @@ export class PluginManager {
 
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
+
+    this.fileTracker = new FileTracker(
+      this.getClient,
+      this.errorPusher,
+    )
+    this.subscriptions.add(this.fileTracker)
 
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
@@ -113,7 +121,8 @@ export class PluginManager {
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
       pushFileError: this.pushFileError,
-      getFileErrors: this.getFileErrors,
+      createFileList: this.createFileList,
+      clearFileList: this.clearFileList,
     })
     this.subscribeEditors()
 
@@ -143,8 +152,9 @@ export class PluginManager {
         showSigHelpAt: this.showSigHelpAt,
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
-        getFileErrors: this.getFileErrors,
         pushFileError: this.pushFileError,
+        createFileList: this.createFileList,
+        clearFileList: this.clearFileList,
       }),
     )
   }
@@ -172,8 +182,8 @@ export class PluginManager {
     this.errorPusher.setLinter(linter)
 
     this.subscriptions.add(
-      this.clientResolver.on("diagnostics", ({type, filePath, diagnostics, triggerFile}) => {
-        this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile)
+      this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+        this.errorPusher.setErrors(type, filePath, diagnostics)
       }),
     )
   }
@@ -271,16 +281,20 @@ export class PluginManager {
     this.errorPusher.clear()
   }
 
-  private clearFileErrors = (triggerFile?: string, projectPath?: string) => {
-    this.errorPusher.clearFileErrors({triggerFile, projectPath})
+  private clearFileErrors = (filePath: string) => {
+    this.errorPusher.clearFileErrors(filePath)
   }
 
-  private getFileErrors = (triggerFile: string) => {
-    return this.errorPusher.getErrors(triggerFile)
+  private createFileList = (triggerFile: string, references: string[]) => {
+    return this.fileTracker.getCheckList(triggerFile, references)
   }
 
-  private pushFileError = ({type, filePath, diagnostics, triggerFile}: DiagnosticsPayload) => {
-    this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile)
+  private clearFileList = (file: string) => {
+    return this.fileTracker.clearCheckList(file)
+  }
+
+  private pushFileError = (triggerFile: string, payload: DiagnosticsPayload) => {
+    return this.fileTracker.setError(triggerFile, payload)
   }
 
   private getClient = async (filePath: string) => {

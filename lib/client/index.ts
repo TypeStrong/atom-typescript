@@ -7,5 +7,5 @@ import {DiagnosticsPayload} from "./clientResolver"
 export {TypescriptServiceClient as TSClient}
 
 export type GetClientFunction = (filePath: string) => Promise<TypescriptServiceClient>
-export type PushErrorFunction = (payload: DiagnosticsPayload) => void
-export type GetErrorsFunction = (targetFile: string) => string[]
+export type PushErrorFunction = (targetFile: string, payload: DiagnosticsPayload) => void
+export type GetCheckListFunction = (targetFile: string, references: string[]) => Promise<string[]>

@@ -20,6 +20,7 @@ const intentionsProvider_1 = require("./atom/codefix/intentionsProvider");
 const commands_1 = require("./atom/commands");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
+const fileTracker_1 = require("./atom/fileTracker");
 const manager_1 = require("./atom/occurrence/manager");
 const manager_2 = require("./atom/sigHelp/manager");
 const manager_3 = require("./atom/tooltips/manager");
@@ -36,14 +37,17 @@ class PluginManager {
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
-        this.clearFileErrors = (triggerFile, projectPath) => {
-            this.errorPusher.clearFileErrors({ triggerFile, projectPath });
+        this.clearFileErrors = (filePath) => {
+            this.errorPusher.clearFileErrors(filePath);
         };
-        this.getFileErrors = (triggerFile) => {
-            return this.errorPusher.getErrors(triggerFile);
+        this.createFileList = (triggerFile, references) => {
+            return this.fileTracker.getCheckList(triggerFile, references);
         };
-        this.pushFileError = ({ type, filePath, diagnostics, triggerFile }) => {
-            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
+        this.clearFileList = (file) => {
+            return this.fileTracker.clearCheckList(file);
+        };
+        this.pushFileError = (triggerFile, payload) => {
+            return this.fileTracker.setError(triggerFile, payload);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -141,6 +145,8 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
+        this.fileTracker = new fileTracker_1.FileTracker(this.getClient, this.errorPusher);
+        this.subscriptions.add(this.fileTracker);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.getClient);
@@ -167,7 +173,8 @@ class PluginManager {
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
             pushFileError: this.pushFileError,
-            getFileErrors: this.getFileErrors,
+            createFileList: this.createFileList,
+            clearFileList: this.clearFileList,
         });
         this.subscribeEditors();
         // Register the commands
@@ -195,8 +202,9 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
-            getFileErrors: this.getFileErrors,
             pushFileError: this.pushFileError,
+            createFileList: this.createFileList,
+            clearFileList: this.clearFileList,
         }));
     }
     destroy() {
@@ -218,8 +226,8 @@ class PluginManager {
             name: "TypeScript",
         });
         this.errorPusher.setLinter(linter);
-        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics, triggerFile }) => {
-            this.errorPusher.setErrors(type, filePath, diagnostics, triggerFile);
+        this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics);
         }));
     }
     consumeStatusBar(statusBar) {
