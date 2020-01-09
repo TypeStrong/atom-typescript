@@ -5,7 +5,7 @@ import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {throttle} from "lodash"
 import * as path from "path"
-import {ClientResolver, DiagnosticsPayload} from "../client"
+import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {getCodeHighlightProvider} from "./atom-ide/codeHighlightProvider"
@@ -78,11 +78,7 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.checkListFileTracker = new CheckListFileTracker(
-      this.reportBusyWhile,
-      this.getClient,
-      this.errorPusher,
-    )
+    this.checkListFileTracker = new CheckListFileTracker(this.reportBusyWhile, this.getClient)
     this.subscriptions.add(this.checkListFileTracker)
 
     this.codefixProvider = new CodefixProvider(
@@ -121,9 +117,7 @@ export class PluginManager {
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
       isFileOpen: this.isFileOpen,
-      pushFileError: this.pushFileError,
       makeCheckList: this.makeCheckList,
-      clearCheckList: this.clearCheckList,
     })
     this.subscribeEditors()
 
@@ -152,9 +146,7 @@ export class PluginManager {
         showSigHelpAt: this.showSigHelpAt,
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
-        pushFileError: this.pushFileError,
         makeCheckList: this.makeCheckList,
-        clearCheckList: this.clearCheckList,
       }),
     )
   }
@@ -184,6 +176,10 @@ export class PluginManager {
     this.subscriptions.add(
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
+        this.checkListFileTracker.setError(filePath)
+      }),
+      this.clientResolver.on("diagCompleted", ({serverPath}) => {
+        handlePromise(this.checkListFileTracker.clearList(serverPath))
       }),
     )
   }
@@ -289,16 +285,8 @@ export class PluginManager {
     return this.checkListFileTracker.makeList(triggerFile, references)
   }
 
-  private clearCheckList = (file: string) => {
-    return this.checkListFileTracker.clearList(file)
-  }
-
   private isFileOpen = (file: string) => {
     return this.checkListFileTracker.has(file)
-  }
-
-  private pushFileError = (triggerFile: string, payload: DiagnosticsPayload) => {
-    return this.checkListFileTracker.setError(triggerFile, payload)
   }
 
   private getClient = async (filePath: string) => {
