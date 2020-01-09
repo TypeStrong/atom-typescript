@@ -5,10 +5,8 @@ import {handlePromise} from "../../utils"
 import {ErrorPusher} from "../errorPusher"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
-type FileEventTypes = "changed" | "renamed" | "deleted"
-
 export class FileTracker {
-  private files = new Map<string, File>()
+  private files = new Map<string, {disp: CompositeDisposable; src: File}>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
 
@@ -72,9 +70,15 @@ export class FileTracker {
 
   private async closeFiles(triggerFile: string) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const closedFiles = Array.from(this.files.keys()).filter(
-      filePath => !openedFiles.includes(filePath),
-    )
+    const closedFiles = Array.from(this.files)
+      .filter(([filePath, file]) => {
+        if (!openedFiles.includes(filePath)) {
+          this.subscriptions.remove(file.disp)
+          return true
+        }
+        return false
+      })
+      .map(([filePath]) => filePath)
 
     if (closedFiles.length > 0) {
       await this.updateOpen(triggerFile, {closedFiles})
@@ -84,7 +88,7 @@ export class FileTracker {
   private async open(filePath: string) {
     if (this.files.has(filePath)) return
     const file = this.getFile(filePath)
-    if (file) await this.updateOpen(filePath, {openFiles: [{file: file.getPath()}]})
+    if (file) await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
   }
 
   private async close(filePath: string) {
@@ -93,6 +97,7 @@ export class FileTracker {
     if (file) {
       await this.updateOpen(filePath, {closedFiles: [filePath]})
       this.files.delete(filePath)
+      this.subscriptions.remove(file.disp)
     }
   }
 
@@ -125,20 +130,22 @@ export class FileTracker {
 
     const newFile = new File(filePath)
     if (newFile.existsSync()) {
-      this.files.set(filePath, newFile)
-
-      this.subscriptions.add(
+      const disp = new CompositeDisposable()
+      disp.add(
         newFile.onDidChange(this.trackHandler(filePath, "changed")),
         newFile.onDidDelete(this.trackHandler(filePath, "deleted")),
         newFile.onDidRename(this.trackHandler(filePath, "renamed")),
       )
 
-      return newFile
+      const fileMap = {disp, src: newFile}
+      this.files.set(filePath, fileMap)
+      this.subscriptions.add(disp)
+      return fileMap
     }
     return null
   }
 
-  private trackHandler = (filePath: string, type: FileEventTypes) => () => {
+  private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {
     switch (type) {
       case "deleted":
         handlePromise(this.close(filePath))

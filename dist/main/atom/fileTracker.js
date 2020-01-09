@@ -71,7 +71,15 @@ class FileTracker {
     }
     async closeFiles(triggerFile) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
-        const closedFiles = Array.from(this.files.keys()).filter(filePath => !openedFiles.includes(filePath));
+        const closedFiles = Array.from(this.files)
+            .filter(([filePath, file]) => {
+            if (!openedFiles.includes(filePath)) {
+                this.subscriptions.remove(file.disp);
+                return true;
+            }
+            return false;
+        })
+            .map(([filePath]) => filePath);
         if (closedFiles.length > 0) {
             await this.updateOpen(triggerFile, { closedFiles });
         }
@@ -81,7 +89,7 @@ class FileTracker {
             return;
         const file = this.getFile(filePath);
         if (file)
-            await this.updateOpen(filePath, { openFiles: [{ file: file.getPath() }] });
+            await this.updateOpen(filePath, { openFiles: [{ file: filePath }] });
     }
     async close(filePath) {
         if (!this.files.has(filePath))
@@ -90,6 +98,7 @@ class FileTracker {
         if (file) {
             await this.updateOpen(filePath, { closedFiles: [filePath] });
             this.files.delete(filePath);
+            this.subscriptions.remove(file.disp);
         }
     }
     async updateOpen(filePath, options) {
@@ -120,9 +129,12 @@ class FileTracker {
             return file;
         const newFile = new atom_1.File(filePath);
         if (newFile.existsSync()) {
-            this.files.set(filePath, newFile);
-            this.subscriptions.add(newFile.onDidChange(this.trackHandler(filePath, "changed")), newFile.onDidDelete(this.trackHandler(filePath, "deleted")), newFile.onDidRename(this.trackHandler(filePath, "renamed")));
-            return newFile;
+            const disp = new atom_1.CompositeDisposable();
+            disp.add(newFile.onDidChange(this.trackHandler(filePath, "changed")), newFile.onDidDelete(this.trackHandler(filePath, "deleted")), newFile.onDidRename(this.trackHandler(filePath, "renamed")));
+            const fileMap = { disp, src: newFile };
+            this.files.set(filePath, fileMap);
+            this.subscriptions.add(disp);
+            return fileMap;
         }
         return null;
     }
