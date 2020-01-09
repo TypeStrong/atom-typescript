@@ -6,7 +6,7 @@ import {ErrorPusher} from "../errorPusher"
 import {ReportBusyWhile} from "../pluginManager"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
-export class FileTracker {
+export class CheckListFileTracker {
   private files = new Map<string, {disp: CompositeDisposable; src: File}>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
@@ -17,7 +17,7 @@ export class FileTracker {
     private errorPusher: ErrorPusher,
   ) {}
 
-  public async makeCheckList(triggerFile: string, references: string[]) {
+  public async makeList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
     const checkList = [triggerFile, ...errors, ...references].reduce(
       (acc: string[], cur: string) => {
@@ -30,7 +30,7 @@ export class FileTracker {
     return checkList
   }
 
-  public async clearCheckList(file: string) {
+  public async clearList(file: string) {
     if (this.files.size > 0) {
       await this.closeFiles(file)
       this.files.clear()

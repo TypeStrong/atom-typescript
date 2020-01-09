@@ -24,7 +24,7 @@ import {
 import {registerCommands} from "./atom/commands"
 import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
-import {FileTracker} from "./atom/fileTracker"
+import {CheckListFileTracker} from "./atom/checkListFileTracker"
 import {OccurrenceManager} from "./atom/occurrence/manager"
 import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TooltipManager} from "./atom/tooltips/manager"
@@ -52,7 +52,7 @@ export class PluginManager {
   private clientResolver: ClientResolver
   private statusPanel: StatusPanel
   private errorPusher: ErrorPusher
-  private fileTracker: FileTracker
+  private checkListFileTracker: CheckListFileTracker
   private codefixProvider: CodefixProvider
   private semanticViewController: SemanticViewController
   private symbolsViewController: SymbolsViewController
@@ -78,8 +78,8 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.fileTracker = new FileTracker(this.reportBusyWhile, this.getClient, this.errorPusher)
-    this.subscriptions.add(this.fileTracker)
+    this.checkListFileTracker = new CheckListFileTracker(this.reportBusyWhile, this.getClient, this.errorPusher)
+    this.subscriptions.add(this.checkListFileTracker)
 
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
@@ -281,15 +281,15 @@ export class PluginManager {
   }
 
   private makeCheckList = (triggerFile: string, references: string[]) => {
-    return this.fileTracker.makeCheckList(triggerFile, references)
+    return this.checkListFileTracker.makeList(triggerFile, references)
   }
 
   private clearCheckList = (file: string) => {
-    return this.fileTracker.clearCheckList(file)
+    return this.checkListFileTracker.clearList(file)
   }
 
   private pushFileError = (triggerFile: string, payload: DiagnosticsPayload) => {
-    return this.fileTracker.setError(triggerFile, payload)
+    return this.checkListFileTracker.setError(triggerFile, payload)
   }
 
   private getClient = async (filePath: string) => {
