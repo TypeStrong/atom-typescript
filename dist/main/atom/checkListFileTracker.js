@@ -12,6 +12,7 @@ class CheckListFileTracker {
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.trackHandler = (filePath, type) => () => {
+            console.log("[IDE.File.Track]", filePath, type);
             switch (type) {
                 case "deleted":
                     utils_1.handlePromise(this.close(filePath));
@@ -23,10 +24,13 @@ class CheckListFileTracker {
             }
         };
     }
+    has(filePath) {
+        return this.files.has(filePath);
+    }
     async makeList(triggerFile, references) {
         const errors = Array.from(this.getErrorsAt(triggerFile));
-        const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
-            if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
+        const checkList = [...errors, ...references].reduce((acc, cur) => {
+            if (!acc.includes(cur) && cur !== triggerFile && utils_2.isTypescriptFile(cur))
                 acc.push(cur);
             return acc;
         }, []);
@@ -77,10 +81,11 @@ class CheckListFileTracker {
         if (this.files.has(filePath))
             return;
         const openedFiles = this.getOpenedFilesFromEditor(filePath);
-        if (!openedFiles.includes(filePath)) {
-            return await this.updateOpen(filePath, { openFiles: [{ file: filePath }] });
+        if (openedFiles.includes(filePath)) {
+            this.removeFile(filePath);
+            return;
         }
-        this.removeFile(filePath);
+        await this.updateOpen(filePath, { openFiles: [{ file: filePath }] });
     }
     async close(filePath) {
         if (!this.files.has(filePath))

@@ -17,11 +17,15 @@ export class CheckListFileTracker {
     private errorPusher: ErrorPusher,
   ) {}
 
+  public has(filePath: string) {
+    return this.files.has(filePath)
+  }
+
   public async makeList(triggerFile: string, references: string[]) {
     const errors = Array.from(this.getErrorsAt(triggerFile))
-    const checkList = [triggerFile, ...errors, ...references].reduce(
+    const checkList = [...errors, ...references].reduce(
       (acc: string[], cur: string) => {
-        if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
+        if (!acc.includes(cur) && cur !== triggerFile && isTypescriptFile(cur)) acc.push(cur)
         return acc
       },
       [],
@@ -80,10 +84,11 @@ export class CheckListFileTracker {
   private async open(filePath: string) {
     if (this.files.has(filePath)) return
     const openedFiles = this.getOpenedFilesFromEditor(filePath)
-    if (!openedFiles.includes(filePath)) {
-      return await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
+    if (openedFiles.includes(filePath)) {
+      this.removeFile(filePath)
+      return
     }
-    this.removeFile(filePath)
+    await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
   }
 
   private async close(filePath: string) {
@@ -143,6 +148,7 @@ export class CheckListFileTracker {
   }
 
   private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {
+    console.log("[IDE.File.Track]", filePath, type)
     switch (type) {
       case "deleted":
         handlePromise(this.close(filePath))

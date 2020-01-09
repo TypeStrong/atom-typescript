@@ -21,10 +21,12 @@ class TypescriptBuffer {
         this.init = async () => {
             if (!this.state)
                 return;
-            await this.state.client.execute("open", {
-                file: this.state.filePath,
-                fileContent: this.buffer.getText(),
-            });
+            if (!this.deps.isFileOpen(this.state.filePath)) {
+                await this.state.client.execute("open", {
+                    file: this.state.filePath,
+                    fileContent: this.buffer.getText(),
+                });
+            }
             await this.getErr({ allFiles: false });
         };
         this.close = async () => {
@@ -35,7 +37,9 @@ class TypescriptBuffer {
                 this.deps.clearFileErrors(file);
                 this.state.subscriptions.dispose();
                 this.state = undefined;
-                await client.execute("close", { file });
+                if (!this.deps.isFileOpen(file)) {
+                    await client.execute("close", { file });
+                }
             }
         };
         this.onDidChangePath = (newPath) => {
@@ -73,13 +77,11 @@ class TypescriptBuffer {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
             if (changes.length > 0) {
+                utils_1.handlePromise(this.getErr({ allFiles: false }));
+                this.deps.reportBuildStatus(undefined);
                 if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
                     utils_1.handlePromise(this.getErrRelated(changes[0].newRange));
                 }
-                else {
-                    utils_1.handlePromise(this.getErr({ allFiles: false }));
-                }
-                this.deps.reportBuildStatus(undefined);
             }
         }), buffer.onDidChangeText(arg => {
             // NOTE: we don't need to worry about interleaving here,

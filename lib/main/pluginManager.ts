@@ -16,6 +16,7 @@ import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
 import {getOutlineProvider} from "./atom-ide/outlineProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
+import {CheckListFileTracker} from "./atom/checkListFileTracker"
 import {CodefixProvider} from "./atom/codefix"
 import {
   getIntentionsHighlightsProvider,
@@ -24,7 +25,6 @@ import {
 import {registerCommands} from "./atom/commands"
 import {StatusPanel, TBuildStatus, TProgress} from "./atom/components/statusPanel"
 import {EditorPositionHistoryManager} from "./atom/editorPositionHistoryManager"
-import {CheckListFileTracker} from "./atom/checkListFileTracker"
 import {OccurrenceManager} from "./atom/occurrence/manager"
 import {SigHelpManager} from "./atom/sigHelp/manager"
 import {TooltipManager} from "./atom/tooltips/manager"
@@ -78,7 +78,11 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.checkListFileTracker = new CheckListFileTracker(this.reportBusyWhile, this.getClient, this.errorPusher)
+    this.checkListFileTracker = new CheckListFileTracker(
+      this.reportBusyWhile,
+      this.getClient,
+      this.errorPusher,
+    )
     this.subscriptions.add(this.checkListFileTracker)
 
     this.codefixProvider = new CodefixProvider(
@@ -113,6 +117,7 @@ export class PluginManager {
 
     this.typescriptPaneFactory = TypescriptEditorPane.createFactory({
       clearFileErrors: this.clearFileErrors,
+      isFileOpen: this.isFileOpen,
       getClient: this.getClient,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
@@ -286,6 +291,10 @@ export class PluginManager {
 
   private clearCheckList = (file: string) => {
     return this.checkListFileTracker.clearList(file)
+  }
+
+  private isFileOpen = (file: string) => {
+    return this.checkListFileTracker.has(file)
   }
 
   private pushFileError = (triggerFile: string, payload: DiagnosticsPayload) => {

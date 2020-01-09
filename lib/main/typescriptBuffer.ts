@@ -10,6 +10,7 @@ export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status?: TBuildStatus) => void
+  isFileOpen: (filePath: string) => boolean
   pushFileError: PushErrorFunction
   makeCheckList: MakeCheckListFunction
   clearCheckList: (file: string) => Promise<void>
@@ -53,12 +54,11 @@ export class TypescriptBuffer {
       }),
       buffer.onDidStopChanging(({changes}) => {
         if (changes.length > 0) {
+          handlePromise(this.getErr({allFiles: false}))
+          this.deps.reportBuildStatus(undefined)
           if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
             handlePromise(this.getErrRelated(changes[0].newRange))
-          } else {
-            handlePromise(this.getErr({allFiles: false}))
           }
-          this.deps.reportBuildStatus(undefined)
         }
       }),
       buffer.onDidChangeText(arg => {
@@ -190,11 +190,12 @@ export class TypescriptBuffer {
 
   private init = async () => {
     if (!this.state) return
-    await this.state.client.execute("open", {
-      file: this.state.filePath,
-      fileContent: this.buffer.getText(),
-    })
-
+    if (!this.deps.isFileOpen(this.state.filePath)) {
+      await this.state.client.execute("open", {
+        file: this.state.filePath,
+        fileContent: this.buffer.getText(),
+      })
+    }
     await this.getErr({allFiles: false})
   }
 
@@ -206,7 +207,9 @@ export class TypescriptBuffer {
       this.deps.clearFileErrors(file)
       this.state.subscriptions.dispose()
       this.state = undefined
-      await client.execute("close", {file})
+      if (!this.deps.isFileOpen(file)) {
+        await client.execute("close", {file})
+      }
     }
   }
 

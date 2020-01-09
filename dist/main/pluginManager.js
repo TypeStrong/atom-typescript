@@ -15,12 +15,12 @@ const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
 const outlineProvider_1 = require("./atom-ide/outlineProvider");
 const sigHelpProvider_1 = require("./atom-ide/sigHelpProvider");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
+const checkListFileTracker_1 = require("./atom/checkListFileTracker");
 const codefix_1 = require("./atom/codefix");
 const intentionsProvider_1 = require("./atom/codefix/intentionsProvider");
 const commands_1 = require("./atom/commands");
 const statusPanel_1 = require("./atom/components/statusPanel");
 const editorPositionHistoryManager_1 = require("./atom/editorPositionHistoryManager");
-const checkListFileTracker_1 = require("./atom/checkListFileTracker");
 const manager_1 = require("./atom/occurrence/manager");
 const manager_2 = require("./atom/sigHelp/manager");
 const manager_3 = require("./atom/tooltips/manager");
@@ -45,6 +45,9 @@ class PluginManager {
         };
         this.clearCheckList = (file) => {
             return this.checkListFileTracker.clearList(file);
+        };
+        this.isFileOpen = (file) => {
+            return this.checkListFileTracker.has(file);
         };
         this.pushFileError = (triggerFile, payload) => {
             return this.checkListFileTracker.setError(triggerFile, payload);
@@ -168,6 +171,7 @@ class PluginManager {
         this.subscriptions.add(this.occurrenceManager);
         this.typescriptPaneFactory = typescriptEditorPane_1.TypescriptEditorPane.createFactory({
             clearFileErrors: this.clearFileErrors,
+            isFileOpen: this.isFileOpen,
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
