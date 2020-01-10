@@ -10,10 +10,10 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
             return;
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
-        await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList);
+        await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList, deps.clearCheckList);
     },
 }));
-async function handleCheckRelatedFilesResult(startLine, endLine, file, client, makeCheckList) {
+async function handleCheckRelatedFilesResult(startLine, endLine, file, client, makeCheckList, clearCheckList) {
     const [root] = atom.project.relativizePath(file);
     if (root === null)
         return;
@@ -28,6 +28,7 @@ async function handleCheckRelatedFilesResult(startLine, endLine, file, client, m
     }
     const files = await makeCheckList(file, references);
     await client.execute("geterr", { files, delay: 100 });
+    await clearCheckList(file);
 }
 exports.handleCheckRelatedFilesResult = handleCheckRelatedFilesResult;
 //# sourceMappingURL=checkRelatedFiles.js.map

@@ -13,7 +13,7 @@ addCommand("atom-text-editor", "typescript:check-related-files", deps => ({
     const line = editor.getLastCursor().getBufferRow()
     const client = await deps.getClient(file)
 
-    await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList)
+    await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList, deps.clearCheckList,)
   },
 }))
 
@@ -23,6 +23,7 @@ export async function handleCheckRelatedFilesResult(
   file: string,
   client: TypescriptServiceClient,
   makeCheckList: MakeCheckListFunction,
+  clearCheckList: (file: string) => Promise<void>,
 ): Promise<unknown> {
   const [root] = atom.project.relativizePath(file)
   if (root === null) return
@@ -41,4 +42,5 @@ export async function handleCheckRelatedFilesResult(
 
   const files = await makeCheckList(file, references)
   await client.execute("geterr", {files, delay: 100})
+  await clearCheckList(file)
 }

@@ -12,6 +12,7 @@ export interface Deps {
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
   makeCheckList: MakeCheckListFunction
+  clearCheckList: (file: string) => Promise<void>
 }
 
 export class TypescriptBuffer {
@@ -51,12 +52,12 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        const checkRelatedFilesOnChange = atom.config.get(
-          "atom-typescript.checkRelatedFilesOnChange",
-        )
-        if (!checkRelatedFilesOnChange) handlePromise(this.getErr({allFiles: false}))
         if (changes.length > 0) {
-          if (checkRelatedFilesOnChange) handlePromise(this.getErrRelated(changes[0].newRange))
+          handlePromise(
+            atom.config.get("atom-typescript.checkRelatedFilesOnChange")
+              ? this.getErrRelated(changes[0].newRange)
+              : this.getErr({allFiles: false})
+          )
           this.deps.reportBuildStatus(undefined)
         }
       }),
@@ -100,6 +101,7 @@ export class TypescriptBuffer {
       filePath,
       client,
       this.deps.makeCheckList,
+      this.deps.clearCheckList,
     )
   }
 

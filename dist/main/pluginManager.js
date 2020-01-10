@@ -43,6 +43,9 @@ class PluginManager {
         this.makeCheckList = (triggerFile, references) => {
             return this.checkListFileTracker.makeList(triggerFile, references);
         };
+        this.clearCheckList = (file) => {
+            return this.checkListFileTracker.clearList(file);
+        };
         this.isFileOpen = (file) => {
             return this.checkListFileTracker.has(file);
         };
@@ -170,6 +173,7 @@ class PluginManager {
             reportClientInfo: this.reportClientInfo,
             isFileOpen: this.isFileOpen,
             makeCheckList: this.makeCheckList,
+            clearCheckList: this.clearCheckList,
         });
         this.subscribeEditors();
         // Register the commands
@@ -197,6 +201,7 @@ class PluginManager {
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
             makeCheckList: this.makeCheckList,
+            clearCheckList: this.clearCheckList,
         }));
     }
     destroy() {
@@ -221,8 +226,6 @@ class PluginManager {
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
             this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0);
-        }), this.clientResolver.on("diagCompleted", ({ serverPath }) => {
-            utils_1.handlePromise(this.checkListFileTracker.clearList(serverPath));
         }));
     }
     consumeStatusBar(statusBar) {

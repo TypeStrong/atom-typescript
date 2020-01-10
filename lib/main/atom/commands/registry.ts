@@ -22,6 +22,7 @@ export interface Dependencies {
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
   rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
   makeCheckList: MakeCheckListFunction
+  clearCheckList: (file: string) => Promise<void>
 }
 
 export type AllowedSelectors = keyof Dispatch

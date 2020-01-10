@@ -118,6 +118,7 @@ export class PluginManager {
       reportClientInfo: this.reportClientInfo,
       isFileOpen: this.isFileOpen,
       makeCheckList: this.makeCheckList,
+      clearCheckList: this.clearCheckList,
     })
     this.subscribeEditors()
 
@@ -147,6 +148,7 @@ export class PluginManager {
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
         makeCheckList: this.makeCheckList,
+        clearCheckList: this.clearCheckList,
       }),
     )
   }
@@ -177,9 +179,6 @@ export class PluginManager {
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
         this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0)
-      }),
-      this.clientResolver.on("diagCompleted", ({serverPath}) => {
-        handlePromise(this.checkListFileTracker.clearList(serverPath))
       }),
     )
   }
@@ -283,6 +282,10 @@ export class PluginManager {
 
   private makeCheckList = (triggerFile: string, references: string[]) => {
     return this.checkListFileTracker.makeList(triggerFile, references)
+  }
+
+  private clearCheckList = (file: string) => {
+    return this.checkListFileTracker.clearList(file)
   }
 
   private isFileOpen = (file: string) => {

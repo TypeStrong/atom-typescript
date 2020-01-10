@@ -12,6 +12,7 @@ interface PaneOptions {
   clearFileErrors: (filePath: string) => void
   isFileOpen: (filePath: string) => boolean
   makeCheckList: MakeCheckListFunction
+  clearCheckList: (file: string) => Promise<void>
 }
 
 export class TypescriptEditorPane {
