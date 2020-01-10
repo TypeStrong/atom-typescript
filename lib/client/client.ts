@@ -10,12 +10,18 @@ import {
   AllTSClientCommands,
   CommandArg,
   CommandRes,
+  CommandsWithCompleteEvent,
   CommandsWithResponse,
 } from "./commandArgsResponseMap"
 import {EventTypes} from "./events"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
+
+const commandWithCompleteEventMap: {readonly [K in CommandsWithCompleteEvent]: true} = {
+  geterr: true,
+  geterrForProject: true,
+}
 
 const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   compileOnSaveAffectedFileList: true,
@@ -44,10 +50,15 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForFileRename: true,
 }
 
+const commandWithCompleteEvent = new Set(Object.keys(commandWithCompleteEventMap))
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
+}
+
+function isCommandWithCompleteEvent(command: AllTSClientCommands): command is CommandsWithCompleteEvent {
+  return commandWithCompleteEvent.has(command)
 }
 
 export class TypescriptServiceClient {
@@ -97,7 +108,7 @@ export class TypescriptServiceClient {
       console.log("sending request", req)
     }
 
-    const result = isCommandWithResponse(command)
+    const result = isCommandWithResponse(command) || isCommandWithCompleteEvent(command)
       ? this.callbacks.add(req.seq, command)
       : (undefined as CommandRes<T>)
 
@@ -106,6 +117,7 @@ export class TypescriptServiceClient {
     } catch (error) {
       this.callbacks.error(req.seq, error as Error)
     }
+
     return result
   }
 
@@ -190,8 +202,14 @@ export class TypescriptServiceClient {
       console.log("received event", res)
     }
 
-    // tslint:disable-next-line:no-unsafe-any
-    if (res.body) this.emitter.emit(res.event as keyof EventTypes, res.body)
+    if (res.body) {
+      // tslint:disable-next-line:no-unsafe-any
+      this.emitter.emit(res.event as keyof EventTypes, res.body)
+      if (res.event === "requestCompleted") {
+        // tslint:disable-next-line:no-unsafe-any
+        this.callbacks.resolve(res.body.request_seq)
+      }
+    }
   }
 }
 

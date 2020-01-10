@@ -7,6 +7,10 @@ const stream_1 = require("stream");
 const callbacks_1 = require("./callbacks");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
+const commandWithCompleteEventMap = {
+    geterr: true,
+    geterrForProject: true,
+};
 const commandWithResponseMap = {
     compileOnSaveAffectedFileList: true,
     compileOnSaveEmitFile: true,
@@ -33,9 +37,13 @@ const commandWithResponseMap = {
     signatureHelp: true,
     getEditsForFileRename: true,
 };
+const commandWithCompleteEvent = new Set(Object.keys(commandWithCompleteEventMap));
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 function isCommandWithResponse(command) {
     return commandWithResponse.has(command);
+}
+function isCommandWithCompleteEvent(command) {
+    return commandWithCompleteEvent.has(command);
 }
 class TypescriptServiceClient {
     constructor(tsServerPath, version, reportBusyWhile) {
@@ -87,7 +95,7 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("sending request", req);
         }
-        const result = isCommandWithResponse(command)
+        const result = isCommandWithResponse(command) || isCommandWithCompleteEvent(command)
             ? this.callbacks.add(req.seq, command)
             : undefined;
         try {
@@ -151,9 +159,14 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("received event", res);
         }
-        // tslint:disable-next-line:no-unsafe-any
-        if (res.body)
+        if (res.body) {
+            // tslint:disable-next-line:no-unsafe-any
             this.emitter.emit(res.event, res.body);
+            if (res.event === "requestCompleted") {
+                // tslint:disable-next-line:no-unsafe-any
+                this.callbacks.resolve(res.body.request_seq);
+            }
+        }
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;

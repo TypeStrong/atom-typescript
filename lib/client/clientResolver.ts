@@ -4,7 +4,6 @@ import {
   ConfigFileDiagnosticEventBody,
   Diagnostic,
   DiagnosticEventBody,
-  RequestCompletedEventBody,
 } from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {TypescriptServiceClient as Client} from "./client"
@@ -19,14 +18,8 @@ interface DiagnosticsPayload {
   type: DiagnosticTypes
 }
 
-interface RequestCompletedPayload {
-  requestSeq: number
-  serverPath: string
-}
-
 export interface EventTypes {
   diagnostics: DiagnosticsPayload
-  diagCompleted: RequestCompletedPayload
 }
 
 /**
@@ -94,7 +87,6 @@ export class ClientResolver {
       newClient.on("semanticDiag", this.diagnosticHandler(pathToBin, "semanticDiag")),
       newClient.on("syntaxDiag", this.diagnosticHandler(pathToBin, "syntaxDiag")),
       newClient.on("suggestionDiag", this.diagnosticHandler(pathToBin, "suggestionDiag")),
-      newClient.on("requestCompleted", this.completeHandler(pathToBin)),
     )
 
     return newClient
@@ -104,13 +96,6 @@ export class ClientResolver {
     for (const tsconfigMap of this.clients.values()) {
       yield* tsconfigMap.values()
     }
-  }
-
-  private completeHandler = (serverPath: string) => (result: RequestCompletedEventBody) => {
-    this.emitter.emit("diagCompleted", {
-      serverPath,
-      requestSeq: result.request_seq,
-    })
   }
 
   private diagnosticHandler = (serverPath: string, type: DiagnosticTypes) => (
