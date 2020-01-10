@@ -21,7 +21,7 @@ export interface Dependencies {
   showSigHelpAt: (ed: Atom.TextEditor) => void
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
   rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
-  makeCheckList: (file: string, references: string[]) => Promise<string[]>,
+  makeCheckList: (file: string, references: string[]) => Promise<string[]>
   clearCheckList: (file: string) => Promise<void>
 }
 

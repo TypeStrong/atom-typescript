@@ -11,7 +11,7 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
-  makeCheckList: (filePath: string, references: string[]) => Promise<string[]>,
+  makeCheckList: (filePath: string, references: string[]) => Promise<string[]>
   clearCheckList: (filePath: string) => Promise<void>
 }
 
@@ -56,7 +56,7 @@ export class TypescriptBuffer {
           handlePromise(
             atom.config.get("atom-typescript.checkRelatedFilesOnChange")
               ? this.getErrRelated(changes[0].newRange)
-              : this.getErr({allFiles: false})
+              : this.getErr({allFiles: false}),
           )
           this.deps.reportBuildStatus(undefined)
         }
