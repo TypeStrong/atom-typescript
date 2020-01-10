@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {GetClientFunction, MakeCheckListFunction} from "../../../client"
+import {GetClientFunction} from "../../../client"
 import {ApplyEdits} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {OpenParams} from "../editorPositionHistoryManager"
@@ -21,7 +21,7 @@ export interface Dependencies {
   showSigHelpAt: (ed: Atom.TextEditor) => void
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
   rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
-  makeCheckList: MakeCheckListFunction
+  makeCheckList: (file: string, references: string[]) => Promise<string[]>,
   clearCheckList: (file: string) => Promise<void>
 }
 

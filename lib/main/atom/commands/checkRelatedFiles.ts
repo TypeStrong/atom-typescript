@@ -1,4 +1,3 @@
-import {MakeCheckListFunction} from "../../../client"
 import {TypescriptServiceClient} from "../../../client/client"
 import {findNodeAt, prepareNavTree} from "../views/outline/navTreeUtils"
 import {NavigationTreeViewModel} from "../views/outline/semanticViewModel"
@@ -22,7 +21,7 @@ export async function handleCheckRelatedFilesResult(
   endLine: number,
   file: string,
   client: TypescriptServiceClient,
-  makeCheckList: MakeCheckListFunction,
+  makeCheckList: (file: string, references: string[]) => Promise<string[]>,
   clearCheckList: (file: string) => Promise<void>,
 ): Promise<unknown> {
   const [root] = atom.project.relativizePath(file)

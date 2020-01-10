@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {GetClientFunction, MakeCheckListFunction, TSClient} from "../client"
+import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
 import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
 import {TBuildStatus} from "./atom/components/statusPanel"
@@ -11,8 +11,8 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
-  makeCheckList: MakeCheckListFunction
-  clearCheckList: (file: string) => Promise<void>
+  makeCheckList: (filePath: string, references: string[]) => Promise<string[]>,
+  clearCheckList: (filePath: string) => Promise<void>
 }
 
 export class TypescriptBuffer {
