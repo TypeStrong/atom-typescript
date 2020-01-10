@@ -220,7 +220,7 @@ class PluginManager {
         this.errorPusher.setLinter(linter);
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
-            this.checkListFileTracker.setError(filePath);
+            this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0);
         }), this.clientResolver.on("diagCompleted", ({ serverPath }) => {
             utils_1.handlePromise(this.checkListFileTracker.clearList(serverPath));
         }));

@@ -1,6 +1,7 @@
 import {CompositeDisposable, File} from "atom" // Emitter
 import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
+import {DiagnosticTypes} from "../../client/clientResolver"
 import {handlePromise} from "../../utils"
 import {ReportBusyWhile} from "../pluginManager"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
@@ -39,12 +40,18 @@ export class CheckListFileTracker {
     this.completeResolver.resolve()
   }
 
-  public setError(filePath: string) {
-    const ed = atom.workspace.getActiveTextEditor()
-    const triggerFile = ed ? ed.getPath() : undefined
+  public setError(prefix: DiagnosticTypes, filePath: string, hasError: boolean) {
+    if (prefix !== "semanticDiag") return
+
+    const triggerFile = this.getTriggerFile()
     const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath)
-    if (!errorFiles.has(filePath)) {
+
+    if (hasError && !errorFiles.has(filePath)) {
       errorFiles.add(filePath)
+    }
+
+    if (!hasError && errorFiles.has(filePath)) {
+      errorFiles.delete(filePath)
     }
   }
 
@@ -63,61 +70,29 @@ export class CheckListFileTracker {
 
   private async openFiles(triggerFile: string, checkList: string[]) {
     const projectRootPath = this.getProjectRootPath(triggerFile)
-    if (projectRootPath === null) return []
+    if (projectRootPath === null) return
 
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
       .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
-      .map(filePath => this.getFile(filePath).src.getPath())
+      .map(filePath => this.getFile(filePath, triggerFile).src.getPath())
       .map(file => ({file, projectRootPath}))
 
-    if (openFiles.length > 0) {
-      await this.updateOpen(triggerFile, {openFiles})
-    }
+    if (openFiles.length > 0) await this.updateOpen(triggerFile, {openFiles})
   }
 
-  private async closeFiles(triggerFile: string) {
+  private async closeFiles(triggerFile: string, checkList?: string[]) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const closedFiles = Array.from(this.files.keys())
+    const closedFiles = (checkList === undefined ? Array.from(this.files.keys()) : checkList)
       .filter(filePath => !openedFiles.includes(filePath))
       .map(filePath => this.removeFile(filePath))
 
-    if (closedFiles.length > 0) {
-      await this.updateOpen(triggerFile, {closedFiles})
-    }
-  }
-
-  private async open(filePath: string) {
-    if (this.files.has(filePath)) return
-    const openedFiles = this.getOpenedFilesFromEditor(filePath)
-    if (openedFiles.includes(filePath)) {
-      this.removeFile(filePath)
-      return
-    }
-    await this.updateOpen(filePath, {openFiles: [{file: filePath}]})
-  }
-
-  private async close(filePath: string) {
-    if (!this.files.has(filePath)) return
-    const openedFiles = this.getOpenedFilesFromEditor(filePath)
-    if (!openedFiles.includes(filePath)) {
-      await this.updateOpen(filePath, {closedFiles: [filePath]})
-    }
-    this.removeFile(filePath)
+    if (closedFiles.length > 0) await this.updateOpen(triggerFile, {closedFiles})
   }
 
   private async updateOpen(filePath: string, options: UpdateOpenRequestArgs) {
     const client = await this.getClient(filePath)
     await client.execute("updateOpen", options)
-  }
-
-  private getOpenedFilesFromEditor(filePath: string) {
-    const projectRootPath = this.getProjectRootPath(filePath)
-    if (projectRootPath === null) return []
-    return Array.from(getOpenEditorsPaths()).reduce((acc: string[], cur: string) => {
-      if (!acc.includes(cur) && cur.includes(projectRootPath)) acc.push(cur)
-      return acc
-    }, [])
   }
 
   private getErrorsAt(triggerFile: string) {
@@ -129,13 +104,13 @@ export class CheckListFileTracker {
     return errorFiles
   }
 
-  private getFile(filePath: string) {
+  private getFile(filePath: string, triggerFile = this.getTriggerFile()) {
     const file = this.files.get(filePath)
     if (file) return file
 
     const src = new File(filePath)
     const disp = new CompositeDisposable()
-    const fileMap = {disp, src}
+    const fileMap = {triggerFile, disp, src}
     disp.add(
       src.onDidChange(this.trackHandler(filePath, "changed")),
       src.onDidDelete(this.trackHandler(filePath, "deleted")),
@@ -154,15 +129,36 @@ export class CheckListFileTracker {
   }
 
   private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {
+    const triggerFile = this.getTriggerFile()
+    if (triggerFile === undefined) return
+
     switch (type) {
       case "deleted":
-        handlePromise(this.close(filePath))
+        handlePromise(this.openFiles(triggerFile, [filePath]))
         break
       case "changed":
       case "renamed":
-        handlePromise(this.close(filePath).then(() => this.open(filePath)))
+        handlePromise(
+          this.closeFiles(triggerFile, [filePath]).then(() =>
+            this.openFiles(triggerFile, [filePath]),
+          ),
+        )
         break
     }
+  }
+
+  private getOpenedFilesFromEditor(filePath: string) {
+    const projectRootPath = this.getProjectRootPath(filePath)
+    if (projectRootPath === null) return []
+    return Array.from(getOpenEditorsPaths()).reduce((acc: string[], cur: string) => {
+      if (!acc.includes(cur) && cur.includes(projectRootPath)) acc.push(cur)
+      return acc
+    }, [])
+  }
+
+  private getTriggerFile() {
+    const ed = atom.workspace.getActiveTextEditor()
+    if (ed) return ed.getPath()
   }
 
   private getProjectRootPath(filePath: string) {

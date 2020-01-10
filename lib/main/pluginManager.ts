@@ -176,7 +176,7 @@ export class PluginManager {
     this.subscriptions.add(
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
-        this.checkListFileTracker.setError(filePath)
+        this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0)
       }),
       this.clientResolver.on("diagCompleted", ({serverPath}) => {
         handlePromise(this.checkListFileTracker.clearList(serverPath))
