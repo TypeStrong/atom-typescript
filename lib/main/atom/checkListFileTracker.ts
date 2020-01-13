@@ -6,6 +6,7 @@ import {handlePromise} from "../../utils"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
 export class CheckListFileTracker {
+  private busy = false
   private files = new Map<string, {disp: CompositeDisposable; src: File}>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
@@ -17,6 +18,7 @@ export class CheckListFileTracker {
   }
 
   public async makeList(triggerFile: string, references: string[]) {
+    if (this.busy) return null
     const errors = Array.from(this.getErrorsAt(triggerFile))
     const checkList = [triggerFile, ...errors, ...references].reduce(
       (acc: string[], cur: string) => {
@@ -25,6 +27,7 @@ export class CheckListFileTracker {
       },
       [],
     )
+    this.busy = true
     await this.openFiles(triggerFile, checkList)
     return checkList
   }
@@ -32,8 +35,8 @@ export class CheckListFileTracker {
   public async clearList(file: string) {
     if (this.files.size > 0) {
       await this.closeFiles(file)
-      this.files.clear()
     }
+    this.busy = false
   }
 
   public setError(prefix: DiagnosticTypes, filePath: string, hasError: boolean) {
@@ -64,16 +67,20 @@ export class CheckListFileTracker {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
       .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
-      .map(filePath => this.getFile(filePath, triggerFile).src.getPath())
       .map(file => ({file, projectRootPath}))
 
-    if (openFiles.length > 0) await this.updateOpen(triggerFile, {openFiles})
+    if (openFiles.length > 0) {
+      await this.updateOpen(triggerFile, {openFiles})
+      openFiles.forEach(({file}) => this.addFile(file, triggerFile))
+    }
   }
 
   private async closeFiles(triggerFile: string, checkList?: string[]) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
-    const closedFiles = (checkList === undefined ? Array.from(this.files.keys()) : checkList)
-      .filter(filePath => !openedFiles.includes(filePath))
+    const closedFiles = (checkList === undefined
+      ? Array.from(this.files.keys())
+      : checkList
+    ).filter(filePath => !openedFiles.includes(filePath))
 
     if (closedFiles.length > 0) {
       await this.updateOpen(triggerFile, {closedFiles})
@@ -95,10 +102,10 @@ export class CheckListFileTracker {
     return errorFiles
   }
 
-  private getFile(filePath: string, triggerFile = this.getTriggerFile()) {
-    const file = this.files.get(filePath)
-    if (file) return file
-
+  private addFile(filePath: string, triggerFile = this.getTriggerFile()) {
+    if (this.files.has(filePath)) {
+      return
+    }
     const src = new File(filePath)
     const disp = new CompositeDisposable()
     const fileMap = {triggerFile, disp, src}
@@ -113,7 +120,8 @@ export class CheckListFileTracker {
   }
 
   private removeFile(filePath: string) {
-    const file = this.getFile(filePath)
+    const file = this.files.get(filePath)
+    if (file === undefined) return
     this.files.delete(filePath)
     this.subscriptions.remove(file.disp)
   }

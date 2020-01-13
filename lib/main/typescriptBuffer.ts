@@ -11,7 +11,7 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
-  makeCheckList: (filePath: string, references: string[]) => Promise<string[]>
+  makeCheckList: (file: string, references: string[]) => Promise<string[] | null>
   clearCheckList: (filePath: string) => Promise<void>
 }
 

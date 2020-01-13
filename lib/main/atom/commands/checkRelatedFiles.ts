@@ -28,7 +28,7 @@ export async function handleCheckRelatedFilesResult(
   endLine: number,
   file: string,
   client: TypescriptServiceClient,
-  makeCheckList: (file: string, references: string[]) => Promise<string[]>,
+  makeCheckList: (file: string, references: string[]) => Promise<string[] | null>,
   clearCheckList: (file: string) => Promise<void>,
 ): Promise<unknown> {
   const [root] = atom.project.relativizePath(file)
@@ -47,6 +47,7 @@ export async function handleCheckRelatedFilesResult(
   }
 
   const files = await makeCheckList(file, references)
+  if (files === null) return
   await client.execute("geterr", {files, delay: 100})
   await clearCheckList(file)
 }
