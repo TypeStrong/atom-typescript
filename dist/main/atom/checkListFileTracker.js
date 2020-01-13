@@ -4,13 +4,11 @@ const atom_1 = require("atom"); // Emitter
 const utils_1 = require("../../utils");
 const utils_2 = require("./utils");
 class CheckListFileTracker {
-    constructor(reportBusyWhile, getClient) {
-        this.reportBusyWhile = reportBusyWhile;
+    constructor(getClient) {
         this.getClient = getClient;
         this.files = new Map();
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.completeResolver = { resolve: () => { } };
         this.trackHandler = (filePath, type) => () => {
             const triggerFile = this.getTriggerFile();
             if (triggerFile === undefined)
@@ -36,7 +34,6 @@ class CheckListFileTracker {
                 acc.push(cur);
             return acc;
         }, []);
-        utils_1.handlePromise(this.waitComplete());
         await this.openFiles(triggerFile, checkList);
         return checkList;
     }
@@ -45,7 +42,6 @@ class CheckListFileTracker {
             await this.closeFiles(file);
             this.files.clear();
         }
-        this.completeResolver.resolve();
     }
     setError(prefix, filePath, hasError) {
         if (prefix !== "semanticDiag")
@@ -63,12 +59,6 @@ class CheckListFileTracker {
         this.files.clear();
         this.errors.clear();
         this.subscriptions.dispose();
-    }
-    waitComplete() {
-        const promise = new Promise(resolve => {
-            this.completeResolver.resolve = resolve;
-        });
-        return this.reportBusyWhile("Checking Related Files", () => promise);
     }
     async openFiles(triggerFile, checkList) {
         const projectRootPath = this.getProjectRootPath(triggerFile);

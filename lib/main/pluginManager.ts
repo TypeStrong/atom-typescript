@@ -78,7 +78,7 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.checkListFileTracker = new CheckListFileTracker(this.reportBusyWhile, this.getClient)
+    this.checkListFileTracker = new CheckListFileTracker(this.getClient)
     this.subscriptions.add(this.checkListFileTracker)
 
     this.codefixProvider = new CodefixProvider(

@@ -145,7 +145,7 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
-        this.checkListFileTracker = new checkListFileTracker_1.CheckListFileTracker(this.reportBusyWhile, this.getClient);
+        this.checkListFileTracker = new checkListFileTracker_1.CheckListFileTracker(this.getClient);
         this.subscriptions.add(this.checkListFileTracker);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);

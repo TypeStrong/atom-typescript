@@ -3,16 +3,14 @@ import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {DiagnosticTypes} from "../../client/clientResolver"
 import {handlePromise} from "../../utils"
-import {ReportBusyWhile} from "../pluginManager"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
 export class CheckListFileTracker {
   private files = new Map<string, {disp: CompositeDisposable; src: File}>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
-  private completeResolver = {resolve: () => {}}
 
-  constructor(private reportBusyWhile: ReportBusyWhile, private getClient: GetClientFunction) {}
+  constructor(private getClient: GetClientFunction) {}
 
   public has(filePath: string) {
     return this.files.has(filePath)
@@ -27,7 +25,6 @@ export class CheckListFileTracker {
       },
       [],
     )
-    handlePromise(this.waitComplete())
     await this.openFiles(triggerFile, checkList)
     return checkList
   }
@@ -37,7 +34,6 @@ export class CheckListFileTracker {
       await this.closeFiles(file)
       this.files.clear()
     }
-    this.completeResolver.resolve()
   }
 
   public setError(prefix: DiagnosticTypes, filePath: string, hasError: boolean) {
@@ -59,13 +55,6 @@ export class CheckListFileTracker {
     this.files.clear()
     this.errors.clear()
     this.subscriptions.dispose()
-  }
-
-  private waitComplete() {
-    const promise = new Promise(resolve => {
-      this.completeResolver.resolve = resolve
-    })
-    return this.reportBusyWhile("Checking Related Files", () => promise)
   }
 
   private async openFiles(triggerFile: string, checkList: string[]) {
