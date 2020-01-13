@@ -50,17 +50,15 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForFileRename: true,
 }
 
-const commandWithCompleteEvent = new Set(Object.keys(commandsWithMultistepMap))
+const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
 }
 
-function isCommandWithCompleteEvent(
-  command: AllTSClientCommands,
-): command is CommandsWithMultistep {
-  return commandWithCompleteEvent.has(command)
+function isCommandWithMultistep(command: AllTSClientCommands): command is CommandsWithMultistep {
+  return commandWithMultistep.has(command)
 }
 
 export class TypescriptServiceClient {
@@ -111,7 +109,7 @@ export class TypescriptServiceClient {
     }
 
     const result =
-      isCommandWithResponse(command) || isCommandWithCompleteEvent(command)
+      isCommandWithResponse(command) || isCommandWithMultistep(command)
         ? this.callbacks.add(req.seq, command)
         : (undefined as CommandRes<T>)
 
@@ -120,7 +118,6 @@ export class TypescriptServiceClient {
     } catch (error) {
       this.callbacks.error(req.seq, error as Error)
     }
-
     return result
   }
 
