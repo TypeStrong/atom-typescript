@@ -7,7 +7,7 @@ const stream_1 = require("stream");
 const callbacks_1 = require("./callbacks");
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false;
-const commandWithCompleteEventMap = {
+const commandsWithMultistepMap = {
     geterr: true,
     geterrForProject: true,
 };
@@ -37,7 +37,7 @@ const commandWithResponseMap = {
     signatureHelp: true,
     getEditsForFileRename: true,
 };
-const commandWithCompleteEvent = new Set(Object.keys(commandWithCompleteEventMap));
+const commandWithCompleteEvent = new Set(Object.keys(commandsWithMultistepMap));
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
 function isCommandWithResponse(command) {
     return commandWithResponse.has(command);

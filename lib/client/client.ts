@@ -10,7 +10,7 @@ import {
   AllTSClientCommands,
   CommandArg,
   CommandRes,
-  CommandsWithCompleteEvent,
+  CommandsWithMultistep,
   CommandsWithResponse,
 } from "./commandArgsResponseMap"
 import {EventTypes} from "./events"
@@ -18,7 +18,7 @@ import {EventTypes} from "./events"
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-const commandWithCompleteEventMap: {readonly [K in CommandsWithCompleteEvent]: true} = {
+const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = {
   geterr: true,
   geterrForProject: true,
 }
@@ -50,14 +50,16 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForFileRename: true,
 }
 
-const commandWithCompleteEvent = new Set(Object.keys(commandWithCompleteEventMap))
+const commandWithCompleteEvent = new Set(Object.keys(commandsWithMultistepMap))
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
 }
 
-function isCommandWithCompleteEvent(command: AllTSClientCommands): command is CommandsWithCompleteEvent {
+function isCommandWithCompleteEvent(
+  command: AllTSClientCommands,
+): command is CommandsWithMultistep {
   return commandWithCompleteEvent.has(command)
 }
 
@@ -108,9 +110,10 @@ export class TypescriptServiceClient {
       console.log("sending request", req)
     }
 
-    const result = isCommandWithResponse(command) || isCommandWithCompleteEvent(command)
-      ? this.callbacks.add(req.seq, command)
-      : (undefined as CommandRes<T>)
+    const result =
+      isCommandWithResponse(command) || isCommandWithCompleteEvent(command)
+        ? this.callbacks.add(req.seq, command)
+        : (undefined as CommandRes<T>)
 
     try {
       this.server.stdin.write(JSON.stringify(req) + "\n")
