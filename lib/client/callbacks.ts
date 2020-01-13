@@ -1,5 +1,5 @@
 import {ReportBusyWhile} from "../main/pluginManager"
-import {CommandRes, CommandsWithCompleteEvent, CommandsWithResponse} from "./commandArgsResponseMap"
+import {CommandRes, CommandsWithMultistep, CommandsWithResponse} from "./commandArgsResponseMap"
 
 interface Request {
   started: number
@@ -13,7 +13,7 @@ export class Callbacks {
 
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
-  public async add<T extends CommandsWithResponse | CommandsWithCompleteEvent>(
+  public async add<T extends CommandsWithResponse | CommandsWithMultistep>(
     seq: number,
     command: T,
   ): Promise<CommandRes<T>> {
