@@ -75,10 +75,11 @@ class CheckListFileTracker {
     async closeFiles(triggerFile, checkList) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const closedFiles = (checkList === undefined ? Array.from(this.files.keys()) : checkList)
-            .filter(filePath => !openedFiles.includes(filePath))
-            .map(filePath => this.removeFile(filePath));
-        if (closedFiles.length > 0)
+            .filter(filePath => !openedFiles.includes(filePath));
+        if (closedFiles.length > 0) {
             await this.updateOpen(triggerFile, { closedFiles });
+            closedFiles.forEach(filePath => this.removeFile(filePath));
+        }
     }
     async updateOpen(filePath, options) {
         const client = await this.getClient(filePath);
@@ -108,7 +109,6 @@ class CheckListFileTracker {
         const file = this.getFile(filePath);
         this.files.delete(filePath);
         this.subscriptions.remove(file.disp);
-        return filePath;
     }
     getOpenedFilesFromEditor(filePath) {
         const projectRootPath = this.getProjectRootPath(filePath);
