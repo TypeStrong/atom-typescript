@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const path = require("path");
 const registry_1 = require("./registry");
 registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     description: "Typecheck all files in project related to current active text editor",
     async didDispatch(editor) {
+        var _a;
         const file = editor.getPath();
         if (file === undefined)
             return;
@@ -12,7 +14,9 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
             file,
             needFileNameList: true,
         });
-        const files = new Set(projectInfo.body.fileNames);
+        const files = new Set((_a = projectInfo.body.fileNames) === null || _a === void 0 ? void 0 : _a.filter(fn => 
+        // filter out obvious potholes
+        !fn.endsWith("tsconfig.json") && !fn.includes(`${path.sep}node_modules${path.sep}`)));
         const max = files.size;
         // There's no real way to know when all of the errors have been received and not every file from
         // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
@@ -22,22 +26,21 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         const disp = client.on("syntaxDiag", evt => {
             if (cancelTimeout !== undefined)
                 window.clearTimeout(cancelTimeout);
-            cancelTimeout = window.setTimeout(cancel, 2000);
+            cancelTimeout = window.setTimeout(() => {
+                files.clear();
+                disp.dispose();
+                deps.reportProgress({ max, value: max });
+            }, 2000);
             if ("file" in evt)
                 files.delete(evt.file);
-            updateStatus();
+            if (files.size === 0) {
+                disp.dispose();
+                window.clearTimeout(cancelTimeout);
+            }
+            deps.reportProgress({ max, value: max - files.size });
         });
         deps.reportProgress({ max, value: 0 });
         await client.execute("geterrForProject", { file, delay: 0 });
-        function cancel() {
-            files.clear();
-            updateStatus();
-        }
-        function updateStatus() {
-            if (files.size === 0)
-                disp.dispose();
-            deps.reportProgress({ max, value: max - files.size });
-        }
     },
 }));
 //# sourceMappingURL=checkAllFiles.js.map
