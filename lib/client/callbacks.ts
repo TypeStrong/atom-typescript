@@ -53,11 +53,8 @@ export class Callbacks {
           res !== null && res.body,
         )
       }
-      if (res === null) {
-        req.resolve(res)
-        return
-      }
-      if (res.success) req.resolve(res)
+      if (res === null) req.resolve(res)
+      else if (res.success) req.resolve(res)
       else req.reject(new Error(res.message))
     } else console.warn("unexpected response:", res)
   }

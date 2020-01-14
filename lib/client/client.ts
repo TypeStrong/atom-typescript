@@ -76,6 +76,7 @@ export class TypescriptServiceClient {
 
   private server?: ChildProcess
   private lastStderrOutput = ""
+  private isSupportMultistep: boolean
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -85,6 +86,10 @@ export class TypescriptServiceClient {
     public version: string,
     private reportBusyWhile: ReportBusyWhile,
   ) {
+    // multistep completion event is supported as of TS version 2.2
+    const [major, minor] = version.split(".")
+    this.isSupportMultistep = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2
+
     this.callbacks = new Callbacks(this.reportBusyWhile)
     this.server = this.startServer()
   }
@@ -109,7 +114,7 @@ export class TypescriptServiceClient {
     }
 
     const result =
-      isCommandWithResponse(command) || isCommandWithMultistep(command)
+      isCommandWithResponse(command) || (this.isSupportMultistep && isCommandWithMultistep(command))
         ? this.callbacks.add(req.seq, command)
         : (undefined as CommandRes<T>)
 
@@ -205,7 +210,7 @@ export class TypescriptServiceClient {
     if (res.body) {
       // tslint:disable-next-line:no-unsafe-any
       this.emitter.emit(res.event as keyof EventTypes, res.body)
-      if (res.event === "requestCompleted") {
+      if (this.isSupportMultistep && res.event === "requestCompleted") {
         // tslint:disable-next-line:no-unsafe-any
         this.callbacks.resolve(res.body.request_seq, null)
       }
