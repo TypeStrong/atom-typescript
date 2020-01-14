@@ -12,7 +12,6 @@ class TypescriptBuffer {
         this.events = new Atom.Emitter();
         this.compileOnSave = false;
         this.subscriptions = new Atom.CompositeDisposable();
-        this.checkPromise = undefined;
         // tslint:disable-next-line:member-ordering
         this.on = this.events.on.bind(this.events);
         this.dispose = () => {
@@ -123,9 +122,7 @@ class TypescriptBuffer {
             return;
         const { client, filePath } = this.state;
         for (const { newRange: { start, end }, } of changes) {
-            if (this.checkPromise !== undefined)
-                await this.checkPromise;
-            this.checkPromise = checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.clearCheckList);
+            await checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.clearCheckList);
         }
     }
     /** Throws! */

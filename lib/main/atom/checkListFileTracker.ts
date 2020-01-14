@@ -1,12 +1,12 @@
-import {CompositeDisposable, File} from "atom" // Emitter
+import {CompositeDisposable, File} from "atom"
 import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {handlePromise} from "../../utils"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
 interface FileMap {
-  src: File
-  triggerFile: string | undefined
+  source: File
+  target: string | undefined
   disp: CompositeDisposable
 }
 
@@ -14,15 +14,20 @@ export class CheckListFileTracker {
   private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
-  private busyPromise = new Promise(resolve => resolve())
-  private busyPromiseResolver: () => void
+  private busyPromise: Promise<unknown> | null
+  private busyResolver: () => void
 
   constructor(private getClient: GetClientFunction) {
-    this.busyPromiseResolver = () => {}
+    this.busyPromise = null
+    this.busyResolver = () => {}
   }
 
   public async makeList(triggerFile: string, references: string[]) {
-    await this.busyPromise
+    if (this.busyPromise) {
+      await this.busyPromise
+      this.busyPromise = null
+    }
+
     const errors = this.getErrorsAt(triggerFile)
     const checkList = [triggerFile, ...errors, ...references].reduce(
       (acc: string[], cur: string) => {
@@ -31,32 +36,30 @@ export class CheckListFileTracker {
       },
       [],
     )
-    this.busyPromise = new Promise(resolve => {
-      this.busyPromiseResolver = resolve
-    })
+    this.busyPromise = this.waitForClear()
     await this.openFiles(triggerFile, checkList)
     return checkList
   }
 
   public async clearList(file: string) {
     if (this.files.size > 0) await this.closeFiles(file)
-    this.busyPromiseResolver()
+    this.busyResolver()
   }
 
   public async setFile(filePath: string, isOpen: boolean) {
     if (!this.files.has(filePath)) return
-    const triggerFile = this.files.get(filePath)?.triggerFile
-    const triggerFilePath = triggerFile !== undefined ? triggerFile : filePath
+    const target = this.files.get(filePath)?.target
+    const triggerFile = target !== undefined ? target : filePath
 
     switch (isOpen) {
       // execute before "open" command
       case true:
-        await this.closeFiles(triggerFilePath, [filePath])
+        await this.closeFiles(triggerFile, [filePath])
         break
       // execute after "close" command
       case false:
         this.removeFile(filePath)
-        await this.openFiles(triggerFilePath, [filePath])
+        await this.openFiles(triggerFile, [filePath])
         break
     }
   }
@@ -64,7 +67,7 @@ export class CheckListFileTracker {
   public setError(filePath: string, hasError: boolean) {
     const triggerFile = this.getTriggerFile()
     const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath)
-
+    console.log("triggerFile", triggerFile)
     switch (hasError) {
       case true:
         if (!errorFiles.has(filePath)) errorFiles.add(filePath)
@@ -129,17 +132,17 @@ export class CheckListFileTracker {
     await client.execute("updateOpen", options)
   }
 
-  private addFile(filePath: string, triggerFile = this.getTriggerFile()) {
+  private addFile(filePath: string, target: string) {
     if (this.files.has(filePath)) {
       return
     }
-    const src = new File(filePath)
     const disp = new CompositeDisposable()
-    const fileMap = {triggerFile, disp, src}
+    const source = new File(filePath)
+    const fileMap = {target, source, disp}
     disp.add(
-      src.onDidChange(this.trackHandler(filePath, "changed")),
-      src.onDidDelete(this.trackHandler(filePath, "deleted")),
-      src.onDidRename(this.trackHandler(filePath, "renamed")),
+      source.onDidChange(this.trackHandler(filePath, "changed")),
+      source.onDidDelete(this.trackHandler(filePath, "deleted")),
+      source.onDidRename(this.trackHandler(filePath, "renamed")),
     )
     this.files.set(filePath, fileMap)
     this.subscriptions.add(disp)
@@ -148,7 +151,7 @@ export class CheckListFileTracker {
 
   private removeFile(filePath: string) {
     const file = this.files.get(filePath)
-    if (file === undefined) return
+    if (!file) return
     this.files.delete(filePath)
     this.subscriptions.remove(file.disp)
   }
@@ -189,5 +192,11 @@ export class CheckListFileTracker {
   private getProjectRootPath(filePath: string) {
     const [projectRootPath] = atom.project.relativizePath(filePath)
     return projectRootPath
+  }
+
+  private waitForClear() {
+    return new Promise(resolve => {
+      this.busyResolver = resolve
+    })
   }
 }

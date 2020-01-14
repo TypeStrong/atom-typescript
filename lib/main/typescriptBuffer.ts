@@ -40,7 +40,6 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
-  private checkPromise: Promise<void> | undefined = undefined
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -100,8 +99,7 @@ export class TypescriptBuffer {
     for (const {
       newRange: {start, end},
     } of changes) {
-      if (this.checkPromise !== undefined) await this.checkPromise
-      this.checkPromise = handleCheckRelatedFilesResult(
+      await handleCheckRelatedFilesResult(
         start.row,
         end.row,
         filePath,
