@@ -97,7 +97,9 @@ export class TypescriptBuffer {
     if (!this.state || !this.state.filePath) return
     const {client, filePath} = this.state
 
-    for (const {newRange: {start, end}} of changes) {
+    for (const {
+      newRange: {start, end},
+    } of changes) {
       if (this.checkPromise !== undefined) await this.checkPromise
       this.checkPromise = handleCheckRelatedFilesResult(
         start.row,
