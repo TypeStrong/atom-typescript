@@ -1,12 +1,17 @@
 import {CompositeDisposable, File} from "atom" // Emitter
 import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
-import {DiagnosticTypes} from "../../client/clientResolver"
 import {handlePromise} from "../../utils"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
+interface FileMap {
+  src: File
+  triggerFile: string | undefined
+  disp: CompositeDisposable
+}
+
 export class CheckListFileTracker {
-  private files = new Map<string, {disp: CompositeDisposable; src: File}>()
+  private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
   private busyPromise = new Promise(resolve => resolve())
@@ -14,10 +19,6 @@ export class CheckListFileTracker {
 
   constructor(private getClient: GetClientFunction) {
     this.busyPromiseResolver = () => {}
-  }
-
-  public has(filePath: string) {
-    return this.files.has(filePath)
   }
 
   public async makeList(triggerFile: string, references: string[]) {
@@ -38,24 +39,39 @@ export class CheckListFileTracker {
   }
 
   public async clearList(file: string) {
-    if (this.files.size > 0) {
-      await this.closeFiles(file)
-    }
+    if (this.files.size > 0) await this.closeFiles(file)
     this.busyPromiseResolver()
   }
 
-  public setError(prefix: DiagnosticTypes, filePath: string, hasError: boolean) {
-    if (prefix !== "semanticDiag") return
+  public async setFile(filePath: string, isOpen: boolean) {
+    if (!this.files.has(filePath)) return
+    const triggerFile = this.files.get(filePath)?.triggerFile
+    const triggerFilePath = triggerFile !== undefined ? triggerFile : filePath
 
+    switch (isOpen) {
+      // execute before "open" command
+      case true:
+        await this.closeFiles(triggerFilePath, [filePath])
+        break
+      // execute after "close" command
+      case false:
+        this.removeFile(filePath)
+        await this.openFiles(triggerFilePath, [filePath])
+        break
+    }
+  }
+
+  public setError(filePath: string, hasError: boolean) {
     const triggerFile = this.getTriggerFile()
     const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath)
 
-    if (hasError && !errorFiles.has(filePath)) {
-      errorFiles.add(filePath)
-    }
-
-    if (!hasError && errorFiles.has(filePath)) {
-      errorFiles.delete(filePath)
+    switch (hasError) {
+      case true:
+        if (!errorFiles.has(filePath)) errorFiles.add(filePath)
+        break
+      case false:
+        if (errorFiles.has(filePath)) errorFiles.delete(filePath)
+        break
     }
   }
 
@@ -90,8 +106,8 @@ export class CheckListFileTracker {
       .map(file => ({file, projectRootPath}))
 
     if (openFiles.length > 0) {
-      openFiles.forEach(({file}) => this.addFile(file, triggerFile))
       await this.updateOpen(triggerFile, {openFiles})
+      openFiles.forEach(({file}) => this.addFile(file, triggerFile))
     }
   }
 
@@ -103,8 +119,8 @@ export class CheckListFileTracker {
     ).filter(filePath => !openedFiles.includes(filePath))
 
     if (closedFiles.length > 0) {
-      closedFiles.forEach(filePath => this.removeFile(filePath))
       await this.updateOpen(triggerFile, {closedFiles})
+      closedFiles.forEach(filePath => this.removeFile(filePath))
     }
   }
 

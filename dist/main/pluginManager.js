@@ -49,8 +49,8 @@ class PluginManager {
         this.clearCheckList = (file) => {
             return this.checkListFileTracker.clearList(file);
         };
-        this.isFileOpen = (file) => {
-            return this.checkListFileTracker.has(file);
+        this.syncOpenFile = (command, file) => {
+            return this.checkListFileTracker.setFile(file, command === "open");
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -174,7 +174,7 @@ class PluginManager {
             getClient: this.getClient,
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
-            isFileOpen: this.isFileOpen,
+            syncOpenFile: this.syncOpenFile,
             makeCheckList: this.makeCheckList,
             clearCheckList: this.clearCheckList,
         });
@@ -228,7 +228,9 @@ class PluginManager {
         this.errorPusher.setLinter(linter);
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
-            this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0);
+            if (type === "semanticDiag") {
+                this.checkListFileTracker.setError(filePath, diagnostics.length !== 0);
+            }
         }));
     }
     consumeStatusBar(statusBar) {

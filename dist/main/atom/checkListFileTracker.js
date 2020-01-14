@@ -26,9 +26,6 @@ class CheckListFileTracker {
         };
         this.busyPromiseResolver = () => { };
     }
-    has(filePath) {
-        return this.files.has(filePath);
-    }
     async makeList(triggerFile, references) {
         await this.busyPromise;
         const errors = this.getErrorsAt(triggerFile);
@@ -44,21 +41,40 @@ class CheckListFileTracker {
         return checkList;
     }
     async clearList(file) {
-        if (this.files.size > 0) {
+        if (this.files.size > 0)
             await this.closeFiles(file);
-        }
         this.busyPromiseResolver();
     }
-    setError(prefix, filePath, hasError) {
-        if (prefix !== "semanticDiag")
+    async setFile(filePath, isOpen) {
+        var _a;
+        if (!this.files.has(filePath))
             return;
+        const triggerFile = (_a = this.files.get(filePath)) === null || _a === void 0 ? void 0 : _a.triggerFile;
+        const triggerFilePath = triggerFile !== undefined ? triggerFile : filePath;
+        switch (isOpen) {
+            // execute before "open" command
+            case true:
+                await this.closeFiles(triggerFilePath, [filePath]);
+                break;
+            // execute after "close" command
+            case false:
+                this.removeFile(filePath);
+                await this.openFiles(triggerFilePath, [filePath]);
+                break;
+        }
+    }
+    setError(filePath, hasError) {
         const triggerFile = this.getTriggerFile();
         const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath);
-        if (hasError && !errorFiles.has(filePath)) {
-            errorFiles.add(filePath);
-        }
-        if (!hasError && errorFiles.has(filePath)) {
-            errorFiles.delete(filePath);
+        switch (hasError) {
+            case true:
+                if (!errorFiles.has(filePath))
+                    errorFiles.add(filePath);
+                break;
+            case false:
+                if (errorFiles.has(filePath))
+                    errorFiles.delete(filePath);
+                break;
         }
     }
     clearErrors(triggerFile) {
@@ -88,8 +104,8 @@ class CheckListFileTracker {
             .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
             .map(file => ({ file, projectRootPath }));
         if (openFiles.length > 0) {
-            openFiles.forEach(({ file }) => this.addFile(file, triggerFile));
             await this.updateOpen(triggerFile, { openFiles });
+            openFiles.forEach(({ file }) => this.addFile(file, triggerFile));
         }
     }
     async closeFiles(triggerFile, checkList) {
@@ -98,8 +114,8 @@ class CheckListFileTracker {
             ? Array.from(this.files.keys())
             : checkList).filter(filePath => !openedFiles.includes(filePath));
         if (closedFiles.length > 0) {
-            closedFiles.forEach(filePath => this.removeFile(filePath));
             await this.updateOpen(triggerFile, { closedFiles });
+            closedFiles.forEach(filePath => this.removeFile(filePath));
         }
     }
     async updateOpen(filePath, options) {

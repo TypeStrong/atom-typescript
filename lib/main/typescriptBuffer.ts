@@ -10,7 +10,7 @@ export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
-  isFileOpen: (filePath: string) => boolean
+  syncOpenFile: (type: string, filePath: string) => Promise<void>
   makeCheckList: (file: string, references: string[]) => Promise<string[]>
   clearCheckList: (filePath: string) => Promise<void>
 }
@@ -196,12 +196,11 @@ export class TypescriptBuffer {
 
   private init = async () => {
     if (!this.state) return
-    if (!this.deps.isFileOpen(this.state.filePath)) {
-      await this.state.client.execute("open", {
-        file: this.state.filePath,
-        fileContent: this.buffer.getText(),
-      })
-    }
+    await this.deps.syncOpenFile("open", this.state.filePath)
+    await this.state.client.execute("open", {
+      file: this.state.filePath,
+      fileContent: this.buffer.getText(),
+    })
     await this.getErr({allFiles: false})
   }
 
@@ -213,9 +212,8 @@ export class TypescriptBuffer {
       this.deps.clearFileErrors(file)
       this.state.subscriptions.dispose()
       this.state = undefined
-      if (!this.deps.isFileOpen(file)) {
-        await client.execute("close", {file})
-      }
+      await client.execute("close", {file})
+      await this.deps.syncOpenFile("close", file)
     }
   }
 

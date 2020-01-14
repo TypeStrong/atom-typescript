@@ -116,7 +116,7 @@ export class PluginManager {
       getClient: this.getClient,
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
-      isFileOpen: this.isFileOpen,
+      syncOpenFile: this.syncOpenFile,
       makeCheckList: this.makeCheckList,
       clearCheckList: this.clearCheckList,
     })
@@ -178,7 +178,9 @@ export class PluginManager {
     this.subscriptions.add(
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
-        this.checkListFileTracker.setError(type, filePath, diagnostics.length !== 0)
+        if (type === "semanticDiag") {
+          this.checkListFileTracker.setError(filePath, diagnostics.length !== 0)
+        }
       }),
     )
   }
@@ -290,8 +292,8 @@ export class PluginManager {
     return this.checkListFileTracker.clearList(file)
   }
 
-  private isFileOpen = (file: string) => {
-    return this.checkListFileTracker.has(file)
+  private syncOpenFile = (command: string, file: string) => {
+    return this.checkListFileTracker.setFile(file, command === "open")
   }
 
   private getClient = async (filePath: string) => {

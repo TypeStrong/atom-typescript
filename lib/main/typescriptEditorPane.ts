@@ -10,7 +10,7 @@ interface PaneOptions {
   reportClientInfo: (info: {clientVersion: string; tsConfigPath: string | undefined}) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   clearFileErrors: (filePath: string) => void
-  isFileOpen: (filePath: string) => boolean
+  syncOpenFile: (type: string, filePath: string) => Promise<void>
   makeCheckList: (file: string, references: string[]) => Promise<string[]>
   clearCheckList: (filePath: string) => Promise<void>
 }

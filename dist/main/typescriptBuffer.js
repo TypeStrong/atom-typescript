@@ -22,12 +22,11 @@ class TypescriptBuffer {
         this.init = async () => {
             if (!this.state)
                 return;
-            if (!this.deps.isFileOpen(this.state.filePath)) {
-                await this.state.client.execute("open", {
-                    file: this.state.filePath,
-                    fileContent: this.buffer.getText(),
-                });
-            }
+            await this.deps.syncOpenFile("open", this.state.filePath);
+            await this.state.client.execute("open", {
+                file: this.state.filePath,
+                fileContent: this.buffer.getText(),
+            });
             await this.getErr({ allFiles: false });
         };
         this.close = async () => {
@@ -38,9 +37,8 @@ class TypescriptBuffer {
                 this.deps.clearFileErrors(file);
                 this.state.subscriptions.dispose();
                 this.state = undefined;
-                if (!this.deps.isFileOpen(file)) {
-                    await client.execute("close", { file });
-                }
+                await client.execute("close", { file });
+                await this.deps.syncOpenFile("close", file);
             }
         };
         this.onDidChangePath = (newPath) => {
