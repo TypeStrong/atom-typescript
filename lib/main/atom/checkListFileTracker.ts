@@ -19,7 +19,7 @@ export class CheckListFileTracker {
 
   public async makeList(triggerFile: string, references: string[]) {
     if (this.busy) return null
-    const errors = Array.from(this.getErrorsAt(triggerFile))
+    const errors = this.getErrorsAt(triggerFile)
     const checkList = [triggerFile, ...errors, ...references].reduce(
       (acc: string[], cur: string) => {
         if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
@@ -54,10 +54,25 @@ export class CheckListFileTracker {
     }
   }
 
+  public clearErrors(triggerFile: string) {
+    const errorFiles = this.getErrorsAt(triggerFile)
+    this.errors.delete(triggerFile)
+    return errorFiles
+  }
+
   public dispose() {
     this.files.clear()
     this.errors.clear()
     this.subscriptions.dispose()
+  }
+
+  private getErrorsAt(triggerFile: string) {
+    let errorFiles = this.errors.get(triggerFile)
+    if (!errorFiles) {
+      errorFiles = new Set()
+      this.errors.set(triggerFile, errorFiles)
+    }
+    return errorFiles
   }
 
   private async openFiles(triggerFile: string, checkList: string[]) {
@@ -70,8 +85,8 @@ export class CheckListFileTracker {
       .map(file => ({file, projectRootPath}))
 
     if (openFiles.length > 0) {
-      await this.updateOpen(triggerFile, {openFiles})
       openFiles.forEach(({file}) => this.addFile(file, triggerFile))
+      await this.updateOpen(triggerFile, {openFiles})
     }
   }
 
@@ -83,23 +98,14 @@ export class CheckListFileTracker {
     ).filter(filePath => !openedFiles.includes(filePath))
 
     if (closedFiles.length > 0) {
-      await this.updateOpen(triggerFile, {closedFiles})
       closedFiles.forEach(filePath => this.removeFile(filePath))
+      await this.updateOpen(triggerFile, {closedFiles})
     }
   }
 
   private async updateOpen(filePath: string, options: UpdateOpenRequestArgs) {
     const client = await this.getClient(filePath)
     await client.execute("updateOpen", options)
-  }
-
-  private getErrorsAt(triggerFile: string) {
-    let errorFiles = this.errors.get(triggerFile)
-    if (!errorFiles) {
-      errorFiles = new Set()
-      this.errors.set(triggerFile, errorFiles)
-    }
-    return errorFiles
   }
 
   private addFile(filePath: string, triggerFile = this.getTriggerFile()) {

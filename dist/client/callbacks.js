@@ -31,9 +31,9 @@ class Callbacks {
         const req = this.callbacks.get(seq);
         if (req) {
             if (window.atom_typescript_debug) {
-                console.log("received response for", res !== undefined && res.command, "in", Date.now() - req.started, "ms", "with data", res !== undefined && res.body);
+                console.log("received response for", res !== null && res.command, "in", Date.now() - req.started, "ms", "with data", res !== null && res.body);
             }
-            if (res === undefined) {
+            if (res === null) {
                 req.resolve(res);
                 return;
             }

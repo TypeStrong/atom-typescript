@@ -18,11 +18,6 @@ import {EventTypes} from "./events"
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
 
-const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = {
-  geterr: true,
-  geterrForProject: true,
-}
-
 const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   compileOnSaveAffectedFileList: true,
   compileOnSaveEmitFile: true,
@@ -50,8 +45,13 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForFileRename: true,
 }
 
-const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
+const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = {
+  geterr: true,
+  geterrForProject: true,
+}
+
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
+const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
@@ -207,7 +207,7 @@ export class TypescriptServiceClient {
       this.emitter.emit(res.event as keyof EventTypes, res.body)
       if (res.event === "requestCompleted") {
         // tslint:disable-next-line:no-unsafe-any
-        this.callbacks.resolve(res.body.request_seq)
+        this.callbacks.resolve(res.body.request_seq, null)
       }
     }
   }

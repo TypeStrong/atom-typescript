@@ -39,6 +39,9 @@ class PluginManager {
         };
         this.clearFileErrors = (filePath) => {
             this.errorPusher.clearFileErrors(filePath);
+            const errorFiles = this.checkListFileTracker.clearErrors(filePath);
+            for (const file of errorFiles)
+                this.errorPusher.clearFileErrors(file);
         };
         this.makeCheckList = (triggerFile, references) => {
             return this.checkListFileTracker.makeList(triggerFile, references);

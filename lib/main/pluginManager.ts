@@ -278,6 +278,8 @@ export class PluginManager {
 
   private clearFileErrors = (filePath: string) => {
     this.errorPusher.clearFileErrors(filePath)
+    const errorFiles = this.checkListFileTracker.clearErrors(filePath)
+    for (const file of errorFiles) this.errorPusher.clearFileErrors(file)
   }
 
   private makeCheckList = (triggerFile: string, references: string[]) => {

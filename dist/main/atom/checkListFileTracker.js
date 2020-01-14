@@ -31,7 +31,7 @@ class CheckListFileTracker {
     async makeList(triggerFile, references) {
         if (this.busy)
             return null;
-        const errors = Array.from(this.getErrorsAt(triggerFile));
+        const errors = this.getErrorsAt(triggerFile);
         const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
             if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
                 acc.push(cur);
@@ -59,10 +59,23 @@ class CheckListFileTracker {
             errorFiles.delete(filePath);
         }
     }
+    clearErrors(triggerFile) {
+        const errorFiles = this.getErrorsAt(triggerFile);
+        this.errors.delete(triggerFile);
+        return errorFiles;
+    }
     dispose() {
         this.files.clear();
         this.errors.clear();
         this.subscriptions.dispose();
+    }
+    getErrorsAt(triggerFile) {
+        let errorFiles = this.errors.get(triggerFile);
+        if (!errorFiles) {
+            errorFiles = new Set();
+            this.errors.set(triggerFile, errorFiles);
+        }
+        return errorFiles;
     }
     async openFiles(triggerFile, checkList) {
         const projectRootPath = this.getProjectRootPath(triggerFile);
@@ -73,8 +86,8 @@ class CheckListFileTracker {
             .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
             .map(file => ({ file, projectRootPath }));
         if (openFiles.length > 0) {
-            await this.updateOpen(triggerFile, { openFiles });
             openFiles.forEach(({ file }) => this.addFile(file, triggerFile));
+            await this.updateOpen(triggerFile, { openFiles });
         }
     }
     async closeFiles(triggerFile, checkList) {
@@ -83,21 +96,13 @@ class CheckListFileTracker {
             ? Array.from(this.files.keys())
             : checkList).filter(filePath => !openedFiles.includes(filePath));
         if (closedFiles.length > 0) {
-            await this.updateOpen(triggerFile, { closedFiles });
             closedFiles.forEach(filePath => this.removeFile(filePath));
+            await this.updateOpen(triggerFile, { closedFiles });
         }
     }
     async updateOpen(filePath, options) {
         const client = await this.getClient(filePath);
         await client.execute("updateOpen", options);
-    }
-    getErrorsAt(triggerFile) {
-        let errorFiles = this.errors.get(triggerFile);
-        if (!errorFiles) {
-            errorFiles = new Set();
-            this.errors.set(triggerFile, errorFiles);
-        }
-        return errorFiles;
     }
     addFile(filePath, triggerFile = this.getTriggerFile()) {
         if (this.files.has(filePath)) {
