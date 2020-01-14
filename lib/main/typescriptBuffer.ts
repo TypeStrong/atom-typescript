@@ -201,6 +201,7 @@ export class TypescriptBuffer {
       file: this.state.filePath,
       fileContent: this.buffer.getText(),
     })
+
     await this.getErr({allFiles: false})
   }
 
