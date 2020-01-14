@@ -10,10 +10,10 @@ registry_1.addCommand("atom-text-editor", "typescript:check-related-files", deps
             return;
         const line = editor.getLastCursor().getBufferRow();
         const client = await deps.getClient(file);
-        await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList, deps.clearCheckList);
+        await handleCheckRelatedFilesResult(line, line, file, client, deps.makeCheckList, deps.pushFileError, deps.clearCheckList);
     },
 }));
-async function handleCheckRelatedFilesResult(startLine, endLine, file, client, makeCheckList, clearCheckList) {
+async function handleCheckRelatedFilesResult(startLine, endLine, file, client, makeCheckList, pushFileError, clearCheckList) {
     const [root] = atom.project.relativizePath(file);
     if (root === null)
         return;
@@ -27,8 +27,14 @@ async function handleCheckRelatedFilesResult(startLine, endLine, file, client, m
         references = res.body ? res.body.refs.map(ref => ref.file) : [];
     }
     const files = await makeCheckList(file, references);
-    if (files.length > 0) {
-        await client.execute("geterr", { files, delay: 100 });
+    for (const filePath of files) {
+        const res = await client.execute("semanticDiagnosticsSync", { file: filePath });
+        pushFileError(filePath, {
+            filePath,
+            serverPath: "",
+            type: "semanticDiag",
+            diagnostics: res.body ? res.body : [],
+        });
     }
     await clearCheckList(file);
 }

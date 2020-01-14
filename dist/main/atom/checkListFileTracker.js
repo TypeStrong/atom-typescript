@@ -9,10 +9,7 @@ class CheckListFileTracker {
         this.files = new Map();
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
-        this.trackHandler = (filePath, type) => () => {
-            const triggerFile = this.getTriggerFile();
-            if (triggerFile === undefined)
-                return;
+        this.trackHandler = (triggerFile, filePath, type) => () => {
             switch (type) {
                 case "deleted":
                     utils_1.handlePromise(this.openFiles(triggerFile, [filePath]));
@@ -32,7 +29,7 @@ class CheckListFileTracker {
             this.busyPromise = null;
         }
         const errors = this.getErrorsAt(triggerFile);
-        const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
+        const checkList = [...errors, ...references].reduce((acc, cur) => {
             if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
                 acc.push(cur);
             return acc;
@@ -64,10 +61,8 @@ class CheckListFileTracker {
                 break;
         }
     }
-    setError(filePath, hasError) {
-        const triggerFile = this.getTriggerFile();
-        const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath);
-        console.log("triggerFile", triggerFile);
+    setError(triggerFile, filePath, hasError) {
+        const errorFiles = this.getErrorsAt(triggerFile);
         switch (hasError) {
             case true:
                 if (!errorFiles.has(filePath))
@@ -131,7 +126,7 @@ class CheckListFileTracker {
         const disp = new atom_1.CompositeDisposable();
         const source = new atom_1.File(filePath);
         const fileMap = { target, source, disp };
-        disp.add(source.onDidChange(this.trackHandler(filePath, "changed")), source.onDidDelete(this.trackHandler(filePath, "deleted")), source.onDidRename(this.trackHandler(filePath, "renamed")));
+        disp.add(source.onDidChange(this.trackHandler(target, filePath, "changed")), source.onDidDelete(this.trackHandler(target, filePath, "deleted")), source.onDidRename(this.trackHandler(target, filePath, "renamed")));
         this.files.set(filePath, fileMap);
         this.subscriptions.add(disp);
         return fileMap;
@@ -152,11 +147,6 @@ class CheckListFileTracker {
                 acc.push(cur);
             return acc;
         }, []);
-    }
-    getTriggerFile() {
-        const ed = atom.workspace.getActiveTextEditor();
-        if (ed)
-            return ed.getPath();
     }
     getProjectRootPath(filePath) {
         const [projectRootPath] = atom.project.relativizePath(filePath);

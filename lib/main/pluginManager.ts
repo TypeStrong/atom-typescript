@@ -5,7 +5,7 @@ import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {throttle} from "lodash"
 import * as path from "path"
-import {ClientResolver} from "../client"
+import {ClientResolver, DiagnosticsPayload} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {getCodeHighlightProvider} from "./atom-ide/codeHighlightProvider"
@@ -118,6 +118,7 @@ export class PluginManager {
       reportClientInfo: this.reportClientInfo,
       syncOpenFile: this.syncOpenFile,
       makeCheckList: this.makeCheckList,
+      pushFileError: this.pushFileError,
       clearCheckList: this.clearCheckList,
     })
     this.subscribeEditors()
@@ -148,6 +149,7 @@ export class PluginManager {
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
         makeCheckList: this.makeCheckList,
+        pushFileError: this.pushFileError,
         clearCheckList: this.clearCheckList,
       }),
     )
@@ -178,9 +180,6 @@ export class PluginManager {
     this.subscriptions.add(
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
-        if (type === "semanticDiag") {
-          this.checkListFileTracker.setError(filePath, diagnostics.length !== 0)
-        }
       }),
     )
   }
@@ -290,6 +289,14 @@ export class PluginManager {
 
   private clearCheckList = (file: string) => {
     return this.checkListFileTracker.clearList(file)
+  }
+
+  private pushFileError = (
+    triggerFile: string,
+    {type, filePath, diagnostics}: DiagnosticsPayload,
+  ) => {
+    this.checkListFileTracker.setError(triggerFile, filePath, diagnostics.length !== 0)
+    this.errorPusher.setErrors(type, filePath, diagnostics)
   }
 
   private syncOpenFile = (command: string, file: string) => {

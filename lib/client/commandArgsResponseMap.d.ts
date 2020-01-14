@@ -30,6 +30,9 @@ export interface CommandArgResponseMap {
   saveto: (x: p.SavetoRequestArgs) => void
   navtree: (x: p.FileRequestArgs) => p.NavTreeResponse
   navto: (x: p.NavtoRequestArgs) => p.NavtoResponse
+  semanticDiagnosticsSync: (
+    x: p.SemanticDiagnosticsSyncRequestArgs,
+  ) => p.SemanticDiagnosticsSyncResponse
   reloadProjects: () => void
   getApplicableRefactors: (
     x: p.GetApplicableRefactorsRequestArgs,
@@ -46,8 +49,6 @@ export type AllTSClientCommands = keyof CommandArgResponseMap
 export type CommandsWithResponse = {
   [K in AllTSClientCommands]: CommandRes<K> extends void ? never : K
 }[AllTSClientCommands]
-
-export type CommandsWithMultistep = "geterr" | "geterrForProject"
 
 export type ArgType<T extends (x: any) => any> = T extends (...x: infer U) => any ? U : never
 

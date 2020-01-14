@@ -1,5 +1,5 @@
 import {ReportBusyWhile} from "../main/pluginManager"
-import {CommandRes, CommandsWithMultistep, CommandsWithResponse} from "./commandArgsResponseMap"
+import {CommandRes, CommandsWithResponse} from "./commandArgsResponseMap"
 
 interface Request {
   started: number
@@ -13,7 +13,7 @@ export class Callbacks {
 
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
-  public async add<T extends CommandsWithResponse | CommandsWithMultistep>(
+  public async add<T extends CommandsWithResponse>(
     seq: number,
     command: T,
   ): Promise<CommandRes<T>> {
@@ -39,22 +39,21 @@ export class Callbacks {
     this.callbacks.clear()
   }
 
-  public resolve<T extends CommandsWithResponse>(seq: number, res: CommandRes<T> | null): void {
+  public resolve<T extends CommandsWithResponse>(seq: number, res: CommandRes<T>): void {
     const req = this.callbacks.get(seq)
     if (req) {
       if (window.atom_typescript_debug) {
         console.log(
           "received response for",
-          res !== null && res.command,
+          res.command,
           "in",
           Date.now() - req.started,
           "ms",
           "with data",
-          res !== null && res.body,
+          res.body,
         )
       }
-      if (res === null) req.resolve(res)
-      else if (res.success) req.resolve(res)
+      if (res.success) req.resolve(res)
       else req.reject(new Error(res.message))
     } else console.warn("unexpected response:", res)
   }

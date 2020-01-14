@@ -10,6 +10,8 @@ interface FileMap {
   disp: CompositeDisposable
 }
 
+type FileEvents = "changed" | "renamed" | "deleted"
+
 export class CheckListFileTracker {
   private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
@@ -29,7 +31,7 @@ export class CheckListFileTracker {
     }
 
     const errors = this.getErrorsAt(triggerFile)
-    const checkList = [triggerFile, ...errors, ...references].reduce(
+    const checkList = [...errors, ...references].reduce(
       (acc: string[], cur: string) => {
         if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
         return acc
@@ -64,10 +66,8 @@ export class CheckListFileTracker {
     }
   }
 
-  public setError(filePath: string, hasError: boolean) {
-    const triggerFile = this.getTriggerFile()
-    const errorFiles = this.getErrorsAt(triggerFile !== undefined ? triggerFile : filePath)
-    console.log("triggerFile", triggerFile)
+  public setError(triggerFile: string, filePath: string, hasError: boolean) {
+    const errorFiles = this.getErrorsAt(triggerFile)
     switch (hasError) {
       case true:
         if (!errorFiles.has(filePath)) errorFiles.add(filePath)
@@ -140,9 +140,9 @@ export class CheckListFileTracker {
     const source = new File(filePath)
     const fileMap = {target, source, disp}
     disp.add(
-      source.onDidChange(this.trackHandler(filePath, "changed")),
-      source.onDidDelete(this.trackHandler(filePath, "deleted")),
-      source.onDidRename(this.trackHandler(filePath, "renamed")),
+      source.onDidChange(this.trackHandler(target, filePath, "changed")),
+      source.onDidDelete(this.trackHandler(target, filePath, "deleted")),
+      source.onDidRename(this.trackHandler(target, filePath, "renamed")),
     )
     this.files.set(filePath, fileMap)
     this.subscriptions.add(disp)
@@ -156,10 +156,7 @@ export class CheckListFileTracker {
     this.subscriptions.remove(file.disp)
   }
 
-  private trackHandler = (filePath: string, type: "changed" | "renamed" | "deleted") => () => {
-    const triggerFile = this.getTriggerFile()
-    if (triggerFile === undefined) return
-
+  private trackHandler = (triggerFile: string, filePath: string, type: FileEvents) => () => {
     switch (type) {
       case "deleted":
         handlePromise(this.openFiles(triggerFile, [filePath]))
@@ -182,11 +179,6 @@ export class CheckListFileTracker {
       if (!acc.includes(cur) && cur.includes(projectRootPath)) acc.push(cur)
       return acc
     }, [])
-  }
-
-  private getTriggerFile() {
-    const ed = atom.workspace.getActiveTextEditor()
-    if (ed) return ed.getPath()
   }
 
   private getProjectRootPath(filePath: string) {

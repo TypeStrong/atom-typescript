@@ -49,6 +49,10 @@ class PluginManager {
         this.clearCheckList = (file) => {
             return this.checkListFileTracker.clearList(file);
         };
+        this.pushFileError = (triggerFile, { type, filePath, diagnostics }) => {
+            this.checkListFileTracker.setError(triggerFile, filePath, diagnostics.length !== 0);
+            this.errorPusher.setErrors(type, filePath, diagnostics);
+        };
         this.syncOpenFile = (command, file) => {
             return this.checkListFileTracker.setFile(file, command === "open");
         };
@@ -176,6 +180,7 @@ class PluginManager {
             reportClientInfo: this.reportClientInfo,
             syncOpenFile: this.syncOpenFile,
             makeCheckList: this.makeCheckList,
+            pushFileError: this.pushFileError,
             clearCheckList: this.clearCheckList,
         });
         this.subscribeEditors();
@@ -204,6 +209,7 @@ class PluginManager {
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
             makeCheckList: this.makeCheckList,
+            pushFileError: this.pushFileError,
             clearCheckList: this.clearCheckList,
         }));
     }
@@ -228,9 +234,6 @@ class PluginManager {
         this.errorPusher.setLinter(linter);
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
-            if (type === "semanticDiag") {
-                this.checkListFileTracker.setError(filePath, diagnostics.length !== 0);
-            }
         }));
     }
     consumeStatusBar(statusBar) {

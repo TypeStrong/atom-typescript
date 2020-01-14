@@ -74,10 +74,11 @@ class TypescriptBuffer {
         this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
+            utils_1.handlePromise(this.getErr({ allFiles: false }));
             if (changes.length > 0) {
-                utils_1.handlePromise(atom.config.get("atom-typescript.checkRelatedFilesOnChange")
-                    ? this.getErrRelated(changes)
-                    : this.getErr({ allFiles: false }));
+                if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
+                    utils_1.handlePromise(this.getErrRelated(changes));
+                }
                 this.deps.reportBuildStatus(undefined);
             }
         }), buffer.onDidChangeText(arg => {
@@ -122,7 +123,7 @@ class TypescriptBuffer {
             return;
         const { client, filePath } = this.state;
         for (const { newRange: { start, end }, } of changes) {
-            await checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.clearCheckList);
+            await checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.pushFileError, this.deps.clearCheckList);
         }
     }
     /** Throws! */
