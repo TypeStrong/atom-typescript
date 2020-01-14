@@ -11,7 +11,7 @@ interface PaneOptions {
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   clearFileErrors: (filePath: string) => void
   isFileOpen: (filePath: string) => boolean
-  makeCheckList: (file: string, references: string[]) => Promise<string[] | null>
+  makeCheckList: (file: string, references: string[]) => Promise<string[]>
   clearCheckList: (filePath: string) => Promise<void>
 }
 

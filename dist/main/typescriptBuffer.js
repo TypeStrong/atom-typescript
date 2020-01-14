@@ -12,6 +12,7 @@ class TypescriptBuffer {
         this.events = new Atom.Emitter();
         this.compileOnSave = false;
         this.subscriptions = new Atom.CompositeDisposable();
+        this.checkPromise = undefined;
         // tslint:disable-next-line:member-ordering
         this.on = this.events.on.bind(this.events);
         this.dispose = () => {
@@ -78,7 +79,7 @@ class TypescriptBuffer {
         }), buffer.onDidStopChanging(({ changes }) => {
             if (changes.length > 0) {
                 utils_1.handlePromise(atom.config.get("atom-typescript.checkRelatedFilesOnChange")
-                    ? this.getErrRelated(changes[0].newRange)
+                    ? this.getErrRelated(changes)
                     : this.getErr({ allFiles: false }));
                 this.deps.reportBuildStatus(undefined);
             }
@@ -119,11 +120,15 @@ class TypescriptBuffer {
             delay: 100,
         });
     }
-    async getErrRelated({ start, end }) {
+    async getErrRelated(changes) {
         if (!this.state || !this.state.filePath)
             return;
         const { client, filePath } = this.state;
-        await checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.clearCheckList);
+        for (const { newRange: { start, end } } of changes) {
+            if (this.checkPromise !== undefined)
+                await this.checkPromise;
+            this.checkPromise = checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.clearCheckList);
+        }
     }
     /** Throws! */
     async compile() {

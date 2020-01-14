@@ -6,19 +6,22 @@ import {handlePromise} from "../../utils"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
 
 export class CheckListFileTracker {
-  private busy = false
   private files = new Map<string, {disp: CompositeDisposable; src: File}>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
+  private busyPromise = new Promise(resolve => resolve())
+  private busyPromiseResolver: () => void
 
-  constructor(private getClient: GetClientFunction) {}
+  constructor(private getClient: GetClientFunction) {
+    this.busyPromiseResolver = () => {}
+  }
 
   public has(filePath: string) {
     return this.files.has(filePath)
   }
 
   public async makeList(triggerFile: string, references: string[]) {
-    if (this.busy) return null
+    await this.busyPromise
     const errors = this.getErrorsAt(triggerFile)
     const checkList = [triggerFile, ...errors, ...references].reduce(
       (acc: string[], cur: string) => {
@@ -27,7 +30,9 @@ export class CheckListFileTracker {
       },
       [],
     )
-    this.busy = true
+    this.busyPromise = new Promise(resolve => {
+      this.busyPromiseResolver = resolve
+    })
     await this.openFiles(triggerFile, checkList)
     return checkList
   }
@@ -36,7 +41,7 @@ export class CheckListFileTracker {
     if (this.files.size > 0) {
       await this.closeFiles(file)
     }
-    this.busy = false
+    this.busyPromiseResolver()
   }
 
   public setError(prefix: DiagnosticTypes, filePath: string, hasError: boolean) {

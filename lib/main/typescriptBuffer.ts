@@ -11,7 +11,7 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   isFileOpen: (filePath: string) => boolean
-  makeCheckList: (file: string, references: string[]) => Promise<string[] | null>
+  makeCheckList: (file: string, references: string[]) => Promise<string[]>
   clearCheckList: (filePath: string) => Promise<void>
 }
 
@@ -40,6 +40,7 @@ export class TypescriptBuffer {
 
   private subscriptions = new Atom.CompositeDisposable()
   private openPromise: Promise<void>
+  private checkPromise: Promise<void> | undefined = undefined
 
   // tslint:disable-next-line:member-ordering
   public on = this.events.on.bind(this.events)
@@ -55,7 +56,7 @@ export class TypescriptBuffer {
         if (changes.length > 0) {
           handlePromise(
             atom.config.get("atom-typescript.checkRelatedFilesOnChange")
-              ? this.getErrRelated(changes[0].newRange)
+              ? this.getErrRelated(changes)
               : this.getErr({allFiles: false}),
           )
           this.deps.reportBuildStatus(undefined)
@@ -92,17 +93,21 @@ export class TypescriptBuffer {
     })
   }
 
-  private async getErrRelated({start, end}: {start: Atom.Point; end: Atom.Point}) {
+  private async getErrRelated(changes: Atom.TextChange[]) {
     if (!this.state || !this.state.filePath) return
     const {client, filePath} = this.state
-    await handleCheckRelatedFilesResult(
-      start.row,
-      end.row,
-      filePath,
-      client,
-      this.deps.makeCheckList,
-      this.deps.clearCheckList,
-    )
+
+    for (const {newRange: {start, end}} of changes) {
+      if (this.checkPromise !== undefined) await this.checkPromise
+      this.checkPromise = handleCheckRelatedFilesResult(
+        start.row,
+        end.row,
+        filePath,
+        client,
+        this.deps.makeCheckList,
+        this.deps.clearCheckList,
+      )
+    }
   }
 
   /** Throws! */

@@ -27,9 +27,9 @@ async function handleCheckRelatedFilesResult(startLine, endLine, file, client, m
         references = res.body ? res.body.refs.map(ref => ref.file) : [];
     }
     const files = await makeCheckList(file, references);
-    if (files === null)
-        return;
-    await client.execute("geterr", { files, delay: 100 });
+    if (files.length > 0) {
+        await client.execute("geterr", { files, delay: 100 });
+    }
     await clearCheckList(file);
 }
 exports.handleCheckRelatedFilesResult = handleCheckRelatedFilesResult;

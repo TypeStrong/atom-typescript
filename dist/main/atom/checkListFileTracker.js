@@ -6,10 +6,10 @@ const utils_2 = require("./utils");
 class CheckListFileTracker {
     constructor(getClient) {
         this.getClient = getClient;
-        this.busy = false;
         this.files = new Map();
         this.errors = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
+        this.busyPromise = new Promise(resolve => resolve());
         this.trackHandler = (filePath, type) => () => {
             const triggerFile = this.getTriggerFile();
             if (triggerFile === undefined)
@@ -24,20 +24,22 @@ class CheckListFileTracker {
                     break;
             }
         };
+        this.busyPromiseResolver = () => { };
     }
     has(filePath) {
         return this.files.has(filePath);
     }
     async makeList(triggerFile, references) {
-        if (this.busy)
-            return null;
+        await this.busyPromise;
         const errors = this.getErrorsAt(triggerFile);
         const checkList = [triggerFile, ...errors, ...references].reduce((acc, cur) => {
             if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
                 acc.push(cur);
             return acc;
         }, []);
-        this.busy = true;
+        this.busyPromise = new Promise(resolve => {
+            this.busyPromiseResolver = resolve;
+        });
         await this.openFiles(triggerFile, checkList);
         return checkList;
     }
@@ -45,7 +47,7 @@ class CheckListFileTracker {
         if (this.files.size > 0) {
             await this.closeFiles(file);
         }
-        this.busy = false;
+        this.busyPromiseResolver();
     }
     setError(prefix, filePath, hasError) {
         if (prefix !== "semanticDiag")
