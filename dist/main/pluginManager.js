@@ -15,7 +15,7 @@ const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
 const outlineProvider_1 = require("./atom-ide/outlineProvider");
 const sigHelpProvider_1 = require("./atom-ide/sigHelpProvider");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-const checkListFileTracker_1 = require("./atom/checkListFileTracker");
+const checklistResolver_1 = require("./atom/checklistResolver");
 const codefix_1 = require("./atom/codefix");
 const intentionsProvider_1 = require("./atom/codefix/intentionsProvider");
 const commands_1 = require("./atom/commands");
@@ -37,24 +37,17 @@ class PluginManager {
         this.clearErrors = () => {
             this.errorPusher.clear();
         };
+        this.checkRelatedFiles = async (file, startLine, endLine) => {
+            return this.checklistResolver.check(file, startLine, endLine);
+        };
         this.clearFileErrors = (filePath) => {
             this.errorPusher.clearFileErrors(filePath);
-            const errorFiles = this.checkListFileTracker.clearErrors(filePath);
+            const errorFiles = this.checklistResolver.clearErrors(filePath);
             for (const file of errorFiles)
                 this.errorPusher.clearFileErrors(file);
         };
-        this.makeCheckList = (triggerFile, references) => {
-            return this.checkListFileTracker.makeList(triggerFile, references);
-        };
-        this.clearCheckList = (file) => {
-            return this.checkListFileTracker.clearList(file);
-        };
-        this.pushFileError = (triggerFile, { type, filePath, diagnostics }) => {
-            this.checkListFileTracker.setError(triggerFile, filePath, diagnostics.length !== 0);
-            this.errorPusher.setErrors(type, filePath, diagnostics);
-        };
         this.syncOpenFile = (command, file) => {
-            return this.checkListFileTracker.setFile(file, command === "open");
+            return this.checklistResolver.setFile(file, command === "open");
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
@@ -152,8 +145,8 @@ class PluginManager {
         this.subscriptions.add(this.statusPanel);
         this.errorPusher = new errorPusher_1.ErrorPusher();
         this.subscriptions.add(this.errorPusher);
-        this.checkListFileTracker = new checkListFileTracker_1.CheckListFileTracker(this.getClient);
-        this.subscriptions.add(this.checkListFileTracker);
+        this.checklistResolver = new checklistResolver_1.ChecklistResolver(this.getClient);
+        this.subscriptions.add(this.checklistResolver);
         this.codefixProvider = new codefix_1.CodefixProvider(this.clientResolver, this.errorPusher, this.applyEdits);
         this.subscriptions.add(this.codefixProvider);
         this.semanticViewController = new semanticViewController_1.SemanticViewController(this.getClient);
@@ -179,9 +172,7 @@ class PluginManager {
             reportBuildStatus: this.reportBuildStatus,
             reportClientInfo: this.reportClientInfo,
             syncOpenFile: this.syncOpenFile,
-            makeCheckList: this.makeCheckList,
-            pushFileError: this.pushFileError,
-            clearCheckList: this.clearCheckList,
+            checkRelatedFiles: this.checkRelatedFiles,
         });
         this.subscribeEditors();
         // Register the commands
@@ -208,9 +199,7 @@ class PluginManager {
             showSigHelpAt: this.showSigHelpAt,
             hideSigHelpAt: this.hideSigHelpAt,
             rotateSigHelp: this.rotateSigHelp,
-            makeCheckList: this.makeCheckList,
-            pushFileError: this.pushFileError,
-            clearCheckList: this.clearCheckList,
+            checkRelatedFiles: this.checkRelatedFiles,
         }));
     }
     destroy() {
@@ -233,6 +222,8 @@ class PluginManager {
         });
         this.errorPusher.setLinter(linter);
         this.subscriptions.add(this.clientResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
+            this.errorPusher.setErrors(type, filePath, diagnostics);
+        }), this.checklistResolver.on("diagnostics", ({ type, filePath, diagnostics }) => {
             this.errorPusher.setErrors(type, filePath, diagnostics);
         }));
     }

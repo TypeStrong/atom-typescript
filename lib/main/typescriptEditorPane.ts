@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {DiagnosticsPayload, GetClientFunction} from "../client"
+import {GetClientFunction} from "../client"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -11,9 +11,7 @@ interface PaneOptions {
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   clearFileErrors: (filePath: string) => void
   syncOpenFile: (type: string, filePath: string) => Promise<void>
-  makeCheckList: (file: string, references: string[]) => Promise<string[]>
-  pushFileError: (file: string, diagnostics: DiagnosticsPayload) => void
-  clearCheckList: (filePath: string) => Promise<void>
+  checkRelatedFiles: (filePath: string, startLine: number, endLine: number) => Promise<void>
 }
 
 export class TypescriptEditorPane {

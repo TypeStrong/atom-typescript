@@ -5,7 +5,7 @@ import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {throttle} from "lodash"
 import * as path from "path"
-import {ClientResolver, DiagnosticsPayload} from "../client"
+import {ClientResolver} from "../client"
 import {handlePromise} from "../utils"
 import {getCodeActionsProvider} from "./atom-ide/codeActionsProvider"
 import {getCodeHighlightProvider} from "./atom-ide/codeHighlightProvider"
@@ -16,7 +16,7 @@ import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
 import {getOutlineProvider} from "./atom-ide/outlineProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
-import {CheckListFileTracker} from "./atom/checkListFileTracker"
+import {ChecklistResolver} from "./atom/checklistResolver"
 import {CodefixProvider} from "./atom/codefix"
 import {
   getIntentionsHighlightsProvider,
@@ -52,7 +52,7 @@ export class PluginManager {
   private clientResolver: ClientResolver
   private statusPanel: StatusPanel
   private errorPusher: ErrorPusher
-  private checkListFileTracker: CheckListFileTracker
+  private checklistResolver: ChecklistResolver
   private codefixProvider: CodefixProvider
   private semanticViewController: SemanticViewController
   private symbolsViewController: SymbolsViewController
@@ -78,8 +78,8 @@ export class PluginManager {
     this.errorPusher = new ErrorPusher()
     this.subscriptions.add(this.errorPusher)
 
-    this.checkListFileTracker = new CheckListFileTracker(this.getClient)
-    this.subscriptions.add(this.checkListFileTracker)
+    this.checklistResolver = new ChecklistResolver(this.getClient)
+    this.subscriptions.add(this.checklistResolver)
 
     this.codefixProvider = new CodefixProvider(
       this.clientResolver,
@@ -117,9 +117,7 @@ export class PluginManager {
       reportBuildStatus: this.reportBuildStatus,
       reportClientInfo: this.reportClientInfo,
       syncOpenFile: this.syncOpenFile,
-      makeCheckList: this.makeCheckList,
-      pushFileError: this.pushFileError,
-      clearCheckList: this.clearCheckList,
+      checkRelatedFiles: this.checkRelatedFiles,
     })
     this.subscribeEditors()
 
@@ -148,9 +146,7 @@ export class PluginManager {
         showSigHelpAt: this.showSigHelpAt,
         hideSigHelpAt: this.hideSigHelpAt,
         rotateSigHelp: this.rotateSigHelp,
-        makeCheckList: this.makeCheckList,
-        pushFileError: this.pushFileError,
-        clearCheckList: this.clearCheckList,
+        checkRelatedFiles: this.checkRelatedFiles,
       }),
     )
   }
@@ -179,6 +175,9 @@ export class PluginManager {
 
     this.subscriptions.add(
       this.clientResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
+        this.errorPusher.setErrors(type, filePath, diagnostics)
+      }),
+      this.checklistResolver.on("diagnostics", ({type, filePath, diagnostics}) => {
         this.errorPusher.setErrors(type, filePath, diagnostics)
       }),
     )
@@ -277,30 +276,18 @@ export class PluginManager {
     this.errorPusher.clear()
   }
 
+  private checkRelatedFiles = async (file: string, startLine: number, endLine: number) => {
+    return this.checklistResolver.check(file, startLine, endLine)
+  }
+
   private clearFileErrors = (filePath: string) => {
     this.errorPusher.clearFileErrors(filePath)
-    const errorFiles = this.checkListFileTracker.clearErrors(filePath)
+    const errorFiles = this.checklistResolver.clearErrors(filePath)
     for (const file of errorFiles) this.errorPusher.clearFileErrors(file)
   }
 
-  private makeCheckList = (triggerFile: string, references: string[]) => {
-    return this.checkListFileTracker.makeList(triggerFile, references)
-  }
-
-  private clearCheckList = (file: string) => {
-    return this.checkListFileTracker.clearList(file)
-  }
-
-  private pushFileError = (
-    triggerFile: string,
-    {type, filePath, diagnostics}: DiagnosticsPayload,
-  ) => {
-    this.checkListFileTracker.setError(triggerFile, filePath, diagnostics.length !== 0)
-    this.errorPusher.setErrors(type, filePath, diagnostics)
-  }
-
   private syncOpenFile = (command: string, file: string) => {
-    return this.checkListFileTracker.setFile(file, command === "open")
+    return this.checklistResolver.setFile(file, command === "open")
   }
 
   private getClient = async (filePath: string) => {

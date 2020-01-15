@@ -11,7 +11,7 @@ import {resolveBinary} from "./resolveBinary"
 
 export type DiagnosticTypes = protocol.DiagnosticEventKind | "configFileDiag"
 
-export interface DiagnosticsPayload {
+interface DiagnosticsPayload {
   diagnostics: Diagnostic[]
   filePath: string
   serverPath: string

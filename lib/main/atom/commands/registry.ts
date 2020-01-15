@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {DiagnosticsPayload, GetClientFunction} from "../../../client"
+import {GetClientFunction} from "../../../client"
 import {ApplyEdits} from "../../pluginManager"
 import {TBuildStatus, TProgress} from "../components/statusPanel"
 import {OpenParams} from "../editorPositionHistoryManager"
@@ -21,9 +21,7 @@ export interface Dependencies {
   showSigHelpAt: (ed: Atom.TextEditor) => void
   hideSigHelpAt: (ed: Atom.TextEditor) => boolean
   rotateSigHelp: (ed: Atom.TextEditor, shift: number) => boolean
-  makeCheckList: (file: string, references: string[]) => Promise<string[]>
-  pushFileError: (file: string, diagnostics: DiagnosticsPayload) => void
-  clearCheckList: (file: string) => Promise<void>
+  checkRelatedFiles: (filePath: string, startLine: number, endLine: number) => Promise<void>
 }
 
 export type AllowedSelectors = keyof Dispatch

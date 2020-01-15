@@ -1,8 +1,7 @@
 import * as Atom from "atom"
 import {flatten} from "lodash"
-import {DiagnosticsPayload, GetClientFunction, TSClient} from "../client"
+import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
-import {handleCheckRelatedFilesResult} from "./atom/commands/checkRelatedFiles"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {getOpenEditorsPaths, getProjectConfig, isTypescriptFile} from "./atom/utils"
 
@@ -11,9 +10,7 @@ export interface Deps {
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
   syncOpenFile: (type: string, filePath: string) => Promise<void>
-  makeCheckList: (file: string, references: string[]) => Promise<string[]>
-  pushFileError: (file: string, diagnostics: DiagnosticsPayload) => void
-  clearCheckList: (filePath: string) => Promise<void>
+  checkRelatedFiles: (filePath: string, startLine: number, endLine: number) => Promise<void>
 }
 
 export class TypescriptBuffer {
@@ -94,20 +91,11 @@ export class TypescriptBuffer {
 
   private async getErrRelated(changes: Atom.TextChange[]) {
     if (!this.state || !this.state.filePath) return
-    const {client, filePath} = this.state
-
+    const {filePath} = this.state
     for (const {
       newRange: {start, end},
     } of changes) {
-      await handleCheckRelatedFilesResult(
-        start.row,
-        end.row,
-        filePath,
-        client,
-        this.deps.makeCheckList,
-        this.deps.pushFileError,
-        this.deps.clearCheckList,
-      )
+      await this.deps.checkRelatedFiles(filePath, start.row, end.row)
     }
   }
 

@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("../utils");
-const checkRelatedFiles_1 = require("./atom/commands/checkRelatedFiles");
 const utils_2 = require("./atom/utils");
 class TypescriptBuffer {
     constructor(buffer, deps) {
@@ -121,9 +120,9 @@ class TypescriptBuffer {
     async getErrRelated(changes) {
         if (!this.state || !this.state.filePath)
             return;
-        const { client, filePath } = this.state;
-        for (const { newRange: { start, end }, } of changes) {
-            await checkRelatedFiles_1.handleCheckRelatedFilesResult(start.row, end.row, filePath, client, this.deps.makeCheckList, this.deps.pushFileError, this.deps.clearCheckList);
+        const { filePath } = this.state;
+        for (const { newRange: { start, end } } of changes) {
+            await this.deps.checkRelatedFiles(filePath, start.row, end.row);
         }
     }
     /** Throws! */

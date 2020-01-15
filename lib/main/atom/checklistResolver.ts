@@ -1,8 +1,11 @@
-import {CompositeDisposable, File} from "atom"
-import {UpdateOpenRequestArgs} from "typescript/lib/protocol"
+import {CompositeDisposable, Emitter, File} from "atom"
+import {Diagnostic, UpdateOpenRequestArgs} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
+import {EventTypes} from "../../client/clientResolver"
 import {handlePromise} from "../../utils"
 import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
+import {findNodeAt, prepareNavTree} from "./views/outline/navTreeUtils"
+import {NavigationTreeViewModel} from "./views/outline/semanticViewModel"
 
 interface FileMap {
   source: File
@@ -12,40 +15,69 @@ interface FileMap {
 
 type FileEvents = "changed" | "renamed" | "deleted"
 
-export class CheckListFileTracker {
+export class ChecklistResolver {
   private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
   private subscriptions = new CompositeDisposable()
-  private busyPromise: Promise<unknown> | null
-  private busyResolver: () => void
+  private emitter = new Emitter<{}, EventTypes>()
+  private isInProgress = false
 
-  constructor(private getClient: GetClientFunction) {
-    this.busyPromise = null
-    this.busyResolver = () => {}
+  // tslint:disable-next-line:member-ordering
+  public on = this.emitter.on.bind(this.emitter)
+
+  constructor(private getClient: GetClientFunction) {}
+
+  public async check(file: string, startLine: number, endLine: number) {
+    if (this.isInProgress) return
+
+    const [root] = atom.project.relativizePath(file)
+    if (root === null) return
+
+    this.isInProgress = true
+
+    const client = await this.getClient(file)
+    const navTreeRes = await client.execute("navtree", {file})
+    const navTree = navTreeRes.body as NavigationTreeViewModel
+    prepareNavTree(navTree)
+
+    const node = findNodeAt(startLine, endLine, navTree)
+    let references: string[] = []
+
+    if (node && node.nameSpan) {
+      const res = await client.execute("references", {file, ...node.nameSpan.start})
+      references = res.body ? res.body.refs.map(ref => ref.file) : []
+    }
+
+    const files = await this.makeList(file, references)
+    for (const filePath of files) {
+      const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
+      if (res.body) {
+        this.emitter.emit("diagnostics", {
+          filePath,
+          type: "semanticDiag",
+          serverPath: client.tsServerPath,
+          diagnostics: res.body as Diagnostic[],
+        })
+        this.setError(file, filePath, res.body.length !== 0)
+      }
+    }
+    await this.clearList(file)
   }
 
   public async makeList(triggerFile: string, references: string[]) {
-    if (this.busyPromise) {
-      await this.busyPromise
-      this.busyPromise = null
-    }
-
     const errors = this.getErrorsAt(triggerFile)
-    const checkList = [...errors, ...references].reduce(
-      (acc: string[], cur: string) => {
-        if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
-        return acc
-      },
-      [],
-    )
-    this.busyPromise = this.waitForClear()
+    const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
+      if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
+      return acc
+    }, [])
+
     await this.openFiles(triggerFile, checkList)
     return checkList
   }
 
   public async clearList(file: string) {
     if (this.files.size > 0) await this.closeFiles(file)
-    this.busyResolver()
+    this.isInProgress = false
   }
 
   public async setFile(filePath: string, isOpen: boolean) {
@@ -87,6 +119,7 @@ export class CheckListFileTracker {
   public dispose() {
     this.files.clear()
     this.errors.clear()
+    this.emitter.dispose()
     this.subscriptions.dispose()
   }
 
@@ -105,7 +138,10 @@ export class CheckListFileTracker {
 
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
-      .filter(filePath => !openedFiles.includes(filePath) && !this.files.has(filePath))
+      .filter(
+        filePath =>
+          triggerFile !== filePath && !openedFiles.includes(filePath) && !this.files.has(filePath),
+      )
       .map(file => ({file, projectRootPath}))
 
     if (openFiles.length > 0) {
@@ -184,11 +220,5 @@ export class CheckListFileTracker {
   private getProjectRootPath(filePath: string) {
     const [projectRootPath] = atom.project.relativizePath(filePath)
     return projectRootPath
-  }
-
-  private waitForClear() {
-    return new Promise(resolve => {
-      this.busyResolver = resolve
-    })
   }
 }

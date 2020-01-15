@@ -4,7 +4,7 @@ const atom_1 = require("atom");
 const utils_1 = require("../../utils");
 const utils_2 = require("./utils");
 const navTreeUtils_1 = require("./views/outline/navTreeUtils");
-class CheckListFileTracker {
+class ChecklistResolver {
     constructor(getClient) {
         this.getClient = getClient;
         this.files = new Map();
@@ -27,9 +27,12 @@ class CheckListFileTracker {
         };
     }
     async check(file, startLine, endLine) {
+        if (this.isInProgress)
+            return;
         const [root] = atom.project.relativizePath(file);
         if (root === null)
             return;
+        this.isInProgress = true;
         const client = await this.getClient(file);
         const navTreeRes = await client.execute("navtree", { file });
         const navTree = navTreeRes.body;
@@ -56,9 +59,6 @@ class CheckListFileTracker {
         await this.clearList(file);
     }
     async makeList(triggerFile, references) {
-        if (this.isInProgress)
-            return [];
-        this.isInProgress = true;
         const errors = this.getErrorsAt(triggerFile);
         const checkList = [...errors, ...references].reduce((acc, cur) => {
             if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
@@ -184,5 +184,5 @@ class CheckListFileTracker {
         return projectRootPath;
     }
 }
-exports.CheckListFileTracker = CheckListFileTracker;
-//# sourceMappingURL=checkListFileTracker.js.map
+exports.ChecklistResolver = ChecklistResolver;
+//# sourceMappingURL=checklistResolver.js.map
