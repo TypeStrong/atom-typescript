@@ -20,7 +20,7 @@ class TypescriptBuffer {
         this.init = async () => {
             if (!this.state)
                 return;
-            await this.deps.syncOpenFile("open", this.state.filePath);
+            await this.deps.syncOpenFile(this.state.filePath);
             await this.state.client.execute("open", {
                 file: this.state.filePath,
                 fileContent: this.buffer.getText(),
@@ -36,7 +36,6 @@ class TypescriptBuffer {
                 this.state.subscriptions.dispose();
                 this.state = undefined;
                 await client.execute("close", { file });
-                await this.deps.syncOpenFile("close", file);
             }
         };
         this.onDidChangePath = (newPath) => {

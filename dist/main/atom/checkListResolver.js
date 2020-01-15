@@ -55,27 +55,20 @@ class ChecklistResolver {
         }
         await this.clearList(file);
     }
-    async setFile(filePath, isOpen) {
+    async closeFile(filePath) {
         var _a;
         if (!this.files.has(filePath))
             return;
         const target = (_a = this.files.get(filePath)) === null || _a === void 0 ? void 0 : _a.target;
         const triggerFile = target !== undefined ? target : filePath;
-        switch (isOpen) {
-            // execute before "open" command
-            case true:
-                await this.closeFiles(triggerFile, [filePath]);
-                break;
-            // execute after "close" command
-            case false:
-                this.removeFile(filePath);
-                await this.openFiles(triggerFile, [filePath]);
-                break;
-        }
+        await this.closeFiles(triggerFile, [filePath]);
     }
-    clearErrors(triggerFile) {
-        const errorFiles = this.getErrorsAt(triggerFile);
+    revokeErrors(triggerFile) {
+        const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
+        const errorFiles = Array.from(this.getErrorsAt(triggerFile));
+        const files = errorFiles.filter(filePath => openedFiles.includes(filePath));
         this.errors.delete(triggerFile);
+        utils_1.handlePromise(this.getError(triggerFile, files));
         return errorFiles;
     }
     dispose() {
@@ -111,6 +104,10 @@ class ChecklistResolver {
                     errorFiles.delete(filePath);
                 break;
         }
+    }
+    async getError(triggerFile, files) {
+        const client = await this.getClient(triggerFile);
+        await client.execute("geterr", { files, delay: 100 });
     }
     getErrorsAt(triggerFile) {
         let errorFiles = this.errors.get(triggerFile);

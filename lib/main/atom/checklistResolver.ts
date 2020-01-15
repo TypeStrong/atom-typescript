@@ -60,27 +60,19 @@ export class ChecklistResolver {
     await this.clearList(file)
   }
 
-  public async setFile(filePath: string, isOpen: boolean) {
+  public async closeFile(filePath: string) {
     if (!this.files.has(filePath)) return
     const target = this.files.get(filePath)?.target
     const triggerFile = target !== undefined ? target : filePath
-
-    switch (isOpen) {
-      // execute before "open" command
-      case true:
-        await this.closeFiles(triggerFile, [filePath])
-        break
-      // execute after "close" command
-      case false:
-        this.removeFile(filePath)
-        await this.openFiles(triggerFile, [filePath])
-        break
-    }
+    await this.closeFiles(triggerFile, [filePath])
   }
 
-  public clearErrors(triggerFile: string) {
-    const errorFiles = this.getErrorsAt(triggerFile)
+  public revokeErrors(triggerFile: string) {
+    const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
+    const errorFiles = Array.from(this.getErrorsAt(triggerFile))
+    const files = errorFiles.filter(filePath => openedFiles.includes(filePath))
     this.errors.delete(triggerFile)
+    handlePromise(this.getError(triggerFile, files))
     return errorFiles
   }
 
@@ -117,6 +109,11 @@ export class ChecklistResolver {
         if (errorFiles.has(filePath)) errorFiles.delete(filePath)
         break
     }
+  }
+
+  private async getError(triggerFile: string, files: string[]) {
+    const client = await this.getClient(triggerFile)
+    await client.execute("geterr", {files, delay: 100})
   }
 
   private getErrorsAt(triggerFile: string) {

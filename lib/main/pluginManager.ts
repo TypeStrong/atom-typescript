@@ -282,12 +282,12 @@ export class PluginManager {
 
   private clearFileErrors = (filePath: string) => {
     this.errorPusher.clearFileErrors(filePath)
-    const errorFiles = this.checklistResolver.clearErrors(filePath)
+    const errorFiles = this.checklistResolver.revokeErrors(filePath)
     for (const file of errorFiles) this.errorPusher.clearFileErrors(file)
   }
 
-  private syncOpenFile = (command: string, file: string) => {
-    return this.checklistResolver.setFile(file, command === "open")
+  private syncOpenFile = (file: string) => {
+    return this.checklistResolver.closeFile(file)
   }
 
   private getClient = async (filePath: string) => {

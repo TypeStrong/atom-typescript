@@ -9,7 +9,7 @@ export interface Deps {
   getClient: GetClientFunction
   clearFileErrors: (filePath: string) => void
   reportBuildStatus: (status: TBuildStatus | undefined) => void
-  syncOpenFile: (type: string, filePath: string) => Promise<void>
+  syncOpenFile: (filePath: string) => Promise<void>
   checkRelatedFiles: (filePath: string, startLine: number, endLine: number) => Promise<void>
 }
 
@@ -183,7 +183,7 @@ export class TypescriptBuffer {
 
   private init = async () => {
     if (!this.state) return
-    await this.deps.syncOpenFile("open", this.state.filePath)
+    await this.deps.syncOpenFile(this.state.filePath)
     await this.state.client.execute("open", {
       file: this.state.filePath,
       fileContent: this.buffer.getText(),
@@ -201,7 +201,6 @@ export class TypescriptBuffer {
       this.state.subscriptions.dispose()
       this.state = undefined
       await client.execute("close", {file})
-      await this.deps.syncOpenFile("close", file)
     }
   }
 

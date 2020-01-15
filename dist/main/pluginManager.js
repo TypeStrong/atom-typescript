@@ -42,12 +42,12 @@ class PluginManager {
         };
         this.clearFileErrors = (filePath) => {
             this.errorPusher.clearFileErrors(filePath);
-            const errorFiles = this.checklistResolver.clearErrors(filePath);
+            const errorFiles = this.checklistResolver.revokeErrors(filePath);
             for (const file of errorFiles)
                 this.errorPusher.clearFileErrors(file);
         };
-        this.syncOpenFile = (command, file) => {
-            return this.checklistResolver.setFile(file, command === "open");
+        this.syncOpenFile = (file) => {
+            return this.checklistResolver.closeFile(file);
         };
         this.getClient = async (filePath) => {
             return this.clientResolver.get(filePath);
