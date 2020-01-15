@@ -272,6 +272,10 @@ export class PluginManager {
     return getCodeHighlightProvider(this.getClient)
   }
 
+  private clearErrors = () => {
+    this.errorPusher.clear()
+  }
+
   private clearFileErrors = (filePath: string) => {
     this.errorPusher.clearFileErrors(filePath)
     if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
@@ -287,10 +291,6 @@ export class PluginManager {
   private syncOpenFile = async (file: string) => {
     if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
     await this.checklistResolver.closeFile(file)
-  }
-
-  private clearErrors = () => {
-    this.errorPusher.clear()
   }
 
   private getClient = async (filePath: string) => {
