@@ -34,11 +34,6 @@ class PluginManager {
         this.usingBuiltinTooltipManager = true;
         this.usingBuiltinSigHelpManager = true;
         this.pending = new Set();
-        this.checkRelatedFiles = async (file, startLine, endLine) => {
-            if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)
-                return;
-            return this.checklistResolver.check(file, startLine, endLine);
-        };
         this.clearFileErrors = (filePath) => {
             this.errorPusher.clearFileErrors(filePath);
             if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)
@@ -46,6 +41,11 @@ class PluginManager {
             const errorFiles = this.checklistResolver.revokeErrors(filePath);
             for (const file of errorFiles)
                 this.errorPusher.clearFileErrors(file);
+        };
+        this.checkRelatedFiles = async (file, startLine, endLine) => {
+            if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)
+                return;
+            return this.checklistResolver.check(file, startLine, endLine);
         };
         this.syncOpenFile = async (file) => {
             if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)
