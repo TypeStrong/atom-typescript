@@ -121,7 +121,7 @@ class TypescriptBuffer {
         if (!this.state || !this.state.filePath)
             return;
         const { filePath } = this.state;
-        for (const { newRange: { start, end } } of changes) {
+        for (const { newRange: { start, end }, } of changes) {
             await this.deps.checkRelatedFiles(filePath, start.row, end.row);
         }
     }

@@ -58,21 +58,6 @@ class ChecklistResolver {
         }
         await this.clearList(file);
     }
-    async makeList(triggerFile, references) {
-        const errors = this.getErrorsAt(triggerFile);
-        const checkList = [...errors, ...references].reduce((acc, cur) => {
-            if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
-                acc.push(cur);
-            return acc;
-        }, []);
-        await this.openFiles(triggerFile, checkList);
-        return checkList;
-    }
-    async clearList(file) {
-        if (this.files.size > 0)
-            await this.closeFiles(file);
-        this.isInProgress = false;
-    }
     async setFile(filePath, isOpen) {
         var _a;
         if (!this.files.has(filePath))
@@ -91,6 +76,32 @@ class ChecklistResolver {
                 break;
         }
     }
+    clearErrors(triggerFile) {
+        const errorFiles = this.getErrorsAt(triggerFile);
+        this.errors.delete(triggerFile);
+        return errorFiles;
+    }
+    dispose() {
+        this.files.clear();
+        this.errors.clear();
+        this.emitter.dispose();
+        this.subscriptions.dispose();
+    }
+    async makeList(triggerFile, references) {
+        const errors = this.getErrorsAt(triggerFile);
+        const checkList = [...errors, ...references].reduce((acc, cur) => {
+            if (!acc.includes(cur) && utils_2.isTypescriptFile(cur))
+                acc.push(cur);
+            return acc;
+        }, []);
+        await this.openFiles(triggerFile, checkList);
+        return checkList;
+    }
+    async clearList(file) {
+        if (this.files.size > 0)
+            await this.closeFiles(file);
+        this.isInProgress = false;
+    }
     setError(triggerFile, filePath, hasError) {
         const errorFiles = this.getErrorsAt(triggerFile);
         switch (hasError) {
@@ -103,17 +114,6 @@ class ChecklistResolver {
                     errorFiles.delete(filePath);
                 break;
         }
-    }
-    clearErrors(triggerFile) {
-        const errorFiles = this.getErrorsAt(triggerFile);
-        this.errors.delete(triggerFile);
-        return errorFiles;
-    }
-    dispose() {
-        this.files.clear();
-        this.errors.clear();
-        this.emitter.dispose();
-        this.subscriptions.dispose();
     }
     getErrorsAt(triggerFile) {
         let errorFiles = this.errors.get(triggerFile);

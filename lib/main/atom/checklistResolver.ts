@@ -64,22 +64,6 @@ export class ChecklistResolver {
     await this.clearList(file)
   }
 
-  public async makeList(triggerFile: string, references: string[]) {
-    const errors = this.getErrorsAt(triggerFile)
-    const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
-      if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
-      return acc
-    }, [])
-
-    await this.openFiles(triggerFile, checkList)
-    return checkList
-  }
-
-  public async clearList(file: string) {
-    if (this.files.size > 0) await this.closeFiles(file)
-    this.isInProgress = false
-  }
-
   public async setFile(filePath: string, isOpen: boolean) {
     if (!this.files.has(filePath)) return
     const target = this.files.get(filePath)?.target
@@ -98,18 +82,6 @@ export class ChecklistResolver {
     }
   }
 
-  public setError(triggerFile: string, filePath: string, hasError: boolean) {
-    const errorFiles = this.getErrorsAt(triggerFile)
-    switch (hasError) {
-      case true:
-        if (!errorFiles.has(filePath)) errorFiles.add(filePath)
-        break
-      case false:
-        if (errorFiles.has(filePath)) errorFiles.delete(filePath)
-        break
-    }
-  }
-
   public clearErrors(triggerFile: string) {
     const errorFiles = this.getErrorsAt(triggerFile)
     this.errors.delete(triggerFile)
@@ -121,6 +93,34 @@ export class ChecklistResolver {
     this.errors.clear()
     this.emitter.dispose()
     this.subscriptions.dispose()
+  }
+
+  private async makeList(triggerFile: string, references: string[]) {
+    const errors = this.getErrorsAt(triggerFile)
+    const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
+      if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
+      return acc
+    }, [])
+
+    await this.openFiles(triggerFile, checkList)
+    return checkList
+  }
+
+  private async clearList(file: string) {
+    if (this.files.size > 0) await this.closeFiles(file)
+    this.isInProgress = false
+  }
+
+  private setError(triggerFile: string, filePath: string, hasError: boolean) {
+    const errorFiles = this.getErrorsAt(triggerFile)
+    switch (hasError) {
+      case true:
+        if (!errorFiles.has(filePath)) errorFiles.add(filePath)
+        break
+      case false:
+        if (errorFiles.has(filePath)) errorFiles.delete(filePath)
+        break
+    }
   }
 
   private getErrorsAt(triggerFile: string) {
