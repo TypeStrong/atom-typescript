@@ -29,9 +29,6 @@ class ChecklistResolver {
     async check(file, startLine, endLine) {
         if (this.isInProgress)
             return;
-        const [root] = atom.project.relativizePath(file);
-        if (root === null)
-            return;
         this.isInProgress = true;
         const client = await this.getClient(file);
         const navTreeRes = await client.execute("navtree", { file });
@@ -124,13 +121,10 @@ class ChecklistResolver {
         return errorFiles;
     }
     async openFiles(triggerFile, checkList) {
-        const projectRootPath = this.getProjectRootPath(triggerFile);
-        if (projectRootPath === null)
-            return;
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const openFiles = checkList
             .filter(filePath => triggerFile !== filePath && !openedFiles.includes(filePath) && !this.files.has(filePath))
-            .map(file => ({ file, projectRootPath }));
+            .map(file => ({ file }));
         if (openFiles.length > 0) {
             await this.updateOpen(triggerFile, { openFiles });
             openFiles.forEach(({ file }) => this.addFile(file, triggerFile));
@@ -151,9 +145,8 @@ class ChecklistResolver {
         await client.execute("updateOpen", options);
     }
     addFile(filePath, target) {
-        if (this.files.has(filePath)) {
+        if (this.files.has(filePath))
             return;
-        }
         const disp = new atom_1.CompositeDisposable();
         const source = new atom_1.File(filePath);
         const fileMap = { target, source, disp };
@@ -170,7 +163,7 @@ class ChecklistResolver {
         this.subscriptions.remove(file.disp);
     }
     getOpenedFilesFromEditor(filePath) {
-        const projectRootPath = this.getProjectRootPath(filePath);
+        const [projectRootPath] = atom.project.relativizePath(filePath);
         if (projectRootPath === null)
             return [];
         return Array.from(utils_2.getOpenEditorsPaths()).reduce((acc, cur) => {
@@ -178,10 +171,6 @@ class ChecklistResolver {
                 acc.push(cur);
             return acc;
         }, []);
-    }
-    getProjectRootPath(filePath) {
-        const [projectRootPath] = atom.project.relativizePath(filePath);
-        return projectRootPath;
     }
 }
 exports.ChecklistResolver = ChecklistResolver;

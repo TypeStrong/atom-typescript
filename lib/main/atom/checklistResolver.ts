@@ -29,10 +29,6 @@ export class ChecklistResolver {
 
   public async check(file: string, startLine: number, endLine: number) {
     if (this.isInProgress) return
-
-    const [root] = atom.project.relativizePath(file)
-    if (root === null) return
-
     this.isInProgress = true
 
     const client = await this.getClient(file)
@@ -133,16 +129,13 @@ export class ChecklistResolver {
   }
 
   private async openFiles(triggerFile: string, checkList: string[]) {
-    const projectRootPath = this.getProjectRootPath(triggerFile)
-    if (projectRootPath === null) return
-
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
       .filter(
         filePath =>
           triggerFile !== filePath && !openedFiles.includes(filePath) && !this.files.has(filePath),
       )
-      .map(file => ({file, projectRootPath}))
+      .map(file => ({file}))
 
     if (openFiles.length > 0) {
       await this.updateOpen(triggerFile, {openFiles})
@@ -169,9 +162,8 @@ export class ChecklistResolver {
   }
 
   private addFile(filePath: string, target: string) {
-    if (this.files.has(filePath)) {
-      return
-    }
+    if (this.files.has(filePath)) return
+
     const disp = new CompositeDisposable()
     const source = new File(filePath)
     const fileMap = {target, source, disp}
@@ -188,6 +180,7 @@ export class ChecklistResolver {
   private removeFile(filePath: string) {
     const file = this.files.get(filePath)
     if (!file) return
+
     this.files.delete(filePath)
     this.subscriptions.remove(file.disp)
   }
@@ -209,16 +202,11 @@ export class ChecklistResolver {
   }
 
   private getOpenedFilesFromEditor(filePath: string) {
-    const projectRootPath = this.getProjectRootPath(filePath)
+    const [projectRootPath] = atom.project.relativizePath(filePath)
     if (projectRootPath === null) return []
     return Array.from(getOpenEditorsPaths()).reduce((acc: string[], cur: string) => {
       if (!acc.includes(cur) && cur.includes(projectRootPath)) acc.push(cur)
       return acc
     }, [])
-  }
-
-  private getProjectRootPath(filePath: string) {
-    const [projectRootPath] = atom.project.relativizePath(filePath)
-    return projectRootPath
   }
 }
