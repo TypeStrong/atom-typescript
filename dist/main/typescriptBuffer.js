@@ -74,9 +74,7 @@ class TypescriptBuffer {
         }), buffer.onDidStopChanging(({ changes }) => {
             utils_1.handlePromise(this.getErr({ allFiles: false }));
             if (changes.length > 0) {
-                if (atom.config.get("atom-typescript.checkRelatedFilesOnChange")) {
-                    utils_1.handlePromise(this.getErrRelated(changes));
-                }
+                utils_1.handlePromise(this.getErrRelated(changes));
                 this.deps.reportBuildStatus(undefined);
             }
         }), buffer.onDidChangeText(arg => {

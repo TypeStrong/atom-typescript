@@ -272,22 +272,25 @@ export class PluginManager {
     return getCodeHighlightProvider(this.getClient)
   }
 
-  private clearErrors = () => {
-    this.errorPusher.clear()
-  }
-
   private checkRelatedFiles = async (file: string, startLine: number, endLine: number) => {
+    if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
     return this.checklistResolver.check(file, startLine, endLine)
   }
 
   private clearFileErrors = (filePath: string) => {
     this.errorPusher.clearFileErrors(filePath)
+    if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
     const errorFiles = this.checklistResolver.revokeErrors(filePath)
     for (const file of errorFiles) this.errorPusher.clearFileErrors(file)
   }
 
-  private syncOpenFile = (file: string) => {
-    return this.checklistResolver.closeFile(file)
+  private syncOpenFile = async (file: string) => {
+    if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
+    await this.checklistResolver.closeFile(file)
+  }
+
+  private clearErrors = () => {
+    this.errorPusher.clear()
   }
 
   private getClient = async (filePath: string) => {
