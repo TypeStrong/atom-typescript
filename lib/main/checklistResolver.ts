@@ -1,11 +1,11 @@
 import {CompositeDisposable, Emitter, File} from "atom"
 import {Diagnostic, UpdateOpenRequestArgs} from "typescript/lib/protocol"
-import {GetClientFunction} from "../../client"
-import {EventTypes} from "../../client/clientResolver"
-import {handlePromise} from "../../utils"
-import {getOpenEditorsPaths, isTypescriptFile} from "./utils"
-import {findNodeAt, prepareNavTree} from "./views/outline/navTreeUtils"
-import {NavigationTreeViewModel} from "./views/outline/semanticViewModel"
+import {GetClientFunction, TSClient} from "../client"
+import {EventTypes} from "../client/clientResolver"
+import {handlePromise} from "../utils"
+import {getOpenEditorsPaths, isTypescriptFile} from "./atom/utils"
+import {findNodeAt, prepareNavTree} from "./atom/views/outline/navTreeUtils"
+import {NavigationTreeViewModel} from "./atom/views/outline/semanticViewModel"
 
 interface FileMap {
   source: File
@@ -13,23 +13,29 @@ interface FileMap {
   disp: CompositeDisposable
 }
 
+interface TriggerMap {
+  client: TSClient
+  file: string
+  references: string[]
+}
+
 type FileEvents = "changed" | "renamed" | "deleted"
 
 export class ChecklistResolver {
   private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
+  private triggers = new Map<string, TriggerMap>()
   private subscriptions = new CompositeDisposable()
   private emitter = new Emitter<{}, EventTypes>()
-  private isInProgress = false
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
 
   constructor(private getClient: GetClientFunction) {}
 
-  public async check(file: string, startLine: number, endLine: number) {
-    if (this.isInProgress) return
-    this.isInProgress = true
+  public async checkErrorAt(file: string, startLine: number, endLine: number) {
+    const triggerKey = `${file}:${startLine}:${endLine}}`
+    if (this.triggers.has(triggerKey)) return
 
     const client = await this.getClient(file)
     const navTreeRes = await client.execute("navtree", {file})
@@ -44,20 +50,10 @@ export class ChecklistResolver {
       references = res.body ? res.body.refs.map(ref => ref.file) : []
     }
 
-    const files = await this.makeList(file, references)
-    for (const filePath of files) {
-      const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
-      if (res.body) {
-        this.emitter.emit("diagnostics", {
-          filePath,
-          type: "semanticDiag",
-          serverPath: client.tsServerPath,
-          diagnostics: res.body as Diagnostic[],
-        })
-        this.setError(file, filePath, res.body.length !== 0)
-      }
-    }
-    await this.clearList(file)
+    this.triggers.set(triggerKey, {client, file, references})
+    if (this.triggers.size > 1) return
+
+    await this.checkErrors()
   }
 
   public async closeFile(filePath: string) {
@@ -79,24 +75,49 @@ export class ChecklistResolver {
   public dispose() {
     this.files.clear()
     this.errors.clear()
+    this.triggers.clear()
     this.emitter.dispose()
     this.subscriptions.dispose()
   }
 
-  private async makeList(triggerFile: string, references: string[]) {
-    const errors = this.getErrorsAt(triggerFile)
+  private async checkErrors() {
+    if (this.triggers.size === 0) return
+    const [[triggerKey, triggerMap]] = this.triggers.entries()
+    await this.checkReferences(triggerMap)
+    this.triggers.delete(triggerKey)
+    await this.checkErrors()
+  }
+
+  private async checkReferences({client, file, references}: TriggerMap) {
+    const files = await this.makeList(file, references)
+    for (const filePath of files) {
+      const res = await client.execute("semanticDiagnosticsSync", {file: filePath})
+      if (res.body) {
+        this.emitter.emit("diagnostics", {
+          filePath,
+          type: "semanticDiag",
+          serverPath: client.tsServerPath,
+          diagnostics: res.body as Diagnostic[],
+        })
+        this.setError(file, filePath, res.body.length !== 0)
+      }
+    }
+    await this.clearList(file)
+  }
+
+  private async makeList(file: string, references: string[]) {
+    const errors = this.getErrorsAt(file)
     const checkList = [...errors, ...references].reduce((acc: string[], cur: string) => {
       if (!acc.includes(cur) && isTypescriptFile(cur)) acc.push(cur)
       return acc
     }, [])
 
-    await this.openFiles(triggerFile, checkList)
+    await this.openFiles(file, checkList)
     return checkList
   }
 
   private async clearList(file: string) {
     if (this.files.size > 0) await this.closeFiles(file)
-    this.isInProgress = false
   }
 
   private setError(triggerFile: string, filePath: string, hasError: boolean) {

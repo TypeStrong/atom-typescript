@@ -15,7 +15,6 @@ const hyperclickProvider_1 = require("./atom-ide/hyperclickProvider");
 const outlineProvider_1 = require("./atom-ide/outlineProvider");
 const sigHelpProvider_1 = require("./atom-ide/sigHelpProvider");
 const autoCompleteProvider_1 = require("./atom/autoCompleteProvider");
-const checklistResolver_1 = require("./atom/checklistResolver");
 const codefix_1 = require("./atom/codefix");
 const intentionsProvider_1 = require("./atom/codefix/intentionsProvider");
 const commands_1 = require("./atom/commands");
@@ -27,6 +26,7 @@ const manager_3 = require("./atom/tooltips/manager");
 const utils_2 = require("./atom/utils");
 const semanticViewController_1 = require("./atom/views/outline/semanticViewController");
 const symbolsViewController_1 = require("./atom/views/symbols/symbolsViewController");
+const checklistResolver_1 = require("./checklistResolver");
 const errorPusher_1 = require("./errorPusher");
 const typescriptEditorPane_1 = require("./typescriptEditorPane");
 class PluginManager {
@@ -48,7 +48,7 @@ class PluginManager {
         this.checkRelatedFiles = async (file, startLine, endLine) => {
             if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)
                 return;
-            return this.checklistResolver.check(file, startLine, endLine);
+            return this.checklistResolver.checkErrorAt(file, startLine, endLine);
         };
         this.syncOpenFile = async (file) => {
             if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange)

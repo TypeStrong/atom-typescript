@@ -16,7 +16,6 @@ import {getHyperclickProvider} from "./atom-ide/hyperclickProvider"
 import {getOutlineProvider} from "./atom-ide/outlineProvider"
 import {TSSigHelpProvider} from "./atom-ide/sigHelpProvider"
 import {AutocompleteProvider} from "./atom/autoCompleteProvider"
-import {ChecklistResolver} from "./atom/checklistResolver"
 import {CodefixProvider} from "./atom/codefix"
 import {
   getIntentionsHighlightsProvider,
@@ -31,6 +30,7 @@ import {TooltipManager} from "./atom/tooltips/manager"
 import {isTypescriptEditorWithPath, spanToRange, TextSpan} from "./atom/utils"
 import {SemanticViewController} from "./atom/views/outline/semanticViewController"
 import {SymbolsViewController} from "./atom/views/symbols/symbolsViewController"
+import {ChecklistResolver} from "./checklistResolver"
 import {ErrorPusher} from "./errorPusher"
 import {State} from "./packageState"
 import {TypescriptEditorPane} from "./typescriptEditorPane"
@@ -285,7 +285,7 @@ export class PluginManager {
 
   private checkRelatedFiles = async (file: string, startLine: number, endLine: number) => {
     if (!atom.config.get("atom-typescript").checkRelatedFilesOnChange) return
-    return this.checklistResolver.check(file, startLine, endLine)
+    return this.checklistResolver.checkErrorAt(file, startLine, endLine)
   }
 
   private syncOpenFile = async (file: string) => {
