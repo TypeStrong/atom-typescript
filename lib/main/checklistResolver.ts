@@ -24,9 +24,10 @@ type FileEvents = "changed" | "renamed" | "deleted"
 export class ChecklistResolver {
   private files = new Map<string, FileMap>()
   private errors = new Map<string, Set<string>>()
-  private triggers = new Map<string, TriggerMap>()
+  private triggers = new Set<TriggerMap>()
   private subscriptions = new CompositeDisposable()
   private emitter = new Emitter<{}, EventTypes>()
+  private isBusy = false
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -34,9 +35,6 @@ export class ChecklistResolver {
   constructor(private getClient: GetClientFunction) {}
 
   public async checkErrorAt(file: string, startLine: number, endLine: number) {
-    const triggerKey = `${file}:${startLine}:${endLine}}`
-    if (this.triggers.has(triggerKey)) return
-
     const client = await this.getClient(file)
     const navTreeRes = await client.execute("navtree", {file})
     const navTree = navTreeRes.body as NavigationTreeViewModel
@@ -50,9 +48,7 @@ export class ChecklistResolver {
       references = res.body ? res.body.refs.map(ref => ref.file) : []
     }
 
-    this.triggers.set(triggerKey, {client, file, references})
-    if (this.triggers.size > 1) return
-
+    this.triggers.add({client, file, references})
     await this.checkErrors()
   }
 
@@ -81,11 +77,14 @@ export class ChecklistResolver {
   }
 
   private async checkErrors() {
-    if (this.triggers.size === 0) return
-    const [[triggerKey, triggerMap]] = this.triggers.entries()
-    await this.checkReferences(triggerMap)
-    this.triggers.delete(triggerKey)
-    await this.checkErrors()
+    if (!this.isBusy && this.triggers.size > 0) {
+      this.isBusy = true
+      const [triggerMap] = this.triggers
+      await this.checkReferences(triggerMap)
+      this.triggers.delete(triggerMap)
+      this.isBusy = false
+      await this.checkErrors()
+    }
   }
 
   private async checkReferences({client, file, references}: TriggerMap) {

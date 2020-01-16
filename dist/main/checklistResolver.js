@@ -9,9 +9,10 @@ class ChecklistResolver {
         this.getClient = getClient;
         this.files = new Map();
         this.errors = new Map();
-        this.triggers = new Map();
+        this.triggers = new Set();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.emitter = new atom_1.Emitter();
+        this.isBusy = false;
         // tslint:disable-next-line:member-ordering
         this.on = this.emitter.on.bind(this.emitter);
         this.trackHandler = (triggerFile, filePath, type) => () => {
@@ -27,9 +28,6 @@ class ChecklistResolver {
         };
     }
     async checkErrorAt(file, startLine, endLine) {
-        const triggerKey = `${file}:${startLine}:${endLine}}`;
-        if (this.triggers.has(triggerKey))
-            return;
         const client = await this.getClient(file);
         const navTreeRes = await client.execute("navtree", { file });
         const navTree = navTreeRes.body;
@@ -40,9 +38,7 @@ class ChecklistResolver {
             const res = await client.execute("references", Object.assign({ file }, node.nameSpan.start));
             references = res.body ? res.body.refs.map(ref => ref.file) : [];
         }
-        this.triggers.set(triggerKey, { client, file, references });
-        if (this.triggers.size > 1)
-            return;
+        this.triggers.add({ client, file, references });
         await this.checkErrors();
     }
     async closeFile(filePath) {
@@ -69,12 +65,14 @@ class ChecklistResolver {
         this.subscriptions.dispose();
     }
     async checkErrors() {
-        if (this.triggers.size === 0)
-            return;
-        const [[triggerKey, triggerMap]] = this.triggers.entries();
-        await this.checkReferences(triggerMap);
-        this.triggers.delete(triggerKey);
-        await this.checkErrors();
+        if (!this.isBusy && this.triggers.size > 0) {
+            this.isBusy = true;
+            const [triggerMap] = this.triggers;
+            await this.checkReferences(triggerMap);
+            this.triggers.delete(triggerMap);
+            this.isBusy = false;
+            await this.checkErrors();
+        }
     }
     async checkReferences({ client, file, references }) {
         const files = await this.makeList(file, references);
