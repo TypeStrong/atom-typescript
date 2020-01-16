@@ -47,6 +47,11 @@ export class TypescriptEditorPane {
       editor.onDidChangePath(this.checkIfTypescript),
       editor.onDidChangeGrammar(this.checkIfTypescript),
       editor.onDidDestroy(this.destroy),
+      editor.onDidSave(() => {
+        if (atom.config.get("atom-typescript.checkAllFilesOnSave")) {
+          atom.commands.dispatch(atom.views.getView(editor), "typescript:check-all-files")
+        }
+      }),
     )
   }
 

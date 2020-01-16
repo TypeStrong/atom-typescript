@@ -43,15 +43,7 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            if (atom.config.get("atom-typescript.checkAllFilesOnSave")) {
-                const ed = atom.workspace.getActiveTextEditor();
-                if (ed) {
-                    atom.commands.dispatch(atom.views.getView(ed), "typescript:check-all-files");
-                }
-            }
-            else {
-                await this.getErr({ allFiles: true });
-            }
+            await this.getErr({ allFiles: true });
             await this.doCompileOnSave();
         };
         this.onDidChangeText = async ({ changes }) => {

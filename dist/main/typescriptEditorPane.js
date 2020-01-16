@@ -38,7 +38,11 @@ class TypescriptEditorPane {
         this.buffer = typescriptBuffer_1.TypescriptBuffer.create(editor.getBuffer(), opts);
         this.subscriptions.add(this.buffer.on("opened", this.onOpened));
         this.checkIfTypescript();
-        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), editor.onDidDestroy(this.destroy));
+        this.subscriptions.add(editor.onDidChangePath(this.checkIfTypescript), editor.onDidChangeGrammar(this.checkIfTypescript), editor.onDidDestroy(this.destroy), editor.onDidSave(() => {
+            if (atom.config.get("atom-typescript.checkAllFilesOnSave")) {
+                atom.commands.dispatch(atom.views.getView(editor), "typescript:check-all-files");
+            }
+        }));
     }
     // tslint:disable-next-line:member-ordering
     static createFactory(opts) {
