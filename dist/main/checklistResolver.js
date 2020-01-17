@@ -132,21 +132,29 @@ class ChecklistResolver {
     async openFiles(triggerFile, checkList) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const openFiles = checkList
-            .filter(filePath => triggerFile !== filePath && !openedFiles.includes(filePath) && !this.files.has(filePath))
+            .filter(filePath => {
+            if (triggerFile !== filePath && !openedFiles.includes(filePath)) {
+                return this.addFile(filePath, triggerFile);
+            }
+            return false;
+        })
             .map(file => ({ file }));
         if (openFiles.length > 0) {
             await this.updateOpen(triggerFile, { openFiles });
-            openFiles.forEach(({ file }) => this.addFile(file, triggerFile));
         }
     }
     async closeFiles(triggerFile, checkList) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
         const closedFiles = (checkList === undefined
             ? Array.from(this.files.keys())
-            : checkList).filter(filePath => !openedFiles.includes(filePath));
+            : checkList).filter(filePath => {
+            if (!openedFiles.includes(filePath)) {
+                return this.removeFile(filePath);
+            }
+            return false;
+        });
         if (closedFiles.length > 0) {
             await this.updateOpen(triggerFile, { closedFiles });
-            closedFiles.forEach(filePath => this.removeFile(filePath));
         }
     }
     async updateOpen(filePath, options) {
@@ -155,21 +163,25 @@ class ChecklistResolver {
     }
     addFile(filePath, target) {
         if (this.files.has(filePath))
-            return;
-        const disp = new atom_1.CompositeDisposable();
+            return false;
         const source = new atom_1.File(filePath);
+        if (!source.existsSync())
+            return false;
+        const disp = new atom_1.CompositeDisposable();
         const fileMap = { target, source, disp };
         disp.add(source.onDidChange(this.trackHandler(target, filePath, "changed")), source.onDidDelete(this.trackHandler(target, filePath, "deleted")), source.onDidRename(this.trackHandler(target, filePath, "renamed")));
         this.files.set(filePath, fileMap);
         this.subscriptions.add(disp);
-        return fileMap;
+        return true;
     }
     removeFile(filePath) {
         const file = this.files.get(filePath);
         if (!file)
-            return;
+            return false;
+        file.disp.dispose();
         this.files.delete(filePath);
         this.subscriptions.remove(file.disp);
+        return true;
     }
     getOpenedFilesFromEditor(filePath) {
         const [projectRootPath] = atom.project.relativizePath(filePath);

@@ -148,15 +148,16 @@ export class ChecklistResolver {
   private async openFiles(triggerFile: string, checkList: string[]) {
     const openedFiles = this.getOpenedFilesFromEditor(triggerFile)
     const openFiles = checkList
-      .filter(
-        filePath =>
-          triggerFile !== filePath && !openedFiles.includes(filePath) && !this.files.has(filePath),
-      )
+      .filter(filePath => {
+        if (triggerFile !== filePath && !openedFiles.includes(filePath)) {
+          return this.addFile(filePath, triggerFile)
+        }
+        return false
+      })
       .map(file => ({file}))
 
     if (openFiles.length > 0) {
       await this.updateOpen(triggerFile, {openFiles})
-      openFiles.forEach(({file}) => this.addFile(file, triggerFile))
     }
   }
 
@@ -165,11 +166,15 @@ export class ChecklistResolver {
     const closedFiles = (checkList === undefined
       ? Array.from(this.files.keys())
       : checkList
-    ).filter(filePath => !openedFiles.includes(filePath))
+    ).filter(filePath => {
+      if (!openedFiles.includes(filePath)) {
+        return this.removeFile(filePath)
+      }
+      return false
+    })
 
     if (closedFiles.length > 0) {
       await this.updateOpen(triggerFile, {closedFiles})
-      closedFiles.forEach(filePath => this.removeFile(filePath))
     }
   }
 
@@ -179,10 +184,12 @@ export class ChecklistResolver {
   }
 
   private addFile(filePath: string, target: string) {
-    if (this.files.has(filePath)) return
+    if (this.files.has(filePath)) return false
+
+    const source = new File(filePath)
+    if (!source.existsSync()) return false
 
     const disp = new CompositeDisposable()
-    const source = new File(filePath)
     const fileMap = {target, source, disp}
     disp.add(
       source.onDidChange(this.trackHandler(target, filePath, "changed")),
@@ -191,15 +198,17 @@ export class ChecklistResolver {
     )
     this.files.set(filePath, fileMap)
     this.subscriptions.add(disp)
-    return fileMap
+    return true
   }
 
   private removeFile(filePath: string) {
     const file = this.files.get(filePath)
-    if (!file) return
+    if (!file) return false
 
+    file.disp.dispose()
     this.files.delete(filePath)
     this.subscriptions.remove(file.disp)
+    return true
   }
 
   private trackHandler = (triggerFile: string, filePath: string, type: FileEvents) => () => {
