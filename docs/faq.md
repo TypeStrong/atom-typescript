@@ -38,8 +38,24 @@ Add the following to your init script (Edit → Init Script... or File → Init
 Script... menu option -- the particular location depends on the platform for
 some reason).
 
+On newer Atom versions (when the init script is called `init.js`):
+
+```js
+{
+  // CHANGE THE PACKAGE NAME IN THE NEXT LINE
+  const grammarPackageImUsing = "typescript-grammar-you-want-to-use";
+  atom.packages.onDidTriggerActivationHook(
+    `${grammarPackageImUsing}:grammar-used`,
+    () =>
+      atom.packages.triggerActivationHook("language-typescript:grammar-used")
+  );
+}
+```
+
+On older Atom versions (when the init script is called `init.coffee`):
+
 ```coffee
-#CHANGE THE PACKAGE NAME IN THE NEXT LINE
+# CHANGE THE PACKAGE NAME IN THE NEXT LINE
 do (grammarPackageImUsing = "typescript-grammar-you-want-to-use") ->
   atom.packages.onDidTriggerActivationHook "#{grammarPackageImUsing}:grammar-used", ->
     atom.packages.triggerActivationHook 'language-typescript:grammar-used'
