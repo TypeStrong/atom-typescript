@@ -40,6 +40,13 @@
       "default": "false",
       "order": 91
     },
+    "checkAllFilesOnSave": {
+      "title": "Show problems for project",
+      "description": "It will be report all problems in current project when your file saved.",
+      "type": "boolean",
+      "default": "false",
+      "order": 92
+    },
     "autocompletionSuggestionPriority": {
       "description": "Snippets etc have priority of 1. Requires Atom restart",
       "type": "integer",
