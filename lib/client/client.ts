@@ -10,6 +10,7 @@ import {
   AllTSClientCommands,
   CommandArg,
   CommandRes,
+  CommandsWithMultistep,
   CommandsWithResponse,
 } from "./commandArgsResponseMap"
 import {EventTypes} from "./events"
@@ -43,10 +44,20 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   getEditsForFileRename: true,
 }
 
+const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = {
+  geterr: true,
+  geterrForProject: true,
+}
+
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
+const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
+}
+
+function isCommandWithMultistep(command: AllTSClientCommands): command is CommandsWithMultistep {
+  return commandWithMultistep.has(command)
 }
 
 export class TypescriptServiceClient {
@@ -64,6 +75,7 @@ export class TypescriptServiceClient {
 
   private server?: ChildProcess
   private lastStderrOutput = ""
+  private isSupportMultistep: boolean
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -73,6 +85,10 @@ export class TypescriptServiceClient {
     public version: string,
     private reportBusyWhile: ReportBusyWhile,
   ) {
+    // multistep completion event is supported as of TS version 2.2
+    const [major, minor] = version.split(".")
+    this.isSupportMultistep = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2
+
     this.callbacks = new Callbacks(this.reportBusyWhile)
     this.server = this.startServer()
   }
@@ -96,9 +112,10 @@ export class TypescriptServiceClient {
       console.log("sending request", req)
     }
 
-    const result = isCommandWithResponse(command)
-      ? this.callbacks.add(req.seq, command)
-      : (undefined as CommandRes<T>)
+    const result =
+      isCommandWithResponse(command) || (this.isSupportMultistep && isCommandWithMultistep(command))
+        ? this.callbacks.add(req.seq, command)
+        : (undefined as CommandRes<T>)
 
     try {
       this.server.stdin.write(JSON.stringify(req) + "\n")
@@ -189,8 +206,14 @@ export class TypescriptServiceClient {
       console.log("received event", res)
     }
 
-    // tslint:disable-next-line:no-unsafe-any
-    if (res.body) this.emitter.emit(res.event as keyof EventTypes, res.body)
+    if (res.body) {
+      // tslint:disable-next-line:no-unsafe-any
+      this.emitter.emit(res.event as keyof EventTypes, res.body)
+      if (this.isSupportMultistep && res.event === "requestCompleted") {
+        // tslint:disable-next-line:no-unsafe-any
+        this.callbacks.resolve(res.body.request_seq, null)
+      }
+    }
   }
 }
 

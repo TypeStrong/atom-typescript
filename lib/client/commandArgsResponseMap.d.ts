@@ -46,6 +46,8 @@ export type CommandsWithResponse = {
   [K in AllTSClientCommands]: CommandRes<K> extends void ? never : K
 }[AllTSClientCommands]
 
+export type CommandsWithMultistep = "geterr" | "geterrForProject"
+
 export type ArgType<T extends (x: any) => any> = T extends (...x: infer U) => any ? U : never
 
 export type CommandArg<T extends AllTSClientCommands> = ArgType<CommandArgResponseMap[T]>

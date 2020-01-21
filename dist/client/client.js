@@ -32,9 +32,17 @@ const commandWithResponseMap = {
     signatureHelp: true,
     getEditsForFileRename: true,
 };
+const commandsWithMultistepMap = {
+    geterr: true,
+    geterrForProject: true,
+};
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
+const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap));
 function isCommandWithResponse(command) {
     return commandWithResponse.has(command);
+}
+function isCommandWithMultistep(command) {
+    return commandWithMultistep.has(command);
 }
 class TypescriptServiceClient {
     constructor(tsServerPath, version, reportBusyWhile) {
@@ -70,6 +78,9 @@ class TypescriptServiceClient {
             else
                 this.onEvent(res);
         };
+        // multistep completion event is supported as of TS version 2.2
+        const [major, minor] = version.split(".");
+        this.isSupportMultistep = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2;
         this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.server = this.startServer();
     }
@@ -86,7 +97,7 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("sending request", req);
         }
-        const result = isCommandWithResponse(command)
+        const result = isCommandWithResponse(command) || (this.isSupportMultistep && isCommandWithMultistep(command))
             ? this.callbacks.add(req.seq, command)
             : undefined;
         try {
@@ -150,9 +161,14 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("received event", res);
         }
-        // tslint:disable-next-line:no-unsafe-any
-        if (res.body)
+        if (res.body) {
+            // tslint:disable-next-line:no-unsafe-any
             this.emitter.emit(res.event, res.body);
+            if (this.isSupportMultistep && res.event === "requestCompleted") {
+                // tslint:disable-next-line:no-unsafe-any
+                this.callbacks.resolve(res.body.request_seq, null);
+            }
+        }
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;
