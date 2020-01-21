@@ -75,6 +75,7 @@ export class SigHelpManager {
   private stoppedChanging = (editor: Atom.TextEditor) => (
     event: Atom.BufferStoppedChangingEvent,
   ) => {
+    if (!atom.config.get("atom-typescript.sigHelpDisplayOnChange")) return
     const filePath = editor.getPath()
     if (filePath === undefined) return
     const pos = editor.getLastCursor().getBufferPosition()

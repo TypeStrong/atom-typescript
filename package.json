@@ -131,6 +131,13 @@
       "default": "top",
       "order": 62
     },
+    "sigHelpDisplayOnChange": {
+      "title": "Display signature help tooltips on keystroke",
+      "description": "Will automatically show signature help (if any) after `(`, `,`, `<` keystroke",
+      "type": "boolean",
+      "default": true,
+      "order": 63
+    },
     "autocompleteParens": {
       "title": "Autocomplete parentheses",
       "description": "Automatically insert parentheses after autocompleting functions and methods",

@@ -1,12 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const atom_1 = require("atom");
 const utils_1 = require("../atom/utils");
 class TSSigHelpProvider {
     constructor(getClient) {
         this.getClient = getClient;
-        this.triggerCharacters = new Set(["<", "(", ","]);
+        this.triggerCharacters = new Set([]);
         this.grammarScopes = utils_1.typeScriptScopes();
         this.priority = 100;
+        this.disposables = new atom_1.CompositeDisposable();
+        const triggerCharsDefault = new Set(["<", "(", ","]);
+        const triggerCharsDisabled = new Set([]);
+        this.disposables.add(atom.config.observe("atom-typescript.sigHelpDisplayOnChange", newVal => {
+            this.triggerCharacters = newVal ? triggerCharsDefault : triggerCharsDisabled;
+        }));
+    }
+    dispose() {
+        this.disposables.dispose();
     }
     async getSignatureHelp(editor, pos) {
         try {

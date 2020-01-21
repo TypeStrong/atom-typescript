@@ -15,6 +15,7 @@ declare module "atom" {
     "atom-typescript.tooltipDelay": number
     "atom-typescript.tooltipPosition": "top" | "bottom"
     "atom-typescript.sigHelpPosition": "top" | "bottom"
+    "atom-typescript.sigHelpDisplayOnChange": boolean
     "atom-typescript.autocompleteParens": boolean
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
@@ -41,6 +42,7 @@ declare module "atom" {
       tooltipDelay: number
       tooltipPosition: "top" | "bottom"
       sigHelpPosition: "top" | "bottom"
+      sigHelpDisplayOnChange: boolean
       autocompleteParens: boolean
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
