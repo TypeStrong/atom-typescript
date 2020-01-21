@@ -156,9 +156,7 @@ export class ChecklistResolver {
       })
       .map(file => ({file}))
 
-    if (openFiles.length > 0) {
-      await this.updateOpen(triggerFile, {openFiles})
-    }
+    await this.updateOpen(triggerFile, {openFiles})
   }
 
   private async closeFiles(triggerFile: string, checkList?: string[]) {
@@ -173,12 +171,12 @@ export class ChecklistResolver {
       return false
     })
 
-    if (closedFiles.length > 0) {
-      await this.updateOpen(triggerFile, {closedFiles})
-    }
+    await this.updateOpen(triggerFile, {closedFiles})
   }
 
   private async updateOpen(filePath: string, options: UpdateOpenRequestArgs) {
+    const {openFiles, closedFiles} = options
+    if ((closedFiles && closedFiles.length === 0) || (openFiles && openFiles.length === 0)) return
     const client = await this.getClient(filePath)
     await client.execute("updateOpen", options)
   }

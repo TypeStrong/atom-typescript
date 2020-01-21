@@ -139,9 +139,7 @@ class ChecklistResolver {
             return false;
         })
             .map(file => ({ file }));
-        if (openFiles.length > 0) {
-            await this.updateOpen(triggerFile, { openFiles });
-        }
+        await this.updateOpen(triggerFile, { openFiles });
     }
     async closeFiles(triggerFile, checkList) {
         const openedFiles = this.getOpenedFilesFromEditor(triggerFile);
@@ -153,11 +151,12 @@ class ChecklistResolver {
             }
             return false;
         });
-        if (closedFiles.length > 0) {
-            await this.updateOpen(triggerFile, { closedFiles });
-        }
+        await this.updateOpen(triggerFile, { closedFiles });
     }
     async updateOpen(filePath, options) {
+        const { openFiles, closedFiles } = options;
+        if ((closedFiles && closedFiles.length === 0) || (openFiles && openFiles.length === 0))
+            return;
         const client = await this.getClient(filePath);
         await client.execute("updateOpen", options);
     }
