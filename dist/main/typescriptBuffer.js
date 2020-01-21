@@ -24,7 +24,7 @@ class TypescriptBuffer {
                 file: this.state.filePath,
                 fileContent: this.buffer.getText(),
             });
-            await this.getErr({ allFiles: false });
+            utils_1.handlePromise(this.getErr({ allFiles: false }));
         };
         this.close = async () => {
             await this.openPromise;
@@ -43,8 +43,7 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            await this.getErr({ allFiles: true });
-            await this.doCompileOnSave();
+            await Promise.all([this.getErr({ allFiles: true }), this.doCompileOnSave()]);
         };
         this.onDidChangeText = async ({ changes }) => {
             // If there are no actual changes, or the file isn't open, we have nothing to do

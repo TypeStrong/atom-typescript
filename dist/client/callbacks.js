@@ -10,6 +10,7 @@ class Callbacks {
         try {
             const promise = new Promise((resolve, reject) => {
                 this.callbacks.set(seq, {
+                    command,
                     resolve,
                     reject,
                     started: Date.now(),
@@ -27,21 +28,31 @@ class Callbacks {
         }
         this.callbacks.clear();
     }
-    resolve(seq, res) {
-        const req = this.callbacks.get(seq);
+    resolve(res) {
+        const req = this.callbacks.get(res.request_seq);
         if (req) {
             if (window.atom_typescript_debug) {
-                console.log("received response for", res !== null && res.command, "in", Date.now() - req.started, "ms", "with data", res !== null && res.body);
+                console.log("received response for", res.command, "in", Date.now() - req.started, "ms", "with data", res.body);
             }
-            if (res === null)
-                req.resolve(res);
-            else if (res.success)
+            if (res.success)
                 req.resolve(res);
             else
                 req.reject(new Error(res.message));
         }
         else
             console.warn("unexpected response:", res);
+    }
+    resolveMS(body) {
+        const req = this.callbacks.get(body.request_seq);
+        if (req) {
+            if (window.atom_typescript_debug) {
+                console.log(`received requestCompleted event for multistep command ${req.command} in ${Date.now() -
+                    req.started} ms`);
+            }
+            req.resolve(undefined);
+        }
+        else
+            console.warn(`unexpected requestCompleted event:`, body);
     }
     error(seq, err) {
         const req = this.callbacks.get(seq);

@@ -171,7 +171,7 @@ export class TypescriptBuffer {
       fileContent: this.buffer.getText(),
     })
 
-    await this.getErr({allFiles: false})
+    handlePromise(this.getErr({allFiles: false}))
   }
 
   private close = async () => {
@@ -195,8 +195,7 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    await this.getErr({allFiles: true})
-    await this.doCompileOnSave()
+    await Promise.all([this.getErr({allFiles: true}), this.doCompileOnSave()])
   }
 
   private onDidChangeText = async ({changes}: {changes: ReadonlyArray<Atom.TextChange>}) => {

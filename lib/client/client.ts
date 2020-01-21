@@ -13,7 +13,7 @@ import {
   CommandsWithMultistep,
   CommandsWithResponse,
 } from "./commandArgsResponseMap"
-import {EventTypes} from "./events"
+import {DiagnosticEventTypes} from "./events"
 
 // Set this to true to start tsserver with node --inspect
 const INSPECT_TSSERVER = false
@@ -49,8 +49,16 @@ const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = 
   geterrForProject: true,
 }
 
+const eventTypesMap: {readonly [K in keyof DiagnosticEventTypes]: true} = {
+  configFileDiag: true,
+  semanticDiag: true,
+  suggestionDiag: true,
+  syntaxDiag: true,
+}
+
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
 const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
+const eventTypes = new Set(Object.keys(eventTypesMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
@@ -60,7 +68,12 @@ function isCommandWithMultistep(command: AllTSClientCommands): command is Comman
   return commandWithMultistep.has(command)
 }
 
+function isKnownDiagEventType(event: string): event is keyof DiagnosticEventTypes {
+  return eventTypes.has(event)
+}
+
 export class TypescriptServiceClient {
+  public readonly multistepSupported: boolean
   /** Callbacks that are waiting for responses */
   private readonly callbacks: Callbacks
 
@@ -69,13 +82,12 @@ export class TypescriptServiceClient {
       restarted: void
       terminated: void
     },
-    EventTypes
+    DiagnosticEventTypes
   >()
   private seq = 0
 
   private server?: ChildProcess
   private lastStderrOutput = ""
-  private isSupportMultistep: boolean
 
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -87,7 +99,7 @@ export class TypescriptServiceClient {
   ) {
     // multistep completion event is supported as of TS version 2.2
     const [major, minor] = version.split(".")
-    this.isSupportMultistep = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2
+    this.multistepSupported = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2
 
     this.callbacks = new Callbacks(this.reportBusyWhile)
     this.server = this.startServer()
@@ -112,10 +124,13 @@ export class TypescriptServiceClient {
       console.log("sending request", req)
     }
 
-    const result =
-      isCommandWithResponse(command) || (this.isSupportMultistep && isCommandWithMultistep(command))
-        ? this.callbacks.add(req.seq, command)
-        : (undefined as CommandRes<T>)
+    let result: CommandRes<T> | Promise<CommandRes<T>> = undefined as CommandRes<T>
+    if (
+      isCommandWithResponse(command) ||
+      (this.multistepSupported && isCommandWithMultistep(command))
+    ) {
+      result = this.callbacks.add(req.seq, command)
+    }
 
     try {
       this.server.stdin.write(JSON.stringify(req) + "\n")
@@ -193,12 +208,8 @@ export class TypescriptServiceClient {
   }
 
   private onMessage = (res: protocol.Response | protocol.Event) => {
-    if (res.type === "response") this.onResponse(res)
+    if (res.type === "response") this.callbacks.resolve(res)
     else this.onEvent(res)
-  }
-
-  private onResponse(res: protocol.Response) {
-    this.callbacks.resolve(res.request_seq, res)
   }
 
   private onEvent(res: protocol.Event) {
@@ -207,11 +218,10 @@ export class TypescriptServiceClient {
     }
 
     if (res.body) {
-      // tslint:disable-next-line:no-unsafe-any
-      this.emitter.emit(res.event as keyof EventTypes, res.body)
-      if (this.isSupportMultistep && res.event === "requestCompleted") {
-        // tslint:disable-next-line:no-unsafe-any
-        this.callbacks.resolve(res.body.request_seq, null)
+      if (isKnownDiagEventType(res.event)) {
+        this.emitter.emit(res.event, res.body as DiagnosticEventTypes[keyof DiagnosticEventTypes])
+      } else if (res.event === "requestCompleted") {
+        this.callbacks.resolveMS(res.body as protocol.RequestCompletedEventBody)
       }
     }
   }
