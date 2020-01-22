@@ -9,7 +9,7 @@ class ChecklistResolver {
         this.getClient = getClient;
         this.files = new Map();
         this.errors = new Map();
-        this.triggers = new Set();
+        this.triggers = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.emitter = new atom_1.Emitter();
         this.isBusy = false;
@@ -28,6 +28,8 @@ class ChecklistResolver {
         };
     }
     async checkErrorAt(file, startLine, endLine) {
+        if (this.triggers.has(`${file}:${startLine}:${endLine}`))
+            return;
         const client = await this.getClient(file);
         const navTreeRes = await client.execute("navtree", { file });
         const navTree = navTreeRes.body;
@@ -38,7 +40,7 @@ class ChecklistResolver {
             const res = await client.execute("references", Object.assign({ file }, node.nameSpan.start));
             references = res.body ? res.body.refs.map(ref => ref.file) : [];
         }
-        this.triggers.add({ client, file, references });
+        this.triggers.set(`${file}:${startLine}:${endLine}`, { client, file, references });
         await this.checkErrors();
     }
     async closeFile(filePath) {
@@ -67,9 +69,9 @@ class ChecklistResolver {
     async checkErrors() {
         if (!this.isBusy && this.triggers.size > 0) {
             this.isBusy = true;
-            const [triggerMap] = this.triggers;
+            const [[triggerKey, triggerMap]] = this.triggers;
             await this.checkReferences(triggerMap);
-            this.triggers.delete(triggerMap);
+            this.triggers.delete(triggerKey);
             this.isBusy = false;
             await this.checkErrors();
         }

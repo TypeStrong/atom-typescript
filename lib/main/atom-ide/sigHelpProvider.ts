@@ -1,14 +1,27 @@
-import {Point, TextEditor} from "atom"
+import {CompositeDisposable, Point, TextEditor} from "atom"
 import {SignatureHelp, SignatureHelpProvider} from "atom/ide"
 import {GetClientFunction} from "../../client"
 import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
 
 export class TSSigHelpProvider implements SignatureHelpProvider {
-  public triggerCharacters = new Set<string>(["<", "(", ","])
+  public triggerCharacters = new Set<string>([])
   public grammarScopes = typeScriptScopes()
   public priority = 100
+  private disposables = new CompositeDisposable()
 
-  constructor(private getClient: GetClientFunction) {}
+  constructor(private getClient: GetClientFunction) {
+    const triggerCharsDefault = new Set(["<", "(", ","])
+    const triggerCharsDisabled = new Set<string>([])
+    this.disposables.add(
+      atom.config.observe("atom-typescript.sigHelpDisplayOnChange", newVal => {
+        this.triggerCharacters = newVal ? triggerCharsDefault : triggerCharsDisabled
+      }),
+    )
+  }
+
+  public dispose() {
+    this.disposables.dispose()
+  }
 
   public async getSignatureHelp(
     editor: TextEditor,

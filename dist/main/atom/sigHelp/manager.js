@@ -11,6 +11,8 @@ class SigHelpManager {
         this.subscriptions = new Atom.CompositeDisposable();
         this.editorMap = new WeakMap();
         this.stoppedChanging = (editor) => (event) => {
+            if (!atom.config.get("atom-typescript.sigHelpDisplayOnChange"))
+                return;
             const filePath = editor.getPath();
             if (filePath === undefined)
                 return;

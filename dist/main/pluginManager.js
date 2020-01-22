@@ -262,8 +262,9 @@ class PluginManager {
     consumeSigHelpService(registry) {
         if (atom.config.get("atom-typescript").preferBuiltinSigHelp)
             return;
-        const disp = registry(new sigHelpProvider_1.TSSigHelpProvider(this.getClient));
-        this.subscriptions.add(disp);
+        const provider = new sigHelpProvider_1.TSSigHelpProvider(this.getClient);
+        const disp = registry(provider);
+        this.subscriptions.add(disp, provider);
         this.sigHelpManager.dispose();
         this.usingBuiltinSigHelpManager = false;
         return disp;
