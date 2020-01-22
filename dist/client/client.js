@@ -32,9 +32,27 @@ const commandWithResponseMap = {
     signatureHelp: true,
     getEditsForFileRename: true,
 };
+const commandsWithMultistepMap = {
+    geterr: true,
+    geterrForProject: true,
+};
+const eventTypesMap = {
+    configFileDiag: true,
+    semanticDiag: true,
+    suggestionDiag: true,
+    syntaxDiag: true,
+};
 const commandWithResponse = new Set(Object.keys(commandWithResponseMap));
+const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap));
+const eventTypes = new Set(Object.keys(eventTypesMap));
 function isCommandWithResponse(command) {
     return commandWithResponse.has(command);
+}
+function isCommandWithMultistep(command) {
+    return commandWithMultistep.has(command);
+}
+function isKnownDiagEventType(event) {
+    return eventTypes.has(event);
 }
 class TypescriptServiceClient {
     constructor(tsServerPath, version, reportBusyWhile) {
@@ -66,10 +84,13 @@ class TypescriptServiceClient {
         };
         this.onMessage = (res) => {
             if (res.type === "response")
-                this.onResponse(res);
+                this.callbacks.resolve(res);
             else
                 this.onEvent(res);
         };
+        // multistep completion event is supported as of TS version 2.2
+        const [major, minor] = version.split(".");
+        this.multistepSupported = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2;
         this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.server = this.startServer();
     }
@@ -86,9 +107,11 @@ class TypescriptServiceClient {
         if (window.atom_typescript_debug) {
             console.log("sending request", req);
         }
-        const result = isCommandWithResponse(command)
-            ? this.callbacks.add(req.seq, command)
-            : undefined;
+        let result = undefined;
+        if (isCommandWithResponse(command) ||
+            (this.multistepSupported && isCommandWithMultistep(command))) {
+            result = this.callbacks.add(req.seq, command);
+        }
         try {
             this.server.stdin.write(JSON.stringify(req) + "\n");
         }
@@ -143,16 +166,18 @@ class TypescriptServiceClient {
         });
         return cp;
     }
-    onResponse(res) {
-        this.callbacks.resolve(res.request_seq, res);
-    }
     onEvent(res) {
         if (window.atom_typescript_debug) {
             console.log("received event", res);
         }
-        // tslint:disable-next-line:no-unsafe-any
-        if (res.body)
-            this.emitter.emit(res.event, res.body);
+        if (res.body) {
+            if (isKnownDiagEventType(res.event)) {
+                this.emitter.emit(res.event, res.body);
+            }
+            else if (res.event === "requestCompleted") {
+                this.callbacks.resolveMS(res.body);
+            }
+        }
     }
 }
 exports.TypescriptServiceClient = TypescriptServiceClient;

@@ -22,25 +22,38 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         // the files set is going to receive a a diagnostic event (typically some d.ts files). To counter
         // that, we cancel the listener and close the progress bar after no diagnostics have been received
         // for some amount of time.
-        let cancelTimeout;
-        const disp = client.on("syntaxDiag", evt => {
-            if (cancelTimeout !== undefined)
-                window.clearTimeout(cancelTimeout);
-            cancelTimeout = window.setTimeout(() => {
-                files.clear();
-                disp.dispose();
-                deps.reportProgress({ max, value: max });
-            }, 2000);
-            if ("file" in evt)
-                files.delete(evt.file);
-            if (files.size === 0) {
-                disp.dispose();
-                window.clearTimeout(cancelTimeout);
-            }
-            deps.reportProgress({ max, value: max - files.size });
-        });
-        deps.reportProgress({ max, value: 0 });
-        await client.execute("geterrForProject", { file, delay: 0 });
+        // That is, if we can't rely on multistep
+        if (client.multistepSupported) {
+            const disp = client.on("syntaxDiag", evt => {
+                if ("file" in evt)
+                    files.delete(evt.file);
+                deps.reportProgress({ max, value: max - files.size });
+            });
+            deps.reportProgress({ max, value: 0 });
+            await client.execute("geterrForProject", { file, delay: 0 });
+            disp.dispose();
+        }
+        else {
+            let cancelTimeout;
+            const disp = client.on("syntaxDiag", evt => {
+                if (cancelTimeout !== undefined)
+                    window.clearTimeout(cancelTimeout);
+                cancelTimeout = window.setTimeout(() => {
+                    files.clear();
+                    disp.dispose();
+                    deps.reportProgress({ max, value: max });
+                }, 2000);
+                if ("file" in evt)
+                    files.delete(evt.file);
+                if (files.size === 0) {
+                    disp.dispose();
+                    window.clearTimeout(cancelTimeout);
+                }
+                deps.reportProgress({ max, value: max - files.size });
+            });
+            deps.reportProgress({ max, value: 0 });
+            await client.execute("geterrForProject", { file, delay: 0 });
+        }
     },
 }));
 //# sourceMappingURL=checkAllFiles.js.map
