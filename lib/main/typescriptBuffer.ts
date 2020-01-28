@@ -87,7 +87,7 @@ export class TypescriptBuffer {
     })
   }
 
-  private async getErrRelated(changes: Atom.TextChange[]) {
+  private async getErrRelated(changes: ReadonlyArray<Atom.TextChange>) {
     if (!this.state || !this.state.filePath) return
     const {filePath} = this.state
     for (const {

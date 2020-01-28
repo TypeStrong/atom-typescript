@@ -12,7 +12,6 @@ class ChecklistResolver {
         this.triggers = new Map();
         this.subscriptions = new atom_1.CompositeDisposable();
         this.emitter = new atom_1.Emitter();
-        this.isBusy = false;
         // tslint:disable-next-line:member-ordering
         this.on = this.emitter.on.bind(this.emitter);
         this.trackHandler = (triggerFile, filePath, type) => () => {
@@ -28,7 +27,8 @@ class ChecklistResolver {
         };
     }
     async checkErrorAt(file, startLine, endLine) {
-        if (this.triggers.has(`${file}:${startLine}:${endLine}`))
+        const triggerKey = `${file}:${startLine}:${endLine}`;
+        if (this.triggers.has(triggerKey))
             return;
         const client = await this.getClient(file);
         const navTreeRes = await client.execute("navtree", { file });
@@ -40,8 +40,10 @@ class ChecklistResolver {
             const res = await client.execute("references", Object.assign({ file }, node.nameSpan.start));
             references = res.body ? res.body.refs.map(ref => ref.file) : [];
         }
-        this.triggers.set(`${file}:${startLine}:${endLine}`, { client, file, references });
-        await this.checkErrors();
+        this.triggers.set(triggerKey, { client, file, references });
+        if (this.triggers.size > 1)
+            return;
+        utils_1.handlePromise(this.checkErrors());
     }
     async closeFile(filePath) {
         var _a;
@@ -67,14 +69,12 @@ class ChecklistResolver {
         this.subscriptions.dispose();
     }
     async checkErrors() {
-        if (!this.isBusy && this.triggers.size > 0) {
-            this.isBusy = true;
-            const [[triggerKey, triggerMap]] = this.triggers;
+        for (const [triggerKey, triggerMap] of this.triggers) {
             await this.checkReferences(triggerMap);
             this.triggers.delete(triggerKey);
-            this.isBusy = false;
-            await this.checkErrors();
         }
+        if (this.triggers.size > 0)
+            await this.checkErrors();
     }
     async checkReferences({ client, file, references }) {
         const files = await this.makeList(file, references);
@@ -99,6 +99,7 @@ class ChecklistResolver {
                 acc.push(cur);
             return acc;
         }, []);
+        this.errors.delete(file);
         await this.openFiles(file, checkList);
         return checkList;
     }
