@@ -31,7 +31,8 @@
     "no-unbound-method": true,
     "no-shadowed-variable": true,
     "no-floating-promises": true,
-    "await-promise": true
+    "await-promise": true,
+    "array-type": [true, "array-simple"]
   },
   "rulesDirectory": []
 }
