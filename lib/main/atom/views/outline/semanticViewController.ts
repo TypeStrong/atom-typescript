@@ -2,7 +2,7 @@ import {CompositeDisposable} from "atom"
 import {Disposable} from "atom"
 import {GetClientFunction} from "../../../../client"
 import {handlePromise} from "../../../../utils"
-import {SEMANTIC_VIEW_URI, SemanticView} from "./semanticView"
+import {SemanticView, SEMANTIC_VIEW_URI} from "./semanticView"
 
 export class SemanticViewController {
   private view?: SemanticView
