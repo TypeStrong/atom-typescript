@@ -31,6 +31,7 @@
 -   [CI][Stale-bot] Don't mark enhancement issues as stale
 -   Add typings for `atom-package-deps`
 -   Add docs note on `init.js` vs `init.coffee`
+-   Bump bundled TypeScript to 3.7.5
 
 ## 13.4.8
 
