@@ -1,3 +1,37 @@
+## 13.5.0
+
+### New features
+
+-   Add configurable tsdk path options
+
+    This adds an ability to specify custom TypeScript SDK per-project or
+    globally (the latter will replace bundled TypeScript version)
+
+    The overview of how Atom-TypeScript decides what SDK it should use and how to configure that is available in `docs/advanced.md`
+
+-   A new configuration option `autocompleteParens` ("Autocomplete parentheses" in Atom settings UI) to insert parentheses after autocompleting functions\/methods (disabled by default)
+
+-   Hyperclick on the definition will now show references to the definition. Previously it did nothing. With many thanks to Joon Kyoung.
+
+-   A new configuration option `checkAllFilesOnSave` ("Show problems for project" in Atom settings UI) to automatically check all files on file save (disabled by default). With many thanks to Joon Kyoung.
+
+-   A new configuration option `sigHelpDisplayOnChange` ("Display signature help tooltips on keystroke"), which controls whether signature help is displayed on keystroke (enabled by default).
+
+    Even when this option is disabled, one can manually open signature help tooltip with `typescript:show-signature-help` command.
+
+-   Support multi-step command reports from tsserver when available.
+
+    One particular effect of this feature is that on newer TypeScript versions, check-all-files reports completion about 2 seconds faster.
+
+    With many thanks to Joon Kyoung.
+
+### Maintenance
+
+-   [CI] Test for stray untracked files
+-   [CI][Stale-bot] Don't mark enhancement issues as stale
+-   Add typings for `atom-package-deps`
+-   Add docs note on `init.js` vs `init.coffee`
+
 ## 13.4.8
 
 -   Remove stray console.log
