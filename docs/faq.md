@@ -84,6 +84,28 @@ do (grammarPackageImUsing = "language-javascript") ->
     atom.packages.triggerActivationHook 'language-typescript:grammar-used'
 ```
 
+## I want to use the keyboard to control type tooltips instead of hovering the mouse
+
+For keyboard-activated tooltips, bind a shortcut you like to `typescript:show-tooltip` command. See [Atom Flight Manual section on customizing keybindings](https://flight-manual.atom.io/using-atom/sections/basic-customization/#customizing-keybindings) for more information on the topic.
+
+It's recommended to add the key binding to `atom-text-editor` selector, since the command is editor-bound. If you want a more specific selector, use `atom-text-editor:not([mini]).typescript-editor`, which will only trigger on editors managed by atom-typescript.
+
+Also see the next question.
+
+## I want to disable type tooltips on hover
+
+If you want to disable tooltips on hover, the easy way to do this is by setting tooltip delay to a very high value (`86400000` for instance is a delay of 24 hours, which should be reasonably large for tooltips to never appear at all).
+
+If you're using built-in tooltips (the baby blue ones -- or whatever colour the generic tooltips are in your ui theme), then adjust "Type tooltip delay" setting in atom-typescript settings accordingly.
+
+With atom-ide-ui, you can find a similar option in atom-ide-ui settings under "Datatips".
+
+## Signature help tooltips are popping up on keystroke, this is annoying, how do I turn it off?
+
+You can turn this off via an option in atom-typescript settings, called "Display signature help tooltips on keystroke" in the settings UI, and `sigHelpDisplayOnChange` in the config.
+
+You can still display signature help manually via `typescript:show-signature-help` command, which you can also bind to a keyboard shortcut if you want. See [Atom Flight Manual section on customizing keybindings](https://flight-manual.atom.io/using-atom/sections/basic-customization/#customizing-keybindings) for more information on the topic.
+
 ## Atom can't find modules/files that I just added
 
 ## Atom complains about errors that shouldn't happen with my tsconfig on new files
