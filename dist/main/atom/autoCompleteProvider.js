@@ -17,16 +17,14 @@ class AutocompleteProvider {
     }
     async getSuggestions(opts) {
         const location = getLocationQuery(opts);
-        const { prefix } = opts;
-        if (!location) {
+        const prefix = getPrefix(opts);
+        if (!location)
             return [];
-        }
-        // Don't show autocomplete if the previous character was a non word character except "."
-        const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition);
-        if (lastChar !== undefined && !opts.activatedManually) {
-            if (/\W/i.test(lastChar) && lastChar !== ".") {
+        // Don't auto-show autocomplete if prefix is empty unless last character is '.'
+        if (!prefix && !opts.activatedManually) {
+            const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition);
+            if (lastChar !== ".")
                 return [];
-            }
         }
         // Don't show autocomplete if we're in a string.template and not in a template expression
         if (containsScope(opts.scopeDescriptor.getScopesArray(), "string.template.") &&
@@ -35,17 +33,14 @@ class AutocompleteProvider {
         }
         try {
             let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually);
-            const alphaPrefix = prefix.replace(/\W/g, "");
-            if (alphaPrefix !== "") {
-                suggestions = fuzzaldrin.filter(suggestions, alphaPrefix, {
-                    key: "displayText",
-                });
-            }
+            suggestions = fuzzaldrin.filter(suggestions, prefix, {
+                key: "displayText",
+            });
             // Get additional details for the first few suggestions
             await this.getAdditionalDetails(suggestions.slice(0, 10), location);
             return suggestions.map(suggestion => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-                    : getReplacementPrefix(opts, suggestion) }, addCallableParens(suggestion))));
+                    : prefix }, addCallableParens(opts, suggestion))));
         }
         catch (error) {
             return [];
@@ -107,32 +102,20 @@ async function getSuggestionsInternal(client, location, prefix) {
         return completions.body.map(completionEntryToSuggestion.bind(null, undefined));
     }
 }
+// this should more or less match ES6 specification for valid identifiers
+const identifierMatch = /(?:(?![\u{10000}-\u{10FFFF}])[\$_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}])(?:(?![\u{10000}-\u{10FFFF}])[\$_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}\p{Nl}\u200C\u200D\p{Mn}\p{Mc}\p{Nd}\p{Pc}])*$/u;
 // Decide what needs to be replaced in the editor buffer when inserting the completion
-function getReplacementPrefix(opts, suggestion) {
+function getPrefix(opts) {
+    // see https://github.com/TypeStrong/atom-typescript/issues/1528
+    // for the motivating example.
     const line = opts.editor
         .getBuffer()
         .getTextInRange([[opts.bufferPosition.row, 0], opts.bufferPosition]);
-    if (suggestion.isMemberCompletion) {
-        const dotMatch = line.match(/\.\s*?$/);
-        if (dotMatch)
-            return dotMatch[0].slice(1);
-    }
-    for (const i of utils_1.inits(suggestion.displayText.toLowerCase(), 1)) {
-        if (line.toLowerCase().endsWith(i)) {
-            return line.slice(-i.length);
-        }
-    }
-    const { prefix } = opts;
-    const trimmed = prefix.trim();
-    if (trimmed === "" || trimmed.match(/[\.{]$/)) {
+    const idMatch = line.match(identifierMatch);
+    if (idMatch)
+        return idMatch[0];
+    else
         return "";
-    }
-    else if (suggestion.text.startsWith("$")) {
-        return "$" + prefix;
-    }
-    else {
-        return prefix;
-    }
 }
 // When the user types each character in ".hello", we want to normalize the column such that it's
 // the same for every invocation of the getSuggestions. In this case, it would be right after "."
@@ -178,9 +161,16 @@ function completionEntryToSuggestion(isMemberCompletion, entry) {
         isMemberCompletion,
     };
 }
-function addCallableParens(s) {
+function parens(opts) {
+    const buffer = opts.editor.getBuffer();
+    const pt = opts.bufferPosition;
+    const lookahead = buffer.getTextInRange([pt, [pt.row, buffer.lineLengthForRow(pt.row)]]);
+    return !!lookahead.match(/\s*\(/);
+}
+function addCallableParens(opts, s) {
     if (atom.config.get("atom-typescript.autocompleteParens") &&
-        ["function", "method"].includes(s.leftLabel)) {
+        ["function", "method"].includes(s.leftLabel) &&
+        !parens(opts)) {
         return Object.assign(Object.assign({}, s), { snippet: `${s.text}($1)`, text: undefined });
     }
     else
