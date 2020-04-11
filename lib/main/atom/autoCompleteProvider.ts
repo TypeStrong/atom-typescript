@@ -3,7 +3,7 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
-import {FileLocationQuery, inits, spanToRange, typeScriptScopes} from "./utils"
+import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
