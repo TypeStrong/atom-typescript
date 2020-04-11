@@ -1,3 +1,13 @@
+## 13.5.1
+
+-   Tweak autocompletion prefix detection
+
+    Use ES6 valid identifier as matched/replaced prefix. This should more or less cover most common use cases, unlike brittle heuristics that were used before. Please report any issues with autocompletion prefix replacement.
+
+-   Avoid adding parentheses on autocompletion if they already exist further in line
+
+-   Update FAQ
+
 ## 13.5.0
 
 ### New features
