@@ -1,3 +1,8 @@
+## 13.6.0
+
+-   Update dependencies; Bundled TypeScript to 3.8.3
+-   Add ignoredSuggestionDiagnostics option
+
 ## 13.5.1
 
 -   Tweak autocompletion prefix detection
