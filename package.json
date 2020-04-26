@@ -169,6 +169,16 @@
       "default": "false",
       "order": 100
     },
+    "ignoredSuggestionDiagnostics": {
+      "title": "Ignore suggestion diagnostics",
+      "description": "List of suggestion-type diagnostic codes to ignore, comma-separated. Refer to [diagnosticMessages.json](https://github.com/Microsoft/TypeScript/blob/master/src/compiler/diagnosticMessages.json) for diagnostic codes",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "order": 110
+    },
     "suppressAllDiagnostics": {
       "title": "Suppress all diagnostics",
       "description": "The package will not report any problems with TypeScript. Use only if you know what you are doing",

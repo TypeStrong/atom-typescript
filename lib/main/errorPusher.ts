@@ -79,6 +79,12 @@ export class ErrorPusher {
           for (const diagnostic of diagnostics) {
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
+            if (
+              diagnostic.category === "suggestion" &&
+              config.ignoredSuggestionDiagnostics.includes(`${diagnostic.code}`)
+            ) {
+              continue
+            }
             // Add a bit of extra validation that we have the necessary locations since linter v2
             // does not allow range-less messages anymore. This happens with configFileDiagnostics.
             let {start, end} = diagnostic as Partial<Diagnostic>

@@ -3,6 +3,7 @@ export {}
 declare module "atom" {
   interface ConfigValues {
     "atom-typescript.unusedAsInfo": boolean
+    "atom-typescript.checkAllFilesOnSave": boolean
     "atom-typescript.autocompletionSuggestionPriority": number
     "atom-typescript.locale": string
     "atom-typescript.preferBuiltinTooltips": boolean
@@ -20,8 +21,8 @@ declare module "atom" {
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
+    "atom-typescript.ignoredSuggestionDiagnostics": string[]
     "atom-typescript.suppressAllDiagnostics": boolean
-    "atom-typescript.checkAllFilesOnSave": boolean
     "atom-typescript.tsFileExtensions": string[]
     "atom-typescript.jsFileExtensions": string[]
     "atom-typescript.tsSyntaxScopes": string[]
@@ -30,6 +31,7 @@ declare module "atom" {
     "atom-typescript.tsserverInstancePerTsconfig": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
+      checkAllFilesOnSave: boolean
       autocompletionSuggestionPriority: number
       locale: string
       preferBuiltinTooltips: boolean
@@ -47,8 +49,8 @@ declare module "atom" {
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
+      ignoredSuggestionDiagnostics: string[]
       suppressAllDiagnostics: boolean
-      checkAllFilesOnSave: boolean
       tsFileExtensions: string[]
       jsFileExtensions: string[]
       tsSyntaxScopes: string[]
