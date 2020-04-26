@@ -36,12 +36,11 @@ class TooltipController {
         utils_1.handlePromise(this.view.destroy());
     }
     async rotateSigHelp(shift) {
-        var _a, _b;
         const { visibleItem, sigHelp } = this.view.props;
         const curVisItem = visibleItem !== undefined
             ? visibleItem
-            : ((_a = sigHelp) === null || _a === void 0 ? void 0 : _a.selectedItemIndex) !== undefined
-                ? (_b = sigHelp) === null || _b === void 0 ? void 0 : _b.selectedItemIndex : 0;
+            : (sigHelp === null || sigHelp === void 0 ? void 0 : sigHelp.selectedItemIndex) !== undefined
+                ? sigHelp === null || sigHelp === void 0 ? void 0 : sigHelp.selectedItemIndex : 0;
         await this.view.update({ visibleItem: curVisItem + shift });
     }
     async updateTooltip(bufferPt) {
