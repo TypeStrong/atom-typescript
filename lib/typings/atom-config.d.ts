@@ -21,6 +21,7 @@ declare module "atom" {
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
+    "atom-typescript.ignoreNonSuggestionSuggestionDiagnostics": boolean
     "atom-typescript.ignoredSuggestionDiagnostics": string[]
     "atom-typescript.suppressAllDiagnostics": boolean
     "atom-typescript.tsFileExtensions": string[]
@@ -49,6 +50,7 @@ declare module "atom" {
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
+      ignoreNonSuggestionSuggestionDiagnostics: boolean
       ignoredSuggestionDiagnostics: string[]
       suppressAllDiagnostics: boolean
       tsFileExtensions: string[]

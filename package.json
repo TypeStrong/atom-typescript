@@ -169,6 +169,13 @@
       "default": "false",
       "order": 100
     },
+    "ignoreNonSuggestionSuggestionDiagnostics": {
+      "title": "Ignore suggestion diagnostics that are not actionable suggestions",
+      "description": "TypeScript server reports some error-type diagnostics on the suggestion channel. Enabling this option will suppress those",
+      "type": "boolean",
+      "default": "false",
+      "order": 105
+    },
     "ignoredSuggestionDiagnostics": {
       "title": "Ignore suggestion diagnostics",
       "description": "List of suggestion-type diagnostic codes to ignore, comma-separated. Refer to [diagnosticMessages.json](https://github.com/Microsoft/TypeScript/blob/master/src/compiler/diagnosticMessages.json) for diagnostic codes",

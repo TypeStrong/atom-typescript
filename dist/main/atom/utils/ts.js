@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Atom = require("atom");
 const path = require("path");
 const ts = require("typescript");
+exports.DiagnosticCategory = ts.DiagnosticCategory;
 function pointToLocation(point) {
     return { line: point.row + 1, offset: point.column + 1 };
 }
@@ -72,4 +73,20 @@ function partsToStr(x) {
     return x.map(i => i.text).join("");
 }
 exports.partsToStr = partsToStr;
+// tslint:disable-next-line: only-arrow-functions
+exports.checkDiagnosticCategory = (function () {
+    let codeToCategory;
+    // tslint:disable-next-line: only-arrow-functions
+    return function (code, category) {
+        if (code === undefined)
+            return true;
+        if (codeToCategory === undefined) {
+            codeToCategory = new Map(Object.values(ts.Diagnostics).map(x => [x.code, x.category]));
+        }
+        const cat = codeToCategory.get(code);
+        if (cat === undefined)
+            return true;
+        return cat === category;
+    };
+})();
 //# sourceMappingURL=ts.js.map
