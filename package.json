@@ -375,7 +375,7 @@
     "typescript-tslint-plugin": "0.5.5"
   },
   "package-deps": [
-    "atom-ide-ui:0.5.3"
+    "atom-ide-ui:0.13.0"
   ],
   "keywords": [
     "typescript",

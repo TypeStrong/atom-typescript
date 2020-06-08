@@ -1,20 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("../utils");
 let pluginManager;
-async function activate(state) {
-    // install dependencies
-    const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"];
-    if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
-        const packageDeps = await Promise.resolve().then(() => require("atom-package-deps"));
-        await packageDeps.install("atom-typescript", true);
-    }
+function activate(state) {
     ;
     require("etch").setScheduler(atom.views);
     // tslint:disable-next-line:no-shadowed-variable
     const { PluginManager } = require("./pluginManager");
     pluginManager = new PluginManager(state);
+    setImmediate(() => utils_1.handlePromise(checkAndInstallDependencies()));
 }
 exports.activate = activate;
+async function checkAndInstallDependencies() {
+    const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"];
+    if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
+        const packageDeps = await Promise.resolve().then(() => require("atom-package-deps"));
+        await packageDeps.install("atom-typescript", true);
+    }
+}
 function deactivate() {
     if (pluginManager)
         pluginManager.destroy();

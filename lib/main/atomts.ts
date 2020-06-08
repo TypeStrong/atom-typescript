@@ -13,25 +13,29 @@ import {
 } from "atom/ide"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
+import {handlePromise} from "../utils"
 import {SemanticView, SemanticViewSerializationData} from "./atom/views/outline/semanticView"
 import {State} from "./packageState"
 import {PluginManager} from "./pluginManager"
 
 let pluginManager: PluginManager | undefined
 
-export async function activate(state: State) {
-  // install dependencies
-  const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
-  if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
-    const packageDeps = await import("atom-package-deps")
-    await packageDeps.install("atom-typescript", true)
-  }
-
+export function activate(state: State) {
   ;(require("etch") as typeof import("etch")).setScheduler(atom.views)
 
   // tslint:disable-next-line:no-shadowed-variable
   const {PluginManager} = require("./pluginManager") as typeof import("./pluginManager")
   pluginManager = new PluginManager(state)
+
+  setImmediate(() => handlePromise(checkAndInstallDependencies()))
+}
+
+async function checkAndInstallDependencies() {
+  const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
+  if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
+    const packageDeps = await import("atom-package-deps")
+    await packageDeps.install("atom-typescript", true)
+  }
 }
 
 export function deactivate() {
