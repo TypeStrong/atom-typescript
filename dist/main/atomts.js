@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 let pluginManager;
 async function activate(state) {
     // install dependencies
-    if (!(atom.packages.isPackageLoaded("atom-ide-ui") &&
-        atom.packages.isPackageLoaded("linter") &&
+    if (!(atom.packages.isPackageLoaded("atom-ide-ui") ||
+        atom.packages.isPackageLoaded("linter") ||
         atom.packages.isPackageLoaded("nuclide"))) {
         const packageDeps = await Promise.resolve().then(() => require("atom-package-deps"));
         await packageDeps.install("atom-typescript", true);
