@@ -23,8 +23,8 @@ export async function activate(state: State) {
   // install dependencies
   if (
     !(
-      atom.packages.isPackageLoaded("atom-ide-ui") &&
-      atom.packages.isPackageLoaded("linter") &&
+      atom.packages.isPackageLoaded("atom-ide-ui") ||
+      atom.packages.isPackageLoaded("linter") ||
       atom.packages.isPackageLoaded("nuclide")
     )
   ) {
