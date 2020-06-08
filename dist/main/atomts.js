@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 let pluginManager;
 async function activate(state) {
-    const pns = atom.packages.getAvailablePackageNames();
-    const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"];
-    if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
-        const mod = require("atom-package-deps");
-        await mod.install("atom-typescript", true);
+    // install dependencies
+    if (!(atom.packages.isPackageLoaded("atom-ide-ui") &&
+        atom.packages.isPackageLoaded("linter") &&
+        atom.packages.isPackageLoaded("nuclide"))) {
+        const packageDeps = await Promise.resolve().then(() => require("atom-package-deps"));
+        await packageDeps.install("atom-typescript", true);
     }
     ;
     require("etch").setScheduler(atom.views);

@@ -20,13 +20,14 @@ import {PluginManager} from "./pluginManager"
 let pluginManager: PluginManager | undefined
 
 export async function activate(state: State) {
-
   // install dependencies
-  if (!(
-    atom.packages.isPackageLoaded("atom-ide-ui") &&
-    atom.packages.isPackageLoaded("linter") &&
-    atom.packages.isPackageLoaded("nuclide")
-  )) {
+  if (
+    !(
+      atom.packages.isPackageLoaded("atom-ide-ui") &&
+      atom.packages.isPackageLoaded("linter") &&
+      atom.packages.isPackageLoaded("nuclide")
+    )
+  ) {
     const packageDeps = await import("atom-package-deps")
     await packageDeps.install("atom-typescript", true)
   }
