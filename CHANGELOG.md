@@ -1,3 +1,7 @@
+## 13.6.1
+
+-   Faster package deps installation (#1547) (Amin Yahyaabadi)
+
 ## 13.6.0
 
 -   Update dependencies; Bundled TypeScript to 3.8.3
