@@ -344,7 +344,7 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
-    "atom-package-deps": "^5.1.0",
+    "atom-package-deps": "^6.0.0",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
     "etch": "^0.14.0",

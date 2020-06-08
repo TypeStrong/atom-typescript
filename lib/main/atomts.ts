@@ -20,11 +20,11 @@ import {PluginManager} from "./pluginManager"
 let pluginManager: PluginManager | undefined
 
 export async function activate(state: State) {
-  const pns = atom.packages.getAvailablePackageNames()
+  // install dependencies
   const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
-  if (!packagesProvidingUIServices.some(p => pns.includes(p))) {
-    const mod = require("atom-package-deps") as typeof import("atom-package-deps")
-    await mod.install("atom-typescript", true)
+  if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
+    const packageDeps = await import("atom-package-deps")
+    await packageDeps.install("atom-typescript", true)
   }
 
   ;(require("etch") as typeof import("etch")).setScheduler(atom.views)
