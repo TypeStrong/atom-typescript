@@ -210,7 +210,9 @@
       "default": [
         ".js",
         ".jst",
-        ".jsx"
+        ".jsx",
+        ".mjs",
+        ".cjs"
       ],
       "order": 140
     },
