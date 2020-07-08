@@ -4,7 +4,12 @@ import {debounce} from "lodash"
 import * as path from "path"
 import {Diagnostic} from "typescript/lib/protocol"
 import {DiagnosticTypes} from "../client/clientResolver"
-import {locationsToRange, spanToRange} from "./atom/utils"
+import {
+  checkDiagnosticCategory,
+  DiagnosticCategory,
+  locationsToRange,
+  spanToRange,
+} from "./atom/utils"
 
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
@@ -82,6 +87,13 @@ export class ErrorPusher {
             if (
               diagnostic.category === "suggestion" &&
               config.ignoredSuggestionDiagnostics.includes(`${diagnostic.code}`)
+            ) {
+              continue
+            }
+            if (
+              config.ignoreNonSuggestionSuggestionDiagnostics &&
+              diagnostic.category === "suggestion" &&
+              !checkDiagnosticCategory(diagnostic.code, DiagnosticCategory.Suggestion)
             ) {
               continue
             }
