@@ -31,7 +31,7 @@ export class TooltipView implements JSX.ElementClass {
 
   public async update(props: Partial<Props>) {
     this.props = {...this.props, ...props}
-    this.tooltip = await renderTooltip(this.props.info, etch, x => (
+    this.tooltip = await renderTooltip(this.props.info, etch, (x) => (
       <div className="atom-typescript-tooltip-tooltip-code">{x}</div>
     ))
     await etch.update(this)

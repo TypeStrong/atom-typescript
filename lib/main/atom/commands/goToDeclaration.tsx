@@ -5,7 +5,7 @@ import {HighlightComponent} from "../views/highlightComponent"
 import {selectListView} from "../views/simpleSelectionView"
 import {addCommand, Dependencies} from "./registry"
 
-addCommand("atom-text-editor", "typescript:go-to-declaration", deps => ({
+addCommand("atom-text-editor", "typescript:go-to-declaration", (deps) => ({
   description: "Go to declaration of symbol under text cursor",
   async didDispatch(editor) {
     const location = getFilePathPosition(editor)

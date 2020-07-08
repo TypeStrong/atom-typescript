@@ -77,14 +77,14 @@ export async function highlight(code: string, scopeName: string) {
     ed.scrollToBufferPosition(ed.getBuffer().getEndPosition())
     atom.views.getView(atom.workspace).appendChild(el)
     await editorTokenized(ed)
-    return Array.from(el.querySelectorAll(".line:not(.dummy)")).map(x => x.innerHTML)
+    return Array.from(el.querySelectorAll(".line:not(.dummy)")).map((x) => x.innerHTML)
   } finally {
     el.remove()
   }
 }
 
 async function editorTokenized(editor: Atom.TextEditor) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const languageMode = editor.getBuffer().getLanguageMode()
     const nextUpdatePromise = editor.component.getNextUpdatePromise()
     if (languageMode.fullyTokenized || languageMode.tree) {

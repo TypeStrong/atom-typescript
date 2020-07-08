@@ -13,7 +13,7 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
   public selector = typeScriptScopes()
-    .map(x => (x.includes(".") ? `.${x}` : x))
+    .map((x) => (x.includes(".") ? `.${x}` : x))
     .join(", ")
 
   public disableForSelector = ".comment"
@@ -68,7 +68,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       // Get additional details for the first few suggestions
       await this.getAdditionalDetails(suggestions.slice(0, 10), location)
 
-      return suggestions.map(suggestion => ({
+      return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange
           ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
           : prefix,
@@ -83,9 +83,9 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[],
     location: FileLocationQuery,
   ) {
-    if (suggestions.some(s => !s.details) && this.lastSuggestions) {
+    if (suggestions.some((s) => !s.details) && this.lastSuggestions) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
-        entryNames: suggestions.map(s => s.displayText!),
+        entryNames: suggestions.map((s) => s.displayText!),
         ...location,
       })
 
@@ -102,10 +102,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         ) {
           parts = parts.slice(3)
         }
-        suggestion.rightLabel = parts.map(d => d.text).join("")
+        suggestion.rightLabel = parts.map((d) => d.text).join("")
 
         suggestion.description =
-          detail.documentation && detail.documentation.map(d => d.text).join(" ")
+          detail.documentation && detail.documentation.map((d) => d.text).join(" ")
       })
     }
   }

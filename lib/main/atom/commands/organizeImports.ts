@@ -1,6 +1,6 @@
 import {addCommand} from "./registry"
 
-addCommand("atom-text-editor", "typescript:organize-imports", deps => ({
+addCommand("atom-text-editor", "typescript:organize-imports", (deps) => ({
   description: "Organize module imports",
   async didDispatch(editor) {
     const filePath = editor.getPath()

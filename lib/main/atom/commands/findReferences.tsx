@@ -7,7 +7,7 @@ import {HighlightComponent} from "../views/highlightComponent"
 import {selectListView} from "../views/simpleSelectionView"
 import {addCommand, Dependencies} from "./registry"
 
-addCommand("atom-text-editor", "typescript:find-references", deps => ({
+addCommand("atom-text-editor", "typescript:find-references", (deps) => ({
   description: "Find where symbol under text cursor is referenced",
   async didDispatch(editor) {
     const location = getFilePathPosition(editor)
@@ -25,7 +25,7 @@ export async function handleFindReferencesResult(
   histGoForward: Dependencies["histGoForward"],
 ): Promise<void> {
   const refs = Promise.all(
-    result.body!.refs.map(async ref => {
+    result.body!.refs.map(async (ref) => {
       const fileContents = (
         await new Promise<string>((resolve, reject) =>
           fs.readFile(ref.file, (error, data) => {

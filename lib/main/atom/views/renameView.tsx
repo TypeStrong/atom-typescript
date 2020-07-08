@@ -99,7 +99,7 @@ export async function showRenameDialog(options: Options): Promise<string | undef
 
   const disposables = new CompositeDisposable()
   try {
-    return await new Promise<string | undefined>(resolve => {
+    return await new Promise<string | undefined>((resolve) => {
       disposables.add(
         atom.commands.add(item.refs.main, {
           "core:cancel": () => {

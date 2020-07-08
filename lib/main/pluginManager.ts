@@ -126,10 +126,10 @@ export class PluginManager {
         toggleSemanticViewController: () => {
           handlePromise(this.semanticViewController.toggle())
         },
-        toggleFileSymbolsView: ed => {
+        toggleFileSymbolsView: (ed) => {
           this.symbolsViewController.toggleFileView(ed)
         },
-        toggleProjectSymbolsView: ed => {
+        toggleProjectSymbolsView: (ed) => {
           this.symbolsViewController.toggleProjectView(ed)
         },
         histGoForward: this.histGoForward,
@@ -283,7 +283,7 @@ export class PluginManager {
     action: (buffer: Atom.TextBuffer) => Promise<T>,
   ) => {
     const normalizedFilePath = path.normalize(filePath)
-    const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath)
+    const ed = atom.workspace.getTextEditors().find((p) => p.getPath() === normalizedFilePath)
 
     // found open buffer
     if (ed) return action(ed.getBuffer())
@@ -326,13 +326,13 @@ export class PluginManager {
     handlePromise(this.statusPanel.update(info))
   }
 
-  private applyEdits: ApplyEdits = async edits =>
+  private applyEdits: ApplyEdits = async (edits) =>
     void Promise.all(
-      edits.map(edit =>
-        this.withBuffer(edit.fileName, async buffer => {
+      edits.map((edit) =>
+        this.withBuffer(edit.fileName, async (buffer) => {
           buffer.transact(() => {
             const changes = edit.textChanges
-              .map(e => ({range: spanToRange(e), newText: e.newText}))
+              .map((e) => ({range: spanToRange(e), newText: e.newText}))
               .reverse() // NOTE: needs reverse for cases where ranges are same for two changes
               .sort((a, b) => b.range.compare(a.range))
             for (const change of changes) {
@@ -372,7 +372,7 @@ export class PluginManager {
       atom.workspace.observeTextEditors((editor: Atom.TextEditor) => {
         this.typescriptPaneFactory(editor)
       }),
-      atom.workspace.onDidChangeActiveTextEditor(ed => {
+      atom.workspace.onDidChangeActiveTextEditor((ed) => {
         if (ed && isTypescriptEditorWithPath(ed)) {
           handlePromise(this.statusPanel.show())
           const tep = TypescriptEditorPane.lookupPane(ed)

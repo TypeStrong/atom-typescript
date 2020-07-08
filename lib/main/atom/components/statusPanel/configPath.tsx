@@ -35,7 +35,7 @@ export class ConfigPath implements JSX.ElementClass {
           className="inline-block"
           href=""
           on={{
-            click: evt => {
+            click: (evt) => {
               evt.preventDefault()
               this.openConfigPath()
             },

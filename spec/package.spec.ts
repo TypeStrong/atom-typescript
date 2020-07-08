@@ -3,7 +3,7 @@ import {join} from "path"
 
 const packagePath = join(__dirname, "..")
 
-describe("atom-typescript", function() {
+describe("atom-typescript", function () {
   this.timeout(8000)
 
   it("should activate", async () => {

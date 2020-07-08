@@ -50,7 +50,7 @@ export function getIntentionsProvider(
   return {
     grammarScopes: ["*"],
     async getIntentions({bufferPosition, textEditor}) {
-      return (await codefixProvider.runCodeFix(textEditor, bufferPosition)).map(fix => ({
+      return (await codefixProvider.runCodeFix(textEditor, bufferPosition)).map((fix) => ({
         priority: 100,
         title: fix.description,
         selected: () => {
@@ -67,7 +67,7 @@ export function getIntentionsHighlightsProvider(
   return {
     grammarScopes: ["*"],
     async getIntentions({visibleRange, textEditor}) {
-      return (await codefixProvider.getFixableRanges(textEditor, visibleRange)).map(range => ({
+      return (await codefixProvider.getFixableRanges(textEditor, visibleRange)).map((range) => ({
         range,
         created: (_opts: CreatedCallbackArgs) => {
           // NOOP

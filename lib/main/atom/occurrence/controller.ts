@@ -72,7 +72,7 @@ export class OccurenceController {
       if (fileInfo.file !== this.editor.getPath()) continue
       for (const span of fileInfo.highlightSpans) {
         const range = spanToRange(span)
-        const oldMarker = this.occurrenceMarkers.find(m => m.getBufferRange().isEqual(range))
+        const oldMarker = this.occurrenceMarkers.find((m) => m.getBufferRange().isEqual(range))
         if (oldMarker) yield oldMarker
         else {
           const marker = this.editor.markBufferRange(range)

@@ -23,7 +23,7 @@ export class ErrorPusher {
   public *getErrorsInRange(filePath: string, range: Range): IterableIterator<Diagnostic> {
     for (const prefixed of this.errors.values()) {
       const errors = prefixed.get(path.normalize(filePath))
-      if (errors) yield* errors.filter(err => spanToRange(err).intersectsWith(range))
+      if (errors) yield* errors.filter((err) => spanToRange(err).intersectsWith(range))
     }
   }
 
@@ -31,7 +31,7 @@ export class ErrorPusher {
   public *getErrorsAt(filePath: string, loc: Point): IterableIterator<Diagnostic> {
     for (const prefixed of this.errors.values()) {
       const errors = prefixed.get(path.normalize(filePath))
-      if (errors) yield* errors.filter(err => spanToRange(err).containsPoint(loc))
+      if (errors) yield* errors.filter((err) => spanToRange(err).containsPoint(loc))
     }
   }
 

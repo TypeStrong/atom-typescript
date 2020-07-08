@@ -36,12 +36,12 @@ export class NavigationNodeComponent implements JSX.ElementClass {
 
     return (
       <li className={"node entry exanded list-" + classes}>
-        <div className="header list-item" on={{click: event => this.entryClicked(event, node)}}>
+        <div className="header list-item" on={{click: (event) => this.entryClicked(event, node)}}>
           <span className={styleClasses}>{node.text}</span>
         </div>
         <ol className="entries list-tree">
           {node.childItems
-            ? node.childItems.map(sn => <NavigationNodeComponent navTree={sn} ctrl={ctrl} />)
+            ? node.childItems.map((sn) => <NavigationNodeComponent navTree={sn} ctrl={ctrl} />)
             : null}
         </ol>
       </li>
@@ -57,7 +57,7 @@ export class NavigationNodeComponent implements JSX.ElementClass {
         " " +
         kindModifiers
           .split(/[, ]/)
-          .map(modifier => `modifier-${modifier.trim()}`)
+          .map((modifier) => `modifier-${modifier.trim()}`)
           .join(" ")
     }
     return styles

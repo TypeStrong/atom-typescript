@@ -2,7 +2,7 @@ import * as fs from "fs-plus"
 import {showRenameDialog} from "../views/renameView"
 import {addCommand} from "./registry"
 
-addCommand("atom-text-editor", "typescript:rename-file", deps => ({
+addCommand("atom-text-editor", "typescript:rename-file", (deps) => ({
   description: "Rename current file",
   async didDispatch(editor) {
     const location = editor.getPath()

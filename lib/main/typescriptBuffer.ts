@@ -51,7 +51,7 @@ export class TypescriptBuffer {
         handlePromise(this.getErr({allFiles: false}))
         if (changes.length > 0) this.deps.reportBuildStatus(undefined)
       }),
-      buffer.onDidChangeText(arg => {
+      buffer.onDidChangeText((arg) => {
         // NOTE: we don't need to worry about interleaving here,
         // because onDidChangeText pushes all changes at once
         handlePromise(this.onDidChangeText(arg))
@@ -89,14 +89,14 @@ export class TypescriptBuffer {
     const result = await client.execute("compileOnSaveAffectedFileList", {
       file: filePath,
     })
-    const fileNames = flatten(result.body.map(project => project.fileNames))
+    const fileNames = flatten(result.body.map((project) => project.fileNames))
 
     if (fileNames.length === 0) return
 
-    const promises = fileNames.map(file => client.execute("compileOnSaveEmitFile", {file}))
+    const promises = fileNames.map((file) => client.execute("compileOnSaveEmitFile", {file}))
     const saved = await Promise.all(promises)
 
-    if (!saved.every(res => !!res.body)) {
+    if (!saved.every((res) => !!res.body)) {
       throw new Error("Some files failed to emit")
     }
   }

@@ -1,6 +1,6 @@
 import {addCommand} from "./registry"
 
-addCommand("atom-text-editor", "typescript:reload-projects", deps => ({
+addCommand("atom-text-editor", "typescript:reload-projects", (deps) => ({
   description: "Reload projects",
   async didDispatch(editor) {
     const path = editor.getPath()

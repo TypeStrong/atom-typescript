@@ -22,7 +22,7 @@ export class TooltipManager {
 
   constructor(private getClientInternal: GetClientFunction) {
     this.subscriptions.add(
-      atom.workspace.observeTextEditors(editor => {
+      atom.workspace.observeTextEditors((editor) => {
         const rawView = atom.views.getView(editor)
         const lines = rawView.querySelector(".lines")!
         this.editorMap.set(editor, {

@@ -41,7 +41,7 @@ export class ClientResolver {
 
   public async restartAllServers() {
     await this.reportBusyWhile("Restarting servers", () =>
-      Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())),
+      Promise.all(Array.from(this.getAllClients()).map((client) => client.restartServer())),
     )
   }
 
@@ -68,7 +68,7 @@ export class ClientResolver {
   private async _get(pFilePath: string): Promise<Client> {
     const {pathToBin, version} = await resolveBinary(pFilePath, "tsserver")
     const tsconfigPath = this.tsserverInstancePerTsconfig
-      ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
+      ? ts.findConfigFile(pFilePath, (f) => ts.sys.fileExists(f))
       : undefined
 
     let tsconfigMap = this.clients.get(pathToBin)

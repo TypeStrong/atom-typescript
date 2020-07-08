@@ -5,10 +5,7 @@ export function bufferPositionFromMouseEvent(
   editor: TextEditor,
   event: {clientX: number; clientY: number},
 ) {
-  const sp = atom.views
-    .getView(editor)
-    .getComponent()
-    .screenPositionForMouseEvent(event)
+  const sp = atom.views.getView(editor).getComponent().screenPositionForMouseEvent(event)
   if (isNaN(sp.row) || isNaN(sp.column)) {
     return
   }

@@ -14,7 +14,7 @@ interface RefactorAction {
   inlineable: boolean
 }
 
-addCommand("atom-text-editor", "typescript:refactor-selection", deps => ({
+addCommand("atom-text-editor", "typescript:refactor-selection", (deps) => ({
   description: "Get a list of applicable refactors to selected code",
   async didDispatch(editor) {
     const location = getFilePathPosition(editor)

@@ -2,7 +2,7 @@ import {getFilePathPosition} from "../utils"
 import {showRenameDialog} from "../views/renameView"
 import {addCommand} from "./registry"
 
-addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
+addCommand("atom-text-editor", "typescript:rename-refactor", (deps) => ({
   description: "Rename symbol under text cursor everywhere it is used",
   async didDispatch(editor) {
     const location = getFilePathPosition(editor)
@@ -34,9 +34,9 @@ addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
 
     if (newName !== undefined) {
       await deps.applyEdits(
-        locs.map(span => ({
+        locs.map((span) => ({
           fileName: span.file,
-          textChanges: span.locs.map(loc => ({...loc, newText: newName})),
+          textChanges: span.locs.map((loc) => ({...loc, newText: newName})),
         })),
       )
     }

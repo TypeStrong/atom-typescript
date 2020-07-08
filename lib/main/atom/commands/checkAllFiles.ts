@@ -1,7 +1,7 @@
 import * as path from "path"
 import {addCommand} from "./registry"
 
-addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
+addCommand("atom-text-editor", "typescript:check-all-files", (deps) => ({
   description: "Typecheck all files in project related to current active text editor",
   async didDispatch(editor) {
     const file = editor.getPath()
@@ -15,7 +15,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
 
     const files = new Set(
       projectInfo.body!.fileNames?.filter(
-        fn =>
+        (fn) =>
           // filter out obvious potholes
           !fn.endsWith("tsconfig.json") && !fn.includes(`${path.sep}node_modules${path.sep}`),
       ),
@@ -28,7 +28,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     // for some amount of time.
     // That is, if we can't rely on multistep
     if (client.multistepSupported) {
-      const disp = client.on("syntaxDiag", evt => {
+      const disp = client.on("syntaxDiag", (evt) => {
         if ("file" in evt) files.delete(evt.file)
         deps.reportProgress({max, value: max - files.size})
       })
@@ -39,7 +39,7 @@ addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
     } else {
       let cancelTimeout: number | undefined
 
-      const disp = client.on("syntaxDiag", evt => {
+      const disp = client.on("syntaxDiag", (evt) => {
         if (cancelTimeout !== undefined) window.clearTimeout(cancelTimeout)
         cancelTimeout = window.setTimeout(() => {
           files.clear()

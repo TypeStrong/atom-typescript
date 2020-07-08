@@ -16,7 +16,7 @@ export class SigHelpManager {
     },
   ) {
     this.subscriptions.add(
-      atom.workspace.observeTextEditors(editor => {
+      atom.workspace.observeTextEditors((editor) => {
         const disp = new Atom.CompositeDisposable()
         disp.add(
           editor.onDidDestroy(() => {
@@ -79,7 +79,7 @@ export class SigHelpManager {
     const filePath = editor.getPath()
     if (filePath === undefined) return
     const pos = editor.getLastCursor().getBufferPosition()
-    const [ch] = event.changes.filter(x => x.newRange.containsPoint(pos)) as Array<
+    const [ch] = event.changes.filter((x) => x.newRange.containsPoint(pos)) as Array<
       Atom.TextChange | undefined
     >
     if (ch && ch.newText.match(/[<(,]/) !== null) {

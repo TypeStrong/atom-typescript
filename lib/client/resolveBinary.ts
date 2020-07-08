@@ -72,7 +72,7 @@ async function resolveModule(id: string, opts: Resolve.AsyncOpts): Promise<strin
 }
 
 async function fsExists(p: string) {
-  return new Promise<boolean>(resolve => fs.exists(p, resolve))
+  return new Promise<boolean>((resolve) => fs.exists(p, resolve))
 }
 
 async function fsReadFile(p: string) {

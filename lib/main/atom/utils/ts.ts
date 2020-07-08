@@ -88,7 +88,7 @@ function loadConfig(
     config,
   }: {
     config?: {[key: string]: unknown}
-  } = ts.readConfigFile(configFile, file => ts.sys.readFile(file))
+  } = ts.readConfigFile(configFile, (file) => ts.sys.readFile(file))
   if (config === undefined) return {}
   if (typeof config.extends === "string") {
     const extendsPath = path.join(path.dirname(configFile), config.extends)
@@ -102,7 +102,9 @@ export function signatureHelpItemToSignature(i: SignatureHelpItem): Signature {
   return {
     label:
       partsToStr(i.prefixDisplayParts) +
-      i.parameters.map(x => partsToStr(x.displayParts)).join(partsToStr(i.separatorDisplayParts)) +
+      i.parameters
+        .map((x) => partsToStr(x.displayParts))
+        .join(partsToStr(i.separatorDisplayParts)) +
       partsToStr(i.suffixDisplayParts),
     documentation: partsToStr(i.documentation),
     parameters: i.parameters.map(signatureHelpParameterToSignatureParameter),
@@ -119,17 +121,17 @@ export function signatureHelpParameterToSignatureParameter(
 }
 
 export function partsToStr(x: Array<{text: string}>): string {
-  return x.map(i => i.text).join("")
+  return x.map((i) => i.text).join("")
 }
 
 // tslint:disable-next-line: only-arrow-functions
-export const checkDiagnosticCategory = (function() {
+export const checkDiagnosticCategory = (function () {
   let codeToCategory: Map<number, ts.DiagnosticCategory> | undefined
   // tslint:disable-next-line: only-arrow-functions
-  return function(code: number | undefined, category: ts.DiagnosticCategory) {
+  return function (code: number | undefined, category: ts.DiagnosticCategory) {
     if (code === undefined) return true
     if (codeToCategory === undefined) {
-      codeToCategory = new Map(Object.values(ts.Diagnostics).map(x => [x.code, x.category]))
+      codeToCategory = new Map(Object.values(ts.Diagnostics).map((x) => [x.code, x.category]))
     }
     const cat = codeToCategory.get(code)
     if (cat === undefined) return true

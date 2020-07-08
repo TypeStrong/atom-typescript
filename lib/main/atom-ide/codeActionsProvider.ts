@@ -13,7 +13,7 @@ export function getCodeActionsProvider(codefixProvider: CodefixProvider): CodeAc
       range: Atom.Range,
       _diagnostics: Message[],
     ): Promise<CodeAction[]> {
-      return (await codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
+      return (await codefixProvider.runCodeFix(textEditor, range.start)).map((fix) => ({
         getTitle: async () => fix.description,
         dispose: () => {},
         apply: async () => {

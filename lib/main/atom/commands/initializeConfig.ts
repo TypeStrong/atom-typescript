@@ -33,7 +33,7 @@ async function initConfig(tsc: string, projectRoot: string): Promise<void> {
           command: tsc,
           args: ["--init"],
           options: {cwd: projectRoot},
-          exit: code => {
+          exit: (code) => {
             if (code === 0) resolve()
             else reject(new Error(`Tsc ended with nonzero exit code ${code}`))
           },

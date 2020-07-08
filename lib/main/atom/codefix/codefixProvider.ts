@@ -21,8 +21,8 @@ export class CodefixProvider {
     const supportedCodes = await this.getSupportedFixes(client)
 
     const ranges = Array.from(errors)
-      .filter(error => error.code !== undefined && supportedCodes.has(error.code))
-      .map(error => spanToRange(error))
+      .filter((error) => error.code !== undefined && supportedCodes.has(error.code))
+      .map((error) => spanToRange(error))
 
     return ranges
   }
@@ -39,8 +39,8 @@ export class CodefixProvider {
     const supportedCodes = await this.getSupportedFixes(client)
 
     const requests = Array.from(this.errorPusher.getErrorsAt(filePath, bufferPosition))
-      .filter(error => error.code !== undefined && supportedCodes.has(error.code))
-      .map(error =>
+      .filter((error) => error.code !== undefined && supportedCodes.has(error.code))
+      .map((error) =>
         client.execute("getCodeFixes", {
           file: filePath,
           startLine: error.start.line,
@@ -85,7 +85,7 @@ export class CodefixProvider {
       throw new Error("No code fixes are supported")
     }
 
-    codes = new Set(result.body.map(code => parseInt(code, 10)))
+    codes = new Set(result.body.map((code) => parseInt(code, 10)))
     this.supportedFixes.set(client, codes)
     return codes
   }

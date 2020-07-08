@@ -21,7 +21,7 @@ export class TooltipController {
     rawView.appendChild(this.view.element)
     const debouncedUpdate = debounce(this.updateTooltip.bind(this), 100, {leading: true})
     this.disposables.add(
-      this.editor.onDidChangeCursorPosition(evt => {
+      this.editor.onDidChangeCursorPosition((evt) => {
         bufferPt = evt.newBufferPosition
         handlePromise(debouncedUpdate(bufferPt))
       }),

@@ -7,7 +7,7 @@ export class OccurrenceManager {
 
   constructor(getClient: GetClientFunction) {
     this.disposables.add(
-      atom.workspace.observeTextEditors(editor => {
+      atom.workspace.observeTextEditors((editor) => {
         const controller = new OccurenceController(getClient, editor)
         this.disposables.add(
           controller,

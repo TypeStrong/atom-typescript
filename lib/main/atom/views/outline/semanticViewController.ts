@@ -22,7 +22,7 @@ export class SemanticViewController {
           handlePromise(this.view.destroy())
         }
       }),
-      atom.config.observe("atom-typescript.showSemanticView", val => {
+      atom.config.observe("atom-typescript.showSemanticView", (val) => {
         if (val) handlePromise(this.show())
         else this.hide()
       }),
