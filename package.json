@@ -10,7 +10,8 @@
   ],
   "activationCommands": {
     "atom-workspace": [
-      "typescript:initialize-config"
+      "typescript:initialize-config",
+      "typescript:activate"
     ]
   },
   "scripts": {
