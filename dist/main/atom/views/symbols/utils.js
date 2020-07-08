@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.deserializeEditorState = exports.serializeEditorState = exports.openTag = void 0;
 async function openTag(tag, editor, histGoForward) {
     if (tag.file !== undefined) {
         return histGoForward(editor, {

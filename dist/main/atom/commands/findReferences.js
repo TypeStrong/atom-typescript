@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleFindReferencesResult = void 0;
 const etch = require("etch");
 const fs = require("fs");
 const tsView_1 = require("../components/tsView");

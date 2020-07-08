@@ -2,6 +2,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TooltipManager = void 0;
 const Atom = require("atom");
 const fs = require("fs");
 const atomUtils = require("../utils");

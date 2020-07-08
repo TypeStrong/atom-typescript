@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.listen = void 0;
 const atom_1 = require("atom");
 function listen(element, event, selector, callback) {
     const bound = (evt) => {

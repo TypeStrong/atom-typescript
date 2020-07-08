@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.highlightMatches = exports.HighlightComponent = void 0;
 const etch = require("etch");
 const fuzzaldrin_1 = require("fuzzaldrin");
 class HighlightComponent {

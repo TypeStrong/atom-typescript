@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MiniEditor = void 0;
 class MiniEditor {
     constructor(props) {
         this.props = props;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConfigPath = void 0;
 const etch = require("etch");
 const path_1 = require("path");
 const utils_1 = require("../../../../utils");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TooltipController = void 0;
 const utils_1 = require("../../../utils");
 const tooltipView_1 = require("./tooltipView");
 class TooltipController {

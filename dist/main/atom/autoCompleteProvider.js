@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AutocompleteProvider = void 0;
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");

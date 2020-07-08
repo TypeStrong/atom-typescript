@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolveBinary = void 0;
 const fs = require("fs");
 const jsonc = require("jsonc-parser");
 const path = require("path");

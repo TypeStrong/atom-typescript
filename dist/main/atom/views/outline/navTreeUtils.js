@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isToggleEntry = exports.isSameNode = exports.isSelected = exports.prepareNavTree = exports.restoreCollapsed = exports.getNodeEndLine = exports.getNodeStartOffset = exports.getNodeStartLine = exports.findNodeAt = void 0;
 const lodash_1 = require("lodash");
 /**
  * HELPER find the node that is "furthest down" the

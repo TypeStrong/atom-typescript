@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TooltipView = void 0;
 const etch = require("etch");
 const tooltipRenderer_1 = require("./tooltipRenderer");
 const util_1 = require("./util");

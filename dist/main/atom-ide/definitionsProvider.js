@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDefinitionProvider = void 0;
 const utils_1 = require("../atom/utils");
 function getDefinitionProvider(getClient) {
     return {

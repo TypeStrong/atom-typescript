@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.toggle = void 0;
 const etch = require("etch");
 const highlightComponent_1 = require("../highlightComponent");
 const simpleSelectionView_1 = require("../simpleSelectionView");

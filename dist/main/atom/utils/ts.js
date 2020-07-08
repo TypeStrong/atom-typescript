@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkDiagnosticCategory = exports.partsToStr = exports.signatureHelpParameterToSignatureParameter = exports.signatureHelpItemToSignature = exports.getProjectConfig = exports.rangeToLocationRange = exports.locationsToRange = exports.spanToRange = exports.locationToPoint = exports.pointToLocation = exports.DiagnosticCategory = void 0;
 const Atom = require("atom");
 const path = require("path");
 const ts = require("typescript");

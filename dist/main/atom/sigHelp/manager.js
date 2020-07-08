@@ -2,6 +2,7 @@
 // Inspiration : https://atom.io/packages/ide-haskell
 // and https://atom.io/packages/ide-flow
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SigHelpManager = void 0;
 const Atom = require("atom");
 const utils_1 = require("../../../utils");
 const controller_1 = require("./controller");

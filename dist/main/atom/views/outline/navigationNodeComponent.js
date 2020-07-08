@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.NavigationNodeComponent = void 0;
 const etch = require("etch");
 const utils_1 = require("../../../../utils");
 const navTreeUtils_1 = require("./navTreeUtils");

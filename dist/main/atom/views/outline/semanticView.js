@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SemanticView = exports.SEMANTIC_VIEW_URI = void 0;
 const navigationTreeComponent_1 = require("./navigationTreeComponent");
 exports.SEMANTIC_VIEW_URI = "atom-typescript://semantic-view";
 class SemanticView {

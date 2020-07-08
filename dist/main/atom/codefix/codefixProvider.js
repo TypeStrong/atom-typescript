@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CodefixProvider = void 0;
 const utils_1 = require("../utils");
 class CodefixProvider {
     constructor(clientResolver, errorPusher, applyEdits) {

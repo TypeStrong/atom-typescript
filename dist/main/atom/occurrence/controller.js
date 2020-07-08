@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.OccurenceController = void 0;
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("../../../utils");

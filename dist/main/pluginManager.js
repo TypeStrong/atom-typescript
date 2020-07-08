@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PluginManager = void 0;
 const Atom = require("atom");
 const atom_1 = require("atom");
 const lodash_1 = require("lodash");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.adjustElementPosition = exports.bufferPositionFromMouseEvent = void 0;
 // screen position from mouse event -- with <3 from Atom-Haskell
 function bufferPositionFromMouseEvent(editor, event) {
     const sp = atom.views

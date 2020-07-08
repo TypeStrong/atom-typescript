@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getHyperclickProvider = void 0;
 const findReferences_1 = require("../atom/commands/findReferences");
 const goToDeclaration_1 = require("../atom/commands/goToDeclaration");
 const utils_1 = require("../atom/utils");

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCodeActionsProvider = void 0;
 const utils_1 = require("../atom/utils");
 function getCodeActionsProvider(codefixProvider) {
     return {

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TypescriptServiceClient = void 0;
 // tslint:disable:max-classes-per-file
 const atom_1 = require("atom");
 const byline = require("byline");
@@ -113,6 +114,8 @@ class TypescriptServiceClient {
             result = this.callbacks.add(req.seq, command);
         }
         try {
+            if (!this.server.stdin)
+                throw new Error("Server stdin is missing");
             this.server.stdin.write(JSON.stringify(req) + "\n");
         }
         catch (error) {
@@ -160,6 +163,10 @@ class TypescriptServiceClient {
                 h(new Error(`terminated on signal: ${signal}`));
         });
         // Pipe both stdout and stderr appropriately
+        if (!cp.stdout)
+            throw new Error("ChildProcess stdout missing");
+        if (!cp.stderr)
+            throw new Error("ChildProcess stderr missing");
         messageStream(cp.stdout).on("data", this.onMessage);
         cp.stderr.on("data", (data) => {
             console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()));

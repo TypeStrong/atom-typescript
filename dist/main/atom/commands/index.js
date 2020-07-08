@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.registerCommands = void 0;
 const atom_1 = require("atom");
 const utils_1 = require("../utils");
 const registry_1 = require("./registry");

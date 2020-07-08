@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SymbolsViewController = void 0;
 const utils_1 = require("../../../../utils");
 const fileSymbolsView_1 = require("./fileSymbolsView");
 const projectSymbolsView_1 = require("./projectSymbolsView");

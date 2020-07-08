@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.provideCodeHighlight = exports.provideDefinitions = exports.provideOutlines = exports.provideReferences = exports.provideHyperclick = exports.provideCodeActions = exports.provideIntentionsHighlight = exports.provideIntentions = exports.provideAutocomplete = exports.consumeBusySignal = exports.consumeSignatureHelp = exports.consumeDatatipService = exports.consumeStatusBar = exports.consumeLinter = exports.deserializeSemanticView = exports.serialize = exports.deactivate = exports.activate = void 0;
 const utils_1 = require("../utils");
 let pluginManager;
 function activate(state) {

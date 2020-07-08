@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TSDatatipProvider = void 0;
 const Atom = require("atom");
 const tooltipRenderer_1 = require("../atom/tooltips/tooltipRenderer");
 const utils_1 = require("../atom/utils");

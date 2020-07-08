@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClientResolver = void 0;
 const atom_1 = require("atom");
 const ts = require("typescript");
 const client_1 = require("./client");

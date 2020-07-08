@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getOutlineProvider = void 0;
 const utils_1 = require("../atom/utils");
 function getOutlineProvider(getClient) {
     return {

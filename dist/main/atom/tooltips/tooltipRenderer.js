@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.renderTooltip = void 0;
 async function renderTooltip(data, etch, codeRenderer) {
     if (data === undefined)
         return null;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.highlight = exports.getOpenEditorsPaths = exports.getFilePathPosition = exports.isTypescriptGrammar = exports.isTypescriptEditorWithPath = exports.typeScriptScopes = exports.isTypescriptFile = void 0;
 const Atom = require("atom");
 const path = require("path");
 const ts_1 = require("./ts");

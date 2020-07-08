@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TSSigHelpProvider = void 0;
 const atom_1 = require("atom");
 const utils_1 = require("../atom/utils");
 class TSSigHelpProvider {

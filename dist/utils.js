@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handlePromise = void 0;
 function handlePromise(promise) {
     // tslint:disable-next-line:strict-type-predicates no-unbound-method
     if (typeof promise.catch !== "function") {

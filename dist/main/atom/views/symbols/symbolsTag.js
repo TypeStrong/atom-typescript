@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tag = void 0;
 class Tag {
     constructor(props) {
         this.position = props.position;

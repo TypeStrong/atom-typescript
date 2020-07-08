@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TsView = void 0;
 const etch = require("etch");
 class TsView {
     constructor(props) {

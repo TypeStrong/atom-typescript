@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateProject = exports.generateFile = void 0;
 const symbolsTag_1 = require("./symbolsTag");
 async function generateFile(filePath, deps) {
     const navtree = await getNavTree(filePath, deps);

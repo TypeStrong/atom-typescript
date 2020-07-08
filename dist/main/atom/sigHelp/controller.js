@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TooltipController = void 0;
 const Atom = require("atom");
 const lodash_1 = require("lodash");
 const utils_1 = require("../../../utils");

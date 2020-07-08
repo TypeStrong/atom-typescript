@@ -133,6 +133,7 @@ export class TypescriptServiceClient {
     }
 
     try {
+      if (!this.server.stdin) throw new Error("Server stdin is missing")
       this.server.stdin.write(JSON.stringify(req) + "\n")
     } catch (error) {
       this.callbacks.error(req.seq, error as Error)
@@ -181,6 +182,8 @@ export class TypescriptServiceClient {
     })
 
     // Pipe both stdout and stderr appropriately
+    if (!cp.stdout) throw new Error("ChildProcess stdout missing")
+    if (!cp.stderr) throw new Error("ChildProcess stderr missing")
     messageStream(cp.stdout).on("data", this.onMessage)
     cp.stderr.on("data", (data: Buffer) => {
       console.warn("tsserver stderr:", (this.lastStderrOutput = data.toString()))
