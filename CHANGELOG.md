@@ -1,3 +1,18 @@
+## 13.7.0
+
+-   Update bundled TypeScript to 3.9
+-   Add typescript:activate command to force activation
+
+    Useful for forcing one-off activation on JavaScript files
+
+-   Add mjs and cjs to default js file extensions
+
+    mjs and cjs extensions were introduced in Node as "ES module file" and "CommonJS module file".
+
+-   Option to ignore non-suggestion suggestion diagnostics
+
+    TypeScript server reports some error-type diagnostics on the suggestion channel. Enabling `atom-typescript.ignoreNonSuggestionSuggestionDiagnostics` ("Ignore suggestion diagnostics that are not actionable suggestions" in UI) option will suppress those.
+
 ## 13.6.1
 
 -   Faster package deps installation (#1547) (Amin Yahyaabadi)
