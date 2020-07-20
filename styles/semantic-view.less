@@ -18,104 +18,59 @@
 @symbol-variable: "\e607";
 @symbol-function: "\e608";
 @symbol-namespace: "\e609";
-.symbol-icon(@name) {
-  font-family: "symbol-icons";
-  content: @@name;
+.symbol-icon(@type, @symbol: @type, @color: @symbol) {
+  .icon-@{type}::before {
+    @scontent: "symbol-@{symbol}";
+    @scolor: "syntax-color-@{color}";
+    font-family: "symbol-icons";
+    content: @@scontent;
+    color: @@scolor;
+  }
+}
+.modifier(@type, @color) {
+  .modifier-@{type}::after {
+    content: " ⚫ ";
+    color: @color;
+  }
 }
 .atomts-semantic-view {
   overflow-y: auto;
 
-  .icon-class::before {
-    .symbol-icon(symbol-class);
-  }
-  .icon-struct::before {
-    .symbol-icon(symbol-struct);
-  }
-  .icon-variable::before {
-    .symbol-icon(symbol-variable);
-  }
+  .symbol-icon(class);
+  .symbol-icon(variable);
+  .symbol-icon(struct,    @color: class);
+  .symbol-icon(interface, @color: class);
+  .symbol-icon(enum,      @color: class);
+  .symbol-icon(typedef,   @color: class);
+  .symbol-icon(macro,     @color: variable);
+  .symbol-icon(union,     @color: class);
 
-  .icon-field::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-member::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-interface::before {
-    .symbol-icon(symbol-interface);
-  }
-  .icon-enum::before {
-    .symbol-icon(symbol-enum);
-  }
-  .icon-typedef::before {
-    .symbol-icon(symbol-typedef);
-  }
-  .icon-macro::before {
-    .symbol-icon(symbol-macro);
-  }
-  .icon-union::before {
-    .symbol-icon(symbol-union);
-  }
-
-  .icon-module::before {
-    .symbol-icon(symbol-macro);
-  }
+  .symbol-icon(field,       variable, tag);
+  .symbol-icon(member,      variable, tag);
+  .symbol-icon(module,      macro,    import);
 
   //type definition
-  .icon-type::before {
-    .symbol-icon(symbol-typedef);
-  }
+  .symbol-icon(type,        typedef,  class);
 
   // variable like
-  .icon-var::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-property::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-alias::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-let::before {
-    .symbol-icon(symbol-variable);
-  }
-  .icon-const::before {
-    .symbol-icon(symbol-variable);
-  }
+  .symbol-icon(var,         variable);
+  .symbol-icon(property,    variable);
+  .symbol-icon(alias,       variable);
+  .symbol-icon(let,         variable);
+  .symbol-icon(const,       variable);
 
   // function like
-  .icon-function::before {
-    .symbol-icon(symbol-function);
-  }
-  .icon-constructor::before {
-    .symbol-icon(symbol-function);
-  }
-  .icon-method::before {
-    .symbol-icon(symbol-function);
-  }
-  .icon-setter::before {
-    .symbol-icon(symbol-function);
-  }
-  .icon-getter::before {
-    .symbol-icon(symbol-function);
-  }
+  .symbol-icon(function,    function);
+  .symbol-icon(constructor, function);
+  .symbol-icon(method,      function);
+  .symbol-icon(setter,      function);
+  .symbol-icon(getter,      function);
 
   // module like
-  .icon-namespace::before {
-    .symbol-icon(symbol-namespace);
-  }
+  .symbol-icon(namespace,   namespace, import);
 
-  //icon-colors for access-modifiers
-  //  (note: currently re-uses syntax-colors for git status)
-  .modifier-public::before {
-    color: @syntax-color-renamed;
-  }
-
-  .modifier-protected::before {
-    color: @syntax-color-modified;
-  }
-
-  .modifier-private::before {
-    color: @syntax-color-removed;
-  }
+  // access-modifiers
+  .modifier(public, @text-color-success);
+  .modifier(protected, @text-color-warning);
+  .modifier(private, @text-color-error);
 }
