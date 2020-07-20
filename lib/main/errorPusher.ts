@@ -76,12 +76,15 @@ export class ErrorPusher {
   }
 
   private *getLinterErrors(): IterableIterator<Message> {
-    const config = atom.config.get("atom-typescript")
-
-    if (!config.suppressAllDiagnostics) {
+    if (!atom.config.get("atom-typescript.suppressAllDiagnostics")) {
       for (const fileErrors of this.errors.values()) {
         for (const [filePath, diagnostics] of fileErrors) {
           for (const diagnostic of diagnostics) {
+            const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
+            const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "")
+            const config = atom.config.get("atom-typescript", {scope: [grammar.scopeName]})
+
+            if (config.suppressAllDiagnostics) continue
             if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
             if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
             if (
