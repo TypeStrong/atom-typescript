@@ -1,3 +1,7 @@
+## 13.8.1
+
+-   [Hotfix] Scoped ignore settings
+
 ## 13.8.0
 
 ### New features
