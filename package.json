@@ -361,10 +361,10 @@
     "fs-plus": "^3.1.1",
     "fuzzaldrin": "^2.1.0",
     "jsonc-parser": "^2.3.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "resolve": "^1.17.0",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.7"
   },
   "devDependencies": {
     "@types/atom": "^1.40.4",
@@ -374,7 +374,7 @@
     "@types/fuzzaldrin": "^2.1.2",
     "@types/lodash": "^4.14.157",
     "@types/mocha": "^7",
-    "@types/node": "^12",
+    "@types/node": "^12.12.50",
     "@types/resolve": "^1.17.1",
     "atom-ts-spec-runner": "^1.1.1",
     "chai": "^4.2.0",
