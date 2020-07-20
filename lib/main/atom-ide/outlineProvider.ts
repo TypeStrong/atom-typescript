@@ -30,8 +30,14 @@ function navTreeToOutline(navTree: NavigationTree): OutlineTree {
     startPosition: range.start,
     endPosition: range.end,
     landingPosition: navTree.nameSpan ? spanToRange(navTree.nameSpan).start : undefined,
-    children: navTree.childItems ? navTree.childItems.map(navTreeToOutline) : [],
+    children: navTree.childItems ? navTree.childItems.map(navTreeToOutline).sort(compareNodes) : [],
   }
+}
+
+function compareNodes(a: OutlineTree, b: OutlineTree): number {
+  const apos = a.landingPosition ? a.landingPosition : a.startPosition
+  const bpos = b.landingPosition ? b.landingPosition : b.startPosition
+  return apos.compare(bpos)
 }
 
 const kindMap: {[key in ScriptElementKind]: OutlineTreeKind | undefined} = {

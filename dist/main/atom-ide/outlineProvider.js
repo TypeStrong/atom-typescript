@@ -31,8 +31,13 @@ function navTreeToOutline(navTree) {
         startPosition: range.start,
         endPosition: range.end,
         landingPosition: navTree.nameSpan ? utils_1.spanToRange(navTree.nameSpan).start : undefined,
-        children: navTree.childItems ? navTree.childItems.map(navTreeToOutline) : [],
+        children: navTree.childItems ? navTree.childItems.map(navTreeToOutline).sort(compareNodes) : [],
     };
+}
+function compareNodes(a, b) {
+    const apos = a.landingPosition ? a.landingPosition : a.startPosition;
+    const bpos = b.landingPosition ? b.landingPosition : b.startPosition;
+    return apos.compare(bpos);
 }
 const kindMap = {
     // | "file"
