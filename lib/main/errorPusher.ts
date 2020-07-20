@@ -1,4 +1,4 @@
-import {Point, Range, ConfigValues} from "atom"
+import {ConfigValues, Point, Range} from "atom"
 import {IndieDelegate, Message} from "atom/linter"
 import {debounce} from "lodash"
 import * as path from "path"
