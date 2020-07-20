@@ -8,7 +8,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
     let panel;
     const currentFocus = document.activeElement;
     try {
-        return await new Promise(resolve => {
+        return await new Promise((resolve) => {
             let didChangeQuery;
             let loadingMessage = "Loading...";
             let emptyMessage;
@@ -51,7 +51,7 @@ async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSel
                 itemsClassList: ["atom-typescript"],
             });
             if (typeof items !== "function") {
-                utils_1.handlePromise(Promise.resolve(items).then(is => {
+                utils_1.handlePromise(Promise.resolve(items).then((is) => {
                     update({ items: is, loadingMessage: undefined });
                 }));
             }

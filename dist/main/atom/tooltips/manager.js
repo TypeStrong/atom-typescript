@@ -48,7 +48,7 @@ class TooltipManager {
                 this.exprTypeTimeout = window.setTimeout(() => this.showExpressionType(editor, e, bufferPt), atom.config.get("atom-typescript").tooltipDelay);
             };
         };
-        this.subscriptions.add(atom.workspace.observeTextEditors(editor => {
+        this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             const rawView = atom.views.getView(editor);
             const lines = rawView.querySelector(".lines");
             this.editorMap.set(editor, {

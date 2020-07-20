@@ -53,7 +53,7 @@ async function resolveModule(id, opts) {
     }));
 }
 async function fsExists(p) {
-    return new Promise(resolve => fs.exists(p, resolve));
+    return new Promise((resolve) => fs.exists(p, resolve));
 }
 async function fsReadFile(p) {
     return new Promise((resolve, reject) => fs.readFile(p, (error, data) => {

@@ -7,7 +7,7 @@ function getCodeActionsProvider(codefixProvider) {
         grammarScopes: utils_1.typeScriptScopes(),
         priority: 0,
         async getCodeActions(textEditor, range, _diagnostics) {
-            return (await codefixProvider.runCodeFix(textEditor, range.start)).map(fix => ({
+            return (await codefixProvider.runCodeFix(textEditor, range.start)).map((fix) => ({
                 getTitle: async () => fix.description,
                 dispose: () => { },
                 apply: async () => {

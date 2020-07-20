@@ -9,7 +9,7 @@ class AutocompleteProvider {
     constructor(getClient) {
         this.getClient = getClient;
         this.selector = utils_1.typeScriptScopes()
-            .map(x => (x.includes(".") ? `.${x}` : x))
+            .map((x) => (x.includes(".") ? `.${x}` : x))
             .join(", ");
         this.disableForSelector = ".comment";
         this.inclusionPriority = 3;
@@ -39,7 +39,7 @@ class AutocompleteProvider {
             });
             // Get additional details for the first few suggestions
             await this.getAdditionalDetails(suggestions.slice(0, 10), location);
-            return suggestions.map(suggestion => (Object.assign({ replacementPrefix: suggestion.replacementRange
+            return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
                     : prefix }, addCallableParens(opts, suggestion))));
         }
@@ -48,8 +48,8 @@ class AutocompleteProvider {
         }
     }
     async getAdditionalDetails(suggestions, location) {
-        if (suggestions.some(s => !s.details) && this.lastSuggestions) {
-            const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map(s => s.displayText) }, location));
+        if (suggestions.some((s) => !s.details) && this.lastSuggestions) {
+            const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map((s) => s.displayText) }, location));
             details.body.forEach((detail, i) => {
                 const suggestion = suggestions[i];
                 suggestion.details = detail;
@@ -60,9 +60,9 @@ class AutocompleteProvider {
                     parts[2].text === ")") {
                     parts = parts.slice(3);
                 }
-                suggestion.rightLabel = parts.map(d => d.text).join("");
+                suggestion.rightLabel = parts.map((d) => d.text).join("");
                 suggestion.description =
-                    detail.documentation && detail.documentation.map(d => d.text).join(" ");
+                    detail.documentation && detail.documentation.map((d) => d.text).join(" ");
             });
         }
     }

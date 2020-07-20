@@ -14,7 +14,7 @@ function activate(state) {
 exports.activate = activate;
 async function checkAndInstallDependencies() {
     const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"];
-    if (!packagesProvidingUIServices.some(p => atom.packages.isPackageLoaded(p))) {
+    if (!packagesProvidingUIServices.some((p) => atom.packages.isPackageLoaded(p))) {
         const packageDeps = await Promise.resolve().then(() => require("atom-package-deps"));
         await packageDeps.install("atom-typescript", true);
     }

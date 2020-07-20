@@ -27,10 +27,10 @@ class NavigationNodeComponent {
             (selected ? " selected" : "");
         const styleClasses = this.getStyles();
         return (etch.dom("li", { className: "node entry exanded list-" + classes },
-            etch.dom("div", { className: "header list-item", on: { click: event => this.entryClicked(event, node) } },
+            etch.dom("div", { className: "header list-item", on: { click: (event) => this.entryClicked(event, node) } },
                 etch.dom("span", { className: styleClasses }, node.text)),
             etch.dom("ol", { className: "entries list-tree" }, node.childItems
-                ? node.childItems.map(sn => etch.dom(NavigationNodeComponent, { navTree: sn, ctrl: ctrl }))
+                ? node.childItems.map((sn) => etch.dom(NavigationNodeComponent, { navTree: sn, ctrl: ctrl }))
                 : null)));
     }
     getStyles() {
@@ -42,7 +42,7 @@ class NavigationNodeComponent {
                 " " +
                     kindModifiers
                         .split(/[, ]/)
-                        .map(modifier => `modifier-${modifier.trim()}`)
+                        .map((modifier) => `modifier-${modifier.trim()}`)
                         .join(" ");
         }
         return styles;

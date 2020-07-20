@@ -19,7 +19,7 @@ class ConfigPath {
                 ? "No tsconfig.json"
                 : `Click to open ${atom.project.relativize(this.props.tsConfigPath)}` },
             etch.dom("a", { className: "inline-block", href: "", on: {
-                    click: evt => {
+                    click: (evt) => {
                         evt.preventDefault();
                         this.openConfigPath();
                     },

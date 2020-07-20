@@ -30,7 +30,7 @@ async function initConfig(tsc, projectRoot) {
                     command: tsc,
                     args: ["--init"],
                     options: { cwd: projectRoot },
-                    exit: code => {
+                    exit: (code) => {
                         if (code === 0)
                             resolve();
                         else

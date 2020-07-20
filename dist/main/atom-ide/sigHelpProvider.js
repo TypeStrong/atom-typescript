@@ -12,7 +12,7 @@ class TSSigHelpProvider {
         this.disposables = new atom_1.CompositeDisposable();
         const triggerCharsDefault = new Set(["<", "(", ","]);
         const triggerCharsDisabled = new Set([]);
-        this.disposables.add(atom.config.observe("atom-typescript.sigHelpDisplayOnChange", newVal => {
+        this.disposables.add(atom.config.observe("atom-typescript.sigHelpDisplayOnChange", (newVal) => {
             this.triggerCharacters = newVal ? triggerCharsDefault : triggerCharsDisabled;
         }));
     }

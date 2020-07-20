@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../utils");
 const renameView_1 = require("../views/renameView");
 const registry_1 = require("./registry");
-registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", (deps) => ({
     description: "Rename symbol under text cursor everywhere it is used",
     async didDispatch(editor) {
         const location = utils_1.getFilePathPosition(editor);
@@ -31,9 +31,9 @@ registry_1.addCommand("atom-text-editor", "typescript:rename-refactor", deps => 
             },
         });
         if (newName !== undefined) {
-            await deps.applyEdits(locs.map(span => ({
+            await deps.applyEdits(locs.map((span) => ({
                 fileName: span.file,
-                textChanges: span.locs.map(loc => (Object.assign(Object.assign({}, loc), { newText: newName }))),
+                textChanges: span.locs.map((loc) => (Object.assign(Object.assign({}, loc), { newText: newName }))),
             })));
         }
     },

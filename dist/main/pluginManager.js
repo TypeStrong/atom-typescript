@@ -48,7 +48,7 @@ class PluginManager {
         };
         this.withBuffer = async (filePath, action) => {
             const normalizedFilePath = path.normalize(filePath);
-            const ed = atom.workspace.getTextEditors().find(p => p.getPath() === normalizedFilePath);
+            const ed = atom.workspace.getTextEditors().find((p) => p.getPath() === normalizedFilePath);
             // found open buffer
             if (ed)
                 return action(ed.getBuffer());
@@ -89,10 +89,10 @@ class PluginManager {
         this.reportClientInfo = (info) => {
             utils_1.handlePromise(this.statusPanel.update(info));
         };
-        this.applyEdits = async (edits) => void Promise.all(edits.map(edit => this.withBuffer(edit.fileName, async (buffer) => {
+        this.applyEdits = async (edits) => void Promise.all(edits.map((edit) => this.withBuffer(edit.fileName, async (buffer) => {
             buffer.transact(() => {
                 const changes = edit.textChanges
-                    .map(e => ({ range: utils_2.spanToRange(e), newText: e.newText }))
+                    .map((e) => ({ range: utils_2.spanToRange(e), newText: e.newText }))
                     .reverse() // NOTE: needs reverse for cases where ranges are same for two changes
                     .sort((a, b) => b.range.compare(a.range));
                 for (const change of changes) {
@@ -173,10 +173,10 @@ class PluginManager {
             toggleSemanticViewController: () => {
                 utils_1.handlePromise(this.semanticViewController.toggle());
             },
-            toggleFileSymbolsView: ed => {
+            toggleFileSymbolsView: (ed) => {
                 this.symbolsViewController.toggleFileView(ed);
             },
-            toggleProjectSymbolsView: ed => {
+            toggleProjectSymbolsView: (ed) => {
                 this.symbolsViewController.toggleProjectView(ed);
             },
             histGoForward: this.histGoForward,
@@ -297,7 +297,7 @@ class PluginManager {
     subscribeEditors() {
         this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             this.typescriptPaneFactory(editor);
-        }), atom.workspace.onDidChangeActiveTextEditor(ed => {
+        }), atom.workspace.onDidChangeActiveTextEditor((ed) => {
             if (ed && utils_2.isTypescriptEditorWithPath(ed)) {
                 utils_1.handlePromise(this.statusPanel.show());
                 const tep = typescriptEditorPane_1.TypescriptEditorPane.lookupPane(ed);

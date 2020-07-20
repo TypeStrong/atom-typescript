@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
 const registry_1 = require("./registry");
-registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:check-all-files", (deps) => ({
     description: "Typecheck all files in project related to current active text editor",
     async didDispatch(editor) {
         var _a;
@@ -14,7 +14,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
             file,
             needFileNameList: true,
         });
-        const files = new Set((_a = projectInfo.body.fileNames) === null || _a === void 0 ? void 0 : _a.filter(fn => 
+        const files = new Set((_a = projectInfo.body.fileNames) === null || _a === void 0 ? void 0 : _a.filter((fn) => 
         // filter out obvious potholes
         !fn.endsWith("tsconfig.json") && !fn.includes(`${path.sep}node_modules${path.sep}`)));
         const max = files.size;
@@ -24,7 +24,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         // for some amount of time.
         // That is, if we can't rely on multistep
         if (client.multistepSupported) {
-            const disp = client.on("syntaxDiag", evt => {
+            const disp = client.on("syntaxDiag", (evt) => {
                 if ("file" in evt)
                     files.delete(evt.file);
                 deps.reportProgress({ max, value: max - files.size });
@@ -35,7 +35,7 @@ registry_1.addCommand("atom-text-editor", "typescript:check-all-files", deps => 
         }
         else {
             let cancelTimeout;
-            const disp = client.on("syntaxDiag", evt => {
+            const disp = client.on("syntaxDiag", (evt) => {
                 if (cancelTimeout !== undefined)
                     window.clearTimeout(cancelTimeout);
                 cancelTimeout = window.setTimeout(() => {

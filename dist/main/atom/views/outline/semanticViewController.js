@@ -19,7 +19,7 @@ class SemanticViewController {
                 atom.workspace.hide(this.view);
                 utils_1.handlePromise(this.view.destroy());
             }
-        }), atom.config.observe("atom-typescript.showSemanticView", val => {
+        }), atom.config.observe("atom-typescript.showSemanticView", (val) => {
             if (val)
                 utils_1.handlePromise(this.show());
             else

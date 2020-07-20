@@ -8,7 +8,7 @@ const utils_1 = require("../utils");
 const highlightComponent_1 = require("../views/highlightComponent");
 const simpleSelectionView_1 = require("../views/simpleSelectionView");
 const registry_1 = require("./registry");
-registry_1.addCommand("atom-text-editor", "typescript:find-references", deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:find-references", (deps) => ({
     description: "Find where symbol under text cursor is referenced",
     async didDispatch(editor) {
         const location = utils_1.getFilePathPosition(editor);

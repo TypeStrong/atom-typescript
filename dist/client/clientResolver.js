@@ -34,7 +34,7 @@ class ClientResolver {
         };
     }
     async restartAllServers() {
-        await this.reportBusyWhile("Restarting servers", () => Promise.all(Array.from(this.getAllClients()).map(client => client.restartServer())));
+        await this.reportBusyWhile("Restarting servers", () => Promise.all(Array.from(this.getAllClients()).map((client) => client.restartServer())));
     }
     async get(pFilePath) {
         const memo = this.memoizedClients.get(pFilePath);
@@ -59,7 +59,7 @@ class ClientResolver {
     async _get(pFilePath) {
         const { pathToBin, version } = await resolveBinary_1.resolveBinary(pFilePath, "tsserver");
         const tsconfigPath = this.tsserverInstancePerTsconfig
-            ? ts.findConfigFile(pFilePath, f => ts.sys.fileExists(f))
+            ? ts.findConfigFile(pFilePath, (f) => ts.sys.fileExists(f))
             : undefined;
         let tsconfigMap = this.clients.get(pathToBin);
         if (!tsconfigMap) {

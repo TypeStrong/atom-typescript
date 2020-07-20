@@ -16,7 +16,7 @@ class TooltipController {
         this.view = new tooltipView_1.TooltipView(rawView);
         rawView.appendChild(this.view.element);
         const debouncedUpdate = lodash_1.debounce(this.updateTooltip.bind(this), 100, { leading: true });
-        this.disposables.add(this.editor.onDidChangeCursorPosition(evt => {
+        this.disposables.add(this.editor.onDidChangeCursorPosition((evt) => {
             bufferPt = evt.newBufferPosition;
             utils_1.handlePromise(debouncedUpdate(bufferPt));
         }), rawView.onDidChangeScrollTop(() => {

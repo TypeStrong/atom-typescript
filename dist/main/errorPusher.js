@@ -14,7 +14,7 @@ class ErrorPusher {
         for (const prefixed of this.errors.values()) {
             const errors = prefixed.get(path.normalize(filePath));
             if (errors)
-                yield* errors.filter(err => utils_1.spanToRange(err).intersectsWith(range));
+                yield* errors.filter((err) => utils_1.spanToRange(err).intersectsWith(range));
         }
     }
     /** Return any errors that cover the given location */
@@ -22,7 +22,7 @@ class ErrorPusher {
         for (const prefixed of this.errors.values()) {
             const errors = prefixed.get(path.normalize(filePath));
             if (errors)
-                yield* errors.filter(err => utils_1.spanToRange(err).containsPoint(loc));
+                yield* errors.filter((err) => utils_1.spanToRange(err).containsPoint(loc));
         }
     }
     /** Set errors. Previous errors with the same prefix and filePath are going to be replaced */

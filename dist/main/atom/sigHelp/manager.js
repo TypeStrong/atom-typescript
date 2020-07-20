@@ -18,12 +18,12 @@ class SigHelpManager {
             if (filePath === undefined)
                 return;
             const pos = editor.getLastCursor().getBufferPosition();
-            const [ch] = event.changes.filter(x => x.newRange.containsPoint(pos));
+            const [ch] = event.changes.filter((x) => x.newRange.containsPoint(pos));
             if (ch && ch.newText.match(/[<(,]/) !== null) {
                 utils_1.handlePromise(this.showTooltip(editor, pos));
             }
         };
-        this.subscriptions.add(atom.workspace.observeTextEditors(editor => {
+        this.subscriptions.add(atom.workspace.observeTextEditors((editor) => {
             const disp = new Atom.CompositeDisposable();
             disp.add(editor.onDidDestroy(() => {
                 disp.dispose();

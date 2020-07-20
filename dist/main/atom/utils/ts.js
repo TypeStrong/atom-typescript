@@ -43,7 +43,7 @@ function loadConfig(configFile) {
     if (path.extname(configFile) !== ".json") {
         configFile = `${configFile}.json`;
     }
-    let { config, } = ts.readConfigFile(configFile, file => ts.sys.readFile(file));
+    let { config, } = ts.readConfigFile(configFile, (file) => ts.sys.readFile(file));
     if (config === undefined)
         return {};
     if (typeof config.extends === "string") {
@@ -56,7 +56,9 @@ function loadConfig(configFile) {
 function signatureHelpItemToSignature(i) {
     return {
         label: partsToStr(i.prefixDisplayParts) +
-            i.parameters.map(x => partsToStr(x.displayParts)).join(partsToStr(i.separatorDisplayParts)) +
+            i.parameters
+                .map((x) => partsToStr(x.displayParts))
+                .join(partsToStr(i.separatorDisplayParts)) +
             partsToStr(i.suffixDisplayParts),
         documentation: partsToStr(i.documentation),
         parameters: i.parameters.map(signatureHelpParameterToSignatureParameter),
@@ -71,7 +73,7 @@ function signatureHelpParameterToSignatureParameter(p) {
 }
 exports.signatureHelpParameterToSignatureParameter = signatureHelpParameterToSignatureParameter;
 function partsToStr(x) {
-    return x.map(i => i.text).join("");
+    return x.map((i) => i.text).join("");
 }
 exports.partsToStr = partsToStr;
 // tslint:disable-next-line: only-arrow-functions
@@ -82,7 +84,7 @@ exports.checkDiagnosticCategory = (function () {
         if (code === undefined)
             return true;
         if (codeToCategory === undefined) {
-            codeToCategory = new Map(Object.values(ts.Diagnostics).map(x => [x.code, x.category]));
+            codeToCategory = new Map(Object.values(ts.Diagnostics).map((x) => [x.code, x.category]));
         }
         const cat = codeToCategory.get(code);
         if (cat === undefined)

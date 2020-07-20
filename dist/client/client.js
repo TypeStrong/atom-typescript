@@ -129,7 +129,7 @@ class TypescriptServiceClient {
             const graceTimer = setTimeout(() => server.kill(), 10000);
             await Promise.all([
                 this.execute("exit"),
-                new Promise(resolve => {
+                new Promise((resolve) => {
                     const disp = this.emitter.once("terminated", () => {
                         disp.dispose();
                         resolve();

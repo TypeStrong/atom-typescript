@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs-plus");
 const renameView_1 = require("../views/renameView");
 const registry_1 = require("./registry");
-registry_1.addCommand("atom-text-editor", "typescript:rename-file", deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:rename-file", (deps) => ({
     description: "Rename current file",
     async didDispatch(editor) {
         const location = editor.getPath();

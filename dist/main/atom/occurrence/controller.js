@@ -71,7 +71,7 @@ class OccurenceController {
                 continue;
             for (const span of fileInfo.highlightSpans) {
                 const range = utils_2.spanToRange(span);
-                const oldMarker = this.occurrenceMarkers.find(m => m.getBufferRange().isEqual(range));
+                const oldMarker = this.occurrenceMarkers.find((m) => m.getBufferRange().isEqual(range));
                 if (oldMarker)
                     yield oldMarker;
                 else {

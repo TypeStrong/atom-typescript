@@ -6,7 +6,7 @@ const controller_1 = require("./controller");
 class OccurrenceManager {
     constructor(getClient) {
         this.disposables = new atom_1.CompositeDisposable();
-        this.disposables.add(atom.workspace.observeTextEditors(editor => {
+        this.disposables.add(atom.workspace.observeTextEditors((editor) => {
             const controller = new controller_1.OccurenceController(getClient, editor);
             this.disposables.add(controller, editor.onDidDestroy(() => {
                 this.disposables.remove(controller);

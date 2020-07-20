@@ -9,7 +9,7 @@ async function renderTooltip(data, etch, codeRenderer) {
         formatKindModifiers(data.kindModifiers)));
     // tslint:disable-next-line: strict-boolean-expressions // TODO: complain on TS
     const tags = data.tags
-        ? data.tags.map(tag => {
+        ? data.tags.map((tag) => {
             const tagClass = "atom-typescript-datatip-tooltip-doc-tag " +
                 `atom-typescript-datatip-tooltip-doc-tag-name-${tag.name}`;
             return (etch.dom("div", { className: tagClass },

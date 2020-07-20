@@ -47,8 +47,7 @@ class Callbacks {
         const req = this.callbacks.get(body.request_seq);
         if (req) {
             if (window.atom_typescript_debug) {
-                console.log(`received requestCompleted event for multistep command ${req.command} in ${Date.now() -
-                    req.started} ms`);
+                console.log(`received requestCompleted event for multistep command ${req.command} in ${Date.now() - req.started} ms`);
             }
             req.resolve(undefined);
         }

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const registry_1 = require("./registry");
-registry_1.addCommand("atom-text-editor", "typescript:reload-projects", deps => ({
+registry_1.addCommand("atom-text-editor", "typescript:reload-projects", (deps) => ({
     description: "Reload projects",
     async didDispatch(editor) {
         const path = editor.getPath();
