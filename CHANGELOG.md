@@ -1,3 +1,26 @@
+## 13.8.0
+
+### New features
+
+-   Scoped ignore settings
+
+    The following settings are now scoped to grammar scope:
+
+    - suppressAllDiagnostics
+    - ignoredDiagnosticCodes
+    - ignoreUnusedSuggestionDiagnostics
+    - ignoredSuggestionDiagnostics
+    - ignoreNonSuggestionSuggestionDiagnostics
+    - unusedAsInfo
+
+### Fixes
+
+-   Sort outline view items for atom-ide-ui by occurrence in file
+
+    For consistency with builtin semantic view
+
+-   Bump dependencies
+
 ## 13.7.0
 
 -   Update bundled TypeScript to 3.9
