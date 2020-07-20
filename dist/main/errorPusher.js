@@ -67,18 +67,23 @@ class ErrorPusher {
                     for (const diagnostic of diagnostics) {
                         const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath);
                         const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "");
-                        const config = atom.config.get("atom-typescript", { scope: [grammar.scopeName] });
-                        if (config.suppressAllDiagnostics)
+                        function config(option) {
+                            return atom.config.get(`atom-typescript.${option}`, {
+                                scope: [grammar.scopeName],
+                            });
+                        }
+                        if (config("suppressAllDiagnostics"))
                             continue;
-                        if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`))
+                        if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`))
                             continue;
-                        if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary)
-                            continue;
-                        if (diagnostic.category === "suggestion" &&
-                            config.ignoredSuggestionDiagnostics.includes(`${diagnostic.code}`)) {
+                        if (config("ignoreUnusedSuggestionDiagnostics") && diagnostic.reportsUnnecessary) {
                             continue;
                         }
-                        if (config.ignoreNonSuggestionSuggestionDiagnostics &&
+                        if (diagnostic.category === "suggestion" &&
+                            config("ignoredSuggestionDiagnostics").includes(`${diagnostic.code}`)) {
+                            continue;
+                        }
+                        if (config("ignoreNonSuggestionSuggestionDiagnostics") &&
                             diagnostic.category === "suggestion" &&
                             !utils_1.checkDiagnosticCategory(diagnostic.code, utils_1.DiagnosticCategory.Suggestion)) {
                             continue;
@@ -90,7 +95,7 @@ class ErrorPusher {
                             start = end = { line: 1, offset: 1 };
                         }
                         yield {
-                            severity: this.getSeverity(config.unusedAsInfo, diagnostic),
+                            severity: this.getSeverity(config("unusedAsInfo"), diagnostic),
                             excerpt: diagnostic.text,
                             location: {
                                 file: filePath,

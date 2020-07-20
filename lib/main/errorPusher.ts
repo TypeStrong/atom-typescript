@@ -1,4 +1,4 @@
-import {Point, Range} from "atom"
+import {Point, Range, ConfigValues} from "atom"
 import {IndieDelegate, Message} from "atom/linter"
 import {debounce} from "lodash"
 import * as path from "path"
@@ -82,19 +82,27 @@ export class ErrorPusher {
           for (const diagnostic of diagnostics) {
             const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
             const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "")
-            const config = atom.config.get("atom-typescript", {scope: [grammar.scopeName]})
+            function config<T extends keyof ConfigValues["atom-typescript"]>(
+              option: T,
+            ): ConfigValues["atom-typescript"][typeof option] {
+              return atom.config.get(`atom-typescript.${option}`, {
+                scope: [grammar.scopeName],
+              }) as any
+            }
 
-            if (config.suppressAllDiagnostics) continue
-            if (config.ignoredDiagnosticCodes.includes(`${diagnostic.code}`)) continue
-            if (config.ignoreUnusedSuggestionDiagnostics && diagnostic.reportsUnnecessary) continue
+            if (config("suppressAllDiagnostics")) continue
+            if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`)) continue
+            if (config("ignoreUnusedSuggestionDiagnostics") && diagnostic.reportsUnnecessary) {
+              continue
+            }
             if (
               diagnostic.category === "suggestion" &&
-              config.ignoredSuggestionDiagnostics.includes(`${diagnostic.code}`)
+              config("ignoredSuggestionDiagnostics").includes(`${diagnostic.code}`)
             ) {
               continue
             }
             if (
-              config.ignoreNonSuggestionSuggestionDiagnostics &&
+              config("ignoreNonSuggestionSuggestionDiagnostics") &&
               diagnostic.category === "suggestion" &&
               !checkDiagnosticCategory(diagnostic.code, DiagnosticCategory.Suggestion)
             ) {
@@ -108,7 +116,7 @@ export class ErrorPusher {
             }
 
             yield {
-              severity: this.getSeverity(config.unusedAsInfo, diagnostic),
+              severity: this.getSeverity(config("unusedAsInfo"), diagnostic),
               excerpt: diagnostic.text,
               location: {
                 file: filePath,
