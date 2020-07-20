@@ -1,3 +1,7 @@
+## 13.9.1
+
+-   Improve semantic view colors slightly
+
 ## 13.9.0
 
 -   Colorize semantic view icons according to item type
