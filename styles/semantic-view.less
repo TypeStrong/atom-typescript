@@ -36,6 +36,18 @@
 .atomts-semantic-view {
   overflow-y: auto;
 
+  // @syntax-color-variable
+  // @syntax-color-constant
+  // @syntax-color-property
+  // @syntax-color-value
+  // @syntax-color-function
+  // @syntax-color-method
+  // @syntax-color-class
+  // @syntax-color-keyword
+  // @syntax-color-tag
+  // @syntax-color-attribute
+  // @syntax-color-import
+
   .symbol-icon(class);
   .symbol-icon(variable);
   .symbol-icon(struct,    @color: class);
@@ -45,8 +57,9 @@
   .symbol-icon(macro,     @color: variable);
   .symbol-icon(union,     @color: class);
 
-  .symbol-icon(field,       variable, tag);
-  .symbol-icon(member,      variable, tag);
+  .symbol-icon(field,       variable, property);
+  .symbol-icon(member,      variable, property);
+  .symbol-icon(property,    variable, property);
   .symbol-icon(module,      macro,    import);
 
   //type definition
@@ -54,17 +67,16 @@
 
   // variable like
   .symbol-icon(var,         variable);
-  .symbol-icon(property,    variable);
   .symbol-icon(alias,       variable);
   .symbol-icon(let,         variable);
   .symbol-icon(const,       variable);
 
   // function like
   .symbol-icon(function,    function);
-  .symbol-icon(constructor, function);
-  .symbol-icon(method,      function);
-  .symbol-icon(setter,      function);
-  .symbol-icon(getter,      function);
+  .symbol-icon(constructor, function, method);
+  .symbol-icon(method,      function, method);
+  .symbol-icon(setter,      function, method);
+  .symbol-icon(getter,      function, method);
 
   // module like
   .symbol-icon(namespace,   namespace, import);
