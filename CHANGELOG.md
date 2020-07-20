@@ -1,3 +1,23 @@
+## 13.9.0
+
+-   Colorize semantic view icons according to item type
+-   Show access modifiers by a colored dot
+
+This changes the style of builtin semantic view. You can revert to old style (where access modifiers were shown by icon color) by adding the following code to your stylesheet (Edit → Stylesheet...):
+
+```less
+@import "syntax-variables";
+.atomts-semantic-view {
+  .icon::before { color: inherit; }
+  .modifier-public::after,
+  .modifier-protected::after,
+  .modifier-private::after { content: ""; }
+  .modifier-public::before { color: @syntax-color-renamed; }
+  .modifier-protected::before { color: @syntax-color-modified; }
+  .modifier-private::before { color: @syntax-color-removed; }
+}
+```
+
 ## 13.8.1
 
 -   [Hotfix] Scoped ignore settings
