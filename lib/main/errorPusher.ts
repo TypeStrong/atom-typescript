@@ -77,19 +77,19 @@ export class ErrorPusher {
 
   private *getLinterErrors(): IterableIterator<Message> {
     if (!atom.config.get("atom-typescript.suppressAllDiagnostics")) {
-      for (const fileErrors of this.errors.values()) {
+      const errorsValues = this.errors.values()
+      for (const fileErrors of errorsValues) {
         for (const [filePath, diagnostics] of fileErrors) {
+          const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
+          const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "")
+          function config<T extends keyof ConfigValues["atom-typescript"]>(
+            option: T,
+          ): ConfigValues["atom-typescript"][typeof option] {
+            return atom.config.get(`atom-typescript.${option}`, {
+              scope: [grammar.scopeName],
+            }) as any
+          }
           for (const diagnostic of diagnostics) {
-            const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
-            const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "")
-            function config<T extends keyof ConfigValues["atom-typescript"]>(
-              option: T,
-            ): ConfigValues["atom-typescript"][typeof option] {
-              return atom.config.get(`atom-typescript.${option}`, {
-                scope: [grammar.scopeName],
-              }) as any
-            }
-
             if (config("suppressAllDiagnostics")) continue
             if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`)) continue
             if (config("ignoreUnusedSuggestionDiagnostics") && diagnostic.reportsUnnecessary) {
