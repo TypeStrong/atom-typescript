@@ -10,6 +10,11 @@ function activate(state) {
     const { PluginManager } = require("./pluginManager");
     pluginManager = new PluginManager(state);
     setImmediate(() => utils_1.handlePromise(checkAndInstallDependencies()));
+    // add warning for the slow down
+    if (atom.config.get("atom-typescript.checkAllFilesOnSave")) {
+        atom.notifications.addInfo(`"Check all files of the project for problems" option is enabled.
+    This slows down Atom in big projects.`);
+    }
 }
 exports.activate = activate;
 async function checkAndInstallDependencies() {
