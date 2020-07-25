@@ -35,8 +35,8 @@
       "order": 90
     },
     "checkAllFilesOnSave": {
-      "title": "Show problems for project",
-      "description": "It will be report all problems in current project when your file saved.",
+      "title": "Check all project files on save",
+      "description": "Enabling this will report all problems in the current project when the current file is saved (this can be slow if the project is big!).",
       "type": "boolean",
       "default": "false",
       "order": 92
