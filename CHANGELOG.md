@@ -1,3 +1,15 @@
+## 13.9.2
+
+-   Clarify the "Show problems for project" config (thanks aminya)
+
+    New title: "Check all project files on save"
+
+    New wording: "Enabling this will report all problems in the current project when the current file is saved (this can be slow if the project is big!)."
+
+-   getLinterErrors optimizations
+
+    Performance on larger projects could be not great. Hopefully these changes make it better.
+
 ## 13.9.1
 
 -   Improve semantic view colors slightly
