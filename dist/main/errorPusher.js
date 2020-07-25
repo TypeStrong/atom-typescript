@@ -8,6 +8,7 @@ const utils_1 = require("./atom/utils");
 class ErrorPusher {
     constructor() {
         this.errors = new Map();
+        this.fileGrammars = new Map();
         this.pushErrors = lodash_1.debounce(this.pushErrors.bind(this), 100);
     }
     *getErrorsInRange(filePath, range) {
@@ -58,54 +59,60 @@ class ErrorPusher {
     }
     pushErrors() {
         if (this.linter)
-            this.linter.setAllMessages(Array.from(this.getLinterErrors()));
+            this.linter.setAllMessages(this.getLinterErrors());
     }
-    *getLinterErrors() {
-        if (!atom.config.get("atom-typescript.suppressAllDiagnostics")) {
-            for (const fileErrors of this.errors.values()) {
-                for (const [filePath, diagnostics] of fileErrors) {
-                    for (const diagnostic of diagnostics) {
-                        const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath);
-                        const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "");
-                        function config(option) {
-                            return atom.config.get(`atom-typescript.${option}`, {
-                                scope: [grammar.scopeName],
-                            });
-                        }
-                        if (config("suppressAllDiagnostics"))
-                            continue;
-                        if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`))
-                            continue;
-                        if (config("ignoreUnusedSuggestionDiagnostics") && diagnostic.reportsUnnecessary) {
-                            continue;
-                        }
-                        if (diagnostic.category === "suggestion" &&
-                            config("ignoredSuggestionDiagnostics").includes(`${diagnostic.code}`)) {
-                            continue;
-                        }
-                        if (config("ignoreNonSuggestionSuggestionDiagnostics") &&
-                            diagnostic.category === "suggestion" &&
-                            !utils_1.checkDiagnosticCategory(diagnostic.code, utils_1.DiagnosticCategory.Suggestion)) {
-                            continue;
-                        }
-                        // Add a bit of extra validation that we have the necessary locations since linter v2
-                        // does not allow range-less messages anymore. This happens with configFileDiagnostics.
-                        let { start, end } = diagnostic;
-                        if (!start || !end) {
-                            start = end = { line: 1, offset: 1 };
-                        }
-                        yield {
-                            severity: this.getSeverity(config("unusedAsInfo"), diagnostic),
-                            excerpt: diagnostic.text,
-                            location: {
-                                file: filePath,
-                                position: utils_1.locationsToRange(start, end),
-                            },
-                        };
+    getLinterErrors() {
+        if (atom.config.get("atom-typescript.suppressAllDiagnostics"))
+            return [];
+        const result = [];
+        for (const fileErrors of this.errors.values()) {
+            for (const [filePath, diagnostics] of fileErrors) {
+                const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath);
+                const scopeName = ed ? ed.getGrammar().scopeName : this.selectGrammar(filePath);
+                if (config("suppressAllDiagnostics", scopeName))
+                    continue;
+                for (const diagnostic of diagnostics) {
+                    if (config("ignoredDiagnosticCodes", scopeName).includes(`${diagnostic.code}`))
+                        continue;
+                    if (config("ignoreUnusedSuggestionDiagnostics", scopeName) &&
+                        diagnostic.reportsUnnecessary) {
+                        continue;
                     }
+                    if (diagnostic.category === "suggestion" &&
+                        config("ignoredSuggestionDiagnostics", scopeName).includes(`${diagnostic.code}`)) {
+                        continue;
+                    }
+                    if (config("ignoreNonSuggestionSuggestionDiagnostics", scopeName) &&
+                        diagnostic.category === "suggestion" &&
+                        !utils_1.checkDiagnosticCategory(diagnostic.code, utils_1.DiagnosticCategory.Suggestion)) {
+                        continue;
+                    }
+                    // Add a bit of extra validation that we have the necessary locations since linter v2
+                    // does not allow range-less messages anymore. This happens with configFileDiagnostics.
+                    let { start, end } = diagnostic;
+                    if (!start || !end) {
+                        start = end = { line: 1, offset: 1 };
+                    }
+                    result.push({
+                        severity: this.getSeverity(config("unusedAsInfo", scopeName), diagnostic),
+                        excerpt: diagnostic.text,
+                        location: {
+                            file: filePath,
+                            position: utils_1.locationsToRange(start, end),
+                        },
+                    });
                 }
             }
         }
+        return result;
+    }
+    selectGrammar(filePath) {
+        const knownGramamr = this.fileGrammars.get(filePath);
+        if (knownGramamr !== undefined)
+            return knownGramamr;
+        const selectedGrammar = atom.grammars.selectGrammar(filePath, "").scopeName;
+        this.fileGrammars.set(filePath, selectedGrammar);
+        return selectedGrammar;
     }
     getSeverity(unusedAsInfo, diagnostic) {
         if (unusedAsInfo && diagnostic.code === 6133)
@@ -121,4 +128,7 @@ class ErrorPusher {
     }
 }
 exports.ErrorPusher = ErrorPusher;
+function config(option, scope) {
+    return atom.config.get(`atom-typescript.${option}`, { scope: [scope] });
+}
 //# sourceMappingURL=errorPusher.js.map

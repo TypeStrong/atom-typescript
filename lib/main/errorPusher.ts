@@ -14,7 +14,8 @@ import {
 /** Class that collects errors from all of the clients and pushes them to the Linter service */
 export class ErrorPusher {
   private linter?: IndieDelegate
-  private errors: Map<string, Map<string, Diagnostic[]>> = new Map()
+  private errors = new Map<DiagnosticTypes, Map<string, Diagnostic[]>>()
+  private fileGrammars = new Map<string, string>()
 
   constructor() {
     this.pushErrors = debounce(this.pushErrors.bind(this), 100)
@@ -72,61 +73,66 @@ export class ErrorPusher {
   }
 
   private pushErrors() {
-    if (this.linter) this.linter.setAllMessages(Array.from(this.getLinterErrors()))
+    if (this.linter) this.linter.setAllMessages(this.getLinterErrors())
   }
 
-  private *getLinterErrors(): IterableIterator<Message> {
-    if (!atom.config.get("atom-typescript.suppressAllDiagnostics")) {
-      for (const fileErrors of this.errors.values()) {
-        for (const [filePath, diagnostics] of fileErrors) {
-          for (const diagnostic of diagnostics) {
-            const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
-            const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "")
-            function config<T extends keyof ConfigValues["atom-typescript"]>(
-              option: T,
-            ): ConfigValues["atom-typescript"][typeof option] {
-              return atom.config.get(`atom-typescript.${option}`, {
-                scope: [grammar.scopeName],
-              }) as any
-            }
-
-            if (config("suppressAllDiagnostics")) continue
-            if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`)) continue
-            if (config("ignoreUnusedSuggestionDiagnostics") && diagnostic.reportsUnnecessary) {
-              continue
-            }
-            if (
-              diagnostic.category === "suggestion" &&
-              config("ignoredSuggestionDiagnostics").includes(`${diagnostic.code}`)
-            ) {
-              continue
-            }
-            if (
-              config("ignoreNonSuggestionSuggestionDiagnostics") &&
-              diagnostic.category === "suggestion" &&
-              !checkDiagnosticCategory(diagnostic.code, DiagnosticCategory.Suggestion)
-            ) {
-              continue
-            }
-            // Add a bit of extra validation that we have the necessary locations since linter v2
-            // does not allow range-less messages anymore. This happens with configFileDiagnostics.
-            let {start, end} = diagnostic as Partial<Diagnostic>
-            if (!start || !end) {
-              start = end = {line: 1, offset: 1}
-            }
-
-            yield {
-              severity: this.getSeverity(config("unusedAsInfo"), diagnostic),
-              excerpt: diagnostic.text,
-              location: {
-                file: filePath,
-                position: locationsToRange(start, end),
-              },
-            }
+  private getLinterErrors(): Message[] {
+    if (atom.config.get("atom-typescript.suppressAllDiagnostics")) return []
+    const result: Message[] = []
+    for (const fileErrors of this.errors.values()) {
+      for (const [filePath, diagnostics] of fileErrors) {
+        const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath)
+        const scopeName = ed ? ed.getGrammar().scopeName : this.selectGrammar(filePath)
+        if (config("suppressAllDiagnostics", scopeName)) continue
+        for (const diagnostic of diagnostics) {
+          if (config("ignoredDiagnosticCodes", scopeName).includes(`${diagnostic.code}`)) continue
+          if (
+            config("ignoreUnusedSuggestionDiagnostics", scopeName) &&
+            diagnostic.reportsUnnecessary
+          ) {
+            continue
           }
+          if (
+            diagnostic.category === "suggestion" &&
+            config("ignoredSuggestionDiagnostics", scopeName).includes(`${diagnostic.code}`)
+          ) {
+            continue
+          }
+          if (
+            config("ignoreNonSuggestionSuggestionDiagnostics", scopeName) &&
+            diagnostic.category === "suggestion" &&
+            !checkDiagnosticCategory(diagnostic.code, DiagnosticCategory.Suggestion)
+          ) {
+            continue
+          }
+          // Add a bit of extra validation that we have the necessary locations since linter v2
+          // does not allow range-less messages anymore. This happens with configFileDiagnostics.
+          let {start, end} = diagnostic as Partial<Diagnostic>
+          if (!start || !end) {
+            start = end = {line: 1, offset: 1}
+          }
+
+          result.push({
+            severity: this.getSeverity(config("unusedAsInfo", scopeName), diagnostic),
+            excerpt: diagnostic.text,
+            location: {
+              file: filePath,
+              position: locationsToRange(start, end),
+            },
+          })
         }
       }
     }
+
+    return result
+  }
+
+  private selectGrammar(filePath: string): string {
+    const knownGramamr = this.fileGrammars.get(filePath)
+    if (knownGramamr !== undefined) return knownGramamr
+    const selectedGrammar = atom.grammars.selectGrammar(filePath, "").scopeName
+    this.fileGrammars.set(filePath, selectedGrammar)
+    return selectedGrammar
   }
 
   private getSeverity(unusedAsInfo: boolean, diagnostic: Diagnostic) {
@@ -140,4 +146,11 @@ export class ErrorPusher {
         return "info"
     }
   }
+}
+
+function config<T extends keyof ConfigValues["atom-typescript"]>(
+  option: T,
+  scope: string,
+): ConfigValues["atom-typescript"][typeof option] {
+  return atom.config.get(`atom-typescript.${option}`, {scope: [scope]}) as any
 }
