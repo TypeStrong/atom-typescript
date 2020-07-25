@@ -62,16 +62,17 @@ class ErrorPusher {
     }
     *getLinterErrors() {
         if (!atom.config.get("atom-typescript.suppressAllDiagnostics")) {
-            for (const fileErrors of this.errors.values()) {
+            const errorsValues = this.errors.values();
+            for (const fileErrors of errorsValues) {
                 for (const [filePath, diagnostics] of fileErrors) {
+                    const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath);
+                    const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "");
+                    function config(option) {
+                        return atom.config.get(`atom-typescript.${option}`, {
+                            scope: [grammar.scopeName],
+                        });
+                    }
                     for (const diagnostic of diagnostics) {
-                        const ed = atom.workspace.getTextEditors().find((x) => x.getPath() === filePath);
-                        const grammar = ed ? ed.getGrammar() : atom.grammars.selectGrammar(filePath, "");
-                        function config(option) {
-                            return atom.config.get(`atom-typescript.${option}`, {
-                                scope: [grammar.scopeName],
-                            });
-                        }
                         if (config("suppressAllDiagnostics"))
                             continue;
                         if (config("ignoredDiagnosticCodes").includes(`${diagnostic.code}`))
