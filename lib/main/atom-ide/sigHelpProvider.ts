@@ -1,5 +1,5 @@
 import {CompositeDisposable, Point, TextEditor} from "atom"
-import {SignatureHelp, SignatureHelpProvider} from "atom/ide"
+import {SignatureHelp, SignatureHelpProvider} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
 

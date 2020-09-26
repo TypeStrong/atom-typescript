@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {Datatip, DatatipProvider} from "atom/ide"
+import {Datatip, DatatipProvider} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {renderTooltip} from "../atom/tooltips/tooltipRenderer"
 import {highlight, locationToPoint, typeScriptScopes} from "../atom/utils"

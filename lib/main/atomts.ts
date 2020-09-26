@@ -10,7 +10,7 @@ import {
   HyperclickProvider,
   OutlineProvider,
   SignatureHelpRegistry,
-} from "atom/ide"
+} from "atom-ide-base"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {handlePromise} from "../utils"

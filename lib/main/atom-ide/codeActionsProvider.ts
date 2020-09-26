@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {CodeAction, CodeActionProvider} from "atom/ide"
+import {CodeAction, CodeActionProvider} from "atom-ide-base"
 import {Message} from "atom/linter"
 import {CodefixProvider} from "../atom/codefix/codefixProvider"
 import {typeScriptScopes} from "../atom/utils"

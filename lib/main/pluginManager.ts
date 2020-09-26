@@ -1,6 +1,6 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
-import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom/ide"
+import {BusySignalService, DatatipService, SignatureHelpRegistry} from "atom-ide-base"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {throttle} from "lodash"
