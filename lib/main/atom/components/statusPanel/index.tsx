@@ -1,6 +1,7 @@
 import * as etch from "etch"
 import {handlePromise} from "../../../../utils"
-import {BuildStatus, TBuildStatus} from "./buildStatus"
+import {BuildStatus} from "./buildStatus"
+import type {TBuildStatus} from "./buildStatus"
 import {ConfigPath} from "./configPath"
 import {Tooltip} from "./tooltip"
 export {TBuildStatus}
