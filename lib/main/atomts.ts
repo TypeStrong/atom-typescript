@@ -1,5 +1,4 @@
 import {DisposableLike} from "atom"
-import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {
   BusySignalService,
   CodeActionProvider,
@@ -11,6 +10,7 @@ import {
   OutlineProvider,
   SignatureHelpRegistry,
 } from "atom-ide-base"
+import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import {handlePromise} from "../utils"
