@@ -6,6 +6,7 @@ class Callbacks {
     constructor(reportBusyWhile) {
         this.reportBusyWhile = reportBusyWhile;
         this.callbacks = new Map();
+        this.interval = 0;
     }
     async add(seq, command) {
         try {
@@ -17,10 +18,19 @@ class Callbacks {
                     started: Date.now(),
                 });
             });
+            if (this.interval === 0) {
+                this.interval = window.setInterval(() => {
+                    process.activateUvLoop();
+                }, 100);
+            }
             return await this.reportBusyWhile(command, () => promise);
         }
         finally {
             this.callbacks.delete(seq);
+            if (this.interval !== 0 && this.callbacks.size === 0) {
+                clearInterval(this.interval);
+                this.interval = 0;
+            }
         }
     }
     rejectAll(error) {

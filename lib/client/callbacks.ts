@@ -12,6 +12,7 @@ interface Request {
 // Callbacks keeps track of all the outstanding requests
 export class Callbacks {
   private callbacks: Map<number, Request> = new Map()
+  private interval: number = 0
 
   constructor(private reportBusyWhile: ReportBusyWhile) {}
 
@@ -28,9 +29,18 @@ export class Callbacks {
           started: Date.now(),
         })
       })
+      if (this.interval === 0) {
+        this.interval = window.setInterval(() => {
+          process.activateUvLoop()
+        }, 100)
+      }
       return await this.reportBusyWhile(command, () => promise)
     } finally {
       this.callbacks.delete(seq)
+      if (this.interval !== 0 && this.callbacks.size === 0) {
+        clearInterval(this.interval)
+        this.interval = 0
+      }
     }
   }
 
