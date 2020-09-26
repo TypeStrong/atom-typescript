@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {Signature, SignatureParameter} from "atom/ide"
+import {Signature, SignatureParameter} from "atom-ide-base"
 import * as path from "path"
 import ts from "typescript"
 import type {

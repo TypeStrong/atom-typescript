@@ -1,4 +1,4 @@
-import {FindReferencesProvider, Reference} from "atom/ide"
+import {FindReferencesProvider, Reference} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {getFilePathPosition, isTypescriptEditorWithPath, locationsToRange} from "../atom/utils"
 
