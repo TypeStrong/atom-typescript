@@ -2,9 +2,9 @@
 // and https://atom.io/packages/ide-flow
 
 import * as Atom from "atom"
-import fs = require("fs")
+import fs from "fs"
 import {GetClientFunction} from "../../../client"
-import atomUtils = require("../utils")
+import * as atomUtils from "../utils"
 import {listen} from "../utils/element-listener"
 import {TooltipController} from "./controller"
 import {bufferPositionFromMouseEvent} from "./util"

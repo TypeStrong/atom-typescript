@@ -1,5 +1,5 @@
 import {Panel} from "atom"
-import SelectListView = require("atom-select-list")
+import SelectListView from "atom-select-list"
 import * as etch from "etch"
 import {handlePromise} from "../../../utils"
 
