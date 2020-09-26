@@ -6,6 +6,8 @@
     "jsxFactory": "etch.dom",
     "lib": ["es7", "dom", "ES2017.object"],
     "module": "commonjs",
+    "esModuleInterop": true,
+    "allowJs": true,
     "noLib": false,
     "outDir": "../dist",
     "preserveConstEnums": true,

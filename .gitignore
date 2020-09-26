@@ -1,3 +1,4 @@
 node_modules
 atom-amd64.deb
 build-package.sh
+.parcel-cache
