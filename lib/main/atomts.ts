@@ -1,6 +1,4 @@
 import {DisposableLike} from "atom"
-import * as packageDeps from "atom-package-deps"
-import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {
   BusySignalService,
   CodeActionProvider,
@@ -12,6 +10,8 @@ import {
   OutlineProvider,
   SignatureHelpRegistry,
 } from "atom-ide-base"
+import * as packageDeps from "atom-package-deps"
+import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
 import etch from "etch"
