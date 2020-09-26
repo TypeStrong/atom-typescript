@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 import {BufferedNodeProcess, BufferedProcess, Emitter} from "atom"
-import byline = require("byline")
+import byline from "byline"
 import {ChildProcess} from "child_process"
 import {Readable, Transform} from "stream"
 import * as protocol from "typescript/lib/protocol"
