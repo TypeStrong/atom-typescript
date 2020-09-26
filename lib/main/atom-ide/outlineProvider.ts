@@ -1,4 +1,4 @@
-import {OutlineProvider, OutlineTree, OutlineTreeKind} from "atom/ide"
+import {OutlineProvider, OutlineTree, OutlineTreeKind} from "atom-ide-base"
 import {NavigationTree, ScriptElementKind} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {spanToRange, typeScriptScopes} from "../atom/utils"

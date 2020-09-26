@@ -1,4 +1,4 @@
-import {Definition, DefinitionProvider} from "atom/ide"
+import {Definition, DefinitionProvider} from "atom-ide-base"
 import {FileSpan} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {

@@ -1,4 +1,4 @@
-import {CodeHighlightProvider} from "atom/ide"
+import {CodeHighlightProvider} from "atom-ide-base"
 import {DocumentHighlightsItem} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {

@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {HyperclickProvider} from "atom/ide"
+import {HyperclickProvider} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {handleFindReferencesResult} from "../atom/commands/findReferences"
 import {handleDefinitionResult} from "../atom/commands/goToDeclaration"
