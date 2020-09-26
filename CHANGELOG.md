@@ -1,3 +1,7 @@
+## 13.9.3
+
+-   Wake-up Node event loop periodically while awaiting response
+
 ## 13.9.2
 
 -   Clarify the "Show problems for project" config (thanks aminya)
