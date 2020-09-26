@@ -13,6 +13,7 @@ import {
 import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {IndieDelegate} from "atom/linter"
 import {StatusBar} from "atom/status-bar"
+import etch from "etch"
 import {handlePromise} from "../utils"
 import {SemanticView, SemanticViewSerializationData} from "./atom/views/outline/semanticView"
 import {State} from "./packageState"
@@ -21,10 +22,7 @@ import {PluginManager} from "./pluginManager"
 let pluginManager: PluginManager | undefined
 
 export function activate(state: State) {
-  ;(require("etch") as typeof import("etch")).setScheduler(atom.views)
-
-  // tslint:disable-next-line:no-shadowed-variable
-  const {PluginManager} = require("./pluginManager") as typeof import("./pluginManager")
+  etch.setScheduler(atom.views)
   pluginManager = new PluginManager(state)
 
   setImmediate(() => handlePromise(checkAndInstallDependencies()))
@@ -49,10 +47,6 @@ export function serialize() {
 }
 
 export function deserializeSemanticView(serialized: SemanticViewSerializationData): SemanticView {
-  const {
-    // tslint:disable-next-line: no-shadowed-variable
-    SemanticView,
-  } = require("./atom/views/outline/semanticView") as typeof import("./atom/views/outline/semanticView")
   return SemanticView.create(serialized.data)
 }
 
