@@ -83,7 +83,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[],
     location: FileLocationQuery,
   ) {
-    if (suggestions.some((s) => !s.details) && this.lastSuggestions) {
+    if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map((s) => s.displayText!),
         ...location,
