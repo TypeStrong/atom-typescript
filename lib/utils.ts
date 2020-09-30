@@ -1,4 +1,5 @@
-export function handlePromise(promise: Promise<any>): void {
+export function handlePromise(promise: Promise<any> | undefined): void {
+  if (promise === undefined) return
   // tslint:disable-next-line:strict-type-predicates no-unbound-method
   if (typeof promise.catch !== "function") {
     atom.notifications.addFatalError(

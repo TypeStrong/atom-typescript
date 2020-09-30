@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TSClient = void 0;
+exports.TSClient = exports.resolveBinary = exports.ClientResolver = void 0;
 var clientResolver_1 = require("./clientResolver");
 Object.defineProperty(exports, "ClientResolver", { enumerable: true, get: function () { return clientResolver_1.ClientResolver; } });
 var resolveBinary_1 = require("./resolveBinary");
