@@ -38,7 +38,8 @@ class AutocompleteProvider {
                 key: "displayText",
             });
             // Get additional details for the first few suggestions
-            await this.getAdditionalDetails(suggestions.slice(0, 6), location);
+            // don't wait for additional detail
+            this.getAdditionalDetails(suggestions.slice(0, 10), location).catch(() => { });
             return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
                     : prefix }, addCallableParens(opts, suggestion))));
