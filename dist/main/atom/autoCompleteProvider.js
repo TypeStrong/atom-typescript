@@ -4,11 +4,12 @@ exports.AutocompleteProvider = void 0;
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 const Atom = require("atom");
 const fuzzaldrin = require("fuzzaldrin");
-const utils_1 = require("./utils");
+const utils_1 = require("../../utils");
+const utils_2 = require("./utils");
 class AutocompleteProvider {
     constructor(getClient) {
         this.getClient = getClient;
-        this.selector = utils_1.typeScriptScopes()
+        this.selector = utils_2.typeScriptScopes()
             .map((x) => (x.includes(".") ? `.${x}` : x))
             .join(", ");
         this.disableForSelector = ".comment";
@@ -39,7 +40,7 @@ class AutocompleteProvider {
             });
             // Get additional details for the first few suggestions
             // don't wait for additional detail
-            this.getAdditionalDetails(suggestions.slice(0, 10), location).catch(() => { });
+            utils_1.handlePromise(this.getAdditionalDetails(suggestions.slice(0, 10), location));
             return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
                     : prefix }, addCallableParens(opts, suggestion))));
@@ -158,7 +159,7 @@ function completionEntryToSuggestion(isMemberCompletion, entry) {
         displayText: entry.name,
         text: entry.insertText !== undefined ? entry.insertText : entry.name,
         leftLabel: entry.kind,
-        replacementRange: entry.replacementSpan ? utils_1.spanToRange(entry.replacementSpan) : undefined,
+        replacementRange: entry.replacementSpan ? utils_2.spanToRange(entry.replacementSpan) : undefined,
         type: kindMap[entry.kind],
         isMemberCompletion,
     };

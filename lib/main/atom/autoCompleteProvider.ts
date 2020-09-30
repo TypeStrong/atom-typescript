@@ -3,6 +3,7 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
+import {handlePromise} from "../../utils"
 import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
@@ -67,7 +68,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
       // Get additional details for the first few suggestions
       // don't wait for additional detail
-      this.getAdditionalDetails(suggestions.slice(0, 10), location).catch(() => {})
+      handlePromise(this.getAdditionalDetails(suggestions.slice(0, 10), location))
 
       return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange
