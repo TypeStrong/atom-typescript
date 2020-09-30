@@ -123,6 +123,15 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
   }
 
+  private async getSuggestionDetailsOnSelect(suggestion: SuggestionWithDetails) {
+    if (this.lastSuggestions) {
+      let suggestions = [suggestion]
+      await this.getAdditionalDetails(suggestions, this.lastSuggestions.location)
+      return suggestions[0]
+    }
+    return suggestion
+  }
+
   // Try to reuse the last completions we got from tsserver if they're for the same position.
   private async getSuggestionsWithCache(
     prefix: string,
