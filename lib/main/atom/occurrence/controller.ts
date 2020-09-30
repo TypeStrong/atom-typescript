@@ -12,15 +12,32 @@ export class OccurenceController {
 
   constructor(private getClient: GetClientFunction, private editor: TextEditor) {
     let debouncedUpdate: DebouncedFunc<() => void>
+    let didChangeTimeout: number | undefined
+    let changeDelay: number
+    let shouldHighlight: boolean = false
     this.disposables.add(
       atom.config.observe("atom-typescript.ocurrenceHighlightDebounceTimeout", (val) => {
         debouncedUpdate = debounce(() => {
           handlePromise(this.update())
         }, val)
+        changeDelay = val * 3.5
       }),
-      editor.onDidChangeCursorPosition(() => debouncedUpdate()),
+      editor.onDidChangeCursorPosition(() => {
+        if (didChangeTimeout === undefined) debouncedUpdate()
+        else shouldHighlight = true
+      }),
       editor.onDidChangePath(() => debouncedUpdate()),
       editor.onDidChangeGrammar(() => debouncedUpdate()),
+      editor.onDidChange(() => {
+        if (didChangeTimeout !== undefined) clearTimeout(didChangeTimeout)
+        didChangeTimeout = window.setTimeout(() => {
+          if (shouldHighlight) {
+            debouncedUpdate()
+            shouldHighlight = false
+          }
+          didChangeTimeout = undefined
+        }, changeDelay)
+      }),
     )
   }
 

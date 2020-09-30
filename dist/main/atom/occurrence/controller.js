@@ -13,11 +13,30 @@ class OccurenceController {
         this.occurrenceMarkers = [];
         this.disposed = false;
         let debouncedUpdate;
+        let didChangeTimeout;
+        let changeDelay;
+        let shouldHighlight = false;
         this.disposables.add(atom.config.observe("atom-typescript.ocurrenceHighlightDebounceTimeout", (val) => {
             debouncedUpdate = lodash_1.debounce(() => {
                 utils_1.handlePromise(this.update());
             }, val);
-        }), editor.onDidChangeCursorPosition(() => debouncedUpdate()), editor.onDidChangePath(() => debouncedUpdate()), editor.onDidChangeGrammar(() => debouncedUpdate()));
+            changeDelay = val * 3.5;
+        }), editor.onDidChangeCursorPosition(() => {
+            if (didChangeTimeout === undefined)
+                debouncedUpdate();
+            else
+                shouldHighlight = true;
+        }), editor.onDidChangePath(() => debouncedUpdate()), editor.onDidChangeGrammar(() => debouncedUpdate()), editor.onDidChange(() => {
+            if (didChangeTimeout !== undefined)
+                clearTimeout(didChangeTimeout);
+            didChangeTimeout = window.setTimeout(() => {
+                if (shouldHighlight) {
+                    debouncedUpdate();
+                    shouldHighlight = false;
+                }
+                didChangeTimeout = undefined;
+            }, changeDelay);
+        }));
     }
     dispose() {
         if (this.disposed)
