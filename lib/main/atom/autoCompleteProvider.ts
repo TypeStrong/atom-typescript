@@ -66,7 +66,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       })
 
       // Get additional details for the first few suggestions
-      await this.getAdditionalDetails(suggestions.slice(0, 10), location)
+      await this.getAdditionalDetails(suggestions.slice(0, 6), location)
 
       return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange
