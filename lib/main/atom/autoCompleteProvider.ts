@@ -66,7 +66,8 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       })
 
       // Get additional details for the first few suggestions
-      await this.getAdditionalDetails(suggestions.slice(0, 10), location)
+      // don't wait for additional detail
+      this.getAdditionalDetails(suggestions.slice(0, 10), location).catch(() => {})
 
       return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange
@@ -83,7 +84,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     suggestions: SuggestionWithDetails[],
     location: FileLocationQuery,
   ) {
-    if (suggestions.some((s) => !s.details) && this.lastSuggestions) {
+    if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
       const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map((s) => s.displayText!),
         ...location,

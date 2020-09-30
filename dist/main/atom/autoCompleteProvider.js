@@ -38,7 +38,8 @@ class AutocompleteProvider {
                 key: "displayText",
             });
             // Get additional details for the first few suggestions
-            await this.getAdditionalDetails(suggestions.slice(0, 10), location);
+            // don't wait for additional detail
+            this.getAdditionalDetails(suggestions.slice(0, 10), location).catch(() => { });
             return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
                     : prefix }, addCallableParens(opts, suggestion))));
@@ -48,7 +49,7 @@ class AutocompleteProvider {
         }
     }
     async getAdditionalDetails(suggestions, location) {
-        if (suggestions.some((s) => !s.details) && this.lastSuggestions) {
+        if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
             const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map((s) => s.displayText) }, location));
             details.body.forEach((detail, i) => {
                 const suggestion = suggestions[i];
