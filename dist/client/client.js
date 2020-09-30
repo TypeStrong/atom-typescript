@@ -90,8 +90,11 @@ class TypescriptServiceClient {
                 this.onEvent(res);
         };
         // multistep completion event is supported as of TS version 2.2
-        const [major, minor] = version.split(".");
-        this.multistepSupported = parseInt(major, 10) >= 2 && parseInt(minor, 10) >= 2;
+        const [major, minor] = version
+            .split(".")
+            .slice(0, 2)
+            .map((x) => parseInt(x, 10));
+        this.multistepSupported = major > 2 || (major === 2 && minor >= 2);
         this.callbacks = new callbacks_1.Callbacks(this.reportBusyWhile);
         this.server = this.startServer();
     }
