@@ -43,10 +43,19 @@ class AutocompleteProvider {
             utils_1.handlePromise(this.getAdditionalDetails(suggestions.slice(0, 10), location));
             return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-                    : prefix }, addCallableParens(opts, suggestion))));
+                    : prefix, location }, addCallableParens(opts, suggestion))));
         }
         catch (error) {
             return [];
+        }
+    }
+    async getSuggestionDetailsOnSelect(suggestion) {
+        if (hasLocation(suggestion)) {
+            await this.getAdditionalDetails([suggestion], suggestion.location);
+            return suggestion;
+        }
+        else {
+            return null;
         }
     }
     async getAdditionalDetails(suggestions, location) {
@@ -97,12 +106,12 @@ async function getSuggestionsInternal(client, location, prefix) {
     if (parseInt(client.version.split(".")[0], 10) >= 3) {
         // use completionInfo
         const completions = await client.execute("completionInfo", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
-        return completions.body.entries.map(completionEntryToSuggestion.bind(null, (_a = completions.body) === null || _a === void 0 ? void 0 : _a.isMemberCompletion));
+        return completions.body.entries.map(completionEntryToSuggestion.bind(null, (_a = completions.body) === null || _a === void 0 ? void 0 : _a.isMemberCompletion, location));
     }
     else {
         // use deprecated completions
         const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
-        return completions.body.map(completionEntryToSuggestion.bind(null, undefined));
+        return completions.body.map(completionEntryToSuggestion.bind(null, undefined, location));
     }
 }
 // this should more or less match ES6 specification for valid identifiers
@@ -154,7 +163,7 @@ function containsScope(scopes, matchScope) {
     }
     return false;
 }
-function completionEntryToSuggestion(isMemberCompletion, entry) {
+function completionEntryToSuggestion(isMemberCompletion, location, entry) {
     return {
         displayText: entry.name,
         text: entry.insertText !== undefined ? entry.insertText : entry.name,
@@ -162,6 +171,7 @@ function completionEntryToSuggestion(isMemberCompletion, entry) {
         replacementRange: entry.replacementSpan ? utils_2.spanToRange(entry.replacementSpan) : undefined,
         type: kindMap[entry.kind],
         isMemberCompletion,
+        location,
     };
 }
 function parens(opts) {
@@ -215,4 +225,7 @@ const kindMap = {
     index: undefined,
     construct: undefined,
 };
+function hasLocation(s) {
+    return "location" in s;
+}
 //# sourceMappingURL=autoCompleteProvider.js.map

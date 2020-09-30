@@ -10,6 +10,7 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
   details?: protocol.CompletionEntryDetails
   replacementRange?: Atom.Range
   isMemberCompletion?: boolean
+  location: FileLocationQuery
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
@@ -74,10 +75,20 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         replacementPrefix: suggestion.replacementRange
           ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
           : prefix,
+        location,
         ...addCallableParens(opts, suggestion),
       }))
     } catch (error) {
       return []
+    }
+  }
+
+  public async getSuggestionDetailsOnSelect(suggestion: ACP.AnySuggestion) {
+    if (hasLocation(suggestion)) {
+      await this.getAdditionalDetails([suggestion], suggestion.location)
+      return suggestion
+    } else {
+      return null
     }
   }
 
@@ -158,7 +169,7 @@ async function getSuggestionsInternal(
       ...location,
     })
     return completions.body!.entries.map(
-      completionEntryToSuggestion.bind(null, completions.body?.isMemberCompletion),
+      completionEntryToSuggestion.bind(null, completions.body?.isMemberCompletion, location),
     )
   } else {
     // use deprecated completions
@@ -169,7 +180,7 @@ async function getSuggestionsInternal(
       ...location,
     })
 
-    return completions.body!.map(completionEntryToSuggestion.bind(null, undefined))
+    return completions.body!.map(completionEntryToSuggestion.bind(null, undefined, location))
   }
 }
 
@@ -233,6 +244,7 @@ function containsScope(scopes: ReadonlyArray<string>, matchScope: string): boole
 
 function completionEntryToSuggestion(
   isMemberCompletion: boolean | undefined,
+  location: FileLocationQuery,
   entry: protocol.CompletionEntry,
 ): SuggestionWithDetails {
   return {
@@ -242,6 +254,7 @@ function completionEntryToSuggestion(
     replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
     type: kindMap[entry.kind],
     isMemberCompletion,
+    location,
   }
 }
 
@@ -318,4 +331,8 @@ const kindMap: {[key in protocol.ScriptElementKind]: ACPCompletionType | undefin
   call: undefined,
   index: undefined,
   construct: undefined,
+}
+
+function hasLocation(s: ACP.AnySuggestion): s is SuggestionWithDetails {
+  return "location" in s
 }
