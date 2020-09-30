@@ -9,6 +9,7 @@
     "noLib": false,
     "outDir": "../dist",
     "preserveConstEnums": true,
+    "noEmitOnError": false,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,

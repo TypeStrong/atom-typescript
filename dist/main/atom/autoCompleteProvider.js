@@ -77,6 +77,14 @@ class AutocompleteProvider {
             });
         }
     }
+    async getSuggestionDetailsOnSelect(suggestion) {
+        if (this.lastSuggestions) {
+            let suggestions = [suggestion];
+            await this.getAdditionalDetails(suggestions, this.lastSuggestions.location);
+            return suggestions[0];
+        }
+        return suggestion;
+    }
     // Try to reuse the last completions we got from tsserver if they're for the same position.
     async getSuggestionsWithCache(prefix, location, activatedManually) {
         if (this.lastSuggestions && !activatedManually) {
