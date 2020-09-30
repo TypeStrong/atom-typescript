@@ -96,6 +96,13 @@
       "default": "10",
       "order": 60
     },
+    "getErrDebounceTimeout": {
+      "title": "getErr Debounce Timeout",
+      "description": "During on-change check, how long to wait for new changes until checking for errors",
+      "type": "number",
+      "default": "150",
+      "order": 65
+    },
     "showSemanticView": {
       "title": "Show semantic view",
       "description": "Show semantic view (outline) for typescript content",

@@ -68,16 +68,21 @@ class TypescriptBuffer {
                 return acc;
             }, []));
         };
-        this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
+        let debouncedGetErr;
+        this.subscriptions.add(atom.config.observe("atom-typescript.getErrDebounceTimeout", (val) => {
+            debouncedGetErr = lodash_1.debounce(() => {
+                utils_1.handlePromise(this.getErr({ allFiles: false, delay: 0 }));
+            }, val);
+        }), buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
-            utils_1.handlePromise(this.getErr({ allFiles: false, delay: 0 }));
             if (changes.length > 0)
                 this.deps.reportBuildStatus(undefined);
         }), buffer.onDidChangeText((arg) => {
             // NOTE: we don't need to worry about interleaving here,
             // because onDidChangeText pushes all changes at once
             utils_1.handlePromise(this.onDidChangeText(arg));
+            debouncedGetErr();
         }));
         this.openPromise = this.open(this.buffer.getPath());
     }

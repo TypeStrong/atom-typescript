@@ -1,5 +1,5 @@
 import * as Atom from "atom"
-import {flatten} from "lodash"
+import {debounce, DebouncedFunc, flatten} from "lodash"
 import {GetClientFunction, TSClient} from "../client"
 import {handlePromise} from "../utils"
 import {TBuildStatus} from "./atom/components/statusPanel"
@@ -41,20 +41,26 @@ export class TypescriptBuffer {
   public on = this.events.on.bind(this.events)
 
   private constructor(public buffer: Atom.TextBuffer, private deps: Deps) {
+    let debouncedGetErr: DebouncedFunc<() => void>
     this.subscriptions.add(
+      atom.config.observe("atom-typescript.getErrDebounceTimeout", (val) => {
+        debouncedGetErr = debounce(() => {
+          handlePromise(this.getErr({allFiles: false, delay: 0}))
+        }, val)
+      }),
       buffer.onDidChangePath(this.onDidChangePath),
       buffer.onDidDestroy(this.dispose),
       buffer.onDidSave(() => {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: false, delay: 0}))
         if (changes.length > 0) this.deps.reportBuildStatus(undefined)
       }),
       buffer.onDidChangeText((arg) => {
         // NOTE: we don't need to worry about interleaving here,
         // because onDidChangeText pushes all changes at once
         handlePromise(this.onDidChangeText(arg))
+        debouncedGetErr()
       }),
     )
 

@@ -12,6 +12,7 @@ declare module "atom" {
     "atom-typescript.preferBuiltinOccurrenceHighlight": boolean
     "atom-typescript.disableAtomIdeDefinitions": boolean
     "atom-typescript.buildStatusTimeout": number
+    "atom-typescript.getErrDebounceTimeout": number
     "atom-typescript.showSemanticView": boolean
     "atom-typescript.tooltipDelay": number
     "atom-typescript.tooltipPosition": "top" | "bottom"
@@ -41,6 +42,7 @@ declare module "atom" {
       preferBuiltinOccurrenceHighlight: boolean
       disableAtomIdeDefinitions: boolean
       buildStatusTimeout: number
+      getErrDebounceTimeout: number
       showSemanticView: boolean
       tooltipDelay: number
       tooltipPosition: "top" | "bottom"
