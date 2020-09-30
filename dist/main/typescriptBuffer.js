@@ -25,7 +25,7 @@ class TypescriptBuffer {
                 file: this.state.filePath,
                 fileContent: this.buffer.getText(),
             });
-            utils_1.handlePromise(this.getErr({ allFiles: false }));
+            utils_1.handlePromise(this.getErr({ allFiles: false, delay: 0 }));
         };
         this.close = async () => {
             await this.openPromise;
@@ -44,7 +44,7 @@ class TypescriptBuffer {
             }));
         };
         this.onDidSave = async () => {
-            await Promise.all([this.getErr({ allFiles: true }), this.doCompileOnSave()]);
+            await Promise.all([this.getErr({ allFiles: true, delay: 100 }), this.doCompileOnSave()]);
         };
         this.onDidChangeText = async ({ changes }) => {
             // If there are no actual changes, or the file isn't open, we have nothing to do
@@ -71,7 +71,7 @@ class TypescriptBuffer {
         this.subscriptions.add(buffer.onDidChangePath(this.onDidChangePath), buffer.onDidDestroy(this.dispose), buffer.onDidSave(() => {
             utils_1.handlePromise(this.onDidSave());
         }), buffer.onDidStopChanging(({ changes }) => {
-            utils_1.handlePromise(this.getErr({ allFiles: false }));
+            utils_1.handlePromise(this.getErr({ allFiles: false, delay: 0 }));
             if (changes.length > 0)
                 this.deps.reportBuildStatus(undefined);
         }), buffer.onDidChangeText((arg) => {
@@ -102,13 +102,13 @@ class TypescriptBuffer {
             tsConfigPath: this.state.configFile && this.state.configFile.getPath(),
         };
     }
-    async getErr({ allFiles }) {
+    async getErr(opts) {
         if (!this.state)
             return;
-        const files = allFiles ? Array.from(utils_2.getOpenEditorsPaths()) : [this.state.filePath];
+        const files = opts.allFiles ? Array.from(utils_2.getOpenEditorsPaths()) : [this.state.filePath];
         await this.state.client.execute("geterr", {
             files,
-            delay: 100,
+            delay: opts.delay,
         });
     }
     /** Throws! */

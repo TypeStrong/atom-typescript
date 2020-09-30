@@ -48,7 +48,7 @@ export class TypescriptBuffer {
         handlePromise(this.onDidSave())
       }),
       buffer.onDidStopChanging(({changes}) => {
-        handlePromise(this.getErr({allFiles: false}))
+        handlePromise(this.getErr({allFiles: false, delay: 0}))
         if (changes.length > 0) this.deps.reportBuildStatus(undefined)
       }),
       buffer.onDidChangeText((arg) => {
@@ -73,12 +73,12 @@ export class TypescriptBuffer {
     }
   }
 
-  private async getErr({allFiles}: {allFiles: boolean}) {
+  private async getErr(opts: {allFiles: boolean; delay: number}) {
     if (!this.state) return
-    const files = allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
+    const files = opts.allFiles ? Array.from(getOpenEditorsPaths()) : [this.state.filePath]
     await this.state.client.execute("geterr", {
       files,
-      delay: 100,
+      delay: opts.delay,
     })
   }
 
@@ -171,7 +171,7 @@ export class TypescriptBuffer {
       fileContent: this.buffer.getText(),
     })
 
-    handlePromise(this.getErr({allFiles: false}))
+    handlePromise(this.getErr({allFiles: false, delay: 0}))
   }
 
   private close = async () => {
@@ -195,7 +195,7 @@ export class TypescriptBuffer {
   }
 
   private onDidSave = async () => {
-    await Promise.all([this.getErr({allFiles: true}), this.doCompileOnSave()])
+    await Promise.all([this.getErr({allFiles: true, delay: 100}), this.doCompileOnSave()])
   }
 
   private onDidChangeText = async ({changes}: {changes: ReadonlyArray<Atom.TextChange>}) => {
