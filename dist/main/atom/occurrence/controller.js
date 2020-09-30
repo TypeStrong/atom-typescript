@@ -12,10 +12,12 @@ class OccurenceController {
         this.disposables = new atom_1.CompositeDisposable();
         this.occurrenceMarkers = [];
         this.disposed = false;
-        const debouncedUpdate = lodash_1.debounce(() => {
-            utils_1.handlePromise(this.update());
-        }, 100);
-        this.disposables.add(editor.onDidChangeCursorPosition(debouncedUpdate), editor.onDidChangePath(debouncedUpdate), editor.onDidChangeGrammar(debouncedUpdate));
+        let debouncedUpdate;
+        this.disposables.add(atom.config.observe("atom-typescript.ocurrenceHighlightDebounceTimeout", (val) => {
+            debouncedUpdate = lodash_1.debounce(() => {
+                utils_1.handlePromise(this.update());
+            }, val);
+        }), editor.onDidChangeCursorPosition(() => debouncedUpdate()), editor.onDidChangePath(() => debouncedUpdate()), editor.onDidChangeGrammar(() => debouncedUpdate()));
     }
     dispose() {
         if (this.disposed)

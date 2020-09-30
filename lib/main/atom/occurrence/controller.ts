@@ -1,5 +1,5 @@
 import {CompositeDisposable, DisplayMarker, TextEditor} from "atom"
-import {debounce} from "lodash"
+import {debounce, DebouncedFunc} from "lodash"
 import {DocumentHighlightsItem} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../../client"
 import {handlePromise} from "../../../utils"
@@ -11,13 +11,16 @@ export class OccurenceController {
   private disposed = false
 
   constructor(private getClient: GetClientFunction, private editor: TextEditor) {
-    const debouncedUpdate = debounce(() => {
-      handlePromise(this.update())
-    }, 100)
+    let debouncedUpdate: DebouncedFunc<() => void>
     this.disposables.add(
-      editor.onDidChangeCursorPosition(debouncedUpdate),
-      editor.onDidChangePath(debouncedUpdate),
-      editor.onDidChangeGrammar(debouncedUpdate),
+      atom.config.observe("atom-typescript.ocurrenceHighlightDebounceTimeout", (val) => {
+        debouncedUpdate = debounce(() => {
+          handlePromise(this.update())
+        }, val)
+      }),
+      editor.onDidChangeCursorPosition(() => debouncedUpdate()),
+      editor.onDidChangePath(() => debouncedUpdate()),
+      editor.onDidChangeGrammar(() => debouncedUpdate()),
     )
   }
 

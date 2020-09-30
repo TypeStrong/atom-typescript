@@ -98,10 +98,17 @@
     },
     "getErrDebounceTimeout": {
       "title": "getErr Debounce Timeout",
-      "description": "During on-change check, how long to wait for new changes until checking for errors",
+      "description": "During on-change check, how long to wait for new changes until checking for errors, in ms",
       "type": "number",
       "default": "150",
       "order": 65
+    },
+    "ocurrenceHighlightDebounceTimeout": {
+      "title": "Ocurrence Highlight Debounce Timeout",
+      "description": "How long to wait before showing ocurrence highlights, in ms; low values may cause slowdowns on large projects",
+      "type": "number",
+      "default": "300",
+      "order": 66
     },
     "showSemanticView": {
       "title": "Show semantic view",
