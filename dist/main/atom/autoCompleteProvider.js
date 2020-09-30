@@ -49,15 +49,14 @@ class AutocompleteProvider {
             return [];
         }
     }
-    async getSuggestionDetailsOnSelect(suggestion) {
-        if (hasLocation(suggestion)) {
-            await this.getAdditionalDetails([suggestion], suggestion.location);
-            return suggestion;
-        }
-        else {
-            return null;
-        }
-    }
+    // public async getSuggestionDetailsOnSelect(suggestion: ACP.AnySuggestion) {
+    //   if (hasLocation(suggestion)) {
+    //     await this.getAdditionalDetails([suggestion], suggestion.location)
+    //     return suggestion
+    //   } else {
+    //     return null
+    //   }
+    // }
     async getAdditionalDetails(suggestions, location) {
         if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
             const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map((s) => s.displayText) }, location));

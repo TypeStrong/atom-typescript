@@ -83,14 +83,14 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
   }
 
-  public async getSuggestionDetailsOnSelect(suggestion: ACP.AnySuggestion) {
-    if (hasLocation(suggestion)) {
-      await this.getAdditionalDetails([suggestion], suggestion.location)
-      return suggestion
-    } else {
-      return null
-    }
-  }
+  // public async getSuggestionDetailsOnSelect(suggestion: ACP.AnySuggestion) {
+  //   if (hasLocation(suggestion)) {
+  //     await this.getAdditionalDetails([suggestion], suggestion.location)
+  //     return suggestion
+  //   } else {
+  //     return null
+  //   }
+  // }
 
   private async getAdditionalDetails(
     suggestions: SuggestionWithDetails[],
