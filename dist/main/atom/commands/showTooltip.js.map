@@ -1,1 +1,0 @@
-{"version":3,"file":"showTooltip.js","sourceRoot":"","sources":["../../../../lib/main/atom/commands/showTooltip.ts"],"names":[],"mappings":";;AAAA,yCAAqC;AAErC,qBAAU,CAAC,kBAAkB,EAAE,yBAAyB,EAAE,CAAC,IAAI,EAAE,EAAE,CAAC,CAAC;IACnE,WAAW,EAAE,mDAAmD;IAChE,KAAK,CAAC,WAAW,CAAC,EAAE;QAClB,OAAO,IAAI,CAAC,aAAa,CAAC,EAAE,CAAC,CAAA;IAC/B,CAAC;CACF,CAAC,CAAC,CAAA"}
