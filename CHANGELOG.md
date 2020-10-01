@@ -6,6 +6,8 @@ This release primarily focuses on improving latency.
 
 -   Updated bundled TypeScript to v4.0.3
 
+-   Most of the package is bundled as a single JavaScript source, which reduces start-up times. The flipside is that hacking on Atom-TS is a bit more involved; see CONTRIBUTING.md for details.
+
 -   We're disabling eager prefetch of suggestion details (type and documentation) for latency reasons. Instead, those will be fetched lazily once the suggestion is selected.
 
 -   Built-in occurrence highlight provider is temporarily suppressed while the text is being edited.
