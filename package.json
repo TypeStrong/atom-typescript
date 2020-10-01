@@ -1,7 +1,8 @@
 {
   "name": "atom-typescript",
   "version": "13.9.3",
-  "main": "./dist/atomts.js",
+  "main": "./loader.js",
+  "bundle": "./dist/main.js",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./node_modules/atom-ts-spec-runner/runner.js",
@@ -16,8 +17,8 @@
   },
   "scripts": {
     "tsc": "tsc -p ./lib",
-    "dev": "cross-env NODE_ENV=development parcel watch --target main lib/main/atomts.ts",
-    "build": "cross-env NODE_ENV=production parcel build --target main lib/main/atomts.ts",
+    "dev": "cross-env NODE_ENV=development parcel watch --target bundle lib/main/atomts.ts",
+    "build": "cross-env NODE_ENV=production parcel build --target bundle lib/main/atomts.ts",
     "prettier": "ts-node scripts/prettier.ts write",
     "prettier-check": "ts-node scripts/prettier.ts check",
     "typecheck": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && tsc --noEmit -p ./spec",
@@ -393,6 +394,7 @@
     "@types/node": "^12.12.50",
     "@types/resolve": "^1.17.1",
     "atom-ts-spec-runner": "^1.1.1",
+    "atom-ts-transpiler": "^1.5.2",
     "chai": "^4.2.0",
     "prettier": "^2.1.2",
     "ts-node": "^9.0.0",
@@ -407,7 +409,7 @@
     "atom-ide-ui:0.13.0"
   ],
   "targets": {
-    "main": {
+    "bundle": {
       "context": "electron-renderer",
       "engines": {
         "electron": ">=5.x"
@@ -421,6 +423,20 @@
       "isLibrary": true
     }
   },
+  "atomTranspilers": [
+    {
+      "transpiler": "atom-ts-transpiler",
+      "glob": "{!(node_modules)/**/,}*.ts?(x)",
+      "options": {
+        "compilerOptions": {
+          "target": "es2017",
+          "module": "commonjs"
+        },
+        "cacheKeyFiles": [],
+        "verbose": false
+      }
+    }
+  ],
   "keywords": [
     "typescript",
     "javascript",
