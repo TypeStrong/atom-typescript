@@ -1,5 +1,5 @@
 import {DisposableLike} from "atom"
-import * as packageDeps from "atom-package-deps"
+import packageDeps from "atom-package-deps"
 import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {
   BusySignalService,

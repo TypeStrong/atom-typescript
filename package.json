@@ -406,10 +406,7 @@
     "cross-env": "7.0.2"
   },
   "package-deps": [
-    {
-      "name": "atom-ide-ui",
-      "minimumVersion": "0.13.0"
-    }
+    "atom-ide-ui:0.13.0"
   ],
   "targets": {
     "bundle": {
