@@ -1,3 +1,40 @@
+## 14.0.0
+
+This release primarily focuses on improving latency.
+
+### Changes
+
+-   Updated bundled TypeScript to v4.0.3
+
+-   We're disabling eager prefetch of suggestion details (type and documentation) for latency reasons. Instead, those will be fetched lazily once the suggestion is selected.
+
+-   Built-in occurrence highlight provider is temporarily suppressed while the text is being edited.
+
+    The rationale behind this is to avoid spamming tsserver with useless requests. As a consequence, you might experience a slight delay when using the feature immediately after changing the text.
+
+    You can tweak the experience by adjusting `occurrenceHighlightDebounceTimeout` option (see below).
+
+### New configuration options
+
+-   Make occurrence highlight delay configurable when using built-in provider
+
+    The delay is configurable via `"atom-typescript.occurrenceHighlightDebounceTimeout"` option ("Occurrence Highlight Debounce Timeout" in settings GUI). The default value of 300ms is consistent with the default Atom behaviour.
+
+-   Make getErr delay configurable instead of relying on Atom default
+
+    The delay is configurable via `"atom-typescript.getErrDebounceTimeout"` ("getErr Debounce Timeout" in settings GUI). The default value of 150ms is about half as low as before, which should hopefully help with the percieved latency.
+
+### Fixes
+
+-   Reduce the number of spurious documentHighlights requests when using builtin provider
+-   Remove geterr delay in on-change check
+-   Fix multistep support detection code
+
+### Maintenance
+
+-   Update dependencies
+-   Bump travis host os version
+
 ## 13.9.3
 
 -   Wake-up Node event loop periodically while awaiting response
