@@ -37,44 +37,55 @@ class AutocompleteProvider {
             suggestions = fuzzaldrin.filter(suggestions, prefix, {
                 key: "displayText",
             });
-            // Get additional details for the first few suggestions
-            // don't wait for additional detail
-            // handlePromise(this.getAdditionalDetails(suggestions.slice(0, 10), location))
-            return suggestions.map((suggestion) => (Object.assign({ replacementPrefix: suggestion.replacementRange
+            return suggestions.map((suggestion) => (Object.assign(Object.assign({ replacementPrefix: suggestion.replacementRange
                     ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
-                    : prefix, location }, addCallableParens(opts, suggestion))));
+                    : prefix, location }, this.getDetailsFromCache(suggestion)), addCallableParens(opts, suggestion))));
         }
         catch (error) {
             return [];
         }
     }
     async getSuggestionDetailsOnSelect(suggestion) {
-        if (hasLocation(suggestion)) {
-            await this.getAdditionalDetails([suggestion], suggestion.location);
-            return suggestion;
+        if ("text" in suggestion && !("rightLabel" in suggestion)) {
+            return this.getAdditionalDetails(suggestion);
         }
         else {
             return null;
         }
     }
-    async getAdditionalDetails(suggestions, location) {
-        if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
-            const details = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: suggestions.map((s) => s.displayText) }, location));
-            details.body.forEach((detail, i) => {
-                const suggestion = suggestions[i];
-                suggestion.details = detail;
-                let parts = detail.displayParts;
-                if (parts.length >= 3 &&
-                    parts[0].text === "(" &&
-                    parts[1].text === suggestion.leftLabel &&
-                    parts[2].text === ")") {
-                    parts = parts.slice(3);
-                }
-                suggestion.rightLabel = parts.map((d) => d.text).join("");
-                suggestion.description =
-                    detail.documentation && detail.documentation.map((d) => d.text).join(" ");
-            });
+    async getAdditionalDetails(suggestion) {
+        if (!this.lastSuggestions)
+            return null;
+        const reply = await this.lastSuggestions.client.execute("completionEntryDetails", Object.assign({ entryNames: [suggestion.displayText] }, this.lastSuggestions.location));
+        if (!reply.body)
+            return null;
+        const [details] = reply.body;
+        // apparently, details can be undefined
+        // tslint:disable-next-line: strict-boolean-expressions
+        if (!details)
+            return null;
+        let parts = details.displayParts;
+        if (parts.length >= 3 &&
+            parts[0].text === "(" &&
+            parts[1].text === suggestion.leftLabel &&
+            parts[2].text === ")") {
+            parts = parts.slice(3);
         }
+        const rightLabel = parts.map((d) => d.text).join("");
+        const description = details.displayParts.map((d) => d.text).join("") +
+            (details.documentation ? "\n\n" + details.documentation.map((d) => d.text).join(" ") : "");
+        this.lastSuggestions.details.set(suggestion.displayText, { rightLabel, description });
+        return Object.assign(Object.assign({}, suggestion), { details,
+            rightLabel,
+            description });
+    }
+    getDetailsFromCache(suggestion) {
+        if (!this.lastSuggestions)
+            return null;
+        const d = this.lastSuggestions.details.get(suggestion.displayText);
+        if (!d)
+            return null;
+        return d;
     }
     // Try to reuse the last completions we got from tsserver if they're for the same position.
     async getSuggestionsWithCache(prefix, location, activatedManually) {
@@ -95,6 +106,7 @@ class AutocompleteProvider {
             location,
             prefix,
             suggestions,
+            details: new Map(),
         };
         return suggestions;
     }
@@ -105,12 +117,12 @@ async function getSuggestionsInternal(client, location, prefix) {
     if (parseInt(client.version.split(".")[0], 10) >= 3) {
         // use completionInfo
         const completions = await client.execute("completionInfo", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
-        return completions.body.entries.map(completionEntryToSuggestion.bind(null, (_a = completions.body) === null || _a === void 0 ? void 0 : _a.isMemberCompletion, location));
+        return completions.body.entries.map(completionEntryToSuggestion.bind(null, (_a = completions.body) === null || _a === void 0 ? void 0 : _a.isMemberCompletion));
     }
     else {
         // use deprecated completions
         const completions = await client.execute("completions", Object.assign({ prefix, includeExternalModuleExports: false, includeInsertTextCompletions: true }, location));
-        return completions.body.map(completionEntryToSuggestion.bind(null, undefined, location));
+        return completions.body.map(completionEntryToSuggestion.bind(null, undefined));
     }
 }
 // this should more or less match ES6 specification for valid identifiers
@@ -162,7 +174,7 @@ function containsScope(scopes, matchScope) {
     }
     return false;
 }
-function completionEntryToSuggestion(isMemberCompletion, location, entry) {
+function completionEntryToSuggestion(isMemberCompletion, entry) {
     return {
         displayText: entry.name,
         text: entry.insertText !== undefined ? entry.insertText : entry.name,
@@ -170,7 +182,6 @@ function completionEntryToSuggestion(isMemberCompletion, location, entry) {
         replacementRange: entry.replacementSpan ? utils_1.spanToRange(entry.replacementSpan) : undefined,
         type: kindMap[entry.kind],
         isMemberCompletion,
-        location,
     };
 }
 function parens(opts) {
@@ -224,7 +235,4 @@ const kindMap = {
     index: undefined,
     construct: undefined,
 };
-function hasLocation(s) {
-    return "location" in s;
-}
 //# sourceMappingURL=autoCompleteProvider.js.map

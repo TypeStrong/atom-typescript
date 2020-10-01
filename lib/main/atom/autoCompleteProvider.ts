@@ -3,14 +3,16 @@ import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
 import {GetClientFunction, TSClient} from "../../client"
-import {handlePromise} from "../../utils"
 import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
-  details?: protocol.CompletionEntryDetails
   replacementRange?: Atom.Range
   isMemberCompletion?: boolean
-  location: FileLocationQuery
+}
+
+interface Details {
+  rightLabel: string
+  description?: string
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
@@ -36,6 +38,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
 
     // The completions that were returned for the position
     suggestions: SuggestionWithDetails[]
+    details: Map<string, Details>
   }
 
   constructor(private getClient: GetClientFunction) {}
@@ -67,15 +70,12 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         key: "displayText",
       })
 
-      // Get additional details for the first few suggestions
-      // don't wait for additional detail
-      // handlePromise(this.getAdditionalDetails(suggestions.slice(0, 10), location))
-
       return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange
           ? opts.editor.getTextInBufferRange(suggestion.replacementRange)
           : prefix,
         location,
+        ...this.getDetailsFromCache(suggestion),
         ...addCallableParens(opts, suggestion),
       }))
     } catch (error) {
@@ -84,43 +84,51 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   }
 
   public async getSuggestionDetailsOnSelect(suggestion: ACP.AnySuggestion) {
-    if (hasLocation(suggestion)) {
-      await this.getAdditionalDetails([suggestion], suggestion.location)
-      return suggestion
+    if ("text" in suggestion && !("rightLabel" in suggestion)) {
+      return this.getAdditionalDetails(suggestion)
     } else {
       return null
     }
   }
 
-  private async getAdditionalDetails(
-    suggestions: SuggestionWithDetails[],
-    location: FileLocationQuery,
-  ) {
-    if (this.lastSuggestions && suggestions.some((s) => !s.details)) {
-      const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
-        entryNames: suggestions.map((s) => s.displayText!),
-        ...location,
-      })
-
-      details.body!.forEach((detail, i) => {
-        const suggestion = suggestions[i]
-
-        suggestion.details = detail
-        let parts = detail.displayParts
-        if (
-          parts.length >= 3 &&
-          parts[0].text === "(" &&
-          parts[1].text === suggestion.leftLabel &&
-          parts[2].text === ")"
-        ) {
-          parts = parts.slice(3)
-        }
-        suggestion.rightLabel = parts.map((d) => d.text).join("")
-
-        suggestion.description =
-          detail.documentation && detail.documentation.map((d) => d.text).join(" ")
-      })
+  private async getAdditionalDetails(suggestion: SuggestionWithDetails) {
+    if (!this.lastSuggestions) return null
+    const reply = await this.lastSuggestions.client.execute("completionEntryDetails", {
+      entryNames: [suggestion.displayText!],
+      ...this.lastSuggestions.location,
+    })
+    if (!reply.body) return null
+    const [details] = reply.body
+    // apparently, details can be undefined
+    // tslint:disable-next-line: strict-boolean-expressions
+    if (!details) return null
+    let parts = details.displayParts
+    if (
+      parts.length >= 3 &&
+      parts[0].text === "(" &&
+      parts[1].text === suggestion.leftLabel &&
+      parts[2].text === ")"
+    ) {
+      parts = parts.slice(3)
     }
+    const rightLabel = parts.map((d) => d.text).join("")
+    const description =
+      details.displayParts.map((d) => d.text).join("") +
+      (details.documentation ? "\n\n" + details.documentation.map((d) => d.text).join(" ") : "")
+    this.lastSuggestions.details.set(suggestion.displayText!, {rightLabel, description})
+    return {
+      ...suggestion,
+      details,
+      rightLabel,
+      description,
+    }
+  }
+
+  private getDetailsFromCache(suggestion: SuggestionWithDetails) {
+    if (!this.lastSuggestions) return null
+    const d = this.lastSuggestions.details.get(suggestion.displayText!)
+    if (!d) return null
+    return d
   }
 
   // Try to reuse the last completions we got from tsserver if they're for the same position.
@@ -149,6 +157,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
       location,
       prefix,
       suggestions,
+      details: new Map(),
     }
 
     return suggestions
@@ -169,7 +178,7 @@ async function getSuggestionsInternal(
       ...location,
     })
     return completions.body!.entries.map(
-      completionEntryToSuggestion.bind(null, completions.body?.isMemberCompletion, location),
+      completionEntryToSuggestion.bind(null, completions.body?.isMemberCompletion),
     )
   } else {
     // use deprecated completions
@@ -180,7 +189,7 @@ async function getSuggestionsInternal(
       ...location,
     })
 
-    return completions.body!.map(completionEntryToSuggestion.bind(null, undefined, location))
+    return completions.body!.map(completionEntryToSuggestion.bind(null, undefined))
   }
 }
 
@@ -244,7 +253,6 @@ function containsScope(scopes: ReadonlyArray<string>, matchScope: string): boole
 
 function completionEntryToSuggestion(
   isMemberCompletion: boolean | undefined,
-  location: FileLocationQuery,
   entry: protocol.CompletionEntry,
 ): SuggestionWithDetails {
   return {
@@ -254,7 +262,6 @@ function completionEntryToSuggestion(
     replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
     type: kindMap[entry.kind],
     isMemberCompletion,
-    location,
   }
 }
 
@@ -331,8 +338,4 @@ const kindMap: {[key in protocol.ScriptElementKind]: ACPCompletionType | undefin
   call: undefined,
   index: undefined,
   construct: undefined,
-}
-
-function hasLocation(s: ACP.AnySuggestion): s is SuggestionWithDetails {
-  return "location" in s
 }
