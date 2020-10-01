@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "14.0.0",
+  "version": "14.0.1",
   "main": "./loader.js",
   "bundle": "./dist/main.js",
   "preferGlobal": true,
