@@ -1,4 +1,4 @@
-import * as p from "typescript/lib/protocol"
+import p from "typescript/lib/protocol"
 export type DiagnosticEventTypes = {[T in p.DiagnosticEventKind]: p.DiagnosticEventBody} & {
   configFileDiag: p.ConfigFileDiagnosticEventBody
 }

@@ -1,4 +1,4 @@
-import * as proto from "typescript/lib/protocol"
+import proto from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
 import {CommandRes, CommandsWithCallback, CommandsWithResponse} from "./commandArgsResponseMap"
 

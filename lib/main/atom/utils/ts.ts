@@ -1,7 +1,7 @@
 import * as Atom from "atom"
 import {Signature, SignatureParameter} from "atom/ide"
 import * as path from "path"
-import * as ts from "typescript"
+import ts from "typescript"
 import type {
   CodeEdit,
   FormatCodeSettings,

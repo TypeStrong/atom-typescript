@@ -1,5 +1,5 @@
 import * as etch from "etch"
-import * as protocol from "typescript/lib/protocol"
+import protocol from "typescript/lib/protocol"
 import {TSClient} from "../../../client"
 import {getFilePathPosition} from "../utils"
 import {HighlightComponent} from "../views/highlightComponent"

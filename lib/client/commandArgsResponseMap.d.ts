@@ -1,4 +1,4 @@
-import * as p from "typescript/lib/protocol"
+import p from "typescript/lib/protocol"
 
 export interface CommandArgResponseMap {
   change: (x: p.ChangeRequestArgs) => void
