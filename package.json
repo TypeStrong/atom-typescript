@@ -1,6 +1,6 @@
 {
   "name": "atom-typescript",
-  "version": "14.0.1",
+  "version": "14.0.2",
   "main": "./loader.js",
   "bundle": "./dist/main.js",
   "preferGlobal": true,
@@ -374,7 +374,7 @@
     "typescript": "^4.0.3"
   },
   "devDependencies": {
-    "atom-package-deps": "^7.0.1",
+    "atom-package-deps": "^6",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
     "etch": "^0.14.1",
@@ -407,10 +407,7 @@
     "cross-env": "7.0.2"
   },
   "package-deps": [
-    {
-      "name": "atom-ide-ui",
-      "minimumVersion": "0.13.0"
-    }
+    "atom-ide-ui:0.13.0"
   ],
   "targets": {
     "bundle": {
