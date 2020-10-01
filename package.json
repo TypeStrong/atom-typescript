@@ -374,7 +374,7 @@
     "typescript": "^4.0.3"
   },
   "devDependencies": {
-    "atom-package-deps": "^7.0.1",
+    "atom-package-deps": "^6",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
     "etch": "^0.14.1",
