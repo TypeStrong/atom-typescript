@@ -1,7 +1,7 @@
 {
   "name": "atom-typescript",
   "version": "13.9.3",
-  "main": "./dist/main/atomts.js",
+  "main": "./dist/atomts.js",
   "preferGlobal": true,
   "description": "The only TypeScript plugin you will ever need.",
   "atomTestRunner": "./node_modules/atom-ts-spec-runner/runner.js",
@@ -370,6 +370,9 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
+    "typescript": "^4.0.3"
+  },
+  "devDependencies": {
     "atom-package-deps": "^7.0.1",
     "atom-select-list": "^0.7.2",
     "byline": "^5.0.0",
@@ -380,9 +383,6 @@
     "lodash": "^4.17.20",
     "resolve": "^1.17.0",
     "tslib": "^2.0.1",
-    "typescript": "^4.0.3"
-  },
-  "devDependencies": {
     "@types/atom": "^1.40.4",
     "@types/byline": "^4.2.32",
     "@types/chai": "^4.2.12",
