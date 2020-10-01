@@ -16,7 +16,7 @@ class OccurenceController {
         let didChangeTimeout;
         let changeDelay;
         let shouldHighlight = false;
-        this.disposables.add(atom.config.observe("atom-typescript.ocurrenceHighlightDebounceTimeout", (val) => {
+        this.disposables.add(atom.config.observe("atom-typescript.occurrenceHighlightDebounceTimeout", (val) => {
             debouncedUpdate = lodash_1.debounce(() => {
                 utils_1.handlePromise(this.update());
             }, val);

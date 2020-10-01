@@ -103,8 +103,8 @@
       "default": "150",
       "order": 65
     },
-    "ocurrenceHighlightDebounceTimeout": {
-      "title": "Ocurrence Highlight Debounce Timeout",
+    "occurrenceHighlightDebounceTimeout": {
+      "title": "Occurrence Highlight Debounce Timeout",
       "description": "How long to wait before showing ocurrence highlights, in ms; low values may cause slowdowns on large projects",
       "type": "number",
       "default": "300",
