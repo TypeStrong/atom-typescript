@@ -1,3 +1,7 @@
+## 14.0.2
+
+-   Downgrade atom-package-deps to a working version
+
 ## 14.0.1
 
 -   Fix atom-package-deps
