@@ -28,6 +28,16 @@ guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md)
 
 Is rather simple. Here are some steps to get you running:
 
+Hack on it using your favorite TypeScript package. There are a couple packages in Atom to select from:
+https://atom.io/packages/atom-typescript
+https://atom.io/packages/ide-typescript
+Prettify the code by running npm run prettier
+Run static checks with npm test (this will run typecheck and linter, and check if formatting is OK)
+Run dynamic test-suite with apm test
+Commit your changes. Repeat steps 4-8 until satisfied.
+Transpile to JavaScript & bundle by running npm run build and commit transpiled source in dist/ and client/.
+Create a pull request.
+
 1.  Fork the repository (the button in top right corner of GitHub page)
 
 2.  Clone your fork
@@ -54,8 +64,9 @@ Is rather simple. Here are some steps to get you running:
 
     Install development dependencies with `npm install --only=dev`.
 
-    Optionally `apm link` if you want to test your changes in Atom. Be
-    careful if you're using `atom-typescript` to hack on
+    Run `apm link --dev` to enable your fork in Atom's dev-mode. To check your changes, run Atom in dev-mode (start with `atom --dev` or run `application:open-dev` from command palette).
+
+    Be careful if you're using `atom-typescript` to hack on
     `atom-typescript` though! You'd be hacking on the software using the
     same software you're currently hacking on, which sounds somewhat
     convoluted because it is. See [section on workflow](#workflow) below
@@ -65,17 +76,16 @@ Is rather simple. Here are some steps to get you running:
 
 6.  Prettify the code by running `npm run prettier`
 
-7.  Transpile to JavaScript by running `npm run build`
-
-8.  Run static checks with `npm run test` (this will run typechecker and
+7.  Run static checks with `npm run test` (this will run typechecker and
     linter, and check if formatting is OK)
 
-9.  Run dynamic test-suite with `apm test` (at the moment, it's rather
+8.  Run dynamic test-suite with `apm test` (at the moment, it's rather
     anemic and only checks if package loads at all)
 
-10. Commit your changes. Don't forget to commit transpiled source in
-    `dist/`. Write a meaningful description for your commit! Push often!
-    Repeat steps 4-9 until satisfied.
+9. Commit your changes. Write a meaningful description for your commit!
+   Push often! Repeat steps 5-9 until satisfied.
+
+10. Transpile to JavaScript & bundle by running `npm run build` and commit transpiled source in `dist/`.
 
 11. Create a pull request.
 
