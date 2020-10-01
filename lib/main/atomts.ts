@@ -1,4 +1,5 @@
 import {DisposableLike} from "atom"
+import packageDeps from "atom-package-deps"
 import {AutocompleteProvider} from "atom/autocomplete-plus"
 import {
   BusySignalService,
@@ -31,7 +32,6 @@ export function activate(state: State) {
 async function checkAndInstallDependencies() {
   const packagesProvidingUIServices = ["atom-ide-ui", "linter", "nuclide"]
   if (!packagesProvidingUIServices.some((p) => atom.packages.isPackageLoaded(p))) {
-    const packageDeps = await import("atom-package-deps")
     await packageDeps.install("atom-typescript", true)
   }
 }
