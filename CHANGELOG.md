@@ -1,3 +1,7 @@
+## 14.0.1
+
+-   Fix atom-package-deps
+
 ## 14.0.0
 
 This release primarily focuses on improving latency.
