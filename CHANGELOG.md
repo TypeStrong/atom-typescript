@@ -1,3 +1,8 @@
+## 14.0.3
+
+-   Do not enable debug in dev mode
+-   Use external atom-ide typings (Amin Yahyaabadi)
+
 ## 14.0.2
 
 -   Downgrade atom-package-deps to a working version
