@@ -14,7 +14,7 @@ export function getCodeActionsProvider(codefixProvider: CodefixProvider): CodeAc
       _diagnostics: Message[],
     ): Promise<CodeAction[]> {
       return (await codefixProvider.runCodeFix(textEditor, range.start)).map((fix) => ({
-        getTitle: async () => fix.description,
+        getTitle: async () => ("description" in fix ? fix.description : fix.actionDescription),
         dispose: () => {},
         apply: async () => {
           await codefixProvider.applyFix(fix)

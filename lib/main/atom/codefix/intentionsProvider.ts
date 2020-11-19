@@ -52,7 +52,7 @@ export function getIntentionsProvider(
     async getIntentions({bufferPosition, textEditor}) {
       return (await codefixProvider.runCodeFix(textEditor, bufferPosition)).map((fix) => ({
         priority: 100,
-        title: fix.description,
+        title: "description" in fix ? fix.description : fix.actionDescription,
         selected: () => {
           handlePromise(codefixProvider.applyFix(fix))
         },

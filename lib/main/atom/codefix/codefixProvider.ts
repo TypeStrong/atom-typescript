@@ -2,7 +2,12 @@ import * as Atom from "atom"
 import {ClientResolver, TSClient} from "../../../client"
 import {ErrorPusher} from "../../errorPusher"
 import {ApplyEdits} from "../../pluginManager"
-import {spanToRange} from "../utils"
+import {
+  applyRefactors,
+  getApplicableRefactorsActions,
+  RefactorAction,
+} from "../commands/refactorCode"
+import {pointToLocation, spanToRange} from "../utils"
 
 export class CodefixProvider {
   private supportedFixes: WeakMap<TSClient, Set<number>> = new WeakMap()
@@ -30,7 +35,7 @@ export class CodefixProvider {
   public async runCodeFix(
     textEditor: Atom.TextEditor,
     bufferPosition: Atom.Point,
-  ): Promise<protocol.CodeAction[]> {
+  ): Promise<Array<protocol.CodeAction | RefactorAction>> {
     const filePath = textEditor.getPath()
 
     if (filePath === undefined) return []
@@ -52,7 +57,7 @@ export class CodefixProvider {
       )
 
     const fixes = await Promise.all(requests)
-    const results: protocol.CodeAction[] = []
+    const results: Array<protocol.CodeAction | RefactorAction> = []
 
     for (const result of fixes) {
       if (result.body) {
@@ -62,11 +67,24 @@ export class CodefixProvider {
       }
     }
 
+    const refactors = await getApplicableRefactorsActions(client, {
+      file: filePath,
+      ...pointToLocation(bufferPosition),
+    })
+
+    results.push(...refactors)
+
     return results
   }
 
-  public async applyFix(fix: protocol.CodeAction) {
-    return this.applyEdits(fix.changes)
+  public async applyFix(fix: protocol.CodeAction | RefactorAction) {
+    if ("changes" in fix) return this.applyEdits(fix.changes)
+    else {
+      const client = await this.clientResolver.get(fix.refactorRange.file)
+      return applyRefactors(fix, client, {
+        applyEdits: this.applyEdits,
+      })
+    }
   }
 
   public dispose() {
