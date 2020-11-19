@@ -91,7 +91,10 @@ async function getApplicabeRefactors(
   pointOrRange: protocol.FileLocationOrRangeRequestArgs,
 ) {
   try {
-    return await client.execute("getApplicableRefactors", pointOrRange)
+    return await client.execute("getApplicableRefactors", {
+      triggerReason: "invoked",
+      ...pointOrRange,
+    })
   } catch {
     return undefined
   }
