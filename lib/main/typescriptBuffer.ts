@@ -169,7 +169,9 @@ export class TypescriptBuffer {
       formatOptions: options.formatCodeOptions,
       preferences: {
         includeCompletionsWithInsertText: true,
-        includeCompletionsForModuleExports: false,
+        includeCompletionsForModuleExports: atom.config.get(
+          "atom-typescript.includeCompletionsForModuleExports",
+        ),
         quotePreference: "auto",
         disableSuggestions: atom.config.get("atom-typescript.disableSuggestions"),
       },

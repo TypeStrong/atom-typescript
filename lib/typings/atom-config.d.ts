@@ -20,6 +20,7 @@ declare module "atom" {
     "atom-typescript.sigHelpPosition": "top" | "bottom"
     "atom-typescript.sigHelpDisplayOnChange": boolean
     "atom-typescript.autocompleteParens": boolean
+    "atom-typescript.includeCompletionsForModuleExports": boolean
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
@@ -52,6 +53,7 @@ declare module "atom" {
       sigHelpPosition: "top" | "bottom"
       sigHelpDisplayOnChange: boolean
       autocompleteParens: boolean
+      includeCompletionsForModuleExports: boolean
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean

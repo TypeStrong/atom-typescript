@@ -163,6 +163,12 @@
       "default": false,
       "order": 65
     },
+    "includeCompletionsForModuleExports": {
+      "description": "If enabled, TypeScript will search through all external modules' exports and add them to the completions list. This affects lone identifier completions but not completions on the right hand side of `obj.`.",
+      "type": "boolean",
+      "default": false,
+      "order": 66
+    },
     "tsdkPath": {
       "title": "Path to default TypeScript SDK",
       "description": "TypeScript SDK found at the specified path will be preferred over the bundled one if TypeScript is not installed in node_modules as a project dependency. Ignored when empty",
