@@ -150,7 +150,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     const client = await this.getClient(location.file)
-    const suggestions = await getSuggestionsInternal(client, location, prefix)
+    const suggestions = await getSuggestionsInternal(client, location, prefix, activatedManually)
 
     this.lastSuggestions = {
       client,
@@ -168,6 +168,7 @@ async function getSuggestionsInternal(
   client: TSClient,
   location: FileLocationQuery,
   prefix: string,
+  activatedManually: boolean,
 ) {
   if (parseInt(client.version.split(".")[0], 10) >= 3) {
     // use completionInfo
@@ -175,6 +176,7 @@ async function getSuggestionsInternal(
       prefix,
       includeExternalModuleExports: false,
       includeInsertTextCompletions: true,
+      triggerCharacter: activatedManually ? undefined : (prefix.slice(-1) as any),
       ...location,
     })
     return completions.body!.entries.map(
