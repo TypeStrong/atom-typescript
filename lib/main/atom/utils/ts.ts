@@ -9,6 +9,7 @@ import type {
   SignatureHelpItem,
   SignatureHelpParameter,
   TextSpan,
+  UserPreferences,
 } from "typescript/lib/protocol"
 
 // NOTE: using TypeScript internals here. May be brittle!
@@ -56,12 +57,13 @@ export function rangeToLocationRange(range: Atom.Range): LocationRangeQuery {
   }
 }
 
-export function getProjectConfig(
-  configFile: string,
-): {
+export interface ProjectConfig {
   formatCodeOptions: FormatCodeSettings
   compileOnSave: boolean
-} {
+  preferences: UserPreferences
+}
+
+export function getProjectConfig(configFile: string): ProjectConfig {
   const config = loadConfig(configFile)
   const options = (config as {formatCodeOptions?: FormatCodeSettings}).formatCodeOptions
 
@@ -72,15 +74,11 @@ export function getProjectConfig(
       ...options,
     },
     compileOnSave: !!config.compileOnSave,
+    preferences: config.preferences ? config.preferences : {},
   }
 }
 
-function loadConfig(
-  configFile: string,
-): {
-  formatCodeOptions?: FormatCodeSettings
-  compileOnSave?: boolean
-} {
+function loadConfig(configFile: string): Partial<ProjectConfig> {
   if (path.extname(configFile) !== ".json") {
     configFile = `${configFile}.json`
   }
