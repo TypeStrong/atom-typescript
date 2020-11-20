@@ -172,7 +172,7 @@ export class TypescriptBuffer {
         includeCompletionsForModuleExports: atom.config.get(
           "atom-typescript.includeCompletionsForModuleExports",
         ),
-        quotePreference: "auto",
+        quotePreference: atom.config.get("atom-typescript.quotePreference"),
         disableSuggestions: atom.config.get("atom-typescript.disableSuggestions"),
       },
     })

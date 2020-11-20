@@ -21,6 +21,7 @@ declare module "atom" {
     "atom-typescript.sigHelpDisplayOnChange": boolean
     "atom-typescript.autocompleteParens": boolean
     "atom-typescript.includeCompletionsForModuleExports": boolean
+    "atom-typescript.quotePreference": "auto" | "double" | "single"
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
@@ -54,6 +55,7 @@ declare module "atom" {
       sigHelpDisplayOnChange: boolean
       autocompleteParens: boolean
       includeCompletionsForModuleExports: boolean
+      quotePreference: "auto" | "double" | "single"
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean
