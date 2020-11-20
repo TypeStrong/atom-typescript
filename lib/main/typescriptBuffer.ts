@@ -164,15 +164,16 @@ export class TypescriptBuffer {
     if (!this.state || !this.state.configFile) return
     const options = getProjectConfig(this.state.configFile.getPath())
     this.compileOnSave = options.compileOnSave
+    const cfg = atom.config.get("atom-typescript")
     await this.state.client.execute("configure", {
       file: this.state.filePath,
       formatOptions: options.formatCodeOptions,
       preferences: {
         includeCompletionsWithInsertText: true,
-        includeCompletionsForModuleExports: atom.config.get(
-          "atom-typescript.includeCompletionsForModuleExports",
-        ),
-        quotePreference: atom.config.get("atom-typescript.quotePreference"),
+        includeCompletionsForModuleExports: cfg.includeCompletionsForModuleExports,
+        quotePreference: cfg.quotePreference,
+        importModuleSpecifierEnding: cfg.importModuleSpecifierEnding,
+        importModuleSpecifierPreference: cfg.importModuleSpecifierPreference,
         ...options.preferences,
       },
     })

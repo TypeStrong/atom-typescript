@@ -22,6 +22,8 @@ declare module "atom" {
     "atom-typescript.autocompleteParens": boolean
     "atom-typescript.includeCompletionsForModuleExports": boolean
     "atom-typescript.quotePreference": "auto" | "double" | "single"
+    "atom-typescript.importModuleSpecifierEnding": "auto" | "minimal" | "index" | "js"
+    "atom-typescript.importModuleSpecifierPreference": "auto" | "relative" | "non-relative"
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
@@ -55,6 +57,8 @@ declare module "atom" {
       autocompleteParens: boolean
       includeCompletionsForModuleExports: boolean
       quotePreference: "auto" | "double" | "single"
+      importModuleSpecifierEnding: "auto" | "minimal" | "index" | "js"
+      importModuleSpecifierPreference: "auto" | "relative" | "non-relative"
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean

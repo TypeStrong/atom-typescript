@@ -179,6 +179,28 @@
       "default": "auto",
       "order": 67
     },
+    "importModuleSpecifierEnding": {
+      "type": "string",
+      "description": "Determines whether we import `foo/index.ts` as \"foo\", \"foo/index\", or \"foo/index.js\"",
+      "enum": [
+        "auto",
+        "minimal",
+        "index",
+        "js"
+      ],
+      "default": "auto",
+      "order": 68
+    },
+    "importModuleSpecifierPreference": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "relative",
+        "non-relative"
+      ],
+      "default": "auto",
+      "order": 69
+    },
     "tsdkPath": {
       "title": "Path to default TypeScript SDK",
       "description": "TypeScript SDK found at the specified path will be preferred over the bundled one if TypeScript is not installed in node_modules as a project dependency. Ignored when empty",
