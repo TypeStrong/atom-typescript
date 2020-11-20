@@ -167,6 +167,12 @@ export class TypescriptBuffer {
     await this.state.client.execute("configure", {
       file: this.state.filePath,
       formatOptions: options.formatCodeOptions,
+      preferences: {
+        includeCompletionsWithInsertText: true,
+        includeCompletionsForModuleExports: false,
+        quotePreference: "auto",
+        disableSuggestions: atom.config.get("atom-typescript.disableSuggestions"),
+      },
     })
   }
 

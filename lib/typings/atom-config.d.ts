@@ -25,6 +25,7 @@ declare module "atom" {
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
     "atom-typescript.ignoreNonSuggestionSuggestionDiagnostics": boolean
     "atom-typescript.ignoredSuggestionDiagnostics": string[]
+    "atom-typescript.disableSuggestions": boolean
     "atom-typescript.suppressAllDiagnostics": boolean
     "atom-typescript.tsFileExtensions": string[]
     "atom-typescript.jsFileExtensions": string[]
@@ -56,6 +57,7 @@ declare module "atom" {
       ignoreUnusedSuggestionDiagnostics: boolean
       ignoreNonSuggestionSuggestionDiagnostics: boolean
       ignoredSuggestionDiagnostics: string[]
+      disableSuggestions: boolean
       suppressAllDiagnostics: boolean
       tsFileExtensions: string[]
       jsFileExtensions: string[]

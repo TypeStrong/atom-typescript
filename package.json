@@ -204,6 +204,12 @@
       "default": [],
       "order": 110
     },
+    "disableSuggestions": {
+      "title": "Disable all suggestions",
+      "type": "boolean",
+      "default": false,
+      "order": 115
+    },
     "suppressAllDiagnostics": {
       "title": "Suppress all diagnostics",
       "description": "The package will not report any problems with TypeScript. Use only if you know what you are doing",
