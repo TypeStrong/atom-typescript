@@ -1,3 +1,46 @@
+## 14.1.0
+
+### New features
+
+-   Show refactors with code actions
+
+    This is intended to help with discovering and using refactors.  Only really works with intentions ui.
+
+-   Make tsserver user preferences configurable
+
+    The following options added to the package settings:
+
+    * `importModuleSpecifierEnding`
+    * `importModuleSpecifierPreference`
+    * `quotePreference`
+    * `includeCompletionsForModuleExports` (experimental)
+
+    Additionally, these (and other) settings can be configured in `tsconfig.json` by adding `preferences` property to the top-level JSON object, e.g.
+
+    ```json
+    {
+      "compilerOptions": {},
+      "preferences": {
+        "quotePreference": "double"
+      }
+    }
+    ```
+
+    You can find the full list of user preference options with descriptions in the [TypeScript sources](https://github.com/microsoft/TypeScript/blob/68925b66f4e7eb4ef6081cdc7a0f05a0bd874171/lib/protocol.d.ts#L2422)
+
+    Not all of these are supported by all TypeScript versions. Setting some options can also break things, so tread carefully.
+
+    Note that `includeCompletionsForModuleExports` controls autocompletion behaviour: if it is enabled, autocompletions from all project module exports will be added for "bare" exports. Whether this is desirable depends on your perspective and the project you're working on, hence the option is opt-in.
+
+-   Add support for completions with code actions
+
+    Some completions (e.g. ones for externally-defined identifiers) can require additional actions for the code to work. Atom-TypeScript now supports such completions and should apply the required actions (like adding `import` directives)
+
+### Maintenance
+
+-   Send triggerCharacter to tsserver
+-   Add triggerReason to getApplicableRefactors invocation
+
 ## 14.0.3
 
 -   Do not enable debug in dev mode
