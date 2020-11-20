@@ -24,5 +24,8 @@
     "newLine": "LF",
     "noEmit": true
   },
+  "preferences": {
+    "quotePreference": "double"
+  },
   "compileOnSave": false
 }
