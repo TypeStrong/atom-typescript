@@ -224,7 +224,7 @@ export class PluginManager {
 
   // Registering an autocomplete provider
   public provideAutocomplete() {
-    return [new AutocompleteProvider(this.getClient)]
+    return [new AutocompleteProvider(this.getClient, this.applyEdits)]
   }
 
   public provideIntentions() {

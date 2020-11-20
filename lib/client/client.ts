@@ -42,6 +42,7 @@ const commandWithResponseMap: {readonly [K in CommandsWithResponse]: true} = {
   organizeImports: true,
   signatureHelp: true,
   getEditsForFileRename: true,
+  applyCodeActionCommand: true,
 }
 
 const commandsWithMultistepMap: {readonly [K in CommandsWithMultistep]: true} = {

@@ -38,6 +38,9 @@ export interface CommandArgResponseMap {
   exit: () => void
   signatureHelp: (x: p.SignatureHelpRequestArgs) => p.SignatureHelpResponse
   getEditsForFileRename: (x: p.GetEditsForFileRenameRequestArgs) => p.GetEditsForFileRenameResponse
+  applyCodeActionCommand: (
+    x: p.ApplyCodeActionCommandRequestArgs,
+  ) => p.ApplyCodeActionCommandResponse
 }
 
 export type AllTSClientCommands = keyof CommandArgResponseMap

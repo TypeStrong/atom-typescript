@@ -2,15 +2,23 @@
 import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
+import {CompletionEntryDetails, CompletionEntryIdentifier} from "typescript/lib/protocol"
 import {GetClientFunction, TSClient} from "../../client"
+import {handlePromise} from "../../utils"
+import {ApplyEdits} from "../pluginManager"
+import {codeActionTemplate} from "./codeActionTemplate"
 import {FileLocationQuery, spanToRange, typeScriptScopes} from "./utils"
+import {selectListView} from "./views/simpleSelectionView"
 
 type SuggestionWithDetails = ACP.TextSuggestion & {
   replacementRange?: Atom.Range
   isMemberCompletion?: boolean
+  identifier?: CompletionEntryIdentifier | string
+  hasAction?: boolean
 }
 
 interface Details {
+  details: CompletionEntryDetails
   rightLabel: string
   description?: string
 }
@@ -41,7 +49,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     details: Map<string, Details>
   }
 
-  constructor(private getClient: GetClientFunction) {}
+  constructor(private getClient: GetClientFunction, private applyEdits: ApplyEdits) {}
 
   public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.AnySuggestion[]> {
     const location = getLocationQuery(opts)
@@ -91,10 +99,45 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
   }
 
+  public onDidInsertSuggestion(evt: ACP.SuggestionInsertedEvent) {
+    const s = evt.suggestion as SuggestionWithDetails
+    if (!s.hasAction) return
+    if (!this.lastSuggestions) return
+    const client = this.lastSuggestions.client
+    let details = this.getDetailsFromCache(s)
+    handlePromise(
+      (async () => {
+        if (!details) details = await this.getAdditionalDetails(s)
+        if (!details?.details.codeActions) return
+        let action
+        if (details.details.codeActions.length === 1) {
+          action = details.details.codeActions[0]
+        } else {
+          action = await selectListView({
+            items: details.details.codeActions,
+            itemTemplate: codeActionTemplate,
+            itemFilterKey: "description",
+          })
+        }
+        if (!action) return
+        await this.applyEdits(action.changes)
+        if (!action.commands) return
+        await Promise.all(
+          action.commands.map((cmd) =>
+            client.execute("applyCodeActionCommand", {
+              command: cmd,
+            }),
+          ),
+        )
+      })(),
+    )
+  }
+
   private async getAdditionalDetails(suggestion: SuggestionWithDetails) {
+    if (suggestion.identifier === undefined) return null
     if (!this.lastSuggestions) return null
     const reply = await this.lastSuggestions.client.execute("completionEntryDetails", {
-      entryNames: [suggestion.displayText!],
+      entryNames: [suggestion.identifier],
       ...this.lastSuggestions.location,
     })
     if (!reply.body) return null
@@ -111,11 +154,17 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     ) {
       parts = parts.slice(3)
     }
-    const rightLabel = parts.map((d) => d.text).join("")
+    let rightLabel = parts.map((d) => d.text).join("")
+    const actionDesc =
+      suggestion.hasAction && details.codeActions?.length === 1
+        ? `${details.codeActions[0].description}\n\n`
+        : ""
+    if (actionDesc) rightLabel = actionDesc
     const description =
+      actionDesc +
       details.displayParts.map((d) => d.text).join("") +
       (details.documentation ? "\n\n" + details.documentation.map((d) => d.text).join(" ") : "")
-    this.lastSuggestions.details.set(suggestion.displayText!, {rightLabel, description})
+    this.lastSuggestions.details.set(suggestion.displayText!, {details, rightLabel, description})
     return {
       ...suggestion,
       details,
@@ -264,6 +313,8 @@ function completionEntryToSuggestion(
     replacementRange: entry.replacementSpan ? spanToRange(entry.replacementSpan) : undefined,
     type: kindMap[entry.kind],
     isMemberCompletion,
+    identifier: entry.source !== undefined ? {name: entry.name, source: entry.source} : entry.name,
+    hasAction: entry.hasAction,
   }
 }
 
