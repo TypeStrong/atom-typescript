@@ -1,3 +1,17 @@
+## 14.1.1
+
+### Fixes
+
+-   A few tweaks to autocompletion
+
+    First, the bug with passing triggerCharacter to tsserver introduced in the previous release has been fixed.
+
+    Second, the suggestion filtering has been relaxed, and is done via fuzzaldrin instead of built-in tsserver prefix filter. The effect is that misspelled identifiers now should always find correctly spelled suggestions, while previously this only worked sometimes.
+
+### Misc
+
+-   Add docs on setting user preferences in tsconfig
+
 ## 14.1.0
 
 ### New features
