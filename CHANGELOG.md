@@ -30,7 +30,7 @@
 
     Not all of these are supported by all TypeScript versions. Setting some options can also break things, so tread carefully.
 
-    Note that `includeCompletionsForModuleExports` controls autocompletion behaviour: if it is enabled, autocompletions from all project module exports will be added for "bare" exports. Whether this is desirable depends on your perspective and the project you're working on, hence the option is opt-in.
+    Note that `includeCompletionsForModuleExports` controls autocompletion behaviour: if it is enabled, autocompletions from all project module exports will be added for "bare" identifiers. Whether this is desirable depends on your perspective and the project you're working on, hence the option is opt-in.
 
 -   Add support for completions with code actions
 
