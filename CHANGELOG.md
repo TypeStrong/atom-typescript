@@ -1,3 +1,7 @@
+## 14.1.2
+
+-   Failed to build assets before releasing v14.1.1. Need to automate this somehow probably.
+
 ## 14.1.1
 
 ### Fixes
