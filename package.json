@@ -164,7 +164,7 @@
       "order": 65
     },
     "includeCompletionsForModuleExports": {
-      "description": "If enabled, TypeScript will search through all external modules' exports and add them to the completions list. This affects lone identifier completions but not completions on the right hand side of `obj.`.",
+      "description": "(EXPERIMENTAL) If enabled, TypeScript will search through all external modules' exports and add them to the completions list. This affects lone identifier completions but not completions on the right hand side of `obj.`.",
       "type": "boolean",
       "default": false,
       "order": 66
