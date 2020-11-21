@@ -17,3 +17,27 @@ Atom-TypeScript needs to decide what SDK it should use for each new opened TypeS
 3. Use the bundled TypeScript SDK.
 
 Note that the result is memoized, so if you change path to SDK (using any method) when Atom-TypeScript is running, you'll need to restart Atom for changes to take effect.
+
+# Specifying tsserver user preferences via `tsconfig.json`
+
+You can find the full list of user preference options with descriptions in the [TypeScript sources](https://github.com/microsoft/TypeScript/blob/68925b66f4e7eb4ef6081cdc7a0f05a0bd874171/lib/protocol.d.ts#L2422). Note this is a link to a particular commit. The list might've changed since this was written, check the relevant tag as well.
+
+The following options are configurable via Atom-TypeScript settings:
+
+* `importModuleSpecifierEnding`
+* `importModuleSpecifierPreference`
+* `quotePreference`
+* `includeCompletionsForModuleExports` (experimental)
+
+Additionally, these (and other) options can be configured in `tsconfig.json` by adding `preferences` property to the top-level JSON object, e.g.
+
+```json
+{
+  "compilerOptions": {},
+  "preferences": {
+    "quotePreference": "double"
+  }
+}
+```
+
+Not all of these are supported by all TypeScript versions. Setting some options can also break things, so tread carefully.
