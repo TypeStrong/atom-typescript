@@ -2,7 +2,11 @@
 import * as Atom from "atom"
 import * as ACP from "atom/autocomplete-plus"
 import * as fuzzaldrin from "fuzzaldrin"
-import {CompletionEntryDetails, CompletionEntryIdentifier} from "typescript/lib/protocol"
+import {
+  CompletionEntryDetails,
+  CompletionEntryIdentifier,
+  CompletionsTriggerCharacter,
+} from "typescript/lib/protocol"
 import {GetClientFunction, TSClient} from "../../client"
 import {handlePromise} from "../../utils"
 import {ApplyEdits} from "../pluginManager"
@@ -58,10 +62,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     if (!location) return []
 
     // Don't auto-show autocomplete if prefix is empty unless last character is '.'
-    if (!prefix && !opts.activatedManually) {
-      const lastChar = getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition)
-      if (lastChar !== ".") return []
-    }
+    const triggerCharacter = getTrigger(
+      getLastNonWhitespaceChar(opts.editor.getBuffer(), opts.bufferPosition),
+    )
+    if (!prefix && !opts.activatedManually && !triggerCharacter) return []
 
     // Don't show autocomplete if we're in a string.template and not in a template expression
     if (
@@ -72,7 +76,12 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     try {
-      let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
+      let suggestions = await this.getSuggestionsWithCache({
+        prefix,
+        location,
+        triggerCharacter,
+        activatedManually: opts.activatedManually,
+      })
 
       suggestions = fuzzaldrin.filter(suggestions, prefix, {
         key: "displayText",
@@ -181,11 +190,17 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   }
 
   // Try to reuse the last completions we got from tsserver if they're for the same position.
-  private async getSuggestionsWithCache(
-    prefix: string,
-    location: FileLocationQuery,
-    activatedManually: boolean,
-  ): Promise<SuggestionWithDetails[]> {
+  private async getSuggestionsWithCache({
+    prefix,
+    location,
+    triggerCharacter,
+    activatedManually,
+  }: {
+    prefix: string
+    location: FileLocationQuery
+    triggerCharacter?: CompletionsTriggerCharacter
+    activatedManually: boolean
+  }): Promise<SuggestionWithDetails[]> {
     if (this.lastSuggestions && !activatedManually) {
       const lastLoc = this.lastSuggestions.location
       const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
@@ -199,7 +214,11 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     const client = await this.getClient(location.file)
-    const suggestions = await getSuggestionsInternal(client, location, prefix, activatedManually)
+    const suggestions = await getSuggestionsInternal({
+      client,
+      location,
+      triggerCharacter: activatedManually ? undefined : triggerCharacter,
+    })
 
     this.lastSuggestions = {
       client,
@@ -213,19 +232,21 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
   }
 }
 
-async function getSuggestionsInternal(
-  client: TSClient,
-  location: FileLocationQuery,
-  prefix: string,
-  activatedManually: boolean,
-) {
+async function getSuggestionsInternal({
+  client,
+  location,
+  triggerCharacter,
+}: {
+  client: TSClient
+  location: FileLocationQuery
+  triggerCharacter?: CompletionsTriggerCharacter
+}) {
   if (parseInt(client.version.split(".")[0], 10) >= 3) {
     // use completionInfo
     const completions = await client.execute("completionInfo", {
-      prefix,
       includeExternalModuleExports: false,
       includeInsertTextCompletions: true,
-      triggerCharacter: activatedManually ? undefined : (prefix.slice(-1) as any),
+      triggerCharacter,
       ...location,
     })
     return completions.body!.entries.map(
@@ -234,7 +255,6 @@ async function getSuggestionsInternal(
   } else {
     // use deprecated completions
     const completions = await client.execute("completions", {
-      prefix,
       includeExternalModuleExports: false,
       includeInsertTextCompletions: true,
       ...location,
@@ -391,4 +411,26 @@ const kindMap: {[key in protocol.ScriptElementKind]: ACPCompletionType | undefin
   call: undefined,
   index: undefined,
   construct: undefined,
+}
+
+// This may look strange, but it guarantees the list is consistent with the type
+const triggerCharactersMap: {[K in CompletionsTriggerCharacter]: null} = {
+  ".": null,
+  '"': null,
+  "'": null,
+  "`": null,
+  "/": null,
+  "@": null,
+  "<": null,
+  "#": null,
+}
+const triggerCharacters = new Set<CompletionsTriggerCharacter>(Object.keys(triggerCharactersMap))
+function getTrigger(prefix: string | undefined): CompletionsTriggerCharacter | undefined {
+  if (prefix === undefined) return undefined
+  if (!prefix) return undefined
+  const c = prefix.slice(-1)
+  if (triggerCharacters.has(c as CompletionsTriggerCharacter)) {
+    return c as CompletionsTriggerCharacter
+  }
+  return undefined
 }
