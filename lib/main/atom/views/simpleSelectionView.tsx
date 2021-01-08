@@ -53,7 +53,7 @@ export async function selectListView<T>({
         didChangeSelection,
         didCancelSelection: () => {
           resolved = true
-          resolve()
+          resolve(undefined)
         },
         didConfirmSelection: (item: T) => {
           resolved = true

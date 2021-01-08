@@ -57,9 +57,9 @@ const eventTypesMap: {readonly [K in keyof DiagnosticEventTypes]: true} = {
   syntaxDiag: true,
 }
 
-const commandWithResponse = new Set(Object.keys(commandWithResponseMap))
-const commandWithMultistep = new Set(Object.keys(commandsWithMultistepMap))
-const eventTypes = new Set(Object.keys(eventTypesMap))
+const commandWithResponse = new Set<string>(Object.keys(commandWithResponseMap))
+const commandWithMultistep = new Set<string>(Object.keys(commandsWithMultistepMap))
+const eventTypes = new Set<string>(Object.keys(eventTypesMap))
 
 function isCommandWithResponse(command: AllTSClientCommands): command is CommandsWithResponse {
   return commandWithResponse.has(command)
@@ -151,7 +151,7 @@ export class TypescriptServiceClient {
       const graceTimer = setTimeout(() => server.kill(), 10000)
       await Promise.all([
         this.execute("exit"),
-        new Promise((resolve) => {
+        new Promise<void>((resolve) => {
           const disp = this.emitter.once("terminated", () => {
             disp.dispose()
             resolve()

@@ -64,6 +64,8 @@ async function resolveModule(id: string, opts: Resolve.AsyncOpts): Promise<strin
     Resolve(id, opts, (err, result) => {
       if (err) {
         reject(err)
+      } else if (result === undefined) {
+        reject(new Error("Module path is undefined"))
       } else {
         resolve(result)
       }
