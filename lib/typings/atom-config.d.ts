@@ -7,6 +7,7 @@ declare module "atom" {
     "atom-typescript.autocompletionSuggestionPriority": number
     "atom-typescript.locale": string
     "atom-typescript.preferBuiltinTooltips": boolean
+    "atom-typescript.markdownDatatips": boolean
     "atom-typescript.preferBuiltinSigHelp": boolean
     "atom-typescript.preferBuiltinBusySignal": boolean
     "atom-typescript.preferBuiltinOccurrenceHighlight": boolean
@@ -42,6 +43,7 @@ declare module "atom" {
       autocompletionSuggestionPriority: number
       locale: string
       preferBuiltinTooltips: boolean
+      markdownDatatips: boolean
       preferBuiltinSigHelp: boolean
       preferBuiltinBusySignal: boolean
       preferBuiltinOccurrenceHighlight: boolean

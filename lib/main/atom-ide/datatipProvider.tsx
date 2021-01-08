@@ -3,6 +3,7 @@ import {Datatip, DatatipProvider} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {renderTooltip} from "../atom/tooltips/tooltipRenderer"
 import {highlight, locationToPoint, typeScriptScopes} from "../atom/utils"
+import {scopeForFenceName} from "../atom/utils/extension-helper"
 
 // Note: a horrible hack to avoid dependency on React
 const REACT_ELEMENT_SYMBOL = Symbol.for("react.element")
@@ -47,7 +48,7 @@ export class TSDatatipProvider implements DatatipProvider {
         offset: bufferPt.column + 1,
       })
       const data = result.body!
-      const tooltip = await renderTooltip(data, etch, highlightCode)
+      const tooltip = await renderTooltip(data, etch, "react", highlightCode, highlightCodeRaw)
       return {
         component: () => <div className="atom-typescript-datatip-tooltip">{tooltip}</div>,
         range: Atom.Range.fromObject([locationToPoint(data.start), locationToPoint(data.end)]),
@@ -61,12 +62,18 @@ export class TSDatatipProvider implements DatatipProvider {
 async function highlightCode(code: string) {
   const fontFamily = atom.config.get("editor.fontFamily")
 
-  const html = await highlight(code.replace(/\r?\n$/, ""), "source.ts")
+  const html = await highlightCodeRaw(code.replace(/\r?\n$/, ""), "ts")
   return (
     <div
       style={{fontFamily}}
       className="atom-typescript-datatip-tooltip-code"
-      dangerouslySetInnerHTML={{__html: html.join("\n")}}
+      dangerouslySetInnerHTML={{__html: html}}
     />
   )
+}
+
+async function highlightCodeRaw(code: string, lang: string) {
+  console.log(code, lang)
+  const html = await highlight(code.replace(/\r?\n$/, ""), scopeForFenceName(lang))
+  return html.join("\n")
 }

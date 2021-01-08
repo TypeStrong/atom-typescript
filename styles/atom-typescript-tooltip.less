@@ -22,14 +22,17 @@
   // This class exists by default and this is what we are using
   .tooltip-inner {
     text-align: left;
-    .atom-typescript-tooltip-tooltip-code {
+    .atom-typescript-datatip-tooltip-code {
       font-weight: bold;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-
-    .atom-typescript-datatip-tooltip-doc {
-      white-space: pre-line;
+    .atom-typescript-datatip-tooltip-doc-markdown {
+      code,
+      pre {
+        background: none;
+        color: inherit;
+      }
     }
   }
 }

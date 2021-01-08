@@ -1,6 +1,17 @@
 .atom-typescript-datatip-tooltip-doc {
   font-style: italic;
 
+  .atom-typescript-datatip-tooltip-doc-markdown {
+    font-style: normal;
+    p:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .atom-typescript-datatip-tooltip-doc-text {
+    white-space: pre-line;
+  }
+
   .atom-typescript-datatip-tooltip-doc-tag {
     .atom-typescript-datatip-tooltip-doc-tag-name::before {
       content: "@";

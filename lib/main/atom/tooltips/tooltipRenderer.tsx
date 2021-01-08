@@ -1,7 +1,11 @@
+let renderMarkdown: ((s: string) => Promise<string>) | undefined
+
 export async function renderTooltip(
   data: protocol.QuickInfoResponseBody | undefined,
   etch: any,
-  codeRenderer: (code: string) => Promise<JSX.Element> | JSX.Element,
+  componentType: "etch" | "react",
+  tsCodeRenderer: (code: string) => Promise<JSX.Element> | JSX.Element,
+  codeRendererRaw?: (code: string, lang: string) => Promise<string> | string,
 ) {
   if (data === undefined) return null
 
@@ -27,15 +31,55 @@ export async function renderTooltip(
       })
     : null
 
+  let docstring
+  if (atom.config.get("atom-typescript.markdownDatatips")) {
+    if (!renderMarkdown) {
+      const commonmark = await import("commonmark")
+      const reader = new commonmark.Parser({smart: true})
+      const writer = new commonmark.HtmlRenderer({safe: true, smart: true, softbreak: "<br/>"})
+      const domParser = new DOMParser()
+      renderMarkdown = async (s: string) => {
+        const parsed = reader.parse(s)
+        const rendered = writer.render(parsed)
+        if (codeRendererRaw) {
+          const dom = domParser.parseFromString(rendered, "text/html")
+          console.log(dom)
+          for (const el of Array.from(
+            dom.querySelectorAll<HTMLPreElement>('code[class^="language-"]'),
+          )) {
+            el.innerHTML = await codeRendererRaw(el.innerText, el.classList[0].slice(9))
+          }
+          return dom.documentElement.innerHTML
+        } else {
+          return rendered
+        }
+      }
+    }
+    const html = await renderMarkdown(data.documentation)
+    docstring =
+      componentType === "react" ? (
+        /* this is react-style component */
+        <div
+          className="atom-typescript-datatip-tooltip-doc-markdown"
+          dangerouslySetInnerHTML={{__html: html}}
+        />
+      ) : (
+        /* this is etch-style component */
+        <div className="atom-typescript-datatip-tooltip-doc-markdown" innerHTML={html} />
+      )
+  } else {
+    docstring = <div className="atom-typescript-datatip-tooltip-doc-text">{data.documentation}</div>
+  }
+
   const docs = (
     <div className="atom-typescript-datatip-tooltip-doc">
-      {data.documentation}
+      {docstring}
       {tags}
     </div>
   )
 
   const codeText = data.displayString.replace(/^\(.+?\)\s+/, "")
-  return [await codeRenderer(codeText), kind, docs]
+  return [await tsCodeRenderer(codeText), kind, docs]
 }
 
 function formatKindModifiers(etch: any, text?: string) {
