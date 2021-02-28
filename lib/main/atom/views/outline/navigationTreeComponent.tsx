@@ -1,4 +1,4 @@
-import {CompositeDisposable, CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
+import {CompositeDisposable, Disposable, Point, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
@@ -30,7 +30,18 @@ export class NavigationTreeComponent
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
     etch.initialize(this)
-    this.subscriptions.add(atom.workspace.observeActiveTextEditor(this.subscribeToEditor))
+    this.subscriptions.add(
+      atom.workspace.observeActiveTextEditor(this.subscribeToEditor),
+      atom.commands.add("atom-text-editor.typescript-editor" as "atom-text-editor", {
+        "typescript:reveal-in-semantic-view": {
+          description: "Reveal the symbol under the text cursor in semantic view",
+          didDispatch: (event) => {
+            const editor = event.currentTarget.getModel()
+            this.selectAtCursorLine({newBufferPosition: editor.getCursorBufferPosition()})
+          },
+        },
+      }),
+    )
   }
 
   public async update(props: Partial<Props>) {
@@ -152,7 +163,7 @@ export class NavigationTreeComponent
    * HELPER select the node's HTML represenation which corresponds to the
    *        current cursor position
    */
-  private selectAtCursorLine = ({newBufferPosition}: CursorPositionChangedEvent) => {
+  private selectAtCursorLine = ({newBufferPosition}: {newBufferPosition: Point}) => {
     const firstNodeElem = this.firstNode()
     if (!firstNodeElem) {
       return
