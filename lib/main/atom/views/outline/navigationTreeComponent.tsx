@@ -1,6 +1,7 @@
 import {CompositeDisposable, Disposable, Point, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
+import debounce from "lodash/debounce"
 import {NavigationTree} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../../../client"
 import * as atomUtils from "../../utils"
@@ -205,7 +206,10 @@ export class NavigationTreeComponent
     // set navTree
     await this.loadNavTree()
 
+    const lineCount = atomUtils.lineCountIfLarge(editor)
     this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
-    this.editorChanging = editor.onDidStopChanging(this.loadNavTree)
+    this.editorChanging = editor.onDidStopChanging(
+      lineCount === 0 ? this.loadNavTree : debounce(this.loadNavTree, Math.max(lineCount / 5, 300)),
+    )
   }
 }
