@@ -23,7 +23,12 @@ declare module "atom" {
     "atom-typescript.includeCompletionsForModuleExports": boolean
     "atom-typescript.quotePreference": "auto" | "double" | "single"
     "atom-typescript.importModuleSpecifierEnding": "auto" | "minimal" | "index" | "js"
-    "atom-typescript.importModuleSpecifierPreference": "auto" | "relative" | "non-relative"
+    "atom-typescript.importModuleSpecifierPreference":
+      | "auto"
+      | "relative"
+      | "non-relative"
+      | "shortest"
+      | "project-relative"
     "atom-typescript.tsdkPath": string
     "atom-typescript.ignoredDiagnosticCodes": string[]
     "atom-typescript.ignoreUnusedSuggestionDiagnostics": boolean
@@ -58,7 +63,12 @@ declare module "atom" {
       includeCompletionsForModuleExports: boolean
       quotePreference: "auto" | "double" | "single"
       importModuleSpecifierEnding: "auto" | "minimal" | "index" | "js"
-      importModuleSpecifierPreference: "auto" | "relative" | "non-relative"
+      importModuleSpecifierPreference:
+        | "auto"
+        | "relative"
+        | "non-relative"
+        | "shortest"
+        | "project-relative"
       tsdkPath: string
       ignoredDiagnosticCodes: string[]
       ignoreUnusedSuggestionDiagnostics: boolean

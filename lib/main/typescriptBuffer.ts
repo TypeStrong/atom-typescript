@@ -173,7 +173,10 @@ export class TypescriptBuffer {
         includeCompletionsForModuleExports: cfg.includeCompletionsForModuleExports,
         quotePreference: cfg.quotePreference,
         importModuleSpecifierEnding: cfg.importModuleSpecifierEnding,
-        importModuleSpecifierPreference: cfg.importModuleSpecifierPreference,
+        importModuleSpecifierPreference:
+          cfg.importModuleSpecifierPreference === "auto"
+            ? undefined
+            : cfg.importModuleSpecifierPreference,
         ...options.preferences,
       },
     })

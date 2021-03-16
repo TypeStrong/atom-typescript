@@ -1,4 +1,5 @@
 export {}
+import {Disposable} from "atom"
 declare module "atom" {
   interface TextBuffer {
     emitDidStopChangingEvent(): void

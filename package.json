@@ -196,7 +196,9 @@
       "enum": [
         "auto",
         "relative",
-        "non-relative"
+        "non-relative",
+        "shortest",
+        "project-relative"
       ],
       "default": "auto",
       "order": 69
@@ -409,40 +411,40 @@
     "url": "https://github.com/TypeStrong/atom-typescript/issues"
   },
   "dependencies": {
-    "typescript": "^4.1.3"
+    "typescript": "^4.2.3"
   },
   "devDependencies": {
+    "@parcel/transformer-typescript-tsc": "^2.0.0-beta.1",
+    "@types/atom": "^1.40.10",
+    "@types/byline": "^4.2.32",
+    "@types/chai": "^4.2.15",
+    "@types/fs-plus": "^3.0.1",
+    "@types/fuzzaldrin": "^2.1.3",
+    "@types/lodash": "^4.14.168",
+    "@types/mocha": "^8",
+    "@types/node": "^12.12.50",
+    "@types/resolve": "^1.20.0",
+    "atom-ide-base": "^2.4.0",
     "atom-package-deps": "^7",
-    "atom-select-list": "^0.7.2",
+    "atom-select-list": "^0.8.0",
+    "atom-ts-spec-runner": "^1.1.1",
+    "atom-ts-transpiler": "^1.5.3",
     "byline": "^5.0.0",
+    "chai": "^4.3.4",
+    "cross-env": "7.0.3",
     "etch": "^0.14.1",
     "fs-plus": "^3.1.1",
     "fuzzaldrin": "^2.1.0",
     "jsonc-parser": "^3.0.0",
-    "lodash": "^4.17.20",
-    "resolve": "^1.19.0",
-    "tslib": "^2.1.0",
-    "@types/atom": "^1.40.6",
-    "@types/byline": "^4.2.32",
-    "@types/chai": "^4.2.14",
-    "@types/fs-plus": "^3.0.1",
-    "@types/fuzzaldrin": "^2.1.3",
-    "@types/lodash": "^4.14.167",
-    "@types/mocha": "^8",
-    "@types/node": "^12.12.50",
-    "@types/resolve": "^1.17.1",
-    "atom-ide-base": "^2.1.1",
-    "atom-ts-spec-runner": "^1.1.1",
-    "atom-ts-transpiler": "^1.5.3",
-    "chai": "^4.2.0",
+    "lodash": "^4.17.21",
+    "parcel": "^2.0.0-beta.1",
     "prettier": "^2.2.1",
+    "resolve": "^1.20.0",
     "ts-node": "^9.1.1",
+    "tslib": "^2.1.0",
     "tslint": "^6.1.3",
     "tslint-use-atom-disposables": "0.0.1",
-    "typescript-tslint-plugin": "1.0.1",
-    "parcel": "^2.0.0-beta.1",
-    "@parcel/transformer-typescript-tsc": "^2.0.0-beta.1",
-    "cross-env": "7.0.3"
+    "typescript-tslint-plugin": "1.0.1"
   },
   "package-deps": [
     "atom-ide-ui:0.13.0"
