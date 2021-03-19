@@ -2,6 +2,18 @@ import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 import {NavigationTreeViewModel} from "./semanticViewModel"
 
+function getElStartLine(elem: HTMLElement): number {
+  // tslint:disable-next-line: no-string-literal
+  const v = elem.dataset["startLine"]
+  return v !== undefined ? parseInt(v, 10) - 1 : 0
+}
+
+function getElEndLine(elem: HTMLElement): number {
+  // tslint:disable-next-line: no-string-literal
+  const v = elem.dataset["endLine"]
+  return v !== undefined ? parseInt(v, 10) - 1 : 0
+}
+
 /**
  * HELPER find the node that is "furthest down" the
  *        node hiearchy, i.e. which's start-, end-position contains the
@@ -17,15 +29,16 @@ import {NavigationTreeViewModel} from "./semanticViewModel"
 export function findNodeAt(
   startLine: number,
   endLine: number,
-  node: NavigationTreeViewModel,
-): NavigationTreeViewModel | undefined {
-  if (!node.childItems) {
+  node: HTMLLIElement,
+): HTMLLIElement | undefined {
+  const children = node.querySelectorAll<HTMLLIElement>(":scope > ol > li.node")
+  if (children.length === 0) {
     return undefined
   }
 
-  for (const elem of node.childItems) {
-    const start: number = getNodeStartLine(elem)
-    const end: number = getNodeEndLine(elem)
+  for (const elem of Array.from(children)) {
+    const start: number = getElStartLine(elem)
+    const end: number = getElEndLine(elem)
     if (isFinite(start) && isFinite(end)) {
       if (startLine >= start && endLine <= end) {
         const selected = findNodeAt(startLine, endLine, elem)
@@ -46,8 +59,8 @@ export function findNodeAt(
     }
   }
 
-  const nstart: number = getNodeStartLine(node)
-  const nend: number = getNodeEndLine(node)
+  const nstart: number = getElStartLine(node)
+  const nend: number = getElEndLine(node)
   if (isFinite(nstart) && isFinite(nend) && startLine >= nstart && endLine <= nend) {
     return node
   }
@@ -182,10 +195,10 @@ export function prepareNavTree(navTree: NavigationTreeViewModel | null): void {
  *            the cursor (line) position in the editor
  * @return {Boolean} true, if the node's HTML representation should be selected
  */
-export function isSelected(node: NavigationTreeViewModel, pos: number): boolean {
-  if (getNodeStartLine(node) <= pos && getNodeEndLine(node) >= pos) {
-    const start: number = getNodeStartLine(node)
-    const end: number = getNodeEndLine(node)
+export function isSelected(node: HTMLLIElement, pos: number): boolean {
+  const start: number = getElStartLine(node)
+  const end: number = getElEndLine(node)
+  if (start <= pos && end >= pos) {
     if (findNodeAt(start, end, node)) {
       // -> there is a node "further down" that should get selected
       return false

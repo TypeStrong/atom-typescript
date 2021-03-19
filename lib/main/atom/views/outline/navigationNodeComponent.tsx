@@ -1,6 +1,6 @@
 import * as etch from "etch"
 import {handlePromise} from "../../../../utils"
-import {isSameNode, isToggleEntry} from "./navTreeUtils"
+import {isToggleEntry} from "./navTreeUtils"
 import {NavigationTreeViewModel, SelectableNode, ToNodeScrollableEditor} from "./semanticViewModel"
 
 export interface Props extends JSX.Props {
@@ -25,18 +25,18 @@ export class NavigationNodeComponent implements JSX.ElementClass {
   public render(): JSX.Element {
     const node = this.props.navTree
     const {ctrl} = this.props
-    const selectedNode = ctrl.getSelectedNode()
-    const selected = selectedNode && isSameNode(node, selectedNode)
     const classes =
-      (node.childItems ? "nested-" : "") +
-      "item" +
-      (node.collapsed ? " collapsed" : " expanded") +
-      (selected ? " selected" : "")
+      (node.childItems ? "nested-" : "") + "item" + (node.collapsed ? " collapsed" : " expanded")
     const styleClasses = this.getStyles()
 
     return (
-      <li className={"node entry exanded list-" + classes}>
-        <div className="header list-item" on={{click: (event) => this.entryClicked(event, node)}}>
+      <li
+        className={"node entry exanded list-" + classes}
+        dataset={{
+          startLine: this.props.navTree.spans[0]?.start?.line,
+          endLine: this.props.navTree.spans[0]?.end?.line,
+        }}>
+        <div className={`header list-item`} on={{click: (event) => this.entryClicked(event, node)}}>
           <span className={styleClasses}>{node.text}</span>
         </div>
         <ol className="entries list-tree">

@@ -3,7 +3,6 @@ import * as etch from "etch"
 import {isEqual} from "lodash"
 import {NavigationTree} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../../../client"
-import {handlePromise} from "../../../../utils"
 import * as atomUtils from "../../utils"
 import {NavigationNodeComponent} from "./navigationNodeComponent"
 import {
@@ -25,7 +24,6 @@ export class NavigationTreeComponent
   private editor?: TextEditor
   private editorScrolling?: Disposable
   private editorChanging?: Disposable
-  private selectedNode?: NavigationTreeViewModel
   private getClient?: GetClientFunction
   private subscriptions = new CompositeDisposable()
 
@@ -48,7 +46,6 @@ export class NavigationTreeComponent
     if (this.editorChanging) this.editorChanging.dispose()
     this.editorScrolling = undefined
     this.editorChanging = undefined
-    this.selectedNode = undefined
     this.subscriptions.dispose()
     await etch.destroy(this)
   }
@@ -59,7 +56,25 @@ export class NavigationTreeComponent
   }
 
   public getSelectedNode() {
-    return this.selectedNode
+    return this.element.querySelector<HTMLElement>(".header.selected") ?? undefined
+  }
+
+  public clearSelection() {
+    const elems = this.element.querySelectorAll<HTMLElement>(".header.selected")
+    for (let i = 0; i < elems.length; i += 1) {
+      elems.item(i).classList.remove("selected")
+    }
+  }
+
+  public markSelection(node?: HTMLLIElement) {
+    this.clearSelection()
+    if (!node) return
+    const h = node.querySelector<HTMLElement>(".header")
+    if (h) h.classList.add("selected")
+  }
+
+  public firstNode() {
+    return this.element.querySelector<HTMLLIElement>("li.node") ?? undefined
   }
 
   public render() {
@@ -106,14 +121,13 @@ export class NavigationTreeComponent
     restoreCollapsed(navTree, this.props.navTree)
     this.props.navTree = navTree
 
-    let selectedNode: NavigationTreeViewModel | undefined
-    if (navTree) {
+    const node = this.firstNode()
+    if (node) {
       const cursorLine = this.getCursorLine()
       if (cursorLine !== undefined) {
-        selectedNode = findNodeAt(cursorLine, cursorLine, navTree)
+        this.markSelection(findNodeAt(cursorLine, cursorLine, node))
       }
     }
-    this.selectedNode = selectedNode
   }
 
   private loadNavTree = async () => {
@@ -139,15 +153,18 @@ export class NavigationTreeComponent
    *        current cursor position
    */
   private selectAtCursorLine = ({newBufferPosition}: CursorPositionChangedEvent) => {
-    if (!this.props.navTree) {
+    const firstNodeElem = this.firstNode()
+    if (!firstNodeElem) {
       return
     }
     const cursorLine = newBufferPosition.row
 
-    const selectedChild = findNodeAt(cursorLine, cursorLine, this.props.navTree)
-    if (selectedChild !== this.selectedNode) {
-      this.selectedNode = selectedChild
-      handlePromise(etch.update(this))
+    const selectedChild =
+      findNodeAt(cursorLine, cursorLine, firstNodeElem)?.querySelector(".header") ?? undefined
+    const currentSelection = this.getSelectedNode()
+    if (selectedChild !== currentSelection) {
+      if (currentSelection) currentSelection.classList.remove("selected")
+      if (selectedChild) selectedChild.classList.add("selected")
     }
   }
 

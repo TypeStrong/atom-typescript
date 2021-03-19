@@ -36,6 +36,30 @@
 .atomts-semantic-view {
   overflow-y: auto;
 
+  div.header {
+    position: initial;
+  }
+
+  div.header.selected {
+    color: @text-color-selected;
+    & > span {
+      z-index: 1;
+    }
+    &::before {
+      z-index: 1;
+    }
+    &::after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      padding-top: 2em;
+      margin-top: -2em;
+      background-color: @background-color-selected;
+      display: block;
+      content: "";
+    }
+  }
+
   // @syntax-color-variable
   // @syntax-color-constant
   // @syntax-color-property
