@@ -1,3 +1,9 @@
+## 14.2.0
+
+-   Update bundled typescript to v4.2.3
+-   Bump dependencies
+-   Add more options to `importModuleSpecifierPreference`, which now include `shortest` and `project-relative`.
+
 ## 14.1.2
 
 -   Failed to build assets before releasing v14.1.1. Need to automate this somehow probably.
