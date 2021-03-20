@@ -1,3 +1,8 @@
+## 14.2.1
+
+-   \[Fix\] Fix package deps format
+-   Optimize semantic view editor scrolling event handler
+
 ## 14.2.0
 
 -   Update bundled typescript to v4.2.3
