@@ -447,7 +447,14 @@
     "typescript-tslint-plugin": "1.0.1"
   },
   "package-deps": [
-    "atom-ide-ui:0.13.0"
+    [
+      {
+        "name": "linter"
+      },
+      {
+        "name": "atom-ide-ui"
+      }
+    ]
   ],
   "targets": {
     "bundle": {
