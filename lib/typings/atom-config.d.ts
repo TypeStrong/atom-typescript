@@ -41,6 +41,9 @@ declare module "atom" {
     "atom-typescript.jsSyntaxScopes": string[]
     "atom-typescript.allowJS": boolean
     "atom-typescript.tsserverInstancePerTsconfig": boolean
+    "atom-typescript.longLineLength": number
+    "atom-typescript.largeFileLineCount": number
+    "atom-typescript.largeFileNoFollowCursor": boolean
     "atom-typescript": {
       unusedAsInfo: boolean
       checkAllFilesOnSave: boolean
@@ -81,6 +84,9 @@ declare module "atom" {
       jsSyntaxScopes: string[]
       allowJS: boolean
       tsserverInstancePerTsconfig: boolean
+      longLineLength: number
+      largeFileLineCount: number
+      largeFileNoFollowCursor: boolean
     }
   }
 }

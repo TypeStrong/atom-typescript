@@ -322,6 +322,27 @@
       "type": "boolean",
       "default": false,
       "order": 180
+    },
+    "longLineLength": {
+      "title": "Single line length that triggers semantic view large file optimizations",
+      "description": "Will throttle semantic view updates on the file if any one line is longer than this number; value of 0 means getting the value from the corresponding setting in linter-ui-default, or 4000 if that is unavaliable",
+      "type": "integer",
+      "default": 0,
+      "order": 200
+    },
+    "largeFileLineCount": {
+      "title": "Number of lines that triggers semantic view large file optimizations",
+      "description": "Will throttle semantic view updates on the file if it has more lines than this number; value of 0 means getting the value from the corresponding setting in linter-ui-default, or 500 if that is unavaliable",
+      "type": "integer",
+      "default": 0,
+      "order": 210
+    },
+    "largeFileNoFollowCursor": {
+      "title": "Disable semantic view focus following text cursor on large files",
+      "description": "If a file is large, as defined by previous options, don't update semantic view focus on text cursor moves; use typescript:reveal-in-semantic-view command instead",
+      "type": "boolean",
+      "default": false,
+      "order": 220
     }
   },
   "deserializers": {

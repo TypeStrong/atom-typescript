@@ -97,32 +97,3 @@ async function editorTokenized(editor: Atom.TextEditor) {
     }
   })
 }
-
-// From https://github.com/atom-community/atom-ide-outline/blob/ec1a7197d63055de910562da3cc2b95fd939afc4/src/main.ts#L53
-// minimum number of line length to trigger large file optimizations
-const longLineLength =
-  (atom.config.get("linter-ui-default.longLineLength") as number | null) ?? 4000
-// minimum number of lines to trigger large file optimizations
-const largeFileLineCount =
-  ((atom.config.get("linter-ui-default.largeFileLineCount") as number | null) ?? 3000) / 6
-
-export function lineCountIfLarge(editor: Atom.TextEditor) {
-  // @ts-ignore
-  if (editor.largeFileMode) {
-    return 20000
-  }
-  const lineCount = editor.getLineCount()
-  if (lineCount >= largeFileLineCount) {
-    // large file detection
-    return lineCount
-  } else {
-    // long line detection
-    const buffer = editor.getBuffer()
-    for (let i = 0, len = lineCount; i < len; i++) {
-      if (buffer.lineLengthForRow(i) > longLineLength) {
-        return longLineLength
-      }
-    }
-    return 0 // small file
-  }
-}

@@ -27,6 +27,8 @@ export class NavigationTreeComponent
   private editorChanging?: Disposable
   private getClient?: GetClientFunction
   private subscriptions = new CompositeDisposable()
+  private longLineLength: number = 4000
+  private largeFileLineCount: number = 500
 
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
@@ -41,6 +43,20 @@ export class NavigationTreeComponent
             this.selectAtCursorLine({newBufferPosition: editor.getCursorBufferPosition()})
           },
         },
+      }),
+      atom.config.observe("atom-typescript.longLineLength", (value) => {
+        if (value > 0) this.longLineLength = value
+      }),
+      atom.config.observe("atom-typescript.largeFileLineCount", (value) => {
+        if (value > 0) this.largeFileLineCount = value
+      }),
+      atom.config.observe("linter-ui-default.longLineLength", (value) => {
+        if (atom.config.get("atom-typescript.longLineLength") > 0) return
+        if (typeof value === "number") this.longLineLength = value
+      }),
+      atom.config.observe("linter-ui-default.largeFileLineCount", (value) => {
+        if (atom.config.get("atom-typescript.largeFileLineCount") > 0) return
+        if (typeof value === "number") this.largeFileLineCount = value / 6
       }),
     )
   }
@@ -206,10 +222,29 @@ export class NavigationTreeComponent
     // set navTree
     await this.loadNavTree()
 
-    const lineCount = atomUtils.lineCountIfLarge(editor)
-    this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
+    const lineCount = this.lineCountIfLarge(editor)
+    if (!atom.config.get("atom-typescript.largeFileNoFollowCursor") || lineCount === 0) {
+      this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
+    }
     this.editorChanging = editor.onDidStopChanging(
       lineCount === 0 ? this.loadNavTree : debounce(this.loadNavTree, Math.max(lineCount / 5, 300)),
     )
+  }
+
+  private lineCountIfLarge(editor: TextEditor) {
+    const lineCount = editor.getLineCount()
+    if (lineCount >= this.largeFileLineCount) {
+      // large file detection
+      return lineCount
+    } else {
+      // long line detection
+      const buffer = editor.getBuffer()
+      for (let i = 0, len = lineCount; i < len; i++) {
+        if (buffer.lineLengthForRow(i) > this.longLineLength) {
+          return this.longLineLength
+        }
+      }
+      return 0 // small file
+    }
   }
 }
