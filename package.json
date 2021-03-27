@@ -281,6 +281,13 @@
       ],
       "order": 140
     },
+    "extensionsFromGrammars": {
+      "title": "Determine file extensions from Atom grammar settings",
+      "description": "Pull recognized file extensions from grammar definitions matching the syntax scopes defined below",
+      "type": "boolean",
+      "default": true,
+      "order": 145
+    },
     "tsSyntaxScopes": {
       "title": "TypeScript syntax scopes",
       "description": "Comma-separated list of TypeScript syntax scopes; may require Atom restart to take effect; DO NOT EDIT unless you know what you are doing",

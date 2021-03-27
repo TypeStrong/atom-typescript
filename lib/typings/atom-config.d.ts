@@ -37,6 +37,7 @@ declare module "atom" {
     "atom-typescript.suppressAllDiagnostics": boolean
     "atom-typescript.tsFileExtensions": string[]
     "atom-typescript.jsFileExtensions": string[]
+    "atom-typescript.extensionsFromGrammars": boolean
     "atom-typescript.tsSyntaxScopes": string[]
     "atom-typescript.jsSyntaxScopes": string[]
     "atom-typescript.allowJS": boolean
@@ -77,6 +78,7 @@ declare module "atom" {
       suppressAllDiagnostics: boolean
       tsFileExtensions: string[]
       jsFileExtensions: string[]
+      extensionsFromGrammars: boolean
       tsSyntaxScopes: string[]
       jsSyntaxScopes: string[]
       allowJS: boolean

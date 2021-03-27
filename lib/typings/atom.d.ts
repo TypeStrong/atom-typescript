@@ -18,4 +18,7 @@ declare module "atom" {
   interface TextEditorElement {
     setUpdatedSynchronously(val: boolean): void
   }
+  interface Grammar {
+    fileTypes: string[]
+  }
 }

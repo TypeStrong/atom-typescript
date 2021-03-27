@@ -1,4 +1,5 @@
 import * as Atom from "atom"
+import {memoize, throttle} from "lodash"
 import * as path from "path"
 import {FileLocationQuery, Location, pointToLocation} from "./ts"
 
@@ -17,9 +18,10 @@ export function isTypescriptFile(filePath: string | undefined): boolean {
 }
 
 export function typeScriptScopes(): ReadonlyArray<string> {
-  const tsScopes = atom.config.get("atom-typescript").tsSyntaxScopes
-  if (atom.config.get("atom-typescript").allowJS) {
-    tsScopes.push(...atom.config.get("atom-typescript").jsSyntaxScopes)
+  const config = atom.config.get("atom-typescript")
+  const tsScopes = config.tsSyntaxScopes
+  if (config.allowJS) {
+    tsScopes.push(...config.jsSyntaxScopes)
   }
   return tsScopes
 }
@@ -33,13 +35,36 @@ export function isTypescriptGrammar(editor: Atom.TextEditor): boolean {
   return typeScriptScopes().includes(scopeName)
 }
 
-function isAllowedExtension(ext: string) {
-  const tsExts = atom.config.get("atom-typescript").tsFileExtensions
-  if (atom.config.get("atom-typescript").allowJS) {
-    tsExts.push(...atom.config.get("atom-typescript").jsFileExtensions)
+function notNullary<T>(x: T | undefined | null): x is T {
+  return x != null
+}
+
+function memoizeThrottle<T, U>(func: (arg: T) => U, wait: number): (arg: T) => U {
+  const mem = memoize((_param: T) => throttle(func, wait, {leading: true}))
+  return (param: T) => mem(param)(param)! // NOTE: leading MUST be true for this ! to hold
+}
+
+const isAllowedExtension = memoizeThrottle((ext: string) => {
+  const config = atom.config.get("atom-typescript")
+  const tsExts = config.tsFileExtensions
+  if (config.allowJS) {
+    tsExts.push(...config.jsFileExtensions)
+  }
+  if (config.extensionsFromGrammars) {
+    const custom = atom.config.get("core.customFileTypes") ?? {}
+    const scopes = typeScriptScopes()
+    tsExts.push(
+      ...([] as Array<string | undefined>)
+        .concat(
+          ...scopes.map((scope) => atom.grammars.grammarForScopeName(scope)?.fileTypes),
+          ...scopes.map((scope) => custom[scope]),
+        )
+        .filter(notNullary)
+        .map((s) => `.${s}`),
+    )
   }
   return tsExts.includes(ext)
-}
+}, 5000)
 
 export function getFilePathPosition(
   editor: Atom.TextEditor,
