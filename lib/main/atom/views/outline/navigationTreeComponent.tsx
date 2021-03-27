@@ -1,6 +1,7 @@
-import {CompositeDisposable, CursorPositionChangedEvent, Disposable, TextEditor} from "atom"
+import {CompositeDisposable, Disposable, Point, TextEditor} from "atom"
 import * as etch from "etch"
 import {isEqual} from "lodash"
+import debounce from "lodash/debounce"
 import {NavigationTree} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../../../client"
 import * as atomUtils from "../../utils"
@@ -26,11 +27,38 @@ export class NavigationTreeComponent
   private editorChanging?: Disposable
   private getClient?: GetClientFunction
   private subscriptions = new CompositeDisposable()
+  private longLineLength: number = 4000
+  private largeFileLineCount: number = 500
 
   constructor(public props: Props) {
     prepareNavTree(props.navTree)
     etch.initialize(this)
-    this.subscriptions.add(atom.workspace.observeActiveTextEditor(this.subscribeToEditor))
+    this.subscriptions.add(
+      atom.workspace.observeActiveTextEditor(this.subscribeToEditor),
+      atom.commands.add("atom-text-editor.typescript-editor" as "atom-text-editor", {
+        "typescript:reveal-in-semantic-view": {
+          description: "Reveal the symbol under the text cursor in semantic view",
+          didDispatch: (event) => {
+            const editor = event.currentTarget.getModel()
+            this.selectAtCursorLine({newBufferPosition: editor.getCursorBufferPosition()})
+          },
+        },
+      }),
+      atom.config.observe("atom-typescript.longLineLength", (value) => {
+        if (value > 0) this.longLineLength = value
+      }),
+      atom.config.observe("atom-typescript.largeFileLineCount", (value) => {
+        if (value > 0) this.largeFileLineCount = value
+      }),
+      atom.config.observe("linter-ui-default.longLineLength", (value) => {
+        if (atom.config.get("atom-typescript.longLineLength") > 0) return
+        if (typeof value === "number") this.longLineLength = value
+      }),
+      atom.config.observe("linter-ui-default.largeFileLineCount", (value) => {
+        if (atom.config.get("atom-typescript.largeFileLineCount") > 0) return
+        if (typeof value === "number") this.largeFileLineCount = value / 6
+      }),
+    )
   }
 
   public async update(props: Partial<Props>) {
@@ -152,7 +180,7 @@ export class NavigationTreeComponent
    * HELPER select the node's HTML represenation which corresponds to the
    *        current cursor position
    */
-  private selectAtCursorLine = ({newBufferPosition}: CursorPositionChangedEvent) => {
+  private selectAtCursorLine = ({newBufferPosition}: {newBufferPosition: Point}) => {
     const firstNodeElem = this.firstNode()
     if (!firstNodeElem) {
       return
@@ -194,7 +222,29 @@ export class NavigationTreeComponent
     // set navTree
     await this.loadNavTree()
 
-    this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
-    this.editorChanging = editor.onDidStopChanging(this.loadNavTree)
+    const lineCount = this.lineCountIfLarge(editor)
+    if (!atom.config.get("atom-typescript.largeFileNoFollowCursor") || lineCount === 0) {
+      this.editorScrolling = editor.onDidChangeCursorPosition(this.selectAtCursorLine)
+    }
+    this.editorChanging = editor.onDidStopChanging(
+      lineCount === 0 ? this.loadNavTree : debounce(this.loadNavTree, Math.max(lineCount / 5, 300)),
+    )
+  }
+
+  private lineCountIfLarge(editor: TextEditor) {
+    const lineCount = editor.getLineCount()
+    if (lineCount >= this.largeFileLineCount) {
+      // large file detection
+      return lineCount
+    } else {
+      // long line detection
+      const buffer = editor.getBuffer()
+      for (let i = 0, len = lineCount; i < len; i++) {
+        if (buffer.lineLengthForRow(i) > this.longLineLength) {
+          return this.longLineLength
+        }
+      }
+      return 0 // small file
+    }
   }
 }
