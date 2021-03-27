@@ -241,7 +241,7 @@ export class NavigationTreeComponent
       const buffer = editor.getBuffer()
       for (let i = 0, len = lineCount; i < len; i++) {
         if (buffer.lineLengthForRow(i) > this.longLineLength) {
-          return this.longLineLength
+          return this.longLineLength / 100
         }
       }
       return 0 // small file
