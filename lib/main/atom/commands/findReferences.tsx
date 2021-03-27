@@ -38,9 +38,8 @@ export async function handleFindReferencesResult(
         ref.contextStart !== undefined && ref.contextEnd !== undefined
           ? fileContents.slice(ref.contextStart.line - 1, ref.contextEnd.line)
           : fileContents
-      const fileHlText = await highlight(context.join("\n"), "source.tsx")
-      // tslint:disable-next-line: strict-boolean-expressions
-      const lineText = fileHlText[ref.start.line - (ref.contextStart?.line || 1)]
+      const fileHlText = (await highlight(context.join("\n"), "source.tsx")).split("\n")
+      const lineText = fileHlText[ref.start.line - (ref.contextStart?.line ?? 1)]
       return {...ref, hlText: lineText}
     }),
   )

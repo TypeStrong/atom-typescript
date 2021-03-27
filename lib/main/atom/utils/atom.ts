@@ -3,6 +3,8 @@ import {memoize, throttle} from "lodash"
 import * as path from "path"
 import {FileLocationQuery, Location, pointToLocation} from "./ts"
 
+export {highlight} from "./highlighter"
+
 // Return line/offset position in the editor using 1-indexed coordinates
 function getEditorPosition(editor: Atom.TextEditor): Location {
   const pos = editor.getCursorBufferPosition()
@@ -81,44 +83,4 @@ export function* getOpenEditorsPaths() {
   for (const ed of atom.workspace.getTextEditors()) {
     if (isTypescriptEditorWithPath(ed)) yield ed.getPath()!
   }
-}
-
-export async function highlight(code: string, scopeName: string) {
-  const ed = new Atom.TextEditor({
-    readonly: true,
-    keyboardInputEnabled: false,
-    showInvisibles: false,
-    tabLength: atom.config.get("editor.tabLength"),
-  })
-  const el = atom.views.getView(ed)
-  try {
-    el.setUpdatedSynchronously(true)
-    el.style.pointerEvents = "none"
-    el.style.position = "absolute"
-    el.style.top = "100vh"
-    el.style.width = "100vw"
-    atom.grammars.assignLanguageMode(ed.getBuffer(), scopeName)
-    ed.setText(code)
-    ed.scrollToBufferPosition(ed.getBuffer().getEndPosition())
-    atom.views.getView(atom.workspace).appendChild(el)
-    await editorTokenized(ed)
-    return Array.from(el.querySelectorAll(".line:not(.dummy)")).map((x) => x.innerHTML)
-  } finally {
-    el.remove()
-  }
-}
-
-async function editorTokenized(editor: Atom.TextEditor) {
-  return new Promise((resolve) => {
-    const languageMode = editor.getBuffer().getLanguageMode()
-    const nextUpdatePromise = editor.component.getNextUpdatePromise()
-    if (languageMode.fullyTokenized || languageMode.tree) {
-      resolve(nextUpdatePromise)
-    } else {
-      const disp = editor.onDidTokenize(() => {
-        disp.dispose()
-        resolve(nextUpdatePromise)
-      })
-    }
-  })
 }

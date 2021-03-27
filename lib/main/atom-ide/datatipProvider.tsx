@@ -66,7 +66,7 @@ async function highlightCode(code: string) {
     <div
       style={{fontFamily}}
       className="atom-typescript-datatip-tooltip-code"
-      dangerouslySetInnerHTML={{__html: html.join("\n")}}
+      dangerouslySetInnerHTML={{__html: html}}
     />
   )
 }
