@@ -1,3 +1,12 @@
+## 14.3.0
+
+-   Fix loader in dev mode
+-   Use a more robust highlighter
+-   Pull allowed extensions from grammar definitions
+-   Enable completion in comments (for reference directives)
+-   Large file optimization for updating outline (Amin Yahyaabadi)
+-   Add "typescript:reveal-in-semantic-view" command (Amin Yahyaabadi)
+
 ## 14.2.1
 
 -   \[Fix\] Fix package deps format
