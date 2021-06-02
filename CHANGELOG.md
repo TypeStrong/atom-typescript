@@ -1,3 +1,7 @@
+## 14.3.1
+
+-   Rebuild bugged bundle
+
 ## 14.3.0
 
 -   Fix loader in dev mode
