@@ -149,6 +149,7 @@ export class PluginManager {
       const pane = TypescriptEditorPane.lookupPane(ed)
       if (pane) pane.destroy()
     }
+    TypescriptEditorPane.clearAllCache()
   }
 
   public serialize(): State {

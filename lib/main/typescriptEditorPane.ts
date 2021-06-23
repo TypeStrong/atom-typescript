@@ -31,6 +31,10 @@ export class TypescriptEditorPane {
   public static lookupPane(editor: Atom.TextEditor): TypescriptEditorPane | undefined {
     return TypescriptEditorPane.editorMap.get(editor)
   }
+  public static clearAllCache() {
+    this.editorMap = new WeakMap<Atom.TextEditor, TypescriptEditorPane>()
+    TypescriptBuffer.clearAllCache()
+  }
 
   private readonly buffer: TypescriptBuffer
 

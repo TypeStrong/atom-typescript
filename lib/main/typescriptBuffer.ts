@@ -22,6 +22,9 @@ export class TypescriptBuffer {
     }
   }
   private static bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
+  public static clearAllCache() {
+    this.bufferMap = new WeakMap<Atom.TextBuffer, TypescriptBuffer>()
+  }
 
   private events = new Atom.Emitter<{opened: void}>()
 
