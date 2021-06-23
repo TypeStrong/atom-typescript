@@ -3,10 +3,11 @@ import {SignatureHelp, SignatureHelpProvider} from "atom-ide-base"
 import {GetClientFunction} from "../../client"
 import {signatureHelpItemToSignature, typeScriptScopes} from "../atom/utils"
 
+let signatureHelpProviderPriority = 100
 export class TSSigHelpProvider implements SignatureHelpProvider {
   public triggerCharacters = new Set<string>([])
   public grammarScopes = typeScriptScopes()
-  public priority = 100
+  public priority = signatureHelpProviderPriority++
   private disposables = new CompositeDisposable()
 
   constructor(private getClient: GetClientFunction) {

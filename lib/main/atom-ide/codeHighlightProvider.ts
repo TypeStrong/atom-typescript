@@ -8,10 +8,11 @@ import {
   typeScriptScopes,
 } from "../atom/utils"
 
+let codeHighlightProviderPriority = 100
 export function getCodeHighlightProvider(getClient: GetClientFunction): CodeHighlightProvider {
   return {
     grammarScopes: typeScriptScopes(),
-    priority: 100,
+    priority: codeHighlightProviderPriority++,
     async highlight(editor, position) {
       if (!isTypescriptEditorWithPath(editor)) return
       const location = getFilePathPosition(editor, position)

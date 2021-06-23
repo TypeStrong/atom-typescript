@@ -8,10 +8,11 @@ import {
   typeScriptScopes,
 } from "../atom/utils"
 
+let definitionProviderPriority = 0
 export function getDefinitionProvider(getClient: GetClientFunction): DefinitionProvider {
   return {
     name: "atom-typescript",
-    priority: 0,
+    priority: definitionProviderPriority++,
     grammarScopes: typeScriptScopes(),
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
     async getDefinition(editor, position) {

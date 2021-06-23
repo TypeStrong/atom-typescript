@@ -31,7 +31,9 @@ export class TSDatatipProvider implements DatatipProvider {
   public readonly priority = 100
   public readonly grammarScopes = typeScriptScopes()
 
-  constructor(private getClient: GetClientFunction) {}
+  constructor(private getClient: GetClientFunction) {
+    this.priority++
+  }
 
   public async datatip(
     editor: Atom.TextEditor,

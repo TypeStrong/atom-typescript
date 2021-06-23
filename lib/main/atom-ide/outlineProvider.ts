@@ -3,11 +3,12 @@ import {NavigationTree, ScriptElementKind} from "typescript/lib/protocol"
 import {GetClientFunction} from "../../client"
 import {spanToRange, typeScriptScopes} from "../atom/utils"
 
+let outlineProviderPriority = 100
 export function getOutlineProvider(getClient: GetClientFunction): OutlineProvider {
   return {
     name: "Atom-TypeScript",
     grammarScopes: typeScriptScopes(),
-    priority: 100,
+    priority: outlineProviderPriority++,
     updateOnEdit: true,
     async getOutline(editor) {
       const filePath = editor.getPath()

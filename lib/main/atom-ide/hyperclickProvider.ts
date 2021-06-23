@@ -6,12 +6,13 @@ import {handleDefinitionResult} from "../atom/commands/goToDeclaration"
 import {Dependencies} from "../atom/commands/registry"
 import {isTypescriptEditorWithPath} from "../atom/utils"
 
+let hyperclickProviderPriority = 0
 export function getHyperclickProvider(
   getClient: GetClientFunction,
   histGoForward: Dependencies["histGoForward"],
 ): HyperclickProvider {
   return {
-    priority: 0,
+    priority: hyperclickProviderPriority++,
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
     async getSuggestionForWord(editor: Atom.TextEditor, _text: string, range: Atom.Range) {

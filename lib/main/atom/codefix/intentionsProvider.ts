@@ -44,6 +44,7 @@ interface GetIntentionsHighlightsOptions {
   textEditor: Atom.TextEditor
 }
 
+let intentionsProviderPriority = 100
 export function getIntentionsProvider(
   codefixProvider: CodefixProvider,
 ): IntentionsProviderInterface {
@@ -51,7 +52,7 @@ export function getIntentionsProvider(
     grammarScopes: ["*"],
     async getIntentions({bufferPosition, textEditor}) {
       return (await codefixProvider.runCodeFix(textEditor, bufferPosition)).map((fix) => ({
-        priority: 100,
+        priority: intentionsProviderPriority++,
         title: "description" in fix ? fix.description : fix.actionDescription,
         selected: () => {
           handlePromise(codefixProvider.applyFix(fix))
