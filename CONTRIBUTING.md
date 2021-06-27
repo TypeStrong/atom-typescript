@@ -130,6 +130,10 @@ Additional Notes:
     `git config --global credential.helper wincred` helps smooth out the
     `apm publish <type>` experience.
 
+## Config schema
+
+The config schema lives in `package.json`. If you change it, update the typings by running `npm run gen-config-types`.
+
 ## Workflow
 
 **We develop atom-typescript with atom-typescript**

@@ -18,12 +18,13 @@
   "scripts": {
     "tsc": "tsc -p ./lib",
     "dev": "cross-env NODE_ENV=development parcel watch --target bundle lib/main/atomts.ts",
-    "build": "cross-env NODE_ENV=production parcel build --target bundle lib/main/atomts.ts",
+    "build": "npm run gen-config-types && cross-env NODE_ENV=production parcel build --target bundle lib/main/atomts.ts",
     "prettier": "prettier --write \"./{lib,scripts,spec}/**/*.{ts,tsx}\"",
     "prettier-check": "prettier --check \"./{lib,scripts,spec}/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit -p ./lib && tsc --noEmit -p ./scripts && tsc --noEmit -p ./spec",
     "lint": "tslint --project ./lib && tslint --project ./spec",
-    "test": "npm run typecheck && npm run lint && npm run prettier-check"
+    "test": "npm run typecheck && npm run lint && npm run prettier-check",
+    "gen-config-types": "node scripts/typed-config.js lib/typings/atom-config.d.ts && prettier --write lib/typings/atom-config.d.ts"
   },
   "engines": {
     "atom": ">=1.31.0 <2.0.0",
