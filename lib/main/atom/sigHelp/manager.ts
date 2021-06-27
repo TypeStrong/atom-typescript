@@ -72,18 +72,17 @@ export class SigHelpManager {
     }
   }
 
-  private stoppedChanging = (editor: Atom.TextEditor) => (
-    event: Atom.BufferStoppedChangingEvent,
-  ) => {
-    if (!atom.config.get("atom-typescript.sigHelpDisplayOnChange")) return
-    const filePath = editor.getPath()
-    if (filePath === undefined) return
-    const pos = editor.getLastCursor().getBufferPosition()
-    const [ch] = event.changes.filter((x) => x.newRange.containsPoint(pos)) as Array<
-      Atom.TextChange | undefined
-    >
-    if (ch && ch.newText.match(/[<(,]/) !== null) {
-      handlePromise(this.showTooltip(editor, pos))
+  private stoppedChanging =
+    (editor: Atom.TextEditor) => (event: Atom.BufferStoppedChangingEvent) => {
+      if (!atom.config.get("atom-typescript.sigHelpDisplayOnChange")) return
+      const filePath = editor.getPath()
+      if (filePath === undefined) return
+      const pos = editor.getLastCursor().getBufferPosition()
+      const [ch] = event.changes.filter((x) => x.newRange.containsPoint(pos)) as Array<
+        Atom.TextChange | undefined
+      >
+      if (ch && ch.newText.match(/[<(,]/) !== null) {
+        handlePromise(this.showTooltip(editor, pos))
+      }
     }
-  }
 }

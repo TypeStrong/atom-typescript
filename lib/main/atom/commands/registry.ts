@@ -60,7 +60,7 @@ export function addCommand<Selector extends AllowedSelectors>(
   command: string,
   desc: CommandDescription[Selector],
 ) {
-  commands.push(({selector, command, desc} as unknown) as CommandDescriptionWithSelector[Selector])
+  commands.push({selector, command, desc} as unknown as CommandDescriptionWithSelector[Selector])
 }
 
 export function getCommands() {

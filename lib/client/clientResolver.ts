@@ -32,8 +32,8 @@ export class ClientResolver {
   private memoizedClients = new Map<string, Promise<Client>>()
   private emitter = new Emitter<{}, EventTypes>()
   private subscriptions = new CompositeDisposable()
-  private tsserverInstancePerTsconfig = atom.config.get("atom-typescript")
-    .tsserverInstancePerTsconfig
+  private tsserverInstancePerTsconfig =
+    atom.config.get("atom-typescript").tsserverInstancePerTsconfig
   // This is just here so TypeScript can infer the types of the callbacks when using "on" method
   // tslint:disable-next-line:member-ordering
   public on = this.emitter.on.bind(this.emitter)
@@ -104,20 +104,20 @@ export class ClientResolver {
     }
   }
 
-  private diagnosticHandler = (serverPath: string, type: DiagnosticTypes) => (
-    result: DiagnosticEventBody | ConfigFileDiagnosticEventBody,
-  ) => {
-    const filePath = isConfDiagBody(result) ? result.configFile : result.file
+  private diagnosticHandler =
+    (serverPath: string, type: DiagnosticTypes) =>
+    (result: DiagnosticEventBody | ConfigFileDiagnosticEventBody) => {
+      const filePath = isConfDiagBody(result) ? result.configFile : result.file
 
-    if (filePath) {
-      this.emitter.emit("diagnostics", {
-        type,
-        serverPath,
-        filePath,
-        diagnostics: result.diagnostics,
-      })
+      if (filePath) {
+        this.emitter.emit("diagnostics", {
+          type,
+          serverPath,
+          filePath,
+          diagnostics: result.diagnostics,
+        })
+      }
     }
-  }
 }
 
 function isConfDiagBody(body: any): body is ConfigFileDiagnosticEventBody {
