@@ -71,7 +71,6 @@ export class TypescriptBuffer {
 
   public dispose = async () => {
     TypescriptBuffer.bufferMap.delete(this.buffer)
-    console.log("destroyed tsbuffer for ", this.buffer.getPath())
     this.subscriptions.dispose()
     await this.close()
   }
