@@ -149,6 +149,7 @@ export class PluginManager {
       const pane = TypescriptEditorPane.lookupPane(ed)
       if (pane) pane.destroy()
     }
+    this.clientResolver.dispose()
   }
 
   public serialize(): State {

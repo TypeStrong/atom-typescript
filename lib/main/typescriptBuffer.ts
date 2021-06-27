@@ -49,7 +49,9 @@ export class TypescriptBuffer {
         }, val)
       }),
       buffer.onDidChangePath(this.onDidChangePath),
-      buffer.onDidDestroy(this.dispose),
+      buffer.onDidDestroy(() => {
+        handlePromise(this.dispose())
+      }),
       buffer.onDidSave(() => {
         handlePromise(this.onDidSave())
       }),
@@ -65,6 +67,13 @@ export class TypescriptBuffer {
     )
 
     this.openPromise = this.open(this.buffer.getPath())
+  }
+
+  public dispose = async () => {
+    TypescriptBuffer.bufferMap.delete(this.buffer)
+    console.log("destroyed tsbuffer for ", this.buffer.getPath())
+    this.subscriptions.dispose()
+    await this.close()
   }
 
   public getPath() {
@@ -153,11 +162,6 @@ export class TypescriptBuffer {
     } else {
       return this.close()
     }
-  }
-
-  private dispose = () => {
-    this.subscriptions.dispose()
-    handlePromise(this.close())
   }
 
   private async readConfigFile() {

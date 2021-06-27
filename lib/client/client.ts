@@ -146,6 +146,26 @@ export class TypescriptServiceClient {
   }
 
   public async restartServer() {
+    await this.stopServer()
+    // can't guarantee this.server value after await
+    if (!this.server) {
+      this.server = this.startServer()
+      this.emitter.emit("restarted")
+    }
+  }
+
+  public async destroy() {
+    const terminated = new Promise<void>((resolve) => {
+      const disp = this.emitter.once("terminated", () => {
+        this.emitter.dispose()
+        disp.dispose()
+        resolve()
+      })
+    })
+    return Promise.all([terminated, this.stopServer()])
+  }
+
+  private async stopServer() {
     if (this.server) {
       const server = this.server
       const graceTimer = setTimeout(() => server.kill(), 10000)
@@ -159,12 +179,6 @@ export class TypescriptServiceClient {
         }),
       ])
       clearTimeout(graceTimer)
-    }
-    // can't guarantee this.server value after await
-    // tslint:disable-next-line:strict-boolean-expressions
-    if (!this.server) {
-      this.server = this.startServer()
-      this.emitter.emit("restarted")
     }
   }
 

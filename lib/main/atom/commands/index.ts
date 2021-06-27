@@ -76,9 +76,13 @@ export function registerCommands(deps: Dependencies): DisposableLike {
 }
 
 function handle(err: Error) {
-  atom.notifications.addFatalError("Something went wrong, see details below.", {
-    detail: err.message,
-    dismissable: true,
-    stack: err.stack,
-  })
+  if (err.message === "Server stopped normally") {
+    console.warn("TypeScript server exited normally while executing a command", err)
+  } else {
+    atom.notifications.addFatalError("Something went wrong, see details below.", {
+      detail: err.message,
+      dismissable: true,
+      stack: err.stack,
+    })
+  }
 }

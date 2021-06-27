@@ -6,6 +6,7 @@ import {
   DiagnosticEventBody,
 } from "typescript/lib/protocol"
 import {ReportBusyWhile} from "../main/pluginManager"
+import {handlePromise} from "../utils"
 import {TypescriptServiceClient as Client} from "./client"
 import {resolveBinary} from "./resolveBinary"
 
@@ -62,6 +63,11 @@ export class ClientResolver {
     this.emitter.dispose()
     this.subscriptions.dispose()
     this.memoizedClients.clear()
+    for (const tsconfigMap of this.clients.values()) {
+      for (const client of tsconfigMap.values()) {
+        handlePromise(client.destroy())
+      }
+    }
     this.clients.clear()
   }
 

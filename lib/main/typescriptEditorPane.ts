@@ -1,6 +1,7 @@
 import * as Atom from "atom"
 import {CompositeDisposable} from "atom"
 import {GetClientFunction} from "../client"
+import {handlePromise} from "../utils"
 import {TBuildStatus} from "./atom/components/statusPanel"
 import {isTypescriptEditorWithPath} from "./atom/utils"
 import {TypescriptBuffer} from "./typescriptBuffer"
@@ -56,8 +57,10 @@ export class TypescriptEditorPane {
   }
 
   public destroy = () => {
+    TypescriptEditorPane.editorMap.delete(this.editor)
     atom.views.getView(this.editor).classList.remove("typescript-editor")
     this.subscriptions.dispose()
+    handlePromise(this.buffer.dispose())
   }
 
   /** NOTE:
