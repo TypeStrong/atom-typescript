@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  Test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        channel: [stable, beta]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: UziTech/action-setup-atom@v2
+        with:
+          version: ${{ matrix.channel }}
+      - name: Atom version
+        run: atom -v
+      - name: APM version
+        run: apm -v
+      - name: Install dependencies
+        run: apm ci
+      - name: Build required artifacts
+        run: npm run build
+      - name: Run tests
+        shell: bash
+        run: atom --no-sandbox --test spec 2>/tmp/test.log
+      - name: Cat test log
+        shell: bash
+        run: cat /tmp/test.log
+      - name: Run static checks
+        shell: bash
+        run: npm test
+      - name: Check for changed files
+        shell: bash
+        run: git diff --quiet -- dist/
+      - name: Check for new files
+        shell: bash
+        run: |
+          untracked="$(git ls-files --others --exclude-standard)" && echo "$untracked" && test -z "$untracked"
