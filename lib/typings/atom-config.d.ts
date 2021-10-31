@@ -5,6 +5,11 @@ declare module "atom" {
     "atom-typescript.unusedAsInfo": boolean
     "atom-typescript.checkAllFilesOnSave": boolean
     "atom-typescript.autocompletionSuggestionPriority": number
+    "atom-typescript.autocompletionInclusionPriority": number
+    "atom-typescript.autocompletionExcludeLowerPriority": boolean
+    "atom-typescript.autocompletionUseFuzzyFilter": boolean
+    "atom-typescript.autocompletionStrictFilterIgnoreCase": boolean
+    "atom-typescript.autocompletionStrictFilterLongestMatchFirst": boolean
     "atom-typescript.locale": string
     "atom-typescript.preferBuiltinTooltips": boolean
     "atom-typescript.preferBuiltinSigHelp": boolean
@@ -49,6 +54,11 @@ declare module "atom" {
       unusedAsInfo: boolean
       checkAllFilesOnSave: boolean
       autocompletionSuggestionPriority: number
+      autocompletionInclusionPriority: number
+      autocompletionExcludeLowerPriority: boolean
+      autocompletionUseFuzzyFilter: boolean
+      autocompletionStrictFilterIgnoreCase: boolean
+      autocompletionStrictFilterLongestMatchFirst: boolean
       locale: string
       preferBuiltinTooltips: boolean
       preferBuiltinSigHelp: boolean

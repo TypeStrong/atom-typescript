@@ -32,9 +32,10 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     .map((x) => (x.includes(".") ? `.${x}` : x))
     .join(", ")
 
-  public inclusionPriority = 3
+  public inclusionPriority = atom.config.get("atom-typescript").autocompletionInclusionPriority
   public suggestionPriority = atom.config.get("atom-typescript").autocompletionSuggestionPriority
-  public excludeLowerPriority = false
+  public excludeLowerPriority =
+    atom.config.get("atom-typescript").autocompletionExcludeLowerPriority
 
   private lastSuggestions?: {
     // Client used to get the suggestions
@@ -81,9 +82,34 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         activatedManually: opts.activatedManually,
       })
 
-      suggestions = fuzzaldrin.filter(suggestions, prefix, {
-        key: "displayText",
-      })
+      const config = atom.config.get("atom-typescript")
+      if (config.autocompletionUseFuzzyFilter) {
+        suggestions = fuzzaldrin.filter(suggestions, prefix, {
+          key: "displayText",
+        })
+      } else {
+        const ignoreCase = config.autocompletionStrictFilterIgnoreCase
+        const longestFirst = config.autocompletionStrictFilterLongestMatchFirst
+        const score = ignoreCase
+          ? (text: string) => {
+              const pos = text.toLowerCase().indexOf(prefix.toLowerCase())
+              const length = text.length * (longestFirst ? -1 : 1)
+              const exact = text.includes(prefix) && prefix.toLowerCase() !== prefix ? -10000 : 0
+              return 100 * pos + exact + length
+            }
+          : (text: string) => {
+              const pos = text.indexOf(prefix)
+              const length = text.length * (longestFirst ? -1 : 1)
+              return 100 * pos + length
+            }
+        const filter = ignoreCase
+          ? (val: {displayText?: string}) =>
+              val.displayText?.toLowerCase().includes(prefix.toLowerCase())
+          : (val: {displayText?: string}) => val.displayText?.includes(prefix)
+        suggestions = suggestions
+          .filter(filter)
+          .sort((a, b) => score(a.displayText!) - score(b.displayText!))
+      }
 
       return suggestions.map((suggestion) => ({
         replacementPrefix: suggestion.replacementRange

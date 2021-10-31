@@ -51,6 +51,36 @@
       "default": 3,
       "order": 20
     },
+    "autocompletionInclusionPriority": {
+      "description": "Inclusion priority as described in autocomplete-plus docs <https://github.com/atom/autocomplete-plus/wiki/Provider-API>. Requires Atom restart",
+      "type": "integer",
+      "default": 3,
+      "order": 20.1
+    },
+    "autocompletionExcludeLowerPriority": {
+      "description": "Exclude providers with priority lower than inclusion priority. Set to true to exclude builtin suggestions. Requires Atom restart",
+      "type": "boolean",
+      "default": false,
+      "order": 20.2
+    },
+    "autocompletionUseFuzzyFilter": {
+      "description": "Use fuzzy-filter, like the one used by autocomplete-plus by default. If disabled, use a custom strict one",
+      "type": "boolean",
+      "default": true,
+      "order": 20.3
+    },
+    "autocompletionStrictFilterIgnoreCase": {
+      "description": "When using strict filter, include suggestions with mismatching case",
+      "type": "boolean",
+      "default": true,
+      "order": 20.4
+    },
+    "autocompletionStrictFilterLongestMatchFirst": {
+      "description": "When using strict filter, offer the longest match first; otherwise, offer the shortest match first",
+      "type": "boolean",
+      "default": true,
+      "order": 20.5
+    },
     "locale": {
       "title": "TypeScript locale",
       "description": "Use this locale for TypeScript messages (e.g. 'de'). Requires Atom restart",
