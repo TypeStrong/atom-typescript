@@ -1,3 +1,19 @@
+## 14.4.0
+
+### New features
+
+-   Add custom configurable strict autocompletion filter
+
+    This adds a few setting toggles to configure autocomple suggestion filtering behaviour.
+
+### Maintenance
+
+-   Remove obsolete scripts\/tsconfig.json
+-   Add typed-config.js, add a paragraph on config schema in CONTRIBUTING.md
+-   Update prettier; remove dependency on ts-node
+-   \[CI\] Switch to GitHub actions
+-   Remove debug log
+
 ## 14.3.2
 
 -   More careful cleanup on package disable
