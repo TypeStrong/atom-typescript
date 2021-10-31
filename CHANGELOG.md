@@ -4,7 +4,7 @@
 
 -   Add custom configurable strict autocompletion filter
 
-    This adds a few setting toggles to configure autocomple suggestion filtering behaviour.
+    This adds a few setting toggles to configure autocompletion suggestion filtering behaviour.
 
 ### Maintenance
 
