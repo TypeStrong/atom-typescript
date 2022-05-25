@@ -1,3 +1,11 @@
+# Project status
+
+As of May, 25th 2022, this project is officially unmaintained.
+
+The last maintainer (me) doesn't have admin access to the repository, and couldn't get the organization owner's attention to get it, so if you'd like to take over, feel free to fork.
+
+- @lierdakil
+
 # Atom TypeScript
 
 [![Join the chat at
